@@ -1,2 +1,3 @@
 # neilmcardle.com
- Neil McArdle Portfolio
+ Neil McArdle
+ Digital Designer
