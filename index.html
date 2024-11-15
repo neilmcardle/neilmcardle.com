@@ -9,99 +9,285 @@
     <script src="script.js"></script>
 </head>
 <body>
-    <!-- Side Panel -->
-    <div class="side-panel">
-        <div class="name">Neil McArdle</div>
-
-        <a href="#resume">
-            <i class="fab fa-solid fa-file-arrow-down icon"></i> Download Resume
-        </a>
-
-        <div class="sliding-panel" id="experience-panel">
-            <div class="panel-header">
-                <h2>Experience</h2>
-                <button class="close-btn" onclick="closePanel()">✕</button>
+    <div class="mobile-warning-container">
+        <div class="mobile-warning">
+            <i class="fas fa-desktop"></i>
+            <p>This site is best viewed on a laptop or desktop for the full experience.</p>
+        </div>
+        </div>
+        <!-- Side Panel -->
+        <div class="side-panel">
+            <div class="name">Neil McArdle</div>
+            <div class="sliding-panel" id="experience-panel">
+                <div class="panel-header">
+                    <h3>Resume</h3>
+                        <button class="close-btn" onclick="closePanel('experience-panel')">✕</button>
+                </div>
+                <div class="panel-content">
+                    <h4>Experience</h4>
+                        <p><i>Senior Digital Product Designer</i><br/>@ Avis Budget Group (2021 – Present)<br/></p>
+                        <p><i>Digital Product Specialist</i><br/>@ The Banner of Truth (2019 – 2021)<br/></p>
+                        <p><i>Founder</i><br/>@ Neil Mac Design (2017 - Present)<br/></p>
+                    <br/>
+                    <h4>Skills</h4>
+                        <p>5-Years Product Design Experience</p>
+                        <p>Problem-Solving Skills</p>
+                        <p>User-Centric Approach</p>
+                        <p>Collaboration with Developers</p>
+                        <p>Creativity and Innovation</p>
+                    <br/>
+                    <h4>Tools</h4>
+                        <p>Javascript (2 yrs)</p>
+                        <p>Figma (3 yrs)</p>
+                        <p>Xd (4 yrs)</p>
+                        <p>HTML/CSS (6 yrs)</p>
+                        <p>Photoshop (10 yrs)</p>
+                        <p>Illustrator (11 yrs)</p>
+                        <br/>
+                    <h4>Education</h4>
+                        <p>Loughborough Uni (2007 & 2013)</p>
+                        <p>BaHons Fine Art (2013)</p>
+                        <p>BSc Social Psychology (2013)</p>
+                        
+                </div>
             </div>
-            <div class="panel-content">
-                <p><strong>Avis Budget Group</strong> (2021–Present)<br/><i>Senior Digital Product Designer</i></p>
-                <br/>
-                <p><strong>The Banner of Truth</strong> (2019–2021)<br/><i>Digital Product Specialist</i></p>
-                <br/>
-                <p><strong>Neil Mac Design</strong> (2017–Present)<br/><i>Founder</i></p>
+
+            <div class="section-title" style="position: relative;">
+                About me
+                <button id="dismissAll" style="position: absolute; right: 0; background-color: rgb(0, 0, 0); color: white; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer; display: none;">
+                    Close
+                </button>
+            </div>
+            
+            <a href="#" id="experience-link"><i class="fas fa-briefcase"></i> Resume</a>
+            
+
+            <div class="section-title">Projects</div>
+            <a href="#iconography">
+                <i class="fas fa-pen-nib icon"></i> Iconography (building)
+            </a>
+            <a href="#design-systems">
+                <i class="fas fa-regular fa-object-ungroup icon"></i> Design Systems (building)
+            </a>
+            <a href="#vector-paint">
+                <i class="fas fa-solid fa-brush icon"></i> Vector Paint
+            </a>
+            <a href="#mortgage-calculator">
+                <i class="fas fa-calculator icon"></i> Mortgage Calculator
+            </a>
+
+
+            <div class="section-title">Online</div>
+            <a href="https://x.com/neilmacdesign">
+                <i class="fab fa-x fa-shake icon"></i> X
+                <i class="fas fa-external-link-alt" style="margin-left:auto; color: #888;"></i>
+            </a>        
+            <a href="https://dribbble.com/NeilMacDesign">
+                <i class="fab fa-brands fa-dribbble"></i> Dribbble
+                <i class="fas fa-external-link-alt" style="margin-left:auto; color: #888;"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/neilmcardle/">
+                <i class="fab fa-linkedin icon"></i> LinkedIn
+                <i class="fas fa-external-link-alt" style="margin-left:auto; color: #888;"></i>
+            </a>
+        </div>
+                
+            <!-- Vector Paint Tools Container -->
+        <div id="vectorPaintContainer" style="display: none;">
+            <div class="canvas-container">
+                <svg id="drawingCanvas" class="canvas" style="width: 100%; height: 100%;"></svg>
+
+                <div class="toolbar">
+                    <button id="drawBtn" class="icon-btn"><i class="fas fa-paint-brush"></i></button>
+                    <div id="paintbrushHint">
+                        Click the brush to start painting!
+                        <div id="triangle"></div>
+                    </div>                
+                    <button id="sizeOpacityBtn" class="icon-btn"><i class="fa-solid fa-bars-progress"></i></button>
+                    <div id="colorPreview" class="icon-btn"></div>
+                    <button id="saveDrawingBtn" class="icon-btn"><i class="fa-regular fa-floppy-disk"></i></button>
+                    <button id="loadDrawingBtn" class="icon-btn"><i class="fa-solid fa-box-archive"></i></button>
+                    <button id="resetBtn" class="icon-btn"><i class="fa-solid fa-arrows-rotate"></i></button>
+                </div>
+
+                <!-- Other Vector Paint Elements like sizeOpacityDiv, savePanel, etc. -->
+                <div class="sizeOpacityDiv" id="sizeOpacityDiv">
+                    <span class="sizeOpacitySpan">Brush Size</span>
+                    <input id="lineSizeSlider" class="slider" type="range" min="1" max="50" value="5">
+                    <span class="sizeOpacitySpan">Opacity</span>
+                    <input id="opacitySlider" class="slider" type="range" min="0.1" max="1" step="0.1" value="1">
+                </div>
+
+                <div class="savePanel" id="savePanel">
+                    <div class="saved-drawings" id="savedDrawings">Memory Box</div>
+                </div>
+
+                <div class="colorPaletteDiv" id="colorPaletteDiv">
+                    <canvas id="colorPickerCanvas" width="280" height="280"></canvas>
+                    <div class="innerColorSquare" id="innerColorSquare"></div>
+                </div>
             </div>
         </div>
+
+        <!-- Mortgage Calculator Container -->
+    <div id="mortgageCalculatorContainer" style="display: none;">
         
-
-        <div class="section-title">About Me</div>
-        <a href="#" id="experience-link"><i class="fas fa-briefcase"></i> Experience</a>
-        <a href="#skills">
-            <i class="fab fa-solid fa-person-snowboarding icon"></i> Skills
-        </a>
-        <a href="#tools">
-            <i class="fab fa-solid fa-computer-mouse icon"></i> Tools
-        </a>
-        <a href="#education">
-         <i class="fab fa-solid fa-graduation-cap icon"></i> Education
-        </a>
-
-        <div class="section-title">Projects</div>
-        <a href="#iconography">
-            <i class="fas fa-pen-nib icon"></i> Iconography
-        </a>
-        <a href="#design-systems">
-            <i class="fas fa-regular fa-object-ungroup icon"></i> Design Systems
-        </a>
-        <a href="#vector-paint">
-            <i class="fas fa-solid fa-brush icon"></i> Vector Paint
-        </a>
-        <a href="#mortgage-calculator">
-            <i class="fas fa-calculator icon"></i> Mortgage Calculator
-        </a>
-
-
-        <div class="section-title">Online</div>
-        <a href="https://x.com/neilmacdesign">
-            <i class="fab fa-x fa-shake icon"></i> X
-            <i class="fas fa-external-link-alt" style="margin-left:auto; color: #888;"></i>
-        </a>        
-        <a href="https://dribbble.com/NeilMacDesign">
-            <i class="fab fa-brands fa-dribbble"></i> Dribbble
-            <i class="fas fa-external-link-alt" style="margin-left:auto; color: #888;"></i>
-        </a>
-        <a href="https://www.linkedin.com/in/neilmcardle/">
-            <i class="fab fa-linkedin icon"></i> LinkedIn
-            <i class="fas fa-external-link-alt" style="margin-left:auto; color: #888;"></i>
-        </a>
-    </div>
-    <div class="canvas-container">
-        <svg id="drawingCanvas" class="canvas" style="width: 100%; height: 100%;"></svg>
-
-        <div class="toolbar">
-            <button id="drawBtn" class="icon-btn"><i class="fas fa-paint-brush"></i></button>
-            <button id="sizeOpacityBtn" class="icon-btn"><i class="fa-solid fa-bars-progress"></i></button>
-            <div id="colorPreview" class="icon-btn"></div>
-            <button id="saveDrawingBtn" class="icon-btn"><i class="fa-regular fa-floppy-disk"></i></button>
-            <button id="loadDrawingBtn" class="icon-btn"><i class="fa-solid fa-box-archive"></i></button>
-            <button id="resetBtn" class="icon-btn"><i class="fa-solid fa-arrows-rotate"></i></button>
-        </div>
-
-        <div class="sizeOpacityDiv" id="sizeOpacityDiv">
-            <span class="sizeOpacitySpan">Brush Size</span>
-            <input id="lineSizeSlider" class="slider" type="range" min="1" max="50" value="5">
-            <span class="sizeOpacitySpan">Opacity</span>
-            <input id="opacitySlider" class="slider" type="range" min="0.1" max="1" step="0.1" value="1">
-        </div>
-
-        <div class="savePanel" id="savePanel">
-            <div class="saved-drawings" id="savedDrawings">Memory Box</div>
-        </div>
-
-        <div class="colorPaletteDiv" id="colorPaletteDiv">
-            <canvas id="colorPickerCanvas" width="280" height="280"></canvas>
-            <div class="innerColorSquare" id="innerColorSquare"></div>
-        </div>
-    </div>
-
-    
+            <!-- <button class="dark-mode-toggle" onclick="toggleDarkMode()"> 
+                <i class="fas fa-moon" id="darkModeIcon"></i>
+            </button> -->
+            <div class="calculator-container">
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+                    <i class="fas fa-moon" id="darkModeIcon" style="color: white;"></i>
+                </button>
+                <h2 class="mortgage-calculator-h2">Mortgage & Home Sale Calculator</h2>
+        
+                <div class="toggle-container">
+                    <label for="isSellingHouse"><i class="fa-solid fa-house-chimney"></i> Are you selling a house?</label>
+                    <select id="isSellingHouse" onchange="toggleDepositInput()">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+        
+                <div class="form-container">
+                    <div class="form-group" id="saleFields">
+                        <label for="salePrice"><i class="fa-solid fa-house-user"></i> Sale Price of Current Property (£):</label>
+                        <input type="text" id="salePrice" placeholder="Enter sale price">
+                        <label for="currentMortgage"><i class="fas fa-money-bill-wave"></i> Current Mortgage Amount (£):</label>
+                        <input type="text" id="currentMortgage" placeholder="Enter current mortgage amount">
+                        <label for="legalFees"><i class="fas fa-gavel"></i> Legal Fees (£):</label>
+                        <input type="text" id="legalFees" placeholder="Enter legal fees">
+                        <label for="agentFeesPercentage"><i class="fas fa-percent"></i> Estate Agent Fees (% of Sale Price):</label>
+                        <input type="text" id="agentFeesPercentage" placeholder="Enter agent fees percentage">
+                    </div>
+        
+                    <div class="form-group" id="depositField" style="display: none;">
+                        <label for="depositAmount"><i class="fas fa-piggy-bank"></i> Deposit Amount (£):</label>
+                        <input type="text" id="depositAmount" placeholder="Enter deposit amount">
+                    </div>
+        
+                    <div class="form-group">
+                        <label for="futurePropertyPrice"><i class="fas fa-coins"></i> Cost of Future Property (£):</label>
+                        <input type="text" id="futurePropertyPrice" placeholder="Enter future property price">
+                    </div>
+        
+                    <!-- Credit Score Provider Dropdown -->
+                    <div class="form-group">
+                        <label for="creditScoreProvider"><i class="fas fa-credit-card"></i> Credit Score Provider:</label>
+                        <select id="creditScoreProvider" onchange="toggleCreditScoreInput()">
+                            <option value="manual">Enter Manually</option>
+                            <option value="equifax">Equifax</option>
+                            <option value="experian">Experian</option>
+                            <option value="transunion">TransUnion</option>
+                        </select>
+                    </div>
+                    <!-- Credit Score Range Display -->
+                    <div class="form-group" id="creditScoreRangeGroup" style="display: none;">
+                        <p style="font-size: 14px; color: #333;" id="creditScoreRange"></p>
+                    </div>
+                    <!-- Manual Credit Score Input -->
+                    <div class="form-group" id="creditScoreInputGroup">
+                        <label for="creditScore"><i class="fas fa-credit-card"></i> Credit Score:</label>
+                        <input type="text" id="creditScore" placeholder="Enter your credit score">
+                        <p style="font-size: 12px; color: #666;">Note: Your credit score will not be stored or transmitted. This is only for calculation purposes.</p>
+                    </div>
+        
+                
+        
+                    <div class="form-group">
+                        <label for="interestRate"><i class="fas fa-percentage"></i> Future Mortgage Interest Rate (%):</label>
+                        <input type="text" id="interestRate" placeholder="Enter interest rate">
+                    </div>
+                    <div class="form-group">
+                        <label for="loanTerm"><i class="fas fa-calendar"></i> Furture Mortgage Term (Years):</label>
+                        <input type="number" id="loanTerm" placeholder="Enter loan term in years" min="1" max="40" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="isAdditionalProperty"><i class="fas fa-question-circle"></i> Is this an additional property? (Yes/No):</label>
+                        <input type="text" id="isAdditionalProperty" placeholder="Enter Yes or No">
+                    </div>
+                    <div class="form-group">
+                        <label for="currentSalary"><i class="fas fa-user"></i> Current Annual Salary (£):</label>
+                        <input type="text" id="currentSalary" placeholder="Enter your annual salary">
+                    </div>
+                    <div class="form-group" style="flex: 1 1 100%;">
+                        <label for="incomeMultiplier"><i class="fas fa-hand-holding-usd"></i> Select Income Multiplier:</label>
+                        <select id="incomeMultiplier">
+                            <option value="4.5">4.5x (Income below £60,000)</option>
+                            <option value="5">5x (Income between £60,000 and £100,000)</option>
+                            <option value="5.5">5.5x (Income above £100,000)</option>
+                        </select>
+                    </div>
+                </div>
+        
+                <button class="calculate-btn" onclick="calculate()"><i class="fas fa-calculator"></i> Calculate</button>
+        
+                <div class="results">
+                    <div class="result-card">
+                        <i class="fas fa-coins result-icon"></i>
+                        <div class="result-content">
+                            <p class="result-title">Estate Agent Fees</p>
+                            <p class="result-value" id="agentFees">£0.00</p>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <i class="fas fa-wallet result-icon"></i>
+                        <div class="result-content">
+                            <p class="result-title">Equity Left from Sale</p>
+                            <p class="result-value" id="leftoverAmount">£0.00</p>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <i class="fas fa-stamp result-icon"></i>
+                        <div class="result-content">
+                            <p class="result-title">Stamp Duty on Purchase</p>
+                            <p class="result-value" id="purchaseStampDuty">£0.00</p>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <i class="fas fa-chart-pie result-icon"></i>
+                        <div class="result-content">
+                            <p class="result-title">Equity as Down Payment as % of Future Property</p>
+                            <p class="result-value" id="downPaymentPercentage">0%</p>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <i class="fas fa-money-check result-icon"></i>
+                        <div class="result-content">
+                            <p class="result-title">Future Property Value After Deposit</p>
+                            <p class="result-value" id="reducedCost">£0.00</p>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <i class="fas fa-calendar-alt result-icon"></i>
+                        <div class="result-content">
+                            <p class="result-title">Estimated Monthly Mortgage</p>
+                            <p class="result-value" id="monthlyMortgage">£0.00</p>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <i class="fas fa-hand-holding-usd result-icon"></i>
+                        <div class="result-content">
+                            <p class="result-title">Estimated Borrowing Based on Salary</p>
+                            <p class="result-value" id="estimatedBorrowing">£0.00</p>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <i class="fas fa-balance-scale result-icon"></i>
+                        <div class="result-content">
+                            <p class="result-title">Borrowing Shortfall/Surplus</p>
+                            <p class="result-value" id="incomeDifference">£0.00</p>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <i class="fas fa-user-tie result-icon"></i>
+                        <div class="result-content">
+                            <p class="result-title">Minimum Income Required for Loan Approval</p>
+                            <p class="result-value" id="requiredIncome">£0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>    
 </body>
 </html>
