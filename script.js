@@ -382,13 +382,15 @@ dismissAllButton.addEventListener("click", () => {
 updateDismissAllButton();
 });
 
-document.addEventListener("DOMContentLoaded", () => {
 document.querySelectorAll(".side-panel a").forEach(link => {
 link.addEventListener("click", (e) => {
-    e.preventDefault();
-    const targetPanelId = link.getAttribute("href").substring(1) + "-panel";
-    document.getElementById(targetPanelId).classList.add("open");
-});
+const href = link.getAttribute("href");
+if (!href.startsWith("http")) { 
+    // Prevent default only for internal links.
+    e.preventDefault(); 
+    const targetPanelId = href.substring(1) + "-panel";
+    document.getElementById(targetPanelId)?.classList.add("open");
+}
 });
 
 document.querySelectorAll(".close-btn").forEach(button => {
