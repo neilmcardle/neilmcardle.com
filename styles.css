@@ -410,7 +410,7 @@
             gap: 12px;
             transition: background-color 0.3s;
         }
-        @media (max-width: 600px) { .result-card { flex: 1 1 100%; } }
+        @media (max-width: 768px) { .result-card { flex: 1 1 100%; } }
         .result-icon { font-size: 24px; color: var(--icon-color); }
         .result-content { display: flex; flex-direction: column; }
         .result-title { font-size: 14px; color: var(--text-muted-color); margin: 0; }
@@ -452,7 +452,7 @@
             background: linear-gradient(to left, rgb(9, 2, 210), rgba(222, 48, 242), rgb(249, 15, 120));
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
         /* Hide all side-panel links except LinkedIn and Resume */
         .side-panel a:not([href="https://www.linkedin.com/in/neilmcardle/"], #experience-link) {
             display: none;
@@ -515,7 +515,7 @@
         }
         }
 
-        @media (min-width: 601px) {
+        @media (min-width: 768px) {
         /* Hide the mobile warning on larger devices */
         .mobile-warning-container {
             display: none;
