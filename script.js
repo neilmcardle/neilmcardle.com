@@ -1,7 +1,18 @@
 document.querySelector('a[href="#vector-paint"]').addEventListener('click', (e) => {
     e.preventDefault();
-    document.getElementById('design-system-content').classList.add('hidden'); // Ensure Design System is hidden
-    document.getElementById('vectorPaintContainer').style.display = 'block';
+
+    // Hide all blog content
+    document.querySelectorAll('.blog-content').forEach(content => {
+        content.classList.add('hidden'); // Hides all blog contents
+    });
+
+    // Ensure vector paint container is visible
+    const vectorPaintContainer = document.getElementById('vectorPaintContainer');
+    vectorPaintContainer.style.display = 'block'; // Shows vector paint
+
+    // Optionally, ensure the blog container remains hidden
+    document.getElementById('iconography-content')?.classList.add('hidden');
+    document.getElementById('design-system-content')?.classList.add('hidden');
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -15,9 +26,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelector('a[href="#iconography"]').addEventListener('click', (e) => {
         e.preventDefault();
-        hideSections(); // Hide other sections
-        switchContent(document.getElementById('iconography-content'));
+        
+        // Hide all other blog content sections
+        document.querySelectorAll('.blog-content').forEach(content => {
+            content.classList.add('hidden'); // Hide all blog contents
+        });
+    
+        // Show the Iconography content
+        const iconographyContent = document.getElementById('iconography-content');
+        iconographyContent.classList.remove('hidden'); // Make Iconography visible
+    
+        // Adjust scroll if necessary
+        iconographyContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+d    
 
     document.querySelector('a[href="#design-systems"]').addEventListener('click', (e) => {
         e.preventDefault();
