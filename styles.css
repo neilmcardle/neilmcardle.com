@@ -2,7 +2,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        } 
+        }
         body {
             font-family: Roboto, sans-serif;
             background-color: #ffffff;
@@ -289,10 +289,10 @@
             background: none;
         }
         #vectorPaintContainer {
-            display: none;
-        }
-        .blog-content {
-            display: none;
+            position: relative; /* Ensure it aligns properly */
+            width: 100%;
+            height: 100%;
+            display: none; /* Hidden by default */
         }
         #paintbrushHint {
             position: absolute;
