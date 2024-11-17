@@ -562,7 +562,7 @@
             margin: 0 auto;
             padding: 24px;
             background: #ffffff; /* Optional: Background color */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Optional: For shadow effect */
+            /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); Optional: For shadow effect */
         }
        /* .blog-content {
             max-width: 800px;
