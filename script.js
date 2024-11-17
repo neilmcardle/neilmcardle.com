@@ -1,3 +1,9 @@
+document.querySelector('a[href="#vector-paint"]').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('design-system-content').classList.add('hidden'); // Ensure Design System is hidden
+    document.getElementById('vectorPaintContainer').style.display = 'block';
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     const mortgageCalculatorContainer = document.getElementById("mortgageCalculatorContainer");
     const vectorPaintContainer = document.getElementById("vectorPaintContainer");
