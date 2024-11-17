@@ -10,10 +10,10 @@
 </head> 
 <body>
     <div class="mobile-warning-container">
-        <div class="mobile-warning">
-            <i class="fas fa-desktop"></i>
-            <p>This site is best viewed on a laptop or desktop for the full experience.</p>
-        </div>
+      <div class="mobile-warning">
+        <i class="fas fa-desktop"></i>
+        <p>This site is best viewed on a laptop or desktop for the full experience.</p>
+      </div>
     </div>
     <!-- Side Panel -->
     <div class="side-panel">
@@ -21,25 +21,40 @@
         <div class="sliding-panel" id="experience-panel">
             <div class="panel-header">
                 <h3 class="name">Resume</h3>
-                <button class="close-btn" onclick="closePanel('experience-panel')">✕</button>
+                    <button class="close-btn" onclick="closePanel('experience-panel')">✕</button>
             </div>
-            <div class="panel-content">
-                <div class="work-entry">   
-                    <span class="company">Avis Budget Group</span>
-                    <span class="date">2021 – Present</span>
-                    <span class="role">Senior Digital Product Designer</span>
+                <div class="panel-content">
+                    <div class="work-entry">   
+                        <span class="company">Avis Budget Group</span>
+                        <span class="date">2021 – Present</span>
+                        <span class="role">Senior Digital Product Designer</span>
+                    </div>
+                    <div class="work-entry">
+                        <span class="company">The Banner of Truth</span>
+                        <span class="date">2019 – 2021</span>
+                        <span class="role">Digital Product Specialist</span>
+                    </div>
+                    <div class="work-entry">
+                        <span class="company">Neil Mac Design</span>
+                        <span class="date">2017 – Present</span>
+                        <span class="role">Founder</span>
+                    </div>
+                    <div class="work-entry">
+                        <span class="company">Javascript</span>
+                        <span class="date">2 Years</span>
+                        <span class="company">Figma</span>
+                        <span class="date">3 Years</span>
+                        <span class="company">XD</span>
+                        <span class="date">4 Years</span>
+                        <span class="company">HTML/CSS</span>
+                        <span class="date">6 Years</span>
+                        <span class="company">Photoshop</span>
+                        <span class="date">10 Years</span>
+                        <span class="company">Illustrator</span>
+                        <span class="date">11 Years</span>
+                    </div>
                 </div>
-                <div class="work-entry">
-                    <span class="company">The Banner of Truth</span>
-                    <span class="date">2019 – 2021</span>
-                    <span class="role">Digital Product Specialist</span>
-                </div>
-                <div class="work-entry">
-                    <span class="company">Neil Mac Design</span>
-                    <span class="date">2017 – Present</span>
-                    <span class="role">Founder</span>
-                </div>
-            </div>
+            
         </div>
 
         <div class="section-title" style="position: relative;">
@@ -50,10 +65,10 @@
         </div>
         
         <a href="#" id="experience-link"><i class="fas fa-briefcase"></i> Resume</a>
+        
 
         <div class="section-title">Projects</div>
-            <a href="#iconography" onclick="showContent('iconography-content')">
-                <i class="fas fa-pen-nib icon"></i> Iconography
+            <a href="#iconography">
             </a>
             <a href="#design-systems">
                 <i class="fas fa-object-ungroup icon"></i> Design Systems (In Progress)
@@ -64,6 +79,9 @@
             <a href="#mortgage-calculator">
                 <i class="fas fa-calculator icon"></i> Mortgage Calculator
             </a>
+            
+         
+            
 
         <div class="section-title">Online</div>
         <a href="https://x.com/neilmacdesign" target="_blank">
@@ -80,7 +98,7 @@
         </a>
     </div>
     
-    <div class="blog-content" id="iconography-content">
+    <div class="blog-content hidden" id="iconography-content">
         <h1 class="section-title">Iconography</h1>
         <img class="icon-library-hero" src="iconsLibraryHero.png" alt="Icon Library">
         <div class="blog-post">
@@ -106,9 +124,16 @@
             </ul>
             <br/>
             <p>In the development of our visual design language at ABG, previous designers had used a mix of out-of-the-box icon libraries. This resulted in a lack of consistency in the brand's icons due to the varying styles across different libraries.</p>
+            
+            <p>This challenge presented an opportunity to enhance the consistency and readability of our icons, especially when used at different scales across web and app experiences.</p>
             <br/>
             <h3>How I Made the Icons</h3>
             <p>To start, I created the icons in Adobe Illustrator, adhering to design guidelines and using 24 x 24px grids. This grid system ensures consistent icon design by placing end-nodes of lines only where horizontal and vertical pixel lines intersect.</p>
+            
+            <p>I then transferred each icon into Adobe XD to build a comprehensive icon library. This library contained over 100 custom-made icons, complete with an external link for developers to download each icon at the required scale and format directly from their browser during our product sprints. This streamlined process was a significant improvement over the previous method of sending assets via email.</p>
+            <br/>
+            <h3>Why Scalability?</h3>
+            <p>A key improvement over the out-of-the-box icons was the use of consistent stroke size (1.5px), rounded caps, and SVG format, which allows for better scalability and image sharpness.</p>
             <br/>
             <h3>Six Reasons for SVG and Scalability:</h3>
             <ol>
@@ -119,15 +144,27 @@
                 <li>Better accessibility as SVG icons can be adjusted for users with visual impairments</li>
                 <li>Simplifies updates and reduces design inconsistencies by maintaining a single scalable icon file</li>
             </ol>
+            <br/>
+            <p>The 24px square serves as the master icon size, with fringe cases below 16px or above 24px requiring custom designs. The minimum icon size is 8px, and the maximum is 48px.</p>
+            <br/>
+            <h3>Before, After, and Implementation</h3>
+            <p>To ensure a smooth transition for end-users, I opted for a gradual update approach. Before the refresh, icons were inconsistent with varying styles and stroke sizes. After the refresh, the icons featured a consistent stroke size, unified design language, and improved scalability.</p>
+            
+            <p>I introduced the updated icons gradually, changing a few with each sprint release. This allowed users to adapt incrementally, maintaining familiarity while enhancing the overall look and feel. For most icons, I retained the original visual metaphor to ensure recognizability while introducing a refreshed style.</p>
+            <br/>
             <h3>Improvements and Next Steps</h3>
             <p>Since building the original Adobe XD icon library, I have migrated over 130 icons into a new and improved shared Figma design system. This includes sets of 16 x 16px icons for native platforms and 24 x 24px icons for web.</p>
+            
+            <p>In the future, I plan to create micro-animations between inactive and active states using Lottie animations, built in Adobe After Effects, to bring delight to users.</p>
             <br/>
             <h3>Links:</h3>
             <p><a href="https://figmashort.link/5NhXdw" target="_blank">View Icon Library in Figma</a></p>
             <p><a href="https://dribbble.com/NeilMacDesign" target="_blank">View My Iconography on Dribbble</a></p>
+            <br/>
+            <br/>
         </div>        
     </div>
-  
+            
     <div class="blog-content hidden" id="design-system-content">
         <h1>Design Systems</h1>
         <p>This is a detailed blog post about design systems...</p>
