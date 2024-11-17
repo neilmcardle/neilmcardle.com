@@ -1,3 +1,24 @@
+function showContent(contentId) {
+    document.querySelectorAll('.blog-content').forEach((content) => {
+        content.classList.add('hidden');
+    });
+    document.getElementById(contentId).classList.remove('hidden');
+}
+
+
+document.querySelector('a[href="#iconography"]').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent default anchor behavior
+
+    // Hide all blog contents
+    document.querySelectorAll('.blog-content').forEach(function(content) {
+        content.classList.add('hidden');
+    });
+
+    // Show Iconography content
+    document.getElementById('iconography-content').classList.remove('hidden');
+});
+
+
 document.querySelector('a[href="#vector-paint"]').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('design-system-content').classList.add('hidden'); // Ensure Design System is hidden
@@ -13,11 +34,18 @@ document.addEventListener("DOMContentLoaded", () => {
         vectorPaintContainer.style.display = "none";
     }
 
-    document.querySelector('a[href="#iconography"]').addEventListener('click', (e) => {
-        e.preventDefault();
-        hideSections(); // Hide other sections
-        switchContent(document.getElementById('iconography-content'));
+    document.querySelector('a[href="#iconography"]').addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default anchor behavior
+    
+        // Hide all blog contents
+        document.querySelectorAll('.blog-content').forEach(function(content) {
+            content.classList.add('hidden');
+        });
+    
+        // Show Iconography content
+        document.getElementById('iconography-content').classList.remove('hidden');
     });
+    
 
     document.querySelector('a[href="#design-systems"]').addEventListener('click', (e) => {
         e.preventDefault();
