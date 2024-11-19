@@ -467,51 +467,51 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleCreditScoreInput(); // To show the manual ranges on page load
 };
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const vectorPaintLink = document.querySelector('a[href="#vector-paint"]');
-        const mortgageCalculatorLink = document.querySelector('a[href="#mortgage-calculator"]');
-        const vectorPaintContainer = document.getElementById("vectorPaintContainer");
-        const mortgageCalculatorContainer = document.getElementById("mortgageCalculatorContainer");
+    // document.addEventListener("DOMContentLoaded", () => {
+    //     const vectorPaintLink = document.querySelector('a[href="#vector-paint"]');
+    //     const mortgageCalculatorLink = document.querySelector('a[href="#mortgage-calculator"]');
+    //     const vectorPaintContainer = document.getElementById("vectorPaintContainer");
+    //     const mortgageCalculatorContainer = document.getElementById("mortgageCalculatorContainer");
 
-        vectorPaintLink.addEventListener("click", (e) => {
-            e.preventDefault();
-            vectorPaintContainer.style.display = "block"; // Show Vector Paint
-            mortgageCalculatorContainer.style.display = "none"; // Hide Mortgage Calculator
-        });
+    //     vectorPaintLink.addEventListener("click", (e) => {
+    //         e.preventDefault();
+    //         vectorPaintContainer.style.display = "block"; // Show Vector Paint
+    //         mortgageCalculatorContainer.style.display = "none"; // Hide Mortgage Calculator
+    //     });
 
-        mortgageCalculatorLink.addEventListener("click", (e) => {
-            e.preventDefault();
-            mortgageCalculatorContainer.style.display = "block"; // Show Mortgage Calculator
-            vectorPaintContainer.style.display = "none"; // Hide Vector Paint
-        });
+    //     mortgageCalculatorLink.addEventListener("click", (e) => {
+    //         e.preventDefault();
+    //         mortgageCalculatorContainer.style.display = "block"; // Show Mortgage Calculator
+    //         vectorPaintContainer.style.display = "none"; // Hide Vector Paint
+    //     });
 
-        document.getElementById("dismissAll").addEventListener("click", () => {
-            mortgageCalculatorContainer.style.display = "none";
-            vectorPaintContainer.style.display = "none";
-        });
-    });
+        // document.getElementById("dismissAll").addEventListener("click", () => {
+        //     mortgageCalculatorContainer.style.display = "none";
+        //     vectorPaintContainer.style.display = "none";
+        // });
+    // });
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const mortgageCalculatorLink = document.querySelector('a[href="#mortgage-calculator"]');
-        const mortgageCalculatorContainer = document.getElementById("mortgageCalculatorContainer");
+    // document.addEventListener("DOMContentLoaded", () => {
+    //     const mortgageCalculatorLink = document.querySelector('a[href="#mortgage-calculator"]');
+    //     const mortgageCalculatorContainer = document.getElementById("mortgageCalculatorContainer");
 
-        mortgageCalculatorLink.addEventListener("click", (e) => {
-            e.preventDefault();
+    //     mortgageCalculatorLink.addEventListener("click", (e) => {
+    //         e.preventDefault();
 
-            // Show the mortgage calculator container
-            mortgageCalculatorContainer.style.display = "block";
+    //         // Show the mortgage calculator container
+    //         mortgageCalculatorContainer.style.display = "block";
 
-            // Hide any other sections if necessary
-            document.querySelectorAll(".sliding-panel.open, .vectorPaintContainer, #vectorPaintContainer").forEach(panel => {
-                panel.style.display = "none";
-            });
-        });
+    //         // Hide any other sections if necessary
+    //         document.querySelectorAll(".sliding-panel.open, .vectorPaintContainer, #vectorPaintContainer").forEach(panel => {
+    //             panel.style.display = "none";
+    //         });
+    //     });
 
-        // Optional: Add logic to hide it on "Dismiss All" click
-        document.getElementById("dismissAll").addEventListener("click", () => {
-            mortgageCalculatorContainer.style.display = "none";
-        });
-    });
+        // // Optional: Add logic to hide it on "Dismiss All" click
+        // document.getElementById("dismissAll").addEventListener("click", () => {
+        //     mortgageCalculatorContainer.style.display = "none";
+        // });
+    // });
 
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -558,37 +558,37 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        // Optional: Hide the Vector Paint tool when clicking outside or dismissing
-        document.getElementById("dismissAll").addEventListener("click", () => {
-            vectorPaintContainer.style.display = "none";
-        });
-    });
+    //     // Optional: Hide the Vector Paint tool when clicking outside or dismissing
+    //     document.getElementById("dismissAll").addEventListener("click", () => {
+    //         vectorPaintContainer.style.display = "none";
+    //     });
+    // });
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const dismissAllButton = document.getElementById("dismissAll");
+    // document.addEventListener("DOMContentLoaded", () => {
+    //     const dismissAllButton = document.getElementById("dismissAll");
 
-        function updateDismissAllButton() {
-            const openPanels = document.querySelectorAll(".sliding-panel.open, .sliding-panel-skills.open, .sliding-panel-tools.open, .sliding-panel-education.open");
-            if (openPanels.length > 1) {
-                dismissAllButton.style.display = "inline-block"; // Adjust to inline-block for inline layout
-            } else {
-                dismissAllButton.style.display = "none";
-            }
-        }
+    //     function updateDismissAllButton() {
+    //         const openPanels = document.querySelectorAll(".sliding-panel.open, .sliding-panel-skills.open, .sliding-panel-tools.open, .sliding-panel-education.open");
+    //         if (openPanels.length > 1) {
+    //             dismissAllButton.style.display = "inline-block"; // Adjust to inline-block for inline layout
+    //         } else {
+    //             dismissAllButton.style.display = "none";
+    //         }
+    //     }
 
-        document.querySelectorAll(".sliding-panel, .sliding-panel-skills, .sliding-panel-tools, .sliding-panel-education").forEach(panel => {
-            panel.addEventListener("transitionend", updateDismissAllButton);
-        });
+        // document.querySelectorAll(".sliding-panel, .sliding-panel-skills, .sliding-panel-tools, .sliding-panel-education").forEach(panel => {
+        //     panel.addEventListener("transitionend", updateDismissAllButton);
+        // });
 
-        dismissAllButton.addEventListener("click", () => {
-            document.querySelectorAll(".sliding-panel.open, .sliding-panel-skills.open, .sliding-panel-tools.open, .sliding-panel-education.open").forEach(panel => {
-                panel.classList.remove("open");
-            });
-            updateDismissAllButton();
-        });
+    //     dismissAllButton.addEventListener("click", () => {
+    //         document.querySelectorAll(".sliding-panel.open, .sliding-panel-skills.open, .sliding-panel-tools.open, .sliding-panel-education.open").forEach(panel => {
+    //             panel.classList.remove("open");
+    //         });
+    //         updateDismissAllButton();
+    //     });
 
-        updateDismissAllButton();
-    });
+    //     updateDismissAllButton();
+    // });
 
     document.querySelectorAll(".side-panel a").forEach(link => {
     link.addEventListener("click", (e) => {
@@ -883,4 +883,5 @@ function getMousePosition(e) {
     }
 
     drawColorPicker();
+});
 });
