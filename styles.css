@@ -448,7 +448,7 @@
 
         @media (max-width: 600px) {
         /* Hide all side-panel links except LinkedIn and Resume */
-        .side-panel a:not([href="https://www.linkedin.com/in/neilmcardle/"], #experience-link) {
+        .side-panel a:not([href="https://www.linkedin.com/in/neilmcardle/"], #experience-link, #dribbble-link, #x-link) {
             display: none;
         }
 
@@ -562,7 +562,7 @@
             margin: 0 auto;
             padding: 24px;
             background: #ffffff; /* Optional: Background color */
-            /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); Optional: For shadow effect */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Optional: For shadow effect */
         }
        /* .blog-content {
             max-width: 800px;
