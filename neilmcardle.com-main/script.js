@@ -1,125 +1,3 @@
-// Assuming this is the uploaded script.js file for the mortgage calculator.
-
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("DOM fully loaded and parsed");
-  
-    // Attach event listener to the calculate button
-    const calculateButton = document.getElementById("calculateButton");
-    if (calculateButton) {
-      calculateButton.addEventListener("click", function () {
-        console.log("Calculate button clicked");
-        calculateMortgage();
-      });
-    } else {
-      console.error("Calculate button element not found");
-    }
-  });
-  
-  async function calculateMortgage() {
-    console.log("calculateMortgage function executed");
-  
-    // Collect input values
-    const salePrice = parseFloat(document.getElementById('salePrice').value);
-    const currentMortgage = parseFloat(document.getElementById('currentMortgage').value);
-    const legalFees = parseFloat(document.getElementById('legalFees').value);
-    const agentFeesPercentage = parseFloat(document.getElementById('agentFeesPercentage').value);
-    const futurePropertyPrice = parseFloat(document.getElementById('futurePropertyPrice').value);
-    const interestRate = parseFloat(document.getElementById('interestRate').value);
-    const loanTerm = parseInt(document.getElementById('loanTerm').value);
-    const currentSalary = parseFloat(document.getElementById('currentSalary').value);
-    const incomeMultiplier = parseFloat(document.getElementById('incomeMultiplier').value);
-  
-    // Log input values for debugging
-    console.log("Sale Price:", salePrice);
-    console.log("Current Mortgage:", currentMortgage);
-    console.log("Legal Fees:", legalFees);
-    console.log("Agent Fees Percentage:", agentFeesPercentage);
-    console.log("Future Property Price:", futurePropertyPrice);
-    console.log("Interest Rate:", interestRate);
-    console.log("Loan Term:", loanTerm);
-    console.log("Current Salary:", currentSalary);
-    console.log("Income Multiplier:", incomeMultiplier);
-  
-    // Prepare the data to be sent to the server
-    const requestData = {
-      salePrice,
-      currentMortgage,
-      legalFees,
-      agentFeesPercentage,
-      futurePropertyPrice,
-      interestRate,
-      loanTerm,
-      currentSalary,
-      incomeMultiplier
-    };
-  
-    try {
-      // Make a POST request to the API Gateway endpoint
-      const response = await fetch('https://j82c41u2s1.execute-api.us-east-1.amazonaws.com/stage', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestData)
-      });
-  
-      console.log("API response received:", response);
-  
-      if (response.ok) {
-        const result = await response.json();
-        console.log("API result:", result);
-  
-        // Update the UI with the results from the Lambda function
-        document.getElementById('agentFees').innerText = `£${result.agentFees}`;
-        document.getElementById('leftoverAmount').innerText = `£${result.leftoverAmount}`;
-        document.getElementById('monthlyMortgage').innerText = `£${result.monthlyMortgage}`;
-        document.getElementById('estimatedBorrowing').innerText = `£${result.estimatedBorrowing}`;
-        document.getElementById('incomeDifference').innerText = `£${result.incomeDifference}`;
-      } else {
-        console.error('API error:', await response.text());
-      }
-    } catch (error) {
-      console.error('Error while calculating mortgage:', error);
-    }
-
-  
-
-
-document.addEventListener('DOMContentLoaded', function () {
-    const sections = [
-        'iconography-content',
-        'design-systems-content',
-        'vectorPaintContainer',
-        'mortgageCalculatorContainer'
-    ];
-
-    document.querySelectorAll('.side-panel a').forEach(link => {
-        link.addEventListener('click', function (event) {
-            event.preventDefault();
-
-            // Hide all sections
-            sections.forEach(section => {
-                const element = document.getElementById(section);
-                if (element) {
-                    element.style.display = 'none';
-                }
-            });
-
-            // Show the target section
-            const target = this.getAttribute('href').replace('#', '') + '-content';
-            const targetElement = document.getElementById(target);
-            if (targetElement) {
-                targetElement.style.display = 'block';
-            }
-        });
-    });
-
-    // Default: Show the first section
-    document.getElementById('iconography-content').style.display = 'block';
-});
-
-
-
 document.querySelector('a[href="#vector-paint"]').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('design-system-content').classList.add('hidden'); // Ensure Design System is hidden
@@ -264,59 +142,78 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Function to run calculations
-        async function calculateMortgage() {
-            console.log("Calculate button clicked"); // Debug line
-            // Collect user inputs
-            const salePrice = parseFloat(document.getElementById('salePrice').value);
-            const currentMortgage = parseFloat(document.getElementById('currentMortgage').value);
-            const legalFees = parseFloat(document.getElementById('legalFees').value);
-            const agentFeesPercentage = parseFloat(document.getElementById('agentFeesPercentage').value);
-            const futurePropertyPrice = parseFloat(document.getElementById('futurePropertyPrice').value);
-            const interestRate = parseFloat(document.getElementById('interestRate').value);
-            const loanTerm = parseInt(document.getElementById('loanTerm').value);
-            const currentSalary = parseFloat(document.getElementById('currentSalary').value);
-            const incomeMultiplier = parseFloat(document.getElementById('incomeMultiplier').value);
-        
-            // Prepare the data to be sent to the server
-            const requestData = {
-                salePrice,
-                currentMortgage,
-                legalFees,
-                agentFeesPercentage,
-                futurePropertyPrice,
-                interestRate,
-                loanTerm,
-                currentSalary,
-                incomeMultiplier
-            };
-        
-            try {
-                // Make a POST request to the API Gateway endpoint
-                const response = await fetch('https://j82c41u2s1.execute-api.us-east-1.amazonaws.com/prod', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestData)
-                });
-        
-                if (response.ok) {
-                    const result = await response.json();
-        
-                    // Update the UI with the results from the Lambda function
-                    document.getElementById('agentFees').innerText = `£${result.agentFees}`;
-                    document.getElementById('leftoverAmount').innerText = `£${result.leftoverAmount}`;
-                    document.getElementById('monthlyMortgage').innerText = `£${result.monthlyMortgage}`;
-                    document.getElementById('estimatedBorrowing').innerText = `£${result.estimatedBorrowing}`;
-                    document.getElementById('incomeDifference').innerText = `£${result.incomeDifference}`;
-                } else {
-                    console.error('API error:', await response.text());
-                }
-            } catch (error) {
-                console.error('Error while calculating mortgage:', error);
+        function calculate() {
+            if (!isInputChanged) {
+                // If input hasn't changed, block repeated calculations
+                alert("No changes detected. Please modify an input to recalculate.");
+                return;
             }
+
+            // Reset the flag since we are calculating now
+            isInputChanged = false;
+            document.querySelector('button').innerHTML = '<i class="fas fa-calculator"></i> Calculate'; // Reset button label
+
+            // Get values from the form inputs
+            const provider = document.getElementById('creditScoreProvider').value;
+            let creditScore = parseInt(document.getElementById('creditScore').value) || 0;
+            let borrowingAdjustmentFactor = 1.0;
+
+            // Determine the credit score ranges based on the selected provider or manual entry
+            if (provider === 'manual') {
+                if (creditScore >= 750) {
+                    borrowingAdjustmentFactor = 1.0; // Excellent
+                } else if (creditScore >= 600 && creditScore < 750) {
+                    borrowingAdjustmentFactor = 0.90; // Fair
+                } else {
+                    borrowingAdjustmentFactor = 0.80; // Poor
+                }
+            } else if (provider === 'equifax') {
+                if (creditScore >= 811) {
+                    borrowingAdjustmentFactor = 1.0; // Excellent
+                } else if (creditScore >= 671 && creditScore < 811) {
+                    borrowingAdjustmentFactor = 0.95; // Very Good
+                } else if (creditScore >= 531 && creditScore < 671) {
+                    borrowingAdjustmentFactor = 0.90; // Good
+                } else if (creditScore >= 439 && creditScore < 531) {
+                    borrowingAdjustmentFactor = 0.85; // Fair
+                } else {
+                    borrowingAdjustmentFactor = 0.80; // Poor
+                }
+            } else if (provider === 'experian') {
+                if (creditScore >= 961) {
+                    borrowingAdjustmentFactor = 1.0; // Excellent
+                } else if (creditScore >= 881 && creditScore < 961) {
+                    borrowingAdjustmentFactor = 0.95; // Good
+                } else if (creditScore >= 721 && creditScore < 881) {
+                    borrowingAdjustmentFactor = 0.90; // Fair
+                } else if (creditScore >= 561 && creditScore < 721) {
+                    borrowingAdjustmentFactor = 0.85; // Poor
+                } else {
+                    borrowingAdjustmentFactor = 0.80; // Very Poor
+                }
+            } else if (provider === 'transunion') {
+                if (creditScore >= 628) {
+                    borrowingAdjustmentFactor = 1.0; // Excellent
+                } else if (creditScore >= 604 && creditScore < 628) {
+                    borrowingAdjustmentFactor = 0.95; // Good
+                } else if (creditScore >= 566 && creditScore < 604) {
+                    borrowingAdjustmentFactor = 0.90; // Fair
+                } else if (creditScore >= 551 && creditScore < 566) {
+                    borrowingAdjustmentFactor = 0.85; // Poor
+                } else {
+                    borrowingAdjustmentFactor = 0.80; // Very Poor
+                }
+            }
+
+            // Perform calculations using the borrowingAdjustmentFactor
+            const currentSalary = parseFloat(document.getElementById('currentSalary').value.replace(/,/g, '')) || 0;
+            const incomeMultiplier = parseFloat(document.getElementById('incomeMultiplier').value);
+            const estimatedBorrowing = currentSalary * incomeMultiplier * borrowingAdjustmentFactor;
+            document.getElementById('estimatedBorrowing').innerText = `£${estimatedBorrowing.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+
+            // Update other calculations as needed...
+            alert("Calculation complete!");
         }
-    }
 
             function toggleCreditScoreInput() {
     const provider = document.getElementById('creditScoreProvider').value;

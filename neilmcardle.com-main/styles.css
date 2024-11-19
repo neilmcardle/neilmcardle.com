@@ -558,30 +558,19 @@
          }
 
         .blog-content {
-            display: none; /* Hidden by default */
-        }
-        
-        #design-systems-content {
-            display: block; /* or whatever display value is appropriate */
-        }
-        
-    
-       .blog-content {
             max-width: 800px;
             margin: 0 auto;
             padding: 24px;
-            background: #ffffff; 
-            /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); */
-        } 
-       
+            background: #ffffff; /* Optional: Background color */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Optional: For shadow effect */
+        }
        /* .blog-content {
             max-width: 800px;
             margin: 0 auto;
             padding: 24px;
             height: 76vh;
             width: 200vw;
-        } 
-        */
+        } */
         .hidden {
             display: none;
         }
