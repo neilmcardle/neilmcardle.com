@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <script>
+        console.log("Inline JavaScript is executing properly");
+    </script>
+    
     <div class="mobile-warning-container">
       <div class="mobile-warning">
         <i class="fas fa-desktop"></i>
@@ -71,16 +75,17 @@
             <a href="#iconography">
                 <i class="fas fa-pen-nib icon"></i> Iconography
             </a>
-            <!-- <a href="#design-systems">
+            <a href="#design-systems">
                 <i class="fas fa-object-ungroup icon"></i> Design Systems
-            </a> -->
+            </a>
             <a href="#vector-paint">
                 <i class="fas fa-solid fa-brush icon"></i> Vector Paint
             </a>
             <a href="#mortgage-calculator">
                 <i class="fas fa-calculator icon"></i> Mortgage Calculator
             </a>
-            
+           
+
          
             
 
@@ -100,7 +105,7 @@
     </div>
     
 
-    <div class="blog-content hidden" id="iconography-content">
+    <div class="blog-content" id="iconography-content">
         <h1 class="section-title">Iconography</h1>
         <img class="icon-library-hero" src="assets/iconsLibraryHero.png" alt="Icon Library">
         <div class="blog-post">
@@ -167,10 +172,58 @@
         </div>        
     </div>
             
-    <!-- <div class="blog-content hidden" id="design-system-content">
-        <h1>Design Systems</h1>
-        <p>This is a detailed blog post about design systems...</p>
-    </div> -->
+    <div class="blog-content" id="design-systems-content">
+        <h1 class="section-title">Design Systems</h1>
+        
+        <h2>Creating a Global Design System</h2>
+        <p>
+            The problem our product team faced was an inconsistency across regional apps for a global car rental brand. Part of the solution was to implement a tailored design system to unify the brand across regions: EMEA, NAM, and APAC. This system would ensure a cohesive user experience for millions of users, enhancing brand recognition and operational efficiency.
+        </p>
+        <img src="https://cdn.prod.website-files.com/6616af8986828281023eacfb/66eb7c555b0833b7bec44225_phones.avif" alt="Global Design System" class="icon-library-hero">
+    
+        <h2>Bringing Figma In-House</h2>
+        <p>
+            One challenge we faced was transitioning from Figma designs provided by an external vendor to our in-house app team. This bespoke design system improved regional team agility and deepened product understanding, but they still needed to be developed in code.
+        </p>
+        <img src="https://cdn.prod.website-files.com/6616af8986828281023eacfb/66eb7a2670da6a7ef45308de_figmaInHouse.avif" alt="Figma In-House Transition" class="icon-library-hero">
+    
+        <h2>Switching from Flutter to React Native</h2>
+        <p>
+            Initially, our design system project began in collaboration with an external development agency specializing in React Native. The strategic transition aimed to unify our global development teams around a single, efficient structure for app development, ensuring consistency across regions.
+        </p>
+        <img src="https://cdn.prod.website-files.com/6616af8986828281023eacfb/66eb7871dd7f69dee0b7a50d_flutterReact.avif" alt="Flutter to React Native Transition" class="icon-library-hero">
+    
+        <h2>Navigating the Challenges</h2>
+        <p>
+            NAM and EMEA faced divergent UI designs due to regional differences and legacy systems. The transition from Flutter to React and alignment on user flows within Figma helped overcome these challenges, ensuring brand consistency while adapting to local needs.
+        </p>
+        <img src="https://cdn.prod.website-files.com/6616af8986828281023eacfb/66eb76744ccb22e4e5c9dfea_mockups.avif" alt="Design Challenges" class="icon-library-hero">
+    
+        <h2>Anticipating the Impact</h2>
+        <p>
+            The new app is expected to streamline development processes and reduce maintenance costs through a unified codebase and design system. We are optimistic that user experience improvements will uplift Net Promoter Scores (NPS), reflecting higher user satisfaction and loyalty.
+        </p>
+        <img src="https://cdn.prod.website-files.com/6616af8986828281023eacfb/66eb80bc274d8e1a20422f7e_ai.avif" alt="Impact Anticipation" class="icon-library-hero">
+    
+        <h2>What Could Be Next?</h2>
+        <p>
+            The design system will evolve alongside our business needs. Potential innovations include AI-driven personalization, enhanced accessibility, and the integration of emerging technologies like blockchain for improved data security and compliance.
+        </p>
+    
+        <div class="role-tools">
+            <div><strong>My Role:</strong> Figma Design System Lead</div>
+            <div><strong>Tools:</strong> Figma</div>
+            <div><strong>Task:</strong> Bring Figma Global App Designs In-House</div>
+        </div>
+    
+        <p>
+            <a href="https://www.figma.com/proto/zhMKLpwU0N3KI0goeRaqc7/neil-mcardle-hi-fi-app-prototype" target="_blank">View High-Fidelity Flow</a>
+        </p>
+        <p>
+            <a href="https://www.figma.com/design/zhMKLpwU0N3KI0goeRaqc7/neil-mcardle-hi-fi-app-prototype" target="_blank">Peek Inside My Original Design File</a>
+        </p>
+    </div>
+    
 
 
     <div id="vectorPaintContainer" style="display: none;">
@@ -300,8 +353,10 @@
                 </div>
             </div>
     
-            <button class="calculate-btn" onclick="calculate()"><i class="fas fa-calculator"></i> Calculate</button>
-    
+            <!-- <button class="calculate-btn" onclick="calculateMortgage()"><i class="fas fa-calculator"></i> Calculate</button> -->
+            <button class="calculate-btn" id="calculateButton"><i class="fas fa-calculator"></i> Calculate</button>
+
+
             <div class="results">
                 <div class="result-card">
                     <i class="fas fa-coins result-icon"></i>
