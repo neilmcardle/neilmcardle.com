@@ -1,0 +1,76 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Vector Paint</title>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="vp.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    </head>
+    <body>
+        <div class="side-panel open" id="sidePanel">
+            <button class="close-btn" onclick="toggleSidePanel()"><i class="fa-solid fa-xmark"></i></button>
+            
+            <nav>
+                <h1>Neil McArdle</h1>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home icon"></i> Home</a></li>
+                    <li><a href="iconography.html"><i class="fas fa-pen-nib icon"></i> Iconography</a></li>
+                    <li><a href="design-systems.html"><i class="fas fa-object-ungroup icon"></i> Design Systems</a></li>
+                    <li><a href="vector-paint.html" id="vector-paint-li"><i class="fas fa-brush icon"></i> Vector Paint</a></li>
+                    <li><a href="mortgage-calculator.html"><i class="fas fa-calculator icon"></i> Mortgage Calculator</a></li>
+                </ul>
+                <h2>Online</h2>
+                <ul>
+                    <li><a href="https://x.com/neilmacdesign" target="_blank"><i class="fab fa-x-twitter icon"></i> X</a></li>
+                    <li><a href="https://dribbble.com/NeilMacDesign" target="_blank"><i class="fab fa-dribbble icon"></i> Dribbble</a></li>
+                    <li><a href="https://www.linkedin.com/in/neilmcardle/" target="_blank"><i class="fab fa-linkedin icon"></i> LinkedIn</a></li>
+                </ul>    
+            </nav>
+
+        </div>
+        <button class="hamburger" onclick="toggleSidePanel()"><i class="fa-solid fa-bars"></i></button>
+        <main>
+            <div>
+        <!-- Vector Paint Tools Container -->
+            <div class="canvas-container">
+                <svg id="drawingCanvas" class="canvas" style="width: 100%; height: 100%;"></svg>
+
+                <div class="toolbar">
+                    <button id="drawBtn" class="icon-btn"><i class="fas fa-paint-brush"></i></button>
+                    <div id="paintbrushHint">
+                        Click the brush to start painting!
+                        <div id="triangle"></div>
+                    </div>                
+                    <button id="sizeOpacityBtn" class="icon-btn"><i class="fa-solid fa-bars-progress"></i></button>
+                    <div id="colorPreview" class="icon-btn"></div>
+                    <button id="saveDrawingBtn" class="icon-btn"><i class="fa-regular fa-floppy-disk"></i></button>
+                    <button id="loadDrawingBtn" class="icon-btn"><i class="fa-solid fa-box-archive"></i></button>
+                    <button id="resetBtn" class="icon-btn"><i class="fa-solid fa-arrows-rotate"></i></button>
+                </div>
+
+                <!-- Other Vector Paint Elements like sizeOpacityDiv, savePanel, etc. -->
+                <div class="sizeOpacityDiv" id="sizeOpacityDiv">
+                    <span class="sizeOpacitySpan">Brush Size</span>
+                    <input id="lineSizeSlider" class="slider" type="range" min="1" max="50" value="5">
+                    <span class="sizeOpacitySpan">Opacity</span>
+                    <input id="opacitySlider" class="slider" type="range" min="0.1" max="1" step="0.1" value="1">
+                </div>
+
+                <div class="savePanel" id="savePanel">
+                    <div class="saved-drawings" id="savedDrawings">Memory Box</div>
+                </div>
+
+                <div class="colorPaletteDiv" id="colorPaletteDiv">
+                    <canvas id="colorPickerCanvas" width="280" height="280"></canvas>
+                    <div class="innerColorSquare" id="innerColorSquare"></div>
+                </div>
+            </div>
+        </main>
+        <script src="scripts.js"></script>
+        <script src="vp.js"></script>
+    </body>
+    </html>
+    

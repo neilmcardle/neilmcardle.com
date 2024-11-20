@@ -1,0 +1,104 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Iconography</title>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    </head>
+    <body>
+        <div class="side-panel open" id="sidePanel">
+            <button class="close-btn" onclick="toggleSidePanel()"><i class="fa-solid fa-xmark"></i></button>
+            
+            <nav>
+                <h1>Neil McArdle</h1>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home icon"></i> Home</a></li>
+                    <li><a href="iconography.html"><i class="fas fa-pen-nib icon"></i> Iconography</a></li>
+                    <li><a href="design-systems.html"><i class="fas fa-object-ungroup icon"></i> Design Systems</a></li>
+                    <li><a href="vector-paint.html" id="vector-paint-li"><i class="fas fa-brush icon"></i> Vector Paint</a></li>
+                    <li><a href="mortgage-calculator.html"><i class="fas fa-calculator icon"></i> Mortgage Calculator</a></li>
+                </ul>
+                <h2>Online</h2>
+                <ul>
+                    <li><a href="https://x.com/neilmacdesign" target="_blank"><i class="fab fa-x-twitter icon"></i> X</a></li>
+                    <li><a href="https://dribbble.com/NeilMacDesign" target="_blank"><i class="fab fa-dribbble icon"></i> Dribbble</a></li>
+                    <li><a href="https://www.linkedin.com/in/neilmcardle/" target="_blank"><i class="fab fa-linkedin icon"></i> LinkedIn</a></li>
+                </ul>    
+            </nav>
+
+        </div>
+        <button class="hamburger" onclick="toggleSidePanel()"><i class="fa-solid fa-bars"></i></button>
+        <main>
+            <h1>Iconography</h1>
+        <img class="icon-library-hero" src="assets/iconsLibraryHero.png" alt="Icon Library">
+        <div>
+            <h3>Creating an Icon Library</h3>  
+                      
+            <h4>Task:</h4>
+            <p>Design New Icon Library</p>
+            
+            <h4>Role:</h4>
+            <p>Design Lead</p>
+            
+            <h4>Tools:</h4>
+            <p>Figma</p>
+            
+            <h3>Framing the Problem</h3>
+            <p>There was a need to redesign our icon set to align more clearly with our brand's evolving visual identity.</p>
+            
+            <h3>Key Challenges</h3>
+            <ul>
+                <li>Develop a consistent icon design language</li>
+                <li>Design scalable icons across web and native platforms</li>
+                <li>Give developers easy access to the icon library</li>
+            </ul>
+            
+            <p>In the development of our visual design language at ABG, previous designers had used a mix of out-of-the-box icon libraries. This resulted in a lack of consistency in the brand's icons due to the varying styles across different libraries.</p>
+            
+            <p>This challenge presented an opportunity to enhance the consistency and readability of our icons, especially when used at different scales across web and app experiences.</p>
+            
+            <h3>How I Made the Icons</h3>
+            <p>To start, I created the icons in Adobe Illustrator, adhering to design guidelines and using 24 x 24px grids. This grid system ensures consistent icon design by placing end-nodes of lines only where horizontal and vertical pixel lines intersect.</p>
+            
+            <p>I then transferred each icon into Adobe XD to build a comprehensive icon library. This library contained over 100 custom-made icons, complete with an external link for developers to download each icon at the required scale and format directly from their browser during our product sprints. This streamlined process was a significant improvement over the previous method of sending assets via email.</p>
+            
+            <h3>Why Scalability?</h3>
+            <p>A key improvement over the out-of-the-box icons was the use of consistent stroke size (1.5px), rounded caps, and SVG format, which allows for better scalability and image sharpness.</p>
+            
+            <h3>Six Reasons for SVG and Scalability:</h3>
+            <ol>
+                <li>Improved icon sharpness across devices compared to older PNG icons</li>
+                <li>Performance optimization due to smaller SVG file sizes and fewer HTTP requests</li>
+                <li>Consistency across devices ensures a uniform visual experience at different sizes</li>
+                <li>Scalable icons remain effective on future devices</li>
+                <li>Better accessibility as SVG icons can be adjusted for users with visual impairments</li>
+                <li>Simplifies updates and reduces design inconsistencies by maintaining a single scalable icon file</li>
+            </ol>
+            
+            <p>The 24px square serves as the master icon size, with fringe cases below 16px or above 24px requiring custom designs. The minimum icon size is 8px, and the maximum is 48px.</p>
+            
+            <h3>Before, After, and Implementation</h3>
+            <p>To ensure a smooth transition for end-users, I opted for a gradual update approach. Before the refresh, icons were inconsistent with varying styles and stroke sizes. After the refresh, the icons featured a consistent stroke size, unified design language, and improved scalability.</p>
+            
+            <p>I introduced the updated icons gradually, changing a few with each sprint release. This allowed users to adapt incrementally, maintaining familiarity while enhancing the overall look and feel. For most icons, I retained the original visual metaphor to ensure recognizability while introducing a refreshed style.</p>
+            
+            <h3>Improvements and Next Steps</h3>
+            <p>Since building the original Adobe XD icon library, I have migrated over 130 icons into a new and improved shared Figma design system. This includes sets of 16 x 16px icons for native platforms and 24 x 24px icons for web.</p>
+            
+            <p>In the future, I plan to create micro-animations between inactive and active states using Lottie animations, built in Adobe After Effects, to bring delight to users.</p>
+            
+            <h3>Links:</h3>
+            <p><a href="https://figmashort.link/5NhXdw" target="_blank">View Icon Library in Figma</a></p>
+            <p><a href="https://dribbble.com/NeilMacDesign" target="_blank">View My Iconography on Dribbble</a></p>
+            
+            
+        </div>        
+    </div>
+        </main>
+        <script src="scripts.js"></script>
+    </body>
+    </html>
+    

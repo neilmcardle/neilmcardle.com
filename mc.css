@@ -1,0 +1,166 @@
+/* Mortgage Calculator start */
+.calculator-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    max-width: 800px;
+    width: 100%;
+    padding: 32px;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+}
+
+.mc h2 {
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 24px;
+    color: #ff8a00;
+}
+
+.form-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px; /* Space between fields */
+    width: 100%; /* Prevent shrinking */
+}
+
+.form-group {
+    flex: 1 1 calc(50% - 16px);
+    min-width: 280px;
+}
+
+@media (max-width: 600px) {
+    .form-group {
+        flex: 1 1 100%;
+    }
+}
+
+label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #242424;
+}
+
+label i {
+    margin-right: 8px;
+    color: #ff8a00;
+}
+
+input, select {
+    width: 100%; /* Ensures the inputs take full width of their container */
+    padding: 16px 16px 16px 16px; /* Adjust padding to avoid internal overcrowding */
+    box-sizing: border-box; /* Ensures padding does not affect total width */
+    margin: 0px 0px 16px 0px; /* Remove unnecessary margins that may cause overlap */
+    border-radius: 8px;
+    border: none;
+}
+
+input:focus, select:focus {
+    border-color: #ff8a00;
+    background: #eeeeee;
+    outline: none;
+}
+
+button.mc {
+    background: linear-gradient(135deg, #ff8a00, #03dac6);
+    border: none;
+    padding: 12px;
+    font-size: 18px;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s ease;
+}
+
+button.side-panel-close {
+    background: linear-gradient(135deg, #ff8a00, #03dac6);
+    border: none;
+    padding: 12px;
+    font-size: 18px;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s ease;
+}
+
+button.side-panel-close:hover {
+    background: linear-gradient(135deg, #03dac6, #ff8a00);
+}
+
+.results {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.result-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    padding: 16px;
+    flex: 1 1 calc(50% - 16px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.3s ease;
+}
+
+@media (max-width: 600px) {
+    .result-card {
+        flex: 1 1 100%;
+    }
+}
+
+.result-icon {
+    font-size: 24px;
+    color: #03dac6;
+}
+
+.result-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.result-title {
+    font-size: 14px;
+    color: #bbb;
+    margin: 0;
+}
+
+.result-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #e0e0e0;
+    margin: 0;
+}
+
+.form-group#creditScoreRangeGroup {
+    display: none;
+}
+
+.form-group#depositField {
+    display: none;
+}
+
+.form-group {
+    flex: 1 1 100%;
+    min-width: auto; /* Keeps a good minimum size */
+}
+
+@media (min-width: 601px) {
+    .form-group {
+        flex: 1 1 calc(50% - 16px); /* Better for wider screens */
+    }
+}
+
+#calculateButton {
+    margin-top: 16px;
+    width: hug-content;
+}
+/* Mortgage Calculator ends */

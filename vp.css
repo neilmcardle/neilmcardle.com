@@ -1,0 +1,201 @@
+.canvas-container {
+    width: 70vw; /* Or any fixed width like 800px */
+    height: 80vh;
+    border: 2px solid rgb(40, 40, 40);
+    border-radius: 8px;
+    transform: translate(-8%, 5%);
+}
+
+.toolbar {
+    background-color: #333;
+    display: flex;
+    justify-content: space-around;
+    padding: 16px;
+    position: fixed;
+    bottom: 24px;
+    width: 25%;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    border-radius: 16px 16px 16px 16px;
+    z-index: 20;
+    transform: translate(0%, 80%);
+}
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    background-color: #444;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.icon-btn:hover {
+    background-color: #555;
+}
+.icon-btn:active {
+    border: 1px solid white;
+}
+#drawBtn.active {
+    background: linear-gradient(to bottom, rgb(9, 2, 210), rgba(222, 48, 242), rgb(249, 15, 120));
+}
+.savePanel {
+    background-color: #333;
+    color: #fff;
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 350px;
+    padding: 16px;
+    border-radius: 8px;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    visibility: hidden;
+}
+.savePanel.open {
+    visibility: visible;
+}
+.saved-drawings {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.saved-drawing {
+    background-color: #444;
+    padding: 8px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.saved-drawing span {
+    color: #fff;
+    font-size: 14px;
+    flex-grow: 1;
+}
+.saved-drawing button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 24px; /* Added space between icons */
+}
+.sizeOpacityDiv {
+    background-color: #333;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 8px;
+    z-index: 40;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+.sizeOpacityDiv.open {
+    opacity: 1;
+    visibility: visible;
+}
+.sizeOpacitySpan {
+    color: #fff;
+    margin-bottom: 8px;
+}
+.slider {
+    margin-bottom: 16px;
+}
+.colorPaletteDiv {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 30;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+.colorPaletteDiv.open {
+    opacity: 1;
+    visibility: visible;
+}
+#colorPickerCanvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+.innerColorSquare {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 150px;
+    border-radius: 12px;
+    cursor: crosshair;
+}
+.colorPreview {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+#colorPreview {
+    margin-top: 0; /* Ensure alignment with other buttons */
+    width: 40px; /* Consistent button size */
+    height: 40px; 
+    border-radius: 5px;
+    background-color: #444; /* Default background */
+    border: 2px solid #fff; /* Add border for better visibility */
+    box-shadow: none;
+    margin-bottom: 0; /* Remove unnecessary bottom margin */
+    align-self: last baseline; /* Center aligns it vertically */
+}
+#paintbrushHint {
+    position: absolute;
+    bottom: 60px; /* Adjust depending on the toolbar's height */
+    left: 20px; /* Aligns roughly with the paintbrush */
+    background-color: #007BFF;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+#paintbrushHint div {
+    position: absolute;
+    bottom: -10px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #007BFF;
+}
+#triangle div {
+    position: absolute;
+    bottom: -10px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #007BFF;
+}
