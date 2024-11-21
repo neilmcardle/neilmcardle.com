@@ -165,3 +165,24 @@ main {
     cursor: pointer;
     z-index: 900;
 }
+
+#task-role-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columns for alignment */
+    padding: 0px;
+    margin: 0px 0px 0px 0px;
+
+}
+
+.task-role-tools-span{
+    font-size: 14px;
+    font-weight: 200;
+    color:#969696"
+}
+
+.page-title {
+    font-size: 16px;
+    font-weight: 400;
+    color: #177be6;
+    text-align: left;
+}
