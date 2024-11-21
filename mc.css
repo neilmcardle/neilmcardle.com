@@ -15,7 +15,7 @@
     font-weight: 700;
     text-align: center;
     margin-bottom: 24px;
-    color: #ff8a00;
+    color: #4f4f4f;
 }
 
 .form-container {
@@ -41,12 +41,13 @@ label {
     align-items: center;
     margin-bottom: 8px;
     font-weight: bold;
-    color: #242424;
+    color: linear-gradient(135deg, #b612ae, #0cdada);
 }
 
+/* label icon */
 label i {
     margin-right: 8px;
-    color: #ff8a00;
+    color: linear-gradient(135deg, #b612ae, #0cdada);
 }
 
 input, select {
@@ -59,12 +60,40 @@ input, select {
 }
 
 input:focus, select:focus {
-    border-color: #ff8a00;
-    background: #eeeeee;
-    outline: none;
+    border-color: 1px solid #ff8a00;
+    background: #fbfbfb;
+
+}
+
+.calculate-btn {
+    background: linear-gradient(135deg, #b612ae, #0cdada);
+    border: none;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    height: 64px;
+    padding: 8px;
+    font-size: 24px;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    align-items: center;
+    width: 100%;
 }
 
 button.mc {
+    background: linear-gradient(135deg, #b612ae, #0cdada);
+    border: none;
+    padding: 12px;
+    font-size: 18px;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    align-items: center;
+    width: 50%;
+    transition: background 0.3s ease;
+}
+
+/* button.side-panel-close {
     background: linear-gradient(135deg, #ff8a00, #03dac6);
     border: none;
     padding: 12px;
@@ -74,23 +103,11 @@ button.mc {
     cursor: pointer;
     width: 100%;
     transition: background 0.3s ease;
-}
-
-button.side-panel-close {
-    background: linear-gradient(135deg, #ff8a00, #03dac6);
-    border: none;
-    padding: 12px;
-    font-size: 18px;
-    color: #fff;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
-    transition: background 0.3s ease;
-}
-
+} */
+/* 
 button.side-panel-close:hover {
     background: linear-gradient(135deg, #03dac6, #ff8a00);
-}
+} */
 
 .results {
     margin-top: 24px;
@@ -119,7 +136,7 @@ button.side-panel-close:hover {
 
 .result-icon {
     font-size: 24px;
-    color: #03dac6;
+    color: #484848;
 }
 
 .result-content {
@@ -129,14 +146,14 @@ button.side-panel-close:hover {
 
 .result-title {
     font-size: 14px;
-    color: #bbb;
+    color: #484848;
     margin: 0;
 }
 
 .result-value {
     font-size: 18px;
     font-weight: bold;
-    color: #e0e0e0;
+    color: #484848;
     margin: 0;
 }
 

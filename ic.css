@@ -1,0 +1,194 @@
+
+        /* Basic Reset */
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 16px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        /* SVG Grid Styling */
+        #svg-grid {
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            padding: 24px;
+            width: 480px;
+            height: 480px;
+            background-color: #ffffff; /* White background */
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        /* Grid Line Styling */
+        .grid-line {
+            stroke: #ddd; /* Light gray for grid lines */
+            stroke-width: 0.5; /* Thin and visible */
+            fill: none; /* Prevents any fill */
+        }
+
+        /* Keyline Shapes */
+        .template-line {
+            stroke: #ff7f7f; /* Red for diagonal lines */
+            stroke-width: 0.2;
+        }
+
+        .template-circle {
+            stroke: #b4e876; /* Green for circles */
+            stroke-width: 0.2;
+            fill: none; /* Ensure no fill */
+        }
+
+        .template-rect,
+        .template-square {
+            stroke: #b0d4f1; /* Blue for rectangles */
+            stroke-width: 0.2;
+            fill: none; /* Ensure no fill */
+        }
+
+        /* #svg-grid {
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            width: 480px; /* Fixed width */
+            /* height: 480px; Fixed height */
+            /* background-color: #ffffff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        } */
+        
+        /* Grid container for controls and buttons */
+        #controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 columns for alignment */
+            gap: 8px;
+            margin: 16px 0;
+            width: 100%;
+            max-width: 640px; /* Aligns with SVG grid size */
+        }
+        
+        /* Labels and input containers */
+        label {
+            display: flex;
+            flex-direction: row; /* Align text and input side by side */
+            align-items: center; /* Vertically align items */
+            text-align: center;
+            font-weight: 500;
+            font-size: 0.9rem;
+            gap: 8px; /* Space between label text and input */
+            margin: 0;
+        }
+
+        /* Checkbox alignment fix */
+        input[type="checkbox"] {
+            transform: scale(1.2);
+            accent-color: #DE02C1;
+            margin: 0;
+        }
+        
+        /* Input */
+        input[type="number"], select {
+            width: 100%; /* Full width within the grid cell */
+            height: 48px; /* Consistent height with buttons */
+            padding: 8px;
+            font-size: 1rem;
+            border: 2px solid #ccc;
+            background-color: #fff;
+            color: #333;
+            border-radius: 4px;
+            text-align: center; /* Center-align values */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Buttons */
+        button.icon-creator-btn {
+            font-size: 1rem;
+            height: 48px;
+            width: 100%; /* Full width within the grid cell */
+            border: none;
+            border-radius: 4px;
+            /* background: linear-gradient(to right, #090487, #DE02C1); */
+            background: rgb(24, 24, 24);
+            color: white;
+            cursor: pointer;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        button.icon-creator-btn:hover {
+            background: rgb(80, 80, 80);
+            color: white;
+            cursor: pointer;
+        }
+        
+        button.icon-creator-btn:disabled {
+            background: #ccc;
+            color: #777;
+            cursor: not-allowed;
+        }
+        button.icon-creator-btn:focus {
+            background: rgb(255, 255, 255);
+            color: #242424;
+            cursor: pointer;
+            border: 2px solid cyan;
+            transition: all 0.01s ease-in-out;
+
+
+        }
+        /* Multiline button text adjustments */
+        button.icon-creator-btn span {
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        .grid-line {
+            stroke: #ddd;
+            stroke-width: 0.1;
+        }
+
+        .drawn-shape {
+            stroke: black;
+            fill: none;
+        }
+
+        /* Keyline template styling */
+        .template-line {
+            stroke: #ff7f7f; /* Red lines for diagonals */
+            stroke-width: 0.2;
+        }
+
+        .template-circle {
+            stroke: #b4e876; /* Green circles */
+            stroke-width: 0.2;
+            fill: none;
+        }
+
+        .template-rect {
+            stroke: #b0d4f1; /* Blue rectangles */
+            stroke-width: 0.2;
+            fill: none;
+        }
+
+        .template-square {
+            stroke: #ff7f7f; /* Orange squares */
+            stroke-width: 0.3;
+            fill: none;
+        }
+
+        .rounded-rect {
+            stroke: #b0d4f1; /* Blue rounded rectangles */
+            stroke-width: 0.2;
+            fill: none;
+            rx: 1px;
+        }
+    

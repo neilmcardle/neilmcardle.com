@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ic.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <title>Icon Creator</title>            
+</head>
+<body>
+    <div class="side-panel open" id="sidePanel">
+        <button class="close-btn" onclick="toggleSidePanel()"><i class="fa-solid fa-xmark"></i></button>
+        
+        <nav>
+            <h1>Neil McArdle</h1>
+            <ul>
+                <li><a href="index.html"><i class="fas fa-home icon"></i> Home</a></li>
+                <li><a href="iconography.html"><i class="fas fa-pen-nib icon"></i> Iconography</a></li>
+                <li><a href="design-systems.html"><i class="fas fa-object-ungroup icon"></i> Design Systems</a></li>
+                <li><a href="icon-creator.html"><i class="fa-solid fa-icons"></i> Icon Creator</a></li>
+                <li><a href="vector-paint.html" id="vector-paint-li"><i class="fas fa-brush icon"></i> Vector Paint</a></li>
+                <li><a href="mortgage-calculator.html"><i class="fas fa-calculator icon"></i> Home Move Calculator</a></li>
+            </ul>
+            <h2>Online</h2>
+            <ul>
+                <li><a href="https://x.com/neilmacdesign" target="_blank"><i class="fab fa-x-twitter icon"></i> X</a></li>
+                <li><a href="https://dribbble.com/NeilMacDesign" target="_blank"><i class="fab fa-dribbble icon"></i> Dribbble</a></li>
+                <li><a href="https://www.linkedin.com/in/neilmcardle/" target="_blank"><i class="fab fa-linkedin icon"></i> LinkedIn</a></li>
+            </ul>    
+        </nav>
+
+    </div>
+    <button class="hamburger" onclick="toggleSidePanel()"><i class="fa-solid fa-bars"></i></button>
+    <main>
+    <h1>Icon Creator</h1>
+
+    <svg id="svg-grid" width="480" height="480" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <!-- Grid Lines -->
+        <g id="grid"></g>
+
+        <!-- Keyline Shapes -->
+        <g id="keyline-template">
+            <!-- Diagonal lines -->
+            <line x1="0" y1="0" x2="24" y2="24" class="template-line"></line>
+            <line x1="0" y1="24" x2="24" y2="0" class="template-line"></line>
+
+            <!-- Circles -->
+            <circle cx="12" cy="12" r="10" class="template-circle"></circle> 
+            <circle cx="12" cy="12" r="4" class="template-circle"></circle> 
+
+            <!-- Square outline -->
+            <rect x="0" y="0" width="24" height="24" class="template-square"></rect>
+            
+            <!-- Rounded rectangles -->
+            <rect x="3" y="3" width="18" height="18" class="rounded-rect"></rect>
+            <rect x="2" y="4" width="20" height="16" class="rounded-rect"></rect>  
+            <rect x="4" y="2" width="16" height="20" class="rounded-rect"></rect>             
+        </g>
+
+        <!-- Shapes -->
+        <g id="shapes"></g>
+
+        
+    </svg>
+
+    <div id="controls">
+        <label>
+            Shape:
+            <select id="shape-select">
+                <option value="line">Line</option>
+                <option value="circle">Circle</option>
+                <option value="rectangle">Rectangle</option>
+            </select>
+        </label>
+        <label>
+            Stroke:
+            <input id="stroke-width-input" type="number" value="2" step="0.1" min="0.20" max="10">
+        </label>
+        <label>
+            Rounded Caps:
+            <input id="rounded-caps-input" type="checkbox">
+        </label>
+        <!-- <label>
+    Rounded Corners:
+    <input id="rounded-corners-input" type="checkbox">
+</label> -->
+
+        <label>
+            Saved Icons:
+            <select id="load-icon-select"></select>
+        </label>
+        <button class="icon-creator-btn" id="new-line-btn">New Line</button>
+        <button class="icon-creator-btn" id="undo-btn"><span>Undo<br/><span style="font-size: 10px;">(Double Click)</span></span></button>
+        <button class="icon-creator-btn" id="redo-btn"><span>Redo<br/><span style="font-size: 10px;">(Double Click)</span></span></button>
+        <button class="icon-creator-btn" id="clear-btn">Clear</button>
+        <button class="icon-creator-btn" id="save-icon-btn">Save</button>
+        <button class="icon-creator-btn" id="load-icon-btn">Load</button>
+        <button class="icon-creator-btn" id="delete-icon-btn">Delete</button>
+        <button class="icon-creator-btn" id="export-btn">Export</button>
+    </div>   
+    </main>
+    <script src="scripts.js"></script>
+    <script src="ic.js"></script>
+</body>
+</html>

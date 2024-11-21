@@ -1,43 +1,11 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Home Move Calculator</title>
-        <link rel="stylesheet" href="styles.css">
-        <link rel="stylesheet" href="mc.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    </head>
-    <body>
-        <div class="side-panel open" id="sidePanel">
-            <button  class="close-btn" onclick="toggleSidePanel()"><i class="fa-solid fa-xmark"></i></button>
-            
-            <nav>
-                <h1>Neil McArdle</h1>
-                <ul>
-                    <li><a href="index.html"><i class="fas fa-home icon"></i> Home</a></li>
-                    <li><a href="iconography.html"><i class="fas fa-pen-nib icon"></i> Iconography</a></li>
-                    <li><a href="design-systems.html"><i class="fas fa-object-ungroup icon"></i> Design Systems</a></li>
-                    <li><a href="icon-creator.html"><i class="fa-solid fa-icons"></i> Icon Creator</a></li>
-                    <li><a href="vector-paint.html" id="vector-paint-li"><i class="fas fa-brush icon"></i> Vector Paint</a></li>
-                    <li><a href="mortgage-calculator.html"><i class="fas fa-calculator icon"></i> Home Move Calculator</a></li>
-                </ul>
-                <h2>Online</h2>
-                <ul>
-                    <li><a href="https://x.com/neilmacdesign" target="_blank"><i class="fab fa-x-twitter icon"></i> X</a></li>
-                    <li><a href="https://dribbble.com/NeilMacDesign" target="_blank"><i class="fab fa-dribbble icon"></i> Dribbble</a></li>
-                    <li><a href="https://www.linkedin.com/in/neilmcardle/" target="_blank"><i class="fab fa-linkedin icon"></i> LinkedIn</a></li>
-                </ul>    
-            </nav>
-
-        </div>
-        <button class="hamburger" onclick="toggleSidePanel()"><i class="fa-solid fa-bars"></i></button>
-        <main>
-            <div class="calculator-container">
-                <h2><i class="fas fa-calculator"></i> Home Move Calculator</h2>
+<div class="calculator-container">
+                <!-- <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+                    <i class="fas fa-moon" id="darkModeIcon" style="color: white;"></i>
+                </button> -->
+                <h2 class="mortgage-calculator-h2">Mortgage & Home Sale Calculator</h2>
         
                 <div class="toggle-container">
-                    <label for="isSellingHouse"><i class="fas fa-toggle-on"></i> Are you selling a house?</label>
+                    <label for="isSellingHouse"><i class="fa-solid fa-house-chimney"></i> Are you selling a house?</label>
                     <select id="isSellingHouse" onchange="toggleDepositInput()">
                         <option value="yes">Yes</option>
                         <option value="no">No</option>
@@ -46,7 +14,7 @@
         
                 <div class="form-container">
                     <div class="form-group" id="saleFields">
-                        <label for="salePrice"><i class="fas fa-home"></i> Sale Price of Current Property (£):</label>
+                        <label for="salePrice"><i class="fa-solid fa-house-user"></i> Sale Price of Current Property (£):</label>
                         <input type="text" id="salePrice" placeholder="Enter sale price">
                         <label for="currentMortgage"><i class="fas fa-money-bill-wave"></i> Current Mortgage Amount (£):</label>
                         <input type="text" id="currentMortgage" placeholder="Enter current mortgage amount">
@@ -62,7 +30,7 @@
                     </div>
         
                     <div class="form-group">
-                        <label for="futurePropertyPrice"><i class="fas fa-building"></i> Cost of Future Property (£):</label>
+                        <label for="futurePropertyPrice"><i class="fas fa-coins"></i> Cost of Future Property (£):</label>
                         <input type="text" id="futurePropertyPrice" placeholder="Enter future property price">
                     </div>
         
@@ -115,8 +83,10 @@
                     </div>
                 </div>
         
-                <button class="calculate-btn" onclick="calculate()"><i class="fas fa-calculator"></i> Calculate</button>
-        
+                <!-- <button class="calculate-btn" onclick="calculateMortgage()"><i class="fas fa-calculator"></i> Calculate</button> -->
+                <button class="mc" id="calculateButton"><i class="fas fa-calculator"></i> Calculate</button>
+    
+    
                 <div class="results">
                     <div class="result-card">
                         <i class="fas fa-coins result-icon"></i>
@@ -182,11 +152,4 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
-        <script src="scripts.js"></script>
-        <script src="mc.js"></script>
-
-    </body>
-    </html>
-    
+            </div> 

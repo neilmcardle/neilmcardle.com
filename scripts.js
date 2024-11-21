@@ -51,4 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
+// 404 error page
+app.use((req, res, next) => {
+    res.status(404).sendFile(__dirname + '/404.html'); // Adjust the path to your file
+});
