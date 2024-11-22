@@ -113,8 +113,8 @@ main {
     }
     .hamburger {
         position: fixed;
-        top: 10px;
-        left: 10px;
+        top: 5px;
+        left: 5px;
     }
 }
 /* Close Button */
