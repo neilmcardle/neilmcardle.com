@@ -112,24 +112,6 @@ main {
     display: none;
     }
 }
-
-
-/* button {
-    background: linear-gradient(135deg, #ff8a00, #e52e71);
-    border: none;
-    padding: 12px;
-    font-size: 18px;
-    color: #fff;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
-    transition: background 0.3s ease;
-} */
-
-/* button:hover {
-    /* background: linear-gradient(135deg, #e52e71, #ff8a00);
-}/*
-
 /* Close Button */
 .close-btn {
     background: none;
@@ -156,8 +138,8 @@ main {
 /* Hamburger Button */
 .hamburger {
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 10px;
+    left: 10px;
     font-size: 24px;
     background: none;
     border: none;
