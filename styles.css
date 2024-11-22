@@ -111,11 +111,6 @@ main {
     #vector-paint-li {
     display: none;
     }
-    .hamburger {
-        position: fixed;
-        top: 5px;
-        left: 5px;
-    }
 }
 /* Close Button */
 .close-btn {
@@ -143,8 +138,8 @@ main {
 /* Hamburger Button */
 .hamburger {
     position: fixed;
-    top: 10px;
-    left: 10px;
+    top: 5px;
+    left: 5px;
     font-size: 24px;
     background: none;
     border: none;
