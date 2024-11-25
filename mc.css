@@ -1,183 +1,121 @@
-/* Mortgage Calculator start */
+
+/* General Container Styling */
 .calculator-container {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    background-color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-    max-width: 800px;
-    width: 100%;
-    padding: 32px;
-    transition: all 0.3s ease-in-out;
-    position: relative;
+    width: 90%;
+    margin: 0 auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #fff;
 }
 
-.mc h2 {
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 24px;
-    color: #4f4f4f;
+/* Buttons */
+.calculate-btn, .form-container input, .form-container select {
+    background-color: #444;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+    padding: 10px 20px;
+    margin: 8px 0;
+    cursor: pointer;
 }
 
+.calculate-btn:hover, .form-container input:hover, .form-container select:hover {
+    background-color: #555;
+}
+
+.calculate-btn:active {
+    border: 1px solid white;
+}
+
+/* Form Labels */
+.form-container label {
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+/* Form Container */
 .form-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px; /* Space between fields */
-    width: 100%; /* Prevent shrinking */
+    width: 100%;
+    padding: 16px; /* Added padding inside the container */
+    box-sizing: border-box; /* Ensures padding doesn't affect the total width */
 }
 
-.form-group {
-    flex: 1 1 calc(50% - 16px);
-    min-width: 280px;
-}
-
-@media (max-width: 600px) {
-    .form-group {
-        flex: 1 1 100%;
-    }
-}
-
-label {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: linear-gradient(135deg, #b612ae, #0cdada);
-}
-
-/* label icon */
-label i {
-    margin-right: 8px;
-    color: linear-gradient(135deg, #b612ae, #0cdada);
-}
-
-input, select {
-    width: 100%; /* Ensures the inputs take full width of their container */
-    padding: 16px 16px 16px 16px; /* Adjust padding to avoid internal overcrowding */
-    box-sizing: border-box; /* Ensures padding does not affect total width */
-    margin: 0px 0px 16px 0px; /* Remove unnecessary margins that may cause overlap */
-    border-radius: 8px;
-    border: none;
-}
-
-input:focus, select:focus {
-    border-color: 1px solid #ff8a00;
-    background: #fbfbfb;
-
-}
-
-.calculate-btn {
-    background: linear-gradient(135deg, #b612ae, #0cdada);
-    border: none;
-    margin-top: 16px;
-    margin-bottom: 16px;
-    height: 64px;
+/* Input and Select Fields */
+.form-container input, .form-container select {
+    width: calc(100% - 16px); /* Adjust width to accommodate padding */
     padding: 8px;
-    font-size: 24px;
-    color: #fff;
+    margin-bottom: 16px;
+    font-size: 14px;
     border-radius: 8px;
-    cursor: pointer;
-    align-items: center;
-    width: 100%;
+    border: none;
+    background-color: #444;
+    color: #fff;
 }
 
-button.mc {
-    background: linear-gradient(135deg, #b612ae, #0cdada);
-    border: none;
-    padding: 12px;
-    font-size: 18px;
-    color: #fff;
-    border-radius: 8px;
-    cursor: pointer;
-    align-items: center;
-    width: 50%;
-    transition: background 0.3s ease;
-}
-
-/* button.side-panel-close {
-    background: linear-gradient(135deg, #ff8a00, #03dac6);
-    border: none;
-    padding: 12px;
-    font-size: 18px;
-    color: #fff;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
-    transition: background 0.3s ease;
-} */
-/* 
-button.side-panel-close:hover {
-    background: linear-gradient(135deg, #03dac6, #ff8a00);
-} */
-
+/* Results Section */
 .results {
-    margin-top: 24px;
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
+    justify-content: center;
+    margin-top: 24px;
 }
 
 .result-card {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    background-color: #444;
+    border-radius: 8px;
     padding: 16px;
-    flex: 1 1 calc(50% - 16px);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: background 0.3s ease;
-}
-
-@media (max-width: 600px) {
-    .result-card {
-        flex: 1 1 100%;
-    }
-}
-
-.result-icon {
-    font-size: 24px;
-    color: #484848;
-}
-
-.result-content {
+    width: calc(33% - 16px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #fff;
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
-.result-title {
+.result-card .result-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.result-card .result-title {
     font-size: 14px;
-    color: #484848;
-    margin: 0;
+    margin-bottom: 4px;
+    text-align: center;
 }
 
-.result-value {
-    font-size: 18px;
+.result-card .result-value {
+    font-size: 16px;
     font-weight: bold;
-    color: #484848;
-    margin: 0;
+    text-align: center;
 }
 
-.form-group#creditScoreRangeGroup {
-    display: none;
+/* Sidebar Button */
+.hamburger {
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    background-color: #333333;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    cursor: pointer;
+    z-index: 100;
 }
 
-.form-group#depositField {
-    display: none;
+.hamburger:hover {
+    background-color: #444;
 }
-
-.form-group {
-    flex: 1 1 100%;
-    min-width: auto; /* Keeps a good minimum size */
-}
-
-@media (min-width: 601px) {
-    .form-group {
-        flex: 1 1 calc(50% - 16px); /* Better for wider screens */
-    }
-}
-
-#calculateButton {
-    margin-top: 16px;
-    width: hug-content;
-}
-/* Mortgage Calculator ends */
