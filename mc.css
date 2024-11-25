@@ -12,9 +12,43 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     color: #fff;
 }
+/* Calculate Button */
+.calculate-btn {
+    background-color: #fff;
+    border:1px solid #444;
+    border-radius: 8px;
+    color: #444;
+    font-size: 16px;
+    padding: 10px 20px;
+    margin: 8px 0;
+    cursor: pointer;
+}
+
+.calculate-btn:hover {
+    background-color: #555;
+    color:#fff;
+    border-radius: 8px;
+    border:1px solid #fff;
+    font-size: 16px;
+    padding: 10px 20px;
+    margin: 8px 0;
+    cursor: pointer;
+}
+
+.calculate-btn:active {
+    border: 1px solid #555;
+}
+
+#creditScoreRangeGroup {
+    display: none; /* Prevent it from being rendered */
+    visibility: hidden;
+    height: 0;
+    margin: 0;
+    padding: 0;
+}
 
 /* Buttons */
-.calculate-btn, .form-container input, .form-container select {
+.form-container input, .form-container select {
     background-color: #444;
     border: none;
     border-radius: 8px;
@@ -25,12 +59,8 @@
     cursor: pointer;
 }
 
-.calculate-btn:hover, .form-container input:hover, .form-container select:hover {
+.form-container input:hover, .form-container select:hover {
     background-color: #555;
-}
-
-.calculate-btn:active {
-    border: 1px solid white;
 }
 
 /* Form Labels */
