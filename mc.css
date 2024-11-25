@@ -103,7 +103,7 @@
     position: fixed;
     top: 8px;
     right: 8px;
-    background-color: #333333;
+    background-color: #33333300;
     border: none;
     border-radius: 50%;
     width: 40px;
@@ -111,11 +111,35 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #fff;
+    color: #333;
     cursor: pointer;
     z-index: 100;
 }
 
 .hamburger:hover {
     background-color: #444;
+}
+
+/* Align the toggle container with the form fields */
+.toggle-container {
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 16px); /* Match the width of other fields */
+    margin-bottom: 16px; /* Consistent spacing with other form elements */
+    box-sizing: border-box;
+}
+
+.toggle-container label {
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.toggle-container select {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 14px;
 }
