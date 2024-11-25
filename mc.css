@@ -148,6 +148,7 @@
 
 .hamburger:hover {
     background-color: #444;
+    color: #fff;
 }
 
 /* Align the toggle container with the form fields */
