@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_11b2062fb3ddedaeaa9de66c6f7e89e9 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_11b2062fb3ddedaeaa9de66c6f7e89e9" ></div>
+        
+    
+<div style="position: fixed; bottom: 10px; left: 10px; background-color: white; padding: 5px; border: 1px solid black; font-size: 10px; width: 95%; z-index: 9999;">
+    Source: <a href="https://www.royalgreenwich.gov.uk/news/2024/west-and-east-greenwich-neighbourhood-management-trial-begins-27-november" target="_blank">
+    Royal Greenwich Council News</a>
+</div>
+    
+<div style="position: fixed; bottom: 40px; left: 10px; background-color: lightgray; border: 1px solid black; padding: 5px; z-index: 9999; font-size: 12px; cursor: pointer;" 
+    onclick="
+        var x = document.getElementById('trial-details');
+        if (x.style.display === 'none') { x.style.display = 'block'; } else { x.style.display = 'none'; }
+    ">
+    Trial Details (Click to Toggle)
+</div>
+<div id="trial-details" style="display: none; position: fixed; bottom: 80px; left: 10px; background-color: white; padding: 10px; border: 1px solid black; width: 90%; z-index: 9999; font-size: 12px;">
+    <strong>Trial Details:</strong><br>
+    The trial will begin on <strong>Wednesday 27 November 2024</strong>, and will include the following measures:<br>
+    <ul>
+        <li>Part-time camera-controlled restrictions on weekdays during peak hours (7am to 10am and 3pm to 7pm) to stop through traffic on certain roads in west and east Greenwich</li>
+        <li>Extended exemptions for Blue Badge holders, taxis, private hire vehicles, Council refuse vehicles, and individuals or community groups with special circumstances such as children with special education needs</li>
+    </ul>
+</div>
+</body>
+<script>
+    
+    
+            var map_11b2062fb3ddedaeaa9de66c6f7e89e9 = L.map(
+                "map_11b2062fb3ddedaeaa9de66c6f7e89e9",
+                {
+                    center: [51.484, 0.017],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 15,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_469b24d96409ca77141fc2a5361ac2a4 = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var marker_859ea3a8b01f3156f0353b02c151ac4e = L.marker(
+                [51.484071777804765, 0.019883286110644313],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_2381f71677bed9f53ac59015afc9a95a = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_859ea3a8b01f3156f0353b02c151ac4e.setIcon(icon_2381f71677bed9f53ac59015afc9a95a);
+        
+    
+        var popup_e61eeb71cfd9f021398d04021b6349de = L.popup({"maxWidth": "100%"});
+
+        
+            var html_6dc846b483699d8961bf8e3f032574d4 = $(`<div id="html_6dc846b483699d8961bf8e3f032574d4" style="width: 100.0%; height: 100.0%;">Westcombe Hill (junction with Station Crescent): Bus Gate</div>`)[0];
+            popup_e61eeb71cfd9f021398d04021b6349de.setContent(html_6dc846b483699d8961bf8e3f032574d4);
+        
+
+        marker_859ea3a8b01f3156f0353b02c151ac4e.bindPopup(popup_e61eeb71cfd9f021398d04021b6349de)
+        ;
+
+        
+    
+    
+            var poly_line_aa4e38b41d0a9318b2e2d8b8a8032e8e = L.polyline(
+                [[51.48623647413193, 0.015219170345495726], [51.48341705805685, 0.016115028216002622]],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 5}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+        var popup_475a5b70792d649dc26f3bfdcc654020 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_c6c853629c1c92e8ff41d370bc936f9b = $(`<div id="html_c6c853629c1c92e8ff41d370bc936f9b" style="width: 100.0%; height: 100.0%;">Halstow Road: Camera enforced traffic filter</div>`)[0];
+            popup_475a5b70792d649dc26f3bfdcc654020.setContent(html_c6c853629c1c92e8ff41d370bc936f9b);
+        
+
+        poly_line_aa4e38b41d0a9318b2e2d8b8a8032e8e.bindPopup(popup_475a5b70792d649dc26f3bfdcc654020)
+        ;
+
+        
+    
+    
+            var marker_ad46b43ec62bc456f3eae6e3a567e837 = L.marker(
+                [51.48288102603806, 0.008408062866831366],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_4a86df0af7644b646572fc3ad656d5b4 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_ad46b43ec62bc456f3eae6e3a567e837.setIcon(icon_4a86df0af7644b646572fc3ad656d5b4);
+        
+    
+        var popup_d2253a95462cdc68cc98f221e2720fa9 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_93c7d112fa76d4d4be6e79c173eff10b = $(`<div id="html_93c7d112fa76d4d4be6e79c173eff10b" style="width: 100.0%; height: 100.0%;">Vanbrugh Hill (junction with Dinsdale Road): Bus Gate</div>`)[0];
+            popup_d2253a95462cdc68cc98f221e2720fa9.setContent(html_93c7d112fa76d4d4be6e79c173eff10b);
+        
+
+        marker_ad46b43ec62bc456f3eae6e3a567e837.bindPopup(popup_d2253a95462cdc68cc98f221e2720fa9)
+        ;
+
+        
+    
+    
+            var marker_da2968df1ab6d76ee2b65cb48591809e = L.marker(
+                [51.482603262822, 0.0016957610981076189],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_38144a9d633686c1980ec19d48169991 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "purple", "prefix": "glyphicon"}
+            );
+            marker_da2968df1ab6d76ee2b65cb48591809e.setIcon(icon_38144a9d633686c1980ec19d48169991);
+        
+    
+        var popup_eeb5dbc104fb0b592c0eb52ae30a2497 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_3013b1b4ec4711712ea4a67d8bf919ca = $(`<div id="html_3013b1b4ec4711712ea4a67d8bf919ca" style="width: 100.0%; height: 100.0%;">Maze Hill (junction with Tom Smith Close): Camera enforced traffic filter</div>`)[0];
+            popup_eeb5dbc104fb0b592c0eb52ae30a2497.setContent(html_3013b1b4ec4711712ea4a67d8bf919ca);
+        
+
+        marker_da2968df1ab6d76ee2b65cb48591809e.bindPopup(popup_eeb5dbc104fb0b592c0eb52ae30a2497)
+        ;
+
+        
+    
+    
+            var marker_cc0aa11c10f392e6e7c0ac4d364990d1 = L.marker(
+                [51.4752072403662, 0.013366704073447599],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_229d604c1f1303a063af4fc24e024deb = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "orange", "prefix": "glyphicon"}
+            );
+            marker_cc0aa11c10f392e6e7c0ac4d364990d1.setIcon(icon_229d604c1f1303a063af4fc24e024deb);
+        
+    
+        var popup_1527a2b7c217f6b61c6824e9a4f72358 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_78865864f6f042f91df8cc139f97c0e5 = $(`<div id="html_78865864f6f042f91df8cc139f97c0e5" style="width: 100.0%; height: 100.0%;">St Johns Park (junction with Vanbrugh Park): Camera enforced traffic filter</div>`)[0];
+            popup_1527a2b7c217f6b61c6824e9a4f72358.setContent(html_78865864f6f042f91df8cc139f97c0e5);
+        
+
+        marker_cc0aa11c10f392e6e7c0ac4d364990d1.bindPopup(popup_1527a2b7c217f6b61c6824e9a4f72358)
+        ;
+
+        
+    
+    
+            var marker_7881ea0588cbd9d2355e2d93157ad9a7 = L.marker(
+                [51.47651204573549, 0.02312624467684691],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_bc3b955ae3574510b447274a93fb5014 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "darkblue", "prefix": "glyphicon"}
+            );
+            marker_7881ea0588cbd9d2355e2d93157ad9a7.setIcon(icon_bc3b955ae3574510b447274a93fb5014);
+        
+    
+        var popup_919acb6ddef442f21286c3b7181ef161 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_cc6de02517754b6056508e18360d5996 = $(`<div id="html_cc6de02517754b6056508e18360d5996" style="width: 100.0%; height: 100.0%;">Langton Way (junction with Old Dover Road): Camera enforced traffic filter</div>`)[0];
+            popup_919acb6ddef442f21286c3b7181ef161.setContent(html_cc6de02517754b6056508e18360d5996);
+        
+
+        marker_7881ea0588cbd9d2355e2d93157ad9a7.bindPopup(popup_919acb6ddef442f21286c3b7181ef161)
+        ;
+
+        
+    
+    
+            var marker_7678ccaae7125d62b30f27ad657ffe8d = L.marker(
+                [51.47945023364488, -0.00816225111379958],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_5f9b529b2f37ce9059f8c347e991bee2 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "darkred", "prefix": "glyphicon"}
+            );
+            marker_7678ccaae7125d62b30f27ad657ffe8d.setIcon(icon_5f9b529b2f37ce9059f8c347e991bee2);
+        
+    
+        var popup_4ba9bac503615dcf131f6a884b37f6f1 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_0969991e1fab92470debc404922ef5db = $(`<div id="html_0969991e1fab92470debc404922ef5db" style="width: 100.0%; height: 100.0%;">Crooms Hill (junction with Burney Street): Camera enforced traffic filter</div>`)[0];
+            popup_4ba9bac503615dcf131f6a884b37f6f1.setContent(html_0969991e1fab92470debc404922ef5db);
+        
+
+        marker_7678ccaae7125d62b30f27ad657ffe8d.bindPopup(popup_4ba9bac503615dcf131f6a884b37f6f1)
+        ;
+
+        
+    
+    
+            var marker_9e8f9bc99b44bc29a9352e2632f505d1 = L.marker(
+                [51.477318612327316, -0.009713533667502891],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_d1ec6913a085f0e2d920d8ff18ddf042 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "black", "prefix": "glyphicon"}
+            );
+            marker_9e8f9bc99b44bc29a9352e2632f505d1.setIcon(icon_d1ec6913a085f0e2d920d8ff18ddf042);
+        
+    
+        var popup_e678200141fb611048275c8ddae05265 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_cd9e4f5188b887f9be76ade547075f94 = $(`<div id="html_cd9e4f5188b887f9be76ade547075f94" style="width: 100.0%; height: 100.0%;">Circus Street (junction with Royal Hill): Camera enforced traffic filter</div>`)[0];
+            popup_e678200141fb611048275c8ddae05265.setContent(html_cd9e4f5188b887f9be76ade547075f94);
+        
+
+        marker_9e8f9bc99b44bc29a9352e2632f505d1.bindPopup(popup_e678200141fb611048275c8ddae05265)
+        ;
+
+        
+    
+    
+            var marker_815bef6ff387be4ff9919a28dfc7e733 = L.marker(
+                [51.477318612327316, -0.009713533667502891],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_93cf0996a5d6c91b9dcfe047c81fd25a = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "lightgreen", "prefix": "glyphicon"}
+            );
+            marker_815bef6ff387be4ff9919a28dfc7e733.setIcon(icon_93cf0996a5d6c91b9dcfe047c81fd25a);
+        
+    
+        var popup_dcfba5d2b5b3697842d971e6225689c4 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_47c0364bf240fc39a075e1d30315f28a = $(`<div id="html_47c0364bf240fc39a075e1d30315f28a" style="width: 100.0%; height: 100.0%;">Circus Street (junction with Royal Hill): Camera enforced traffic filter</div>`)[0];
+            popup_dcfba5d2b5b3697842d971e6225689c4.setContent(html_47c0364bf240fc39a075e1d30315f28a);
+        
+
+        marker_815bef6ff387be4ff9919a28dfc7e733.bindPopup(popup_dcfba5d2b5b3697842d971e6225689c4)
+        ;
+
+        
+    
+    
+            var poly_line_185c98a8282b0f08b9bbdc6d28cf2ca7 = L.polyline(
+                [[51.48623647413193, 0.015219170345495726], [51.48341705805685, 0.016115028216002622]],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 5}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+        var popup_a77964e5da9f2ed1b073db3e3596336c = L.popup({"maxWidth": "100%"});
+
+        
+            var html_785cf9faf691233a98aad83344c1f175 = $(`<div id="html_785cf9faf691233a98aad83344c1f175" style="width: 100.0%; height: 100.0%;">Halstow Road: Camera enforced traffic filter</div>`)[0];
+            popup_a77964e5da9f2ed1b073db3e3596336c.setContent(html_785cf9faf691233a98aad83344c1f175);
+        
+
+        poly_line_185c98a8282b0f08b9bbdc6d28cf2ca7.bindPopup(popup_a77964e5da9f2ed1b073db3e3596336c)
+        ;
+
+        
+    
+    
+            var marker_21223044da5567041d0ac1cb3b338a8c = L.marker(
+                [51.484826766094386, 0.015667099280749174],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_b2e9b440269237ccdf9c193bdef6dec3 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_21223044da5567041d0ac1cb3b338a8c.setIcon(icon_b2e9b440269237ccdf9c193bdef6dec3);
+        
+    
+        var popup_19c4fd3e0c2e6bf26fa27298ebb59495 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_2c2c8d0896bd8418bc46cf4dd7f79294 = $(`<div id="html_2c2c8d0896bd8418bc46cf4dd7f79294" style="width: 100.0%; height: 100.0%;">Halstow Road: Camera enforced traffic filter</div>`)[0];
+            popup_19c4fd3e0c2e6bf26fa27298ebb59495.setContent(html_2c2c8d0896bd8418bc46cf4dd7f79294);
+        
+
+        marker_21223044da5567041d0ac1cb3b338a8c.bindPopup(popup_19c4fd3e0c2e6bf26fa27298ebb59495)
+        ;
+
+        
+    
+    
+            var marker_0237f82be6131c6ef9a327fae584be4a = L.marker(
+                [51.476534863091594, -0.009461489945801326],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_81dafadd684ddb3559b5d700ffbf2d0e = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "lightblue", "prefix": "glyphicon"}
+            );
+            marker_0237f82be6131c6ef9a327fae584be4a.setIcon(icon_81dafadd684ddb3559b5d700ffbf2d0e);
+        
+    
+        var popup_e57fbf5ec89e6edcf687afa30b96839b = L.popup({"maxWidth": "100%"});
+
+        
+            var html_5aaf02c4766873c7948a8e0c34440dd0 = $(`<div id="html_5aaf02c4766873c7948a8e0c34440dd0" style="width: 100.0%; height: 100.0%;">Royal Hill (junction with Royal Place): Camera enforced traffic filter</div>`)[0];
+            popup_e57fbf5ec89e6edcf687afa30b96839b.setContent(html_5aaf02c4766873c7948a8e0c34440dd0);
+        
+
+        marker_0237f82be6131c6ef9a327fae584be4a.bindPopup(popup_e57fbf5ec89e6edcf687afa30b96839b)
+        ;
+
+        
+    
+    
+            var marker_82e6fab4944767be8226cfae036bb574 = L.marker(
+                [51.47571309203789, -0.010445740228214477],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_00b9dc83c7a1cf532328148c63b72a5c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "pink", "prefix": "glyphicon"}
+            );
+            marker_82e6fab4944767be8226cfae036bb574.setIcon(icon_00b9dc83c7a1cf532328148c63b72a5c);
+        
+    
+        var popup_845c5fbfc5c03849543b019e689fbe20 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_3a87671f6af4ce6fe852120100daa9c7 = $(`<div id="html_3a87671f6af4ce6fe852120100daa9c7" style="width: 100.0%; height: 100.0%;">Royal Hill (junction with Point Hill): Camera enforced traffic filter</div>`)[0];
+            popup_845c5fbfc5c03849543b019e689fbe20.setContent(html_3a87671f6af4ce6fe852120100daa9c7);
+        
+
+        marker_82e6fab4944767be8226cfae036bb574.bindPopup(popup_845c5fbfc5c03849543b019e689fbe20)
+        ;
+
+        
+    
+    
+            var marker_e1d20103bb97ab63ae27a417a98fc58b = L.marker(
+                [51.47477437372429, -0.009974275400505687],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_87f8d6da7c9453163993d3ea623d2ff1 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "cadetblue", "prefix": "glyphicon"}
+            );
+            marker_e1d20103bb97ab63ae27a417a98fc58b.setIcon(icon_87f8d6da7c9453163993d3ea623d2ff1);
+        
+    
+        var popup_51af58821fbeb5e8215f47a3ffa28608 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_618f5d805129d5a942683a115132f43e = $(`<div id="html_618f5d805129d5a942683a115132f43e" style="width: 100.0%; height: 100.0%;">Winforton Street (junction with Point Hill): Camera enforced traffic filter</div>`)[0];
+            popup_51af58821fbeb5e8215f47a3ffa28608.setContent(html_618f5d805129d5a942683a115132f43e);
+        
+
+        marker_e1d20103bb97ab63ae27a417a98fc58b.bindPopup(popup_51af58821fbeb5e8215f47a3ffa28608)
+        ;
+
+        
+    
+    
+            var marker_9d6fe352236b6795f0c9f86dae90e100 = L.marker(
+                [51.47440595783093, -0.009739907816215749],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_4a2a40068962316c596151a52bd8135d = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_9d6fe352236b6795f0c9f86dae90e100.setIcon(icon_4a2a40068962316c596151a52bd8135d);
+        
+    
+        var popup_b56c689504291498379d8c3204660f23 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_04d8f7c62e47672721257a27c0e98aef = $(`<div id="html_04d8f7c62e47672721257a27c0e98aef" style="width: 100.0%; height: 100.0%;">Maidenstone Hill (junction with Point Hill): Camera enforced traffic filter</div>`)[0];
+            popup_b56c689504291498379d8c3204660f23.setContent(html_04d8f7c62e47672721257a27c0e98aef);
+        
+
+        marker_9d6fe352236b6795f0c9f86dae90e100.bindPopup(popup_b56c689504291498379d8c3204660f23)
+        ;
+
+        
+    
+    
+            var marker_6d261f7cf2c6af70504ee068d8cfc0c7 = L.marker(
+                [51.47383765234987, -0.014485234204120375],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_3913232021d7f98bdda6745f3ed3711e = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "darkgreen", "prefix": "glyphicon"}
+            );
+            marker_6d261f7cf2c6af70504ee068d8cfc0c7.setIcon(icon_3913232021d7f98bdda6745f3ed3711e);
+        
+    
+        var popup_8a7f352dd08fe9b5aed4dbecabfa729c = L.popup({"maxWidth": "100%"});
+
+        
+            var html_07a79e217025ea2d6bf7367193eab567 = $(`<div id="html_07a79e217025ea2d6bf7367193eab567" style="width: 100.0%; height: 100.0%;">Lindsell Street (junction with Greenwich South Street): No entry (into Lindsell Street)</div>`)[0];
+            popup_8a7f352dd08fe9b5aed4dbecabfa729c.setContent(html_07a79e217025ea2d6bf7367193eab567);
+        
+
+        marker_6d261f7cf2c6af70504ee068d8cfc0c7.bindPopup(popup_8a7f352dd08fe9b5aed4dbecabfa729c)
+        ;
+
+        
+    
+    
+            var marker_640dbeb78518a52b0d73b6c888a17c25 = L.marker(
+                [51.482, 0.0],
+                {}
+            ).addTo(map_11b2062fb3ddedaeaa9de66c6f7e89e9);
+        
+    
+            var icon_129c76f30892db83618cc348e71adfe6 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "darkpurple", "prefix": "glyphicon"}
+            );
+            marker_640dbeb78518a52b0d73b6c888a17c25.setIcon(icon_129c76f30892db83618cc348e71adfe6);
+        
+    
+        var popup_66bde5ccb720b4ed8ecd8da51c93c737 = L.popup({"maxWidth": 400});
+
+        
+            var html_8ade67774a7b1cf6ad58e72e132b3d24 = $(`<div id="html_8ade67774a7b1cf6ad58e72e132b3d24" style="width: 100.0%; height: 100.0%;"> <strong>Important Notes:</strong><br> <ul>     <li><strong>Trial Details:</strong><br>     The trial will begin on <strong>Wednesday 27 November 2024</strong>, and will include the following measures:<br>         <ul>             <li>Part-time camera-controlled restrictions on weekdays during peak hours (7am to 10am and 3pm to 7pm) to stop through traffic on certain roads in west and east Greenwich</li>             <li>Extended exemptions for Blue Badge holders, taxis, private hire vehicles, Council refuse vehicles, and individuals or community groups with special circumstances such as children with special education needs</li>         </ul>     </li>     <li><strong>Additional Notes:</strong><br>         <ul>             <li>Roads with restrictions will remain fully accessible to pedestrians, cyclists and wheelchair users.</li>             <li>Every address will still be accessible by car, though some drivers may need to take alternate routes.</li>             <li>The trial will last for a maximum of 18 months. The public can provide feedback on the changes during the first six months of the trial.</li>             <li>Traffic data gathered during the trial and all feedback from local people will be carefully considered before deciding whether to keep, remove, or change the trial scheme.</li>         </ul>     </li> </ul> </div>`)[0];
+            popup_66bde5ccb720b4ed8ecd8da51c93c737.setContent(html_8ade67774a7b1cf6ad58e72e132b3d24);
+        
+
+        marker_640dbeb78518a52b0d73b6c888a17c25.bindPopup(popup_66bde5ccb720b4ed8ecd8da51c93c737)
+        ;
+
+        
+    
+    
+            marker_640dbeb78518a52b0d73b6c888a17c25.bindTooltip(
+                `<div>
+                     Click for Important Notes
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            
+        
+    
+        var popup_ce2e850221abc1921857fd71d4ae5fec = L.popup({"maxWidth": 400});
+
+        
+            var html_f560c574c964a238bab352b26255d65c = $(`<div id="html_f560c574c964a238bab352b26255d65c" style="width: 100.0%; height: 100.0%;"> <div style="text-align: left;">     <button onclick="         var x = document.getElementById('trial-details');         if (x.style.display === 'none') { x.style.display = 'block'; } else { x.style.display = 'none'; }     " style='background-color: lightblue; border: none; padding: 10px; cursor: pointer;'>         Toggle Trial Details     </button>     <div id="trial-details" style="display: none; margin-top: 10px; border: 1px solid black; padding: 10px; background-color: white;">         <strong>Trial Details:</strong><br>         The trial will begin on <strong>Wednesday 27 November 2024</strong>, and will include the following measures:<br>         <ul>             <li>Part-time camera-controlled restrictions on weekdays during peak hours (7am to 10am and 3pm to 7pm) to stop through traffic on certain roads in west and east Greenwich</li>             <li>Extended exemptions for Blue Badge holders, taxis, private hire vehicles, Council refuse vehicles, and individuals or community groups with special circumstances such as children with special education needs</li>         </ul>     </div> </div> </div>`)[0];
+            popup_ce2e850221abc1921857fd71d4ae5fec.setContent(html_f560c574c964a238bab352b26255d65c);
+        
+
+        marker_3c68f9a4773bd91a6a434203c92aed34.bindPopup(popup_ce2e850221abc1921857fd71d4ae5fec)
+        ;
+
+        
+    
+    
+            marker_3c68f9a4773bd91a6a434203c92aed34.bindTooltip(
+                `<div>
+                     Click for Trial Details
+                 </div>`,
+                {"sticky": true}
+            );
+        
+</script>
+</html>
