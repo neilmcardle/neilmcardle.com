@@ -21,6 +21,7 @@
                     <li><a href="icon-creator.html"><i class="fa-solid fa-icons"></i> Icon Creator</a></li>
                     <li><a href="vector-paint.html" id="vector-paint-li"><i class="fas fa-brush icon"></i> Vector Paint</a></li>
                     <li><a href="mortgage-calculator.html"><i class="fas fa-calculator icon"></i> Home Move Calculator</a></li>
+                    <li><a href="makeEbook.html"><i class="fa-solid fa-book-open-reader"></i> makeEbook</a></li>
                 </ul>
                 <h2>Online</h2>
                 <ul>
@@ -36,7 +37,7 @@
             <h1 class="page-title">#HomeMoveCalculator</h1>
             <div class="calculator-container">        
                 <div class="toggle-container">
-                    <label for="isSellingHouse"><i class="fas fa-toggle-on"></i> Are you selling a house?</label>
+                    <label for="isSellingHouse">Are you selling a house?</label>
                     <select id="isSellingHouse" onchange="toggleDepositInput()">
                         <option value="yes">Yes</option>
                         <option value="no">No</option>
@@ -45,29 +46,29 @@
         
                 <div class="form-container">
                     <div class="form-group" id="saleFields">
-                        <label for="salePrice"><i class="fas fa-home"></i> Sale Price of Current Property (£):</label>
+                        <label for="salePrice">Sale Price of Current Property (£):</label>
                         <input type="text" id="salePrice" placeholder="Enter sale price">
-                        <label for="currentMortgage"><i class="fas fa-money-bill-wave"></i> Current Mortgage Amount (£):</label>
+                        <label for="currentMortgage">Current Mortgage Amount (£):</label>
                         <input type="text" id="currentMortgage" placeholder="Enter current mortgage amount">
-                        <label for="legalFees"><i class="fas fa-gavel"></i> Legal Fees (£):</label>
+                        <label for="legalFees">Legal Fees (£):</label>
                         <input type="text" id="legalFees" placeholder="Enter legal fees">
-                        <label for="agentFeesPercentage"><i class="fas fa-percent"></i> Estate Agent Fees (% of Sale Price):</label>
+                        <label for="agentFeesPercentage">Estate Agent Fees (% of Sale Price):</label>
                         <input type="text" id="agentFeesPercentage" placeholder="Enter agent fees percentage">
                     </div>
         
                     <div class="form-group" id="depositField" style="display: none;">
-                        <label for="depositAmount"><i class="fas fa-piggy-bank"></i> Deposit Amount (£):</label>
+                        <label for="depositAmount">Deposit Amount (£):</label>
                         <input type="text" id="depositAmount" placeholder="Enter deposit amount">
                     </div>
         
                     <div class="form-group">
-                        <label for="futurePropertyPrice"><i class="fas fa-building"></i> Cost of Future Property (£):</label>
+                        <label for="futurePropertyPrice">Cost of Future Property (£):</label>
                         <input type="text" id="futurePropertyPrice" placeholder="Enter future property price">
                     </div>
         
                     <!-- Credit Score Provider Dropdown -->
                     <div class="form-group">
-                        <label for="creditScoreProvider"><i class="fas fa-credit-card"></i> Credit Score Provider:</label>
+                        <label for="creditScoreProvider">Credit Score Provider:</label>
                         <select id="creditScoreProvider" onchange="toggleCreditScoreInput()">
                             <option value="manual">Enter Manually</option>
                             <option value="equifax">Equifax</option>
@@ -81,7 +82,7 @@
                     </div>
                     <!-- Manual Credit Score Input -->
                     <div class="form-group" id="creditScoreInputGroup">
-                        <label for="creditScore"><i class="fas fa-credit-card"></i> Credit Score:</label>
+                        <label for="creditScore">Credit Score:</label>
                         <input type="text" id="creditScore" placeholder="Enter your credit score">
                         <p style="font-size: 12px; color: #666;">Note: Your credit score will not be stored or transmitted. This is only for calculation purposes.</p>
                     </div>
@@ -89,23 +90,23 @@
                    
         
                     <div class="form-group">
-                        <label for="interestRate"><i class="fas fa-percentage"></i> Future Mortgage Interest Rate (%):</label>
+                        <label for="interestRate">Future Mortgage Interest Rate (%):</label>
                         <input type="text" id="interestRate" placeholder="Enter interest rate">
                     </div>
                     <div class="form-group">
-                        <label for="loanTerm"><i class="fas fa-calendar"></i> Furture Mortgage Term (Years):</label>
+                        <label for="loanTerm">Furture Mortgage Term (Years):</label>
                         <input type="number" id="loanTerm" placeholder="Enter loan term in years" min="1" max="40" value="30">
                     </div>
                     <div class="form-group">
-                        <label for="isAdditionalProperty"><i class="fas fa-question-circle"></i> Is this an additional property? (Yes/No):</label>
+                        <label for="isAdditionalProperty">Is this an additional property? (Yes/No):</label>
                         <input type="text" id="isAdditionalProperty" placeholder="Enter Yes or No">
                     </div>
                     <div class="form-group">
-                        <label for="currentSalary"><i class="fas fa-user"></i> Current Annual Salary (£):</label>
+                        <label for="currentSalary">Current Annual Salary (£):</label>
                         <input type="text" id="currentSalary" placeholder="Enter your annual salary">
                     </div>
                     <div class="form-group" style="flex: 1 1 100%;">
-                        <label for="incomeMultiplier"><i class="fas fa-hand-holding-usd"></i> Select Income Multiplier:</label>
+                        <label for="incomeMultiplier">Select Income Multiplier:</label>
                         <select id="incomeMultiplier">
                             <option value="4.5">4.5x (Income below £60,000)</option>
                             <option value="5">5x (Income between £60,000 and £100,000)</option>

@@ -7,7 +7,7 @@
     align-items: center;
     padding: 16px;
     border-radius: 16px;
-    width: 90%;
+    width: auto;
     margin: 0 auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     color: #fff;
@@ -17,6 +17,7 @@
     background-color: #fff;
     border:1px solid #444;
     border-radius: 8px;
+    width: 96%;
     color: #444;
     font-size: 16px;
     padding: 10px 20px;

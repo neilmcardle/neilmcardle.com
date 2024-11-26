@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Styled eBook Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="makeEbook.css">  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"> 
+</head>
+<body class="calculator-container">
+<div class="side-panel open" id="sidePanel">
+    <button  class="close-btn" onclick="toggleSidePanel()"><i class="fa-solid fa-xmark"></i></button>
+    <nav>
+        <h1>Neil McArdle</h1>
+        <ul>
+            <li><a href="index.html"><i class="fas fa-home icon"></i> Home</a></li>
+            <li><a href="iconography.html"><i class="fas fa-pen-nib icon"></i> Iconography</a></li>
+            <li><a href="design-systems.html"><i class="fas fa-object-ungroup icon"></i> Design Systems</a></li>
+            <li><a href="icon-creator.html"><i class="fa-solid fa-icons"></i> Icon Creator</a></li>
+            <li><a href="vector-paint.html" id="vector-paint-li"><i class="fas fa-brush icon"></i> Vector Paint</a></li>
+            <li><a href="mortgage-calculator.html"><i class="fas fa-calculator icon"></i> Home Move Calculator</a></li>
+            <li><a href="makeEbook.html"><i class="fa-solid fa-book-open-reader"></i> makeEbook</a></li>
+        </ul>
+        <h2>Online</h2>
+        <ul>
+            <li><a href="https://x.com/neilmacdesign" target="_blank"><i class="fab fa-x-twitter icon"></i> X</a></li>
+            <li><a href="https://dribbble.com/NeilMacDesign" target="_blank"><i class="fab fa-dribbble icon"></i> Dribbble</a></li>
+            <li><a href="https://www.linkedin.com/in/neilmcardle/" target="_blank"><i class="fab fa-linkedin icon"></i> LinkedIn</a></li>
+        </ul>    
+    </nav>
+
+</div>
+<button class="hamburger" onclick="toggleSidePanel()"><i class="fa-solid fa-bars"></i></button>
+
+    <main>
+    <h1 class="page-title">#makeEbook</h1>
+    <div class="makeEbook-container">      
+    <form id="epubForm" class="eBookform-container">
+        <h2 class="result-title">Metadata</h2>
+        <label for="title">Book Title:</label>
+        <input type="text" id="title" name="title" required><br>
+        
+        <label for="author">Author:</label>
+        <input type="text" id="author" name="author" required><br>
+        
+        <label for="description">Book Description:</label><br>
+        <textarea id="description" name="description" required></textarea><br>
+
+        <label for="date">Publishing Date:</label>
+        <input type="date" id="date" name="date" required><br>
+
+        <label for="language">Language:</label>
+        <input type="text" id="language" name="language" value="en" required><br>
+
+        <h2 class="result-title">Chapters</h2>
+        <div id="chapters">
+            <div class="chapter">
+                <label for="chapterTitle1">Chapter 1 Title:</label>
+                <input type="text" id="chapterTitle1" name="chapterTitle1" required><br>
+
+                <label for="chapterContent1">Chapter 1 Content:</label><br>
+                <textarea id="chapterContent1" name="chapterContent1" required></textarea><br>
+            </div>
+        </div>
+        <!-- <button type="button" id="addChapter" class="calculate-btn">Add Chapter</button><br>
+         -->
+        <button type="button" id="generateEpub" class="calculate-btn">Generate ePub</button>
+    </form>
+    </div>  
+    </main>
+    <script src="scripts.js"></script>
+    <script src="makeEbook.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</body>
+</html>
