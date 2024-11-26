@@ -8,9 +8,11 @@
             L_NO_TOUCH = false;
             L_DISABLE_3D = false;
         </script>
+
     
     <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
     <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
@@ -41,19 +43,19 @@
             <div class="folium-map" id="map_11b2062fb3ddedaeaa9de66c6f7e89e9" ></div>
         
     
-<div style="position: fixed; bottom: 10px; left: 10px; background-color: white; padding: 5px; border: 1px solid black; font-size: 10px; width: 95%; z-index: 9999;">
+<div style="position: fixed; bottom: 10px; left: 10px; border-radius: 8px; background-color: white; padding: 5px; border: 1px solid black; font-size: 10px; width: hug-contents; z-index: 9999;">
     Source: <a href="https://www.royalgreenwich.gov.uk/news/2024/west-and-east-greenwich-neighbourhood-management-trial-begins-27-november" target="_blank">
     Royal Greenwich Council News</a>
 </div>
     
-<div style="position: fixed; bottom: 40px; left: 10px; background-color: lightgray; border: 1px solid black; padding: 5px; z-index: 9999; font-size: 12px; cursor: pointer;" 
+<div style="position: fixed; bottom: 40px; left: 10px; border-radius: 8px; margin-left: 0px; margin-bottom: 2px; margin-top: 8px; color: #fff; background-color: #333; border: 1px solid #fff; padding: 8px; z-index: 9999; font-size: 12px; cursor: pointer;" 
     onclick="
         var x = document.getElementById('trial-details');
         if (x.style.display === 'none') { x.style.display = 'block'; } else { x.style.display = 'none'; }
     ">
-    Trial Details (Click to Toggle)
+    <i style="margin-right: 4px;" class="fa-solid fa-circle-info"></i>Trial Details
 </div>
-<div id="trial-details" style="display: none; position: fixed; bottom: 80px; left: 10px; background-color: white; padding: 10px; border: 1px solid black; width: 90%; z-index: 9999; font-size: 12px;">
+<div id="trial-details" style="display: none; position: fixed; border-radius: 8px; bottom: 80px; left: 10px; background-color: white; padding: 10px; border: 1px solid black; width: hug-contents; z-index: 9999; font-size: 12px; ">
     <strong>Trial Details:</strong><br>
     The trial will begin on <strong>Wednesday 27 November 2024</strong>, and will include the following measures:<br>
     <ul>
