@@ -21,6 +21,13 @@ h3 {
     margin-top: 24px;
 }
 
+/* NM Logo*/
+.nm-logo {
+    margin-top: -16px;
+    height: 48px;
+    width: 48px;
+}
+
 /* Side panel hidden by default */
 .side-panel {
     width: 280px;
