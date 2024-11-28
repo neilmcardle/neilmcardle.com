@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Investment Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="mc.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Styling for toggle button */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-btn {
+            background-color: #555;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .toggle-btn:hover {
+            background-color: #444;
+        }
+
+        .fees-breakdown {
+            display: none; /* Hidden by default */
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="side-panel open" id="sidePanel">
+        <button  class="close-btn" onclick="toggleSidePanel()"><i class="fa-solid fa-xmark"></i></button>
+        
+        <nav>
+            <h1>Neil McArdle</h1>
+            <ul>
+                <li><a href="index.html"><i class="fas fa-home icon"></i> Home</a></li>
+                <li><a href="iconography.html"><i class="fas fa-pen-nib icon"></i> Iconography</a></li>
+                <li><a href="design-systems.html"><i class="fas fa-object-ungroup icon"></i> Design Systems</a></li>
+                <li><a href="icon-creator.html"><i class="fa-solid fa-icons"></i> Icon Creator</a></li>
+                <li><a href="vector-paint.html" id="vector-paint-li"><i class="fas fa-brush icon"></i> Vector Paint</a></li>
+                <li><a href="mortgage-calculator.html"><i class="fas fa-calculator icon"></i> Home Move Calculator</a></li>
+                <li><a href="property-investment-calculator.html"><i class="fas fa-calculator icon"></i> Property Investment Calculator</a></li>
+                <li><a href="makeEbook.html"><i class="fa-solid fa-book-open-reader"></i> makeEbook</a></li>
+            </ul>
+            <h2>Online</h2>
+            <ul>
+                <li><a href="https://x.com/neilmacdesign" target="_blank"><i class="fab fa-x-twitter icon"></i> X</a></li>
+                <li><a href="https://dribbble.com/NeilMacDesign" target="_blank"><i class="fab fa-dribbble icon"></i> Dribbble</a></li>
+                <li><a href="https://www.linkedin.com/in/neilmcardle/" target="_blank"><i class="fab fa-linkedin icon"></i> LinkedIn</a></li>
+            </ul>    
+        </nav>
+
+    </div>
+    <button class="hamburger" onclick="toggleSidePanel()"><i class="fa-solid fa-bars"></i></button>
+    <main>
+        <h1 class="page-title">#Property Investment Calculator</h1>
+        <div class="calculator-container">
+            <div class="form-container">
+                <label for="purchasePrice">Purchase Price</label>
+                <input type="number" id="purchasePrice" placeholder="eg. £180,000" required>
+
+                <label for="renovationCosts">Renovation Costs</label>
+                <input type="number" id="renovationCosts" placeholder="eg. £50,000" required>
+
+                <label for="contingencyPercent">Contingency Fund (%)</label>
+                <input type="number" id="contingencyPercent" placeholder="eg. £15">
+
+                <label for="holdingCosts">Holding Costs</label>
+                <input type="number" id="holdingCosts" placeholder="eg. £2,000">
+
+                <label for="agentFeePercent">Estate Agent Fees (%)</label>
+                <input type="number" id="agentFeePercent" placeholder="eg. %1.5">
+
+                <label for="bridgingLoanMonths">Bridging Loan Term (Months)</label>
+                <input type="number" id="bridgingLoanMonths" placeholder="eg. 6">
+
+                <label for="bridgingLoanRate">Bridging Loan Monthly Interest Rate (%)</label>
+                <input type="number" id="bridgingLoanRate" placeholder="eg. %1.5">
+
+                <label for="arv">After-Renovation Value (ARV)</label>
+                <input type="number" id="arv" placeholder="eg. £250,000" required>
+
+                <button class="calculate-btn" type="button" onclick="calculateInvestment()">
+                    <i class="fas fa-calculator"></i> Calculate
+                </button>
+            </div>
+
+            <div id="result" class="result-card" style="display: none;">
+                <p class="result-title">Investment Outcome</p>
+                <p id="resultText" class="result-value"></p>
+            </div>
+        </div>
+
+        <div class="info-container">
+            <div class="info-section">
+                <h2>Additional Information</h2>
+                <details>
+                    <summary><strong>Stamp Duty</strong></summary>
+                    <p>Stamp Duty Land Tax (SDLT) is a tax on property purchases. Rates vary based on property value and type:</p>
+                    <ul>
+                        <li>0% on properties up to £250,000.</li>
+                        <li>5% on £250,001–£925,000.</li>
+                        <li>10% on £925,001–£1.5m.</li>
+                        <li>12% above £1.5m.</li>
+                        <li>For additional properties, a 3% surcharge applies to all tiers.</li>
+                    </ul>
+                    <p><strong>Example:</strong> For a £300,000 property, the Stamp Duty is £11,500 for a second home.</p>
+                </details>
+                <details>
+                    <summary><strong>Legal Fees</strong></summary>
+                    <p>Legal fees include conveyancing, searches, and registration costs:</p>
+                    <ul>
+                        <li>Conveyancing: £800–£1,500.</li>
+                        <li>Search Fees: £250–£500.</li>
+                        <li>Land Registration: £20–£910 (depends on property value).</li>
+                    </ul>
+                    <p><strong>Example:</strong> For a £300,000 property, legal fees might total ~£1,735.</p>
+                </details>
+                <details>
+                    <summary><strong>Capital Gains Tax</strong></summary>
+                    <p>Capital Gains Tax (CGT) is paid on profits from selling investment properties:</p>
+                    <ul>
+                        <li>Basic Rate Taxpayers: 18% on gains.</li>
+                        <li>Higher Rate Taxpayers: 28% on gains.</li>
+                    </ul>
+                    <p><strong>Example:</strong> If your taxable gain is £74,000, the CGT could be £13,320–£20,720.</p>
+                </details>
+                <details>
+                    <summary><strong>Other Costs</strong></summary>
+                    <p>Be aware of additional costs like:</p>
+                    <ul>
+                        <li>Contingency Fund: 10–20% of renovation budget.</li>
+                        <li>Holding Costs: Mortgage, utilities, insurance during the renovation period.</li>
+                        <li>Estate Agent Fees: 1–2% of sale price (+VAT).</li>
+                        <li>Bridging Loan Costs: Short-term financing with ~1% monthly interest.</li>
+                    </ul>
+                </details>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function calculateInvestment() {
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
+            const renovationCosts = parseFloat(document.getElementById('renovationCosts').value);
+            const contingencyPercent = parseFloat(document.getElementById('contingencyPercent').value) || 10;
+            const holdingCosts = parseFloat(document.getElementById('holdingCosts').value) || 0;
+            const agentFeePercent = parseFloat(document.getElementById('agentFeePercent').value) || 1.5;
+            const bridgingLoanMonths = parseFloat(document.getElementById('bridgingLoanMonths').value) || 6;
+            const bridgingLoanRate = parseFloat(document.getElementById('bridgingLoanRate').value) || 1;
+            const arv = parseFloat(document.getElementById('arv').value);
+
+            if (isNaN(purchasePrice) || isNaN(renovationCosts) || isNaN(arv)) {
+                alert('Please fill out all required fields with valid numbers.');
+                return;
+            }
+
+            // Calculate contingency fund
+            const contingencyFund = (contingencyPercent / 100) * renovationCosts;
+
+            // Calculate estate agent fees
+            const agentFees = (agentFeePercent / 100) * arv;
+
+            // Calculate bridging loan costs
+            const bridgingLoanCosts = (bridgingLoanRate / 100) * purchasePrice * bridgingLoanMonths;
+
+            // Total costs
+            const totalCosts = purchasePrice + renovationCosts + contingencyFund + holdingCosts + agentFees + bridgingLoanCosts;
+
+            // Profit/Loss
+            const profit = arv - totalCosts;
+
+            // Display results
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+
+            const resultText = document.getElementById('resultText');
+            if (profit > 0) {
+                resultText.textContent = `Profit: £${profit.toLocaleString()} (Positive ROI)`;
+                resultText.className = 'result-value positive';
+            } else {
+                resultText.textContent = `Loss: £${Math.abs(profit).toLocaleString()} (Negative ROI)`;
+                resultText.className = 'result-value negative';
+            }
+        }
+    </script>
+</body>
+</html>
