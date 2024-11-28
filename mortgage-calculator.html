@@ -35,13 +35,14 @@
         <button class="hamburger" onclick="toggleSidePanel()"><i class="fa-solid fa-bars"></i></button>
         <main>
             <h1 class="page-title">#HomeMoveCalculator</h1>
-            <div class="calculator-container">        
-                <div class="toggle-container">
-                    <label for="isSellingHouse">Are you selling a house?</label>
-                    <select id="isSellingHouse" onchange="toggleDepositInput()">
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
+            <div class="calculator-container">  
+                <div class="form-container">  
+                    
+                        <label for="isSellingHouse">Are you selling a house?</label>
+                            <select id="isSellingHouse" onchange="toggleDepositInput()">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
                 </div>
         
                 <div class="form-container">
@@ -84,7 +85,7 @@
                     <div class="form-group" id="creditScoreInputGroup">
                         <label for="creditScore">Credit Score:</label>
                         <input type="text" id="creditScore" placeholder="Enter your credit score">
-                        <p style="font-size: 12px; color: #666;">Note: Your credit score will not be stored or transmitted. This is only for calculation purposes.</p>
+                        <p style="margin-top: 0px; font-size: 12px; color: #ccc;">Note: Your credit score will not be stored or transmitted. This is only for calculation purposes.</p>
                     </div>
         
                    
@@ -113,9 +114,10 @@
                             <option value="5.5">5.5x (Income above £100,000)</option>
                         </select>
                     </div>
+                    <button class="calculate-btn" onclick="calculate()"><i class="fas fa-calculator"></i> Calculate</button>
                 </div>
         
-                <button class="calculate-btn" onclick="calculate()"><i class="fas fa-calculator"></i> Calculate</button>
+                
         
                 <div class="results">
                     <div class="result-card">
@@ -182,6 +184,7 @@
                         </div>
                     </div>
                 </div>
+            </div>    
             </div>
         </main>
         <script src="scripts.js"></script>

@@ -115,7 +115,7 @@
             border: none;
             border-radius: 4px;
             /* background: linear-gradient(to right, #090487, #DE02C1); */
-            background: rgb(24, 24, 24);
+            background: #333;
             color: white;
             cursor: pointer;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
