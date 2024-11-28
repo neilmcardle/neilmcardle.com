@@ -90,7 +90,7 @@ main {
 
 /* Active link style */
 .side-panel ul li a.active {
-    background: #000;
+    background: #333;;
     color: #fff;
 }
 
@@ -143,7 +143,7 @@ main {
     font-size: 24px;
     background: none;
     border: none;
-    color: #000;
+    color: #333;
     cursor: pointer;
     z-index: 900;
 }
