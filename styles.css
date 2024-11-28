@@ -90,7 +90,7 @@ main {
 
 /* Active link style */
 .side-panel ul li a.active {
-    background: #333;;
+    background: #333;
     color: #fff;
 }
 
