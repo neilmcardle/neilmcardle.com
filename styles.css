@@ -42,9 +42,18 @@ h3 {
     top: 0;
     left: -320px; /* Start as closed */
     transition: left 0.3s ease;
-    padding: 2rem 1rem;
+    padding: 2rem 1rem; /* Consistent padding */
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     z-index: 1000;
+    overflow-y: auto; /* Enable vertical scrolling */
+    box-sizing: border-box; /* Include padding in height calculations */
+}
+
+/* Ensure space for the last item to be scrollable */
+.side-panel::after {
+    content: '';
+    display: block;
+    height: 20px; /* Add space at the bottom */
 }
 
 /* Open side panel */
@@ -78,6 +87,7 @@ h3 {
 .side-panel ul {
     list-style: none;
     padding: 0;
+    margin-bottom: 0;
 }
 
 .side-panel ul li {
@@ -109,6 +119,50 @@ h3 {
     background: #333;
     color: #fff;
 }
+/* Ensure compatibility with small screens */
+@media only screen and (max-width: 768px) {
+    .side-panel {
+        max-height: 100vh; /* Respect the viewport height */
+        overflow-y: auto; /* Enable scrolling on smaller screens */
+    }
+}
+
+/* Scroll to Top Button */
+.scroll-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: none; /* Hidden initially */
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Button hover effect */
+.scroll-to-top:hover {
+    background-color: #555;
+}
+
+/* Show the button when active */
+.scroll-to-top.show {
+    display: block; /* Ensure it appears */
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scroll-to-top.hide {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+
 
 /* Icon inside links */
 .icon {
