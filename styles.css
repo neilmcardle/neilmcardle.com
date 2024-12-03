@@ -274,5 +274,13 @@ h3 {
         max-width: 300px; /* Optional: limit maximum width */
         height: auto; /* Maintain aspect ratio */
     }
+
+    .image-showcase-better-things {
+        width: 1000px;
+        display: flex;
+        justify-content: left;
+        gap: 16px;
+        margin: 20px 0;
+    }
 }
 
