@@ -53,7 +53,7 @@
                     display: none;
                     position: fixed;
                     border-radius: 8px;
-                    bottom: 146px;
+                    bottom: 160px;
                     left: 10px;
                     background-color: white;
                     padding: 10px;
@@ -66,7 +66,7 @@
 
                 #trial-toggle {
                     position: fixed;
-                    bottom: 102px;
+                    bottom: 118px;
                     left: 10px;
                     border-radius: 8px;
                     margin-left: 0px;
@@ -588,8 +588,9 @@
 
         // Update the panel content and background color
         clockElement.innerHTML = `
-            <strong>Time: </strong> ${time}<br>
-            <strong>Live status: </strong> ${restrictionStatus}
+        <strong> ${time}</strong><br>
+            <strong>Live status: </strong> ${restrictionStatus}<br> 
+            Morning: 07:00 - 10:00 | Afternoon: 15:00 - 19:00
         `;
         clockElement.style.backgroundColor = backgroundColor;
     }
