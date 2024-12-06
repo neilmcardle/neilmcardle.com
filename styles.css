@@ -4,7 +4,7 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    background-color: #fff;
     color: #333;
 }
 
@@ -246,6 +246,11 @@ h3 {
     margin: 20px 0;
 }
 
+.better-things-image {
+    width: 300px; /* Adjust as necessary */
+    height: auto;
+}
+
 .image-showcase-better-things {
     display: flex;
     justify-content: left;
@@ -257,6 +262,7 @@ h3 {
     width: 300px; /* Adjust as necessary */
     height: auto;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
 
 /* Stacking images on smaller devices */
