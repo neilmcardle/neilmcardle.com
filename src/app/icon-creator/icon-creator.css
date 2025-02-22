@@ -1,0 +1,44 @@
+#svg-grid {
+    background-color: #ffffff;
+  }
+  
+  .grid-line {
+    stroke: #ddd;
+    stroke-width: 0.1;
+  }
+  
+  .template-line {
+    stroke: #ff7f7f;
+    stroke-width: 0.2;
+  }
+  
+  .template-circle {
+    stroke: #b4e876;
+    stroke-width: 0.2;
+    fill: none;
+  }
+  
+  .template-square {
+    stroke: #ff7f7f;
+    stroke-width: 0.3;
+    fill: none;
+  }
+  
+  .rounded-rect {
+    stroke: #b0d4f1;
+    stroke-width: 0.2;
+    fill: none;
+    rx: 1px;
+  }
+  
+  .drawn-shape {
+    stroke: black;
+    fill: none;
+  }
+  
+  .preview-shape {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  
+  
