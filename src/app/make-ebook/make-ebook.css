@@ -1,0 +1,43 @@
+.bg-makeebook-primary {
+  background-color: #ffffff;
+}
+
+.text-makeebook-primary {
+  color: #e02f58;
+}
+
+.bg-makeebook-secondary {
+  background-color: #111136;
+}
+
+.text-makeebook-secondary {
+  color: #111136;
+}
+
+.border-makeebook-secondary {
+  border-color: #111136;
+}
+
+.hover\:bg-makeebook-primary\/90:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.hover\:bg-makeebook-secondary\/5:hover {
+  background-color: #b9b9b932;
+}
+
+.focus\:border-makeebook-primary:focus {
+  border-color: #b9b9b9;
+}
+
+/* New styles for the rounded header */
+.rounded-t-3xl {
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+}
+
+.rounded-b-3xl {
+  border-bottom-left-radius: 1.5rem;
+  border-bottom-right-radius: 1.5rem;
+}
+

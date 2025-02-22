@@ -1,0 +1,295 @@
+.canvas-container {
+    width: 70vw;
+    height: 70vh;
+    border: 2px solid rgb(224, 224, 224);
+    border-radius: 8px;
+    background-color: #fff;
+    transform: translate(-8%, 0%);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 100px;
+  }
+  
+  .canvas {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 600 600' fill='black'%3E%3Cpath d='M339.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L568.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S517.7-4.4 499.1 9.6L262.4 187.2c-24 18-38.2 46.1-38.4 76.1L339.3 367.1zm-19.6 25.4l-116-104.4C143.9 290.3 96 339.6 96 400c0 3.9 .2 7.8 .6 11.6C98.4 429.1 86.4 448 68.8 448L64 448c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z'/%3E%3C/svg%3E")
+      0 32, auto;
+  }
+  
+  .toolbar {
+    background-color: #333;
+    display: flex;
+    justify-content: space-around;
+    padding: 16px;
+    position: fixed;
+    bottom: 24px;
+    width: 25%;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    border-radius: 16px;
+    z-index: 20;
+    transform: translate(0%, 80%);
+  }
+  
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+    background-color: #444;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .icon-btn:hover {
+    background-color: #555;
+  }
+  
+  .icon-btn:active {
+    border: 1px solid white;
+  }
+  
+  #drawBtn.active {
+    background: linear-gradient(to bottom, rgb(9, 2, 210), rgba(222, 48, 242), rgb(249, 15, 120));
+  }
+  
+  .savePanel {
+    background-color: #333;
+    color: #fff;
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 350px;
+    padding: 16px;
+    border-radius: 8px;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    visibility: hidden;
+  }
+  
+  .savePanel.open {
+    visibility: visible;
+  }
+  
+  .saved-drawings {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .saved-drawing {
+    background-color: #444;
+    padding: 8px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .saved-drawing span {
+    color: #fff;
+    font-size: 14px;
+    flex-grow: 1;
+  }
+  
+  .saved-drawing button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 24px;
+  }
+  
+  .sizeOpacityDiv {
+    background-color: #333;
+    display: flex;
+    flex-direction: column;
+    padding: 32px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 12px;
+    z-index: 40;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    min-width: 300px;
+  }
+  
+  .sizeOpacityDiv.open {
+    opacity: 1;
+    visibility: visible;
+    padding-top: 0px;
+  }
+  
+  .sizeOpacitySpan {
+    color: #fff;
+    padding-top: 32px;
+    font-size: 1.1rem;
+  }
+  
+  .sizeOpacitySpan:last-of-type {
+    margin-top: 24px;
+  }
+  
+  .slider {
+    margin-bottom: 16px;
+  }
+  
+  .colorPaletteDiv {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 30;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    background-color: #333;
+    padding: 20px;
+  }
+  
+  .colorPaletteDiv.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  #colorPickerCanvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    cursor: crosshair;
+  }
+  
+  .innerColorSquare {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 150px;
+    border-radius: 12px;
+    cursor: crosshair;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  #colorPreview {
+    margin-top: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    background-color: #444;
+    border: 2px solid #fff;
+    box-shadow: none;
+    margin-bottom: 0;
+    align-self: last baseline;
+  }
+  
+  #paintbrushHint {
+    position: absolute;
+    bottom: 60px;
+    left: 20px;
+    background-color: #007bff;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  #paintbrushHint div {
+    position: absolute;
+    bottom: -10px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #007bff;
+  }
+  
+  #triangle div {
+    position: absolute;
+    bottom: -10px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #007bff;
+  }
+  
+  /* Add styles for the color picker container */
+  .colorPickerContainer {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Style for active buttons in toolbar */
+  .toolbar button.active {
+    background-color: #666;
+    border: 2px solid #fff;
+  }
+  
+  /* Hover effects for interactive elements */
+  .saved-drawing button:hover {
+    color: #007bff;
+  }
+  
+  /* Transition for smooth animations */
+  .toolbar button,
+  .saved-drawing button,
+  .colorPaletteDiv,
+  .sizeOpacityDiv {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  /* Ensure the canvas takes full width and height of container */
+  svg.canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  
+  /* Add some padding to the saved drawings container */
+  .saved-drawings {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 8px;
+  }
+  
+  /* Style the scrollbar for the saved drawings */
+  .saved-drawings::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .saved-drawings::-webkit-scrollbar-track {
+    background: #444;
+    border-radius: 4px;
+  }
+  
+  .saved-drawings::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 4px;
+  }
+  
+  .saved-drawings::-webkit-scrollbar-thumb:hover {
+    background: #888;
+  }
+  
+  
