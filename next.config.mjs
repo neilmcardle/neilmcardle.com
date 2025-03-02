@@ -1,7 +1,12 @@
+let userConfig = undefined
+try {
+  userConfig = await import('./v0-user-next.config')
+} catch (e) {
+  // ignore error
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -18,12 +23,7 @@ const nextConfig = {
   },
 }
 
-let userConfig = undefined
-try {
-  userConfig = await import("./v0-user-next.config")
-} catch (e) {
-  // ignore error
-}
+mergeConfig(nextConfig, userConfig)
 
 function mergeConfig(nextConfig, userConfig) {
   if (!userConfig) {
@@ -31,7 +31,10 @@ function mergeConfig(nextConfig, userConfig) {
   }
 
   for (const key in userConfig) {
-    if (typeof nextConfig[key] === "object" && !Array.isArray(nextConfig[key])) {
+    if (
+      typeof nextConfig[key] === 'object' &&
+      !Array.isArray(nextConfig[key])
+    ) {
       nextConfig[key] = {
         ...nextConfig[key],
         ...userConfig[key],
@@ -42,7 +45,4 @@ function mergeConfig(nextConfig, userConfig) {
   }
 }
 
-mergeConfig(nextConfig, userConfig)
-
 export default nextConfig
-
