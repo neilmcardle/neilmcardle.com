@@ -20,38 +20,72 @@ const FractalBackground: React.FC = () => {
       canvas.height = window.innerHeight
     }
 
-    const drawFractal = (x: number, y: number, len: number, angle: number, depth: number) => {
-      if (depth === 0) return
-
-      const endX = x + len * Math.cos(angle)
-      const endY = y + len * Math.sin(angle)
+    const drawSpiralCircles = (
+      centerX: number,
+      centerY: number,
+      startColor: string,
+      endColor: string,
+      progress: number,
+      isBottomRight: boolean,
+    ) => {
+      const maxRadius = Math.min(canvas.width, canvas.height) * (isBottomRight ? 0.5 : 0.6) // Reduced max radius for bottom right
+      const totalRotations = 15
+      const pointsPerRotation = 200
+      const growthFactor = 0.08
 
       ctx.beginPath()
-      ctx.moveTo(x, y)
-      ctx.lineTo(endX, endY)
-      ctx.stroke()
+      for (let i = 0; i <= totalRotations * pointsPerRotation * progress; i++) {
+        const angle = (i / pointsPerRotation) * 2 * Math.PI
+        const radius = Math.exp(growthFactor * angle) * 5
+        if (radius > maxRadius) break
 
-      drawFractal(endX, endY, len * 0.8, angle - Math.PI / 6, depth - 1)
-      drawFractal(endX, endY, len * 0.8, angle + Math.PI / 6, depth - 1)
+        const x = centerX + radius * Math.cos(angle)
+        const y = centerY + radius * Math.sin(angle)
+
+        if (i === 0) {
+          ctx.moveTo(x, y)
+        } else {
+          ctx.lineTo(x, y)
+        }
+
+        const gradientProgress = i / (totalRotations * pointsPerRotation)
+        const color = interpolateColor(startColor, endColor, gradientProgress)
+        ctx.strokeStyle = color
+        ctx.lineWidth = 2
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(x, y)
+      }
     }
 
-    let startTime: number
+    const interpolateColor = (color1: string, color2: string, factor: number) => {
+      const r1 = Number.parseInt(color1.slice(1, 3), 16)
+      const g1 = Number.parseInt(color1.slice(3, 5), 16)
+      const b1 = Number.parseInt(color1.slice(5, 7), 16)
+      const r2 = Number.parseInt(color2.slice(1, 3), 16)
+      const g2 = Number.parseInt(color2.slice(3, 5), 16)
+      const b2 = Number.parseInt(color2.slice(5, 7), 16)
+      const r = Math.round(r1 + factor * (r2 - r1))
+      const g = Math.round(g1 + factor * (g2 - g1))
+      const b = Math.round(b1 + factor * (b2 - b1))
+      return `rgba(${r}, ${g}, ${b}, 0.8)`
+    }
+
+    let startTime: number | null = null
+    const animationDuration = 2000 // 2 seconds
+
     const animate = (timestamp: number) => {
       if (!startTime) startTime = timestamp
       const elapsed = timestamp - startTime
+      const progress = Math.min(elapsed / animationDuration, 1)
 
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.strokeStyle = "rgba(180, 180, 180, 0.5)"
-      ctx.lineWidth = 1
 
-      const progress = Math.min(elapsed / 2000, 1) // Animation lasts 2 seconds
-      const maxDepth = Math.floor(progress * 8) // Max depth of 8
+      // Draw spiral circles in top left corner (magenta to cyan)
+      drawSpiralCircles(0, 0, "#FF00FF", "#00FFFF", progress, false)
 
-      // Draw fractal in top left corner
-      drawFractal(0, 0, 100, Math.PI / 4, maxDepth)
-
-      // Draw fractal in bottom right corner
-      drawFractal(canvas.width, canvas.height, 100, (-3 * Math.PI) / 4, maxDepth)
+      // Draw spiral circles in bottom right corner (cyan to magenta)
+      drawSpiralCircles(canvas.width, canvas.height, "#00FFFF", "#FF00FF", progress, true)
 
       if (progress < 1) {
         animationFrameId = requestAnimationFrame(animate)
@@ -59,7 +93,7 @@ const FractalBackground: React.FC = () => {
     }
 
     const startAnimation = () => {
-      startTime = 0
+      startTime = null
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId)
       }
@@ -82,7 +116,13 @@ const FractalBackground: React.FC = () => {
     }
   }, [])
 
-  return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full pointer-events-none z-[-1]" />
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed top-0 left-0 w-full h-full pointer-events-none z-[-1]"
+      style={{ opacity: 0.5 }}
+    />
+  )
 }
 
 export default FractalBackground
