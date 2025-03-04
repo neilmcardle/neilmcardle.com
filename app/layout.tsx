@@ -1,9 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import { TopNavigation } from "@/components/top-navigation"
-import FractalBackground from "@/components/FractalBackground"
-import "./globals.css"
+import { ClientLayout } from "./client-layout"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -19,15 +17,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>
-        <FractalBackground />
-        <TopNavigation />
-        <main className="min-h-screen pt-24">{children}</main>
-      </body>
-    </html>
-  )
+  return <ClientLayout>{children}</ClientLayout>
 }
 
 
