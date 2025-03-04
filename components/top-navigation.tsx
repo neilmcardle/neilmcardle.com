@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
-import { ChevronDown, Home } from "lucide-react"
+import { ChevronDown, Menu, X } from "lucide-react"
 import { FigmaIcon } from "./FigmaIcon"
 import { BetterThingsIcon } from "./BetterThingsIcon"
 import { LinkedInIcon } from "./LinkedInIcon"
@@ -56,7 +56,7 @@ export function TopNavigation() {
           aria-expanded={isMenuOpen}
           aria-label="Toggle menu"
         >
-          {isMenuOpen ? <Home size={24} /> : <Home size={24} />}
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
         {/* Desktop Navigation */}
