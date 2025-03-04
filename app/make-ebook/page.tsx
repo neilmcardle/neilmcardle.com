@@ -1,12 +1,21 @@
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
 import { MakeEbookIcon } from "@/components/MakeEbookIcon"
 import { MakeEbookComputerIcon } from "@/components/MakeEbookComputerIcon"
 import { LinkedInIcon } from "@/components/LinkedInIcon"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Type, CheckCircle, FileType, ArrowLeft, Check } from "lucide-react"
+import { Type, CheckCircle, FileType, ArrowLeft, Lock } from "lucide-react"
 
 export default function MakeEbook() {
+  const [selectedTier, setSelectedTier] = useState<"basic" | "pro" | null>(null)
+
+  const handleTierSelect = (tier: "basic" | "pro") => {
+    setSelectedTier(tier)
+  }
+
   return (
     <div className="flex flex-col min-h-screen relative bg-white">
       {/* Header */}
@@ -104,170 +113,137 @@ export default function MakeEbook() {
             {/* Feature Comparison Section */}
             <section className="py-20 px-4 bg-[#F5F5F7] rounded-2xl">
               <div className="max-w-[980px] mx-auto">
-                <h2 className="text-[40px] font-semibold text-center mb-6 text-[#1D1D1F]">Choose Your Plan</h2>
+                <div className="flex flex-col items-center justify-center mb-6">
+                  <h2 className="text-[40px] font-semibold text-center text-[#1D1D1F]">Choose Your Plan</h2>
+                  <div className="flex items-center gap-2 mt-2 px-4 py-2 bg-[#1D1D1F]/10 rounded-full">
+                    <Lock className="h-4 w-4 text-[#1D1D1F]" />
+                    <span className="text-sm text-[#1D1D1F]">makeEbook is currently in development</span>
+                  </div>
+                </div>
                 <p className="text-xl text-[#86868B] text-center max-w-2xl mx-auto mb-16">
                   Select the tier that best fits your ebook creation needs
                 </p>
 
-                <div className="grid md:grid-cols-3 gap-8">
-                  {/* Write Only Plan */}
-                  <div className="bg-white rounded-2xl shadow-sm p-8">
-                    <h3 className="text-[32px] font-semibold mb-4 text-[#1D1D1F]">Write Only</h3>
+                <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                  {/* Basic Plan */}
+                  <div
+                    className={`bg-white rounded-2xl shadow-sm p-8 cursor-pointer transition-all duration-300 ${
+                      selectedTier === "basic"
+                        ? "ring-2 ring-green-500 transform scale-[1.02] shadow-md"
+                        : "hover:shadow-md"
+                    }`}
+                    onClick={() => handleTierSelect("basic")}
+                  >
+                    <h3 className="text-[32px] font-semibold mb-2 text-[#1D1D1F]">Basic</h3>
+                    <div className="inline-block bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full mb-6">
+                      Free
+                    </div>
                     <p className="text-[#86868B] text-lg mb-8">
-                      Perfect for authors who want to create content from scratch
+                      Essential tools for getting started with ebook creation
                     </p>
 
                     <div className="bg-[#F5F5F7] rounded-xl p-6 mb-6">
-                      <ul className="space-y-6">
-                        {/* Writing & Formatting */}
-                        <li>
-                          <h4 className="font-medium text-[#1D1D1F] mb-3">Writing & Formatting</h4>
-                          <ul className="space-y-4">
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">
-                                Full writing environment with distraction-free mode
-                              </span>
-                            </li>
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Basic and advanced formatting tools</span>
-                            </li>
-                          </ul>
+                      <ul className="space-y-4">
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-green-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            Create Basic eBooks: Design and generate simple eBooks with standard formatting
+                          </span>
                         </li>
-
-                        {/* Export Options */}
-                        <li>
-                          <h4 className="font-medium text-[#1D1D1F] mb-3">Export Options</h4>
-                          <ul className="space-y-4">
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Basic downloads (PDF, TXT, DOCX)</span>
-                            </li>
-                          </ul>
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-green-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            Essential Book Details: Add title, author, genre, and other basic metadata
+                          </span>
                         </li>
-
-                        {/* Collaboration */}
-                        <li>
-                          <h4 className="font-medium text-[#1D1D1F] mb-3">Collaboration</h4>
-                          <ul className="space-y-4">
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Basic collaboration features</span>
-                            </li>
-                          </ul>
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-green-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">Chapter Management: Add and edit multiple chapters</span>
                         </li>
-
-                        {/* Storage */}
-                        <li>
-                          <h4 className="font-medium text-[#1D1D1F] mb-3">Storage</h4>
-                          <ul className="space-y-4">
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Cloud storage for written content</span>
-                            </li>
-                          </ul>
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-green-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            Cover Image Upload: Upload a custom cover image for your eBook
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-green-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            Basic Preview: Preview how your eBook will look before generating
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-green-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            Single Format Export: Export your writing in PDF format
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-green-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            Static Design: Create simple eBooks to read on any device
+                          </span>
                         </li>
                       </ul>
                     </div>
-                    <p className="text-sm text-[#86868B]">Free with limited storage and downloads</p>
-                  </div>
-
-                  {/* Export Only Plan */}
-                  <div className="bg-white rounded-2xl shadow-sm p-8">
-                    <h3 className="text-[32px] font-semibold mb-4 text-[#1D1D1F]">Export Only</h3>
-                    <p className="text-[#86868B] text-lg mb-8">
-                      Ideal for converting existing documents to ebook formats
-                    </p>
-
-                    <div className="bg-[#F5F5F7] rounded-xl p-6 mb-6">
-                      <ul className="space-y-6">
-                        {/* Writing & Formatting */}
-                        <li>
-                          <h4 className="font-medium text-[#1D1D1F] mb-3">Writing & Formatting</h4>
-                          <ul className="space-y-4">
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Basic formatting adjustments for uploads</span>
-                            </li>
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Standardize headings and styles</span>
-                            </li>
-                          </ul>
-                        </li>
-
-                        {/* Export Options */}
-                        <li>
-                          <h4 className="font-medium text-[#1D1D1F] mb-3">Export Options</h4>
-                          <ul className="space-y-4">
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Professional ebook formats (EPUB3, MOBI, AZW3)</span>
-                            </li>
-                          </ul>
-                        </li>
-
-                        {/* Storage */}
-                        <li>
-                          <h4 className="font-medium text-[#1D1D1F] mb-3">Storage</h4>
-                          <ul className="space-y-4">
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Temporary storage during conversion</span>
-                            </li>
-                          </ul>
-                        </li>
-                      </ul>
-                    </div>
-                    <p className="text-sm text-[#86868B]">Free with limited uploads and exports</p>
                   </div>
 
                   {/* Pro Plan */}
-                  <div className="bg-white rounded-2xl shadow-sm p-8 ring-2 ring-[#1D1D1F]">
-                    <h3 className="text-[32px] font-semibold mb-4 text-[#1D1D1F]">Pro</h3>
+                  <div
+                    className={`bg-white rounded-2xl shadow-sm p-8 cursor-pointer transition-all duration-300 ${
+                      selectedTier === "pro"
+                        ? "ring-2 ring-blue-500 transform scale-[1.02] shadow-md"
+                        : "hover:shadow-md"
+                    }`}
+                    onClick={() => handleTierSelect("pro")}
+                  >
+                    <h3 className="text-[32px] font-semibold mb-2 text-[#1D1D1F]">Pro</h3>
+                    <div className="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full mb-6">
+                      £14.99/month
+                    </div>
                     <p className="text-[#86868B] text-lg mb-8">
                       Complete solution for professional ebook creation and publishing
                     </p>
 
                     <div className="bg-[#F5F5F7] rounded-xl p-6 mb-6">
-                      <ul className="space-y-6">
-                        <li className="flex items-start mb-6">
-                          <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                          <span className="text-[#1D1D1F] font-medium">Everything in Write and Export plus:</span>
+                      <p className="text-[#1D1D1F] font-medium mb-4">Everything in Basic, plus:</p>
+                      <ul className="space-y-4">
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-blue-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            Multiple Format Export: Generate your eBook in various formats (EPUB, AZW3, MOBI and PDF)
+                          </span>
                         </li>
-
-                        {/* Advanced Features */}
-                        <li>
-                          <h4 className="font-medium text-[#1D1D1F] mb-3">Advanced Features</h4>
-                          <ul className="space-y-4">
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Cover design tools and AI assistance</span>
-                            </li>
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">
-                                Advanced formatting options (multimedia, interactive)
-                              </span>
-                            </li>
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Real-time team collaboration</span>
-                            </li>
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Publishing platform integrations</span>
-                            </li>
-                            <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-[#1D1D1F]">Sales analytics and marketing tools</span>
-                            </li>
-                          </ul>
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-blue-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            Save & Edit Drafts: Save your work and come back to it later
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-blue-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            Advanced Formatting Options: More control over layout, fonts, and styling
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-blue-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            ISBN Integration: Add your own ISBN for eBook publishing
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-blue-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            No Watermarks: Remove "Created with makeEbook" from your eBooks
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-blue-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">Priority Support: Get help when you need it</span>
                         </li>
                       </ul>
                     </div>
-                    <p className="text-sm text-[#86868B]">Premium subscription with unlimited access</p>
                   </div>
                 </div>
               </div>
