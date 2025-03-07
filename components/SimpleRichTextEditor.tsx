@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -61,6 +63,24 @@ export function SimpleRichTextEditor({
     editorRef.current?.focus()
   }
 
+  // Apply heading format
+  const applyHeading = (level: number) => {
+    // First clear any existing heading format
+    document.execCommand("removeFormat", false, "")
+
+    // Then apply the new heading format
+    if (level === 1) {
+      document.execCommand("fontSize", false, "6") // Larger size for H1
+      document.execCommand("bold", false, "")
+    } else if (level === 2) {
+      document.execCommand("fontSize", false, "5") // Smaller size for H2
+      document.execCommand("bold", false, "")
+    }
+
+    handleInput()
+    editorRef.current?.focus()
+  }
+
   // Insert link with security improvements
   const insertLink = () => {
     if (linkUrl && linkText) {
@@ -86,132 +106,164 @@ export function SimpleRichTextEditor({
   }
 
   return (
-    <div className={`border rounded-md ${className}`}>
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-muted/30">
-        <TooltipProvider delayDuration={300}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("bold")}>
-                <Bold className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Bold</TooltipContent>
-          </Tooltip>
+    <>
+      <style jsx global>{`
+        [contenteditable] [style*="font-size: xx-large"],
+        [contenteditable] [size="6"] {
+          font-size: 1.75rem !important;
+          font-weight: bold;
+          line-height: 1.2;
+          margin-top: 1em;
+          margin-bottom: 0.5em;
+        }
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("italic")}>
-                <Italic className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Italic</TooltipContent>
-          </Tooltip>
+        [contenteditable] [style*="font-size: x-large"],
+        [contenteditable] [size="5"] {
+          font-size: 1.5rem !important;
+          font-weight: bold;
+          line-height: 1.3;
+          margin-top: 1em;
+          margin-bottom: 0.5em;
+        }
+      `}</style>
+      <div className={`border rounded-md ${className}`}>
+        <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-muted/30">
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("bold")}>
+                  <Bold className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Bold</TooltipContent>
+            </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("underline")}>
-                <Underline className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Underline</TooltipContent>
-          </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("italic")}>
+                  <Italic className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Italic</TooltipContent>
+            </Tooltip>
 
-          <div className="w-px h-6 bg-border mx-1" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("underline")}>
+                  <Underline className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Underline</TooltipContent>
+            </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("formatBlock", "<h1>")}>
-                <Heading1 className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Heading 1</TooltipContent>
-          </Tooltip>
+            <div className="w-px h-6 bg-border mx-1" />
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("formatBlock", "<h2>")}>
-                <Heading2 className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Heading 2</TooltipContent>
-          </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => applyHeading(1)}>
+                  <Heading1 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Heading 1</TooltipContent>
+            </Tooltip>
 
-          <div className="w-px h-6 bg-border mx-1" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => applyHeading(2)}>
+                  <Heading2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Heading 2</TooltipContent>
+            </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("justifyLeft")}>
-                <AlignLeft className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Align Left</TooltipContent>
-          </Tooltip>
+            <div className="w-px h-6 bg-border mx-1" />
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("justifyCenter")}>
-                <AlignCenter className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Align Center</TooltipContent>
-          </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("justifyLeft")}>
+                  <AlignLeft className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Align Left</TooltipContent>
+            </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("justifyRight")}>
-                <AlignRight className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Align Right</TooltipContent>
-          </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("justifyCenter")}>
+                  <AlignCenter className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Align Center</TooltipContent>
+            </Tooltip>
 
-          <div className="w-px h-6 bg-border mx-1" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("justifyRight")}>
+                  <AlignRight className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Align Right</TooltipContent>
+            </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("insertUnorderedList")}>
-                <List className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Bullet List</TooltipContent>
-          </Tooltip>
+            <div className="w-px h-6 bg-border mx-1" />
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("insertOrderedList")}>
-                <ListOrdered className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Numbered List</TooltipContent>
-          </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => formatText("insertUnorderedList")}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Bullet List</TooltipContent>
+            </Tooltip>
 
-          <div className="w-px h-6 bg-border mx-1" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("insertOrderedList")}>
+                  <ListOrdered className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Numbered List</TooltipContent>
+            </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-60 cursor-not-allowed" disabled>
-                <LinkIcon className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              <p>
-                Link functionality is disabled in this demo version only. In the full makeEbook product, you'll be able
-                to add eReader-compatible links to your content.
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+            <div className="w-px h-6 bg-border mx-1" />
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-60 cursor-not-allowed" disabled>
+                  <LinkIcon className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>
+                  Link functionality is disabled in this demo version only. In the full makeEbook product, you'll be
+                  able to add eReader-compatible links to your content.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
+        <div
+          ref={editorRef}
+          contentEditable
+          className="p-3 focus:outline-none prose prose-sm max-w-none overflow-auto"
+          style={
+            {
+              minHeight,
+              "--heading-1-size": "1.75rem",
+              "--heading-2-size": "1.5rem",
+            } as React.CSSProperties
+          }
+          onInput={handleInput}
+          placeholder={placeholder}
+        />
       </div>
-
-      <div
-        ref={editorRef}
-        contentEditable
-        className="p-3 focus:outline-none prose prose-sm max-w-none overflow-auto"
-        style={{ minHeight }}
-        onInput={handleInput}
-        placeholder={placeholder}
-      />
-    </div>
+    </>
   )
 }
 
