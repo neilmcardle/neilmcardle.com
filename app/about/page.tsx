@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { LinkedInIcon } from "@/components/LinkedInIcon"
 import { MediumIcon } from "@/components/MediumIcon"
+import { SecureEmailLink } from "@/components/SecureEmailLink"
 
 // Custom solid icons (reused from top-navigation.tsx)
 const XSolid = () => (
@@ -36,9 +37,17 @@ export default function AboutPage() {
         </p>
       </div>
 
-      {/* Social Media Links */}
+      {/* Contact Information */}
       <div className="mt-12 pt-8 border-t border-gray-200">
-        <h2 className="text-2xl font-semibold mb-4">Connect with me</h2>
+        <h2 className="text-2xl font-semibold mb-4">Get in Touch</h2>
+        <div className="space-y-4">
+          <SecureEmailLink className="mb-6" />
+        </div>
+      </div>
+
+      {/* Social Media Links */}
+      <div className="mt-8 pt-8 border-t border-gray-200">
+        <h2 className="text-2xl font-semibold mb-4">Elsewhere</h2>
         <div className="flex space-x-6">
           <Link
             href="https://www.linkedin.com/in/neilmcardle/"
