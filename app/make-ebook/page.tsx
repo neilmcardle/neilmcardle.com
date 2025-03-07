@@ -8,6 +8,7 @@ import { LinkedInIcon } from "@/components/LinkedInIcon"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Type, CheckCircle, FileType, ArrowLeft, Lock } from "lucide-react"
+import { MakeEbookDemo } from "./make-ebook-demo" // Updated import path
 
 export default function MakeEbook() {
   const [selectedTier, setSelectedTier] = useState<"basic" | "pro" | null>(null)
@@ -110,8 +111,24 @@ export default function MakeEbook() {
               Choose how you want to create and publish your eBook with our flexible platform
             </p>
 
+            {/* Interactive Demo Section */}
+            <section className="py-20 px-4 bg-[#F5F5F7] rounded-2xl mb-20">
+              <div className="max-w-[980px] mx-auto">
+                <h2 className="text-[40px] font-semibold text-center mb-6 text-[#1D1D1F]">Try It Now</h2>
+                <p className="text-xl text-[#86868B] text-center max-w-2xl mx-auto mb-16">
+                  Create a simple eBook right here to see how easy it is
+                </p>
+
+                <div className="bg-white rounded-2xl shadow-sm p-8 max-w-3xl mx-auto">
+                  <MakeEbookDemo />
+                </div>
+              </div>
+            </section>
+
             {/* Feature Comparison Section */}
-            <section className="py-20 px-4 bg-[#F5F5F7] rounded-2xl">
+            <section id="pricing" className="py-20 px-4 bg-[#F5F5F7] rounded-2xl">
+              {" "}
+              {/* Updated section ID */}
               <div className="max-w-[980px] mx-auto">
                 <div className="flex flex-col items-center justify-center mb-6">
                   <h2 className="text-[40px] font-semibold text-center text-[#1D1D1F]">Choose Your Plan</h2>
@@ -144,6 +161,13 @@ export default function MakeEbook() {
 
                     <div className="bg-[#F5F5F7] rounded-xl p-6 mb-6">
                       <ul className="space-y-4">
+                        <li className="flex items-start">
+                          <div className="mr-3 mt-0.5 text-green-500 flex-shrink-0">✓</div>
+                          <span className="text-[#1D1D1F]">
+                            <strong>Try Before You Buy:</strong> Create and preview eBooks directly in your browser
+                            (like our demo above)
+                          </span>
+                        </li>
                         <li className="flex items-start">
                           <div className="mr-3 mt-0.5 text-green-500 flex-shrink-0">✓</div>
                           <span className="text-[#1D1D1F]">
@@ -223,7 +247,8 @@ export default function MakeEbook() {
                         <li className="flex items-start">
                           <div className="mr-3 mt-0.5 text-blue-500 flex-shrink-0">✓</div>
                           <span className="text-[#1D1D1F]">
-                            Advanced Formatting Options: More control over layout, fonts, and styling
+                            Advanced Formatting Options: Enhanced styling with custom fonts, tables, image captions, and
+                            more
                           </span>
                         </li>
                         <li className="flex items-start">
