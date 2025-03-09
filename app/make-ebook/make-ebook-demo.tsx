@@ -111,13 +111,14 @@ export function MakeEbookDemo() {
             </div>
           </div>
 
-          <div className="flex justify-between items-center pt-4">
-            <Button variant="outline" className="text-[#86868B]" disabled>
+          {/* Updated button layout for better mobile responsiveness */}
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4">
+            <Button variant="outline" className="text-[#86868B] w-full sm:w-auto" disabled>
               <Lock className="h-4 w-4 mr-2" />
               Add Chapter
             </Button>
 
-            <Button onClick={handleGenerateClick} className="bg-[#1D1D1F] hover:bg-black text-white">
+            <Button onClick={handleGenerateClick} className="bg-[#1D1D1F] hover:bg-black text-white w-full sm:w-auto">
               Generate eBook
             </Button>
           </div>

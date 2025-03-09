@@ -10,9 +10,9 @@ export default function Home() {
         {/* Top button */}
         <Link
           href="/"
-          className="inline-flex items-center px-4 py-2 rounded-full bg-black text-white text-sm hover:bg-gray-800 transition-colors"
+          className="inline-flex items-center px-4 py-2 rounded-full bg-white text-black border border-black text-sm font-medium hover:bg-gray-50 transition-colors"
         >
-          Neil McArdle | Digital Designer
+          Neil McArdle | Design Engineer
         </Link>
 
         {/* Main headline */}
