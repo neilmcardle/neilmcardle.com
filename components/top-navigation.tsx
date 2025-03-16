@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { ChevronDown, Menu, X } from "lucide-react"
 import { FigmaIcon } from "./FigmaIcon"
-import { BetterThingsIcon } from "./BetterThingsIcon"
+import { BetterThingsLogo } from "./BetterThingsLogo"
 import { LinkedInIcon } from "./LinkedInIcon"
 import { MediumIcon } from "./MediumIcon"
 import { NMLogoIcon } from "./NMLogoIcon"
@@ -98,7 +98,7 @@ export function TopNavigation() {
                   className="flex items-center gap-2 px-4 py-3 text-sm text-[#1D1D1F] hover:bg-[#F5F5F7]"
                   onClick={() => setActiveDropdown(null)}
                 >
-                  <BetterThingsIcon className="w-4 h-4" />
+                  <BetterThingsLogo className="w-4 h-4" />
                   Freelance
                 </Link>
               </div>
@@ -194,7 +194,7 @@ export function TopNavigation() {
                   className="flex items-center gap-2 text-sm text-[#86868B] hover:text-[#1D1D1F] py-2 pl-4"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <BetterThingsIcon className="w-4 h-4" />
+                  <BetterThingsLogo className="w-4 h-4" />
                   Freelance
                 </Link>
               </div>
