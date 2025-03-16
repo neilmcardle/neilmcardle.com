@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   title: "Neil McArdle - Designer & Developer",
   description:
     "Portfolio of Neil McArdle, a designer with over 10 years of experience crafting thoughtful and engaging digital experiences.",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -20,6 +19,3 @@ export default function RootLayout({
   return <ClientLayout>{children}</ClientLayout>
 }
 
-
-
-import './globals.css'

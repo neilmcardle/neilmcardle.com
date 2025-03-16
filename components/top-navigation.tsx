@@ -39,9 +39,9 @@ export function TopNavigation() {
   }
 
   return (
-    <header className="sticky top-4 z-50 mx-auto max-w-7xl px-4">
+    <header className="fixed top-4 z-50 mx-auto max-w-7xl px-4 left-0 right-0">
       <nav
-        className="flex items-center rounded-full bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 px-4 sm:px-6 py-3 shadow-lg relative"
+        className="flex items-center rounded-full bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 px-4 sm:px-6 py-3 relative"
         ref={dropdownRef}
       >
         {/* Logo - always visible */}
@@ -91,7 +91,7 @@ export function TopNavigation() {
                   onClick={() => setActiveDropdown(null)}
                 >
                   <FigmaIcon className="w-4 h-4" />
-                  In-House
+                  Portfolio
                 </Link>
                 <Link
                   href="/better-things"
@@ -187,7 +187,7 @@ export function TopNavigation() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <FigmaIcon className="w-4 h-4" />
-                  In-House
+                  Portfolio
                 </Link>
                 <Link
                   href="/better-things"

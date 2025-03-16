@@ -48,12 +48,14 @@ export default function MakeEbook() {
             <p className="text-xl md:text-2xl text-[#86868B] max-w-2xl mx-auto mb-10">
               Simple eBook Creation with Professional Results
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link href="https://www.linkedin.com/in/neilmcardle/" target="_blank" rel="noopener noreferrer">
-                <Button size="lg" className="text-lg bg-[#1D1D1F] hover:bg-black text-white rounded-full px-8">
-                  <LinkedInIcon className="w-5 h-5 mr-2 fill-white" />
-                  Connect to Join the Waitlist
-                </Button>
+            {/* Action buttons */}
+            <div className="flex flex-wrap justify-center gap-4 pt-4">
+              <Link
+                href="/make-ebook/dashboard"
+                className="inline-flex items-center px-6 py-3 rounded-full bg-black text-white font-medium hover:bg-gray-800 transition-colors"
+              >
+                <Lock className="w-5 h-5 mr-2" />
+                Try Dashboard Demo
               </Link>
             </div>
           </div>
@@ -271,6 +273,15 @@ export default function MakeEbook() {
                     </div>
                   </div>
                 </div>
+              </div>
+              <div className="flex justify-center mt-8">
+                <Link
+                  href="/make-ebook/dashboard"
+                  className="inline-flex items-center px-6 py-3 rounded-full bg-[#1D1D1F] text-white font-medium hover:bg-black transition-colors"
+                >
+                  <Lock className="w-5 h-5 mr-2" />
+                  Preview Dashboard Demo
+                </Link>
               </div>
             </section>
 
