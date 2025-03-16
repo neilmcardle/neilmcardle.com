@@ -316,6 +316,7 @@ export default function BetterThings() {
                   alt="Dan Roberts"
                   width={48}
                   height={48}
+                  style={{ width: 48, height: 48 }}
                   className="rounded-full mr-4"
                 />
                 <div>
