@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { BetterThingsLogo } from "@/components/BetterThingsLogo"
+import { BetterThingsIcon } from "@/components/BetterThingsIcon"
 import { Button } from "@/components/ui/button"
 import { Mail, Check, Copy } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -32,7 +32,7 @@ export function BetterThingsTopNav() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center gap-3 mb-4 md:mb-0">
-            <BetterThingsLogo className="w-8 h-8 text-black" />
+            <BetterThingsIcon className="w-8 h-8" />
             <span className="text-xl font-bold text-black">Better Things</span>
           </div>
           <div>

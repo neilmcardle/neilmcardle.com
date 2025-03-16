@@ -1,10 +1,10 @@
 import Image from "next/image"
 import Link from "next/link"
-import { BetterThingsLogo } from "@/components/BetterThingsLogo"
 import { CheckCircle, ArrowRight } from "lucide-react"
 import { FAQ } from "@/components/FAQ"
 import { BetterThingsTopNav } from "@/components/BetterThingsTopNav"
 import { GlossyEmailRevealButton } from "@/components/GlossyEmailRevealButton"
+import { BetterThingsIcon } from "@/components/BetterThingsIcon"
 
 export default function BetterThings() {
   return (
@@ -455,7 +455,7 @@ export default function BetterThings() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-3 mb-6 md:mb-0">
-              <BetterThingsLogo className="w-8 h-8 text-black" />
+              <BetterThingsIcon className="w-8 h-8" />
               <span className="text-xl font-bold text-black">Better Things</span>
             </div>
             <div className="flex gap-6">
