@@ -249,7 +249,7 @@ export default function BetterThings() {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto animate-fade-in-up">
             <div className="bg-white rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
-              <div className="w-16 h-16 gradient-orange text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <div className="w-16 h-16 brand-gradient text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <span className="font-bold text-2xl">1</span>
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Request</h3>
@@ -259,7 +259,7 @@ export default function BetterThings() {
             </div>
 
             <div className="bg-white rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
-              <div className="w-16 h-16 gradient-purple text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <div className="w-16 h-16 brand-gradient text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <span className="font-bold text-2xl">2</span>
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Design</h3>
@@ -269,7 +269,7 @@ export default function BetterThings() {
             </div>
 
             <div className="bg-white rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
-              <div className="w-16 h-16 gradient-pink text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <div className="w-16 h-16 brand-gradient text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <span className="font-bold text-2xl">3</span>
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Revise</h3>
@@ -293,7 +293,7 @@ export default function BetterThings() {
 
           <div className="grid md:grid-cols-3 gap-6 animate-fade-in-up">
             <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
-              <div className="w-14 h-14 gradient-orange text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+              <div className="w-14 h-14 brand-gradient text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -316,7 +316,7 @@ export default function BetterThings() {
             </div>
 
             <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
-              <div className="w-14 h-14 gradient-purple text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+              <div className="w-14 h-14 brand-gradient text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -341,7 +341,7 @@ export default function BetterThings() {
             </div>
 
             <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
-              <div className="w-14 h-14 gradient-pink text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+              <div className="w-14 h-14 brand-gradient text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -400,7 +400,7 @@ export default function BetterThings() {
               </div>
 
               <div className="w-full md:w-1/2">
-                <div className="inline-flex items-center px-3 py-1 project-badge-orange rounded-full mb-2 font-medium">
+                <div className="inline-flex items-center px-3 py-1 brand-gradient rounded-full mb-2 font-medium text-white">
                   Brand Identity
                 </div>
                 <h3 className="text-3xl font-bold text-gray-800 mb-4">NUK SOO</h3>
@@ -439,7 +439,7 @@ export default function BetterThings() {
               </div>
 
               <div className="w-full md:w-1/2">
-                <div className="inline-flex items-center px-3 py-1 project-badge-purple rounded-full mb-2 font-medium">
+                <div className="inline-flex items-center px-3 py-1 brand-gradient rounded-full mb-2 font-medium text-white">
                   Brand & Digital
                 </div>
                 <h3 className="text-3xl font-bold text-gray-800 mb-4">Gatewick House & Gardens</h3>
@@ -530,7 +530,7 @@ export default function BetterThings() {
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto animate-fade-in-up">
             <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
               <div className="flex gap-4">
-                <div className="w-12 h-12 gradient-orange text-white rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 brand-gradient text-white rounded-full flex items-center justify-center flex-shrink-0">
                   <Zap className="h-6 w-6" />
                 </div>
                 <div>
@@ -544,7 +544,7 @@ export default function BetterThings() {
 
             <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
               <div className="flex gap-4">
-                <div className="w-12 h-12 gradient-purple text-white rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 brand-gradient text-white rounded-full flex items-center justify-center flex-shrink-0">
                   <CheckCircle className="h-6 w-6" />
                 </div>
                 <div>
@@ -558,7 +558,7 @@ export default function BetterThings() {
 
             <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
               <div className="flex gap-4">
-                <div className="w-12 h-12 gradient-yellow text-white rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 brand-gradient text-white rounded-full flex items-center justify-center flex-shrink-0">
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <div>
@@ -572,7 +572,7 @@ export default function BetterThings() {
 
             <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
               <div className="flex gap-4">
-                <div className="w-12 h-12 gradient-green text-white rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 brand-gradient text-white rounded-full flex items-center justify-center flex-shrink-0">
                   <Rocket className="h-6 w-6" />
                 </div>
                 <div>
@@ -581,6 +581,90 @@ export default function BetterThings() {
                     Submit as many design requests as you need. I'll tackle them one by one, quickly and efficiently.
                   </p>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">Pricing</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">One subscription, endless possibilities</p>
+          </div>
+
+          <div className="max-w-3xl mx-auto">
+            {/* Vibrant Pricing Card */}
+            <div
+              className="rounded-3xl p-1 shadow-2xl animate-fade-in-up vibrant-card"
+              style={{
+                background: "linear-gradient(135deg, #ff5757 -10%, #8c52ff 110%)",
+                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
+              }}
+            >
+              <div className="bg-black rounded-[calc(1.5rem-4px)] p-8 h-full">
+                <div className="flex justify-between items-start mb-8">
+                  <h3 className="text-2xl font-bold text-white">Design Partnership</h3>
+                  <span className="text-xs text-white/70 bg-white/10 px-3 py-1 rounded-full">
+                    PAUSE OR CANCEL ANYTIME
+                  </span>
+                </div>
+
+                <div className="border-t border-white/10 my-6"></div>
+
+                <div className="mb-8">
+                  <div className="flex items-baseline">
+                    <span className="text-5xl md:text-6xl font-bold text-white">£2,995</span>
+                    <span className="text-white/70 ml-2">/month</span>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 rounded-2xl p-6 mb-8">
+                  <div className="text-xs uppercase text-white/50 mb-4">INCLUDED</div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-[#FF5757] mr-3 flex-shrink-0 mt-0.5" />
+                      <span className="text-white">One request at a time</span>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-[#FF5757] mr-3 flex-shrink-0 mt-0.5" />
+                      <span className="text-white">Unlimited stock photos</span>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-[#FF5757] mr-3 flex-shrink-0 mt-0.5" />
+                      <span className="text-white">Avg. 48 hour delivery</span>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-[#FF5757] mr-3 flex-shrink-0 mt-0.5" />
+                      <span className="text-white">Up to 2 users</span>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-[#FF5757] mr-3 flex-shrink-0 mt-0.5" />
+                      <span className="text-white">Unlimited brands</span>
+                    </div>
+                    <div className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-[#FF5757] mr-3 flex-shrink-0 mt-0.5" />
+                      <span className="text-white">Pause or cancel anytime</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleRevealEmail}
+                  className="w-full relative overflow-hidden group bg-gradient-to-r from-[#FF5757] to-[#8c52ff] text-white py-4 rounded-full font-medium transition-all"
+                >
+                  {/* Shine effect */}
+                  <span className="absolute inset-y-0 left-[-100%] w-[35%] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-100 group-hover:translate-x-[250%] transition-transform duration-1500 ease-in-out"></span>
+
+                  <div className="flex items-center justify-center relative z-10">
+                    <div className="bg-white/20 rounded-full p-2 mr-3">
+                      <Mail className="h-5 w-5" />
+                    </div>
+                    Join today
+                  </div>
+                </button>
               </div>
             </div>
           </div>
