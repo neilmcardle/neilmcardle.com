@@ -79,7 +79,7 @@ export function CustomXPost({
   }
 
   return (
-    <div className="bg-white rounded-xl p-6 max-w-3xl mx-auto mb-2 text-left">
+    <div className="bg-white rounded-xl p-6 mb-2 text-left">
       <div className="flex items-start">
         {/* Profile Image */}
         <div className="flex-shrink-0 mr-3">
