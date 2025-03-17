@@ -1,152 +1,76 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+"use client"
+import { FigmaIcon } from "@/components/FigmaIcon"
+import { Lock } from "lucide-react"
+import { GlossyGradientButton } from "@/components/GlossyGradientButton"
+import { XPostEmbed } from "@/components/XPostEmbed"
+import { CustomXPost } from "@/components/CustomXPost"
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
+export default function Home() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-6 relative">
+      {/* Dotted background with fixed positioning */}
+      <div className="fixed inset-0 w-full h-full z-0 dotted-bg"></div>
 
-    /* Custom button animation variables */
-    --button-transition-duration: 850ms;
-    --button-transition-timing: cubic-bezier(0.25, 1, 0.5, 1);
-  }
+      <div className="w-full max-w-4xl mx-auto text-center relative z-[15]">
+        {/* Pre-title */}
+        <div className="inline-flex items-center px-4 py-2 rounded-full bg-white text-gray-600 text-sm font-medium mb-2">
+          Design Engineer
+        </div>
 
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-  }
-}
+        {/* Main headline */}
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8">Neil McArdle</h1>
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
+        {/* Subtitle */}
+        <p className="text-xl md:text-2xl text-gray-500 max-w-2xl mx-auto mb-8">
+          Elegant designs realised through clean, purposeful code.
+        </p>
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
+        {/* Action buttons */}
+        <div className="flex flex-col items-center gap-4 mb-12">
+          {/* New Glossy Gradient Button */}
+          <GlossyGradientButton
+            href="https://www.figma.com/proto/zZcc3Li72GhWFVpv1PxC0O/%F0%9F%91%A8%F0%9F%8F%BC%E2%80%8D%F0%9F%9A%80--Neil-McArdle?page-id=7947%3A56485&node-id=7947-56486&viewport=119%2C809%2C0.29&t=9uLN4opTMa6jNFaW-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=7947%3A56486"
+            external={true}
+            className="mb-2"
+          >
+            <FigmaIcon variant="color" className="w-4 h-4 mr-2" />
+            Access Figma Portfolio
+            <Lock className="w-3.5 h-3.5 ml-2" />
+          </GlossyGradientButton>
+        </div>
 
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
+        {/* Content container with consistent width */}
+        <div className="w-full max-w-3xl mx-auto">
+          {/* Custom X Post - Updated to use the profile image and removed timestamp */}
+          <CustomXPost
+            profileImage="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/profile-dONA7abEaJyCLzMSGtfxbqB76X5jfw.png"
+            name="Neil McArdle"
+            handle="@BetterNeil"
+            handleUrl="https://x.com/BetterNeil"
+            content="This is a glossy, resizable button 🔥 ;P 🔥"
+            additionalContent={[
+              "Grab the @Figma file: https://figma.com/community/file/1483263624716244248",
+              "Vibes: Oleksandr Stepanov https://pixabay.com/users/penguinmusic-24940186/",
+              "Fire Emoji: https://emojipedia.org/fire",
+            ]}
+            hashtags={["UI", "Design"]}
+          />
 
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* makeEbook specific styles - preserved from original */
-.makeebook-page {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 5.9% 10%;
-}
-
-/* Custom 3D rotation for the glossy button */
-.transform.rotate3d-x-25 {
-  transform: rotate3d(1, 0, 0, 25deg);
-}
-
-/* Update the dotted background pattern to be fixed */
-.dotted-bg {
-  background-image: radial-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 1px);
-  background-size: 30px 30px;
-  background-position: 0 0; /* Ensure the grid starts at 0,0 */
-  z-index: -10;
-  position: fixed; /* Make it fixed so it doesn't scroll */
-  pointer-events: none; /* Ensure it doesn't interfere with interactions */
-}
-
-/* Add this at the end of the file for smoother animations */
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 25% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.glossy-button-hover {
-  animation: gradientShift 2s var(--button-transition-timing) infinite;
-}
-
-/* Smooth shine animation for the glossy button */
-@keyframes shine {
-  0% {
-    transform: translateX(-100%) skewX(-20deg);
-  }
-  100% {
-    transform: translateX(200%) skewX(-20deg);
-  }
-}
-
-.animate-shine {
-  animation: shine 2s ease-in-out infinite;
-  animation-delay: 0.5s;
+          {/* X Post Embed */}
+          <div className="bg-white rounded-xl pt-2 px-6 pb-6">
+            <XPostEmbed
+              tweetUrl="https://twitter.com/BetterNeil/status/1901435678375972971"
+              mediaMaxWidth={550}
+              align="center"
+              cards="visible"
+              conversation="none"
+              theme="light"
+              className="w-full"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
