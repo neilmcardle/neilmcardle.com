@@ -1,38 +1,209 @@
+/*
+ * UPDATED:
+ * - Removed framer-motion dependency
+ * - Replaced motion components with regular div elements
+ * - Simplified animations to use CSS only
+ * - Maintained black and white testimonial card with gradient on hover
+ * - Kept gradient project badges and links
+ */
+
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
-import { CheckCircle, ArrowRight } from "lucide-react"
-import { FAQ } from "@/components/FAQ"
-import { BetterThingsTopNav } from "@/components/BetterThingsTopNav"
-import { GlossyEmailRevealButton } from "@/components/GlossyEmailRevealButton"
-import { BetterThingsLogo } from "@/components/BetterThingsLogo"
+import { useState } from "react"
+import { CheckCircle, ArrowRight, Mail, X, Menu, Sparkles, Zap, Rocket } from "lucide-react"
 import { BetterThingsIconStamp } from "@/components/BetterThingsIconStamp"
+import "./styles.css"
 
 export default function BetterThings() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isEmailRevealed, setIsEmailRevealed] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
+
+  // Email parts are split to prevent scraping
+  const emailParts = {
+    username: "neil",
+    domain: "neilmcardle",
+    tld: "com",
+  }
+
+  const handleRevealEmail = () => {
+    setIsEmailRevealed(true)
+  }
+
+  const handleCopyEmail = () => {
+    const email = `${emailParts.username}@${emailParts.domain}.${emailParts.tld}`
+    navigator.clipboard.writeText(email)
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
+  }
+
   return (
-    <div className="bg-white">
-      <BetterThingsTopNav />
-      {/* Hero Section - Adjusted padding to be visible without scrolling */}
-      <section className="relative overflow-hidden pt-32 pb-8 md:pb-12">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-            <BetterThingsIconStamp className="text-black mb-8" width={120} height={120} />
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+    <div className="min-h-screen bg-white overflow-hidden">
+      {/* Navigation */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <BetterThingsIconStamp className="h-8 w-8 text-[#000000]" />
+              <span className="ml-2 text-xl font-bold text-black">Better Things</span>
+            </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-8">
+              <a href="#services" className="text-gray-800 hover:text-[#FF5757] transition-colors font-medium">
+                Services
+              </a>
+              <a href="#process" className="text-gray-800 hover:text-[#FF5757] transition-colors font-medium">
+                Process
+              </a>
+              <a href="#projects" className="text-gray-800 hover:text-[#FF5757] transition-colors font-medium">
+                Projects
+              </a>
+              <a href="#testimonials" className="text-gray-800 hover:text-[#FF5757] transition-colors font-medium">
+                Testimonials
+              </a>
+            </nav>
+
+            {/* CTA Button */}
+            <div className="hidden md:block">
+              <button
+                onClick={handleRevealEmail}
+                className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-full transition-all vibrant-button"
+              >
+                Get in touch
+              </button>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-800 p-2">
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-100">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              <a
+                href="#services"
+                className="block px-3 py-2 text-gray-800 hover:bg-gray-50 rounded-md"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Services
+              </a>
+              <a
+                href="#process"
+                className="block px-3 py-2 text-gray-800 hover:bg-gray-50 rounded-md"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Process
+              </a>
+              <a
+                href="#projects"
+                className="block px-3 py-2 text-gray-800 hover:bg-gray-50 rounded-md"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Projects
+              </a>
+              <a
+                href="#testimonials"
+                className="block px-3 py-2 text-gray-800 hover:bg-gray-50 rounded-md"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Testimonials
+              </a>
+              <button
+                onClick={handleRevealEmail}
+                className="w-full text-left px-3 py-2 text-gray-800 hover:bg-gray-50 rounded-md"
+              >
+                Get in touch
+              </button>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 md:pt-40 md:pb-32 relative overflow-hidden">
+        {/* Decorative blobs */}
+        <div className="blob-shape w-96 h-96 gradient-purple top-0 left-0 opacity-20"></div>
+        <div className="blob-shape w-96 h-96 gradient-orange bottom-0 right-0 opacity-20"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="max-w-4xl mx-auto text-center animate-fade-in">
+            <div className="flex justify-center mb-6">
+              <BetterThingsIconStamp className="h-32 w-32 text-black" />
+            </div>
+
+            <h1 className="text-5xl md:text-7xl font-bold text-black mb-6 leading-tight">
               Fast. Dedicated.
               <br />
-              Unlimited Design.
-            </h2>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl">
+              <span className="vibrant-gradient-text">Unlimited Design.</span>
+            </h1>
+
+            <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto">
               One designer. Unlimited requests. Lightning-fast turnaround.
             </p>
-            <GlossyEmailRevealButton className="mb-8" />
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              {!isEmailRevealed ? (
+                <button
+                  onClick={handleRevealEmail}
+                  className="relative inline-flex items-center justify-center px-8 py-4 rounded-full text-white font-medium transition-all duration-200 overflow-hidden group"
+                  style={{
+                    boxShadow:
+                      "0 10px 25px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2)",
+                    background: "linear-gradient(135deg, #ff5757 -10%, #8c52ff 110%)",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
+                  }}
+                >
+                  {/* Top gradient shine */}
+                  <span className="absolute inset-0 w-full h-full bg-gradient-to-b from-white/20 to-transparent opacity-50 group-hover:opacity-70 transition-opacity"></span>
+                  <span className="absolute inset-0 w-full h-[40%] bg-gradient-to-b from-white/30 to-transparent"></span>
+
+                  {/* Single horizontal shine effect that moves on hover */}
+                  <span className="absolute inset-y-0 left-[-100%] w-[35%] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-100 group-hover:translate-x-[250%] transition-transform duration-1500 ease-in-out"></span>
+
+                  <Mail className="mr-2 h-5 w-5 relative z-10" />
+                  <span className="relative z-10">Get in Touch for Pricing</span>
+                </button>
+              ) : (
+                <div
+                  className="relative inline-flex items-center justify-center px-6 py-4 rounded-full text-white font-medium"
+                  style={{
+                    boxShadow:
+                      "0 10px 25px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2)",
+                    background: "linear-gradient(135deg, #ff5757 -10%, #8c52ff 110%)",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
+                  }}
+                >
+                  <span className="absolute inset-0 w-full h-[40%] bg-gradient-to-b from-white/20 to-transparent rounded-full"></span>
+                  <span className="font-medium relative z-10">
+                    {emailParts.username}@{emailParts.domain}.{emailParts.tld}
+                  </span>
+                  <button
+                    onClick={handleCopyEmail}
+                    className="ml-3 p-1 rounded-full hover:bg-white/10 transition-colors relative z-10"
+                  >
+                    {isCopied ? <CheckCircle className="h-5 w-5 text-green-300" /> : <Mail className="h-5 w-5" />}
+                    <span className="sr-only">{isCopied ? "Copied" : "Copy to clipboard"}</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Logo Cloud - Changed to light grey background with grey text and added small circular images */}
-      <section className="pt-6 pb-12 bg-gray-100 border-t border-gray-200">
-        <div className="container mx-auto px-4">
-          <p className="text-center text-gray-500 mb-8">Trusted by...</p>
+      {/* Trusted By Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-gray-500 mb-10">Trusted by...</p>
           <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8">
             <div className="flex items-center">
               <div className="w-10 h-10 rounded-full overflow-hidden mr-3 border border-gray-200">
@@ -44,7 +215,7 @@ export default function BetterThings() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="text-gray-600 font-semibold text-xl">NUK SOO</div>
+              <div className="text-gray-800 font-semibold text-xl">NUK SOO</div>
             </div>
             <div className="flex items-center">
               <div className="w-10 h-10 rounded-full overflow-hidden mr-3 border border-gray-200">
@@ -56,56 +227,52 @@ export default function BetterThings() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="text-gray-600 font-semibold text-xl">Gatewick Gardens</div>
+              <div className="text-gray-800 font-semibold text-xl">Gatewick Gardens</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* How It Works - Changed to white with borders */}
-      <section className="py-20 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How Better Things works</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+      {/* How It Works Section */}
+      <section id="process" className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 emoji-bg"></div>
+        <div className="absolute inset-0 bg-white/90"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">How Better Things works</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Get all your design work done for a simple monthly fee — pause or cancel anytime. No team to manage, no
               freelancers to coordinate, just me delivering exceptional design incredibly fast.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div
-              className="bg-white rounded-xl p-8 text-center border border-gray-200 shadow-lg"
-              style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            >
-              <div className="w-12 h-12 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="font-bold">1</span>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto animate-fade-in-up">
+            <div className="bg-white rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
+              <div className="w-16 h-16 gradient-orange text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <span className="font-bold text-2xl">1</span>
               </div>
-              <h3 className="text-xl font-bold mb-2">Request</h3>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">Request</h3>
               <p className="text-gray-600">
                 Submit your design request and I'll get started immediately. No waiting for team availability.
               </p>
             </div>
-            <div
-              className="bg-white rounded-xl p-8 text-center border border-gray-200 shadow-lg"
-              style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            >
-              <div className="w-12 h-12 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="font-bold">2</span>
+
+            <div className="bg-white rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
+              <div className="w-16 h-16 gradient-purple text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <span className="font-bold text-2xl">2</span>
               </div>
-              <h3 className="text-xl font-bold mb-2">Design</h3>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">Design</h3>
               <p className="text-gray-600">
                 I'll work on your design with rapid turnaround. Most projects delivered within 24-48 hours.
               </p>
             </div>
-            <div
-              className="bg-white rounded-xl p-8 text-center border border-gray-200 shadow-lg"
-              style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            >
-              <div className="w-12 h-12 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="font-bold">3</span>
+
+            <div className="bg-white rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
+              <div className="w-16 h-16 gradient-pink text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <span className="font-bold text-2xl">3</span>
               </div>
-              <h3 className="text-xl font-bold mb-2">Revise</h3>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">Revise</h3>
               <p className="text-gray-600">
                 Quick revisions until you're 100% satisfied. Direct communication means faster iterations.
               </p>
@@ -114,22 +281,19 @@ export default function BetterThings() {
         </div>
       </section>
 
-      {/* Services - Changed to white with borders */}
-      <section className="py-20 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">All included in your subscription</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+      {/* Services Section */}
+      <section id="services" className="py-20 bg-gray-50 clip-path-slant">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">All included in your subscription</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               One monthly fee covers all your design needs. No extra charges, no surprise fees.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div
-              className="bg-white p-8 rounded-xl shadow-lg border border-gray-200"
-              style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            >
-              <div className="w-12 h-12 bg-gray-100 text-black rounded-lg flex items-center justify-center mb-4">
+          <div className="grid md:grid-cols-3 gap-6 animate-fade-in-up">
+            <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
+              <div className="w-14 h-14 gradient-orange text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -145,16 +309,14 @@ export default function BetterThings() {
                   <path d="M12 19l9 2-9-18-9 18 9-2z"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2">Brand Identity</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-3">Brand Identity</h3>
               <p className="text-gray-600">
                 Logo design, brand guidelines, visual identity systems, and brand strategy.
               </p>
             </div>
-            <div
-              className="bg-white p-8 rounded-xl shadow-lg border border-gray-200"
-              style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            >
-              <div className="w-12 h-12 bg-gray-100 text-black rounded-lg flex items-center justify-center mb-4">
+
+            <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
+              <div className="w-14 h-14 gradient-purple text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -172,16 +334,14 @@ export default function BetterThings() {
                   <line x1="9" y1="21" x2="9" y2="9"></line>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2">UI/UX Design</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-3">UI/UX Design</h3>
               <p className="text-gray-600">
                 User interfaces, user experience, wireframes, prototypes, and usability testing.
               </p>
             </div>
-            <div
-              className="bg-white p-8 rounded-xl shadow-lg border border-gray-200"
-              style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            >
-              <div className="w-12 h-12 bg-gray-100 text-black rounded-lg flex items-center justify-center mb-4">
+
+            <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
+              <div className="w-14 h-14 gradient-pink text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -200,42 +360,51 @@ export default function BetterThings() {
                   <circle cx="11" cy="11" r="2"></circle>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2">Illustration</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-3">Illustration</h3>
               <p className="text-gray-600">Custom illustrations, icons, infographics, and visual storytelling.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Projects - Updated with circular images and subtle design */}
-      <section className="py-20 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured projects</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+      {/* Featured Projects Section */}
+      <section id="projects" className="py-20 relative overflow-hidden">
+        <div className="blob-shape w-96 h-96 gradient-blue top-1/4 right-0 opacity-10"></div>
+        <div className="blob-shape w-96 h-96 gradient-orange bottom-1/4 left-0 opacity-10"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">Featured projects</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               A selection of recent work that showcases my design approach and capabilities.
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto space-y-16">
+          <div className="max-w-5xl mx-auto space-y-20">
             {/* NUK SOO Project */}
-            <div className="flex flex-col md:flex-row items-center gap-8">
-              <div
-                className="w-48 h-48 rounded-full overflow-hidden flex-shrink-0 border border-gray-100 shadow-lg"
-                style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-              >
-                <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/nuk-soo-card-banner-Ej605KiiolTu8x60MWYAJMGfLj5AdH.png"
-                  alt="NUK SOO - Bold geometric branding"
-                  width={256}
-                  height={256}
-                  className="w-full h-full object-cover"
-                />
+            <div className="flex flex-col md:flex-row items-center gap-12 animate-fade-in-up">
+              <div className="w-full md:w-1/2 vibrant-card hover:scale-102 transition-transform">
+                <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/nuk-soo-card-banner-Ej605KiiolTu8x60MWYAJMGfLj5AdH.png"
+                    alt="NUK SOO - Bold geometric branding"
+                    fill
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-white text-sm font-medium mb-2 opacity-80">Brand Identity</div>
+                    <h3 className="text-white text-2xl font-bold">NUK SOO</h3>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1 text-left">
-                <div className="text-gray-500 mb-2">Brand Identity</div>
-                <h3 className="text-3xl font-bold mb-3">NUK SOO</h3>
-                <p className="text-gray-600 mb-4">
+
+              <div className="w-full md:w-1/2">
+                <div className="inline-flex items-center px-3 py-1 project-badge-orange rounded-full mb-2 font-medium">
+                  Brand Identity
+                </div>
+                <h3 className="text-3xl font-bold text-gray-800 mb-4">NUK SOO</h3>
+                <p className="text-gray-600 mb-6">
                   Collaborated with Dan Roberts to create a striking visual identity for NUK SOO, enhancing their brand
                   presence in the industry with bold geometric patterns and distinctive typography.
                 </p>
@@ -243,7 +412,7 @@ export default function BetterThings() {
                   href="https://danrobertsgroup.com/nuksoo/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center text-black hover:text-gray-700 transition-colors"
+                  className="inline-flex items-center gradient-text-orange hover:opacity-80 transition-opacity font-medium"
                 >
                   View on Dan Roberts Group
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -252,23 +421,29 @@ export default function BetterThings() {
             </div>
 
             {/* Gatewick Gardens Project */}
-            <div className="flex flex-col md:flex-row items-center gap-8">
-              <div
-                className="w-48 h-48 rounded-full overflow-hidden flex-shrink-0 border border-gray-100 shadow-lg"
-                style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-              >
-                <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gatewick-house-gardens-card-banner-yPo8986u4vDLre49VxlfSilnAhDCdl.png"
-                  alt="Gatewick Gardens - Elegant architectural illustration"
-                  width={256}
-                  height={256}
-                  className="w-full h-full object-cover"
-                />
+            <div className="flex flex-col md:flex-row-reverse items-center gap-12 animate-fade-in-up">
+              <div className="w-full md:w-1/2 vibrant-card hover:scale-102 transition-transform">
+                <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gatewick-house-gardens-card-banner-yPo8986u4vDLre49VxlfSilnAhDCdl.png"
+                    alt="Gatewick Gardens - Elegant architectural illustration"
+                    fill
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="text-white text-sm font-medium mb-2 opacity-80">Brand & Digital</div>
+                    <h3 className="text-white text-2xl font-bold">Gatewick House & Gardens</h3>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1 text-left">
-                <div className="text-gray-500 mb-2">Brand & Digital</div>
-                <h3 className="text-3xl font-bold mb-3">Gatewick House & Gardens</h3>
-                <p className="text-gray-600 mb-4">
+
+              <div className="w-full md:w-1/2">
+                <div className="inline-flex items-center px-3 py-1 project-badge-purple rounded-full mb-2 font-medium">
+                  Brand & Digital
+                </div>
+                <h3 className="text-3xl font-bold text-gray-800 mb-4">Gatewick House & Gardens</h3>
+                <p className="text-gray-600 mb-6">
                   Developed an elegant and timeless design for Gatewick House & Gardens, showcasing their beautiful
                   landscapes and historic architecture through refined typography and a sophisticated color palette.
                 </p>
@@ -276,7 +451,7 @@ export default function BetterThings() {
                   href="https://www.instagram.com/gatewick_gardens/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center text-black hover:text-gray-700 transition-colors"
+                  className="inline-flex items-center gradient-text-purple hover:opacity-80 transition-opacity font-medium"
                 >
                   View on Instagram
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -287,27 +462,38 @@ export default function BetterThings() {
         </div>
       </section>
 
-      {/* Testimonials - Changed to white with borders */}
-      <section className="py-20 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">What clients say</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-20 clip-path-slant-reverse">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">What clients say</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Don't just take my word for it - hear from the brands I've worked with.
             </p>
           </div>
 
-          <div className="max-w-3xl mx-auto">
-            <div
-              className="bg-white p-8 rounded-xl shadow-lg border border-gray-200"
-              style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            >
-              <div className="flex gap-1 mb-4">
+          <div className="max-w-3xl mx-auto animate-fade-in-up">
+            <div className="testimonial-card bg-white rounded-3xl p-8 shadow-xl hover:-translate-y-1 transition-transform">
+              <div className="flex gap-1 mb-6">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 text-black fill-black" />
+                  <svg
+                    key={i}
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="#FFBD59"
+                    stroke="#FFBD59"
+                    strokeWidth="1"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-6 w-6 star-icon"
+                  >
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
                 ))}
               </div>
-              <p className="text-gray-700 mb-6">
+              <p className="text-gray-600 text-lg mb-8">
                 "Neil is a talented designer who has an impressive work ethic. He has assisted on number of key design
                 projects for our brand and he over-delivers each and every time! Neil is a delight to work with and I
                 can't recommend him enough."
@@ -316,13 +502,13 @@ export default function BetterThings() {
                 <Image
                   src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dan-or2ZMicLq3DNbbnxNnCFXvZP8jsrt5.png"
                   alt="Dan Roberts"
-                  width={48}
-                  height={48}
-                  className="rounded-full mr-4"
+                  width={56}
+                  height={56}
+                  className="rounded-full mr-4 border-2 border-white shadow-md"
                 />
                 <div>
-                  <p className="font-bold">Dan Roberts</p>
-                  <p className="text-gray-600 text-sm">NUK SOO</p>
+                  <p className="font-bold text-gray-800">Dan Roberts</p>
+                  <p className="text-gray-500 text-sm">NUK SOO</p>
                 </div>
               </div>
             </div>
@@ -330,145 +516,152 @@ export default function BetterThings() {
         </div>
       </section>
 
-      {/* Benefits */}
-      <section className="py-20 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Better Things is different</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+      {/* Benefits Section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">Why Better Things is different</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               No agencies. No junior designers. No complex pricing. Just one experienced designer dedicated to your
               success.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-x-12 gap-y-8 max-w-5xl mx-auto">
-            <div
-              className="flex gap-4 p-6 rounded-xl shadow-lg border border-gray-200"
-              style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            >
-              <CheckCircle className="h-6 w-6 text-black flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="text-xl font-bold mb-2">Lightning Fast Turnaround</h3>
-                <p className="text-gray-600">
-                  Most requests completed within 24-48 hours. No waiting for team availability or agency approvals.
-                </p>
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto animate-fade-in-up">
+            <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 gradient-orange text-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <Zap className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Lightning Fast Turnaround</h3>
+                  <p className="text-gray-600">
+                    Most requests completed within 24-48 hours. No waiting for team availability or agency approvals.
+                  </p>
+                </div>
               </div>
             </div>
-            <div
-              className="flex gap-4 p-6 rounded-xl shadow-lg border border-gray-200"
-              style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            >
-              <CheckCircle className="h-6 w-6 text-black flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="text-xl font-bold mb-2">One Dedicated Designer</h3>
-                <p className="text-gray-600">
-                  Work directly with me — no account managers, no junior designers, no miscommunication.
-                </p>
+
+            <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 gradient-purple text-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">One Dedicated Designer</h3>
+                  <p className="text-gray-600">
+                    Work directly with me — no account managers, no junior designers, no miscommunication.
+                  </p>
+                </div>
               </div>
             </div>
-            <div
-              className="flex gap-4 p-6 rounded-xl shadow-lg border border-gray-200"
-              style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            >
-              <CheckCircle className="h-6 w-6 text-black flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="text-xl font-bold mb-2">Simple Monthly Pricing</h3>
-                <p className="text-gray-600">
-                  Predictable cost with no hidden fees. Pause or cancel anytime — no long-term contracts.
-                </p>
+
+            <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 gradient-yellow text-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Simple Monthly Pricing</h3>
+                  <p className="text-gray-600">
+                    Predictable cost with no hidden fees. Pause or cancel anytime — no long-term contracts.
+                  </p>
+                </div>
               </div>
             </div>
-            <div
-              className="flex gap-4 p-6 rounded-xl shadow-lg border border-gray-200"
-              style={{ boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            >
-              <CheckCircle className="h-6 w-6 text-black flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="text-xl font-bold mb-2">Unlimited Requests</h3>
-                <p className="text-gray-600">
-                  Submit as many design requests as you need. I'll tackle them one by one, quickly and efficiently.
-                </p>
+
+            <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-shadow vibrant-card">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 gradient-green text-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <Rocket className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Unlimited Requests</h3>
+                  <p className="text-gray-600">
+                    Submit as many design requests as you need. I'll tackle them one by one, quickly and efficiently.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ - Changed to white with borders */}
-      <section className="py-20 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Frequently asked questions</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Answers to common questions about working with Better Things.
-            </p>
-          </div>
-
-          <div className="max-w-3xl mx-auto">
-            <FAQ
-              questions={[
-                {
-                  question: "What is your design process?",
-                  answer:
-                    "My design process typically involves understanding your requirements, researching your industry and competitors, creating initial concepts, refining based on your feedback, and delivering final assets. I maintain clear communication throughout to ensure your vision is realized.",
-                },
-                {
-                  question: "How long does a typical project take?",
-                  answer:
-                    "Project timelines vary depending on scope and complexity. A logo design might take 1-2 weeks, while a comprehensive brand identity could take 4-6 weeks. Website designs typically range from 2-8 weeks depending on the number of pages and functionality required.",
-                },
-                {
-                  question: "Do you offer revisions?",
-                  answer:
-                    "Yes, revisions are an integral part of the design process. I work collaboratively with clients to refine designs until they're completely satisfied. My goal is to create designs that not only look great but also meet your strategic objectives.",
-                },
-                {
-                  question: "What information do you need to start a project?",
-                  answer:
-                    "To get started, I'll need information about your business, target audience, project goals, design preferences, and any existing brand materials. The more detailed information you can provide, the better I can tailor the design to your specific needs.",
-                },
-                {
-                  question: "How do we communicate during the project?",
-                  answer:
-                    "I'm flexible with communication methods and can adapt to your preferences. Typically, I use a combination of email, video calls, and project management tools to ensure clear and efficient communication throughout the design process.",
-                },
-              ]}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-black">Ready for faster design?</h2>
-            <p className="text-xl mb-10 text-gray-600">
+      {/* CTA Section */}
+      <section className="py-20 vibrant-gradient-bg text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-shadow">Ready for faster design?</h2>
+            <p className="text-xl mb-10 text-white/90">
               Get all your design work done for one monthly fee. Fast turnaround, dedicated service, and the flexibility
               to pause or cancel anytime. No risk, just results.
             </p>
-            <GlossyEmailRevealButton />
+
+            {!isEmailRevealed ? (
+              <button
+                onClick={handleRevealEmail}
+                className="relative inline-flex items-center justify-center px-8 py-4 rounded-full text-white font-medium transition-all duration-200 overflow-hidden group mx-auto"
+                style={{
+                  boxShadow:
+                    "0 10px 25px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2)",
+                  background: "linear-gradient(135deg, #ff5757 -10%, #8c52ff 110%)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                }}
+              >
+                {/* Top gradient shine */}
+                <span className="absolute inset-0 w-full h-full bg-gradient-to-b from-white/20 to-transparent opacity-50 group-hover:opacity-70 transition-opacity"></span>
+                <span className="absolute inset-0 w-full h-[40%] bg-gradient-to-b from-white/30 to-transparent"></span>
+
+                {/* Single horizontal shine effect that moves on hover */}
+                <span className="absolute inset-y-0 left-[-100%] w-[35%] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-100 group-hover:translate-x-[250%] transition-transform duration-1500 ease-in-out"></span>
+
+                <Mail className="mr-2 h-5 w-5 relative z-10" />
+                <span className="relative z-10">Get in Touch for Pricing</span>
+              </button>
+            ) : (
+              <div
+                className="relative inline-flex items-center justify-center px-6 py-4 rounded-full text-white font-medium mx-auto"
+                style={{
+                  boxShadow:
+                    "0 10px 25px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2)",
+                  background: "linear-gradient(135deg, #ff5757 -10%, #8c52ff 110%)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                }}
+              >
+                <span className="absolute inset-0 w-full h-[40%] bg-gradient-to-b from-white/20 to-transparent rounded-full"></span>
+                <span className="font-medium relative z-10">
+                  {emailParts.username}@{emailParts.domain}.{emailParts.tld}
+                </span>
+                <button
+                  onClick={handleCopyEmail}
+                  className="ml-3 p-1 rounded-full hover:bg-white/10 transition-colors relative z-10"
+                >
+                  {isCopied ? <CheckCircle className="h-5 w-5 text-green-500" /> : <Mail className="h-5 w-5" />}
+                  <span className="sr-only">{isCopied ? "Copied" : "Copy to clipboard"}</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Footer - Changed to white background with black text */}
-      <footer className="py-12 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4">
+      {/* Footer */}
+      <footer className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-3 mb-6 md:mb-0">
-              <BetterThingsLogo className="w-8 h-8" />
-              <span className="text-xl font-bold text-black">Better Things</span>
+              <BetterThingsIconStamp className="h-8 w-8 text-[#000000]" />
+              <span className="text-xl font-bold text-gray-800">Better Things</span>
             </div>
             <div className="flex gap-6">
-              <Link href="/" className="text-gray-600 hover:text-black">
+              <Link href="/" className="text-gray-500 hover:text-[#FF5757] transition-colors">
                 neilmcardle.com
               </Link>
               <Link
                 href="https://www.linkedin.com/in/neilmcardle/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 hover:text-black"
+                className="text-gray-500 hover:text-[#FF5757] transition-colors"
               >
                 LinkedIn
               </Link>
@@ -476,7 +669,7 @@ export default function BetterThings() {
                 href="https://x.com/betterneil"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 hover:text-black"
+                className="text-gray-500 hover:text-[#FF5757] transition-colors"
               >
                 Twitter
               </Link>
@@ -484,38 +677,18 @@ export default function BetterThings() {
                 href="https://dribbble.com/neilmacdesign"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 hover:text-black"
+                className="text-gray-500 hover:text-[#FF5757] transition-colors"
               >
                 Dribbble
               </Link>
             </div>
           </div>
           <div className="border-t border-gray-200 mt-8 pt-8 text-center md:text-left">
-            <p className="text-gray-600">© {new Date().getFullYear()} Better Things. All rights reserved.</p>
+            <p className="text-gray-500">© {new Date().getFullYear()} Better Things. All rights reserved.</p>
           </div>
         </div>
       </footer>
     </div>
-  )
-}
-
-// Star component for testimonials
-function Star(props) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
   )
 }
 
