@@ -2,18 +2,40 @@
 import { FigmaIcon } from "@/components/FigmaIcon"
 import { Lock } from "lucide-react"
 import { XPostEmbed } from "@/components/XPostEmbed"
+import { MediumIcon } from "@/components/MediumIcon"
+import { MediumArticleCard } from "@/components/MediumArticleCard"
 import Image from "next/image"
 import Link from "next/link"
 
 export default function Home() {
+  const mediumArticles = [
+    {
+      title: "Navigating Recruiter Pitches on LinkedIn",
+      subtitle: "A Designer's UX-Fueled InMail Odyssey",
+      imageUrl:
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/navigating-article-2-IJX6TSxHZZ9C3RIw6WqPIBcBQwSrCG.png",
+      articleUrl: "https://medium.com/design-bootcamp/navigating-recruiter-pitches-on-linkedin-74cb0bf74a83",
+      publishDate: "Mar 6, 2025",
+      readTime: "4 min read",
+    },
+    {
+      title: "The Designer and the Peas of Rejection",
+      subtitle: "A UX Prince Picks Apart His 27 No-Reply Goodbyes",
+      imageUrl:
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/peas-article-1-YAHCa2aOoqJEJoAmkexgTCGXtjiw3R.png",
+      articleUrl: "https://medium.com/design-bootcamp/the-designer-and-the-peas-of-rejection-3b2837e96342",
+      publishDate: "Feb 27, 2025",
+    },
+  ]
+
   return (
-    <div className="flex flex-col items-center h-screen overflow-hidden px-4 relative">
+    <div className="flex flex-col items-center min-h-screen overflow-x-hidden px-4 relative">
       {/* Background with subtle gradient */}
       <div className="fixed inset-0 bg-gradient-to-br from-blue-50/30 to-purple-50/30 z-[-1]"></div>
 
-      <div className="w-full max-w-6xl mx-auto relative z-[15] mt-4">
+      <div className="w-full max-w-6xl mx-auto relative z-[15] mt-4 mb-8">
         {/* Card frame for top content */}
-        <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-4 sm:p-8">
+        <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-4 sm:p-8 mb-8">
           <div className="grid md:grid-cols-2 gap-8 items-start">
             {/* Left column - Hero content */}
             <div className="flex flex-col items-start text-left">
@@ -23,7 +45,7 @@ export default function Home() {
 
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-4 sm:mb-6">Neil McArdle</h1>
 
-              <p className="text-lg sm:text-xl text-gray-500 mb-6 sm:mb-10 max-w-md">
+              <p className="text-lg sm:text-xl text-gray-500 mb-6 sm:mb-10 max-w-full md:max-w-md">
                 Elegant designs realized through clean, purposeful code.
               </p>
 
@@ -41,7 +63,8 @@ export default function Home() {
 
             {/* Right column - Custom X Post with working embed */}
             <div className="flex flex-col space-y-6 w-full">
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden w-full">
+              {/* X Post - hidden on mobile */}
+              <div className="hidden md:block bg-white rounded-2xl shadow-lg overflow-hidden w-full">
                 <div className="p-4 sm:p-6">
                   <div className="flex items-start mb-4">
                     {/* Profile image */}
@@ -87,6 +110,28 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Medium Articles Section */}
+        <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-4 sm:p-8">
+          <div className="flex items-center mb-6">
+            <MediumIcon className="w-6 h-6 mr-3" />
+            <h2 className="text-2xl font-bold">Design Thought Leadership</h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {mediumArticles.map((article, index) => (
+              <MediumArticleCard
+                key={index}
+                title={article.title}
+                subtitle={article.subtitle}
+                imageUrl={article.imageUrl}
+                articleUrl={article.articleUrl}
+                publishDate={article.publishDate}
+                readTime={article.readTime}
+              />
+            ))}
           </div>
         </div>
       </div>
