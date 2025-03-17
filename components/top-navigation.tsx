@@ -11,8 +11,8 @@ import { NMLogoIcon } from "./NMLogoIcon"
 import { MakeEbookIcon } from "./MakeEbookIcon"
 
 const XSolid = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 0 24" fill="black">
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M12.6 2h1.9L9.7 7.6l5.7 6.4h-4.2l-3.5-3.9-4 3.9H1.8l5.2-6-5.4-6h4.3l3.2 3.6L12.6 2zm-1.7 12.1h1.1L5.3 3.8H4.1l6.8 10.3z" />
   </svg>
 )
 
