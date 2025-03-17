@@ -5,6 +5,7 @@ import { FAQ } from "@/components/FAQ"
 import { BetterThingsTopNav } from "@/components/BetterThingsTopNav"
 import { GlossyEmailRevealButton } from "@/components/GlossyEmailRevealButton"
 import { BetterThingsLogo } from "@/components/BetterThingsLogo"
+import { BetterThingsIconStamp } from "@/components/BetterThingsIconStamp"
 
 export default function BetterThings() {
   return (
@@ -14,6 +15,7 @@ export default function BetterThings() {
       <section className="relative overflow-hidden pt-32 pb-8 md:pb-12">
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+            <BetterThingsIconStamp className="text-black mb-8" width={120} height={120} />
             <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
               Fast. Dedicated.
               <br />
