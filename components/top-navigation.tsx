@@ -4,11 +4,11 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { ChevronDown, Menu, X } from "lucide-react"
 import { FigmaIcon } from "./FigmaIcon"
-import { BetterThingsLogo } from "./BetterThingsLogo"
 import { LinkedInIcon } from "./LinkedInIcon"
 import { MediumIcon } from "./MediumIcon"
 import { NMLogoIcon } from "./NMLogoIcon"
 import { MakeEbookIcon } from "./MakeEbookIcon"
+import { BetterThingsSquareLogo } from "./BetterThingsSquareLogo"
 
 const XSolid = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -39,20 +39,20 @@ export function TopNavigation() {
   }
 
   return (
-    <header className="fixed top-4 z-50 mx-auto max-w-7xl px-4 left-0 right-0">
+    <header className="fixed top-0 sm:top-4 z-50 w-full left-0 right-0 px-4">
       <nav
-        className="flex items-center rounded-full bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 px-4 sm:px-6 py-3 relative"
+        className="flex items-center justify-between bg-white/90 sm:bg-white/80 sm:rounded-full backdrop-blur-md supports-[backdrop-filter]:bg-white/80 px-4 sm:px-6 py-3 relative max-w-7xl mx-auto shadow-sm sm:shadow-none"
         ref={dropdownRef}
       >
         {/* Logo - always visible */}
-        <Link href="/" className="mr-4 sm:mr-8">
-          <NMLogoIcon className="text-[#1D1D1F]" />
+        <Link href="/" className="mr-4">
+          <NMLogoIcon className="text-[#1D1D1F] w-8 h-8" />
         </Link>
 
         {/* Mobile menu button */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="ml-auto p-2 text-[#1D1D1F] hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-200 rounded-full lg:hidden"
+          className="p-2 text-[#1D1D1F] hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-200 rounded-full lg:hidden"
           aria-expanded={isMenuOpen}
           aria-label="Toggle menu"
         >
@@ -98,7 +98,7 @@ export function TopNavigation() {
                   className="flex items-center gap-2 px-4 py-3 text-sm text-[#1D1D1F] hover:bg-[#F5F5F7]"
                   onClick={() => setActiveDropdown(null)}
                 >
-                  <BetterThingsLogo className="w-4 h-4" />
+                  <BetterThingsSquareLogo className="w-4 h-4" />
                   Freelance
                 </Link>
               </div>
@@ -194,7 +194,7 @@ export function TopNavigation() {
                   className="flex items-center gap-2 text-sm text-[#86868B] hover:text-[#1D1D1F] py-2 pl-4"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <BetterThingsLogo className="w-4 h-4" />
+                  <BetterThingsSquareLogo className="w-4 h-4" />
                   Freelance
                 </Link>
               </div>

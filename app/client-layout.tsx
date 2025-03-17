@@ -21,7 +21,7 @@ export const ClientLayout = ({
     <html lang="en">
       <body className={inter.className}>
         {!isEbookPage && !isBetterThingsPage && <TopNavigation />}
-        <main className={`min-h-screen ${!isEbookPage && !isBetterThingsPage ? "pt-28" : ""}`}>{children}</main>
+        <main className={`${!isEbookPage && !isBetterThingsPage ? "pt-24 sm:pt-32" : "min-h-screen"}`}>{children}</main>
       </body>
     </html>
   )

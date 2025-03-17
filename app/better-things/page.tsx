@@ -46,11 +46,21 @@ export default function BetterThings() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <BetterThingsIconStamp className="h-8 w-8 text-[#000000]" />
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 73.68 73.68"
+                className="text-[#000000]"
+                aria-label="Better Things Logo"
+              >
+                <g>
+                  <path d="M0,0v73.68h73.68V0H0ZM65.68,65.68H8V8h57.68v57.68Z" fill="currentColor" />
+                </g>
+              </svg>
               <span className="ml-2 text-xl font-bold text-black">Better Things</span>
             </div>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - now takes the place of the button */}
             <nav className="hidden md:flex space-x-8">
               <a href="#services" className="text-gray-800 hover:text-[#FF5757] transition-colors font-medium">
                 Services
@@ -64,17 +74,10 @@ export default function BetterThings() {
               <a href="#testimonials" className="text-gray-800 hover:text-[#FF5757] transition-colors font-medium">
                 Testimonials
               </a>
+              <a href="#pricing" className="text-gray-800 hover:text-[#FF5757] transition-colors font-medium">
+                Pricing
+              </a>
             </nav>
-
-            {/* CTA Button */}
-            <div className="hidden md:block">
-              <button
-                onClick={handleRevealEmail}
-                className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-full transition-all vibrant-button"
-              >
-                Get in touch
-              </button>
-            </div>
 
             {/* Mobile menu button */}
             <div className="md:hidden">
@@ -152,8 +155,8 @@ export default function BetterThings() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               {!isEmailRevealed ? (
-                <button
-                  onClick={handleRevealEmail}
+                <a
+                  href="#pricing"
                   className="relative inline-flex items-center justify-center px-8 py-4 rounded-full text-white font-medium transition-all duration-200 overflow-hidden group"
                   style={{
                     boxShadow:
@@ -169,9 +172,8 @@ export default function BetterThings() {
                   {/* Single horizontal shine effect that moves on hover */}
                   <span className="absolute inset-y-0 left-[-100%] w-[35%] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-100 group-hover:translate-x-[250%] transition-transform duration-1500 ease-in-out"></span>
 
-                  <Mail className="mr-2 h-5 w-5 relative z-10" />
-                  <span className="relative z-10">Get in Touch for Pricing</span>
-                </button>
+                  <span className="relative z-10">View Pricing</span>
+                </a>
               ) : (
                 <div
                   className="relative inline-flex items-center justify-center px-6 py-4 rounded-full text-white font-medium"
@@ -201,33 +203,61 @@ export default function BetterThings() {
       </section>
 
       {/* Trusted By Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-gray-500 mb-10">Trusted by...</p>
-          <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8">
-            <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full overflow-hidden mr-3 border border-gray-200">
-                <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/nuk-soo-card-banner-Ej605KiiolTu8x60MWYAJMGfLj5AdH.png"
-                  alt="NUK SOO"
-                  width={40}
-                  height={40}
-                  className="w-full h-full object-cover"
-                />
+      {/* Trusted By Section - Enhanced */}
+      <section className="py-20 bg-white relative overflow-hidden">
+        {/* Add subtle background elements */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-10 left-10 w-64 h-64 rounded-full brand-gradient opacity-20 blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-64 h-64 rounded-full brand-gradient opacity-20 blur-3xl"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-12 animate-fade-in">
+            <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">Trusted by innovative brands</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Partnering with forward-thinking companies to create exceptional design experiences.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="bg-white rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
+              <div className="flex items-center">
+                <div className="w-16 h-16 rounded-2xl overflow-hidden mr-4 brand-gradient p-0.5">
+                  <div className="w-full h-full bg-white rounded-xl overflow-hidden">
+                    <Image
+                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/nuk-soo-card-banner-Ej605KiiolTu8x60MWYAJMGfLj5AdH.png"
+                      alt="NUK SOO"
+                      width={60}
+                      height={60}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-800 font-bold text-xl mb-1">NUK SOO</div>
+                  <p className="text-gray-600 text-sm">Brand Identity & Digital Design</p>
+                </div>
               </div>
-              <div className="text-gray-800 font-semibold text-xl">NUK SOO</div>
             </div>
-            <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full overflow-hidden mr-3 border border-gray-200">
-                <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gatewick-house-gardens-card-banner-yPo8986u4vDLre49VxlfSilnAhDCdl.png"
-                  alt="Gatewick Gardens"
-                  width={40}
-                  height={40}
-                  className="w-full h-full object-cover"
-                />
+
+            <div className="bg-white rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
+              <div className="flex items-center">
+                <div className="w-16 h-16 rounded-2xl overflow-hidden mr-4 brand-gradient p-0.5">
+                  <div className="w-full h-full bg-white rounded-xl overflow-hidden">
+                    <Image
+                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gatewick-house-gardens-card-banner-yPo8986u4vDLre49VxlfSilnAhDCdl.png"
+                      alt="Gatewick Gardens"
+                      width={60}
+                      height={60}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-800 font-bold text-xl mb-1">Gatewick Gardens</div>
+                  <p className="text-gray-600 text-sm">Brand Identity & Website Design</p>
+                </div>
               </div>
-              <div className="text-gray-800 font-semibold text-xl">Gatewick Gardens</div>
             </div>
           </div>
         </div>
@@ -282,7 +312,7 @@ export default function BetterThings() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-20 bg-gray-50 clip-path-slant">
+      <section id="services" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">All included in your subscription</h2>
@@ -412,7 +442,7 @@ export default function BetterThings() {
                   href="https://danrobertsgroup.com/nuksoo/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gradient-text-orange hover:opacity-80 transition-opacity font-medium"
+                  className="inline-flex items-center px-4 py-2 rounded-full brand-gradient text-white hover:opacity-90 transition-opacity font-medium"
                 >
                   View on Dan Roberts Group
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -451,7 +481,7 @@ export default function BetterThings() {
                   href="https://www.instagram.com/gatewick_gardens/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gradient-text-purple hover:opacity-80 transition-opacity font-medium"
+                  className="inline-flex items-center px-4 py-2 rounded-full brand-gradient text-white hover:opacity-90 transition-opacity font-medium"
                 >
                   View on Instagram
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -463,7 +493,7 @@ export default function BetterThings() {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 clip-path-slant-reverse">
+      <section id="testimonials" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">What clients say</h2>
@@ -659,10 +689,25 @@ export default function BetterThings() {
                   <span className="absolute inset-y-0 left-[-100%] w-[35%] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-100 group-hover:translate-x-[250%] transition-transform duration-1500 ease-in-out"></span>
 
                   <div className="flex items-center justify-center relative z-10">
-                    <div className="bg-white/20 rounded-full p-2 mr-3">
-                      <Mail className="h-5 w-5" />
-                    </div>
-                    Join today
+                    {isEmailRevealed ? (
+                      <div className="flex items-center">
+                        <span>
+                          {emailParts.username}@{emailParts.domain}.{emailParts.tld}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleCopyEmail()
+                          }}
+                          className="ml-3 p-1 rounded-full hover:bg-white/10 transition-colors"
+                        >
+                          {isCopied ? <CheckCircle className="h-5 w-5 text-green-300" /> : <Mail className="h-5 w-5" />}
+                          <span className="sr-only">{isCopied ? "Copied" : "Copy to clipboard"}</span>
+                        </button>
+                      </div>
+                    ) : (
+                      "Get in Touch to Join"
+                    )}
                   </div>
                 </button>
               </div>
@@ -699,8 +744,7 @@ export default function BetterThings() {
                 {/* Single horizontal shine effect that moves on hover */}
                 <span className="absolute inset-y-0 left-[-100%] w-[35%] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-100 group-hover:translate-x-[250%] transition-transform duration-1500 ease-in-out"></span>
 
-                <Mail className="mr-2 h-5 w-5 relative z-10" />
-                <span className="relative z-10">Get in Touch for Pricing</span>
+                <span className="relative z-10">Get Started</span>
               </button>
             ) : (
               <div
