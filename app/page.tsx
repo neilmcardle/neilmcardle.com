@@ -3,11 +3,9 @@ import { useState, useEffect } from "react"
 import { FigmaIcon } from "@/components/FigmaIcon"
 import { MediumArticleCard } from "@/components/MediumArticleCard"
 import { XPostEmbed } from "@/components/XPostEmbed"
-import { BetterThingsSquareLogo } from "@/components/BetterThingsSquareLogo"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Code, Layout, Lock, Palette, PenTool, Sparkles, Star } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function Home() {
@@ -45,9 +43,8 @@ export default function Home() {
       image:
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/betterThingsCardBanner-7mLfmSmu8yYccGaMoIWJG0DO1jEtX1.png",
       link: "/better-things",
-      icon: <BetterThingsSquareLogo className="h-5 w-5" />,
+      icon: null, // Changed from BetterThingsSquareLogo to null
       skills: ["Brand Identity", "UI/UX Design", "Illustration"],
-      category: "Freelance Service",
     },
   ]
 
@@ -92,10 +89,16 @@ export default function Home() {
                   />
                 </div>
 
-                {/* Smaller Design Engineer badge */}
-                <div className="inline-flex items-center py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-xs font-medium mb-4">
-                  <Sparkles className="h-3 w-3 mr-1" />
-                  Design Engineer
+                {/* Smaller Design Engineer badge with available indicator */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="inline-flex items-center py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Design Engineer
+                  </div>
+                  <div className="flex items-center text-xs text-emerald-600 font-medium">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></div>
+                    Available for work
+                  </div>
                 </div>
 
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-900 bg-clip-text text-transparent">
@@ -151,8 +154,7 @@ export default function Home() {
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl shadow-xl p-6 flex flex-col justify-center">
               <h2 className="text-xl sm:text-2xl font-bold mb-4 text-white">Ready to collaborate?</h2>
               <p className="text-white/90 mb-6">
-                I'm currently available for freelance projects and full-time opportunities. Let's create something
-                amazing together.
+                I'm currently available for freelance projects. Let's create something amazing together.
               </p>
               <div className="flex flex-col gap-3">
                 <Link
@@ -209,15 +211,15 @@ export default function Home() {
                         className="object-contain"
                       />
                       <div className="absolute top-3 left-3">
-                        <Badge variant="secondary" className="bg-white/90 text-gray-800 backdrop-blur-sm">
-                          {project.category}
-                        </Badge>
+                        <div className="flex items-center py-1 px-3 rounded-full bg-white/90 backdrop-blur-sm text-emerald-600 text-xs font-medium">
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></div>
+                          Available for work
+                        </div>
                       </div>
                     </div>
 
                     <div className="p-6">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="text-blue-600">{project.icon}</div>
+                      <div className="mb-3">
                         <h3 className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">
                           {project.title}
                         </h3>
