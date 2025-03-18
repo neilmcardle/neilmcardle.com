@@ -203,7 +203,7 @@ export default function Home() {
                   rel={project.external ? "noopener noreferrer" : undefined}
                   className="group"
                 >
-                  <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group-hover:translate-y-[-4px]">
+                  <div className="bg-white rounded-xl overflow-hidden">
                     <div className="relative h-64 overflow-hidden">
                       <Image
                         src={project.image || "/placeholder.svg"}
@@ -221,9 +221,7 @@ export default function Home() {
 
                     <div className="p-6">
                       <div className="mb-3">
-                        <h3 className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">
-                          {project.title}
-                        </h3>
+                        <h3 className="font-bold text-xl text-gray-900">{project.title}</h3>
                       </div>
 
                       <p className="text-gray-600 text-base mb-4">{project.description}</p>
