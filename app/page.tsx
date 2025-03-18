@@ -39,7 +39,8 @@ export default function Home() {
   const featuredProjects = [
     {
       title: "Better Things",
-      description: "Freelance design service offering unlimited design requests with rapid turnaround times.",
+      description:
+        "Subscribe to my elite freelance design services with unlimited design requests and rapid turnaround times.",
       image:
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/betterThingsCardBanner-7mLfmSmu8yYccGaMoIWJG0DO1jEtX1.png",
       link: "/better-things",
@@ -183,7 +184,7 @@ export default function Home() {
         >
           <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Freelance Work</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Your Elite Designer</h2>
               <Link
                 href="/better-things"
                 className="text-blue-600 hover:text-blue-800 transition-colors text-sm font-medium flex items-center"
