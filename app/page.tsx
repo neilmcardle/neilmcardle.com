@@ -1,13 +1,23 @@
 "use client"
+import { useState, useEffect } from "react"
 import { FigmaIcon } from "@/components/FigmaIcon"
-import { Lock } from "lucide-react"
-import { XPostEmbed } from "@/components/XPostEmbed"
-import { MediumIcon } from "@/components/MediumIcon"
 import { MediumArticleCard } from "@/components/MediumArticleCard"
+import { XPostEmbed } from "@/components/XPostEmbed"
+import { BetterThingsSquareLogo } from "@/components/BetterThingsSquareLogo"
 import Image from "next/image"
 import Link from "next/link"
+import { ArrowRight, Code, Layout, Lock, Palette, PenTool, Sparkles, Star } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function Home() {
+  // Animation states
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  useEffect(() => {
+    setIsLoaded(true)
+  }, [])
+
   const mediumArticles = [
     {
       title: "Navigating Recruiter Pitches on LinkedIn",
@@ -28,113 +38,307 @@ export default function Home() {
     },
   ]
 
+  const featuredProjects = [
+    {
+      title: "Better Things",
+      description: "Freelance design service offering unlimited design requests with rapid turnaround times.",
+      image:
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/betterThingsCardBanner-7mLfmSmu8yYccGaMoIWJG0DO1jEtX1.png",
+      link: "/better-things",
+      icon: <BetterThingsSquareLogo className="h-5 w-5" />,
+      skills: ["Brand Identity", "UI/UX Design", "Illustration"],
+      category: "Freelance Service",
+    },
+  ]
+
+  const skills = [
+    { name: "UI/UX Design", icon: <Layout className="h-5 w-5" />, level: 95 },
+    { name: "Frontend Development", icon: <Code className="h-5 w-5" />, level: 90 },
+    { name: "Brand Identity", icon: <Palette className="h-5 w-5" />, level: 85 },
+    { name: "Illustration", icon: <PenTool className="h-5 w-5" />, level: 80 },
+  ]
+
+  const testimonials = [
+    {
+      quote:
+        "Neil is a talented designer who has an impressive work ethic. He has assisted on number of key design projects for our brand and he over-delivers each and every time!",
+      name: "Dan Roberts",
+      role: "Founder, NUK SOO",
+      avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dan-or2ZMicLq3DNbbnxNnCFXvZP8jsrt5.png",
+    },
+  ]
+
   return (
     <div className="flex flex-col items-center min-h-screen overflow-x-hidden px-4 relative">
       {/* Background with subtle gradient */}
       <div className="fixed inset-0 bg-gradient-to-br from-blue-50/30 to-purple-50/30 z-[-1]"></div>
 
-      <div className="w-full max-w-6xl mx-auto relative z-[15] mt-4 mb-8">
-        {/* Card frame for top content */}
-        <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-4 sm:p-8 mb-8">
-          <div className="grid md:grid-cols-2 gap-8 items-start">
-            {/* Left column - Hero content */}
-            <div className="flex flex-col items-start text-left">
-              <div className="inline-flex items-center py-2 rounded-full bg-white text-gray-600 text-sm font-medium mb-4">
-                Design Engineer
-              </div>
+      <div className="w-full max-w-6xl mx-auto relative z-[15] mt-4 mb-16">
+        {/* Hero Section - Two cards side by side */}
+        <section
+          className={`transition-all duration-1000 ease-out transform ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+        >
+          <div className="grid md:grid-cols-3 gap-6 mb-10">
+            {/* Left card - Name section (2/3 width) */}
+            <div className="md:col-span-2 bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10">
+              <div className="flex flex-col items-start text-left">
+                {/* Profile photo above name - increased to 64x64px */}
+                <div className="relative rounded-full overflow-hidden shadow-md h-16 w-16 border-2 border-white mb-4">
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/profile-dONA7abEaJyCLzMSGtfxbqB76X5jfw.png"
+                    alt="Neil McArdle - Design Engineer"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
 
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-4 sm:mb-6">Neil McArdle</h1>
+                {/* Smaller Design Engineer badge */}
+                <div className="inline-flex items-center py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-xs font-medium mb-4">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  Design Engineer
+                </div>
 
-              <p className="text-lg sm:text-xl text-gray-500 mb-6 sm:mb-10 max-w-full md:max-w-md">
-                Elegant designs realized through clean, purposeful code.
-              </p>
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-900 bg-clip-text text-transparent">
+                  Neil McArdle
+                </h1>
 
-              <Link
-                href="https://www.figma.com/proto/zZcc3Li72GhWFVpv1PxC0O/%F0%9F%91%A8%F0%9F%8F%BC%E2%80%8D%F0%9F%9A%80--Neil-McArdle?page-id=7947%3A56485&node-id=7947-56486&viewport=119%2C809%2C0.29&t=9uLN4opTMa6jNFaW-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=7947%3A56486"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-white text-gray-800 font-medium shadow-lg hover:shadow-xl transition-shadow text-sm sm:text-base"
-              >
-                <FigmaIcon variant="color" className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                Access Figma Portfolio
-                <Lock className="w-3 h-3 sm:w-4 sm:h-4 ml-2" />
-              </Link>
-            </div>
+                <p className="text-lg sm:text-xl text-gray-700 mb-8 max-w-full md:max-w-md leading-relaxed">
+                  I craft elegant digital experiences through thoughtful design and clean, purposeful code. Specializing
+                  in UI/UX design and frontend development.
+                </p>
 
-            {/* Right column - Custom X Post with working embed */}
-            <div className="flex flex-col space-y-6 w-full">
-              {/* X Post - hidden on mobile */}
-              <div className="hidden md:block bg-white rounded-2xl shadow-lg overflow-hidden w-full">
-                <div className="p-4 sm:p-6">
-                  <div className="flex items-start mb-4">
-                    {/* Profile image */}
-                    <Image
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/profile-dONA7abEaJyCLzMSGtfxbqB76X5jfw.png"
-                      alt="Neil McArdle"
-                      width={40}
-                      height={40}
-                      className="rounded-full mr-3 w-10 h-10 sm:w-12 sm:h-12"
-                    />
-
-                    {/* Name and handle */}
-                    <div>
-                      <div className="flex items-center">
-                        <span className="font-bold text-gray-900 text-sm sm:text-base">Neil McArdle</span>
-                        <span className="text-gray-500 ml-1 text-xs sm:text-sm">@BetterNeil</span>
-                      </div>
-
-                      {/* Post content */}
-                      <div className="mt-1">
-                        <p className="text-gray-900 mb-1 text-sm sm:text-base">Resizable Figma button 🔥 ;P 🔥</p>
-                        <p className="text-gray-900 mb-2 text-sm sm:text-base">Sound on... 🔊</p>
-                        <p className="text-blue-500 text-xs sm:text-sm">
-                          <span className="mr-2">#UI</span>
-                          <span>#Design</span>
-                        </p>
-                      </div>
+                <div className="flex flex-wrap gap-4 mb-8">
+                  {skills.map((skill, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg shadow-sm border border-gray-100"
+                      style={{
+                        transitionDelay: `${index * 100}ms`,
+                        animation: isLoaded ? `fadeIn 0.5s ease-out ${index * 100}ms forwards` : "none",
+                        opacity: 0,
+                      }}
+                    >
+                      <div className="text-blue-600">{skill.icon}</div>
+                      <span className="text-sm font-medium">{skill.name}</span>
                     </div>
-                  </div>
+                  ))}
+                </div>
 
-                  {/* Working XPostEmbed directly in the card */}
-                  <div className="mt-4 rounded-xl overflow-hidden">
-                    <XPostEmbed
-                      tweetUrl="https://twitter.com/BetterNeil/status/1901435678375972971"
-                      mediaMaxWidth={550}
-                      align="center"
-                      cards="visible"
-                      conversation="none"
-                      theme="light"
-                      className="w-full"
-                    />
-                  </div>
+                <div className="flex flex-wrap gap-4">
+                  <Link
+                    href="https://www.figma.com/proto/zZcc3Li72GhWFVpv1PxC0O/%F0%9F%91%A8%F0%9F%8F%BC%E2%80%8D%F0%9F%9A%80--Neil-McArdle?page-id=7947%3A56485&node-id=7947-56486&viewport=119%2C809%2C0.29&t=9uLN4opTMa6jNFaW-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=7947%3A56486"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium shadow-lg hover:shadow-xl transition-all hover:translate-y-[-2px]"
+                  >
+                    <FigmaIcon variant="color" className="w-5 h-5 mr-2" />
+                    View Portfolio
+                    <Lock className="w-4 h-4 ml-2" />
+                  </Link>
+
+                  <Link
+                    href="/about"
+                    className="inline-flex items-center px-6 py-3 rounded-full bg-white text-gray-800 font-medium shadow-md hover:shadow-lg transition-all border border-gray-200"
+                  >
+                    About Me
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Medium Articles Section */}
-        <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-4 sm:p-8">
-          <div className="flex items-center mb-6">
-            <MediumIcon className="w-6 h-6 mr-3" />
-            <h2 className="text-2xl font-bold">Design Thought Leadership</h2>
+            {/* Right card - Ready to collaborate (1/3 width) */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl shadow-xl p-6 flex flex-col justify-center">
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 text-white">Ready to collaborate?</h2>
+              <p className="text-white/90 mb-6">
+                I'm currently available for freelance projects and full-time opportunities. Let's create something
+                amazing together.
+              </p>
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="https://www.linkedin.com/in/neilmcardle/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-5 py-2 rounded-full bg-white text-blue-600 font-medium hover:bg-blue-50 transition-colors text-sm"
+                >
+                  Connect on LinkedIn
+                </Link>
+                <Link
+                  href="/about"
+                  className="inline-flex items-center px-5 py-2 rounded-full bg-blue-500/20 text-white font-medium hover:bg-blue-500/30 transition-colors border border-white/30 text-sm"
+                >
+                  Contact Me
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </div>
+            </div>
           </div>
+        </section>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {mediumArticles.map((article, index) => (
-              <MediumArticleCard
-                key={index}
-                title={article.title}
-                subtitle={article.subtitle}
-                imageUrl={article.imageUrl}
-                articleUrl={article.articleUrl}
-                publishDate={article.publishDate}
-                readTime={article.readTime}
-              />
-            ))}
+        {/* Freelance Work Section - Renamed from Featured Projects */}
+        <section
+          className={`mb-10 transition-all duration-1000 ease-out transform delay-300 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+        >
+          <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Freelance Work</h2>
+              <Link
+                href="/better-things"
+                className="text-blue-600 hover:text-blue-800 transition-colors text-sm font-medium flex items-center"
+              >
+                Learn more
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Link>
+            </div>
+
+            <div className="grid md:grid-cols-1 max-w-2xl mx-auto">
+              {featuredProjects.map((project, index) => (
+                <Link
+                  key={index}
+                  href={project.link}
+                  target={project.external ? "_blank" : undefined}
+                  rel={project.external ? "noopener noreferrer" : undefined}
+                  className="group"
+                >
+                  <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group-hover:translate-y-[-4px]">
+                    <div className="relative h-64 overflow-hidden">
+                      <Image
+                        src={project.image || "/placeholder.svg"}
+                        alt={project.title}
+                        fill
+                        className="object-contain"
+                      />
+                      <div className="absolute top-3 left-3">
+                        <Badge variant="secondary" className="bg-white/90 text-gray-800 backdrop-blur-sm">
+                          {project.category}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="text-blue-600">{project.icon}</div>
+                        <h3 className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">
+                          {project.title}
+                        </h3>
+                      </div>
+
+                      <p className="text-gray-600 text-base mb-4">{project.description}</p>
+
+                      <div className="flex flex-wrap gap-2">
+                        {project.skills.map((skill, skillIndex) => (
+                          <span key={skillIndex} className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        </section>
+
+        {/* Testimonials & Content Section */}
+        <section
+          className={`mb-10 transition-all duration-1000 ease-out transform delay-500 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+        >
+          <div className="grid md:grid-cols-5 gap-6">
+            {/* Testimonials */}
+            <div className="md:col-span-2">
+              <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-8 h-full">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Client Testimonials</h2>
+
+                <div className="space-y-6">
+                  {testimonials.map((testimonial, index) => (
+                    <div key={index} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                      <div className="flex gap-1 mb-4">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      </div>
+
+                      <p className="text-gray-700 text-sm mb-4 italic">"{testimonial.quote}"</p>
+
+                      <div className="flex items-center">
+                        <Image
+                          src={testimonial.avatar || "/placeholder.svg"}
+                          alt={testimonial.name}
+                          width={40}
+                          height={40}
+                          className="rounded-full mr-3"
+                        />
+                        <div>
+                          <p className="font-medium text-gray-900 text-sm">{testimonial.name}</p>
+                          <p className="text-gray-500 text-xs">{testimonial.role}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Content Tabs */}
+            <div className="md:col-span-3">
+              <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-8">
+                <Tabs defaultValue="twitter">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">Latest Content</h2>
+                    <TabsList className="bg-gray-100">
+                      <TabsTrigger value="twitter" className="text-xs">
+                        Twitter
+                      </TabsTrigger>
+                      <TabsTrigger value="articles" className="text-xs">
+                        Articles
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+
+                  <TabsContent value="twitter" className="mt-0">
+                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                      <XPostEmbed
+                        tweetUrl="https://twitter.com/BetterNeil/status/1901435678375972971"
+                        mediaMaxWidth={550}
+                        align="center"
+                        cards="visible"
+                        conversation="none"
+                        theme="light"
+                        className="w-full"
+                      />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="articles" className="mt-0">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {mediumArticles.map((article, index) => (
+                        <MediumArticleCard
+                          key={index}
+                          title={article.title}
+                          subtitle={article.subtitle}
+                          imageUrl={article.imageUrl}
+                          articleUrl={article.articleUrl}
+                          publishDate={article.publishDate}
+                          readTime={article.readTime}
+                        />
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
+
+      {/* Add animation keyframes */}
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   )
 }
