@@ -423,14 +423,16 @@ export default function BetterThings() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                   <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-white text-sm font-medium mb-2 opacity-80">Brand Identity</div>
+                    <div className="inline-block bg-black/70 px-2 py-1 rounded text-white text-xs font-medium mb-2">
+                      Brand Identity
+                    </div>
                     <h3 className="text-white text-2xl font-bold">NUK SOO</h3>
                   </div>
                 </div>
               </div>
 
               <div className="w-full md:w-1/2">
-                <div className="inline-flex items-center px-3 py-1 brand-gradient rounded-full mb-2 font-medium text-white">
+                <div className="inline-flex items-center px-3 py-1 bg-white border border-gray-200 rounded-md mb-2 font-medium text-gray-700">
                   Brand Identity
                 </div>
                 <h3 className="text-3xl font-bold text-gray-800 mb-4">NUK SOO</h3>
@@ -462,14 +464,16 @@ export default function BetterThings() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                   <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="text-white text-sm font-medium mb-2 opacity-80">Brand & Digital</div>
+                    <div className="inline-block bg-black/70 px-2 py-1 rounded text-white text-xs font-medium mb-2">
+                      Brand & Digital
+                    </div>
                     <h3 className="text-white text-2xl font-bold">Gatewick House & Gardens</h3>
                   </div>
                 </div>
               </div>
 
               <div className="w-full md:w-1/2">
-                <div className="inline-flex items-center px-3 py-1 brand-gradient rounded-full mb-2 font-medium text-white">
+                <div className="inline-flex items-center px-3 py-1 bg-white border border-gray-200 rounded-md mb-2 font-medium text-gray-700">
                   Brand & Digital
                 </div>
                 <h3 className="text-3xl font-bold text-gray-800 mb-4">Gatewick House & Gardens</h3>

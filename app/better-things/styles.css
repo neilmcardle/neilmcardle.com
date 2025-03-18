@@ -5,232 +5,257 @@
 
 /* Custom styles for Better Things page */
 .vibrant-gradient-bg {
-    background: linear-gradient(135deg, #ff5757 0%, #8c52ff 100%);
+  background: linear-gradient(135deg, #ff5757 0%, #8c52ff 100%);
+}
+
+.vibrant-gradient-text {
+  background: linear-gradient(to right, #ff5757, #8c52ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.vibrant-card {
+  transition: all 0.3s ease;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.vibrant-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.vibrant-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border-radius: 100px;
+  font-weight: 600;
+}
+
+.vibrant-button:hover {
+  transform: translateY(-3px);
+}
+
+.vibrant-button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: 0.6s;
+}
+
+.vibrant-button:hover::after {
+  left: 100%;
+}
+
+.blob-shape {
+  border-radius: 71% 29% 41% 59% / 59% 43% 57% 41%;
+  position: absolute;
+  z-index: -1;
+  filter: blur(40px);
+  opacity: 0.6;
+  animation: blob-move 20s infinite alternate ease-in-out;
+}
+
+@keyframes blob-move {
+  0% {
+    transform: translate(0, 0) scale(1);
   }
-  
-  .vibrant-gradient-text {
-    background: linear-gradient(to right, #ff5757, #8c52ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  33% {
+    transform: translate(5%, 5%) scale(1.1);
   }
-  
-  .vibrant-card {
-    transition: all 0.3s ease;
-    border-radius: 24px;
-    overflow: hidden;
+  66% {
+    transform: translate(-5%, 2%) scale(0.9);
   }
-  
-  .vibrant-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  100% {
+    transform: translate(0, 0) scale(1);
   }
-  
-  .vibrant-button {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    border-radius: 100px;
-    font-weight: 600;
+}
+
+.floating {
+  animation: floating 6s infinite ease-in-out;
+}
+
+@keyframes floating {
+  0% {
+    transform: translateY(0px);
   }
-  
-  .vibrant-button:hover {
-    transform: translateY(-3px);
+  50% {
+    transform: translateY(-20px);
   }
-  
-  .vibrant-button::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: 0.6s;
+  100% {
+    transform: translateY(0px);
   }
-  
-  .vibrant-button:hover::after {
-    left: 100%;
-  }
-  
-  .blob-shape {
-    border-radius: 71% 29% 41% 59% / 59% 43% 57% 41%;
-    position: absolute;
-    z-index: -1;
-    filter: blur(40px);
-    opacity: 0.6;
-    animation: blob-move 20s infinite alternate ease-in-out;
-  }
-  
-  @keyframes blob-move {
-    0% {
-      transform: translate(0, 0) scale(1);
-    }
-    33% {
-      transform: translate(5%, 5%) scale(1.1);
-    }
-    66% {
-      transform: translate(-5%, 2%) scale(0.9);
-    }
-    100% {
-      transform: translate(0, 0) scale(1);
-    }
-  }
-  
-  .floating {
-    animation: floating 6s infinite ease-in-out;
-  }
-  
-  @keyframes floating {
-    0% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-20px);
-    }
-    100% {
-      transform: translateY(0px);
-    }
-  }
-  
-  .gradient-border {
-    position: relative;
-    border-radius: 24px;
-    background: white;
-    transition: all 0.3s ease;
-  }
-  
-  .gradient-border::before {
-    content: "";
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #ff5757, #8c52ff, #5ce1e6);
-    z-index: -1;
-    border-radius: 26px;
-  }
-  
-  /* Update the testimonial card styles to be black and white by default, gradient on hover */
-  .testimonial-card {
-    position: relative;
-    border-radius: 24px;
-    background: white;
-    transition: all 0.3s ease;
-    overflow: hidden;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-  }
-  
-  .testimonial-card:hover {
-    background: linear-gradient(135deg, #ff5757 0%, #8c52ff 50%, #5ce1e6 100%);
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  }
-  
-  .testimonial-card:hover p,
-  .testimonial-card:hover .text-gray-800,
-  .testimonial-card:hover .text-gray-500 {
-    color: white !important;
-  }
-  
-  /* Keep stars yellow even on hover */
-  .star-icon {
-    fill: #ffbd59;
-    stroke: #ffbd59;
-  }
-  
-  .emoji-bg {
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 10.5C18.67 10.5 9.5 19.67 9.5 31S18.67 51.5 30 51.5 50.5 42.33 50.5 31 41.33 10.5 30 10.5zm0 37C20.34 47.5 12.5 39.66 12.5 31S20.34 14.5 30 14.5 47.5 22.34 47.5 31 39.66 47.5 30 47.5z' fill='%23E0E0E0' fill-opacity='0.2'/%3E%3Cpath d='M30 43c-6.07 0-11-4.93-11-11h3c0 4.41 3.59 8 8 8s8-3.59 8-8h3c0 6.07-4.93 11-11 11zm-5.5-16c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5zm11 0c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z' fill='%23E0E0E0' fill-opacity='0.2'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-  }
-  
-  .noise-bg {
-    position: relative;
-  }
-  
-  .noise-bg::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.05;
-    z-index: -1;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  }
-  
-  /* Add a new consistent gradient class for all icon containers */
-  .brand-gradient {
-    background: linear-gradient(135deg, #ff5757 -10%, #8c52ff 110%);
-    color: white;
-  }
-  
-  /* Remove or comment out the individual gradient classes that aren't needed anymore */
-  /* 
-  .gradient-orange {
-    background: linear-gradient(135deg, #ff5757 0%, #ffbd59 100%);
-  }
-  
-  .gradient-purple {
-    background: linear-gradient(135deg, #8c52ff 0%, #5ce1e6 100%);
-  }
-  
-  .gradient-blue {
-    background: linear-gradient(135deg, #00c2ff 0%, #00e5ff 100%);
-  }
-  
-  .gradient-green {
-    background: linear-gradient(135deg, #00c897 0%, #5ce1e6 100%);
-  }
-  
-  .gradient-pink {
-    background: linear-gradient(135deg, #ff5757 0%, #8c52ff 100%);
-  }
-  
-  .gradient-yellow {
-    background: linear-gradient(135deg, #ffbd59 0%, #ffeb3b 100%);
-  }
-  */
-  
-  .text-shadow {
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Diagonal section transitions - simplified to just two */
-  .clip-path-slant {
-    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
-  }
-  
-  .clip-path-slant-reverse {
-    clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
-  }
-  
-  /* Project badges with gradients */
-  .project-badge-orange {
-    background: linear-gradient(135deg, #ff5757 0%, #ffbd59 100%);
-    color: white;
-  }
-  
-  .project-badge-purple {
-    background: linear-gradient(135deg, #8c52ff 0%, #5ce1e6 100%);
-    color: white;
-  }
-  
-  /* Gradient text for links */
-  .gradient-text-orange {
-    background: linear-gradient(to right, #ff5757, #ffbd59);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  .gradient-text-purple {
-    background: linear-gradient(to right, #8c52ff, #5ce1e6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  
+}
+
+.gradient-border {
+  position: relative;
+  border-radius: 24px;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #ff5757, #8c52ff, #5ce1e6);
+  z-index: -1;
+  border-radius: 26px;
+}
+
+/* Update the testimonial card styles to be black and white by default, gradient on hover */
+.testimonial-card {
+  position: relative;
+  border-radius: 24px;
+  background: white;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-card:hover {
+  background: linear-gradient(135deg, #ff5757 0%, #8c52ff 50%, #5ce1e6 100%);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-card:hover p,
+.testimonial-card:hover .text-gray-800,
+.testimonial-card:hover .text-gray-500 {
+  color: white !important;
+}
+
+/* Keep stars yellow even on hover */
+.star-icon {
+  fill: #ffbd59;
+  stroke: #ffbd59;
+}
+
+.emoji-bg {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 10.5C18.67 10.5 9.5 19.67 9.5 31S18.67 51.5 30 51.5 50.5 42.33 50.5 31 41.33 10.5 30 10.5zm0 37C20.34 47.5 12.5 39.66 12.5 31S20.34 14.5 30 14.5 47.5 22.34 47.5 31 39.66 47.5 30 47.5z' fill='%23E0E0E0' fill-opacity='0.2'/%3E%3Cpath d='M30 43c-6.07 0-11-4.93-11-11h3c0 4.41 3.59 8 8 8s8-3.59 8-8h3c0 6.07-4.93 11-11 11zm-5.5-16c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5zm11 0c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z' fill='%23E0E0E0' fill-opacity='0.2'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+.noise-bg {
+  position: relative;
+}
+
+.noise-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.05;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Add a new consistent gradient class for all icon containers */
+.brand-gradient {
+  background: linear-gradient(135deg, #ff5757 -10%, #8c52ff 110%);
+  color: white;
+}
+
+/* Remove or comment out the individual gradient classes that aren't needed anymore */
+/* 
+.gradient-orange {
+  background: linear-gradient(135deg, #ff5757 0%, #ffbd59 100%);
+}
+
+.gradient-purple {
+  background: linear-gradient(135deg, #8c52ff 0%, #5ce1e6 100%);
+}
+
+.gradient-blue {
+  background: linear-gradient(135deg, #00c2ff 0%, #00e5ff 100%);
+}
+
+.gradient-green {
+  background: linear-gradient(135deg, #00c897 0%, #5ce1e6 100%);
+}
+
+.gradient-pink {
+  background: linear-gradient(135deg, #ff5757 0%, #8c52ff 100%);
+}
+
+.gradient-yellow {
+  background: linear-gradient(135deg, #ffbd59 0%, #ffeb3b 100%);
+}
+*/
+
+.text-shadow {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Remove or comment out the diagonal section transitions */
+/* 
+.clip-path-slant {
+ clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+}
+
+.clip-path-slant-reverse {
+ clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
+}
+*/
+
+/* Add these new styles for the project badges */
+.project-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  background-color: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.image-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Project badges with gradients */
+.project-badge-orange {
+  background: linear-gradient(135deg, #ff5757 0%, #ffbd59 100%);
+  color: white;
+}
+
+.project-badge-purple {
+  background: linear-gradient(135deg, #8c52ff 0%, #5ce1e6 100%);
+  color: white;
+}
+
+/* Gradient text for links */
+.gradient-text-orange {
+  background: linear-gradient(to right, #ff5757, #ffbd59);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-purple {
+  background: linear-gradient(to right, #8c52ff, #5ce1e6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
