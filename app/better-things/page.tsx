@@ -235,7 +235,7 @@ export default function BetterThings() {
                 </div>
                 <div>
                   <div className="text-gray-800 font-bold text-xl mb-1">NUK SOO</div>
-                  <p className="text-gray-600 text-sm">Logo Design</p>
+                  <p className="text-gray-600 text-sm">Brand Identity & Digital Design</p>
                 </div>
               </div>
             </div>
@@ -255,7 +255,7 @@ export default function BetterThings() {
                 </div>
                 <div>
                   <div className="text-gray-800 font-bold text-xl mb-1">Gatewick Gardens</div>
-                  <p className="text-gray-600 text-sm">Logo & Signage</p>
+                  <p className="text-gray-600 text-sm">Brand Identity & Website Design</p>
                 </div>
               </div>
             </div>
@@ -543,6 +543,49 @@ export default function BetterThings() {
                 <div>
                   <p className="font-bold text-gray-800">Dan Roberts</p>
                   <p className="text-gray-500 text-sm">NUK SOO</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Add Guy Sanderson's testimonial */}
+            <div className="testimonial-card bg-white rounded-3xl p-8 shadow-xl hover:-translate-y-1 transition-transform mt-8">
+              <div className="flex gap-1 mb-6">
+                {[...Array(5)].map((_, i) => (
+                  <svg
+                    key={i}
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="#FFBD59"
+                    stroke="#FFBD59"
+                    strokeWidth="1"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-6 w-6 star-icon"
+                  >
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                ))}
+              </div>
+              <p className="text-gray-600 text-lg mb-8">
+                "I really enjoyed working with Neil. His skill brought my vision to life and he was happy to adapt and
+                refine ideas until we had a logo and signage that perfectly suit Gatewick Gardens. I'm thrilled with the
+                result."
+              </p>
+              <div className="flex items-center">
+                <div className="w-14 h-14 rounded-full mr-4 border-2 border-white shadow-md overflow-hidden flex-shrink-0">
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gatewick-house-gardens-card-banner-yPo8986u4vDLre49VxlfSilnAhDCdl.png"
+                    alt="Guy Sanderson - Gatewick Gardens"
+                    width={56}
+                    height={56}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-800">Guy Sanderson</p>
+                  <p className="text-gray-500 text-sm">Gatewick Gardens</p>
                 </div>
               </div>
             </div>
