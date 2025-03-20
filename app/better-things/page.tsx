@@ -235,7 +235,7 @@ export default function BetterThings() {
                 </div>
                 <div>
                   <div className="text-gray-800 font-bold text-xl mb-1">NUK SOO</div>
-                  <p className="text-gray-600 text-sm">Brand Identity & Digital Design</p>
+                  <p className="text-gray-600 text-sm">Logo Design</p>
                 </div>
               </div>
             </div>
@@ -255,7 +255,7 @@ export default function BetterThings() {
                 </div>
                 <div>
                   <div className="text-gray-800 font-bold text-xl mb-1">Gatewick Gardens</div>
-                  <p className="text-gray-600 text-sm">Brand Identity & Website Design</p>
+                  <p className="text-gray-600 text-sm">Logo & Signage</p>
                 </div>
               </div>
             </div>
