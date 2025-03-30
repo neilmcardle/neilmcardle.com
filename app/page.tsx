@@ -96,10 +96,10 @@ export default function Home() {
 
                 {/* Smaller Design Engineer badge with available indicator */}
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="inline-flex items-center py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">
+                  {/* <div className="inline-flex items-center py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">
                     <Sparkles className="h-3 w-3 mr-1" />
                     Design Engineer
-                  </div>
+                  </div> */}
                   <div className="flex items-center text-xs text-emerald-600 font-medium">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></div>
                     Available for work
@@ -111,8 +111,7 @@ export default function Home() {
                 </h1>
 
                 <p className="text-lg sm:text-xl text-gray-700 mb-8 max-w-full md:max-w-md leading-relaxed">
-                  I craft elegant digital experiences through thoughtful design and clean, purposeful code. Specializing
-                  in UI/UX design and frontend development.
+                  I craft elegant digital experiences through clean, purposeful code.
                 </p>
 
                 <div className="flex flex-wrap gap-4 mb-8">
@@ -188,7 +187,7 @@ export default function Home() {
         >
           <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Better Things design agency</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Neil's design agency Better Things</h2>
               <Link
                 href="/better-things"
                 className="text-blue-600 hover:text-blue-800 transition-colors text-sm font-medium flex items-center"
