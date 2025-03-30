@@ -1,12 +1,16 @@
 "use client"
 import { useState, useEffect } from "react"
-import { FigmaIcon } from "@/components/FigmaIcon"
-import { MediumArticleCard } from "@/components/MediumArticleCard"
-import { XPostEmbed } from "@/components/XPostEmbed"
+import { FigmaIcon } from "../components/FigmaIcon"
+import { MediumArticleCard } from "../components/MediumArticleCard"
+import { XPostEmbed } from "../components/XPostEmbed"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Code, Layout, Lock, Palette, PenTool, Sparkles, Star } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
+import dynamic from "next/dynamic"
+
+// Dynamically import the widget wrapper with no SSR
+const ElevenLabsWidgetWrapper = dynamic(() => import("../components/ElevenLabsWidgetWrapper"), { ssr: false })
 
 export default function Home() {
   // Animation states
@@ -83,10 +87,10 @@ export default function Home() {
                 {/* Profile photo above name - increased to 64x64px */}
                 <div className="relative rounded-full overflow-hidden shadow-md h-16 w-16 border-2 border-white mb-4">
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/profile-dONA7abEaJyCLzMSGtfxbqB76X5jfw.png"
+                    src="/illustrated-me.png"
                     alt="Neil McArdle - Design Engineer"
                     fill
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
 
@@ -184,12 +188,12 @@ export default function Home() {
         >
           <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Your Elite Designer</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Better Things design agency</h2>
               <Link
                 href="/better-things"
                 className="text-blue-600 hover:text-blue-800 transition-colors text-sm font-medium flex items-center"
               >
-                Learn more
+                Hire Neil
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
             </div>
@@ -228,7 +232,10 @@ export default function Home() {
 
                       <div className="flex flex-wrap gap-2">
                         {project.skills.map((skill, skillIndex) => (
-                          <span key={skillIndex} className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
+                          <span
+                            key={skillIndex}
+                            className="text-sm border border-gray-200 text-gray-700 px-3 py-1 rounded-md"
+                          >
                             {skill}
                           </span>
                         ))}
@@ -331,6 +338,11 @@ export default function Home() {
             </div>
           </div>
         </section>
+      </div>
+
+      {/* ElevenLabs Widget - Using server component approach */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <ElevenLabsWidgetWrapper />
       </div>
 
       {/* Add animation keyframes */}
