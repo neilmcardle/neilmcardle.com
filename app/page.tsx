@@ -1,357 +1,491 @@
 "use client"
-import { useState, useEffect } from "react"
-import { FigmaIcon } from "../components/FigmaIcon"
-import { MediumArticleCard } from "../components/MediumArticleCard"
-import { XPostEmbed } from "../components/XPostEmbed"
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowRight, Code, Layout, Lock, Palette, PenTool, Sparkles, Star } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
-import dynamic from "next/dynamic"
 
-// Dynamically import the widget wrapper with no SSR
-const ElevenLabsWidgetWrapper = dynamic(() => import("../components/ElevenLabsWidgetWrapper"), { ssr: false })
+import { useEffect, useRef } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
+import Link from "next/link"
+import Image from "next/image"
+import { CalendlyButton } from "@/components/calendly-button"
 
 export default function Home() {
-  // Animation states
-  const [isLoaded, setIsLoaded] = useState(false)
+  // Refs for each section
+  const heroRef = useRef(null)
+  const servicesRef = useRef(null)
+  const portfolioRef = useRef(null)
+  const testimonialsRef = useRef(null)
+  const ctaRef = useRef(null)
 
+  // Parallax effects for each section
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  })
+
+  const { scrollYProgress: servicesProgress } = useScroll({
+    target: servicesRef,
+    offset: ["start end", "end start"],
+  })
+
+  const { scrollYProgress: portfolioProgress } = useScroll({
+    target: portfolioRef,
+    offset: ["start end", "end start"],
+  })
+
+  const { scrollYProgress: testimonialsProgress } = useScroll({
+    target: testimonialsRef,
+    offset: ["start end", "end start"],
+  })
+
+  const { scrollYProgress: ctaProgress } = useScroll({
+    target: ctaRef,
+    offset: ["start end", "end start"],
+  })
+
+  // Transform values for parallax effects
+  const heroOpacity = useTransform(heroProgress, [0, 0.5], [1, 0])
+  const heroScale = useTransform(heroProgress, [0, 0.5], [1, 0.8])
+  const heroY = useTransform(heroProgress, [0, 1], [0, 200])
+
+  const servicesY = useTransform(servicesProgress, [0, 1], [0, 100])
+  const portfolioY = useTransform(portfolioProgress, [0, 1], [0, 100])
+  const testimonialsY = useTransform(testimonialsProgress, [0, 1], [0, 100])
+  const ctaY = useTransform(ctaProgress, [0, 1], [0, 100])
+
+  // Parallax effect for background elements
   useEffect(() => {
-    setIsLoaded(true)
+    const handleScroll = () => {
+      const scrollY = window.scrollY
+      const patternElements = document.querySelectorAll(".parallax-pattern")
+
+      patternElements.forEach((element, index) => {
+        const speed = index % 2 === 0 ? 0.05 : -0.05
+        const yPos = scrollY * speed
+        element.style.transform = `translateY(${yPos}px)`
+      })
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  const mediumArticles = [
-    {
-      title: "Navigating Recruiter Pitches on LinkedIn",
-      subtitle: "A Designer's UX-Fueled InMail Odyssey",
-      imageUrl:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/navigating-article-2-IJX6TSxHZZ9C3RIw6WqPIBcBQwSrCG.png",
-      articleUrl: "https://medium.com/design-bootcamp/navigating-recruiter-pitches-on-linkedin-74cb0bf74a83",
-      publishDate: "Mar 6, 2025",
-      readTime: "4 min read",
-    },
-    {
-      title: "The Designer and the Peas of Rejection",
-      subtitle: "A UX Prince Picks Apart His 27 No-Reply Goodbyes",
-      imageUrl:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/peas-article-1-YAHCa2aOoqJEJoAmkexgTCGXtjiw3R.png",
-      articleUrl: "https://medium.com/design-bootcamp/the-designer-and-the-peas-of-rejection-3b2837e96342",
-      publishDate: "Feb 27, 2025",
-    },
-  ]
-
-  const featuredProjects = [
-    {
-      title: "Better Things",
-      description:
-        "Subscribe to my elite freelance design services with unlimited design requests and rapid turnaround times.",
-      image:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/betterThingsCardBanner-7mLfmSmu8yYccGaMoIWJG0DO1jEtX1.png",
-      link: "/better-things",
-      icon: null, // Changed from BetterThingsSquareLogo to null
-      skills: ["Brand Identity", "UI/UX Design", "Illustration"],
-    },
-  ]
-
-  const skills = [
-    { name: "UI/UX Design", icon: <Layout className="h-5 w-5" />, level: 95 },
-    { name: "Frontend Development", icon: <Code className="h-5 w-5" />, level: 90 },
-    { name: "Brand Identity", icon: <Palette className="h-5 w-5" />, level: 85 },
-    { name: "Illustration", icon: <PenTool className="h-5 w-5" />, level: 80 },
-  ]
-
-  const testimonials = [
-    {
-      quote:
-        "Neil is a talented designer who has an impressive work ethic. He has assisted on number of key design projects for our brand and he over-delivers each and every time!",
-      name: "Dan Roberts",
-      role: "Founder, NUK SOO",
-      avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dan-or2ZMicLq3DNbbnxNnCFXvZP8jsrt5.png",
-    },
-  ]
-
   return (
-    <div className="flex flex-col items-center min-h-screen overflow-x-hidden px-4 relative">
-      {/* Background with subtle gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-blue-50/30 to-purple-50/30 z-[-1]"></div>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background elements */}
+        <div className="absolute inset-0 bg-deep-black z-0"></div>
 
-      <div className="w-full max-w-6xl mx-auto relative z-[15] mt-4 mb-16">
-        {/* Hero Section - Two cards side by side */}
-        <section
-          className={`transition-all duration-1000 ease-out transform ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+        {/* Content */}
+        <motion.div
+          style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
+          className="container mx-auto px-4 relative z-10 pt-20 text-center"
         >
-          <div className="grid md:grid-cols-3 gap-6 mb-10">
-            {/* Left card - Name section (2/3 width) */}
-            <div className="md:col-span-2 bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10">
-              <div className="flex flex-col items-start text-left">
-                {/* Profile photo above name - increased to 64x64px */}
-                <div className="relative rounded-full overflow-hidden shadow-md h-16 w-16 border-2 border-white mb-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="max-w-4xl mx-auto"
+          >
+            {/* Logo element - Updated to make the inside transparent */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-32 h-32 mx-auto mb-10 group"
+            >
+              <svg
+                viewBox="0 0 73.68 73.68"
+                className="h-full w-full text-gold transition-all duration-500 group-hover:text-transparent"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="8"
+              >
+                <defs>
+                  <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#D4B86A" />
+                    <stop offset="50%" stopColor="#E6D296" />
+                    <stop offset="100%" stopColor="#D4B86A" />
+                  </linearGradient>
+                  <linearGradient id="shimmerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="rgba(255,255,255,0)" />
+                    <stop offset="50%" stopColor="rgba(255,255,255,0.2)" />
+                    <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                  </linearGradient>
+                  <mask id="shimmerMask">
+                    <rect
+                      x="0"
+                      y="0"
+                      width="200%"
+                      height="100%"
+                      fill="url(#shimmerGradient)"
+                      className="animate-shimmer"
+                    >
+                      <animate attributeName="x" from="-100%" to="100%" dur="2s" begin="0s" repeatCount="indefinite" />
+                    </rect>
+                  </mask>
+                </defs>
+                <rect
+                  x="4"
+                  y="4"
+                  width="65.68"
+                  height="65.68"
+                  stroke="url(#logoGradient)"
+                  fill="transparent"
+                  className="transition-all duration-500"
+                />
+                <rect
+                  x="4"
+                  y="4"
+                  width="65.68"
+                  height="65.68"
+                  stroke="none"
+                  fill="url(#logoGradient)"
+                  fillOpacity="0"
+                  mask="url(#shimmerMask)"
+                  className="transition-all duration-500 opacity-0 group-hover:opacity-100"
+                />
+              </svg>
+            </motion.div>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-sm uppercase tracking-[0.3em] text-gold mb-6"
+            >
+              Design Studio
+            </motion.p>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="text-4xl md:text-6xl lg:text-7xl font-light mb-8 leading-tight max-w-5xl mx-auto"
+            >
+              <span className="block">Crafting Timeless</span>
+              <span className="text-gradient-gold font-medium">Brand Identities</span>
+            </motion.h1>
+
+            <motion.div
+              initial={{ opacity: 0, scaleX: 0 }}
+              animate={{ opacity: 1, scaleX: 1 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="w-24 h-px bg-gradient-to-r from-gold/30 via-gold to-gold/30 mx-auto mb-8"
+            ></motion.div>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+              className="text-lg md:text-xl text-white/80 mb-12 max-w-2xl mx-auto font-light leading-relaxed"
+            >
+              Elevating heritage and luxury brands with meticulous attention to detail and uncompromising excellence.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16"
+            >
+              <CalendlyButton
+                text="Book Consultation"
+                className="gold-button px-10 py-4 text-sm uppercase tracking-widest"
+              />
+
+              <Link href="/services" className="outline-button px-10 py-4 text-sm uppercase tracking-widest">
+                View Services
+              </Link>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 1 }}
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
+        >
+          <span className="text-gold/60 text-xs uppercase tracking-widest mb-2">Scroll</span>
+          <div className="w-px h-10 bg-gradient-to-b from-gold to-transparent"></div>
+        </motion.div>
+      </section>
+
+      {/* Rest of the code remains unchanged */}
+      {/* Services Preview Section - Further adjusted spacing */}
+      <section ref={servicesRef} className="pt-10 pb-20 bg-charcoal relative overflow-hidden">
+        {/* Keep the luxury pattern in the grey background section */}
+        <div className="absolute inset-0 luxury-diamond-pattern"></div>
+
+        <motion.div style={{ y: servicesY }} className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-10"
+          >
+            <h2 className="text-3xl md:text-4xl font-light mb-4">
+              Our <span className="text-gold font-medium">Services</span>
+            </h2>
+            <div className="w-16 h-px bg-gradient-to-r from-gold/30 via-gold to-gold/30 mx-auto mb-6"></div>
+            <p className="text-white/70 max-w-2xl mx-auto">
+              Comprehensive branding solutions tailored for discerning luxury and heritage brands.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {[
+              {
+                title: "Logo Design",
+                price: "£10,000",
+                description: "Distinctive visual marks crafted with precision and purpose.",
+                id: "logo-design",
+              },
+              {
+                title: "Identity Design",
+                price: "£20,000",
+                description: "Cohesive visual systems that embody your brand's essence.",
+                id: "identity-design",
+              },
+              {
+                title: "Branding Design",
+                price: "£35,000",
+                description: "Comprehensive strategy and visual identity for discerning brands.",
+                id: "branding-design",
+              },
+            ].map((service, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="luxury-card p-8 group"
+              >
+                <div className="mb-6">
+                  <h3 className="text-2xl font-medium mb-2">{service.title}</h3>
+                  <p className="text-gold">{service.price}</p>
+                </div>
+                <p className="text-white/70 mb-8 font-light">{service.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Portfolio Section - Add this new section */}
+      <section ref={portfolioRef} className="pt-10 pb-20 bg-deep-black relative overflow-hidden">
+        <motion.div style={{ y: portfolioY }} className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-light mb-4">
+              Featured <span className="text-gold font-medium">Work</span>
+            </h2>
+            <div className="w-16 h-px bg-gradient-to-r from-gold/30 via-gold to-gold/30 mx-auto mb-6"></div>
+            <p className="text-white/70 max-w-2xl mx-auto">
+              Distinctive brand identities crafted for exceptional clients.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+            {/* Gatewick Gardens */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="luxury-card p-8 md:p-10 flex flex-col items-center"
+            >
+              <div className="w-48 h-48 mb-8 relative flex items-center justify-center">
+                <Image
+                  src="/images/gatewick-house-logo.png"
+                  alt="Gatewick Gardens Logo"
+                  width={150}
+                  height={150}
+                  className="object-contain"
+                />
+              </div>
+              <h3 className="text-2xl font-medium mb-3 text-center">Gatewick Gardens</h3>
+              <p className="text-gold text-sm mb-4 text-center">Logo Design</p>
+              <p className="text-white/70 text-center mb-8">
+                A distinctive brand identity for an exclusive garden estate, blending heritage with contemporary
+                elegance.
+              </p>
+            </motion.div>
+
+            {/* NUK SOO */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="luxury-card p-8 md:p-10 flex flex-col items-center"
+            >
+              <div className="w-48 h-48 mb-8 relative flex items-center justify-center">
+                <Image
+                  src="/images/nuk-soo-logo.png"
+                  alt="NUK SOO Logo"
+                  width={150}
+                  height={150}
+                  className="object-contain"
+                />
+              </div>
+              <h3 className="text-2xl font-medium mb-3 text-center">NUK SOO</h3>
+              <p className="text-gold text-sm mb-4 text-center">Logo Design</p>
+              <p className="text-white/70 text-center mb-8">
+                Premium branding for a luxury wellness brand, capturing the essence of holistic wellbeing.
+              </p>
+            </motion.div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Testimonial Section - Further adjusted spacing */}
+      <section ref={testimonialsRef} className="pt-10 pb-20 bg-charcoal relative overflow-hidden">
+        {/* Add pattern background to testimonials section */}
+        <div className="absolute inset-0 luxury-diamond-pattern"></div>
+
+        <motion.div style={{ y: testimonialsY }} className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-10"
+          >
+            <h2 className="text-3xl md:text-4xl font-light mb-4">
+              Client <span className="text-gold font-medium">Testimonials</span>
+            </h2>
+            <div className="w-16 h-px bg-gradient-to-r from-gold/30 via-gold to-gold/30 mx-auto mb-6"></div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+            {/* First Testimonial - Dan Roberts */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="luxury-card p-8 md:p-10"
+            >
+              <div className="mb-8">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-gold/30"
+                >
+                  <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path>
+                  <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"></path>
+                </svg>
+              </div>
+              <p className="text-lg font-light text-white/90 italic mb-8 leading-relaxed">
+                "Neil is a talented designer who has an impressive work ethic. He has assisted on number of key design
+                projects for our brand and he over-delivers each and every time! Neil is a delight to work with and I
+                can't recommend him enough."
+              </p>
+              <div className="flex items-center">
+                <div className="w-12 h-12 rounded-full overflow-hidden mr-4 border border-gold/20">
                   <Image
-                    src="/illustrated-me.png"
-                    alt="Neil McArdle - Design Engineer"
-                    fill
-                    className="object-contain"
+                    src="/images/dan-roberts.png"
+                    alt="Dan Roberts"
+                    width={48}
+                    height={48}
+                    className="object-cover w-full h-full"
                   />
                 </div>
-
-                {/* Smaller Design Engineer badge with available indicator */}
-                <div className="flex items-center gap-3 mb-4">
-                  {/* <div className="inline-flex items-center py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    Design Engineer
-                  </div> */}
-                  <div className="flex items-center text-xs text-emerald-600 font-medium">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></div>
-                    Available for work
-                  </div>
-                </div>
-
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-900 bg-clip-text text-transparent">
-                  Neil McArdle
-                </h1>
-
-                <p className="text-lg sm:text-xl text-gray-700 mb-8 max-w-full md:max-w-md leading-relaxed">
-                  I craft elegant digital experiences through clean, purposeful code.
-                </p>
-
-                <div className="flex flex-wrap gap-4 mb-8">
-                  {skills.map((skill, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg shadow-sm border border-gray-100"
-                      style={{
-                        transitionDelay: `${index * 100}ms`,
-                        animation: isLoaded ? `fadeIn 0.5s ease-out ${index * 100}ms forwards` : "none",
-                        opacity: 0,
-                      }}
-                    >
-                      <div className="text-blue-600">{skill.icon}</div>
-                      <span className="text-sm font-medium">{skill.name}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex flex-wrap gap-4">
-                  <Link
-                    href="https://www.figma.com/proto/zZcc3Li72GhWFVpv1PxC0O/%F0%9F%91%A8%F0%9F%8F%BC%E2%80%8D%F0%9F%9A%80--Neil-McArdle?page-id=7947%3A56485&node-id=7947-56486&viewport=119%2C809%2C0.29&t=9uLN4opTMa6jNFaW-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=7947%3A56486"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium shadow-lg hover:shadow-xl transition-all hover:translate-y-[-2px]"
-                  >
-                    <FigmaIcon variant="color" className="w-5 h-5 mr-2" />
-                    View Portfolio
-                    <Lock className="w-4 h-4 ml-2" />
-                  </Link>
-
-                  <Link
-                    href="/about"
-                    className="inline-flex items-center px-6 py-3 rounded-full bg-white text-gray-800 font-medium shadow-md hover:shadow-lg transition-all border border-gray-200"
-                  >
-                    About Me
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
+                <div className="text-left">
+                  <p className="font-medium">Dan Roberts</p>
+                  <p className="text-gold/80 text-sm">NUK SOO</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Right card - Ready to collaborate (1/3 width) */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl shadow-xl p-6 flex flex-col justify-center">
-              <h2 className="text-xl sm:text-2xl font-bold mb-4 text-white">Ready to collaborate?</h2>
-              <p className="text-white/90 mb-6">
-                I'm currently available for freelance projects. Let's create something amazing together.
+            {/* Second Testimonial - Guy Sanderson */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="luxury-card p-8 md:p-10"
+            >
+              <div className="mb-8">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-gold/30"
+                >
+                  <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path>
+                  <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"></path>
+                </svg>
+              </div>
+              <p className="text-lg font-light text-white/90 italic mb-8 leading-relaxed">
+                "I really enjoyed working with Neil. His skill brought my vision to life and he was happy to adapt and
+                refine ideas until we had a logo and signage that perfectly suit Gatewick Gardens. I'm thrilled with the
+                result."
               </p>
-              <div className="flex flex-col gap-3">
-                <Link
-                  href="https://www.linkedin.com/in/neilmcardle/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-5 py-2 rounded-full bg-white text-blue-600 font-medium hover:bg-blue-50 transition-colors text-sm"
-                >
-                  Connect on LinkedIn
-                </Link>
-                <Link
-                  href="/about"
-                  className="inline-flex items-center px-5 py-2 rounded-full bg-blue-500/20 text-white font-medium hover:bg-blue-500/30 transition-colors border border-white/30 text-sm"
-                >
-                  Contact Me
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Freelance Work Section - Renamed from Featured Projects */}
-        <section
-          className={`mb-10 transition-all duration-1000 ease-out transform delay-300 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
-        >
-          <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Neil's design agency Better Things</h2>
-              <Link
-                href="/better-things"
-                className="text-blue-600 hover:text-blue-800 transition-colors text-sm font-medium flex items-center"
-              >
-                Hire Neil
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Link>
-            </div>
-
-            <div className="grid md:grid-cols-1 max-w-2xl mx-auto">
-              {featuredProjects.map((project, index) => (
-                <Link
-                  key={index}
-                  href={project.link}
-                  target={project.external ? "_blank" : undefined}
-                  rel={project.external ? "noopener noreferrer" : undefined}
-                  className="group"
-                >
-                  <div className="bg-white rounded-xl overflow-hidden">
-                    <div className="relative h-64 overflow-hidden">
-                      <Image
-                        src={project.image || "/placeholder.svg"}
-                        alt={project.title}
-                        fill
-                        className="object-contain"
-                      />
-                      <div className="absolute top-3 left-3">
-                        <div className="flex items-center py-1 px-3 rounded-full bg-white/90 backdrop-blur-sm text-emerald-600 text-xs font-medium">
-                          <div className="w-2 h-2 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></div>
-                          Available for work
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-6">
-                      <div className="mb-3">
-                        <h3 className="font-bold text-xl text-gray-900">{project.title}</h3>
-                      </div>
-
-                      <p className="text-gray-600 text-base mb-4">{project.description}</p>
-
-                      <div className="flex flex-wrap gap-2">
-                        {project.skills.map((skill, skillIndex) => (
-                          <span
-                            key={skillIndex}
-                            className="text-sm border border-gray-200 text-gray-700 px-3 py-1 rounded-md"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials & Content Section */}
-        <section
-          className={`mb-10 transition-all duration-1000 ease-out transform delay-500 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
-        >
-          <div className="grid md:grid-cols-5 gap-6">
-            {/* Testimonials */}
-            <div className="md:col-span-2">
-              <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-8 h-full">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Client Testimonials</h2>
-
-                <div className="space-y-6">
-                  {testimonials.map((testimonial, index) => (
-                    <div key={index} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                      <div className="flex gap-1 mb-4">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
-
-                      <p className="text-gray-700 text-sm mb-4 italic">"{testimonial.quote}"</p>
-
-                      <div className="flex items-center">
-                        <Image
-                          src={testimonial.avatar || "/placeholder.svg"}
-                          alt={testimonial.name}
-                          width={40}
-                          height={40}
-                          className="rounded-full mr-3"
-                        />
-                        <div>
-                          <p className="font-medium text-gray-900 text-sm">{testimonial.name}</p>
-                          <p className="text-gray-500 text-xs">{testimonial.role}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              <div className="flex items-center">
+                <div className="w-12 h-12 rounded-full overflow-hidden mr-4 border border-gold/20">
+                  <Image
+                    src="/images/gatewick-house.png"
+                    alt="Gatewick House"
+                    width={48}
+                    height={48}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <div className="text-left">
+                  <p className="font-medium">Guy Sanderson</p>
+                  <p className="text-gold/80 text-sm">Gatewick Gardens</p>
                 </div>
               </div>
-            </div>
-
-            {/* Content Tabs */}
-            <div className="md:col-span-3">
-              <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-8">
-                <Tabs defaultValue="twitter">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Latest Content</h2>
-                    <TabsList className="bg-gray-100">
-                      <TabsTrigger value="twitter" className="text-xs">
-                        Twitter
-                      </TabsTrigger>
-                      <TabsTrigger value="articles" className="text-xs">
-                        Articles
-                      </TabsTrigger>
-                    </TabsList>
-                  </div>
-
-                  <TabsContent value="twitter" className="mt-0">
-                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                      <XPostEmbed
-                        tweetUrl="https://twitter.com/BetterNeil/status/1901435678375972971"
-                        mediaMaxWidth={550}
-                        align="center"
-                        cards="visible"
-                        conversation="none"
-                        theme="light"
-                        className="w-full"
-                      />
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="articles" className="mt-0">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {mediumArticles.map((article, index) => (
-                        <MediumArticleCard
-                          key={index}
-                          title={article.title}
-                          subtitle={article.subtitle}
-                          imageUrl={article.imageUrl}
-                          articleUrl={article.articleUrl}
-                          publishDate={article.publishDate}
-                          readTime={article.readTime}
-                        />
-                      ))}
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </div>
+            </motion.div>
           </div>
-        </section>
-      </div>
+        </motion.div>
+      </section>
 
-      {/* ElevenLabs Widget - Using server component approach */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <ElevenLabsWidgetWrapper />
-      </div>
-
-      {/* Add animation keyframes */}
-      <style jsx global>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+      {/* CTA Section - Further adjusted spacing */}
+      <section ref={ctaRef} className="pt-10 pb-20 bg-deep-black relative overflow-hidden">
+        <motion.div style={{ y: ctaY }} className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-3xl mx-auto text-center"
+          >
+            <h2 className="text-3xl md:text-4xl font-light mb-6">
+              Ready to Elevate Your <span className="text-gold font-medium">Brand?</span>
+            </h2>
+            <div className="w-16 h-px bg-gradient-to-r from-gold/30 via-gold to-gold/30 mx-auto mb-6"></div>
+            <p className="text-white/70 mb-10 font-light">
+              Schedule a consultation to discuss how we can craft a distinctive luxury identity for your brand.
+            </p>
+            <CalendlyButton
+              text="Book Consultation"
+              className="gold-button px-10 py-4 text-sm uppercase tracking-widest inline-block mb-12"
+            />
+          </motion.div>
+        </motion.div>
+      </section>
     </div>
   )
 }
-
