@@ -1,14 +1,17 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import { ClientLayout } from "./client-layout"
+import { Inter, Playfair_Display } from "next/font/google"
+import ClientLayout from "./client-layout"
+import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
 
 export const metadata: Metadata = {
-  title: "Neil McArdle - Designer & Developer",
+  title: "Neil McArdle - Designer & Painter",
   description:
-    "Portfolio of Neil McArdle, a designer with over 10 years of experience crafting thoughtful and engaging digital experiences.",
+    "Portfolio of Neil McArdle, a digital product designer and traditional oil painter with over 10 years of experience.",
+    generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -16,6 +19,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <ClientLayout>{children}</ClientLayout>
+  return (
+    <html lang="en">
+      <body className={`${inter.variable} ${playfair.variable} font-sans`}>
+        <ClientLayout>
+          <main className="min-h-screen">{children}</main>
+        </ClientLayout>
+      </body>
+    </html>
+  )
 }
-

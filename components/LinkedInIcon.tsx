@@ -7,4 +7,3 @@ export const LinkedInIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => 
     </svg>
   )
 }
-

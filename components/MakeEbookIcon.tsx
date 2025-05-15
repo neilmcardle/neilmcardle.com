@@ -26,4 +26,3 @@ export const MakeEbookIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) =>
     </svg>
   )
 }
-

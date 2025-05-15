@@ -1,111 +1,65 @@
 "use client"
-
 import { useEffect, useRef } from "react"
 
 interface XPostEmbedProps {
   tweetUrl: string
-  className?: string
-  mediaMaxWidth?: number
   theme?: "light" | "dark"
   align?: "left" | "center" | "right"
-  conversation?: "none" | "all"
+  conversation?: "all" | "none"
   cards?: "hidden" | "visible"
+  width?: number
+  mediaMaxWidth?: number
+  className?: string
 }
 
 export function XPostEmbed({
   tweetUrl,
-  className = "",
-  mediaMaxWidth,
-  theme,
+  theme = "light",
   align = "center",
-  conversation = "all",
+  conversation = "none",
   cards = "visible",
+  width,
+  mediaMaxWidth,
+  className = "",
 }: XPostEmbedProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Only load the script if we're in the browser
-    if (typeof window !== "undefined" && containerRef.current) {
-      // Clear any existing content
-      containerRef.current.innerHTML = ""
-
-      // Create a new blockquote element with the tweet URL
-      const tweetElement = document.createElement("blockquote")
-      tweetElement.className = "twitter-tweet"
-
-      // Add optional attributes if provided
-      if (mediaMaxWidth) {
-        tweetElement.setAttribute("data-media-max-width", mediaMaxWidth.toString())
-      }
-      if (theme) {
-        tweetElement.setAttribute("data-theme", theme)
-      }
-
-      // Set alignment
-      tweetElement.setAttribute("data-align", align)
-
-      // Set conversation display
-      tweetElement.setAttribute("data-conversation", conversation)
-
-      // Set cards display
-      tweetElement.setAttribute("data-cards", cards)
-
-      // Ensure media is displayed
-      tweetElement.setAttribute("data-dnt", "false")
-      tweetElement.setAttribute("data-lang", "en")
-      tweetElement.setAttribute("data-video-controls", "true")
-      tweetElement.setAttribute("data-chrome", "noheader nofooter noborders")
-
-      // Create an anchor element with the tweet URL
-      const anchor = document.createElement("a")
-      anchor.href = tweetUrl
-      tweetElement.appendChild(anchor)
-
-      // Append the tweet element to the container
-      containerRef.current.appendChild(tweetElement)
-
-      // Function to load Twitter widgets
-      const loadTwitterWidgets = () => {
-        if (window.twttr && window.twttr.widgets) {
-          window.twttr.widgets.load(containerRef.current)
-        }
-      }
-
-      // Load the Twitter widget script if it doesn't exist
-      if (!document.querySelector('script[src="https://platform.twitter.com/widgets.js"]')) {
-        const script = document.createElement("script")
-        script.src = "https://platform.twitter.com/widgets.js"
-        script.async = true
-        script.charset = "utf-8"
-        script.onload = loadTwitterWidgets
-        document.body.appendChild(script)
-      } else {
-        // If the script already exists, just load the widgets
-        loadTwitterWidgets()
-      }
+    // Simple placeholder for preview
+    if (containerRef.current) {
+      containerRef.current.innerHTML = `
+        <div class="bg-white p-4 rounded-lg border border-gray-200">
+          <div class="flex items-center mb-3">
+            <div class="w-10 h-10 rounded-full bg-gray-200 mr-3"></div>
+            <div>
+              <div class="font-bold">@BetterNeil</div>
+              <div class="text-gray-500 text-sm">Twitter Post</div>
+            </div>
+          </div>
+          <div class="mb-3">
+            This is a placeholder for the Twitter post that will be loaded in production.
+          </div>
+          <div class="text-blue-500 text-sm">View on Twitter</div>
+        </div>
+      `
     }
 
-    // No need to remove the script on unmount as it's used globally
-  }, [tweetUrl, mediaMaxWidth, theme, align, conversation, cards])
+    return () => {
+      if (containerRef.current) {
+        containerRef.current.innerHTML = ""
+      }
+    }
+  }, [tweetUrl])
 
   return (
-    <div ref={containerRef} className={`x-post-embed ${className}`}>
-      {/* The tweet will be rendered here */}
-      <div className="flex justify-center items-center p-4 bg-gray-100 rounded-lg animate-pulse">
-        <p className="text-gray-500">Loading post...</p>
-      </div>
-    </div>
+    <div
+      ref={containerRef}
+      className={`twitter-embed ${className}`}
+      data-tweet-url={tweetUrl}
+      data-theme={theme}
+      data-align={align}
+      data-conversation={conversation}
+      data-cards={cards}
+    ></div>
   )
 }
-
-// Add TypeScript declaration for the Twitter widgets API
-declare global {
-  interface Window {
-    twttr?: {
-      widgets: {
-        load: (element?: HTMLElement) => void
-      }
-    }
-  }
-}
-

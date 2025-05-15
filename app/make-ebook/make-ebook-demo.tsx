@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Lock, Info } from "lucide-react"
+import { Lock } from "lucide-react"
 import { SimpleRichTextEditor } from "@/components/SimpleRichTextEditor"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import Link from "next/link"
 
 export function MakeEbookDemo() {
   const [title, setTitle] = useState("")
@@ -31,24 +32,18 @@ export function MakeEbookDemo() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-[#F5F5F7] border border-[#D2D2D7] rounded-lg p-4 mb-6">
-        <div className="flex items-start gap-3">
-          <Info className="h-5 w-5 text-[#1D1D1F] mt-0.5 flex-shrink-0" />
-          <div>
-            <h3 className="text-sm font-medium text-[#1D1D1F] mb-1">eReader-Compatible Formatting</h3>
-            <p className="text-sm text-[#86868B]">
-              This demo includes only formatting options that are supported by most eReaders, ensuring your eBook will
-              pass validation. Links are disabled in this demo for security reasons.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <Tabs defaultValue="edit" onValueChange={handlePreviewToggle} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="edit">Edit</TabsTrigger>
-          <TabsTrigger value="preview">Preview</TabsTrigger>
-        </TabsList>
+        <div className="flex justify-between items-center mb-4">
+          <TabsList className="grid w-[200px] grid-cols-2">
+            <TabsTrigger value="edit">Edit</TabsTrigger>
+            <TabsTrigger value="preview">Preview</TabsTrigger>
+          </TabsList>
+          <Link href="/make-ebook/focus" passHref>
+            <Button variant="outline" size="sm" className="text-gray-600">
+              Focus Mode
+            </Button>
+          </Link>
+        </div>
 
         <TabsContent value="edit" className="space-y-4 pt-4">
           <div className="space-y-4">
@@ -92,7 +87,6 @@ export function MakeEbookDemo() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="text-xs text-muted-foreground flex items-center cursor-help">
-                        <Info className="h-3 w-3 mr-1" />
                         eReader-compatible formatting
                       </div>
                     </TooltipTrigger>
@@ -179,4 +173,3 @@ export function MakeEbookDemo() {
     </div>
   )
 }
-

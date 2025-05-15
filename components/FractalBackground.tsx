@@ -81,11 +81,11 @@ const FractalBackground: React.FC = () => {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-      // Draw spiral circles in top left corner (magenta to cyan)
-      drawSpiralCircles(0, 0, "#FF00FF", "#00FFFF", progress, false)
+      // Draw spiral circles in top left corner (cyan to lighter cyan)
+      drawSpiralCircles(0, 0, "#00CCCC", "#00FFFF", progress, false)
 
-      // Draw spiral circles in bottom right corner (cyan to magenta)
-      drawSpiralCircles(canvas.width, canvas.height, "#00FFFF", "#FF00FF", progress, true)
+      // Draw spiral circles in bottom right corner (cyan to lighter cyan)
+      drawSpiralCircles(canvas.width, canvas.height, "#00FFFF", "#00CCCC", progress, true)
 
       if (progress < 1) {
         animationFrameId = requestAnimationFrame(animate)
@@ -126,4 +126,3 @@ const FractalBackground: React.FC = () => {
 }
 
 export default FractalBackground
-

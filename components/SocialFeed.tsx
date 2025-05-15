@@ -24,4 +24,3 @@ export function SocialFeed() {
     </section>
   )
 }
-

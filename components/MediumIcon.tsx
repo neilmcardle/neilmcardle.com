@@ -15,4 +15,3 @@ export const MediumIcon: React.FC<MediumIconProps> = ({ fill = "currentColor", .
     </svg>
   )
 }
-

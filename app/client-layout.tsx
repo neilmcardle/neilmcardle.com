@@ -2,11 +2,12 @@
 
 import type React from "react"
 import { usePathname } from "next/navigation"
-import { TopNavigation } from "@/components/top-navigation"
 import "./globals.css"
-import { Inter } from "next/font/google"
+import { Inter, Playfair_Display } from "next/font/google"
+import { PersonaProvider } from "@/contexts/persona-context"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
 
 export const ClientLayout = ({
   children,
@@ -18,12 +19,14 @@ export const ClientLayout = ({
   const isBetterThingsPage = pathname === "/better-things"
 
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className={inter.className}>
-        {!isEbookPage && !isBetterThingsPage && <TopNavigation />}
-        <main className={`${!isEbookPage && !isBetterThingsPage ? "pt-24 sm:pt-32" : "min-h-screen"}`}>{children}</main>
+        <main className={`${!isEbookPage && !isBetterThingsPage ? "" : "min-h-screen"}`}>
+          <PersonaProvider>{children}</PersonaProvider>
+        </main>
       </body>
     </html>
   )
 }
 
+export default ClientLayout

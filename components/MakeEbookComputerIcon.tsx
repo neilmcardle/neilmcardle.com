@@ -28,4 +28,3 @@ export const MakeEbookComputerIcon: React.FC<React.SVGProps<SVGSVGElement>> = (p
     </svg>
   )
 }
-
