@@ -9,12 +9,12 @@ interface ImageWithFallbackProps extends ImageProps {
 
 export default function ImageWithFallback({
   src,
-  fallbackSrc = "/abstract-colorful-painting.png",
   alt,
+  fallbackSrc = "/abstract-colorful-painting.png",
   ...rest
 }: ImageWithFallbackProps) {
   const [imgSrc, setImgSrc] = useState(src)
-  const [hasError, setHasError] = useState(false)
+  const [error, setError] = useState(false)
 
   return (
     <div className="relative">
@@ -23,13 +23,13 @@ export default function ImageWithFallback({
         src={imgSrc || "/placeholder.svg"}
         alt={alt}
         onError={() => {
-          setHasError(true)
           setImgSrc(fallbackSrc)
+          setError(true)
         }}
       />
-      {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 text-sm">
-          {alt || "Image could not be loaded"}
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-50 text-center p-4">
+          <p className="text-sm text-gray-600">{alt} could not be loaded</p>
         </div>
       )}
     </div>

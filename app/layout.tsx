@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import ClientLayout from "./client-layout"
 import "./globals.css"
-import "../styles/elevenlabs-widget.css"
 import "../styles/immersive.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
