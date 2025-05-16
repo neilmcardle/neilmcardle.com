@@ -1,0 +1,25 @@
+/* ElevenLabs Widget Styling */
+elevenlabs-convai {
+  --convai-widget-primary-color: #d4af37 !important;
+  --convai-widget-background-color: #000000 !important;
+  --convai-widget-text-color: #ffffff !important;
+  --convai-widget-border-color: #333333 !important;
+  --convai-widget-border-radius: 16px !important;
+  --convai-widget-button-radius: 8px !important;
+}
+
+/* Additional direct styling for widget elements */
+elevenlabs-convai .convai-widget-container {
+  background-color: #000000 !important;
+  border: 1px solid #333333 !important;
+  color: #ffffff !important;
+}
+
+elevenlabs-convai .convai-widget-button {
+  background-color: #d4af37 !important;
+  color: #000000 !important;
+}
+
+elevenlabs-convai .convai-widget-avatar {
+  background: linear-gradient(135deg, #d4af37, #ffffff) !important;
+}
