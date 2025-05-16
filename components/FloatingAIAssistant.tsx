@@ -17,7 +17,7 @@ export function FloatingAIAssistant({
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-50 hidden md:block">
       {isOpen ? (
         <div className="w-80 md:w-96 bg-black rounded-2xl shadow-xl border border-[#333333] overflow-hidden">
           <div className="flex justify-between items-center p-3 border-b border-[#333333]">

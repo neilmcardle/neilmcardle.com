@@ -1,0 +1,15 @@
+/* Smooth video transitions */
+video {
+  transition: opacity 400ms ease-in-out;
+  will-change: opacity;
+}
+
+/* Improve video performance */
+video {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+}
