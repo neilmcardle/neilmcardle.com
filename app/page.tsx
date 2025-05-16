@@ -1,6 +1,5 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { ExternalLink, Mail, ChevronRight, Eye, EyeOff } from "lucide-react"
 import { PersonaToggle } from "@/components/persona-toggle"
@@ -8,6 +7,8 @@ import { usePersona } from "@/contexts/persona-context"
 import { NMLogoIcon } from "@/components/NMLogoIcon"
 import { LinkedInIcon } from "@/components/LinkedInIcon"
 import { MediumIcon } from "@/components/MediumIcon"
+// Import the new ImageWithFallback component at the top of the file
+import ImageWithFallback from "@/components/ImageWithFallback"
 
 // Custom X icon
 const XIcon = () => (
@@ -347,12 +348,13 @@ export default function Home() {
                 >
                   {/* Painting - Removed border and centered */}
                   <div className="relative bg-white flex justify-center">
-                    <Image
+                    <ImageWithFallback
                       src="/bonsai-painting.png"
                       alt="From the Tree - Oil Painting by Neil McArdle"
                       width={400}
                       height={500}
                       className="object-contain"
+                      priority
                     />
                   </div>
                 </div>
