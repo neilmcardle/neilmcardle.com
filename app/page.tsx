@@ -5,7 +5,6 @@ import Link from "next/link"
 import { ExternalLink, Mail, ChevronRight, Eye, EyeOff } from "lucide-react"
 import { PersonaToggle } from "@/components/persona-toggle"
 import { usePersona } from "@/contexts/persona-context"
-import { cn } from "@/lib/utils"
 import { NMLogoIcon } from "@/components/NMLogoIcon"
 import { LinkedInIcon } from "@/components/LinkedInIcon"
 import { MediumIcon } from "@/components/MediumIcon"
@@ -21,13 +20,12 @@ export default function Home() {
   // Animation states
   const [isLoaded, setIsLoaded] = useState(false)
   const { persona } = usePersona()
-  const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [shouldScroll, setShouldScroll] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [isEmailVisible, setIsEmailVisible] = useState(false)
   const [videoDuration, setVideoDuration] = useState(0)
   const [hasInteracted, setHasInteracted] = useState(false)
+  const [videoError, setVideoError] = useState(false)
 
   useEffect(() => {
     // Set isLoaded to true after a short delay to ensure components are mounted
@@ -53,28 +51,6 @@ export default function Home() {
     }
   }, [])
 
-  useEffect(() => {
-    const checkOverflow = () => {
-      if (containerRef.current) {
-        const containerHeight = containerRef.current.scrollHeight
-        const windowHeight = window.innerHeight
-        setShouldScroll(containerHeight > windowHeight)
-      }
-    }
-
-    // Check on initial load and whenever the window is resized
-    checkOverflow()
-    window.addEventListener("resize", checkOverflow)
-
-    // Also check after a short delay to ensure all content is rendered
-    const timer = setTimeout(checkOverflow, 500)
-
-    return () => {
-      window.removeEventListener("resize", checkOverflow)
-      clearTimeout(timer)
-    }
-  }, [persona]) // Re-check when persona changes
-
   // Handle video looping
   useEffect(() => {
     const video = videoRef.current
@@ -98,12 +74,13 @@ export default function Home() {
       video.playbackRate = 0.2 // Very slow default
     }
 
-    // Mute the video (we'll use separate audio)
+    // Mute the video
     video.muted = true
 
     // Start playing
     video.play().catch((error) => {
       console.error("Error playing video:", error)
+      setVideoError(true)
     })
 
     // Handle the loop transition to avoid jittering
@@ -123,7 +100,7 @@ export default function Home() {
     const handleEnded = () => {
       // Reset to beginning
       video.currentTime = 0
-      video.play()
+      video.play().catch(() => setVideoError(true))
     }
 
     // Get duration once it's available
@@ -137,14 +114,22 @@ export default function Home() {
       }
     }
 
+    // Handle video error
+    const handleError = () => {
+      console.error("Video error occurred")
+      setVideoError(true)
+    }
+
     video.addEventListener("timeupdate", handleTimeUpdate)
     video.addEventListener("ended", handleEnded)
     video.addEventListener("loadedmetadata", handleLoadedMetadata)
+    video.addEventListener("error", handleError)
 
     return () => {
       video.removeEventListener("timeupdate", handleTimeUpdate)
       video.removeEventListener("ended", handleEnded)
       video.removeEventListener("loadedmetadata", handleLoadedMetadata)
+      video.removeEventListener("error", handleError)
     }
   }, [isVideoLoaded])
 
@@ -161,28 +146,19 @@ export default function Home() {
   ]
 
   return (
-    <div
-      ref={containerRef}
-      className={cn(
-        "flex flex-col items-center min-h-screen px-4 relative",
-        shouldScroll ? "overflow-auto" : "overflow-hidden",
-      )}
-    >
-      {/* Background with styling based on persona */}
-      <div
-        className={cn(
-          "fixed inset-0 z-[-1] transition-all duration-700",
-          persona === "digital" ? "bg-white" : "bg-gray-100",
-        )}
-      ></div>
+    <div className="min-h-screen bg-white">
+      {/* Fixed Navigation Bar - Removed shadow */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-center items-center">
+          <NMLogoIcon className="text-black w-8 h-8" />
+        </div>
+      </header>
 
-      <div className="w-full max-w-6xl mx-auto relative z-[15] flex flex-col justify-center h-full py-8">
-        {/* Simplified Navigation */}
+      {/* Main Content - With padding to account for fixed header */}
+      <main className="w-full max-w-6xl mx-auto px-4 pt-20 pb-24">
+        {/* Persona Toggle */}
         <div className="flex justify-center mb-8">
-          <div className="flex flex-col items-center gap-4">
-            <NMLogoIcon className={persona === "digital" ? "text-black w-10 h-10" : "text-white w-10 h-10"} />
-            <PersonaToggle />
-          </div>
+          <PersonaToggle />
         </div>
 
         {/* Main Content */}
@@ -202,25 +178,36 @@ export default function Home() {
               >
                 {/* Card Content with Background */}
                 <div className="relative overflow-hidden rounded-sm">
-                  {/* Video Background */}
+                  {/* Video Background with Fallback */}
                   <div className="absolute inset-0 overflow-hidden">
-                    {/* Video with blur effect */}
-                    <video
-                      ref={videoRef}
-                      loop
-                      muted
-                      playsInline
-                      className="w-full h-full object-cover transition-opacity duration-1000"
-                      style={{
-                        filter: "blur(8px)",
-                        transform: "scale(1.1)", // Slightly scale up to avoid blur edges
-                        willChange: "opacity",
-                      }}
-                      onLoadedData={() => setIsVideoLoaded(true)}
-                    >
-                      <source src="/bird-loop.mp4" type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
+                    {!videoError ? (
+                      <video
+                        ref={videoRef}
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover transition-opacity duration-1000"
+                        style={{
+                          filter: "blur(8px)",
+                          transform: "scale(1.1)", // Slightly scale up to avoid blur edges
+                          willChange: "opacity",
+                        }}
+                        onLoadedData={() => setIsVideoLoaded(true)}
+                        onError={() => setVideoError(true)}
+                      >
+                        <source src="/bird-loop.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      // Fallback background if video fails
+                      <div
+                        className="w-full h-full bg-gradient-to-br from-gray-800 to-black"
+                        style={{
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }}
+                      ></div>
+                    )}
 
                     {/* Texture overlay */}
                     <div
@@ -345,8 +332,6 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-
-              {/* Contact Information Below Card - Moved to a separate div with margin-top */}
             </div>
           ) : (
             // Traditional Mode Layout with Painting
@@ -373,46 +358,42 @@ export default function Home() {
                 </div>
 
                 {/* Painting Information */}
-                <div className="absolute -bottom-24 left-0 right-0">
-                  <div className="space-y-1 text-center">
-                    <h3 className="font-serif font-medium text-gray-900">From the Tree</h3>
-                    <p className="text-sm text-gray-700 font-serif">Oil on board, 9 W x 12 H x 1 D in</p>
-                    <div className="flex justify-center items-center gap-2 mt-1">
-                      <span className="text-sm font-serif text-gray-900">£1,200</span>
-                      <span className="text-xs text-gray-500">|</span>
-                      <Link
-                        href="https://www.greengallery.space/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center text-sm text-green-700 font-serif underline"
+                <div className="mt-6 text-center w-full px-4">
+                  <h3 className="font-serif font-medium text-gray-900">From the Tree</h3>
+                  <p className="text-sm text-gray-700 font-serif">Oil on board, 9 W x 12 H x 1 D in</p>
+                  <div className="flex justify-center items-center gap-2 mt-1">
+                    <span className="text-sm font-serif text-gray-900">£1,200</span>
+                    <span className="text-xs text-gray-500">|</span>
+                    <Link
+                      href="https://www.greengallery.space/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-sm text-green-700 font-serif underline"
+                    >
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse"></div>
+                      Available at Green Gallery
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="ml-1 h-3 w-3 text-green-600"
                       >
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse"></div>
-                        Available at Green Gallery
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="ml-1 h-3 w-3 text-green-600"
-                        >
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                          <polyline points="15 3 21 3 21 9" />
-                          <line x1="10" y1="14" x2="21" y2="3" />
-                        </svg>
-                      </Link>
-                    </div>
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
+                    </Link>
                   </div>
                 </div>
-
-                {/* Social Links for Traditional View */}
               </div>
             </div>
           )}
         </section>
-      </div>
+      </main>
     </div>
   )
 }
