@@ -8,15 +8,23 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Lock, Info } from "lucide-react"
+import { Lock, Trash2, Plus, ArrowUp, ArrowDown } from "lucide-react"
 import { SimpleRichTextEditor } from "@/components/SimpleRichTextEditor"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import Link from "next/link"
+
+type Chapter = {
+  title: string
+  content: string
+}
 
 export function MakeEbookDemo() {
   const [title, setTitle] = useState("")
   const [author, setAuthor] = useState("")
-  const [chapterTitle, setChapterTitle] = useState("")
-  const [chapterContent, setChapterContent] = useState("")
+  const [chapters, setChapters] = useState<Chapter[]>([
+    { title: "", content: "" }
+  ])
+  const [currentChapter, setCurrentChapter] = useState(0)
   const [previewMode, setPreviewMode] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
@@ -29,26 +37,48 @@ export function MakeEbookDemo() {
     setPreviewMode(value === "preview")
   }
 
+  // Chapter management
+  const addChapter = () => {
+    setChapters([...chapters, { title: "", content: "" }])
+    setCurrentChapter(chapters.length)
+  }
+
+  const removeChapter = (idx: number) => {
+    if (chapters.length === 1) return // must have at least one
+    const updated = chapters.filter((_, i) => i !== idx)
+    setChapters(updated)
+    setCurrentChapter(Math.max(0, idx - 1))
+  }
+
+  const updateChapter = (idx: number, field: keyof Chapter, value: string) => {
+    setChapters(chapters.map((ch, i) =>
+      i === idx ? { ...ch, [field]: value } : ch
+    ))
+  }
+
+  const reorderChapter = (from: number, to: number) => {
+    if (to < 0 || to >= chapters.length) return
+    const copy = [...chapters]
+    const [moved] = copy.splice(from, 1)
+    copy.splice(to, 0, moved)
+    setChapters(copy)
+    setCurrentChapter(to)
+  }
+
   return (
     <div className="space-y-6">
-      <div className="bg-[#F5F5F7] border border-[#D2D2D7] rounded-lg p-4 mb-6">
-        <div className="flex items-start gap-3">
-          <Info className="h-5 w-5 text-[#1D1D1F] mt-0.5 flex-shrink-0" />
-          <div>
-            <h3 className="text-sm font-medium text-[#1D1D1F] mb-1">eReader-Compatible Formatting</h3>
-            <p className="text-sm text-[#86868B]">
-              This demo includes only formatting options that are supported by most eReaders, ensuring your eBook will
-              pass validation. Links are disabled in this demo for security reasons.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <Tabs defaultValue="edit" onValueChange={handlePreviewToggle} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="edit">Edit</TabsTrigger>
-          <TabsTrigger value="preview">Preview</TabsTrigger>
-        </TabsList>
+        <div className="flex justify-between items-center mb-4">
+          <TabsList className="grid w-[200px] grid-cols-2">
+            <TabsTrigger value="edit">Edit</TabsTrigger>
+            <TabsTrigger value="preview">Preview</TabsTrigger>
+          </TabsList>
+          <Link href="/make-ebook/focus" passHref>
+            <Button variant="outline" size="sm" className="text-gray-600">
+              Focus Mode
+            </Button>
+          </Link>
+        </div>
 
         <TabsContent value="edit" className="space-y-4 pt-4">
           <div className="space-y-4">
@@ -74,48 +104,107 @@ export function MakeEbookDemo() {
               />
             </div>
 
+            {/* Chapter Tabs */}
             <div>
-              <Label htmlFor="chapterTitle">Chapter 1 Title</Label>
-              <Input
-                id="chapterTitle"
-                value={chapterTitle}
-                onChange={(e) => setChapterTitle(e.target.value)}
-                placeholder="Enter chapter title"
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <Label htmlFor="chapterContent">Chapter 1 Content</Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="text-xs text-muted-foreground flex items-center cursor-help">
-                        <Info className="h-3 w-3 mr-1" />
-                        eReader-compatible formatting
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p>Only formatting options supported by most eReaders are included to ensure compatibility.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+              <div className="flex gap-2 items-center mb-2 flex-wrap">
+                {chapters.map((ch, idx) => (
+                  <Button
+                    key={idx}
+                    size="sm"
+                    variant={idx === currentChapter ? "default" : "outline"}
+                    onClick={() => setCurrentChapter(idx)}
+                  >
+                    Chapter {idx + 1}
+                  </Button>
+                ))}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={addChapter}
+                  aria-label="Add Chapter"
+                  className="flex gap-1"
+                >
+                  <Plus className="h-4 w-4" /> Add
+                </Button>
               </div>
-              <SimpleRichTextEditor
-                value={chapterContent}
-                onChange={setChapterContent}
-                placeholder="Write your chapter content here..."
-                minHeight="200px"
-              />
+
+              {/* Current Chapter Edit */}
+              <div className="border rounded-lg p-4 bg-[#f9f9fa] space-y-4 relative">
+                <div className="flex items-center gap-2 mb-1">
+                  <Label htmlFor="chapterTitle">Chapter Title</Label>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={currentChapter === 0}
+                    aria-label="Move Up"
+                    onClick={() => reorderChapter(currentChapter, currentChapter - 1)}
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={currentChapter === chapters.length - 1}
+                    aria-label="Move Down"
+                    onClick={() => reorderChapter(currentChapter, currentChapter + 1)}
+                  >
+                    <ArrowDown className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={chapters.length === 1}
+                    aria-label="Delete Chapter"
+                    onClick={() => removeChapter(currentChapter)}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+
+                <Input
+                  id="chapterTitle"
+                  value={chapters[currentChapter].title}
+                  onChange={(e) => updateChapter(currentChapter, "title", e.target.value)}
+                  placeholder="Enter chapter title"
+                  className="mt-1"
+                />
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label htmlFor="chapterContent">Chapter Content</Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="text-xs text-muted-foreground flex items-center cursor-help">
+                            eReader-compatible formatting
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Only formatting options supported by most eReaders are included to ensure compatibility.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <SimpleRichTextEditor
+                    value={chapters[currentChapter].content}
+                    onChange={val => updateChapter(currentChapter, "content", val)}
+                    placeholder="Write your chapter content here..."
+                    minHeight="200px"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Updated button layout for better mobile responsiveness */}
+          {/* Button layout */}
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4">
-            <Button variant="outline" className="text-[#86868B] w-full sm:w-auto" disabled>
+            <Button
+              variant="outline"
+              className="text-[#86868B] w-full sm:w-auto"
+              disabled
+            >
               <Lock className="h-4 w-4 mr-2" />
-              Add Chapter
+              Cover Image (Pro)
             </Button>
 
             <Button onClick={handleGenerateClick} className="bg-[#1D1D1F] hover:bg-black text-white w-full sm:w-auto">
@@ -125,14 +214,19 @@ export function MakeEbookDemo() {
         </TabsContent>
 
         <TabsContent value="preview" className="pt-4">
-          {title || author || chapterTitle || chapterContent ? (
+          {title || author || chapters.some(ch => ch.title || ch.content) ? (
             <div className="border rounded-lg p-6 space-y-6 min-h-[400px] bg-white">
               {title && <h1 className="text-2xl font-bold text-center mb-8">{title}</h1>}
               {author && <p className="text-center italic mb-12">by {author}</p>}
-
-              {chapterTitle && <h2 className="text-xl font-semibold mt-8 mb-4">{chapterTitle}</h2>}
-              {chapterContent && (
-                <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: chapterContent }} />
+              {chapters.map((ch, idx) =>
+                (ch.title || ch.content) ? (
+                  <div key={idx} className="mb-10">
+                    {ch.title && <h2 className="text-xl font-semibold mt-8 mb-4">{ch.title}</h2>}
+                    {ch.content && (
+                      <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: ch.content }} />
+                    )}
+                  </div>
+                ) : null
               )}
             </div>
           ) : (
@@ -179,4 +273,3 @@ export function MakeEbookDemo() {
     </div>
   )
 }
-
