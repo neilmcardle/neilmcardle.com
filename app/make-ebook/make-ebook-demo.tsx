@@ -11,7 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Lock, Trash2, Plus, ArrowUp, ArrowDown } from "lucide-react"
 import { SimpleRichTextEditor } from "@/components/SimpleRichTextEditor"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import Link from "next/link"
 
 type Chapter = {
   title: string
@@ -73,11 +72,7 @@ export function MakeEbookDemo() {
             <TabsTrigger value="edit">Edit</TabsTrigger>
             <TabsTrigger value="preview">Preview</TabsTrigger>
           </TabsList>
-          <Link href="/make-ebook/focus" passHref>
-            <Button variant="outline" size="sm" className="text-gray-600">
-              Focus Mode
-            </Button>
-          </Link>
+          {/* Focus Mode button removed */}
         </div>
 
         <TabsContent value="edit" className="space-y-4 pt-4">
