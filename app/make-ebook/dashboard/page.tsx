@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { MakeEbookIcon } from "@/components/MakeEbookIcon"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -23,7 +24,6 @@ import {
   Settings,
   User,
   X,
-  Info,
   Bold,
   Italic,
   Underline,
@@ -40,6 +40,52 @@ import {
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 
+// Define the type for a project
+interface Project {
+  id: string
+  title: string
+  description: string
+  progress: number
+  chapters: number
+  words: number
+  lastEdited: string
+  status: "draft" | "review" | "published"
+}
+
+// Sample data for projects
+const projects: Project[] = [
+  {
+    id: "1",
+    title: "Travel Memories",
+    description: "A collection of travel stories and photos.",
+    progress: 75,
+    chapters: 12,
+    words: 15230,
+    lastEdited: "Yesterday",
+    status: "draft",
+  },
+  {
+    id: "2",
+    title: "Cooking Recipes",
+    description: "Delicious recipes from around the world.",
+    progress: 50,
+    chapters: 8,
+    words: 8765,
+    lastEdited: "3 days ago",
+    status: "review",
+  },
+  {
+    id: "3",
+    title: "My First eBook",
+    description: "An introductory guide to the world of eBooks.",
+    progress: 25,
+    chapters: 5,
+    words: 3450,
+    lastEdited: "1 week ago",
+    status: "draft",
+  },
+]
+
 // Update the component to include state for the writer content and preview mode
 export default function MakeEbookDashboard() {
   const [activeProject, setActiveProject] = useState<string | null>(null)
@@ -51,53 +97,18 @@ export default function MakeEbookDashboard() {
   const [chapterContent, setChapterContent] = useState("")
   const [editorMode, setEditorMode] = useState<"edit" | "preview">("edit")
 
+  const router = useRouter()
+
   // Prevent default navigation
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
   }
 
-  const openWriterModal = (e) => {
+  // Navigate to focus mode page
+  const goToFocusMode = (e: React.MouseEvent) => {
     e.preventDefault()
-    setIsWriterModalOpen(true)
+    router.push("/make-ebook/focus")
   }
-
-  // Add this function to handle closing the writer modal
-  const closeWriterModal = () => {
-    setIsWriterModalOpen(false)
-  }
-
-  const projects = [
-    {
-      id: "1",
-      title: "My First eBook",
-      description: "A guide to digital marketing",
-      progress: 65,
-      lastEdited: "2 days ago",
-      chapters: 5,
-      words: 12500,
-      status: "draft",
-    },
-    {
-      id: "2",
-      title: "Cooking Recipes",
-      description: "Collection of family recipes",
-      progress: 30,
-      lastEdited: "5 days ago",
-      chapters: 3,
-      words: 4200,
-      status: "draft",
-    },
-    {
-      id: "3",
-      title: "Travel Memories",
-      description: "Photo journal of my travels",
-      progress: 90,
-      lastEdited: "Yesterday",
-      chapters: 8,
-      words: 18300,
-      status: "review",
-    },
-  ]
 
   // Replace the Writer Modal section with this enhanced version
   const writerModal = (
@@ -123,28 +134,28 @@ export default function MakeEbookDashboard() {
         </div>
 
         <div className="p-6">
-          <div className="bg-[#F5F5F7] border border-[#D2D2D7] rounded-lg p-4 mb-6">
-            <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-[#1D1D1F] mt-0.5 flex-shrink-0" />
-              <div>
-                <h3 className="text-sm font-medium text-[#1D1D1F] mb-1">Focus Mode</h3>
-                <p className="text-sm text-[#86868B]">
-                  This distraction-free editor helps you focus on your writing. Toggle between Edit and Preview modes to
-                  see how your eBook will look.
-                </p>
-              </div>
-            </div>
-          </div>
-
           <Tabs
             defaultValue="edit"
             onValueChange={(value) => setEditorMode(value as "edit" | "preview")}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="edit">Edit</TabsTrigger>
-              <TabsTrigger value="preview">Preview</TabsTrigger>
-            </TabsList>
+            <div className="flex justify-between items-center mb-6">
+              <TabsList className="grid w-[200px] grid-cols-2">
+                <TabsTrigger value="edit">Edit</TabsTrigger>
+                <TabsTrigger value="preview">Preview</TabsTrigger>
+              </TabsList>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsWriterModalOpen(false)
+                  router.push("/make-ebook/focus")
+                }}
+                className="text-gray-600"
+              >
+                Focus Mode
+              </Button>
+            </div>
 
             <TabsContent value="edit" className="space-y-6">
               <div className="space-y-4">
@@ -193,7 +204,6 @@ export default function MakeEbookDashboard() {
                       Chapter 1 Content
                     </Label>
                     <div className="text-xs text-muted-foreground flex items-center cursor-help">
-                      <Info className="h-3 w-3 mr-1" />
                       eReader-compatible formatting
                     </div>
                   </div>
@@ -416,10 +426,12 @@ export default function MakeEbookDashboard() {
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-[#1D1D1F]">My eBooks</h2>
-                <Button variant="outline" size="sm" onClick={openWriterModal}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  New eBook
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={goToFocusMode}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    New eBook
+                  </Button>
+                </div>
               </div>
 
               <Tabs defaultValue="all">
@@ -591,7 +603,7 @@ export default function MakeEbookDashboard() {
                     <p className="text-[#86868B] max-w-md mx-auto mb-6">
                       When you publish your eBooks, they will appear here. Start by completing one of your drafts.
                     </p>
-                    <Button onClick={openWriterModal}>
+                    <Button onClick={goToFocusMode}>
                       <Plus className="mr-2 h-4 w-4" />
                       Create New eBook
                     </Button>
@@ -662,4 +674,3 @@ export default function MakeEbookDashboard() {
     </div>
   )
 }
-

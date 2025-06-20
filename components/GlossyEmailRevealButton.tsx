@@ -82,4 +82,3 @@ export function GlossyEmailRevealButton({ className = "" }: GlossyEmailRevealBut
     </div>
   )
 }
-

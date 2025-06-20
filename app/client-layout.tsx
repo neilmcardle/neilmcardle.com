@@ -1,29 +1,15 @@
 "use client"
 
 import type React from "react"
-import { usePathname } from "next/navigation"
-import { TopNavigation } from "@/components/top-navigation"
-import "./globals.css"
-import { Inter } from "next/font/google"
 
-const inter = Inter({ subsets: ["latin"] })
+import { PersonaProvider } from "@/contexts/persona-context"
+import FractalBackground from "@/components/FractalBackground"
 
-export const ClientLayout = ({
-  children,
-}: {
-  children: React.ReactNode
-}) => {
-  const pathname = usePathname()
-  const isEbookPage = pathname === "/make-ebook" || pathname === "/make-ebook/dashboard"
-  const isBetterThingsPage = pathname === "/better-things"
-
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        {!isEbookPage && !isBetterThingsPage && <TopNavigation />}
-        <main className={`${!isEbookPage && !isBetterThingsPage ? "pt-24 sm:pt-32" : "min-h-screen"}`}>{children}</main>
-      </body>
-    </html>
+    <PersonaProvider>
+      <FractalBackground />
+      <main className="min-h-screen">{children}</main>
+    </PersonaProvider>
   )
 }
-

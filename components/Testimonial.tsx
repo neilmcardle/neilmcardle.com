@@ -36,4 +36,3 @@ export function Testimonial({ quote, author, company, avatarUrl }: TestimonialPr
     </div>
   )
 }
-

@@ -2,13 +2,11 @@
 
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
-import { ChevronDown, Menu, X } from "lucide-react"
-import { FigmaIcon } from "./FigmaIcon"
+import { Menu, X } from "lucide-react"
+import { MakeEbookIcon } from "./MakeEbookIcon"
+import { NMLogoIcon } from "./NMLogoIcon"
 import { LinkedInIcon } from "./LinkedInIcon"
 import { MediumIcon } from "./MediumIcon"
-import { NMLogoIcon } from "./NMLogoIcon"
-import { MakeEbookIcon } from "./MakeEbookIcon"
-import { BetterThingsSquareLogo } from "./BetterThingsSquareLogo"
 
 const XSolid = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -44,8 +42,8 @@ export function TopNavigation() {
         className="flex items-center justify-between bg-white/90 sm:bg-white/80 sm:rounded-full backdrop-blur-md supports-[backdrop-filter]:bg-white/80 px-4 sm:px-6 py-3 relative max-w-7xl mx-auto shadow-sm sm:shadow-none"
         ref={dropdownRef}
       >
-        {/* Logo - always visible */}
-        <Link href="/" className="mr-4">
+        {/* Logo - always visible and centered on desktop */}
+        <Link href="/" className="mr-4 lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2">
           <NMLogoIcon className="text-[#1D1D1F] w-8 h-8" />
         </Link>
 
@@ -59,77 +57,16 @@ export function TopNavigation() {
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center gap-8 flex-1">
-          <Link
-            href="/about"
-            className="flex items-center gap-1 text-sm font-medium text-[#1D1D1F] hover:text-black transition-colors"
-          >
-            About
-          </Link>
-
-          {/* Work Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => toggleDropdown("work")}
-              className="flex items-center gap-1 text-sm font-medium text-[#1D1D1F] hover:text-black transition-colors"
-            >
-              Work
-              <ChevronDown
-                size={16}
-                className={`transition-transform ${activeDropdown === "work" ? "rotate-180" : ""}`}
-              />
-            </button>
-
-            {activeDropdown === "work" && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg overflow-hidden">
-                <Link
-                  href="https://www.figma.com/proto/zZcc3Li72GhWFVpv1PxC0O/%F0%9F%91%A8%F0%9F%8F%BC%E2%80%8D%F0%9F%9A%80--Neil-McArdle?page-id=7947%3A56485&node-id=7947-56486&viewport=119%2C809%2C0.29&t=9uLN4opTMa6jNFaW-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=7947%3A56486"
-                  className="flex items-center gap-2 px-4 py-3 text-sm text-[#1D1D1F] hover:bg-[#F5F5F7]"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setActiveDropdown(null)}
-                >
-                  <FigmaIcon className="w-4 h-4" />
-                  Portfolio
-                </Link>
-                <Link
-                  href="/better-things"
-                  className="flex items-center gap-2 px-4 py-3 text-sm text-[#1D1D1F] hover:bg-[#F5F5F7]"
-                  onClick={() => setActiveDropdown(null)}
-                >
-                  <BetterThingsSquareLogo className="w-4 h-4" />
-                  Freelance
-                </Link>
-              </div>
-            )}
-          </div>
-
+        {/* Desktop Navigation - Only show Products */}
+        <div className="hidden lg:flex items-center gap-8 flex-1 justify-start">
           {/* Products Dropdown */}
           <div className="relative">
-            <button
-              onClick={() => toggleDropdown("products")}
+            <Link
+              href="/make-ebook"
               className="flex items-center gap-1 text-sm font-medium text-[#1D1D1F] hover:text-black transition-colors"
             >
               Products
-              <ChevronDown
-                size={16}
-                className={`transition-transform ${activeDropdown === "products" ? "rotate-180" : ""}`}
-              />
-            </button>
-
-            {activeDropdown === "products" && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg overflow-hidden">
-                <Link
-                  href="/make-ebook"
-                  className="flex items-center gap-2 px-4 py-3 text-sm text-[#1D1D1F] hover:bg-[#F5F5F7]"
-                  onClick={() => setActiveDropdown(null)}
-                >
-                  <MakeEbookIcon className="w-4 h-4" />
-                  makeEbook
-                </Link>
-              </div>
-            )}
+            </Link>
           </div>
         </div>
 
@@ -164,51 +101,19 @@ export function TopNavigation() {
           </Link>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - Simplified to only show Products */}
         {isMenuOpen && (
           <div className="absolute top-full left-0 right-0 mt-2 p-4 bg-white rounded-3xl shadow-lg lg:hidden">
             <div className="flex flex-col gap-4">
-              <Link
-                href="/about"
-                className="flex items-center gap-2 text-sm font-medium text-[#1D1D1F] hover:text-black py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About
-              </Link>
-
-              {/* Mobile Work Section */}
+              {/* Mobile Products Link */}
               <div className="border-t border-[#D2D2D7] pt-2">
-                <div className="text-sm font-medium text-[#1D1D1F] mb-2 py-2">Work</div>
-                <Link
-                  href="https://www.figma.com/proto/zZcc3Li72GhWFVpv1PxC0O/%F0%9F%91%A8%F0%9F%8F%BC%E2%80%8D%F0%9F%9A%80--Neil-McArdle?page-id=7947%3A56485&node-id=7947-56486&viewport=119%2C809%2C0.29&t=9uLN4opTMa6jNFaW-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=7947%3A56486"
-                  className="flex items-center gap-2 text-sm text-[#86868B] hover:text-[#1D1D1F] py-2 pl-4"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <FigmaIcon className="w-4 h-4" />
-                  Portfolio
-                </Link>
-                <Link
-                  href="/better-things"
-                  className="flex items-center gap-2 text-sm text-[#86868B] hover:text-[#1D1D1F] py-2 pl-4"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <BetterThingsSquareLogo className="w-4 h-4" />
-                  Freelance
-                </Link>
-              </div>
-
-              {/* Mobile Products Section */}
-              <div className="border-t border-[#D2D2D7] pt-2">
-                <div className="text-sm font-medium text-[#1D1D1F] mb-2 py-2">Products</div>
                 <Link
                   href="/make-ebook"
-                  className="flex items-center gap-2 text-sm text-[#86868B] hover:text-[#1D1D1F] py-2 pl-4"
+                  className="flex items-center gap-2 text-sm text-[#86868B] hover:text-[#1D1D1F] py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <MakeEbookIcon className="w-4 h-4" />
-                  makeEbook
+                  Products
                 </Link>
               </div>
 
@@ -252,4 +157,3 @@ export function TopNavigation() {
     </header>
   )
 }
-

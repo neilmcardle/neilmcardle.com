@@ -16,8 +16,8 @@ export function SecureEmailLink({ className = "" }: SecureEmailLinkProps) {
   // Email parts are split to prevent scraping
   const emailParts = {
     username: "neil",
-    domain: "neilmcardle",
-    tld: "com",
+    domain: "mcardle",
+    tld: "design",
   }
 
   const handleReveal = () => {
@@ -36,7 +36,7 @@ export function SecureEmailLink({ className = "" }: SecureEmailLinkProps) {
       {!isRevealed ? (
         <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={handleReveal}>
           <Mail className="h-4 w-4" />
-          <span>Reveal Email Address</span>
+          <span>Get in Touch</span>
         </Button>
       ) : (
         <>
@@ -64,4 +64,3 @@ export function SecureEmailLink({ className = "" }: SecureEmailLinkProps) {
     </div>
   )
 }
-

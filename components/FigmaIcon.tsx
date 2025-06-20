@@ -43,4 +43,3 @@ export const FigmaIcon: React.FC<FigmaIconProps> = ({ variant = "black", ...prop
     </svg>
   )
 }
-

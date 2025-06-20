@@ -12,12 +12,8 @@ interface CustomXPostProps {
 }
 
 export function CustomXPost({
-  content = "This is a glossy, resizable button 🔥 ;P 🔥",
-  additionalContent = [
-    "Grab the @Figma file: https://figma.com/community/file/1483263624716244248",
-    "Vibes: Oleksandr Stepanov https://pixabay.com/users/penguinmusic-24940186/",
-    "Fire Emoji: https://emojipedia.org/fire",
-  ],
+  content = "Video: Resizable Figma button 🔥 ;P 🔥",
+  additionalContent = ["Sound on... 🔊"],
   hashtags = ["UI", "Design"],
   profileImage = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/profile-dONA7abEaJyCLzMSGtfxbqB76X5jfw.png",
   name = "Neil McArdle",
@@ -129,11 +125,8 @@ export function CustomXPost({
               ))}
             </p>
           </div>
-
-          {/* Removed all interaction buttons */}
         </div>
       </div>
     </div>
   )
 }
-

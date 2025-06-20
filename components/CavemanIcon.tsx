@@ -11,4 +11,3 @@ export const CavemanIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
     </svg>
   )
 }
-

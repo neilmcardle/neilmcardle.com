@@ -1,357 +1,430 @@
 "use client"
-import { useState, useEffect } from "react"
-import { FigmaIcon } from "../components/FigmaIcon"
-import { MediumArticleCard } from "../components/MediumArticleCard"
-import { XPostEmbed } from "../components/XPostEmbed"
-import Image from "next/image"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { ArrowRight, Code, Layout, Lock, Palette, PenTool, Sparkles, Star } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
-import dynamic from "next/dynamic"
+import { ExternalLink, Mail, ChevronRight, Eye, EyeOff } from "lucide-react"
+import { PersonaToggle } from "@/components/persona-toggle"
+import { usePersona } from "@/contexts/persona-context"
+import { NMLogoIcon } from "@/components/NMLogoIcon"
+import { LinkedInIcon } from "@/components/LinkedInIcon"
+import { MediumIcon } from "@/components/MediumIcon"
+// Import the new ImageWithFallback component at the top of the file
+import ImageWithFallback from "@/components/ImageWithFallback"
 
-// Dynamically import the widget wrapper with no SSR
-const ElevenLabsWidgetWrapper = dynamic(() => import("../components/ElevenLabsWidgetWrapper"), { ssr: false })
+// Custom X icon
+const XIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M12.6 2h1.9L9.7 7.6l5.7 6.4h-4.2l-3.5-3.9-4 3.9H1.8l5.2-6-5.4-6h4.3l3.2 3.6L12.6 2zm-1.7 12.1h1.1L5.3 3.8H4.1l6.8 10.3z" />
+  </svg>
+)
 
 export default function Home() {
   // Animation states
   const [isLoaded, setIsLoaded] = useState(false)
+  const { persona } = usePersona()
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false)
+  const [isEmailVisible, setIsEmailVisible] = useState(false)
+  const [videoDuration, setVideoDuration] = useState(0)
+  const [hasInteracted, setHasInteracted] = useState(false)
+  const [videoError, setVideoError] = useState(false)
 
   useEffect(() => {
-    setIsLoaded(true)
+    // Set isLoaded to true after a short delay to ensure components are mounted
+    const timer = setTimeout(() => {
+      setIsLoaded(true)
+    }, 100)
+
+    // Add interaction detection
+    const handleInteraction = () => {
+      console.log("User interaction detected")
+      setHasInteracted(true)
+    }
+
+    window.addEventListener("click", handleInteraction)
+    window.addEventListener("touchstart", handleInteraction)
+    window.addEventListener("keydown", handleInteraction)
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener("click", handleInteraction)
+      window.removeEventListener("touchstart", handleInteraction)
+      window.removeEventListener("keydown", handleInteraction)
+    }
   }, [])
 
-  const mediumArticles = [
-    {
-      title: "Navigating Recruiter Pitches on LinkedIn",
-      subtitle: "A Designer's UX-Fueled InMail Odyssey",
-      imageUrl:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/navigating-article-2-IJX6TSxHZZ9C3RIw6WqPIBcBQwSrCG.png",
-      articleUrl: "https://medium.com/design-bootcamp/navigating-recruiter-pitches-on-linkedin-74cb0bf74a83",
-      publishDate: "Mar 6, 2025",
-      readTime: "4 min read",
-    },
-    {
-      title: "The Designer and the Peas of Rejection",
-      subtitle: "A UX Prince Picks Apart His 27 No-Reply Goodbyes",
-      imageUrl:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/peas-article-1-YAHCa2aOoqJEJoAmkexgTCGXtjiw3R.png",
-      articleUrl: "https://medium.com/design-bootcamp/the-designer-and-the-peas-of-rejection-3b2837e96342",
-      publishDate: "Feb 27, 2025",
-    },
-  ]
+  // Handle video loading
+  useEffect(() => {
+    // Check if video exists in public folder
+    const checkVideoExists = async () => {
+      try {
+        const response = await fetch("/bird-loop.mp4", { method: "HEAD" })
+        if (!response.ok) {
+          console.error("Video file not found:", response.status)
+          setVideoError(true)
+        }
+      } catch (error) {
+        console.error("Error checking video file:", error)
+        setVideoError(true)
+      }
+    }
 
-  const featuredProjects = [
-    {
-      title: "Better Things",
-      description:
-        "Subscribe to my elite freelance design services with unlimited design requests and rapid turnaround times.",
-      image:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/betterThingsCardBanner-7mLfmSmu8yYccGaMoIWJG0DO1jEtX1.png",
-      link: "/better-things",
-      icon: null, // Changed from BetterThingsSquareLogo to null
-      skills: ["Brand Identity", "UI/UX Design", "Illustration"],
-    },
-  ]
+    checkVideoExists()
+  }, [])
 
-  const skills = [
-    { name: "UI/UX Design", icon: <Layout className="h-5 w-5" />, level: 95 },
-    { name: "Frontend Development", icon: <Code className="h-5 w-5" />, level: 90 },
-    { name: "Brand Identity", icon: <Palette className="h-5 w-5" />, level: 85 },
-    { name: "Illustration", icon: <PenTool className="h-5 w-5" />, level: 80 },
-  ]
+  // Handle video looping
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video || !isVideoLoaded) return
 
-  const testimonials = [
-    {
-      quote:
-        "Neil is a talented designer who has an impressive work ethic. He has assisted on number of key design projects for our brand and he over-delivers each and every time!",
-      name: "Dan Roberts",
-      role: "Founder, NUK SOO",
-      avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dan-or2ZMicLq3DNbbnxNnCFXvZP8jsrt5.png",
-    },
+    // Store the original duration
+    setVideoDuration(video.duration)
+
+    // Calculate playback rate to make the video last 10 seconds
+    // Only calculate if we have a valid duration
+    if (video.duration > 0) {
+      const targetDuration = 10 // seconds
+      const newPlaybackRate = video.duration / targetDuration
+
+      // Set playback rate to make video play over 10 seconds
+      video.playbackRate = newPlaybackRate
+
+      console.log(`Video original duration: ${video.duration}s, Playback rate: ${newPlaybackRate}`)
+    } else {
+      // Fallback if duration is not available
+      video.playbackRate = 0.2 // Very slow default
+    }
+
+    // Mute the video
+    video.muted = true
+
+    // Start playing
+    video.play().catch((error) => {
+      console.error("Error playing video:", error)
+      setVideoError(true)
+    })
+
+    // Handle the loop transition to avoid jittering
+    const handleTimeUpdate = () => {
+      // If we're near the end of the video, start crossfade
+      if (video.currentTime > video.duration - 0.5) {
+        video.style.opacity = String(Math.max(0, (video.duration - video.currentTime) * 2))
+      } else if (video.currentTime < 0.5) {
+        // If we're at the beginning, fade in
+        video.style.opacity = String(Math.min(1, video.currentTime * 2))
+      } else {
+        video.style.opacity = "1"
+      }
+    }
+
+    // When the video ends, reset to beginning with a smooth transition
+    const handleEnded = () => {
+      // Reset to beginning
+      video.currentTime = 0
+      video.play().catch(() => setVideoError(true))
+    }
+
+    // Get duration once it's available
+    const handleLoadedMetadata = () => {
+      if (video.duration > 0) {
+        setVideoDuration(video.duration)
+        const targetDuration = 10 // seconds
+        const newPlaybackRate = video.duration / targetDuration
+        video.playbackRate = newPlaybackRate
+        console.log(`Video duration updated: ${video.duration}s, New playback rate: ${newPlaybackRate}`)
+      }
+    }
+
+    // Handle video error
+    const handleError = () => {
+      console.error("Video error occurred")
+      setVideoError(true)
+    }
+
+    video.addEventListener("timeupdate", handleTimeUpdate)
+    video.addEventListener("ended", handleEnded)
+    video.addEventListener("loadedmetadata", handleLoadedMetadata)
+    video.addEventListener("error", handleError)
+
+    return () => {
+      video.removeEventListener("timeupdate", handleTimeUpdate)
+      video.removeEventListener("ended", handleEnded)
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata)
+      video.removeEventListener("error", handleError)
+    }
+  }, [isVideoLoaded])
+
+  // Toggle email visibility
+  const toggleEmailVisibility = () => {
+    setIsEmailVisible(!isEmailVisible)
+  }
+
+  // List of products
+  const products = [
+    { name: "makeEbook", href: "/make-ebook" },
+    { name: "Waves", href: "https://wavesapp.vercel.app/" },
+    { name: "Vector Paint", href: "https://vectorpaint.vercel.app" },
   ]
 
   return (
-    <div className="flex flex-col items-center min-h-screen overflow-x-hidden px-4 relative">
-      {/* Background with subtle gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-blue-50/30 to-purple-50/30 z-[-1]"></div>
+    <div className="min-h-screen bg-white">
+      {/* Fixed Navigation Bar - Removed shadow */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-center items-center">
+          <NMLogoIcon className="text-black w-8 h-8" />
+        </div>
+      </header>
 
-      <div className="w-full max-w-6xl mx-auto relative z-[15] mt-4 mb-16">
-        {/* Hero Section - Two cards side by side */}
+      {/* Main Content - With padding to account for fixed header */}
+      <main className="w-full max-w-6xl mx-auto px-4 pt-20 pb-24">
+        {/* Persona Toggle */}
+        <div className="flex justify-center mb-8">
+          <PersonaToggle />
+        </div>
+
+        {/* Main Content */}
         <section
           className={`transition-all duration-1000 ease-out transform ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
         >
-          <div className="grid md:grid-cols-3 gap-6 mb-10">
-            {/* Left card - Name section (2/3 width) */}
-            <div className="md:col-span-2 bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10">
-              <div className="flex flex-col items-start text-left">
-                {/* Profile photo above name - increased to 64x64px */}
-                <div className="relative rounded-full overflow-hidden shadow-md h-16 w-16 border-2 border-white mb-4">
-                  <Image
-                    src="/illustrated-me.png"
-                    alt="Neil McArdle - Design Engineer"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-
-                {/* Smaller Design Engineer badge with available indicator */}
-                <div className="flex items-center gap-3 mb-4">
-                  {/* <div className="inline-flex items-center py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    Design Engineer
-                  </div> */}
-                  <div className="flex items-center text-xs text-emerald-600 font-medium">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></div>
-                    Available for work
-                  </div>
-                </div>
-
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-900 bg-clip-text text-transparent">
-                  Neil McArdle
-                </h1>
-
-                <p className="text-lg sm:text-xl text-gray-700 mb-8 max-w-full md:max-w-md leading-relaxed">
-                  I craft elegant digital experiences through clean, purposeful code.
-                </p>
-
-                <div className="flex flex-wrap gap-4 mb-8">
-                  {skills.map((skill, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg shadow-sm border border-gray-100"
-                      style={{
-                        transitionDelay: `${index * 100}ms`,
-                        animation: isLoaded ? `fadeIn 0.5s ease-out ${index * 100}ms forwards` : "none",
-                        opacity: 0,
-                      }}
-                    >
-                      <div className="text-blue-600">{skill.icon}</div>
-                      <span className="text-sm font-medium">{skill.name}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex flex-wrap gap-4">
-                  <Link
-                    href="https://www.figma.com/proto/zZcc3Li72GhWFVpv1PxC0O/%F0%9F%91%A8%F0%9F%8F%BC%E2%80%8D%F0%9F%9A%80--Neil-McArdle?page-id=7947%3A56485&node-id=7947-56486&viewport=119%2C809%2C0.29&t=9uLN4opTMa6jNFaW-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=7947%3A56486"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium shadow-lg hover:shadow-xl transition-all hover:translate-y-[-2px]"
-                  >
-                    <FigmaIcon variant="color" className="w-5 h-5 mr-2" />
-                    View Portfolio
-                    <Lock className="w-4 h-4 ml-2" />
-                  </Link>
-
-                  <Link
-                    href="/about"
-                    className="inline-flex items-center px-6 py-3 rounded-full bg-white text-gray-800 font-medium shadow-md hover:shadow-lg transition-all border border-gray-200"
-                  >
-                    About Me
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* Right card - Ready to collaborate (1/3 width) */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl shadow-xl p-6 flex flex-col justify-center">
-              <h2 className="text-xl sm:text-2xl font-bold mb-4 text-white">Ready to collaborate?</h2>
-              <p className="text-white/90 mb-6">
-                I'm currently available for freelance projects. Let's create something amazing together.
-              </p>
-              <div className="flex flex-col gap-3">
-                <Link
-                  href="https://www.linkedin.com/in/neilmcardle/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-5 py-2 rounded-full bg-white text-blue-600 font-medium hover:bg-blue-50 transition-colors text-sm"
-                >
-                  Connect on LinkedIn
-                </Link>
-                <Link
-                  href="/about"
-                  className="inline-flex items-center px-5 py-2 rounded-full bg-blue-500/20 text-white font-medium hover:bg-blue-500/30 transition-colors border border-white/30 text-sm"
-                >
-                  Contact Me
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Freelance Work Section - Renamed from Featured Projects */}
-        <section
-          className={`mb-10 transition-all duration-1000 ease-out transform delay-300 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
-        >
-          <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Neil's design agency Better Things</h2>
-              <Link
-                href="/better-things"
-                className="text-blue-600 hover:text-blue-800 transition-colors text-sm font-medium flex items-center"
+          {persona === "digital" ? (
+            // Digital Mode - Business Card Layout
+            <div className="flex flex-col items-center w-full">
+              {/* Business Card with updated border to match traditional card */}
+              <div
+                className="relative w-full max-w-md mx-auto rounded-sm shadow-xl"
+                style={{
+                  background: "linear-gradient(to bottom, #444, #222)",
+                  padding: "16px",
+                }}
               >
-                Hire Neil
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Link>
-            </div>
+                {/* Card Content with Background */}
+                <div className="relative overflow-hidden rounded-sm">
+                  {/* Video Background with Enhanced Fallback */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    {!videoError ? (
+                      <video
+                        ref={videoRef}
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover transition-opacity duration-1000"
+                        style={{
+                          filter: "blur(8px)",
+                          transform: "scale(1.1)", // Slightly scale up to avoid blur edges
+                          willChange: "opacity",
+                        }}
+                        onLoadedData={() => setIsVideoLoaded(true)}
+                        onError={() => setVideoError(true)}
+                      >
+                        <source src="/bird-loop.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      // Enhanced fallback background if video fails
+                      <div
+                        className="w-full h-full"
+                        style={{
+                          background: "linear-gradient(135deg, #2c3e50, #000000, #2c3e50)",
+                          backgroundSize: "400% 400%",
+                          animation: "gradient 15s ease infinite",
+                        }}
+                      >
+                        {/* Add subtle animated gradient */}
+                        <style jsx>{`
+                          @keyframes gradient {
+                            0% { background-position: 0% 50%; }
+                            50% { background-position: 100% 50%; }
+                            100% { background-position: 0% 50%; }
+                          }
+                        `}</style>
+                      </div>
+                    )}
 
-            <div className="grid md:grid-cols-1 max-w-2xl mx-auto">
-              {featuredProjects.map((project, index) => (
-                <Link
-                  key={index}
-                  href={project.link}
-                  target={project.external ? "_blank" : undefined}
-                  rel={project.external ? "noopener noreferrer" : undefined}
-                  className="group"
-                >
-                  <div className="bg-white rounded-xl overflow-hidden">
-                    <div className="relative h-64 overflow-hidden">
-                      <Image
-                        src={project.image || "/placeholder.svg"}
-                        alt={project.title}
-                        fill
-                        className="object-contain"
-                      />
-                      <div className="absolute top-3 left-3">
-                        <div className="flex items-center py-1 px-3 rounded-full bg-white/90 backdrop-blur-sm text-emerald-600 text-xs font-medium">
-                          <div className="w-2 h-2 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></div>
-                          Available for work
-                        </div>
+                    {/* Texture overlay */}
+                    <div
+                      className="absolute inset-0 z-[1]"
+                      style={{
+                        backgroundImage:
+                          'url("data:image/png;base64,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")',
+                        opacity: 0.15,
+                        mixBlendMode: "overlay",
+                      }}
+                    ></div>
+
+                    {/* Semi-transparent overlay to ensure text readability */}
+                    <div className="absolute inset-0 bg-black bg-opacity-50 z-[2]"></div>
+                  </div>
+
+                  {/* Card Content */}
+                  <div className="flex flex-col justify-between h-full p-6 text-white space-y-4 relative z-[5]">
+                    {/* Top Section - Logo and Name */}
+                    <div>
+                      <h1 className="text-xl font-bold text-white mb-1">Neil McArdle</h1>
+                    </div>
+
+                    {/* Middle Section - Brief Description */}
+                    <div className="mt-0">
+                      <p className="text-sm text-gray-300 max-w-xs -mt-2">
+                        Creating elegant digital experiences through clean, purposeful code.
+                      </p>
+                    </div>
+
+                    {/* Products Section */}
+                    <div className="mb-3">
+                      <h3 className="text-xs uppercase text-gray-400 mb-2 font-medium tracking-wider">Products</h3>
+                      <div className="flex flex-col gap-1">
+                        {products.map((product, index) => (
+                          <Link
+                            key={index}
+                            href={product.href}
+                            className="text-sm text-gray-300 hover:text-white transition-colors py-1 flex items-center justify-between"
+                            target={product.href.startsWith("http") ? "_blank" : undefined}
+                            rel={product.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                          >
+                            <span>{product.name}</span>
+                            <ChevronRight className="w-3 h-3 text-gray-400" />
+                          </Link>
+                        ))}
                       </div>
                     </div>
 
-                    <div className="p-6">
-                      <div className="mb-3">
-                        <h3 className="font-bold text-xl text-gray-900">{project.title}</h3>
-                      </div>
-
-                      <p className="text-gray-600 text-base mb-4">{project.description}</p>
-
-                      <div className="flex flex-wrap gap-2">
-                        {project.skills.map((skill, skillIndex) => (
-                          <span
-                            key={skillIndex}
-                            className="text-sm border border-gray-200 text-gray-700 px-3 py-1 rounded-md"
-                          >
-                            {skill}
+                    {/* Bottom Section - Contact and Links */}
+                    <div className="flex flex-col gap-3 mt-auto pt-3">
+                      {/* Contact Section */}
+                      <div>
+                        <h3 className="text-xs uppercase text-gray-400 mb-2 font-medium tracking-wider">Contact</h3>
+                        {/* Email with reveal/conceal functionality */}
+                        <div className="flex items-center text-sm text-white rounded-md">
+                          <Mail className="w-4 h-4 mr-2 text-white" />
+                          <span className="flex-1">
+                            {isEmailVisible ? (
+                              "neil@neilmcardle.com"
+                            ) : (
+                              <span className="text-gray-500">Click to reveal email</span>
+                            )}
                           </span>
-                        ))}
+                          <button
+                            onClick={toggleEmailVisibility}
+                            className="ml-2 p-1 rounded-full hover:bg-gray-800 transition-colors"
+                            aria-label={isEmailVisible ? "Hide email" : "Show email"}
+                          >
+                            {isEmailVisible ? (
+                              <EyeOff className="w-4 h-4 text-gray-400" />
+                            ) : (
+                              <Eye className="w-4 h-4 text-gray-400" />
+                            )}
+                          </button>
+                        </div>
                       </div>
+                      {/* Social Links */}
+                      <div className="mt-2">
+                        <h3 className="text-xs uppercase text-gray-400 mb-2 font-medium tracking-wider">
+                          Read my mind
+                        </h3>
+                        <div className="flex items-center gap-6">
+                          <Link
+                            href="https://www.linkedin.com/in/neilmcardle/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-white hover:text-gray-300 transition-colors"
+                          >
+                            <LinkedInIcon className="w-4 h-4" />
+                          </Link>
+                          <Link
+                            href="https://x.com/betterneil"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-white hover:text-gray-300 transition-colors"
+                          >
+                            <XIcon />
+                          </Link>
+                          <Link
+                            href="https://medium.com/@BetterNeil"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-white hover:text-gray-300 transition-colors"
+                          >
+                            <MediumIcon className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Design Agency Link - Moved to bottom */}
+                      <Link
+                        href="https://www.betterthings.design"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-sm text-white hover:text-gray-300 transition-colors mt-2 underline"
+                      >
+                        <span>Looking for my design agency?</span>
+                        <ExternalLink className="w-3 h-3 ml-1 text-gray-400" />
+                      </Link>
                     </div>
                   </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials & Content Section */}
-        <section
-          className={`mb-10 transition-all duration-1000 ease-out transform delay-500 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
-        >
-          <div className="grid md:grid-cols-5 gap-6">
-            {/* Testimonials */}
-            <div className="md:col-span-2">
-              <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-8 h-full">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Client Testimonials</h2>
-
-                <div className="space-y-6">
-                  {testimonials.map((testimonial, index) => (
-                    <div key={index} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                      <div className="flex gap-1 mb-4">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
-
-                      <p className="text-gray-700 text-sm mb-4 italic">"{testimonial.quote}"</p>
-
-                      <div className="flex items-center">
-                        <Image
-                          src={testimonial.avatar || "/placeholder.svg"}
-                          alt={testimonial.name}
-                          width={40}
-                          height={40}
-                          className="rounded-full mr-3"
-                        />
-                        <div>
-                          <p className="font-medium text-gray-900 text-sm">{testimonial.name}</p>
-                          <p className="text-gray-500 text-xs">{testimonial.role}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
-
-            {/* Content Tabs */}
-            <div className="md:col-span-3">
-              <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-8">
-                <Tabs defaultValue="twitter">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Latest Content</h2>
-                    <TabsList className="bg-gray-100">
-                      <TabsTrigger value="twitter" className="text-xs">
-                        Twitter
-                      </TabsTrigger>
-                      <TabsTrigger value="articles" className="text-xs">
-                        Articles
-                      </TabsTrigger>
-                    </TabsList>
+          ) : (
+            // Traditional Mode Layout with Painting
+            <div className="flex flex-col items-center w-full">
+              <div className="relative w-full max-w-md mx-auto flex flex-col items-center">
+                {/* Dark Grey Gradient Frame */}
+                <div
+                  className="rounded-sm shadow-xl mx-auto"
+                  style={{
+                    background: "linear-gradient(to bottom, #444, #222)",
+                    padding: "16px",
+                  }}
+                >
+                  {/* Painting - Removed border and centered */}
+                  <div className="relative bg-white flex justify-center">
+                    <ImageWithFallback
+                      src="/bonsai-painting.png"
+                      alt="From the Tree - Oil Painting by Neil McArdle"
+                      width={400}
+                      height={500}
+                      className="object-contain"
+                      priority
+                    />
                   </div>
+                </div>
 
-                  <TabsContent value="twitter" className="mt-0">
-                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                      <XPostEmbed
-                        tweetUrl="https://twitter.com/BetterNeil/status/1901435678375972971"
-                        mediaMaxWidth={550}
-                        align="center"
-                        cards="visible"
-                        conversation="none"
-                        theme="light"
-                        className="w-full"
-                      />
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="articles" className="mt-0">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {mediumArticles.map((article, index) => (
-                        <MediumArticleCard
-                          key={index}
-                          title={article.title}
-                          subtitle={article.subtitle}
-                          imageUrl={article.imageUrl}
-                          articleUrl={article.articleUrl}
-                          publishDate={article.publishDate}
-                          readTime={article.readTime}
-                        />
-                      ))}
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                {/* Painting Information */}
+                <div className="mt-6 text-center w-full px-4">
+                  <h3 className="font-serif font-medium text-gray-900">From the Tree</h3>
+                  <p className="text-sm text-gray-700 font-serif">Oil on board, 9 W x 12 H x 1 D in</p>
+                  <div className="flex justify-center items-center gap-2 mt-1">
+                    <span className="text-sm font-serif text-gray-900">£1,200</span>
+                    <span className="text-xs text-gray-500">|</span>
+                    <Link
+                      href="https://www.greengallery.space/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-sm text-green-700 font-serif underline"
+                    >
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse"></div>
+                      Available at Green Gallery
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="ml-1 h-3 w-3 text-green-600"
+                      >
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </section>
-      </div>
-
-      {/* ElevenLabs Widget - Using server component approach */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <ElevenLabsWidgetWrapper />
-      </div>
-
-      {/* Add animation keyframes */}
-      <style jsx global>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+      </main>
     </div>
   )
 }
-

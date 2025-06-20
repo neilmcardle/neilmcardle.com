@@ -9,4 +9,3 @@ export const NMLogoIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
     </svg>
   )
 }
-
