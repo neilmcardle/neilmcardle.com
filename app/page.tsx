@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ExternalLink, Mail, ChevronRight, Eye, EyeOff } from "lucide-react"
 import { PersonaToggle } from "@/components/persona-toggle"
@@ -21,12 +21,7 @@ export default function Home() {
   // Animation states
   const [isLoaded, setIsLoaded] = useState(false)
   const { persona } = usePersona()
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [isEmailVisible, setIsEmailVisible] = useState(false)
-  const [videoDuration, setVideoDuration] = useState(0)
-  const [hasInteracted, setHasInteracted] = useState(false)
-  const [videoError, setVideoError] = useState(false)
 
   useEffect(() => {
     // Set isLoaded to true after a short delay to ensure components are mounted
@@ -37,7 +32,6 @@ export default function Home() {
     // Add interaction detection
     const handleInteraction = () => {
       console.log("User interaction detected")
-      setHasInteracted(true)
     }
 
     window.addEventListener("click", handleInteraction)
@@ -51,107 +45,6 @@ export default function Home() {
       window.removeEventListener("keydown", handleInteraction)
     }
   }, [])
-
-  // Handle video loading
-  useEffect(() => {
-    // Check if video exists in public folder
-    const checkVideoExists = async () => {
-      try {
-        const response = await fetch("/bird-loop.mp4", { method: "HEAD" })
-        if (!response.ok) {
-          console.error("Video file not found:", response.status)
-          setVideoError(true)
-        }
-      } catch (error) {
-        console.error("Error checking video file:", error)
-        setVideoError(true)
-      }
-    }
-
-    checkVideoExists()
-  }, [])
-
-  // Handle video looping
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video || !isVideoLoaded) return
-
-    // Store the original duration
-    setVideoDuration(video.duration)
-
-    // Calculate playback rate to make the video last 10 seconds
-    // Only calculate if we have a valid duration
-    if (video.duration > 0) {
-      const targetDuration = 10 // seconds
-      const newPlaybackRate = video.duration / targetDuration
-
-      // Set playback rate to make video play over 10 seconds
-      video.playbackRate = newPlaybackRate
-
-      console.log(`Video original duration: ${video.duration}s, Playback rate: ${newPlaybackRate}`)
-    } else {
-      // Fallback if duration is not available
-      video.playbackRate = 0.2 // Very slow default
-    }
-
-    // Mute the video
-    video.muted = true
-
-    // Start playing
-    video.play().catch((error) => {
-      console.error("Error playing video:", error)
-      setVideoError(true)
-    })
-
-    // Handle the loop transition to avoid jittering
-    const handleTimeUpdate = () => {
-      // If we're near the end of the video, start crossfade
-      if (video.currentTime > video.duration - 0.5) {
-        video.style.opacity = String(Math.max(0, (video.duration - video.currentTime) * 2))
-      } else if (video.currentTime < 0.5) {
-        // If we're at the beginning, fade in
-        video.style.opacity = String(Math.min(1, video.currentTime * 2))
-      } else {
-        video.style.opacity = "1"
-      }
-    }
-
-    // When the video ends, reset to beginning with a smooth transition
-    const handleEnded = () => {
-      // Reset to beginning
-      video.currentTime = 0
-      video.play().catch(() => setVideoError(true))
-    }
-
-    // Get duration once it's available
-    const handleLoadedMetadata = () => {
-      if (video.duration > 0) {
-        setVideoDuration(video.duration)
-        const targetDuration = 10 // seconds
-        const newPlaybackRate = video.duration / targetDuration
-        video.playbackRate = newPlaybackRate
-        console.log(`Video duration updated: ${video.duration}s, New playback rate: ${newPlaybackRate}`)
-      }
-    }
-
-    // Handle video error
-    const handleError = () => {
-      console.error("Video error occurred")
-      setVideoError(true)
-    }
-
-    video.addEventListener("timeupdate", handleTimeUpdate)
-    video.addEventListener("ended", handleEnded)
-    video.addEventListener("loadedmetadata", handleLoadedMetadata)
-    video.addEventListener("error", handleError)
-
-    return () => {
-      video.removeEventListener("timeupdate", handleTimeUpdate)
-      video.removeEventListener("ended", handleEnded)
-      video.removeEventListener("loadedmetadata", handleLoadedMetadata)
-      video.removeEventListener("error", handleError)
-    }
-  }, [isVideoLoaded])
 
   // Toggle email visibility
   const toggleEmailVisibility = () => {
@@ -198,61 +91,19 @@ export default function Home() {
               >
                 {/* Card Content with Background */}
                 <div className="relative overflow-hidden rounded-sm">
-                  {/* Video Background with Enhanced Fallback */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    {!videoError ? (
-                      <video
-                        ref={videoRef}
-                        loop
-                        muted
-                        playsInline
-                        className="w-full h-full object-cover transition-opacity duration-1000"
-                        style={{
-                          filter: "blur(8px)",
-                          transform: "scale(1.1)", // Slightly scale up to avoid blur edges
-                          willChange: "opacity",
-                        }}
-                        onLoadedData={() => setIsVideoLoaded(true)}
-                        onError={() => setVideoError(true)}
-                      >
-                        <source src="/bird-loop.mp4" type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    ) : (
-                      // Enhanced fallback background if video fails
-                      <div
-                        className="w-full h-full"
-                        style={{
-                          background: "linear-gradient(135deg, #2c3e50, #000000, #2c3e50)",
-                          backgroundSize: "400% 400%",
-                          animation: "gradient 15s ease infinite",
-                        }}
-                      >
-                        {/* Add subtle animated gradient */}
-                        <style jsx>{`
-                          @keyframes gradient {
-                            0% { background-position: 0% 50%; }
-                            50% { background-position: 100% 50%; }
-                            100% { background-position: 0% 50%; }
-                          }
-                        `}</style>
-                      </div>
-                    )}
+                  {/* Texture overlay */}
+                  <div
+                    className="absolute inset-0 z-[1]"
+                    style={{
+                      backgroundImage:
+                        'url("data:image/png;base64,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")',
+                      opacity: 0.15,
+                      mixBlendMode: "overlay",
+                    }}
+                  ></div>
 
-                    {/* Texture overlay */}
-                    <div
-                      className="absolute inset-0 z-[1]"
-                      style={{
-                        backgroundImage:
-                          'url("data:image/png;base64,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")',
-                        opacity: 0.15,
-                        mixBlendMode: "overlay",
-                      }}
-                    ></div>
-
-                    {/* Semi-transparent overlay to ensure text readability */}
-                    <div className="absolute inset-0 bg-black bg-opacity-50 z-[2]"></div>
-                  </div>
+                  {/* Semi-transparent overlay to ensure text readability */}
+                  <div className="absolute inset-0 bg-black bg-opacity-50 z-[2]"></div>
 
                   {/* Card Content */}
                   <div className="flex flex-col justify-between h-full p-6 text-white space-y-4 relative z-[5]">
