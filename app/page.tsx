@@ -115,7 +115,7 @@ export default function Home() {
                     {/* Middle Section - Brief Description */}
                     <div className="mt-0">
                       <p className="text-sm text-gray-300 max-w-xs -mt-2">
-                        Leadership and design.
+                        Good design acts as form of leadership.
                       </p>
                     </div>
 
