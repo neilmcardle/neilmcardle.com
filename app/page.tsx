@@ -54,7 +54,6 @@ export default function Home() {
   // List of products
   const products = [
     { name: "makeEbook", href: "/make-ebook" },
-    { name: "Waves", href: "https://wavesapp.vercel.app/" },
     { name: "Vector Paint", href: "https://vectorpaint.vercel.app" },
   ]
 
@@ -150,7 +149,7 @@ export default function Home() {
                             {isEmailVisible ? (
                               "neil@neilmcardle.com"
                             ) : (
-                              <span className="text-gray-500">Click to reveal email</span>
+                              <span className="text-gray-500">Click eye icon to reveal email</span>
                             )}
                           </span>
                           <button
