@@ -80,33 +80,35 @@ export default function MakeEbookPage() {
         </span>
       </div>
       {/* Header */}
-      <header className="flex items-center justify-between px-8 py-6 border-b bg-white relative">
-        <div className="flex items-center gap-2">
-          {/* Subtle Back Arrow */}
-          <Link href="/" aria-label="Back to home" className="mr-2 group">
-            <ChevronLeft className="w-6 h-6 text-[#86868B] group-hover:text-[#15161a] transition" />
-          </Link>
-          {/* makeEbook Logo and Name */}
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition">
-            <Image src="/caveman.svg" alt="makeEbook logo" width={32} height={32} />
-            <span className="text-lg font-bold tracking-tight">makeEbook</span>
-          </Link>
-          <span className="text-xs text-[#86868B] ml-2">Create professional ebooks with AI assistance</span>
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2 sm:px-8 py-4 sm:py-6 border-b bg-white relative gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2">
+            <Link href="/" aria-label="Back to home" className="group">
+              <ChevronLeft className="w-6 h-6 text-[#86868B] group-hover:text-[#15161a] transition" />
+            </Link>
+            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition">
+              <Image src="/caveman.svg" alt="makeEbook logo" width={32} height={32} />
+              <span className="text-lg font-bold tracking-tight whitespace-nowrap">makeEbook</span>
+            </Link>
+          </div>
+          <span className="text-xs text-[#86868B] sm:ml-2 ml-10 sm:mt-0 mt-[-10px]">
+            Create professional ebooks with AI assistance
+          </span>
         </div>
         <button
-          className="ml-auto px-4 py-2 rounded bg-[#15161a] text-white font-medium flex items-center gap-2 hover:bg-[#23242a] transition"
+          className="w-full sm:w-auto px-4 py-2 rounded bg-[#15161a] text-white font-medium flex items-center justify-center gap-2 hover:bg-[#23242a] transition"
         >
-          <span className="inline-block">Export EPUB</span>
+          Export EPUB
         </button>
       </header>
       {/* Main layout */}
-      <div className="flex flex-1 min-h-0">
+      <div className="flex flex-col sm:flex-row flex-1 min-h-0">
         {/* Left Sidebar */}
-        <aside className="w-full max-w-xs border-r flex flex-col bg-white h-[calc(100vh-80px)] min-w-[320px]">
+        <aside className="w-full sm:max-w-xs border-r flex flex-col bg-white min-w-0 sm:min-w-[320px]">
           {/* Tabs */}
-          <nav className="flex items-center justify-between gap-2 px-6 pt-6 pb-4">
+          <nav className="flex border-b sm:flex-col sm:border-b-0 sm:border-r items-center sm:items-start justify-between gap-2 px-2 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
             <button
-              className={`rounded px-4 py-2 text-sm font-medium transition ${
+              className={`flex-1 sm:flex-none rounded px-4 py-2 text-sm font-medium transition ${
                 tab === "setup"
                   ? "bg-[#f4f4f5] text-[#15161a]"
                   : "hover:bg-[#f4f4f5] text-[#86868B]"
@@ -116,7 +118,7 @@ export default function MakeEbookPage() {
               Setup
             </button>
             <button
-              className={`rounded px-4 py-2 text-sm font-medium transition ${
+              className={`flex-1 sm:flex-none rounded px-4 py-2 text-sm font-medium transition ${
                 tab === "ai"
                   ? "bg-[#f4f4f5] text-[#15161a]"
                   : "hover:bg-[#f4f4f5] text-[#86868B]"
@@ -126,7 +128,7 @@ export default function MakeEbookPage() {
               AI Chat
             </button>
             <button
-              className={`rounded px-4 py-2 text-sm font-medium transition ${
+              className={`flex-1 sm:flex-none rounded px-4 py-2 text-sm font-medium transition ${
                 tab === "preview"
                   ? "bg-[#f4f4f5] text-[#15161a]"
                   : "hover:bg-[#f4f4f5] text-[#86868B]"
@@ -138,7 +140,7 @@ export default function MakeEbookPage() {
           </nav>
 
           {/* Tab Content */}
-          <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <div className="flex-1 overflow-y-auto px-2 sm:px-6 pb-6">
             {tab === "setup" && (
               <div className="space-y-6">
                 {/* Book Info */}
@@ -398,7 +400,7 @@ export default function MakeEbookPage() {
         </aside>
 
         {/* Main Editor Panel */}
-        <main className="flex-1 flex flex-col overflow-x-auto px-6 py-8 bg-[#fcfcfd] min-w-0">
+        <main className="flex-1 flex flex-col overflow-x-auto px-2 sm:px-6 py-6 sm:py-8 bg-[#fcfcfd] min-w-0">
           {/* Title + Author */}
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-2">
             <div>
@@ -407,7 +409,7 @@ export default function MakeEbookPage() {
             </div>
           </div>
           {/* Chapter Tabs */}
-          <div className="flex flex-row gap-2 mb-2">
+          <div className="flex flex-row gap-2 mb-2 overflow-x-auto">
             <div className="flex gap-1">
               <span className="font-medium mr-2 pt-1">Chapters</span>
               <button
@@ -415,7 +417,7 @@ export default function MakeEbookPage() {
                 onClick={handleAddChapter}
               >
                 <Plus className="w-4 h-4" />
-                Add Chapter
+                <span className="hidden xs:inline">Add Chapter</span>
               </button>
             </div>
             <div className="flex-1 flex gap-1 overflow-x-auto hide-scrollbar">
@@ -436,7 +438,7 @@ export default function MakeEbookPage() {
           {/* Editor row: chapter list and editor */}
           <div className="flex flex-1 min-h-0 gap-2">
             {/* Chapter List */}
-            <div className="w-60 min-w-[220px] max-w-[260px] flex flex-col gap-2 pt-2">
+            <div className="w-40 sm:w-60 min-w-[120px] sm:min-w-[220px] max-w-[260px] flex flex-col gap-2 pt-2">
               {chapters.map((ch, i) => (
                 <div
                   key={i}
@@ -448,7 +450,7 @@ export default function MakeEbookPage() {
                   <span className="font-medium">{ch.title || `Chapter ${i + 1}`}</span>
                   <span className="ml-auto text-xs opacity-60">{ch.content.length} characters</span>
                   {chapters.length > 1 && (
-                    <button className="ml-1 text-xs text-[#86868B] opacity-0 group-hover:opacity-100 transition" onClick={() => handleRemoveChapter(i)}>
+                    <button className="ml-1 text-xs text-[#86868B] opacity-0 group-hover:opacity-100 transition" onClick={(e) => {e.stopPropagation(); handleRemoveChapter(i);}}>
                       <Trash2 className="w-4 h-4" />
                     </button>
                   )}
