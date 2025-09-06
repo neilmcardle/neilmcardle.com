@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, UploadCloud, ChevronLeft, Trash2 } from "lucide-react";
+import { Plus, UploadCloud, ChevronLeft, Trash2, GripVertical } from "lucide-react";
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -28,6 +28,52 @@ export default function MakeEbookPage() {
   // Chapters state
   const [chapters, setChapters] = useState([{ title: "Chapter 1", content: "" }]);
   const [selectedChapter, setSelectedChapter] = useState(0);
+
+  // Drag and drop state for chapters (for chapter column, not sidebar)
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
+
+  function handleDragStart(index: number) {
+    dragItem.current = index;
+  }
+  function handleDragEnter(index: number) {
+    dragOverItem.current = index;
+  }
+  function handleDragEnd() {
+    const from = dragItem.current;
+    const to = dragOverItem.current;
+    if (from === null || to === null || from === to) {
+      dragItem.current = null;
+      dragOverItem.current = null;
+      return;
+    }
+    const updated = [...chapters];
+    const [removed] = updated.splice(from, 1);
+    updated.splice(to, 0, removed);
+    setChapters(updated);
+    setSelectedChapter(to);
+    dragItem.current = null;
+    dragOverItem.current = null;
+  }
+  // Touch drag and drop (mobile)
+  function handleTouchStart(index: number, e: React.TouchEvent) {
+    dragItem.current = index;
+  }
+  function handleTouchMove(index: number, e: React.TouchEvent) {
+    const touch = e.touches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!target) return;
+    const chapterEls = Array.from(document.querySelectorAll('[data-chapter-idx]'));
+    for (const el of chapterEls) {
+      if (el.contains(target)) {
+        const idx = Number((el as HTMLElement).dataset.chapterIdx);
+        if (!isNaN(idx)) dragOverItem.current = idx;
+      }
+    }
+  }
+  function handleTouchEnd() {
+    handleDragEnd();
+  }
 
   // Handlers
   function handleAddChapter() {
@@ -72,7 +118,7 @@ export default function MakeEbookPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#fcfcfd] text-[#15161a]">
+    <div className="flex flex-col min-h-screen h-screen bg-[#fcfcfd] text-[#15161a]">
       {/* Top Banner for Beta Notice */}
       <div className="w-full bg-gradient-to-r from-[#f4f4f5] to-[#eaeaec] border-b p-2 text-center flex items-center justify-center relative">
         <span className="text-xs text-[#86868B] font-medium">
@@ -102,9 +148,9 @@ export default function MakeEbookPage() {
         </button>
       </header>
       {/* Main layout */}
-      <div className="flex flex-col sm:flex-row flex-1 min-h-0">
+      <div className="flex flex-col sm:flex-row flex-1 min-h-0 h-0">
         {/* Left Sidebar */}
-        <aside className="w-full sm:max-w-xs border-r flex flex-col bg-white min-w-0 sm:min-w-[320px]">
+        <aside className="w-full sm:max-w-xs border-r flex flex-col bg-white min-w-0 sm:min-w-[320px] h-[320px] sm:h-full overflow-y-auto">
           {/* Tabs */}
           <nav className="flex border-b sm:flex-col sm:border-b-0 sm:border-r items-center sm:items-start justify-between gap-2 px-2 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
             <button
@@ -401,61 +447,63 @@ export default function MakeEbookPage() {
 
         {/* Main Editor Panel */}
         <main className="flex-1 flex flex-col overflow-x-auto px-2 sm:px-6 py-6 sm:py-8 bg-[#fcfcfd] min-w-0">
-          {/* Title + Author */}
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-2">
             <div>
               <h1 className="text-2xl font-bold">{title || "Untitled Book"}</h1>
               <span className="text-sm text-[#86868B]">by {author || "Unknown Author"}</span>
             </div>
           </div>
-          {/* Chapter Tabs */}
-          <div className="flex flex-row gap-2 mb-2 overflow-x-auto">
-            <div className="flex gap-1">
-              <span className="font-medium mr-2 pt-1">Chapters</span>
+          {/* Chapters column, with drag and drop and '+' button above */}
+          <div className="flex flex-row gap-2 mb-2">
+            <div className="flex flex-col w-40 sm:w-60 min-w-[120px] sm:min-w-[220px] max-w-[260px]">
               <button
-                className="px-3 py-1 rounded bg-[#15161a] text-white text-sm font-medium hover:bg-[#23242a] flex items-center gap-2"
+                className="w-full mb-2 px-3 py-2 rounded bg-[#15161a] text-white text-sm font-medium hover:bg-[#23242a] flex items-center gap-2 justify-center"
                 onClick={handleAddChapter}
+                aria-label="Add Chapter"
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden xs:inline">Add Chapter</span>
+                <span>Add Chapter</span>
               </button>
-            </div>
-            <div className="flex-1 flex gap-1 overflow-x-auto hide-scrollbar">
-              {chapters.map((ch, i) => (
-                <button
-                  key={i}
-                  className={`px-4 py-2 rounded-t bg-white border-t border-l border-r border-b-0 font-medium text-sm transition ${
-                    selectedChapter === i ? "bg-[#fcfcfd] border-b-2 border-[#fcfcfd]" : "border-[#ececef] text-[#86868B]"
-                  }`}
-                  onClick={() => handleSelectChapter(i)}
-                  style={{ minWidth: 120 }}
-                >
-                  {ch.title || `Chapter ${i + 1}`}
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* Editor row: chapter list and editor */}
-          <div className="flex flex-1 min-h-0 gap-2">
-            {/* Chapter List */}
-            <div className="w-40 sm:w-60 min-w-[120px] sm:min-w-[220px] max-w-[260px] flex flex-col gap-2 pt-2">
-              {chapters.map((ch, i) => (
-                <div
-                  key={i}
-                  className={`flex items-center gap-2 px-4 py-3 rounded cursor-pointer group transition ${
-                    selectedChapter === i ? "bg-[#15161a] text-white" : "bg-[#f4f4f5] text-[#15161a]"
-                  }`}
-                  onClick={() => handleSelectChapter(i)}
-                >
-                  <span className="font-medium">{ch.title || `Chapter ${i + 1}`}</span>
-                  <span className="ml-auto text-xs opacity-60">{ch.content.length} characters</span>
-                  {chapters.length > 1 && (
-                    <button className="ml-1 text-xs text-[#86868B] opacity-0 group-hover:opacity-100 transition" onClick={(e) => {e.stopPropagation(); handleRemoveChapter(i);}}>
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              ))}
+              <div className="flex flex-col gap-2">
+                {chapters.map((ch, i) => (
+                  <div
+                    key={i}
+                    className={`flex items-center gap-2 px-4 py-3 rounded cursor-pointer group transition select-none
+                      ${selectedChapter === i ? "bg-[#15161a] text-white" : "bg-[#f4f4f5] text-[#15161a]"}
+                    `}
+                    data-chapter-idx={i}
+                    draggable
+                    onDragStart={() => handleDragStart(i)}
+                    onDragEnter={() => handleDragEnter(i)}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={e => e.preventDefault()}
+                    // Touch events for mobile drag
+                    onTouchStart={e => handleTouchStart(i, e)}
+                    onTouchMove={e => handleTouchMove(i, e)}
+                    onTouchEnd={handleTouchEnd}
+                    onClick={() => handleSelectChapter(i)}
+                    style={{ touchAction: "none" }}
+                  >
+                    <span className="flex items-center">
+                      <GripVertical className="w-4 h-4 mr-2 opacity-70 cursor-grab" />
+                      <span className="font-medium">{ch.title || `Chapter ${i + 1}`}</span>
+                    </span>
+                    <span className="ml-auto text-xs opacity-60">{ch.content.length} characters</span>
+                    {chapters.length > 1 && (
+                      <button
+                        className="ml-1 text-xs text-[#86868B] opacity-0 group-hover:opacity-100 transition"
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleRemoveChapter(i);
+                        }}
+                        aria-label="Delete Chapter"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
             {/* Main Editor */}
             <section className="flex-1 flex flex-col min-w-0">
