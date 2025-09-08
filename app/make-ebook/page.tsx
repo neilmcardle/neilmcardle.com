@@ -384,27 +384,26 @@ function PreviewPanel({
 function AiTabContent() {
   return (
     <div className="space-y-4">
-                <section className="p-4 rounded-xl border border-[#ececec] bg-white">
-                  <h2 className="text-sm font-semibold mb-4">AI Writing Assistant</h2>
-                  <div className="mb-4 text-xs text-[#86868B]">
-                    Get help with writing, editing, and brainstorming
-                  </div>
-                  <div className="space-y-3 mb-4">
-                    <button className="w-full mb-2 px-3 py-2 rounded-full bg-[#15161a] text-white text-sm font-semibold hover:bg-[#23242a] flex items-center gap-2 justify-center shadow">
-                      Plugin my favourite AI tool
-                    </button>
-                   <div className="mb-4 text-xs text-[#86868B]">
-                    Requires an active subscription with ChatGPT, Grok etc.
-                  </div>
-                  </div>
-                  
-                </section>
-              </div>
+      <section className="p-4 rounded-xl border border-[#ececec] bg-white">
+        <h2 className="text-sm font-semibold mb-4">AI Writing Assistant</h2>
+        <div className="mb-4 text-xs text-[#86868B]">
+          Get help with writing, editing, and brainstorming
+        </div>
+        <div className="space-y-3 mb-4">
+          <button className="w-full mb-2 px-3 py-2 rounded-full bg-[#15161a] text-white text-sm font-semibold hover:bg-[#23242a] flex items-center gap-2 justify-center shadow">
+            Plugin my favourite AI tool
+          </button>
+          <div className="mb-4 text-xs text-[#86868B]">
+            Requires an active subscription with ChatGPT, Grok etc.
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
 
 export default function MakeEbookPage() {
-  // Book state
+  // Book state (same as above)
   const [tab, setTab] = useState<"setup" | "ai" | "preview">("setup");
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -481,7 +480,11 @@ export default function MakeEbookPage() {
   function handleRemoveChapter(idx: number) {
     if (chapters.length <= 1) return;
     setChapters((chs) => chs.filter((_, i) => i !== idx));
-    setSelectedChapter((prev) => (prev === idx ? 0 : Math.max(0, prev - 1)));
+    setSelectedChapter((prev) => {
+      if (prev > idx) return prev - 1;
+      if (prev === idx) return 0;
+      return prev;
+    });
   }
   function handleAddTag() {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -839,75 +842,84 @@ export default function MakeEbookPage() {
         </aside>
         {/* Main Editor Panel */}
         <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-2 sm:px-8 py-4 sm:py-8 min-w-0">
-          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-4">
-            <div>
-              {/* Editable Title */}
-              <div className="flex items-center gap-2 group">
-                {editingTitle ? (
-                  <input
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                    onBlur={() => setEditingTitle(false)}
-                    onKeyDown={e => e.key === "Enter" && setEditingTitle(false)}
-                    autoFocus
-                    className="text-2xl font-bold border-b border-[#ececec] bg-white px-1"
-                    disabled={lockedSections.bookInfo}
-                  />
-                ) : lockedSections.bookInfo ? (
-                  <SimpleTooltip text="Unlock Book Information to edit">
-                    <span
-                      className="text-2xl font-bold text-[#b0b3b8] cursor-not-allowed"
-                      tabIndex={-1}
-                    >
-                      {title || "Untitled Book"}
-                    </span>
-                  </SimpleTooltip>
-                ) : (
-                  <span
-                    className="text-2xl font-bold group-hover:bg-[#f4f4f5] rounded px-1 cursor-pointer flex items-center"
-                    onClick={() => setEditingTitle(true)}
-                    tabIndex={0}
-                  >
-                    {title || "Untitled Book"}
-                    <Pencil className="inline-block ml-2 w-4 h-4 opacity-0 group-hover:opacity-100 transition" />
-                  </span>
-                )}
-              </div>
-              {/* Editable Author */}
-              <div className="flex items-center gap-2 group">
-                {editingAuthor ? (
-                  <input
-                    value={author}
-                    onChange={e => setAuthor(e.target.value)}
-                    onBlur={() => setEditingAuthor(false)}
-                    onKeyDown={e => e.key === "Enter" && setEditingAuthor(false)}
-                    autoFocus
-                    className="text-sm border-b border-[#ececec] bg-white px-1"
-                    disabled={lockedSections.bookInfo}
-                  />
-                ) : lockedSections.bookInfo ? (
-                  <SimpleTooltip text="Unlock Book Information to edit">
-                    <span
-                      className="text-sm text-[#b0b3b8] cursor-not-allowed"
-                      tabIndex={-1}
-                    >
-                      by {author || "Unknown Author"}
-                    </span>
-                  </SimpleTooltip>
-                ) : (
-                  <span
-                    className="text-sm text-[#86868B] group-hover:bg-[#f4f4f5] rounded px-1 cursor-pointer flex items-center"
-                    onClick={() => setEditingAuthor(true)}
-                    tabIndex={0}
-                  >
-                    by {author || "Unknown Author"}
-                    <Pencil className="inline-block ml-2 w-3 h-3 opacity-0 group-hover:opacity-100 transition" />
-                  </span>
-                )}
-              </div>
+          {/* --- Mobile: Stacked with horizontal chapter tabs and delete button --- */}
+          <div className="sm:hidden flex flex-col gap-2">
+            {/* Add Chapter Button */}
+            <button
+              className="mb-2 px-3 py-2 rounded-full bg-[#15161a] text-white text-sm font-semibold hover:bg-[#23242a] flex items-center gap-2 justify-center shadow"
+              onClick={handleAddChapter}
+              aria-label="Add Chapter"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Chapter</span>
+            </button>
+            {/* Horizontal chapter tabs with delete button on selected tab */}
+<div className="flex flex-col gap-2 pb-2">
+  {chapters.map((ch, i) => {
+    const isSelected = selectedChapter === i;
+    return (
+      <div
+        key={i}
+        className={`
+          flex items-center gap-2 px-4 py-3 rounded-xl cursor-pointer transition select-none border border-[#ececec]
+          ${isSelected ? "bg-[#15161a] text-white shadow" : "bg-[#f4f4f5] text-[#15161a]"}
+        `}
+        onClick={() => handleSelectChapter(i)}
+        style={{ minHeight: 56 }}
+      >
+        {/* Drag Handle */}
+        <span className="flex items-center mr-2 opacity-70">
+          <GripVertical className="w-4 h-4" />
+        </span>
+        {/* Chapter Title */}
+        <span className="font-bold text-lg flex-1 truncate">
+          {ch.title ? ch.title : `Chapter ${i + 1}`}
+        </span>
+        {/* Character Count */}
+        <span className={`ml-2 text-base opacity-60 whitespace-nowrap ${isSelected ? "text-[#d1d1d1]" : "text-[#86868B]"}`}>
+          {typeof ch.content === "string" ? `${ch.content.length} characters` : "0 characters"}
+        </span>
+        {/* Delete Button */}
+        <button
+          onClick={e => {
+            e.stopPropagation();
+            handleRemoveChapter(i);
+          }}
+          className="ml-2 p-1 rounded text-[#86868B] opacity-80 hover:opacity-100 transition"
+          tabIndex={-1}
+          aria-label="Delete Chapter"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
+      </div>
+    );
+  })}
+</div>
+            {/* Chapter Title Input */}
+            <input
+              className="w-full mb-2 px-3 py-2 rounded-lg border border-[#ececec] text-base bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal"
+              placeholder="Enter the chapter title..."
+              value={chapters[selectedChapter]?.title ?? ""}
+              onChange={e => handleChapterTitleChange(selectedChapter, e.target.value)}
+            />
+            {/* Writing Area */}
+            <textarea
+              className="w-full flex-1 px-3 py-4 rounded-lg border border-[#ececec] text-base min-h-[220px] bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] transition-colors"
+              placeholder={
+                selectedChapter === 0
+                  ? "Start writing your first chapter here..."
+                  : "Start writing your chapter here..."
+              }
+              value={chapters[selectedChapter]?.content}
+              onChange={e => handleChapterContentChange(selectedChapter, e.target.value)}
+              style={{ minHeight: 180 }}
+            />
+            <div className="mt-1 text-xs text-[#86868B] flex justify-end">
+              Words: {chapters[selectedChapter]?.content.split(/\s+/).filter(Boolean).length || 0} | Characters: {chapters[selectedChapter]?.content.length || 0}
             </div>
           </div>
-          <div className="flex flex-row gap-4 mb-4">
+          {/* --- Desktop: Columns layout --- */}
+          <div className="hidden sm:flex flex-row gap-4 mb-4">
             <div className="flex flex-col w-40 sm:w-60 min-w-[140px] sm:min-w-[220px] max-w-[260px]">
               <button
                 className="w-full mb-2 px-3 py-2 rounded-full bg-[#15161a] text-white text-sm font-semibold hover:bg-[#23242a] flex items-center gap-2 justify-center shadow"
@@ -936,25 +948,25 @@ export default function MakeEbookPage() {
                     onClick={() => handleSelectChapter(i)}
                     style={{ touchAction: "none" }}
                   >
-                    <span className="flex items-center">
-                      <GripVertical className="w-4 h-4 mr-2 opacity-70 cursor-grab" />
-                      <span className="font-medium">
-                        {ch.title ? ch.title : `Chapter ${i + 1}`}
-                      </span>
-                    </span>
-                    <span className="ml-auto text-xs opacity-60">{ch.content.length} characters</span>
-                    {chapters.length > 1 && (
-                      <button
-                        className="ml-1 text-xs text-[#86868B] opacity-0 group-hover:opacity-100 transition"
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleRemoveChapter(i);
-                        }}
-                        aria-label="Delete Chapter"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+                    <span className="flex-1 min-w-0 flex items-center">
+  <GripVertical className="w-4 h-4 mr-2 opacity-70 cursor-grab" />
+  <span className="font-bold truncate block">
+    {ch.title ? ch.title : `Chapter ${i + 1}`}
+  </span>
+</span>
+<span className="ml-2 text-xs opacity-60 whitespace-nowrap">{ch.content.length} characters</span>
+{chapters.length > 1 && (
+  <button
+    className="ml-1 text-xs text-[#86868B] opacity-0 group-hover:opacity-100 transition"
+    onClick={e => {
+      e.stopPropagation();
+      handleRemoveChapter(i);
+    }}
+    aria-label="Delete Chapter"
+  >
+    <Trash2 className="w-4 h-4" />
+  </button>
+)}
                   </div>
                 ))}
               </div>
