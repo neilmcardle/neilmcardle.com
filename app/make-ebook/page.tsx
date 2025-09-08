@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import JSZip from "jszip";
 import {
-  Plus, UploadCloud, ChevronLeft, Trash2, GripVertical, Lock, Unlock, Pencil, Calendar, Languages
+  Plus, UploadCloud, ChevronLeft, Trash2, GripVertical, Lock, Unlock, Pencil, Calendar, Languages, Menu
 } from "lucide-react";
 
 // --- Instant Tooltip component ---
@@ -41,6 +41,368 @@ function uuidv4() {
   });
 }
 
+// --- MetaTabContent ---
+function MetaTabContent({
+  title, setTitle,
+  author, setAuthor,
+  blurb, setBlurb,
+  publisher, setPublisher,
+  pubDate, setPubDate,
+  isbn, setIsbn,
+  language, setLanguage,
+  genre, setGenre,
+  tags, setTags,
+  tagInput, setTagInput,
+  coverFile, setCoverFile,
+  lockedSections, setLockedSections,
+  handleAddTag,
+  handleRemoveTag,
+  handleCoverChange,
+}: any) {
+  return (
+    <div className="space-y-6">
+      {/* Book Info */}
+      <section className="p-4 rounded-xl border border-[#ececec] bg-white relative">
+        <h2 className="text-sm font-semibold mb-2 flex items-center">
+          Book Information
+          <button
+            type="button"
+            className="ml-2 text-[#b0b3b8] hover:text-[#86868B]"
+            title={lockedSections.bookInfo ? "Unlock to edit" : "Lock section"}
+            onClick={() => setLockedSections((s: any) => ({ ...s, bookInfo: !s.bookInfo }))}
+            tabIndex={0}
+          >
+            {lockedSections.bookInfo ? <Lock size={18} /> : <Unlock size={18} />}
+          </button>
+        </h2>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs mb-1">Title *</label>
+            <input
+              className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-base bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
+              placeholder="Enter book title..."
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              disabled={lockedSections.bookInfo}
+            />
+          </div>
+          <div>
+            <label className="block text-xs mb-1">Author *</label>
+            <input
+              className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-base bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
+              placeholder="Enter author name..."
+              value={author}
+              onChange={e => setAuthor(e.target.value)}
+              disabled={lockedSections.bookInfo}
+            />
+          </div>
+          <div>
+            <label className="block text-xs mb-1">Description/Blurb</label>
+            <textarea
+              className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
+              placeholder="Enter book description..."
+              value={blurb}
+              onChange={e => setBlurb(e.target.value)}
+              rows={2}
+              disabled={lockedSections.bookInfo}
+            />
+          </div>
+        </div>
+      </section>
+      {/* Publishing Details */}
+      <section className="p-4 rounded-xl border border-[#ececec] bg-white relative">
+        <h2 className="text-sm font-semibold mb-2 flex items-center">
+          Publishing Details
+          <button
+            type="button"
+            className="ml-2 text-[#b0b3b8] hover:text-[#86868B]"
+            title={lockedSections.publishing ? "Unlock to edit" : "Lock section"}
+            onClick={() => setLockedSections((s: any) => ({ ...s, publishing: !s.publishing }))}
+            tabIndex={0}
+          >
+            {lockedSections.publishing ? <Lock size={18} /> : <Unlock size={18} />}
+          </button>
+        </h2>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs mb-1">Publisher</label>
+            <input
+              className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+              placeholder="Enter publisher name..."
+              value={publisher}
+              onChange={e => setPublisher(e.target.value)}
+              disabled={lockedSections.publishing}
+            />
+          </div>
+          <div>
+            <label className="block text-xs mb-1">Publication Date</label>
+            <input
+              type="date"
+              className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+              value={pubDate}
+              onChange={(e) => setPubDate(e.target.value)}
+              disabled={lockedSections.publishing}
+            />
+          </div>
+          <div>
+            <label className="block text-xs mb-1">ISBN</label>
+            <input
+              className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+              placeholder="978-0-000000-00-0"
+              value={isbn}
+              onChange={e => setIsbn(e.target.value)}
+              disabled={lockedSections.publishing}
+            />
+          </div>
+          <div>
+            <label className="block text-xs mb-1">Language</label>
+            <select
+              className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              disabled={lockedSections.publishing}
+            >
+              {LANGUAGES.map((lang) => (
+                <option key={lang}>{lang}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs mb-1">Genre</label>
+            <select
+              className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+              value={genre}
+              onChange={(e) => setGenre(e.target.value)}
+              disabled={lockedSections.publishing}
+            >
+              <option value="">Select genre</option>
+              {GENRES.map((g) => (
+                <option key={g}>{g}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </section>
+      {/* Tags */}
+      <section className="p-4 rounded-xl border border-[#ececec] bg-white relative">
+        <h2 className="text-sm font-semibold mb-2 flex items-center">
+          Tags & Keywords
+          <button
+            type="button"
+            className="ml-2 text-[#b0b3b8] hover:text-[#86868B]"
+            title={lockedSections.tags ? "Unlock to edit" : "Lock section"}
+            onClick={() => setLockedSections((s: any) => ({ ...s, tags: !s.tags }))}
+            tabIndex={0}
+          >
+            {lockedSections.tags ? <Lock size={18} /> : <Unlock size={18} />}
+          </button>
+        </h2>
+        <div className="flex gap-2">
+          <input
+            className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
+            placeholder="Add a tag..."
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddTag())}
+            disabled={lockedSections.tags}
+          />
+          <button
+            className={`px-3 rounded-full bg-[#15161a] text-white font-semibold ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
+            type="button"
+            onClick={handleAddTag}
+            disabled={lockedSections.tags}
+          >
+            +
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-2">
+          {tags.map((tag: string) => (
+            <span
+              key={tag}
+              className="bg-[#f4f4f5] text-xs px-2 py-1 rounded-full flex items-center border border-[#ececec]"
+            >
+              {tag}
+              <button
+                className="ml-1 text-[#86868B] focus:outline-none"
+                onClick={() => handleRemoveTag(tag)}
+                type="button"
+                disabled={lockedSections.tags}
+              >
+                &times;
+              </button>
+            </span>
+          ))}
+        </div>
+      </section>
+      {/* Cover Image */}
+      <section className="p-4 rounded-xl border border-[#ececec] bg-white relative">
+        <h2 className="text-sm font-semibold mb-2 flex items-center">
+          Cover Image
+          <button
+            type="button"
+            className="ml-2 text-[#b0b3b8] hover:text-[#86868B]"
+            title={lockedSections.cover ? "Unlock to edit" : "Lock section"}
+            onClick={() => setLockedSections((s: any) => ({ ...s, cover: !s.cover }))}
+            tabIndex={0}
+          >
+            {lockedSections.cover ? <Lock size={18} /> : <Unlock size={18} />}
+          </button>
+        </h2>
+        <label
+          htmlFor="cover-upload"
+          className={`w-full flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-[#ececec] rounded-xl bg-[#fafafd] text-[#86868B] cursor-pointer hover:bg-[#f4f4f5] transition ${lockedSections.cover ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
+          style={{ minHeight: 120 }}
+        >
+          <UploadCloud className="w-7 h-7 mb-2" />
+          <span className="text-xs mb-1">Upload cover image</span>
+          <span className="text-[10px] mb-2">Recommended: 1600x2560px, JPG/PNG, 300dpi</span>
+          <input
+            type="file"
+            id="cover-upload"
+            className="hidden"
+            accept="image/*"
+            onChange={handleCoverChange}
+            disabled={lockedSections.cover}
+          />
+          <button
+            type="button"
+            className="px-3 py-1 rounded-full bg-[#ececef] text-xs text-[#15161a] mt-2"
+            disabled={lockedSections.cover}
+          >
+            Choose File
+          </button>
+        </label>
+        {coverFile && (
+          <img
+            src={URL.createObjectURL(coverFile)}
+            alt="Book cover preview"
+            className="mt-2 rounded-xl shadow max-h-40 border border-[#ececec]"
+          />
+        )}
+      </section>
+    </div>
+  );
+}
+
+// --- PreviewPanel ---
+function PreviewPanel({
+  coverUrl,
+  title,
+  author,
+  pubDate,
+  language,
+  genre,
+  tags,
+  chapters,
+  totalWords,
+  pageCount,
+  readingTime,
+}: any) {
+  return (
+    <div className="w-full max-w-xs mx-auto pt-2 pb-8">
+      <h2 className="font-bold text-xl mb-5">Book Preview</h2>
+      {/* Book Cover + Info */}
+      <div className="w-full flex flex-col items-center mb-6">
+        <div className="w-56 h-80 rounded-xl bg-gradient-to-br from-[#f5f5f7] to-[#ececef] border border-[#ececec] shadow flex items-center justify-center overflow-hidden mb-3 relative">
+          {coverUrl ? (
+            <img src={coverUrl} alt="Book cover" className="object-cover w-full h-full" />
+          ) : (
+            <div className="flex flex-col items-center justify-center w-full h-full">
+              <span className="font-bold text-2xl text-[#23242a]">{title || "Untitled Book"}</span>
+              <span className="text-[#86868B] mt-2">{author || "by Unknown Author"}</span>
+            </div>
+          )}
+        </div>
+      </div>
+      {/* Statistics */}
+      <div className="mb-6">
+        <h3 className="font-bold mb-2 text-lg">Statistics</h3>
+        <div className="flex flex-col gap-1 text-base">
+          <div className="flex justify-between">
+            <span>Chapters</span>
+            <span>{chapters.length}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Total Words</span>
+            <span>{totalWords}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Est. Pages</span>
+            <span>{pageCount}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Est. Reading Time</span>
+            <span>{readingTime} min</span>
+          </div>
+        </div>
+      </div>
+      {/* Book Details */}
+      <div className="mb-6">
+        <h3 className="font-bold mb-2 text-lg">Book Details</h3>
+        <div className="flex items-center gap-2 mb-1">
+          <Calendar className="w-5 h-5 text-[#23242a]" />
+          <span className="font-medium">Published:</span>
+          <span>{pubDate || "—"}</span>
+        </div>
+        <div className="flex items-center gap-2 mb-1">
+          <Languages className="w-5 h-5 text-[#23242a]" />
+          <span className="font-medium">Language:</span>
+          <span>{language ? language.slice(0, 2).toUpperCase() : "—"}</span>
+        </div>
+        {genre && (
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-medium">Genre:</span>
+            <span>{genre}</span>
+          </div>
+        )}
+        {tags?.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-medium">Tags:</span>
+            {tags.map((tag: string) => (
+              <span key={tag} className="bg-[#f4f4f5] rounded-full px-2 py-1 text-xs border border-[#ececec] text-[#86868B]">{tag}</span>
+            ))}
+          </div>
+        )}
+      </div>
+      {/* Table of Contents */}
+      <div>
+        <h3 className="font-bold mb-2 text-lg">Table of Contents</h3>
+        <ul className="flex flex-col gap-1 text-base">
+          {chapters.map((ch: any, i: number) => (
+            <li key={i} className="flex justify-between">
+              <span>{ch.title || `Chapter ${i + 1}`}</span>
+              <span className="text-[#b0b3b8]">{ch.content.split(/\s+/).filter(Boolean).length} words</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+// --- AiTabContent ---
+function AiTabContent() {
+  return (
+    <div className="space-y-4">
+                <section className="p-4 rounded-xl border border-[#ececec] bg-white">
+                  <h2 className="text-sm font-semibold mb-4">AI Writing Assistant</h2>
+                  <div className="mb-4 text-xs text-[#86868B]">
+                    Get help with writing, editing, and brainstorming
+                  </div>
+                  <div className="space-y-3 mb-4">
+                    <button className="w-full mb-2 px-3 py-2 rounded-full bg-[#15161a] text-white text-sm font-semibold hover:bg-[#23242a] flex items-center gap-2 justify-center shadow">
+                      Plugin my favourite AI tool
+                    </button>
+                   <div className="mb-4 text-xs text-[#86868B]">
+                    Requires an active subscription with ChatGPT, Grok etc.
+                  </div>
+                  </div>
+                  
+                </section>
+              </div>
+  );
+}
+
 export default function MakeEbookPage() {
   // Book state
   const [tab, setTab] = useState<"setup" | "ai" | "preview">("setup");
@@ -56,11 +418,9 @@ export default function MakeEbookPage() {
   const [tagInput, setTagInput] = useState("");
   const [coverFile, setCoverFile] = useState<File | null>(null);
 
-  // Chapters state
   const [chapters, setChapters] = useState([{ title: "", content: "" }]);
   const [selectedChapter, setSelectedChapter] = useState(0);
 
-  // Section lock states
   const [lockedSections, setLockedSections] = useState({
     bookInfo: false,
     publishing: false,
@@ -68,13 +428,13 @@ export default function MakeEbookPage() {
     cover: false,
   });
 
-  // For inline editing of title and author
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState(false);
 
-  // Drag and drop state for chapters
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
+
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   function handleDragStart(index: number) { dragItem.current = index; }
   function handleDragEnter(index: number) { dragOverItem.current = index; }
@@ -136,7 +496,6 @@ export default function MakeEbookPage() {
     if (e.target.files?.[0]) setCoverFile(e.target.files[0]);
   }
 
-  // --- EPUB Export ---
   async function handleExportEPUB() {
     const bookId = isbn.trim() ? isbn.trim() : "urn:uuid:" + uuidv4();
     const safeTitle = title.trim() || "Untitled";
@@ -271,7 +630,6 @@ export default function MakeEbookPage() {
     }, 100);
   }
 
-  // --- Preview panel helpers
   const totalWords = chapters.reduce((sum, ch) => sum + ch.content.split(/\s+/).filter(Boolean).length, 0);
   const pageCount = Math.max(1, Math.ceil(totalWords / 300));
   const readingTime = Math.max(1, Math.round(totalWords / 200));
@@ -279,14 +637,29 @@ export default function MakeEbookPage() {
 
   return (
     <div className="flex flex-col min-h-screen h-screen bg-[#f7f9fa] text-[#15161a]">
-      {/* Top Banner for Beta Notice */}
+      {/* Top Beta Banner */}
       <div className="w-full bg-gradient-to-r from-[#f4f4f5] to-[#eaeaec] border-b border-[#ececec] p-2 text-center flex items-center justify-center relative">
         <span className="text-xs text-[#86868B] font-medium">
           🚧 This page is under active development. <b>Coming as a public beta Autumn 2025.</b>
         </span>
       </div>
-      {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2 sm:px-8 py-4 sm:py-6 border-b border-[#ececec] bg-white rounded-b-xl shadow-sm relative gap-2">
+      {/* Mobile Topbar */}
+      <div className="flex items-center justify-between sm:hidden px-4 py-2 bg-white border-b border-[#ececec]">
+        <button
+          onClick={() => setMobileSidebarOpen(true)}
+          aria-label="Show menu"
+          className="p-2"
+        >
+          <Menu className="w-7 h-7" />
+        </button>
+        <span className="font-bold text-lg flex items-center gap-2">
+          <Image src="/caveman.svg" alt="makeEbook logo" width={28} height={28} />
+          makeEbook
+        </span>
+        <div style={{ width: 40 }} /> {/* right spacer */}
+      </div>
+      {/* Desktop Header */}
+      <header className="hidden sm:flex flex-col sm:flex-row sm:items-center sm:justify-between px-2 sm:px-8 py-4 sm:py-6 border-b border-[#ececec] bg-white rounded-b-xl shadow-sm relative gap-2">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <div className="flex items-center gap-2">
             <Link href="/" aria-label="Back to home" className="group">
@@ -308,10 +681,95 @@ export default function MakeEbookPage() {
           Export EPUB
         </button>
       </header>
+      {/* Mobile Export button */}
+      <button
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 sm:hidden px-10 py-4 rounded-full bg-[#15161a] text-white text-lg font-bold shadow-lg"
+        onClick={handleExportEPUB}
+        style={{ minWidth: 220 }}
+      >
+        Export EPUB
+      </button>
+      {/* Mobile Sidebar Drawer */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-[100] flex sm:hidden">
+          <div className="bg-white w-4/5 max-w-xs h-full shadow-xl p-4 flex flex-col overflow-y-auto relative">
+            <button onClick={() => setMobileSidebarOpen(false)} className="mb-4 self-end" aria-label="Close menu">
+              <span className="text-2xl">&times;</span>
+            </button>
+            {/* Mobile Tabs */}
+            <nav className="flex flex-row border-b border-[#ececec] items-center gap-2 pb-2 mb-4">
+              <button
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+                  tab === "setup"
+                    ? "bg-[#f4f4f5] text-[#15161a] shadow-sm"
+                    : "hover:bg-[#f4f4f5] text-[#86868B]"
+                }`}
+                onClick={() => setTab("setup")}
+              >
+                Metadata
+              </button>
+              <button
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+                  tab === "preview"
+                    ? "bg-[#f4f4f5] text-[#15161a] shadow-sm"
+                    : "hover:bg-[#f4f4f5] text-[#86868B]"
+                }`}
+                onClick={() => setTab("preview")}
+              >
+                Preview
+              </button>
+              <button
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+                  tab === "ai"
+                    ? "bg-[#f4f4f5] text-[#15161a] shadow-sm"
+                    : "hover:bg-[#f4f4f5] text-[#86868B]"
+                }`}
+                onClick={() => setTab("ai")}
+              >
+                AI
+              </button>
+            </nav>
+            <div>
+              {tab === "setup" && <MetaTabContent
+                title={title} setTitle={setTitle}
+                author={author} setAuthor={setAuthor}
+                blurb={blurb} setBlurb={setBlurb}
+                publisher={publisher} setPublisher={setPublisher}
+                pubDate={pubDate} setPubDate={setPubDate}
+                isbn={isbn} setIsbn={setIsbn}
+                language={language} setLanguage={setLanguage}
+                genre={genre} setGenre={setGenre}
+                tags={tags} setTags={setTags}
+                tagInput={tagInput} setTagInput={setTagInput}
+                coverFile={coverFile} setCoverFile={setCoverFile}
+                lockedSections={lockedSections} setLockedSections={setLockedSections}
+                handleAddTag={handleAddTag}
+                handleRemoveTag={handleRemoveTag}
+                handleCoverChange={handleCoverChange}
+              />}
+              {tab === "preview" && <PreviewPanel
+                coverUrl={coverUrl}
+                title={title}
+                author={author}
+                pubDate={pubDate}
+                language={language}
+                genre={genre}
+                tags={tags}
+                chapters={chapters}
+                totalWords={totalWords}
+                pageCount={pageCount}
+                readingTime={readingTime}
+              />}
+              {tab === "ai" && <AiTabContent />}
+            </div>
+          </div>
+          <div className="flex-1 bg-black/20" onClick={() => setMobileSidebarOpen(false)} />
+        </div>
+      )}
       {/* Main layout */}
-      <div className="flex flex-col sm:flex-row flex-1 min-h-0 h-0 gap-4 px-2 sm:px-8 py-4">
-        {/* Left Sidebar */}
-        <aside className="w-full sm:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 sm:min-w-[340px] h-[340px] sm:h-full overflow-y-auto shadow-sm p-4 flex flex-col gap-4">
+      <div className="flex flex-1 min-h-0 h-0">
+        {/* Left Sidebar (Desktop only) */}
+        <aside className="hidden sm:flex w-full sm:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 sm:min-w-[340px] h-full overflow-y-auto shadow-sm p-4 flex-col gap-4">
           {/* Tabs */}
           <nav className="flex flex-row border-b border-[#ececec] items-center gap-2 pb-2">
             <button
@@ -345,338 +803,42 @@ export default function MakeEbookPage() {
               AI
             </button>
           </nav>
-          {/* Tab Content */}
           <div className="flex-1 overflow-y-auto">
-            {tab === "setup" && (
-              <div className="space-y-6">
-                {/* Book Info */}
-                <section className="p-4 rounded-xl border border-[#ececec] bg-white relative">
-                  <h2 className="text-sm font-semibold mb-2 flex items-center">
-                    Book Information
-                    <button
-                      type="button"
-                      className="ml-2 text-[#b0b3b8] hover:text-[#86868B]"
-                      title={lockedSections.bookInfo ? "Unlock to edit" : "Lock section"}
-                      onClick={() => setLockedSections(s => ({...s, bookInfo: !s.bookInfo }))}
-                      tabIndex={0}
-                    >
-                      {lockedSections.bookInfo ? <Lock size={18} /> : <Unlock size={18} />}
-                    </button>
-                  </h2>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-xs mb-1">Title *</label>
-                      <input
-                        className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-base bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
-                        placeholder="Enter book title..."
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        disabled={lockedSections.bookInfo}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs mb-1">Author *</label>
-                      <input
-                        className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-base bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
-                        placeholder="Enter author name..."
-                        value={author}
-                        onChange={e => setAuthor(e.target.value)}
-                        disabled={lockedSections.bookInfo}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs mb-1">Description/Blurb</label>
-                      <textarea
-                        className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
-                        placeholder="Enter book description..."
-                        value={blurb}
-                        onChange={e => setBlurb(e.target.value)}
-                        rows={2}
-                        disabled={lockedSections.bookInfo}
-                      />
-                    </div>
-                  </div>
-                </section>
-                {/* Publishing Details */}
-                <section className="p-4 rounded-xl border border-[#ececec] bg-white relative">
-                  <h2 className="text-sm font-semibold mb-2 flex items-center">
-                    Publishing Details
-                    <button
-                      type="button"
-                      className="ml-2 text-[#b0b3b8] hover:text-[#86868B]"
-                      title={lockedSections.publishing ? "Unlock to edit" : "Lock section"}
-                      onClick={() => setLockedSections(s => ({...s, publishing: !s.publishing }))}
-                      tabIndex={0}
-                    >
-                      {lockedSections.publishing ? <Lock size={18} /> : <Unlock size={18} />}
-                    </button>
-                  </h2>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-xs mb-1">Publisher</label>
-                      <input
-                        className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
-                        placeholder="Enter publisher name..."
-                        value={publisher}
-                        onChange={e => setPublisher(e.target.value)}
-                        disabled={lockedSections.publishing}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs mb-1">Publication Date</label>
-                      <input
-                        type="date"
-                        className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
-                        value={pubDate}
-                        onChange={(e) => setPubDate(e.target.value)}
-                        disabled={lockedSections.publishing}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs mb-1">ISBN</label>
-                      <input
-                        className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
-                        placeholder="978-0-000000-00-0"
-                        value={isbn}
-                        onChange={e => setIsbn(e.target.value)}
-                        disabled={lockedSections.publishing}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs mb-1">Language</label>
-                      <select
-                        className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        disabled={lockedSections.publishing}
-                      >
-                        {LANGUAGES.map((lang) => (
-                          <option key={lang}>{lang}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs mb-1">Genre</label>
-                      <select
-                        className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
-                        value={genre}
-                        onChange={(e) => setGenre(e.target.value)}
-                        disabled={lockedSections.publishing}
-                      >
-                        <option value="">Select genre</option>
-                        {GENRES.map((g) => (
-                          <option key={g}>{g}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </section>
-                {/* Tags */}
-                <section className="p-4 rounded-xl border border-[#ececec] bg-white relative">
-                  <h2 className="text-sm font-semibold mb-2 flex items-center">
-                    Tags & Keywords
-                    <button
-                      type="button"
-                      className="ml-2 text-[#b0b3b8] hover:text-[#86868B]"
-                      title={lockedSections.tags ? "Unlock to edit" : "Lock section"}
-                      onClick={() => setLockedSections(s => ({...s, tags: !s.tags }))}
-                      tabIndex={0}
-                    >
-                      {lockedSections.tags ? <Lock size={18} /> : <Unlock size={18} />}
-                    </button>
-                  </h2>
-                  <div className="flex gap-2">
-                    <input
-                      className={`w-full px-3 py-2 rounded-lg border border-[#ececec] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] placeholder:font-normal ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
-                      placeholder="Add a tag..."
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddTag())}
-                      disabled={lockedSections.tags}
-                    />
-                    <button
-                      className={`px-3 rounded-full bg-[#15161a] text-white font-semibold ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
-                      type="button"
-                      onClick={handleAddTag}
-                      disabled={lockedSections.tags}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="bg-[#f4f4f5] text-xs px-2 py-1 rounded-full flex items-center border border-[#ececec]"
-                      >
-                        {tag}
-                        <button
-                          className="ml-1 text-[#86868B] focus:outline-none"
-                          onClick={() => handleRemoveTag(tag)}
-                          type="button"
-                          disabled={lockedSections.tags}
-                        >
-                          &times;
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </section>
-                {/* Cover Image */}
-                <section className="p-4 rounded-xl border border-[#ececec] bg-white relative">
-                  <h2 className="text-sm font-semibold mb-2 flex items-center">
-                    Cover Image
-                    <button
-                      type="button"
-                      className="ml-2 text-[#b0b3b8] hover:text-[#86868B]"
-                      title={lockedSections.cover ? "Unlock to edit" : "Lock section"}
-                      onClick={() => setLockedSections(s => ({...s, cover: !s.cover }))}
-                      tabIndex={0}
-                    >
-                      {lockedSections.cover ? <Lock size={18} /> : <Unlock size={18} />}
-                    </button>
-                  </h2>
-                  <label
-                    htmlFor="cover-upload"
-                    className={`w-full flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-[#ececec] rounded-xl bg-[#fafafd] text-[#86868B] cursor-pointer hover:bg-[#f4f4f5] transition ${lockedSections.cover ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
-                    style={{ minHeight: 120 }}
-                  >
-                    <UploadCloud className="w-7 h-7 mb-2" />
-                    <span className="text-xs mb-1">Upload cover image</span>
-                    <span className="text-[10px] mb-2">Recommended: 1600x2560px, JPG/PNG, 300dpi</span>
-                    <input
-                      type="file"
-                      id="cover-upload"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleCoverChange}
-                      disabled={lockedSections.cover}
-                    />
-                    <button
-                      type="button"
-                      className="px-3 py-1 rounded-full bg-[#ececef] text-xs text-[#15161a] mt-2"
-                      disabled={lockedSections.cover}
-                    >
-                      Choose File
-                    </button>
-                  </label>
-                  {coverFile && (
-                    <img
-                      src={URL.createObjectURL(coverFile)}
-                      alt="Book cover preview"
-                      className="mt-2 rounded-xl shadow max-h-40 border border-[#ececec]"
-                    />
-                  )}
-                </section>
-              </div>
-            )}
-
-            {/* AI tab */}
-            {tab === "ai" && (
-              <div className="space-y-4">
-                <section className="p-4 rounded-xl border border-[#ececec] bg-white">
-                  <h2 className="text-sm font-semibold mb-4">AI Writing Assistant</h2>
-                  <div className="mb-4 text-xs text-[#86868B]">
-                    Get help with writing, editing, and brainstorming
-                  </div>
-                  <div className="space-y-3 mb-4">
-                    <button className="w-full mb-2 px-3 py-2 rounded-full bg-[#15161a] text-white text-sm font-semibold hover:bg-[#23242a] flex items-center gap-2 justify-center shadow">
-                      Plugin my favourite AI tool
-                    </button>
-                   <div className="mb-4 text-xs text-[#86868B]">
-                    Requires an active subscription with ChatGPT, Grok etc.
-                  </div>
-                  </div>
-                  
-                </section>
-              </div>
-            )}
-
-            {/* Preview Panel */}
-            {tab === "preview" && (
-              <div className="w-full max-w-xs mx-auto pt-2 pb-8">
-                <h2 className="font-bold text-xl mb-5">Book Preview</h2>
-                {/* Book Cover + Info */}
-                <div className="w-full flex flex-col items-center mb-6">
-                  <div className="w-56 h-80 rounded-xl bg-gradient-to-br from-[#f5f5f7] to-[#ececef] border border-[#ececec] shadow flex items-center justify-center overflow-hidden mb-3 relative">
-                    {coverUrl ? (
-                      <img src={coverUrl} alt="Book cover" className="object-cover w-full h-full" />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center w-full h-full">
-                        <span className="font-bold text-2xl text-[#23242a]">{title || "Untitled Book"}</span>
-                        <span className="text-[#86868B] mt-2">{author || "by Unknown Author"}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {/* Statistics */}
-                <div className="mb-6">
-                  <h3 className="font-bold mb-2 text-lg">Statistics</h3>
-                  <div className="flex flex-col gap-1 text-base">
-                    <div className="flex justify-between">
-                      <span>Chapters</span>
-                      <span>{chapters.length}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Total Words</span>
-                      <span>{totalWords}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Est. Pages</span>
-                      <span>{pageCount}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Est. Reading Time</span>
-                      <span>{readingTime} min</span>
-                    </div>
-                  </div>
-                </div>
-                {/* Book Details */}
-                <div className="mb-6">
-                  <h3 className="font-bold mb-2 text-lg">Book Details</h3>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Calendar className="w-5 h-5 text-[#23242a]" />
-                    <span className="font-medium">Published:</span>
-                    <span>{pubDate || "—"}</span>
-                  </div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Languages className="w-5 h-5 text-[#23242a]" />
-                    <span className="font-medium">Language:</span>
-                    <span>{language ? language.slice(0, 2).toUpperCase() : "—"}</span>
-                  </div>
-                  {genre && (
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium">Genre:</span>
-                      <span>{genre}</span>
-                    </div>
-                  )}
-                  {tags?.length > 0 && (
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium">Tags:</span>
-                      {tags.map(tag => (
-                        <span key={tag} className="bg-[#f4f4f5] rounded-full px-2 py-1 text-xs border border-[#ececec] text-[#86868B]">{tag}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {/* Table of Contents */}
-                <div>
-                  <h3 className="font-bold mb-2 text-lg">Table of Contents</h3>
-                  <ul className="flex flex-col gap-1 text-base">
-                    {chapters.map((ch, i) => (
-                      <li key={i} className="flex justify-between">
-                        <span>{ch.title || `Chapter ${i + 1}`}</span>
-                        <span className="text-[#b0b3b8]">{ch.content.split(/\s+/).filter(Boolean).length} words</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            )}
+            {tab === "setup" && <MetaTabContent
+              title={title} setTitle={setTitle}
+              author={author} setAuthor={setAuthor}
+              blurb={blurb} setBlurb={setBlurb}
+              publisher={publisher} setPublisher={setPublisher}
+              pubDate={pubDate} setPubDate={setPubDate}
+              isbn={isbn} setIsbn={setIsbn}
+              language={language} setLanguage={setLanguage}
+              genre={genre} setGenre={setGenre}
+              tags={tags} setTags={setTags}
+              tagInput={tagInput} setTagInput={setTagInput}
+              coverFile={coverFile} setCoverFile={setCoverFile}
+              lockedSections={lockedSections} setLockedSections={setLockedSections}
+              handleAddTag={handleAddTag}
+              handleRemoveTag={handleRemoveTag}
+              handleCoverChange={handleCoverChange}
+            />}
+            {tab === "preview" && <PreviewPanel
+              coverUrl={coverUrl}
+              title={title}
+              author={author}
+              pubDate={pubDate}
+              language={language}
+              genre={genre}
+              tags={tags}
+              chapters={chapters}
+              totalWords={totalWords}
+              pageCount={pageCount}
+              readingTime={readingTime}
+            />}
+            {tab === "ai" && <AiTabContent />}
           </div>
         </aside>
         {/* Main Editor Panel */}
-        <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-8 py-8 min-w-0">
+        <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-2 sm:px-8 py-4 sm:py-8 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-4">
             <div>
               {/* Editable Title */}
@@ -702,7 +864,7 @@ export default function MakeEbookPage() {
                   </SimpleTooltip>
                 ) : (
                   <span
-                    className={`text-2xl font-bold group-hover:bg-[#f4f4f5] rounded px-1 cursor-pointer flex items-center`}
+                    className="text-2xl font-bold group-hover:bg-[#f4f4f5] rounded px-1 cursor-pointer flex items-center"
                     onClick={() => setEditingTitle(true)}
                     tabIndex={0}
                   >
@@ -734,9 +896,8 @@ export default function MakeEbookPage() {
                   </SimpleTooltip>
                 ) : (
                   <span
-                    className={`text-sm text-[#86868B] group-hover:bg-[#f4f4f5] rounded px-1 cursor-pointer flex items-center`}
+                    className="text-sm text-[#86868B] group-hover:bg-[#f4f4f5] rounded px-1 cursor-pointer flex items-center"
                     onClick={() => setEditingAuthor(true)}
-                    title="Edit author"
                     tabIndex={0}
                   >
                     by {author || "Unknown Author"}
