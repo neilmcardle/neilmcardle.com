@@ -326,16 +326,6 @@ export default function MakeEbookPage() {
             </button>
             <button
               className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                tab === "ai"
-                  ? "bg-[#f4f4f5] text-[#15161a] shadow-sm"
-                  : "hover:bg-[#f4f4f5] text-[#86868B]"
-              }`}
-              onClick={() => setTab("ai")}
-            >
-              AI
-            </button>
-            <button
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
                 tab === "preview"
                   ? "bg-[#f4f4f5] text-[#15161a] shadow-sm"
                   : "hover:bg-[#f4f4f5] text-[#86868B]"
@@ -343,6 +333,16 @@ export default function MakeEbookPage() {
               onClick={() => setTab("preview")}
             >
               Preview
+            </button>
+            <button
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+                tab === "ai"
+                  ? "bg-[#f4f4f5] text-[#15161a] shadow-sm"
+                  : "hover:bg-[#f4f4f5] text-[#86868B]"
+              }`}
+              onClick={() => setTab("ai")}
+            >
+              AI
             </button>
           </nav>
           {/* Tab Content */}
@@ -580,11 +580,11 @@ export default function MakeEbookPage() {
                     Get help with writing, editing, and brainstorming
                   </div>
                   <div className="space-y-3 mb-4">
-                    <button className="w-full text-left px-4 py-2 bg-[#f4f4f5] rounded-xl hover:bg-[#ececef] text-sm font-medium border border-[#ececec]">
+                    <button className="w-full mb-2 px-3 py-2 rounded-full bg-[#15161a] text-white text-sm font-semibold hover:bg-[#23242a] flex items-center gap-2 justify-center shadow">
                       Plugin my favourite AI tool
                     </button>
                    <div className="mb-4 text-xs text-[#86868B]">
-                    Requires subscription to ChatGPT, Grok, Claude etc.
+                    Requires an active subscription with ChatGPT, Grok etc.
                   </div>
                   </div>
                   
