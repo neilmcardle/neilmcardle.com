@@ -7,6 +7,10 @@ import JSZip from "jszip";
 import {
   Plus, UploadCloud, ChevronLeft, Trash2, GripVertical, Lock, Unlock, Pencil, Calendar, Languages, Menu
 } from "lucide-react";
+import { useAuth } from "../../components/AuthProvider";
+import { SignInButton } from "../../components/SignInButton";
+import { SignOutButton } from "../../components/SignOutButton";
+
 
 // --- Instant Tooltip component ---
 function SimpleTooltip({ text, children }: { text: string, children: React.ReactNode }) {
@@ -403,6 +407,9 @@ function AiTabContent() {
 }
 
 export default function MakeEbookPage() {
+  // --- AUTH CHECK: Inserted at the start of your component function ---
+  const { user, loading } = useAuth();
+  // --- END AUTH CHECK ---
   // Book state (same as above)
   const [tab, setTab] = useState<"setup" | "ai" | "preview">("setup");
   const [title, setTitle] = useState("");
@@ -434,15 +441,24 @@ export default function MakeEbookPage() {
   const dragOverItem = useRef<number | null>(null);
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <div className="mb-4 text-lg font-semibold">Sign in to use makeEbook</div>
+        <SignInButton />
+      </div>
+    );
+  }
 
   function handleDragStart(index: number) { dragItem.current = index; }
   function handleDragEnter(index: number) { dragOverItem.current = index; }
   function handleDragEnd() {
     const from = dragItem.current;
     const to = dragOverItem.current;
-    if (from === null || to === null || from === to) { dragItem.current = null; dragOverItem.current = null; return; }
     const updated = [...chapters];
     const [removed] = updated.splice(from, 1);
+    if (from === null || to === null || from === to) { dragItem.current = null; dragOverItem.current = null; return; }
     updated.splice(to, 0, removed);
     setChapters(updated);
     setSelectedChapter(to);
@@ -453,8 +469,8 @@ export default function MakeEbookPage() {
   function handleTouchMove(index: number, e: React.TouchEvent) {
     const touch = e.touches[0];
     const target = document.elementFromPoint(touch.clientX, touch.clientY);
-    if (!target) return;
     const chapterEls = Array.from(document.querySelectorAll('[data-chapter-idx]'));
+    if (!target) return;
     for (const el of chapterEls) {
       if (el.contains(target)) {
         const idx = Number((el as HTMLElement).dataset.chapterIdx);
@@ -677,6 +693,10 @@ export default function MakeEbookPage() {
             Create professional ebooks with AI assistance
           </span>
         </div>
+        {/* You can place SignOutButton here if you want */}
+        <div>
+          <SignOutButton />
+        </div>
         <button
           className="w-full sm:w-auto px-6 py-2 rounded-full bg-[#15161a] text-white font-semibold flex items-center justify-center gap-2 hover:bg-[#23242a] transition text-base shadow"
           onClick={handleExportEPUB}
@@ -803,6 +823,14 @@ export default function MakeEbookPage() {
               }`}
               onClick={() => setTab("ai")}
             >
+
+
+
+
+
+
+
+              
               AI
             </button>
           </nav>
