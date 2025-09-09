@@ -433,13 +433,10 @@ export default function MakeEbookPage() {
     tags: false,
     cover: false,
   });
-
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState(false);
-
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
-
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
   if (!user) {
