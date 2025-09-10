@@ -1,6 +1,6 @@
 import JSZip from "jszip";
-import { uuidv4 } from "../utils/uuid";
-import { today } from "../utils/constants";
+import { uuidv4 } from "./uuid";
+import { today } from "./constants";
 
 type Chapter = { title: string; content: string };
 

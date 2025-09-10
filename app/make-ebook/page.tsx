@@ -21,7 +21,9 @@ import { useChapters } from "./hooks/useChapters";
 import { useTags } from "./hooks/useTags";
 import { useCover } from "./hooks/useCover";
 import { useLockedSections } from "./hooks/useLockedSections";
-import { exportEpubs } from "./utils/exportEpubs";
+import { exportEpub } from "./utils/exportEpub";
+
+
 
 export default function MakeEbookPage() {
   // Auth
