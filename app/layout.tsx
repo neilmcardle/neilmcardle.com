@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import "../styles/immersive.css";
-import { AppProviders } from "./providers"; // <-- import here
+import { AppProviders } from "./providers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: "Neil McArdle - Designer & Painter",
   description:
     "Portfolio of Neil McArdle, a digital product designer and traditional oil painter with over 10 years of experience.",
-  generator: "me + copilot",
+  generator: "Neil",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

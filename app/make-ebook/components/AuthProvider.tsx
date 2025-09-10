@@ -1,6 +1,8 @@
+"use client";
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
-import { app } from "../../../firebase"; // Adjust path if your firebase.ts is elsewhere
+import { app } from "../firebase";
 
 interface AuthContextProps {
   user: User | null;

@@ -1,5 +1,6 @@
 "use client";
-import { initializeApp, getApps, FirebaseApp } from "firebase/app";
+
+import { initializeApp, getApps } from "firebase/app";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,14 +12,4 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Only initialize Firebase in the browser
-let app: FirebaseApp | undefined = undefined;
-if (typeof window !== "undefined") {
-  if (!getApps().length) {
-    app = initializeApp(firebaseConfig);
-  } else {
-    app = getApps()[0];
-  }
-}
-
-export { app };
+export const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
