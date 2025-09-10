@@ -1,5 +1,6 @@
-// Import the functions you need from the SDKs you need
+// firebase.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -10,5 +11,8 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase only if it hasn't already been initialized
-export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+// Ensure Firebase is only initialised once
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+export const auth = getAuth(app);
+export { app };
