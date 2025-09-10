@@ -23,8 +23,6 @@ import { useCover } from "./hooks/useCover";
 import { useLockedSections } from "./hooks/useLockedSections";
 import { exportEpub } from "./utils/exportEpub";
 
-
-
 export default function MakeEbookPage() {
   // Auth
   const { user, loading } = useAuth();
