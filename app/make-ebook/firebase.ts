@@ -1,5 +1,4 @@
 "use client";
-
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 
 const firebaseConfig = {
@@ -12,10 +11,9 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-let app: FirebaseApp | undefined;
-
+// Only initialize Firebase in the browser
+let app: FirebaseApp | undefined = undefined;
 if (typeof window !== "undefined") {
-  // Only initialize Firebase in the browser
   if (!getApps().length) {
     app = initializeApp(firebaseConfig);
   } else {
