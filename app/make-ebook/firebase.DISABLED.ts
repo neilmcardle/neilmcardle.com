@@ -1,5 +1,5 @@
 "use client";
-import { initializeApp, getApps, getApp } from "firebase/app";
+// import { initializeApp, getApps, getApp } from "firebase/app";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,

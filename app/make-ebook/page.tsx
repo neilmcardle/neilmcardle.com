@@ -7,15 +7,15 @@ import {
   Plus, UploadCloud, ChevronLeft, Trash2, GripVertical, Lock, Unlock, Pencil, Calendar, Languages, Menu
 } from "lucide-react";
 import { useAuth } from "../../components/AuthProvider";
-import { SignInButton } from "../../components/SignInButton";
-import { SignOutButton } from "../../components/SignOutButton";
+import { SignInButton } from "../../components/SignInButton.DISABLED";
+import { SignOutButton } from "../../components/SignOutButton.DISABLED";
 import SimpleTooltip from "./components/SimpleTooltip";
 import { LANGUAGES, GENRES, today } from "./utils/constants";
 import MetaTabContent from "./components/MetaTabContent";
 import PreviewPanel from "./components/PreviewPanel";
 import AiTabContent from "./components/AiTabContent";
 import ChapterEditor from "./components/ChapterEditor";
-import { app } from "./firebase";
+import { app } from "./firebase.DISABLED";
 // Custom hooks and utilities
 import { useChapters } from "./hooks/useChapters";
 import { useTags } from "./hooks/useTags";

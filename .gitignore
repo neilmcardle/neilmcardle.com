@@ -18,6 +18,8 @@ yarn-error.log*
 
 # env files
 .env*
+.env
+.env.local
 
 # vercel
 .vercel
@@ -28,3 +30,6 @@ next-env.d.ts
 
 # firebase
 make-ebook/firebase.ts
+
+# firebase
+make-ebook/components/AuthProvider.tsx
