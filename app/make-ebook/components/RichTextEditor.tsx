@@ -5,9 +5,9 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  MouseEvent,
-  HTMLAttributes,
   useLayoutEffect,
+  HTMLAttributes,
+  MouseEvent,
 } from 'react';
 
 interface RichTextEditorProps
@@ -36,34 +36,12 @@ const INLINE = [
   { cmd: 'strikeThrough', label: 'S', title: 'Strikethrough', className: 'line-through' },
 ];
 
-const BLOCKS = [
-  { block: 'p', label: 'P', title: 'Paragraph' },
-  { block: 'h1', label: 'H1', title: 'Heading 1' },
-  { block: 'h2', label: 'H2', title: 'Heading 2' },
-  { block: 'h3', label: 'H3', title: 'Heading 3' },
-  { block: 'pre', label: '</>', title: 'Code Block' },
-];
-
-const LISTS = [
-  { cmd: 'insertUnorderedList', label: '•', title: 'Bullet List' },
-  { cmd: 'insertOrderedList', label: '1.', title: 'Numbered List' },
-];
-
 const ALIGN = [
   { cmd: 'justifyLeft', label: 'L', title: 'Align Left' },
   { cmd: 'justifyCenter', label: 'C', title: 'Align Center' },
   { cmd: 'justifyRight', label: 'R', title: 'Align Right' },
   { cmd: 'justifyFull', label: 'J', title: 'Justify' },
 ];
-
-// execCommand requires angle bracket versions for formatBlock on some browsers
-const FORMAT_BLOCK_VALUE: Record<string, string> = {
-  p: '<p>',
-  h1: '<h1>',
-  h2: '<h2>',
-  h3: '<h3>',
-  pre: '<pre>',
-};
 
 export default function RichTextEditor({
   value,
@@ -82,37 +60,34 @@ export default function RichTextEditor({
   const [formats, setFormats] = useState<FormatState>({});
   const lastExternalValueRef = useRef<string>(value);
 
-  // Initial mount populate
   useLayoutEffect(() => {
     if (editorRef.current) {
       editorRef.current.innerHTML = value || '';
       lastExternalValueRef.current = value;
-      if (!value) ensureInitialParagraph();
+      ensureInitialParagraph();
     }
   }, []);
 
-  // Sync external changes when not focused
   useEffect(() => {
     if (focused) return;
     if (value !== lastExternalValueRef.current && editorRef.current) {
       editorRef.current.innerHTML = value || '';
       lastExternalValueRef.current = value;
-      if (!value) ensureInitialParagraph();
+      ensureInitialParagraph();
     }
   }, [value, focused]);
 
-  // Force reset if externalVersion bump
   useEffect(() => {
     if (externalVersion !== undefined && editorRef.current && !focused) {
       editorRef.current.innerHTML = value || '';
       lastExternalValueRef.current = value;
-      if (!value) ensureInitialParagraph();
+      ensureInitialParagraph();
     }
   }, [externalVersion, value, focused]);
 
   const ensureInitialParagraph = () => {
     if (!editorRef.current) return;
-    const html = editorRef.current.innerHTML.replace(/\s+/g, '');
+    const html = editorRef.current.innerHTML.replace(/\s|&nbsp;|<br>/gi, '');
     if (!html) {
       editorRef.current.innerHTML = '<p><br></p>';
     }
@@ -129,78 +104,15 @@ export default function RichTextEditor({
     if (!editorRef.current) return;
     if (document.activeElement !== editorRef.current) {
       editorRef.current.focus();
-      // Move selection to end if empty
-      const sel = window.getSelection();
-      if (sel && sel.rangeCount === 0) {
-        const range = document.createRange();
-        range.selectNodeContents(editorRef.current);
-        range.collapse(false);
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
     }
   };
 
-  const apply = useCallback(
-    (command: string, arg?: string) => {
-      if (disabled) return;
-      focusEditor();
-      const success = document.execCommand(command, false, arg);
-      if (!success && command === 'formatBlock' && arg) {
-        // Fallback manual block change
-        manualSetBlock(arg.replace(/[<>]/g, ''));
-      }
-      emitChange();
-      refreshStates();
-    },
-    [disabled, emitChange]
-  );
-
-  const manualSetBlock = (tag: string) => {
-    if (!editorRef.current) return;
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return;
-    const range = sel.getRangeAt(0);
-    let node: Node | null = range.startContainer;
-    // Find current block container
-    while (
-      node &&
-      node !== editorRef.current &&
-      !(node instanceof HTMLElement && /^(P|H1|H2|H3|PRE|DIV)$/.test(node.tagName))
-    ) {
-      node = node.parentNode;
-    }
-    if (node && node !== editorRef.current && node instanceof HTMLElement) {
-      if (node.tagName.toLowerCase() === tag) return;
-      const newEl = document.createElement(tag);
-      if (tag === 'pre') {
-        newEl.textContent = node.textContent || '';
-      } else {
-        newEl.innerHTML = node.innerHTML;
-      }
-      node.replaceWith(newEl);
-      // Reselect
-      const newRange = document.createRange();
-      newRange.selectNodeContents(newEl);
-      newRange.collapse(false);
-      sel.removeAllRanges();
-      sel.addRange(newRange);
-    } else if (!node || node === editorRef.current) {
-      // Wrap selection contents
-      const wrapper = document.createElement(tag);
-      wrapper.appendChild(range.extractContents());
-      range.insertNode(wrapper);
-      const newRange = document.createRange();
-      newRange.selectNodeContents(wrapper);
-      newRange.collapse(false);
-      sel.removeAllRanges();
-      sel.addRange(newRange);
-    }
-  };
-
-  const applyBlock = (block: string) => {
-    const arg = FORMAT_BLOCK_VALUE[block] || `<${block}>`;
-    apply('formatBlock', arg);
+  const applyInlineOrAlign = (cmd: string) => {
+    if (disabled) return;
+    focusEditor();
+    document.execCommand(cmd);
+    emitChange();
+    refreshStates();
   };
 
   const refreshStates = useCallback(() => {
@@ -210,33 +122,10 @@ export default function RichTextEditor({
       s.italic = document.queryCommandState('italic');
       s.underline = document.queryCommandState('underline');
       s.strikeThrough = document.queryCommandState('strikeThrough');
-      s.insertOrderedList = document.queryCommandState('insertOrderedList');
-      s.insertUnorderedList = document.queryCommandState('insertUnorderedList');
       s.justifyLeft = document.queryCommandState('justifyLeft');
       s.justifyCenter = document.queryCommandState('justifyCenter');
       s.justifyRight = document.queryCommandState('justifyRight');
       s.justifyFull = document.queryCommandState('justifyFull');
-      // Manual block detection for reliability
-      const sel = window.getSelection();
-      let blockTag = '';
-      if (sel && sel.rangeCount > 0) {
-        let node: Node | null = sel.getRangeAt(0).startContainer;
-        while (node && node !== editorRef.current) {
-          if (
-            node instanceof HTMLElement &&
-            /^(P|H1|H2|H3|PRE)$/.test(node.tagName)
-          ) {
-            blockTag = node.tagName.toLowerCase();
-            break;
-          }
-          node = node.parentNode;
-        }
-      }
-      s.block_p = blockTag === 'p' || blockTag === '';
-      s.block_h1 = blockTag === 'h1';
-      s.block_h2 = blockTag === 'h2';
-      s.block_h3 = blockTag === 'h3';
-      s.block_pre = blockTag === 'pre';
     } catch {
       // ignore
     }
@@ -259,9 +148,7 @@ export default function RichTextEditor({
     setFocused(true);
     onFocusStateChange?.(true);
     refreshStates();
-    if (editorRef.current && editorRef.current.innerHTML.trim() === '') {
-      ensureInitialParagraph();
-    }
+    ensureInitialParagraph();
   };
 
   const handleBlur = () => {
@@ -270,22 +157,19 @@ export default function RichTextEditor({
         editorRef.current &&
         document.activeElement !== editorRef.current
       ) {
-        if (editorRef.current.innerHTML.replace(/<[^>]*>/g, '').trim() === '') {
-          ensureInitialParagraph();
-          emitChange();
-        }
+        ensureInitialParagraph();
+        emitChange();
         setFocused(false);
         onFocusStateChange?.(false);
       }
-    }, 70);
+    }, 60);
   };
 
   const toolbarMouseDown = (e: MouseEvent) => {
-    // Keep selection
     e.preventDefault();
   };
 
-  // Plain text metrics
+  // Metrics
   const currentHtml = editorRef.current?.innerHTML || value || '';
   const plain = currentHtml
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
@@ -299,14 +183,14 @@ export default function RichTextEditor({
 
   return (
     <div
-      className={`relative border border-[#ececec] rounded-lg bg-[#fafbfc] focus-within:bg-white transition-colors flex ${className}`}
+      className={`relative border border-[#ececec] rounded-lg bg-[#fafbfc] focus-within:bg-white transition-colors flex editor-root ${className}`}
       {...rest}
     >
       {/* Editable area */}
       <div className="flex-1 min-w-0">
         <div
           ref={editorRef}
-          className="p-4 text-base leading-6 focus:outline-none whitespace-pre-wrap break-word"
+          className="p-4 text-base leading-6 focus:outline-none whitespace-pre-wrap break-words"
           style={{ minHeight }}
           contentEditable={!disabled}
           suppressContentEditableWarning
@@ -323,30 +207,10 @@ export default function RichTextEditor({
             pointer-events: none;
             display: block;
           }
-          h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 1rem 0 0.6rem;
-          }
-          h2 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin: 0.9rem 0 0.5rem;
-          }
-          h3 {
-            font-size: 1.15rem;
-            font-weight: 600;
-            margin: 0.8rem 0 0.5rem;
-          }
-          p {
+          .editor-root p {
             margin: 0.5rem 0;
           }
-          ul,
-          ol {
-            margin: 0.6rem 0 0.6rem 1.4rem;
-            padding-left: 1.2rem;
-          }
-          pre {
+          .editor-root pre {
             background: #f2f3f5;
             padding: 0.75rem 0.9rem;
             border-radius: 6px;
@@ -356,6 +220,7 @@ export default function RichTextEditor({
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
               'Liberation Mono', 'Courier New', monospace;
             white-space: pre;
+            margin: 0.8rem 0;
           }
         `}</style>
         {showWordCount && (
@@ -381,50 +246,7 @@ export default function RichTextEditor({
                 title={b.title}
                 type="button"
                 className={`${BTN} ${formats[b.cmd] ? BTN_ACTIVE : ''} ${b.className || ''}`}
-                onClick={() => apply(b.cmd)}
-                disabled={disabled}
-              >
-                {b.label}
-              </button>
-            ))}
-          </div>
-        </Section>
-
-        <Section label="Block">
-          <div className="grid grid-cols-3 gap-1">
-            {BLOCKS.map(b => {
-              const active = formats[`block_${b.block}`];
-              return (
-                <button
-                  key={b.block}
-                  onMouseDown={e => e.preventDefault()}
-                  title={b.title}
-                  type="button"
-                  className={`${BTN} ${active ? BTN_ACTIVE : ''}`}
-                  onClick={() => applyBlock(b.block)}
-                  disabled={disabled}
-                >
-                  {b.label}
-                </button>
-              );
-            })}
-          </div>
-        </Section>
-
-        <Section label="Lists">
-          <div className="grid grid-cols-2 gap-1">
-            {LISTS.map(b => (
-              <button
-                key={b.cmd}
-                onMouseDown={e => e.preventDefault()}
-                title={b.title}
-                type="button"
-                className={`${BTN} ${formats[b.cmd] ? BTN_ACTIVE : ''}`}
-                onClick={() => {
-                  apply(b.cmd);
-                  // Slight delay to ensure state updates after browser mutates DOM
-                  setTimeout(refreshStates, 30);
-                }}
+                onClick={() => applyInlineOrAlign(b.cmd)}
                 disabled={disabled}
               >
                 {b.label}
@@ -435,17 +257,17 @@ export default function RichTextEditor({
 
         <Section label="Align">
           <div className="grid grid-cols-4 gap-1">
-            {ALIGN.map(b => (
+            {ALIGN.map(a => (
               <button
-                key={b.cmd}
+                key={a.cmd}
                 onMouseDown={e => e.preventDefault()}
-                title={b.title}
+                title={a.title}
                 type="button"
-                className={`${BTN} ${formats[b.cmd] ? BTN_ACTIVE : ''}`}
-                onClick={() => apply(b.cmd)}
+                className={`${BTN} ${formats[a.cmd] ? BTN_ACTIVE : ''}`}
+                onClick={() => applyInlineOrAlign(a.cmd)}
                 disabled={disabled}
               >
-                {b.label}
+                {a.label}
               </button>
             ))}
           </div>
@@ -457,7 +279,12 @@ export default function RichTextEditor({
             title="Remove formatting"
             type="button"
             className={BTN}
-            onClick={() => apply('removeFormat')}
+            onClick={() => {
+              focusEditor();
+              document.execCommand('removeFormat');
+              emitChange();
+              refreshStates();
+            }}
             disabled={disabled}
           >
             Clear
@@ -468,13 +295,7 @@ export default function RichTextEditor({
   );
 }
 
-function Section({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
       <div className="text-[10px] font-semibold tracking-wide uppercase text-[#86868B] select-none">
