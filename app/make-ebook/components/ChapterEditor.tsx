@@ -1,5 +1,8 @@
-import React from "react";
-import { uuidv4 } from "../utils/uuid";
+'use client';
+
+import React from 'react';
+import { uuidv4 } from '../utils/uuid';
+import RichTextEditor from './RichTextEditor';
 
 interface Chapter {
   id: string;
@@ -20,26 +23,21 @@ export default function ChapterEditor({
   lockedSections,
   setLockedSections,
 }: ChapterEditorProps) {
-  const handleAddChapter = () => {
+  const handleAdd = () => {
     setChapters([
       ...chapters,
-      { id: uuidv4(), title: `Chapter ${chapters.length + 1}`, content: "" },
+      { id: uuidv4(), title: `Chapter ${chapters.length + 1}`, content: '' },
     ]);
   };
 
-  const handleRemoveChapter = (id: string) => {
-    setChapters(chapters.filter(ch => ch.id !== id));
-  };
+  const handleRemove = (id: string) =>
+    setChapters(chapters.filter(c => c.id !== id));
 
-  const handleChangeTitle = (id: string, value: string) => {
-    setChapters(chapters.map(ch => ch.id === id ? { ...ch, title: value } : ch));
-  };
+  const updateTitle = (id: string, title: string) =>
+    setChapters(chapters.map(c => (c.id === id ? { ...c, title } : c)));
 
-  const handleChangeContent = (id: string, value: string) => {
-    setChapters(chapters.map(ch => ch.id === id ? { ...ch, content: value } : ch));
-  };
-
-  // Optionally add handleMoveChapter for reordering
+  const updateContent = (id: string, content: string) =>
+    setChapters(chapters.map(c => (c.id === id ? { ...c, content } : c)));
 
   return (
     <section className="p-4 rounded-xl border border-[#ececec] bg-white mt-4">
@@ -48,46 +46,52 @@ export default function ChapterEditor({
         <button
           type="button"
           className="ml-2 text-[#b0b3b8] hover:text-[#86868B]"
-          title={lockedSections.chapters ? "Unlock to edit" : "Lock section"}
-          onClick={() => setLockedSections((s: any) => ({ ...s, chapters: !s.chapters }))}
-          tabIndex={0}
+          title={lockedSections.chapters ? 'Unlock to edit' : 'Lock section'}
+          onClick={() =>
+            setLockedSections((s: any) => ({ ...s, chapters: !s.chapters }))
+          }
         >
-          {lockedSections.chapters ? "🔒" : "🔓"}
+          {lockedSections.chapters ? '🔒' : '🔓'}
         </button>
       </h2>
-      <div className="space-y-4">
-        {chapters.map((chapter, idx) => (
-          <div key={chapter.id} className="border-b pb-4 mb-4">
+
+      <div className="space-y-8">
+        {chapters.map((chapter, i) => (
+          <div key={chapter.id} className="border-b pb-8 last:border-b-0">
             <input
-              className="w-full mb-2 px-3 py-2 rounded-lg border"
-              placeholder={`Title for Chapter ${idx + 1}`}
+              type="text"
+              className="w-full mb-3 px-3 py-2 rounded-lg border text-sm"
+              placeholder={`Title for Chapter ${i + 1}`}
               value={chapter.title}
-              onChange={e => handleChangeTitle(chapter.id, e.target.value)}
+              onChange={e => updateTitle(chapter.id, e.target.value)}
               disabled={lockedSections.chapters}
             />
-            <textarea
-              className="w-full px-3 py-2 rounded-lg border"
-              placeholder="Chapter content..."
+
+            <RichTextEditor
               value={chapter.content}
-              onChange={e => handleChangeContent(chapter.id, e.target.value)}
-              rows={5}
+              onChange={html => updateContent(chapter.id, html)}
               disabled={lockedSections.chapters}
+              placeholder="Write chapter content..."
             />
-            <button
-              className="mt-2 text-red-500 text-xs"
-              type="button"
-              onClick={() => handleRemoveChapter(chapter.id)}
-              disabled={lockedSections.chapters}
-            >
-              Remove Chapter
-            </button>
+
+            <div className="mt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => handleRemove(chapter.id)}
+                disabled={lockedSections.chapters}
+                className="text-xs text-red-500 hover:underline disabled:opacity-40"
+              >
+                Remove Chapter
+              </button>
+            </div>
           </div>
         ))}
+
         <button
-          className="px-4 py-2 rounded-full bg-[#15161a] text-white font-semibold"
           type="button"
-          onClick={handleAddChapter}
+          onClick={handleAdd}
           disabled={lockedSections.chapters}
+          className="px-5 py-2 rounded-full bg-[#15161a] text-white text-sm font-semibold disabled:opacity-50"
         >
           Add Chapter
         </button>

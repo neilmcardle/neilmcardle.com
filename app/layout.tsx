@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import "../styles/immersive.css";
+import 'draft-js/dist/Draft.css';
 // import { AppProviders } from "./providers.DISABLED";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
