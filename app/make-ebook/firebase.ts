@@ -1,6 +1,5 @@
 "use client";
-
-import { initializeApp, getApps } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,4 +11,16 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-export const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+// Only initialize on the client
+export function getFirebaseApp() {
+  if (typeof window === "undefined") return null;
+  // Defensive: Check for missing config
+  if (!firebaseConfig.apiKey) {
+    console.warn("Firebase API key is missing!");
+    return null;
+  }
+  if (!getApps().length) {
+    return initializeApp(firebaseConfig);
+  }
+  return getApp();
+}
