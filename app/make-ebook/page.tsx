@@ -7,7 +7,9 @@ import {
   Plus,
   ChevronLeft,
   Trash2,
-  Menu
+  Menu,
+  BookOpen,
+  FilePlus2
 } from "lucide-react";
 
 import { LANGUAGES, today } from "./utils/constants";
@@ -23,6 +25,48 @@ import { exportEpub } from "./utils/exportEpub";
 
 import RichTextEditor from "./components/RichTextEditor";
 
+const BOOK_LIBRARY_KEY = "makeebook_library";
+
+// --- Book Library Helpers ---
+function saveBookToLibrary(book: any) {
+  if (typeof window === "undefined") return;
+  let library = loadBookLibrary();
+  if (!library) library = [];
+  const id = book.id || "book-" + Date.now();
+  const bookToSave = {
+    ...book,
+    id,
+    savedAt: Date.now(),
+  };
+  const idx = library.findIndex((b: any) => b.id === id);
+  if (idx >= 0) library[idx] = bookToSave;
+  else library.push(bookToSave);
+  localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
+  return id;
+}
+
+function loadBookLibrary(): any[] {
+  if (typeof window === "undefined") return [];
+  const str = localStorage.getItem(BOOK_LIBRARY_KEY);
+  if (str) {
+    try {
+      return JSON.parse(str);
+    } catch (e) {}
+  }
+  return [];
+}
+
+function loadBookById(id: string) {
+  const library = loadBookLibrary();
+  return library.find((b) => b.id === id);
+}
+
+function removeBookFromLibrary(id: string) {
+  let library = loadBookLibrary();
+  library = library.filter((b) => b.id !== id);
+  localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
+}
+
 // Helper to strip tags so existing metrics still work
 function plainText(html: string) {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -30,7 +74,6 @@ function plainText(html: string) {
 
 // Capsule Marker Component for animated gray marker (desktop only)
 function ChapterCapsuleMarker({ markerStyle }: { markerStyle: { top: number; height: number } }) {
-  // Marker: top: 12px, width: 4px, height: 24px, color: #717274, border-radius: 9999px
   return (
     <span
       className="absolute"
@@ -50,7 +93,6 @@ function ChapterCapsuleMarker({ markerStyle }: { markerStyle: { top: number; hei
   );
 }
 
-/* Small dot handle (4 dots) to match compact mockup */
 function HandleDots() {
   return (
     <span
@@ -104,6 +146,15 @@ export default function MakeEbookPage() {
   const [genre, setGenre] = useState("");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  const [currentBookId, setCurrentBookId] = useState<string | undefined>(undefined);
+
+  // Library panel state
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
+
+  // Save feedback state
+  const [saveFeedback, setSaveFeedback] = useState(false);
+
   // For animated capsule marker (desktop)
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [markerStyle, setMarkerStyle] = useState({ top: 0, height: 0 });
@@ -117,6 +168,42 @@ export default function MakeEbookPage() {
       });
     }
   }, [selectedChapter, chapters.length]);
+
+  // New Book handler
+  function handleNewBook() {
+    setTitle("");
+    setAuthor("");
+    setBlurb("");
+    setPublisher("");
+    setPubDate(today);
+    setIsbn("");
+    setLanguage(LANGUAGES[0]);
+    setGenre("");
+    setTags([]);
+    setCoverFile(null);
+    setChapters([]);
+    setCurrentBookId(undefined); // so next save creates a new book
+  }
+
+  React.useEffect(() => {
+    const books = loadBookLibrary();
+    setLibraryBooks(books);
+    if (books.length > 0) {
+      const mostRecent = books.reduce((a, b) => (a.savedAt > b.savedAt ? a : b));
+      setTitle(mostRecent.title || "");
+      setAuthor(mostRecent.author || "");
+      setBlurb(mostRecent.blurb || "");
+      setPublisher(mostRecent.publisher || "");
+      setPubDate(mostRecent.pubDate || today);
+      setIsbn(mostRecent.isbn || "");
+      setLanguage(mostRecent.language || LANGUAGES[0]);
+      setGenre(mostRecent.genre || "");
+      setTags(mostRecent.tags || []);
+      setCoverFile(mostRecent.coverFile || null);
+      setChapters(mostRecent.chapters || []);
+      setCurrentBookId(mostRecent.id);
+    }
+  }, []);
 
   async function handleExportEPUB() {
     await exportEpub({
@@ -132,6 +219,54 @@ export default function MakeEbookPage() {
       coverFile,
       chapters,
     });
+  }
+
+  function handleSaveBook() {
+    const id = saveBookToLibrary({
+      id: currentBookId,
+      title,
+      author,
+      blurb,
+      publisher,
+      pubDate,
+      isbn,
+      language,
+      genre,
+      tags,
+      coverFile,
+      chapters,
+    });
+    setCurrentBookId(id);
+    setLibraryBooks(loadBookLibrary());
+    setSaveFeedback(true);
+    setTimeout(() => setSaveFeedback(false), 1300);
+  }
+
+  function handleLoadBook(id: string) {
+    const loaded = loadBookById(id);
+    if (loaded) {
+      setTitle(loaded.title || "");
+      setAuthor(loaded.author || "");
+      setBlurb(loaded.blurb || "");
+      setPublisher(loaded.publisher || "");
+      setPubDate(loaded.pubDate || today);
+      setIsbn(loaded.isbn || "");
+      setLanguage(loaded.language || LANGUAGES[0]);
+      setGenre(loaded.genre || "");
+      setTags(loaded.tags || []);
+      setCoverFile(loaded.coverFile || null);
+      setChapters(loaded.chapters || []);
+      setCurrentBookId(loaded.id);
+      setLibraryOpen(false);
+    }
+  }
+
+  function handleDeleteBook(id: string) {
+    removeBookFromLibrary(id);
+    setLibraryBooks(loadBookLibrary());
+    if (currentBookId === id) {
+      handleNewBook();
+    }
   }
 
   const totalWords = chapters.reduce(
@@ -150,6 +285,48 @@ export default function MakeEbookPage() {
         </span>
       </div>
 
+      {/* Library Panel */}
+      {libraryOpen && (
+        <div className="fixed inset-0 z-[120] bg-black/20 flex items-start justify-center">
+          <div className="bg-white rounded-xl shadow-2xl p-6 mt-20 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <BookOpen className="w-6 h-6" /> Library
+              </h2>
+              <button onClick={() => setLibraryOpen(false)} className="text-xl">&times;</button>
+            </div>
+            {libraryBooks.length === 0 ? (
+              <div className="text-gray-500 text-center py-8">No books saved</div>
+            ) : (
+              <ul>
+                {libraryBooks
+                  .sort((a, b) => b.savedAt - a.savedAt)
+                  .map((b) => (
+                  <li key={b.id} className="flex items-center gap-2 border-b last:border-b-0 py-2">
+                    <button
+                      className="flex-1 text-left hover:underline"
+                      onClick={() => handleLoadBook(b.id)}
+                      title={b.title}
+                    >
+                      <span className="font-semibold">{b.title || "Untitled"}</span>
+                      <span className="text-sm text-gray-500 ml-2">{b.author}</span>
+                      <span className="block text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</span>
+                    </button>
+                    <button
+                      className="text-gray-400 hover:text-red-500"
+                      onClick={() => handleDeleteBook(b.id)}
+                      title="Delete book"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Mobile Topbar */}
       <div className="flex items-center justify-between sm:hidden px-4 py-2 bg-white border-b border-[#ececec]">
         <button
@@ -163,7 +340,19 @@ export default function MakeEbookPage() {
           <Image src="/caveman.svg" alt="makeEbook logo" width={28} height={28} />
           makeEbook
         </span>
-        <div style={{ width: 40 }} />
+        <div className="flex items-center">
+          <button onClick={() => setLibraryOpen(true)} className="p-2" aria-label="Show library">
+            <BookOpen className="w-6 h-6" />
+          </button>
+          <button
+            className="p-2"
+            aria-label="New Book"
+            title="New Book"
+            onClick={handleNewBook}
+          >
+            <FilePlus2 className="w-6 h-6" />
+          </button>
+        </div>
       </div>
 
       {/* Desktop Header */}
@@ -182,13 +371,40 @@ export default function MakeEbookPage() {
             Create professional ebooks with AI assistance
           </span>
         </div>
-
-        <button
-          className="w-full sm:w-auto px-6 py-2 rounded-full bg-[#15161a] text-white font-semibold flex items-center justify-center gap-2 hover:bg-[#23242a] transition text-base shadow"
-          onClick={handleExportEPUB}
-        >
-          Export EPUB
-        </button>
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={() => setLibraryOpen(true)}
+            className="p-2"
+            aria-label="Show library"
+            title="Show library"
+          >
+            <BookOpen className="w-6 h-6" />
+          </button>
+          <button
+            className="p-2"
+            aria-label="New Book"
+            title="New Book"
+            onClick={handleNewBook}
+          >
+            <FilePlus2 className="w-6 h-6" />
+          </button>
+          <button
+            className={`px-6 py-2 rounded-full border border-[#23242a] bg-white text-[#181a1d] font-semibold shadow-sm transition
+              ${saveFeedback ? "ring-2 ring-green-400" : ""}
+            `}
+            onClick={handleSaveBook}
+            aria-label="Save book"
+            disabled={saveFeedback}
+          >
+            {saveFeedback ? "Saved!" : "Save Book"}
+          </button>
+          <button
+            className="w-full sm:w-auto px-6 py-2 rounded-full bg-[#15161a] text-white font-semibold flex items-center justify-center gap-2 hover:bg-[#23242a] transition text-base shadow"
+            onClick={handleExportEPUB}
+          >
+            Export EPUB
+          </button>
+        </div>
       </header>
 
       {/* Mobile Export button */}
@@ -472,7 +688,6 @@ export default function MakeEbookPage() {
                 </button>
               </div>
               <div className="relative flex flex-col gap-3 pr-1 min-h-[120px]">
-                {/* Capsule marker for desktop */}
                 <ChapterCapsuleMarker markerStyle={markerStyle} />
                 {chapters.map((ch, i) => {
                   const isSelected = selectedChapter === i;
@@ -490,7 +705,7 @@ export default function MakeEbookPage() {
                         relative
                         `}
                       style={{
-                        backgroundColor: "#181a1d", // keep it dark
+                        backgroundColor: "#181a1d",
                         borderRadius: 9999,
                       }}
                       draggable
