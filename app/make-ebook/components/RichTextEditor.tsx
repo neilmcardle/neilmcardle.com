@@ -8,6 +8,8 @@ import React, {
   useLayoutEffect,
   HTMLAttributes,
   MouseEvent,
+  ChangeEvent,
+  KeyboardEvent,
 } from 'react';
 
 interface RichTextEditorProps
@@ -56,6 +58,7 @@ export default function RichTextEditor({
   ...rest
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [focused, setFocused] = useState(false);
   const [formats, setFormats] = useState<FormatState>({});
   const lastExternalValueRef = useRef<string>(value);
@@ -169,6 +172,85 @@ export default function RichTextEditor({
     e.preventDefault();
   };
 
+  // Image insertion handlers
+  const handleImageButtonClick = () => {
+    if (disabled) return;
+    fileInputRef.current?.click();
+  };
+
+  const handleFileInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      insertImageFile(file);
+    }
+    // reset value so same image can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const insertImageFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const src = ev.target?.result;
+      if (typeof src === 'string') {
+        insertImageAtCaret(src);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const insertImageAtCaret = (src: string) => {
+    focusEditor();
+    if (!editorRef.current) return;
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    // Insert image at caret
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = 'Image';
+    img.style.maxWidth = '100%';
+    img.style.display = 'block';
+    img.style.margin = '1em 0';
+
+    // Insert image node at caret
+    const range = selection.getRangeAt(0);
+    range.collapse(false);
+    range.insertNode(img);
+
+    // Move caret after the image
+    range.setStartAfter(img);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    emitChange();
+  };
+
+  // Drag-and-drop support
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const files = Array.from(e.dataTransfer.files).filter(f =>
+      f.type.startsWith('image/')
+    );
+    if (files.length > 0) {
+      files.forEach(insertImageFile);
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; ++i) {
+      const item = items[i];
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) insertImageFile(file);
+      }
+    }
+  };
+
   // Metrics
   const currentHtml = editorRef.current?.innerHTML || value || '';
   const plain = currentHtml
@@ -211,6 +293,8 @@ export default function RichTextEditor({
           onBlur={handleBlur}
           aria-disabled={disabled}
           spellCheck
+          onDrop={handleDrop}
+          onPaste={handlePaste}
         />
         <style jsx>{`
           .editor-root p {
@@ -228,12 +312,28 @@ export default function RichTextEditor({
             white-space: pre;
             margin: 0.8rem 0;
           }
+          .editor-root img {
+            max-width: 100%;
+            display: block;
+            margin: 1em 0;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px 0 rgba(0,0,0,0.07);
+          }
         `}</style>
         {showWordCount && (
           <div className="px-4 pb-2 text-[11px] text-[#86868B] flex justify-end select-none">
             Words: {wordCount} | Characters: {charCount}
           </div>
         )}
+        {/* Hidden image file picker */}
+        <input
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          ref={fileInputRef}
+          onChange={handleFileInputChange}
+          tabIndex={-1}
+        />
       </div>
 
       {/* Toolbar */}
@@ -277,6 +377,19 @@ export default function RichTextEditor({
               </button>
             ))}
           </div>
+        </Section>
+
+        <Section label="Insert">
+          <button
+            onMouseDown={e => e.preventDefault()}
+            title="Insert Image"
+            type="button"
+            className={BTN}
+            onClick={handleImageButtonClick}
+            disabled={disabled}
+          >
+            Image
+          </button>
         </Section>
 
         <Section label="Misc">
