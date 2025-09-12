@@ -4,20 +4,24 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Plus, UploadCloud, ChevronLeft, Trash2, GripVertical, Lock, Unlock, Pencil, Calendar, Languages, Menu
+  Plus,
+  ChevronLeft,
+  Trash2,
+  Menu
 } from "lucide-react";
-import SimpleTooltip from "./components/SimpleTooltip";
-import { LANGUAGES, GENRES, today } from "./utils/constants";
+
+import { LANGUAGES, today } from "./utils/constants";
 import MetaTabContent from "./components/MetaTabContent";
 import PreviewPanel from "./components/PreviewPanel";
 import AiTabContent from "./components/AiTabContent";
-import ChapterEditor from "./components/ChapterEditor";
+
 import { useChapters } from "./hooks/useChapters";
 import { useTags } from "./hooks/useTags";
 import { useCover } from "./hooks/useCover";
 import { useLockedSections } from "./hooks/useLockedSections";
 import { exportEpub } from "./utils/exportEpub";
-import RichTextEditor from "./components/RichTextEditor"; // <-- NEW IMPORT
+
+import RichTextEditor from "./components/RichTextEditor";
 
 // Helper to strip tags so existing metrics still work
 function plainText(html: string) {
@@ -25,8 +29,9 @@ function plainText(html: string) {
 }
 
 export default function MakeEbookPage() {
-  const { lockedSections, setLockedSections, toggleSection } = useLockedSections();
+  const { lockedSections, setLockedSections } = useLockedSections();
   const { coverFile, setCoverFile, handleCoverChange, coverUrl } = useCover();
+
   const {
     chapters,
     setChapters,
@@ -44,6 +49,7 @@ export default function MakeEbookPage() {
     handleTouchEnd,
     handleSelectChapter,
   } = useChapters();
+
   const {
     tags, setTags, tagInput, setTagInput, handleAddTag, handleRemoveTag
   } = useTags();
@@ -57,12 +63,9 @@ export default function MakeEbookPage() {
   const [isbn, setIsbn] = useState("");
   const [language, setLanguage] = useState(LANGUAGES[0]);
   const [genre, setGenre] = useState("");
-  const [editingTitle, setEditingTitle] = useState(false);
-  const [editingAuthor, setEditingAuthor] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   async function handleExportEPUB() {
-    // Note: You had exportEpubs vs exportEpub mismatch earlier
     await exportEpub({
       title,
       author,
@@ -78,7 +81,6 @@ export default function MakeEbookPage() {
     });
   }
 
-  // Updated metrics for HTML content
   const totalWords = chapters.reduce(
     (sum, ch) => sum + (plainText(ch.content).split(/\s+/).filter(Boolean).length || 0),
     0
@@ -88,7 +90,7 @@ export default function MakeEbookPage() {
 
   return (
     <div className="flex flex-col min-h-screen h-screen bg-[#f7f9fa] text-[#15161a]">
-      {/* Banner */}
+      {/* Top Beta Banner */}
       <div className="w-full bg-gradient-to-r from-[#f4f4f5] to-[#eaeaec] border-b border-[#ececec] p-2 text-center flex items-center justify-center relative">
         <span className="text-xs text-[#86868B] font-medium">
           🚧 This page is under active development. <b>Coming as a public beta Autumn 2025.</b>
@@ -97,7 +99,11 @@ export default function MakeEbookPage() {
 
       {/* Mobile Topbar */}
       <div className="flex items-center justify-between sm:hidden px-4 py-2 bg-white border-b border-[#ececec]">
-        <button onClick={() => setMobileSidebarOpen(true)} aria-label="Show menu" className="p-2">
+        <button
+          onClick={() => setMobileSidebarOpen(true)}
+          aria-label="Show menu"
+          className="p-2"
+        >
           <Menu className="w-7 h-7" />
         </button>
         <span className="font-bold text-lg flex items-center gap-2">
@@ -119,10 +125,11 @@ export default function MakeEbookPage() {
               <span className="text-lg font-bold tracking-tight whitespace-nowrap">makeEbook</span>
             </Link>
           </div>
-          <span className="text-xs text-[#86868B] sm:ml-2 ml-10 sm:mt-0 mt-[-10px]">
+          <span className="text-xs text-[#86868B] sm:ml-2">
             Create professional ebooks with AI assistance
           </span>
         </div>
+
         <button
           className="w-full sm:w-auto px-6 py-2 rounded-full bg-[#15161a] text-white font-semibold flex items-center justify-center gap-2 hover:bg-[#23242a] transition text-base shadow"
           onClick={handleExportEPUB}
@@ -131,7 +138,7 @@ export default function MakeEbookPage() {
         </button>
       </header>
 
-      {/* Mobile Export */}
+      {/* Mobile Export button */}
       <button
         className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 sm:hidden px-10 py-4 rounded-full bg-[#15161a] text-white text-lg font-bold shadow-lg"
         onClick={handleExportEPUB}
@@ -140,26 +147,37 @@ export default function MakeEbookPage() {
         Export EPUB
       </button>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar Drawer */}
       {mobileSidebarOpen && (
         <div className="fixed inset-0 z-[100] flex sm:hidden">
           <div className="bg-white w-4/5 max-w-xs h-full shadow-xl p-4 flex flex-col overflow-y-auto relative">
-            <button onClick={() => setMobileSidebarOpen(false)} className="mb-4 self-end" aria-label="Close menu">
+            <button
+              onClick={() => setMobileSidebarOpen(false)}
+              className="mb-4 self-end"
+              aria-label="Close menu"
+            >
               <span className="text-2xl">&times;</span>
             </button>
             <nav className="flex flex-row border-b border-[#ececec] items-center gap-2 pb-2 mb-4">
-              {['setup','preview','ai'].map(key => (
+              {["setup", "preview", "ai"].map((key) => (
                 <button
                   key={key}
                   className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                    tab === key ? "bg-[#f4f4f5] text-[#15161a] shadow-sm" : "hover:bg-[#f4f4f5] text-[#86868B]"
+                    tab === key
+                      ? "bg-[#f4f4f5] text-[#15161a] shadow-sm"
+                      : "hover:bg-[#f4f4f5] text-[#86868B]"
                   }`}
                   onClick={() => setTab(key as any)}
                 >
-                  {key === 'setup' ? 'Metadata' : key === 'preview' ? 'Preview' : 'AI'}
+                  {key === "setup"
+                    ? "Metadata"
+                    : key === "preview"
+                    ? "Preview"
+                    : "AI"}
                 </button>
               ))}
             </nav>
+
             <div>
               {tab === "setup" && (
                 <MetaTabContent
@@ -210,24 +228,33 @@ export default function MakeEbookPage() {
               {tab === "ai" && <AiTabContent />}
             </div>
           </div>
-          <div className="flex-1 bg-black/20" onClick={() => setMobileSidebarOpen(false)} />
+          <div
+            className="flex-1 bg-black/20"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
         </div>
       )}
 
-      {/* Main Layout */}
+      {/* Main layout */}
       <div className="flex flex-1 min-h-0 h-0">
-        {/* Sidebar (Desktop) */}
+        {/* Left Sidebar (Desktop only) */}
         <aside className="hidden sm:flex w-full sm:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 sm:min-w-[340px] h-full overflow-y-auto shadow-sm p-4 flex-col gap-4">
           <nav className="flex flex-row border-b border-[#ececec] items-center gap-2 pb-2">
-            {['setup','preview','ai'].map(key => (
+            {["setup", "preview", "ai"].map((key) => (
               <button
                 key={key}
                 className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                  tab === key ? "bg-[#f4f4f5] text-[#15161a] shadow-sm" : "hover:bg-[#f4f4f5] text-[#86868B]"
+                  tab === key
+                    ? "bg-[#f4f4f5] text-[#15161a] shadow-sm"
+                    : "hover:bg-[#f4f4f5] text-[#86868B]"
                 }`}
                 onClick={() => setTab(key as any)}
               >
-                {key === 'setup' ? 'Metadata' : key === 'preview' ? 'Preview' : 'AI'}
+                {key === "setup"
+                  ? "Metadata"
+                  : key === "preview"
+                  ? "Preview"
+                  : "AI"}
               </button>
             ))}
           </nav>
@@ -284,62 +311,81 @@ export default function MakeEbookPage() {
 
         {/* Main Editor Panel */}
         <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-2 sm:px-8 py-4 sm:py-8 min-w-0">
-          {/* Mobile Chapter Management */}
-          <div className="sm:hidden flex flex-col gap-2">
-            <button
-              className="mb-2 px-3 py-2 rounded-full bg-[#15161a] text-white text-sm font-semibold hover:bg-[#23242a] flex items-center gap-2 justify-center shadow"
-              onClick={handleAddChapter}
-              aria-label="Add Chapter"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add Chapter</span>
-            </button>
-            <div className="flex flex-col gap-2 pb-2">
+          {/* MOBILE CHAPTERS PANEL (redesigned) */}
+          <div className="sm:hidden flex flex-col gap-3 mb-4">
+            <div className="flex flex-col gap-3">
               {chapters.map((ch, i) => {
                 const isSelected = selectedChapter === i;
+                const displayTitle =
+                  ch.title?.trim()
+                    ? `Chapter ${i + 1}: ${ch.title.trim()}`
+                    : `Chapter ${i + 1}`;
                 return (
                   <div
                     key={i}
-                    className={`flex items-center gap-2 px-4 py-3 rounded-xl cursor-pointer transition select-none border border-[#ececec]
-                      ${isSelected ? "bg-[#15161a] text-white shadow" : "bg-[#f4f4f5] text-[#15161a]"}
+                    className={`group relative flex items-center rounded-[28px] px-4 py-2 border transition cursor-pointer select-none
+                      ${isSelected
+                        ? "bg-[#0f0f11] text-white shadow-sm ring-1 ring-black/60"
+                        : "bg-[#101113] text-white/85 hover:bg-[#111315] border-transparent"}
                     `}
+                    data-chapter-idx={i}
+                    draggable
+                    onDragStart={() => handleDragStart(i)}
+                    onDragEnter={() => handleDragEnter(i)}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={(e) => e.preventDefault()}
+                    onTouchStart={(e) => handleTouchStart(i, e)}
+                    onTouchMove={(e) => handleTouchMove(i, e)}
+                    onTouchEnd={handleTouchEnd}
                     onClick={() => handleSelectChapter(i)}
-                    style={{ minHeight: 56 }}
                   >
-                    <span className="flex items-center mr-2 opacity-70">
-                      <GripVertical className="w-4 h-4" />
+                    <HandleDots />
+                    <span className="ml-2 text-[12px] font-semibold truncate flex-1 min-w-0">
+                      {displayTitle}
                     </span>
-                    <span className="font-bold text-lg flex-1 truncate">
-                      {ch.title ? ch.title : `Chapter ${i + 1}`}
-                    </span>
-                    <span className={`ml-2 text-base opacity-60 whitespace-nowrap ${isSelected ? "text-[#d1d1d1]" : "text-[#86868B]"}`}>
+                    <span className="ml-3 text-[11px] font-medium text-white/55 whitespace-nowrap">
                       {plainText(ch.content).length} chars
                     </span>
                     <button
-                      onClick={e => {
+                      className="ml-3 p-1 rounded hover:bg-white/10 text-white/70 hover:text-white transition"
+                      onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveChapter(i);
                       }}
-                      className="ml-2 p-1 rounded text-[#86868B] opacity-80 hover:opacity-100 transition"
-                      tabIndex={-1}
                       aria-label="Delete Chapter"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 );
               })}
+              {/* Add Button (mobile) */}
+              <div className="flex justify-end">
+                <button
+                  onClick={handleAddChapter}
+                  aria-label="Add new chapter"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-[20px] border border-[#e5e5e6] bg-[#f7f8f9] text-[12px] font-semibold text-[#6d6f74] hover:text-[#15161a] hover:border-[#d3d4d6] active:scale-[0.97] transition shadow-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="pr-1">Add chapter</span>
+                </button>
+              </div>
             </div>
+
+            {/* Title input */}
             <input
-              className="w-full mb-2 px-3 py-2 rounded-lg border border-[#ececec] text-base bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8]"
+              className="w-full px-4 py-2.5 rounded-xl border border-[#e4e5e7] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8]"
               placeholder="Enter the chapter title..."
               value={chapters[selectedChapter]?.title ?? ""}
-              onChange={e => handleChapterTitleChange(selectedChapter, e.target.value)}
+              onChange={(e) =>
+                handleChapterTitleChange(selectedChapter, e.target.value)
+              }
             />
-            {/* MOBILE RICH TEXT EDITOR */}
+
+            {/* Rich Text Editor */}
             <RichTextEditor
               value={chapters[selectedChapter]?.content || ""}
-              onChange={html => handleChapterContentChange(selectedChapter, html)}
+              onChange={(html) => handleChapterContentChange(selectedChapter, html)}
               minHeight={220}
               showWordCount
               placeholder={
@@ -350,49 +396,55 @@ export default function MakeEbookPage() {
             />
           </div>
 
-          {/* Desktop Editor Area */}
-          <div className="hidden sm:flex flex-row gap-4 mb-4">
-            {/* Chapter List */}
-            <div className="flex flex-col w-40 sm:w-60 min-w-[140px] sm:min-w-[220px] max-w-[260px]">
-              <button
-                className="w-full mb-2 px-3 py-2 rounded-full bg-[#15161a] text-white text-sm font-semibold hover:bg-[#23242a] flex items-center gap-2 justify-center shadow"
-                onClick={handleAddChapter}
-                aria-label="Add Chapter"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Chapter</span>
-              </button>
-              <div className="flex flex-col gap-2">
-                {chapters.map((ch, i) => (
-                  <div
-                    key={i}
-                    className={`flex items-center gap-2 px-4 py-3 rounded-xl cursor-pointer group transition select-none border border-[#ececec]
-                      ${selectedChapter === i ? "bg-[#15161a] text-white shadow" : "bg-[#f4f4f5] text-[#15161a]"}
-                    `}
-                    draggable
-                    onDragStart={() => handleDragStart(i)}
-                    onDragEnter={() => handleDragEnter(i)}
-                    onDragEnd={handleDragEnd}
-                    onDragOver={e => e.preventDefault()}
-                    onTouchStart={e => handleTouchStart(i, e)}
-                    onTouchMove={e => handleTouchMove(i, e)}
-                    onTouchEnd={handleTouchEnd}
-                    onClick={() => handleSelectChapter(i)}
-                    style={{ touchAction: "none" }}
-                  >
-                    <span className="flex-1 min-w-0 flex items-center">
-                      <GripVertical className="w-4 h-4 mr-2 opacity-70 cursor-grab" />
-                      <span className="font-bold truncate block">
-                        {ch.title ? ch.title : `Chapter ${i + 1}`}
+          {/* DESKTOP layout */}
+            <div className="hidden sm:flex flex-row gap-6">
+            {/* Chapters Column (redesigned) */}
+            <div className="flex flex-col min-w-[250px] w-[270px] gap-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wide text-[#6a6c72]">
+                  Chapters
+                </h3>
+                <button
+                  onClick={handleAddChapter}
+                  aria-label="Add new chapter"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-[22px] border border-[#e5e5e6] bg-[#f7f8f9] text-[12px] font-semibold text-[#6d6f74] hover:text-[#15161a] hover:border-[#d3d4d6] active:scale-[0.97] transition"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add new chapter</span>
+                </button>
+              </div>
+              <div className="flex flex-col gap-3 pr-1">
+                {chapters.map((ch, i) => {
+                  const isSelected = selectedChapter === i;
+                  const displayTitle =
+                    ch.title?.trim()
+                      ? `Chapter ${i + 1}: ${ch.title.trim()}`
+                      : `Chapter ${i + 1}`;
+                  return (
+                    <div
+                      key={i}
+                      className={`group flex items-center rounded-[30px] px-5 py-2.5 border transition cursor-pointer select-none
+                        ${isSelected
+                          ? "bg-black text-white shadow-sm ring-1 ring-black/70"
+                          : "bg-[#101113] text-white/85 hover:bg-[#111315] border-transparent"}
+                      `}
+                      draggable
+                      onDragStart={() => handleDragStart(i)}
+                      onDragEnter={() => handleDragEnter(i)}
+                      onDragEnd={handleDragEnd}
+                      onDragOver={(e) => e.preventDefault()}
+                      onClick={() => handleSelectChapter(i)}
+                    >
+                      <HandleDots />
+                      <span className="ml-3 text-[12px] font-semibold truncate flex-1 min-w-0">
+                        {displayTitle}
                       </span>
-                    </span>
-                    <span className="ml-2 text-xs opacity-60 whitespace-nowrap">
-                      {plainText(ch.content).length} chars
-                    </span>
-                    {chapters.length > 1 && (
+                      <span className="ml-4 text-[11px] font-medium text-white/55 whitespace-nowrap">
+                        {plainText(ch.content).length} chars
+                      </span>
                       <button
-                        className="ml-1 text-xs text-[#86868B] opacity-0 group-hover:opacity-100 transition"
-                        onClick={e => {
+                        className="ml-4 p-1 rounded hover:bg-white/10 text-white/70 hover:text-white transition"
+                        onClick={(e) => {
                           e.stopPropagation();
                           handleRemoveChapter(i);
                         }}
@@ -400,24 +452,28 @@ export default function MakeEbookPage() {
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Rich Text Editor Panel */}
+            {/* Editor Area */}
             <section className="flex-1 flex flex-col min-w-0">
               <input
-                className="w-full mb-2 px-3 py-2 rounded-lg border border-[#ececec] text-base bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8]"
+                className="w-full mb-3 px-4 py-2.5 rounded-xl border border-[#e4e5e7] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8]"
                 placeholder="Enter the chapter title..."
                 value={chapters[selectedChapter]?.title ?? ""}
-                onChange={e => handleChapterTitleChange(selectedChapter, e.target.value)}
+                onChange={(e) =>
+                  handleChapterTitleChange(selectedChapter, e.target.value)
+                }
               />
               <RichTextEditor
                 value={chapters[selectedChapter]?.content || ""}
-                onChange={html => handleChapterContentChange(selectedChapter, html)}
-                minHeight={300}
+                onChange={(html) =>
+                  handleChapterContentChange(selectedChapter, html)
+                }
+                minHeight={360}
                 showWordCount
                 placeholder={
                   selectedChapter === 0
@@ -430,5 +486,22 @@ export default function MakeEbookPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+/* Small dot handle (4 dots) to match compact mockup */
+function HandleDots() {
+  return (
+    <span
+      className="relative w-4 h-5 shrink-0 flex flex-wrap content-center gap-[2px] opacity-70 group-hover:opacity-100 transition"
+      aria-hidden="true"
+    >
+      {Array.from({ length: 4 }).map((_, i) => (
+        <span
+          key={i}
+          className="w-[5px] h-[5px] rounded-[2px] bg-white/55 group-hover:bg-white transition"
+        />
+      ))}
+    </span>
   );
 }
