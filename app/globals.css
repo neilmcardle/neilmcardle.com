@@ -291,3 +291,19 @@ button:focus {
   margin-bottom: 0.6em;
   line-height: 1.6;
 }
+
+/* chapter active / not active */
+.chapter-pill {
+  background: #181a1d;
+  color: rgba(255,255,255,0.75);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.chapter-pill-active {
+  background: #4070ff;      /* a blue highlight, or pick your brand color */
+  color: #fff;
+  box-shadow: 0 2px 8px -3px #4070ff33;
+}
+.chapter-pill:not(.chapter-pill-active):hover {
+  background: #23252a;
+  color: #fff;
+}

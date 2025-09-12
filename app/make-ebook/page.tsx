@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useLayoutEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -26,6 +26,45 @@ import RichTextEditor from "./components/RichTextEditor";
 // Helper to strip tags so existing metrics still work
 function plainText(html: string) {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// Capsule Marker Component for animated gray marker (desktop only)
+function ChapterCapsuleMarker({ markerStyle }: { markerStyle: { top: number; height: number } }) {
+  // Marker: top: 12px, width: 4px, height: 24px, color: #717274, border-radius: 9999px
+  return (
+    <span
+      className="absolute"
+      style={{
+        left: -18,
+        top: (markerStyle.top ?? 0) + 12,
+        width: 4,
+        height: 24,
+        backgroundColor: "#717274",
+        borderRadius: 9999,
+        transition: "top 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        zIndex: 1,
+        display: "block",
+      }}
+      aria-hidden="true"
+    />
+  );
+}
+
+/* Small dot handle (4 dots) to match compact mockup */
+function HandleDots() {
+  return (
+    <span
+      className="relative w-4 h-5 shrink-0 flex flex-wrap content-center gap-[2px] opacity-70 group-hover:opacity-100 transition"
+      aria-hidden="true"
+    >
+      {Array.from({ length: 4 }).map((_, i) => (
+        <span
+          key={i}
+          className="w-[5px] h-[5px] rounded-[2px] bg-white/55 group-hover:bg-white transition"
+        />
+      ))}
+    </span>
+  );
 }
 
 export default function MakeEbookPage() {
@@ -64,6 +103,20 @@ export default function MakeEbookPage() {
   const [language, setLanguage] = useState(LANGUAGES[0]);
   const [genre, setGenre] = useState("");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // For animated capsule marker (desktop)
+  const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [markerStyle, setMarkerStyle] = useState({ top: 0, height: 0 });
+
+  useLayoutEffect(() => {
+    const el = chapterRefs.current[selectedChapter];
+    if (el) {
+      setMarkerStyle({
+        top: el.offsetTop,
+        height: el.offsetHeight,
+      });
+    }
+  }, [selectedChapter, chapters.length]);
 
   async function handleExportEPUB() {
     await exportEpub({
@@ -323,10 +376,10 @@ export default function MakeEbookPage() {
                 return (
                   <div
                     key={i}
-                    className={`group relative flex items-center rounded-[28px] px-4 py-2 border transition cursor-pointer select-none
-                      ${isSelected
-                        ? "bg-[#0f0f11] text-white shadow-sm ring-1 ring-black/60"
-                        : "bg-[#101113] text-white/85 hover:bg-[#111315] border-transparent"}
+                    className={`flex items-center rounded-[28px] px-4 py-2 mb-2 cursor-pointer transition
+                      ${isSelected ? "text-white" : "text-white/75"}
+                      bg-[#181a1d] hover:bg-[#23252a] hover:text-white
+                      relative
                     `}
                     data-chapter-idx={i}
                     draggable
@@ -340,14 +393,19 @@ export default function MakeEbookPage() {
                     onClick={() => handleSelectChapter(i)}
                   >
                     <HandleDots />
-                    <span className="ml-2 text-[12px] font-semibold truncate flex-1 min-w-0">
+                    <span
+                      className={
+                        "ml-2 text-[12px] truncate flex-1 min-w-0 " +
+                        (isSelected ? "font-bold underline underline-offset-4" : "")
+                      }
+                    >
                       {displayTitle}
                     </span>
-                    <span className="ml-3 text-[11px] font-medium text-white/55 whitespace-nowrap">
+                    <span className="ml-3 text-[11px] font-medium whitespace-nowrap">
                       {plainText(ch.content).length} chars
                     </span>
                     <button
-                      className="ml-3 p-1 rounded hover:bg-white/10 text-white/70 hover:text-white transition"
+                      className="ml-3 p-1 rounded hover:bg-white/10 text-white/65 hover:text-white transition"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveChapter(i);
@@ -397,7 +455,7 @@ export default function MakeEbookPage() {
           </div>
 
           {/* DESKTOP layout */}
-            <div className="hidden sm:flex flex-row gap-6">
+          <div className="hidden sm:flex flex-row gap-6">
             {/* Chapters Column (redesigned) */}
             <div className="flex flex-col min-w-[250px] w-[270px] gap-4">
               <div className="flex items-center justify-between">
@@ -413,7 +471,9 @@ export default function MakeEbookPage() {
                   <span>Add new chapter</span>
                 </button>
               </div>
-              <div className="flex flex-col gap-3 pr-1">
+              <div className="relative flex flex-col gap-3 pr-1 min-h-[120px]">
+                {/* Capsule marker for desktop */}
+                <ChapterCapsuleMarker markerStyle={markerStyle} />
                 {chapters.map((ch, i) => {
                   const isSelected = selectedChapter === i;
                   const displayTitle =
@@ -423,11 +483,16 @@ export default function MakeEbookPage() {
                   return (
                     <div
                       key={i}
-                      className={`group flex items-center rounded-[30px] px-5 py-2.5 border transition cursor-pointer select-none
-                        ${isSelected
-                          ? "bg-black text-white shadow-sm ring-1 ring-black/70"
-                          : "bg-[#101113] text-white/85 hover:bg-[#111315] border-transparent"}
-                      `}
+                      ref={el => (chapterRefs.current[i] = el)}
+                      className={`flex items-center px-6 py-2.5 mb-2 cursor-pointer transition
+                        ${isSelected ? "text-white font-semibold" : "text-white/75"}
+                        rounded-full
+                        relative
+                        `}
+                      style={{
+                        backgroundColor: "#181a1d", // keep it dark
+                        borderRadius: 9999,
+                      }}
                       draggable
                       onDragStart={() => handleDragStart(i)}
                       onDragEnter={() => handleDragEnter(i)}
@@ -436,14 +501,14 @@ export default function MakeEbookPage() {
                       onClick={() => handleSelectChapter(i)}
                     >
                       <HandleDots />
-                      <span className="ml-3 text-[12px] font-semibold truncate flex-1 min-w-0">
+                      <span className="ml-3 text-[12px] truncate flex-1 min-w-0">
                         {displayTitle}
                       </span>
-                      <span className="ml-4 text-[11px] font-medium text-white/55 whitespace-nowrap">
+                      <span className="ml-4 text-[11px] font-medium whitespace-nowrap">
                         {plainText(ch.content).length} chars
                       </span>
                       <button
-                        className="ml-4 p-1 rounded hover:bg-white/10 text-white/70 hover:text-white transition"
+                        className="ml-4 p-1 rounded hover:bg-white/10 text-white/65 hover:text-white transition"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleRemoveChapter(i);
@@ -486,22 +551,5 @@ export default function MakeEbookPage() {
         </main>
       </div>
     </div>
-  );
-}
-
-/* Small dot handle (4 dots) to match compact mockup */
-function HandleDots() {
-  return (
-    <span
-      className="relative w-4 h-5 shrink-0 flex flex-wrap content-center gap-[2px] opacity-70 group-hover:opacity-100 transition"
-      aria-hidden="true"
-    >
-      {Array.from({ length: 4 }).map((_, i) => (
-        <span
-          key={i}
-          className="w-[5px] h-[5px] rounded-[2px] bg-white/55 group-hover:bg-white transition"
-        />
-      ))}
-    </span>
   );
 }
