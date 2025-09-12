@@ -181,32 +181,38 @@ export default function RichTextEditor({
   const wordCount = plain ? plain.split(' ').length : 0;
   const charCount = plain.length;
 
+  // --- Placeholder logic: show absolutely positioned placeholder when empty ---
+  const showPlaceholder =
+    (!focused && (value === '' || value === '<p><br></p>' || value === '<p></p>' || value === '<br>' || value === '<br/>'));
+
   return (
     <div
       className={`relative border border-[#ececec] rounded-lg bg-[#fafbfc] focus-within:bg-white transition-colors flex editor-root ${className}`}
       {...rest}
     >
       {/* Editable area */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 relative">
+        {showPlaceholder && (
+          <div
+            className="absolute left-4 top-4 text-[#b0b3b8] pointer-events-none select-none z-10"
+            style={{ fontSize: 16 }}
+          >
+            {placeholder}
+          </div>
+        )}
         <div
           ref={editorRef}
           className="p-4 text-base leading-6 focus:outline-none whitespace-pre-wrap break-words"
           style={{ minHeight }}
           contentEditable={!disabled}
           suppressContentEditableWarning
-          data-placeholder={placeholder}
           onInput={handleInput}
           onFocus={handleFocus}
           onBlur={handleBlur}
           aria-disabled={disabled}
+          spellCheck
         />
         <style jsx>{`
-          [contenteditable='true'][data-placeholder]:empty:before {
-            content: attr(data-placeholder);
-            color: #b0b3b8;
-            pointer-events: none;
-            display: block;
-          }
           .editor-root p {
             margin: 0.5rem 0;
           }

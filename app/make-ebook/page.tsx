@@ -352,6 +352,14 @@ export default function MakeEbookPage() {
           >
             <FilePlus2 className="w-6 h-6" />
           </button>
+          <button
+            className="px-4 py-2 rounded-full border border-[#23242a] bg-white text-[#181a1d] font-semibold shadow-sm ml-2"
+            onClick={handleSaveBook}
+            aria-label="Save book"
+            disabled={saveFeedback}
+          >
+            {saveFeedback ? "Saved!" : "Save"}
+          </button>
         </div>
       </div>
 
@@ -693,8 +701,8 @@ export default function MakeEbookPage() {
                   const isSelected = selectedChapter === i;
                   const displayTitle =
                     ch.title?.trim()
-                      ? `Chapter ${i + 1}: ${ch.title.trim()}`
-                      : `Chapter ${i + 1}`;
+                      ? `${i + 1}. ${ch.title.trim()}`
+                      : `${i + 1}.`;
                   return (
                     <div
                       key={i}
