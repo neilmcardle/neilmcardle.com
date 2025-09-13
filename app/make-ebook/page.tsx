@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useRef, useLayoutEffect } from "react";
+import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Header } from "@/components/Header";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -112,6 +113,8 @@ function HandleDots() {
 }
 
 function MakeEbookPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const { lockedSections, setLockedSections } = useLockedSections();
   const { coverFile, setCoverFile, handleCoverChange, coverUrl } = useCover();
 
@@ -149,6 +152,7 @@ function MakeEbookPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const [currentBookId, setCurrentBookId] = useState<string | undefined>(undefined);
+  const [initialized, setInitialized] = useState(false);
 
   // Library panel state
   const [libraryOpen, setLibraryOpen] = useState(false);
@@ -187,10 +191,34 @@ function MakeEbookPage() {
     setCurrentBookId(undefined); // so next save creates a new book
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     const books = loadBookLibrary();
     setLibraryBooks(books);
-    if (books.length > 0) {
+    
+    // Check if we should load a specific book from URL parameter
+    const loadBookId = searchParams.get('load');
+    if (loadBookId) {
+      const bookToLoad = books.find(book => book.id === loadBookId);
+      if (bookToLoad) {
+        handleLoadBook(loadBookId);
+        // Clear the URL parameter to prevent accidental re-triggering
+        router.replace('/make-ebook', { scroll: false });
+        setInitialized(true);
+        return;
+      } else {
+        // Book not found - show error but don't overwrite current work
+        console.warn(`Book with ID ${loadBookId} not found`);
+        // Clear the invalid parameter
+        router.replace('/make-ebook', { scroll: false });
+        if (!initialized) {
+          setInitialized(true);
+        }
+        return;
+      }
+    }
+    
+    // Only load most recent book on first initialization and if no current work
+    if (!initialized && books.length > 0 && !currentBookId && chapters.length === 0) {
       const mostRecent = books.reduce((a, b) => (a.savedAt > b.savedAt ? a : b));
       setTitle(mostRecent.title || "");
       setAuthor(mostRecent.author || "");
@@ -205,7 +233,11 @@ function MakeEbookPage() {
       setChapters(mostRecent.chapters || []);
       setCurrentBookId(mostRecent.id);
     }
-  }, []);
+    
+    if (!initialized) {
+      setInitialized(true);
+    }
+  }, [searchParams, initialized, currentBookId, chapters.length]);
 
   async function handleExportEPUB() {
     await exportEpub({
