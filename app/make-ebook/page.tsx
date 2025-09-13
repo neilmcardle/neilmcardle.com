@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useLayoutEffect } from "react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -109,7 +110,7 @@ function HandleDots() {
   );
 }
 
-export default function MakeEbookPage() {
+function MakeEbookPage() {
   const { lockedSections, setLockedSections } = useLockedSections();
   const { coverFile, setCoverFile, handleCoverChange, coverUrl } = useCover();
 
@@ -775,4 +776,12 @@ export default function MakeEbookPage() {
       </div>
     </div>
   );
+}
+
+export default function ProtectedMakeEbookPage() {
+  return (
+    <ProtectedRoute>
+      <MakeEbookPage />
+    </ProtectedRoute>
+  )
 }

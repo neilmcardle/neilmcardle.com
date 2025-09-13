@@ -19,7 +19,7 @@ export function Footer() {
 
           <div className="text-center">
             <p className="text-gray-500 text-sm">
-              © {new Date().getFullYear()} makeEbook. All rights reserved.
+              © 2025 makeEbook. All rights reserved.
             </p>
           </div>
         </div>

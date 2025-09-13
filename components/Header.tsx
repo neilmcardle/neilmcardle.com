@@ -20,7 +20,7 @@ export function Header() {
               ←
             </Button>
           </Link>
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold text-gray-900">
+          <Link href="/make-ebook/explore" className="flex items-center gap-2 text-xl font-bold text-gray-900">
             <MakeEbookIcon className="w-6 h-6" />
             makeEbook
           </Link>
