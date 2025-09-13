@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useLayoutEffect } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { Header } from "@/components/Header";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -278,7 +279,9 @@ function MakeEbookPage() {
   const readingTime = Math.max(1, Math.round(totalWords / 200));
 
   return (
-    <div className="flex flex-col min-h-screen h-screen bg-[#f7f9fa] text-[#15161a]">
+    <>
+      <Header />
+      <div className="flex flex-col min-h-screen h-screen bg-[#f7f9fa] text-[#15161a] pt-16">
       {/* Top Beta Banner */}
       <div className="w-full bg-gradient-to-r from-[#f4f4f5] to-[#eaeaec] border-b border-[#ececec] p-2 text-center flex items-center justify-center relative">
         <span className="text-xs text-[#86868B] font-medium">
@@ -775,6 +778,7 @@ function MakeEbookPage() {
         </main>
       </div>
     </div>
+    </>
   );
 }
 
