@@ -8,7 +8,7 @@ export function useCover(initialFile: File | null = null) {
   }
 
   // For previewing the cover image
-  const coverUrl = coverFile ? URL.createObjectURL(coverFile) : null;
+  const coverUrl = coverFile instanceof File ? URL.createObjectURL(coverFile) : null;
 
   return {
     coverFile,

@@ -2,7 +2,7 @@ import JSZip from "jszip";
 import { uuidv4 } from "./uuid";
 import { today } from "./constants";
 
-// Helper: converts HTML to valid XHTML for EPUB
+/** Converts HTML to valid XHTML for EPUB */
 function toXhtml(html: string): string {
   return html
     .replace(/<br\s*>/gi, "<br />")
@@ -10,9 +10,8 @@ function toXhtml(html: string): string {
     .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "");
 }
 
-// Helper: extracts images from HTML as { src, ext, data }[]
+/** Extracts embedded images from HTML as {src, ext, data, filename}[] */
 function extractImages(html: string) {
-  // Only handles <img src="data:image/..." ... />
   const re = /<img[^>]+src=['"]data:image\/(png|jpeg|jpg);base64,([^'"]+)['"][^>]*>/gi;
   let match;
   let i = 1;
@@ -29,11 +28,10 @@ function extractImages(html: string) {
   return images;
 }
 
-// Helper: replaces <img src="data:..."> with <img src="images/filename.ext" ... />
+/** Replaces embedded image srcs with file srcs */
 function replaceImgSrcs(html: string, images: { tag: string; ext: string; data: string; filename: string }[]) {
   let newHtml = html;
   images.forEach(img => {
-    // Replace only the exact tag (preserving attributes)
     const newTag = img.tag.replace(
       /src=['"][^'"]+['"]/i,
       `src="images/${img.filename}"`
@@ -80,9 +78,11 @@ export async function exportEpub({
   const safeDate = isNaN(d.getTime()) ? today : d.toISOString().slice(0, 10);
   const safeBlurb = blurb && blurb.trim().length > 0 ? blurb.trim() : "N/A";
   const safePublisher = publisher && publisher.trim().length > 0 ? publisher.trim() : "N/A";
+  const subjects = [genre, ...tags].filter(Boolean);
 
   const zip = new JSZip();
 
+  // Required mimetype and container.xml
   zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
   zip.file(
     "META-INF/container.xml",
@@ -94,10 +94,11 @@ export async function exportEpub({
     </container>`
   );
 
+  // --- COVER ---
   let coverHref = "";
   let coverItem = "";
   let coverMeta = "";
-  if (coverFile) {
+  if (coverFile instanceof File) {
     const ext = coverFile.type === "image/png" ? "png" : "jpg";
     coverHref = `cover.${ext}`;
     zip.file(
@@ -117,37 +118,12 @@ export async function exportEpub({
     coverMeta = `<meta name="cover" content="cover-image"/>`;
   }
 
-  // Build NAV (EPUB 3 navigation)
-  const navXhtml = `<?xml version="1.0" encoding="utf-8"?>
-  <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-      <title>Table of Contents</title>
-    </head>
-    <body>
-      <nav epub:type="toc" id="toc">
-        <h2>Table of Contents</h2>
-        <ol>
-          ${
-            chapters
-              .map(
-                (ch, idx) =>
-                  `<li><a href="chapter${idx + 1}.xhtml">${ch.title || `Chapter ${idx + 1}`}</a></li>`
-              )
-              .join("\n")
-          }
-        </ol>
-      </nav>
-    </body>
-  </html>`;
-
-  zip.file("OEBPS/nav.xhtml", navXhtml);
-
-  // Collect all images from chapters
+  // --- CHAPTERS: Collect images and write chapter files ---
   let allImages: { tag: string; ext: string; data: string; filename: string }[] = [];
   chapters.forEach(ch => {
     allImages = allImages.concat(extractImages(ch.content));
   });
-  // Deduplicate images by filename (in case of repeated image)
+  // Deduplicate images by filename
   const uniqueImages = Array.from(new Map(allImages.map(img => [img.filename, img])).values());
 
   // Write image files
@@ -156,7 +132,64 @@ export async function exportEpub({
     zip.file(`OEBPS/images/${img.filename}`, bytes, { binary: true });
   }
 
-  // Write chapters (with image src replacements)
+  // --- VISIBLE TOC PAGE ---
+  // Will appear before Publisher and chapters
+  const tocPageFilename = "toc.xhtml";
+  const publisherPageFilename = "publisher.xhtml";
+  // Generate TOC links (Publisher Page + Chapters)
+  const tocLinks = [
+    `<li><a href="${publisherPageFilename}">Publisher Page</a></li>`,
+    ...chapters.map(
+      (ch, idx) =>
+        `<li><a href="chapter${idx + 1}.xhtml">${ch.title || `Chapter ${idx + 1}`}</a></li>`
+    ),
+  ].join("\n          ");
+
+  zip.file(
+    `OEBPS/${tocPageFilename}`,
+    `<?xml version="1.0" encoding="utf-8"?>
+    <html xmlns="http://www.w3.org/1999/xhtml">
+      <head>
+        <title>Table of Contents</title>
+      </head>
+      <body>
+        <h2>Table of Contents</h2>
+        <ol>
+          ${tocLinks}
+        </ol>
+      </body>
+    </html>`
+  );
+
+  // --- PUBLISHER PAGE ---
+  zip.file(
+    `OEBPS/${publisherPageFilename}`,
+    `<?xml version="1.0" encoding="utf-8"?>
+    <html xmlns="http://www.w3.org/1999/xhtml">
+      <head>
+        <title>Publisher Page</title>
+      </head>
+      <body>
+        <h2>Publisher Information</h2>
+        <ul>
+          <li><strong>Title:</strong> ${safeTitle}</li>
+          <li><strong>Author:</strong> ${safeAuthor}</li>
+          <li><strong>Publisher:</strong> ${safePublisher}</li>
+          <li><strong>ISBN:</strong> ${isbn ? isbn : "N/A"}</li>
+          <li><strong>Publication Date:</strong> ${safeDate}</li>
+          <li><strong>Language:</strong> ${safeLang}</li>
+          <li><strong>Description:</strong> ${safeBlurb}</li>
+          ${
+            subjects.length
+              ? `<li><strong>Tags/Subjects:</strong> ${subjects.join(", ")}</li>`
+              : ""
+          }
+        </ul>
+      </body>
+    </html>`
+  );
+
+  // --- CHAPTERS ---
   const chapterHrefs: string[] = [];
   chapters.forEach((ch, idx) => {
     const filename = `chapter${idx + 1}.xhtml`;
@@ -165,7 +198,6 @@ export async function exportEpub({
     let chapterHtml = ch.content;
     const imgs = extractImages(chapterHtml);
     chapterHtml = replaceImgSrcs(chapterHtml, imgs);
-    // Convert to XHTML
     chapterHtml = toXhtml(chapterHtml.replace(/\n/g, "<br />"));
     zip.file(
       `OEBPS/${filename}`,
@@ -180,8 +212,34 @@ export async function exportEpub({
     );
   });
 
-  const subjects = [genre, ...tags].filter(Boolean);
+  // --- NAVIGATION (EPUB 3.3) ---
+  // nav.xhtml for reader sidebar menus (not visible in main reading order)
+  const navXhtml = `<?xml version="1.0" encoding="utf-8"?>
+  <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+      <title>Navigation</title>
+    </head>
+    <body>
+      <nav epub:type="toc" id="toc">
+        <h2>Table of Contents</h2>
+        <ol>
+          ${coverFile instanceof File ? `<li><a href="cover.xhtml">Cover</a></li>` : ""}
+          <li><a href="${tocPageFilename}">Table of Contents</a></li>
+          <li><a href="${publisherPageFilename}">Publisher Page</a></li>
+          ${chapters
+            .map(
+              (ch, idx) =>
+                `<li><a href="chapter${idx + 1}.xhtml">${ch.title || `Chapter ${idx + 1}`}</a></li>`
+            )
+            .join("\n")}
+        </ol>
+      </nav>
+    </body>
+  </html>`;
 
+  zip.file("OEBPS/nav.xhtml", navXhtml);
+
+  // --- MANIFEST AND SPINE ---
   // Manifest for all images
   const imageManifestItems = uniqueImages
     .map(
@@ -198,17 +256,25 @@ export async function exportEpub({
     )
     .join("\n      ");
 
+  // Manifest for visible TOC and publisher pages
+  const extraXhtmlManifestItems =
+    `<item id="toc" href="${tocPageFilename}" media-type="application/xhtml+xml"/>
+     <item id="publisher" href="${publisherPageFilename}" media-type="application/xhtml+xml"/>`;
+
   // Manifest for navigation
   const navManifestItem = `<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>`;
 
-  // Spine for chapters
+  // Spine for reading order: cover → TOC → publisher → chapters
   const spineItems = [
-    coverFile ? `<itemref idref="cover" linear="no"/>` : "",
+    coverFile instanceof File ? `<itemref idref="cover" linear="yes"/>` : "",
+    `<itemref idref="toc"/>`,
+    `<itemref idref="publisher"/>`,
     ...chapterHrefs.map((_, i) => `<itemref idref="chapter${i + 1}"/>`)
   ]
     .filter(Boolean)
     .join("\n      ");
 
+  // --- content.opf ---
   zip.file(
     "OEBPS/content.opf",
     `<?xml version="1.0" encoding="UTF-8"?>
@@ -229,15 +295,16 @@ export async function exportEpub({
         ${coverItem}
         ${chapterManifestItems}
         ${imageManifestItems}
+        ${extraXhtmlManifestItems}
         ${navManifestItem}
       </manifest>
-      <spine toc="ncx">
+      <spine toc="nav">
         ${spineItems}
       </spine>
     </package>`
   );
 
-  // Optional: generate legacy toc.ncx for compatibility
+  // --- Legacy toc.ncx for maximum compatibility ---
   zip.file(
     "OEBPS/toc.ncx",
     `<?xml version="1.0" encoding="UTF-8"?>
@@ -250,9 +317,21 @@ export async function exportEpub({
       </head>
       <docTitle><text>${safeTitle}</text></docTitle>
       <navMap>
+        ${coverFile instanceof File ? `<navPoint id="navPoint-0" playOrder="0">
+          <navLabel><text>Cover</text></navLabel>
+          <content src="cover.xhtml"/>
+        </navPoint>` : ""}
+        <navPoint id="navPoint-toc" playOrder="1">
+          <navLabel><text>Table of Contents</text></navLabel>
+          <content src="${tocPageFilename}"/>
+        </navPoint>
+        <navPoint id="navPoint-publisher" playOrder="2">
+          <navLabel><text>Publisher Page</text></navLabel>
+          <content src="${publisherPageFilename}"/>
+        </navPoint>
         ${chapters
           .map(
-            (ch, i) => `<navPoint id="navPoint-${i + 1}" playOrder="${i + 1}">
+            (ch, i) => `<navPoint id="navPoint-${i + 3}" playOrder="${i + 3}">
               <navLabel><text>${ch.title || `Chapter ${i + 1}`}</text></navLabel>
               <content src="${chapterHrefs[i]}"/>
             </navPoint>`
@@ -262,6 +341,7 @@ export async function exportEpub({
     </ncx>`
   );
 
+  // --- Final ZIP and download trigger ---
   const blob = await zip.generateAsync({ type: "blob" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
