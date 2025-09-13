@@ -6,6 +6,7 @@ import "../styles/immersive.css";
 import 'draft-js/dist/Draft.css';
 import { AuthProvider } from "@/lib/hooks/useAuth";
 import { Toaster } from "@/components/ui/toaster";
+import { Footer } from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
@@ -20,9 +21,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${playfair.variable} font-sans`}>
+      <body className={`${inter.variable} ${playfair.variable} font-sans flex flex-col`}>
         <AuthProvider>
-          <main className="min-h-screen">{children}</main>
+          <main className="min-h-screen flex flex-col">{children}</main>
+          <Footer />
           <Toaster />
         </AuthProvider>
       </body>

@@ -5,6 +5,7 @@ import { FileText, Download, Plus, ArrowRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/Header"
 import { MakeEbookIcon } from "@/components/MakeEbookIcon"
+import { AuthModal } from "@/components/AuthModal"
 import { useAuth } from "@/lib/hooks/useAuth"
 
 export default function Home() {
@@ -105,65 +106,47 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Pricing Section */}
+        {/* Get Started Section */}
         <section className="container mx-auto px-4 py-16 bg-white">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Simple, Transparent Pricing
+              Free to Use, Forever
             </h2>
             <p className="text-xl text-gray-600">
-              Choose the plan that works best for you
+              Create unlimited eBooks and export them with no restrictions
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="p-8 bg-gray-50 rounded-lg border flex flex-col">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Free</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-6">
-                £0<span className="text-lg font-normal text-gray-600">/month</span>
-              </div>
-              <ul className="space-y-3 mb-8 flex-grow">
-                <li className="flex items-center">
-                  <Check className="w-5 h-5 text-gray-900 mr-3" />
-                  <span>3 eBooks</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="w-5 h-5 text-gray-900 mr-3" />
-                  <span>ePub export only</span>
-                </li>
-              </ul>
-              <Button className="w-full mt-auto" variant="outline">
-                Get Started Free
-              </Button>
-            </div>
-
-            <div className="p-8 bg-gray-50 rounded-lg border-2 border-gray-300 relative flex flex-col">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-gray-900 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                  Most Popular
-                </span>
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Pro</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-6">
-                £20<span className="text-lg font-normal text-gray-600">/month</span>
-              </div>
-              <ul className="space-y-3 mb-8 flex-grow">
+          <div className="max-w-2xl mx-auto">
+            <div className="p-8 bg-gray-50 rounded-lg border text-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">All Features Included</h3>
+              <ul className="space-y-3 mb-8 text-left max-w-md mx-auto">
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-gray-900 mr-3" />
                   <span>Unlimited eBooks</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-gray-900 mr-3" />
-                  <span>ePub export only</span>
+                  <span>Rich text editing</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-gray-900 mr-3" />
-                  <span>Priority support</span>
+                  <span>ePub export</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="w-5 h-5 text-gray-900 mr-3" />
+                  <span>Chapter management</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="w-5 h-5 text-gray-900 mr-3" />
+                  <span>Cover upload</span>
                 </li>
               </ul>
-              <Button className="w-full bg-gray-900 hover:bg-gray-800 mt-auto">
-                Upgrade to Pro
-              </Button>
+              <AuthModal trigger={
+                <Button className="w-full bg-gray-900 hover:bg-gray-800">
+                  Get Started Free
+                </Button>
+              } />
             </div>
           </div>
         </section>

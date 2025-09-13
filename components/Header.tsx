@@ -50,13 +50,6 @@ export function Header() {
 
         {/* User Profile / Auth */}
         <div className="flex items-center gap-4">
-          {!user && (
-            <Link href="/pricing">
-              <Button variant="ghost" size="sm">
-                Pricing
-              </Button>
-            </Link>
-          )}
           <UserProfile />
         </div>
       </div>
