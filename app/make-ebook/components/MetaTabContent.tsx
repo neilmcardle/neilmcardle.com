@@ -49,6 +49,18 @@ export default function MetaTabContent({
   handleRemoveTag,
   handleCoverChange,
 }: MetaTabContentProps) {
+  // Memoize and cleanup cover preview url
+  const [coverUrl, setCoverUrl] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    if (coverFile instanceof File) {
+      const url = URL.createObjectURL(coverFile);
+      setCoverUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setCoverUrl(null);
+    }
+  }, [coverFile]);
+
   return (
     <div className="space-y-6">
       {/* Book Info */}
@@ -262,9 +274,9 @@ export default function MetaTabContent({
             Choose File
           </button>
         </label>
-        {coverFile && (
+        {coverUrl && (
           <img
-            src={URL.createObjectURL(coverFile)}
+            src={coverUrl}
             alt="Book cover preview"
             className="mt-2 rounded-xl shadow max-h-40 border border-[#ececec]"
           />
