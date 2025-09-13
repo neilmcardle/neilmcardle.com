@@ -9,10 +9,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // For Replit environment - allow all hosts and origins
   experimental: {
-    serverExternalPackages: [],
+    allowedDevOrigins: ['*', '*.replit.dev', 'localhost', '127.0.0.1']
   },
-  // For Replit environment - allow all hosts
   async headers() {
     return [
       {
