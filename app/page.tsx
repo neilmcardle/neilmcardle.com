@@ -57,10 +57,6 @@ export default function Home() {
                   Get Started Free
                 </Button>
               )}
-              <Button variant="outline" size="lg" className="px-8 py-3">
-                <FileText className="w-5 h-5 mr-2" />
-                View Examples
-              </Button>
             </div>
           </div>
         </section>

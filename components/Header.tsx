@@ -16,8 +16,8 @@ export function Header() {
         {/* Back to Neil McArdle + Logo */}
         <div className="flex items-center gap-4">
           <Link href="https://neilmcardle.com">
-            <Button variant="outline" size="sm" className="text-sm">
-              ← Back to Neil McArdle
+            <Button variant="outline" size="sm" className="text-lg">
+              ←
             </Button>
           </Link>
           <Link href="/" className="flex items-center gap-2 text-xl font-bold text-gray-900">
