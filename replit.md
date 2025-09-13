@@ -14,6 +14,11 @@ This is a Next.js-based portfolio website and eBook creation tool featuring:
 - **Configuration**: Updated Next.js config for Replit with proper host settings and cache control
 - **Development Setup**: Configured workflow to run on port 5000 with proper binding
 - **Dependencies**: Installed all required Node.js packages
+- **App Restructuring**: Moved homepage to /make-ebook/explore for public marketing
+- **Authentication Protection**: Added ProtectedRoute wrapper to /make-ebook requiring user login
+- **Routing Updates**: Homepage now redirects to explore page, navigation links updated
+- **Free Signup Model**: Implemented completely free signup to build user list before paid tiers
+- **Legal Compliance**: Added GDPR-compliant Terms of Service and Privacy Policy for UK business
 
 ## Project Architecture
 - **Frontend**: Next.js 15 with TypeScript
@@ -24,10 +29,12 @@ This is a Next.js-based portfolio website and eBook creation tool featuring:
 - **Icons**: Lucide React icons
 
 ## Key Features
-1. **Portfolio Page** (`/`): Digital business card with contact information and project links
-2. **eBook Maker** (`/make-ebook`): Tool for creating and editing eBooks with chapters
-3. **AI Chat** (disabled): Previously connected to local Ollama instance - needs secure implementation
-4. **EPUB Export**: Generate downloadable EPUB files
+1. **Explore Page** (`/make-ebook/explore`): Public marketing page showcasing the eBook creation tool
+2. **Protected eBook Maker** (`/make-ebook`): Authenticated tool for creating and editing eBooks with chapters
+3. **User Authentication**: Supabase-based signup and login with email verification
+4. **AI Chat** (disabled): Previously connected to local Ollama instance - needs secure implementation
+5. **EPUB Export**: Generate downloadable EPUB files
+6. **Legal Pages**: GDPR-compliant Terms of Service and Privacy Policy
 
 ## Configuration Notes
 - Server runs on port 5000 for Replit compatibility
@@ -42,7 +49,10 @@ This is a Next.js-based portfolio website and eBook creation tool featuring:
 
 ## Current Status
 - ✅ Development server running successfully
-- ✅ Main portfolio page functional
-- ✅ eBook maker tool accessible and working
+- ✅ Public explore page functional at /make-ebook/explore
+- ✅ Protected eBook maker working with authentication at /make-ebook
+- ✅ Supabase authentication configured and working
+- ✅ Free signup flow with unlimited features implemented
+- ✅ GDPR-compliant legal pages for UK business
 - ⚠️ AI chat functionality disabled for security
-- ⚠️ Firebase authentication not configured
+- ⚠️ Client-side routing (could be optimized to server-side for SEO)
