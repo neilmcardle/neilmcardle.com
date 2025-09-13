@@ -63,17 +63,20 @@ export function UserProfile() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem disabled className="opacity-50">
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
+          <span className="ml-auto text-xs text-gray-400">Soon</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem disabled className="opacity-50">
           <CreditCard className="mr-2 h-4 w-4" />
           <span>Subscription</span>
+          <span className="ml-auto text-xs text-gray-400">Soon</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem disabled className="opacity-50">
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
+          <span className="ml-auto text-xs text-gray-400">Soon</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>
