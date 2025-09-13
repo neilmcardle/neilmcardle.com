@@ -97,9 +97,9 @@ export default function Home() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Download className="w-8 h-8 text-gray-900" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Multiple Export Formats</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">ePub Export</h3>
               <p className="text-gray-600">
-                Export your eBooks in various formats including PDF, EPUB, and more
+                Export your eBooks in ePub format for compatibility with most e-readers
               </p>
             </div>
           </div>
@@ -117,31 +117,27 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="p-8 bg-gray-50 rounded-lg border">
+            <div className="p-8 bg-gray-50 rounded-lg border flex flex-col">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Free</h3>
               <div className="text-4xl font-bold text-gray-900 mb-6">
-                $0<span className="text-lg font-normal text-gray-600">/month</span>
+                £0<span className="text-lg font-normal text-gray-600">/month</span>
               </div>
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-3 mb-8 flex-grow">
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-gray-900 mr-3" />
                   <span>3 eBooks</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-gray-900 mr-3" />
-                  <span>Basic templates</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="w-5 h-5 text-gray-900 mr-3" />
-                  <span>PDF export</span>
+                  <span>ePub export only</span>
                 </li>
               </ul>
-              <Button className="w-full" variant="outline">
+              <Button className="w-full mt-auto" variant="outline">
                 Get Started Free
               </Button>
             </div>
 
-            <div className="p-8 bg-gray-50 rounded-lg border-2 border-gray-300 relative">
+            <div className="p-8 bg-gray-50 rounded-lg border-2 border-gray-300 relative flex flex-col">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <span className="bg-gray-900 text-white px-4 py-2 rounded-full text-sm font-semibold">
                   Most Popular
@@ -149,27 +145,23 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Pro</h3>
               <div className="text-4xl font-bold text-gray-900 mb-6">
-                $9<span className="text-lg font-normal text-gray-600">/month</span>
+                £20<span className="text-lg font-normal text-gray-600">/month</span>
               </div>
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-3 mb-8 flex-grow">
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-gray-900 mr-3" />
                   <span>Unlimited eBooks</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-gray-900 mr-3" />
-                  <span>Premium templates</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="w-5 h-5 text-gray-900 mr-3" />
-                  <span>All export formats</span>
+                  <span>ePub export only</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-gray-900 mr-3" />
                   <span>Priority support</span>
                 </li>
               </ul>
-              <Button className="w-full bg-gray-900 hover:bg-gray-800">
+              <Button className="w-full bg-gray-900 hover:bg-gray-800 mt-auto">
                 Upgrade to Pro
               </Button>
             </div>
