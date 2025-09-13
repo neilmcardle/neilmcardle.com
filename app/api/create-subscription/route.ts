@@ -1,31 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { supabase } from '@/lib/supabase'
+import { createServerClient } from '@supabase/ssr'
+import { CookieOptions } from '@supabase/ssr'
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY')
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-08-27.basil',
 })
 
 export async function POST(req: NextRequest) {
   try {
     const { priceId } = await req.json()
     
-    // Get the Authorization header
-    const token = req.headers.get('authorization')?.replace('Bearer ', '')
+    const response = NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // Create Supabase client with cookie support
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return req.cookies.get(name)?.value
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            response.cookies.set({
+              name,
+              value,
+              ...options,
+            })
+          },
+          remove(name: string, options: CookieOptions) {
+            response.cookies.set({
+              name,
+              value: '',
+              ...options,
+            })
+          },
+        },
+      }
+    )
 
-    // Get user from Supabase
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    // Get user from Supabase session
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: response.headers })
     }
 
     // Check if user already has a subscription
@@ -80,7 +103,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       subscriptionId: subscription.id,
       clientSecret: (subscription.latest_invoice as any)?.payment_intent?.client_secret,
-    })
+    }, { status: 200, headers: response.headers })
   } catch (error: any) {
     console.error('Error creating subscription:', error)
     return NextResponse.json(
