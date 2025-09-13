@@ -615,7 +615,7 @@ function MakeEbookPage() {
                     onDragEnter={() => handleDragEnter(i)}
                     onDragEnd={handleDragEnd}
                     onDragOver={(e) => e.preventDefault()}
-                    onTouchStart={(e) => handleTouchStart(i, e)}
+                    onTouchStart={() => handleTouchStart(i)}
                     onTouchMove={(e) => handleTouchMove(i, e)}
                     onTouchEnd={handleTouchEnd}
                     onClick={() => handleSelectChapter(i)}
@@ -710,7 +710,7 @@ function MakeEbookPage() {
                   return (
                     <div
                       key={i}
-                      ref={el => (chapterRefs.current[i] = el)}
+                      ref={el => { chapterRefs.current[i] = el }}
                       className={`flex items-center px-6 py-2.5 mb-2 cursor-pointer transition
                         ${isSelected ? "text-white font-semibold" : "text-white/75"}
                         rounded-full
