@@ -27,9 +27,44 @@ export function MakeEbookDemo() {
   const [previewMode, setPreviewMode] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
-  const handleGenerateClick = (e: React.MouseEvent) => {
+  const handleGenerateClick = async (e: React.MouseEvent) => {
     e.preventDefault()
-    setShowUpgradeModal(true)
+    
+    // Validate that we have content to export
+    if (!title && !author && !chapters.some(ch => ch.title || ch.content)) {
+      alert('Please add some content to your eBook before exporting.')
+      return
+    }
+    
+    try {
+      // Simple EPUB export functionality
+      const ebookData = {
+        title: title || 'Untitled eBook',
+        author: author || 'Anonymous',
+        chapters: chapters.filter(ch => ch.title || ch.content)
+      }
+      
+      // Create a simple text-based export for now
+      const exportContent = `${ebookData.title}\nby ${ebookData.author}\n\n${ebookData.chapters.map((ch, idx) => 
+        `Chapter ${idx + 1}: ${ch.title}\n\n${ch.content.replace(/<[^>]*>/g, '')}\n\n`
+      ).join('')}`
+      
+      // Create and download file
+      const blob = new Blob([exportContent], { type: 'text/plain' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${ebookData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      
+      alert('Your eBook has been exported successfully!')
+    } catch (error) {
+      console.error('Export error:', error)
+      alert('There was an error exporting your eBook. Please try again.')
+    }
   }
 
   const handlePreviewToggle = (value: string) => {
@@ -233,38 +268,6 @@ export function MakeEbookDemo() {
       </Tabs>
 
       {/* Upgrade Modal */}
-      {showUpgradeModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md mx-4">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-4 p-4">
-                <div className="mx-auto bg-[#F5F5F7] p-3 rounded-full w-12 h-12 flex items-center justify-center">
-                  <Lock className="h-6 w-6 text-[#1D1D1F]" />
-                </div>
-                <h3 className="text-xl font-semibold">Upgrade to Export</h3>
-                <p className="text-[#86868B]">
-                  The free version allows you to create and preview your eBook. Upgrade to Pro to export in multiple
-                  formats and access all features.
-                </p>
-                <div className="flex flex-col space-y-3 pt-4">
-                  <Button
-                    className="bg-[#1D1D1F] hover:bg-black text-white"
-                    onClick={() => {
-                      setShowUpgradeModal(false)
-                      document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })
-                    }}
-                  >
-                    View Pricing
-                  </Button>
-                  <Button variant="outline" onClick={() => setShowUpgradeModal(false)}>
-                    Continue Editing
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   )
 }

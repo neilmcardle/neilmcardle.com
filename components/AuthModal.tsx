@@ -6,7 +6,9 @@ import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
+import { Checkbox } from './ui/checkbox'
 import { useToast } from './ui/use-toast'
+import Link from 'next/link'
 
 interface AuthModalProps {
   trigger: React.ReactNode
@@ -18,12 +20,25 @@ export function AuthModal({ trigger, mode = 'signin' }: AuthModalProps) {
   const [authMode, setAuthMode] = useState(mode)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false)
   const [loading, setLoading] = useState(false)
   const { signIn, signUp } = useAuth()
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Check consent for signup
+    if (authMode === 'signup' && (!acceptedTerms || !acceptedPrivacy)) {
+      toast({
+        title: "Consent Required",
+        description: "Please accept the Terms of Service and Privacy Policy to continue.",
+        variant: "destructive",
+      })
+      return
+    }
+    
     setLoading(true)
 
     try {
@@ -47,6 +62,8 @@ export function AuthModal({ trigger, mode = 'signin' }: AuthModalProps) {
         setIsOpen(false)
         setEmail('')
         setPassword('')
+        setAcceptedTerms(false)
+        setAcceptedPrivacy(false)
       }
     } catch (error) {
       toast({
@@ -92,6 +109,39 @@ export function AuthModal({ trigger, mode = 'signin' }: AuthModalProps) {
               minLength={6}
             />
           </div>
+          
+          {/* GDPR Consent Checkboxes for Signup */}
+          {authMode === 'signup' && (
+            <div className="space-y-3 pt-2">
+              <div className="flex items-start space-x-2">
+                <Checkbox
+                  id="terms"
+                  checked={acceptedTerms}
+                  onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                />
+                <Label htmlFor="terms" className="text-sm leading-5">
+                  I agree to the{' '}
+                  <Link href="/terms" className="text-blue-600 hover:underline" target="_blank">
+                    Terms of Service
+                  </Link>
+                </Label>
+              </div>
+              <div className="flex items-start space-x-2">
+                <Checkbox
+                  id="privacy"
+                  checked={acceptedPrivacy}
+                  onCheckedChange={(checked) => setAcceptedPrivacy(checked as boolean)}
+                />
+                <Label htmlFor="privacy" className="text-sm leading-5">
+                  I agree to the{' '}
+                  <Link href="/privacy" className="text-blue-600 hover:underline" target="_blank">
+                    Privacy Policy
+                  </Link>
+                </Label>
+              </div>
+            </div>
+          )}
+          
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Processing...' : (authMode === 'signin' ? 'Sign In' : 'Sign Up')}
           </Button>
