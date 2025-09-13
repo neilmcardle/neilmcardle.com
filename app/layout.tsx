@@ -11,10 +11,10 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
-  title: "eBook Maker - Create Beautiful eBooks",
+  title: "makeEbook - Create Beautiful eBooks",
   description:
     "Professional eBook creation tool with rich text editing, chapter management, and export capabilities.",
-  generator: "eBook Maker",
+  generator: "makeEbook",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

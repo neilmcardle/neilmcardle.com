@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { Home, Star, PaintBucket, Calculator, Book, Twitter, Linkedin, Database } from "lucide-react"
+import { Home, Star, PaintBucket, Calculator, Twitter, Linkedin, Database } from "lucide-react"
+import { MakeEbookIcon } from "./MakeEbookIcon"
 
 export function Sidebar() {
   return (
@@ -42,8 +43,8 @@ export function Sidebar() {
               <Database size={16} />
               Property Investment Calculator
             </Link>
-            <Link href="/makeebook" className="flex items-center gap-2 text-sm hover:text-primary">
-              <Book size={16} />
+            <Link href="/make-ebook" className="flex items-center gap-2 text-sm hover:text-primary">
+              <MakeEbookIcon className="w-4 h-4" />
               makeEbook
             </Link>
           </div>

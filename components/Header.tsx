@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { UserProfile } from './UserProfile'
-import { Book, Plus, Library } from 'lucide-react'
+import { MakeEbookIcon } from './MakeEbookIcon'
+import { Plus, Library } from 'lucide-react'
 import { Button } from './ui/button'
 
 export function Header() {
@@ -14,8 +15,8 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 text-xl font-bold text-gray-900">
-          <Book className="w-6 h-6" />
-          eBook Maker
+          <MakeEbookIcon className="w-6 h-6" />
+          makeEbook
         </Link>
 
         {/* Navigation */}

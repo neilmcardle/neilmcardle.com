@@ -1,9 +1,10 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Book, FileText, Download, Plus, ArrowRight, Check } from "lucide-react"
+import { FileText, Download, Plus, ArrowRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/Header"
+import { MakeEbookIcon } from "@/components/MakeEbookIcon"
 import { useAuth } from "@/lib/hooks/useAuth"
 
 export default function Home() {
@@ -28,7 +29,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <div className="flex justify-center mb-8">
               <div className="p-4 bg-blue-100 rounded-full">
-                <Book className="w-16 h-16 text-blue-600" />
+                <MakeEbookIcon className="w-16 h-16 text-blue-600" />
               </div>
             </div>
             
@@ -88,7 +89,7 @@ export default function Home() {
 
             <div className="text-center p-8 bg-white rounded-lg shadow-sm border">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Book className="w-8 h-8 text-purple-600" />
+                <MakeEbookIcon className="w-8 h-8 text-purple-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Chapter Management</h3>
               <p className="text-gray-600">
