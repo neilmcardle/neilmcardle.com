@@ -39,10 +39,10 @@ export function AuthModal({ trigger, mode = 'signin' }: AuthModalProps) {
         })
       } else {
         toast({
-          title: authMode === 'signin' ? "Welcome back!" : "Account created!",
+          title: authMode === 'signin' ? "Welcome back!" : "Check your email!",
           description: authMode === 'signin' 
             ? "You have successfully signed in." 
-            : "Please check your email to verify your account.",
+            : "We've sent you a verification link. Please check your email and click the link to complete your signup.",
         })
         setIsOpen(false)
         setEmail('')

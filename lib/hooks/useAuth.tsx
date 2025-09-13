@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
-import { supabase } from '../supabase'
+import { createSupabaseBrowserClient } from '../supabase'
 
 interface AuthContextType {
   user: User | null
@@ -19,6 +19,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const supabase = createSupabaseBrowserClient()
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
@@ -30,6 +32,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, session) => {
         setUser(session?.user ?? null)
         setLoading(false)
+
+        // Handle user authentication events
+        if (event === 'SIGNED_IN' && session?.user) {
+          // User creation is now handled securely server-side in auth callback
+          // If user has verified their email, redirect to make-ebook
+          if (session.user.email_confirmed_at && typeof window !== 'undefined') {
+            // Check if we're not already on the make-ebook page to avoid redirect loops
+            if (!window.location.pathname.startsWith('/make-ebook')) {
+              window.location.href = '/make-ebook'
+            }
+          }
+        }
       }
     )
 
@@ -37,14 +51,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
+    const supabase = createSupabaseBrowserClient()
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`
+      }
     })
     return { error }
   }
 
   const signIn = async (email: string, password: string) => {
+    const supabase = createSupabaseBrowserClient()
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -53,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
+    const supabase = createSupabaseBrowserClient()
     await supabase.auth.signOut()
   }
 

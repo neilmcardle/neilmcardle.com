@@ -1,9 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+// Legacy client for compatibility (to be phased out)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Modern SSR-compatible browser client for client-side operations
+export const createSupabaseBrowserClient = () => createBrowserClient(
+  supabaseUrl,
+  supabaseAnonKey
+)
 
 // Database types
 export interface User {
