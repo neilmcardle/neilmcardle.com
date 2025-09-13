@@ -1,220 +1,182 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ExternalLink, Mail, ChevronRight, Eye, EyeOff } from "lucide-react"
-// import { PersonaToggle } from "@/components/persona-toggle"
-// import { usePersona } from "@/contexts/persona-context"
-import { NMLogoIcon } from "@/components/NMLogoIcon"
-import { LinkedInIcon } from "@/components/LinkedInIcon"
-import { MediumIcon } from "@/components/MediumIcon"
-import ImageWithFallback from "@/components/ImageWithFallback"
-
-// Custom X icon
-const XIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-    <path d="M12.6 2h1.9L9.7 7.6l5.7 6.4h-4.2l-3.5-3.9-4 3.9H1.8l5.2-6-5.4-6h4.3l3.2 3.6L12.6 2zm-1.7 12.1h1.1L5.3 3.8H4.1l6.8 10.3z" />
-  </svg>
-)
+import { Book, FileText, Download, Plus, ArrowRight, Check } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Header } from "@/components/Header"
+import { useAuth } from "@/lib/hooks/useAuth"
 
 export default function Home() {
-  // Animation states
   const [isLoaded, setIsLoaded] = useState(false)
-  // const { persona } = usePersona()
-  const [isEmailVisible, setIsEmailVisible] = useState(false)
+  const { user } = useAuth()
 
   useEffect(() => {
-    // Set isLoaded to true after a short delay to ensure components are mounted
     const timer = setTimeout(() => {
       setIsLoaded(true)
     }, 100)
 
-    // Add interaction detection
-    const handleInteraction = () => {
-      console.log("User interaction detected")
-    }
-
-    window.addEventListener("click", handleInteraction)
-    window.addEventListener("touchstart", handleInteraction)
-    window.addEventListener("keydown", handleInteraction)
-
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener("click", handleInteraction)
-      window.removeEventListener("touchstart", handleInteraction)
-      window.removeEventListener("keydown", handleInteraction)
-    }
+    return () => clearTimeout(timer)
   }, [])
 
-  // Toggle email visibility
-  const toggleEmailVisibility = () => {
-    setIsEmailVisible(!isEmailVisible)
-  }
-
-  // List of products
-  const products = [
-    { name: "makeEbook", href: "/make-ebook" },
-    { name: "Vector Paint", href: "https://vectorpaint.vercel.app" },
-  ]
-
-  // --- CHANGE: Always render digital mode for now ---
-  // const persona = "digital"
-
   return (
-    <div className="min-h-screen bg-white">
-      {/* Fixed Navigation Bar - Removed shadow */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-center items-center">
-          <NMLogoIcon className="text-black w-8 h-8" />
-        </div>
-      </header>
-
-      {/* Main Content - With padding to account for fixed header */}
-      <main className="w-full max-w-6xl mx-auto px-4 pt-20 pb-24">
-        {/* Persona Toggle */}
-        {/* <div className="flex justify-center mb-8">
-          <PersonaToggle />
-        </div> */}
-
-        {/* Main Content */}
-        <section
-          className={`transition-all duration-1000 ease-out transform ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
-        >
-          {/* Always render digital mode for now */}
-          <div className="flex flex-col items-center w-full">
-            {/* Business Card with updated border to match traditional card */}
-            <div
-              className="relative w-full max-w-md mx-auto rounded-sm shadow-xl"
-              style={{
-                background: "linear-gradient(to bottom, #444, #222)",
-                padding: "16px",
-              }}
-            >
-              {/* Card Content with Background */}
-              <div className="relative overflow-hidden rounded-sm">
-                {/* Texture overlay */}
-                <div
-                  className="absolute inset-0 z-[1]"
-                  style={{
-                    backgroundImage:
-                      'url("data:image/png;base64,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")',
-                    opacity: 0.15,
-                    mixBlendMode: "overlay",
-                  }}
-                ></div>
-
-                {/* Semi-transparent overlay to ensure text readability */}
-                <div className="absolute inset-0 bg-black bg-opacity-50 z-[2]"></div>
-
-                {/* Card Content */}
-                <div className="flex flex-col justify-between h-full p-6 text-white space-y-4 relative z-[5]">
-                  {/* Top Section - Logo and Name */}
-                  <div>
-                    <h1 className="text-xl font-bold text-white mb-1">Neil McArdle</h1>
-                  </div>
-
-                  {/* Middle Section - Brief Description */}
-                  <div className="mt-0">
-                    <p className="text-sm text-gray-300 max-w-xs -mt-2">
-                      Designer.
-                    </p>
-                  </div>
-
-                  {/* Products Section */}
-                  <div className="mb-3">
-                    <h3 className="text-xs uppercase text-gray-400 mb-2 font-medium tracking-wider">Products</h3>
-                    <div className="flex flex-col gap-1">
-                      {products.map((product, index) => (
-                        <Link
-                          key={index}
-                          href={product.href}
-                          className="text-sm text-gray-300 hover:text-white transition-colors py-1 flex items-center justify-between"
-                          target={product.href.startsWith("http") ? "_blank" : undefined}
-                          rel={product.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                        >
-                          <span>{product.name}</span>
-                          <ChevronRight className="w-3 h-3 text-gray-400" />
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Bottom Section - Contact and Links */}
-                  <div className="flex flex-col gap-3 mt-auto pt-3">
-                    {/* Contact Section */}
-                    <div>
-                      <h3 className="text-xs uppercase text-gray-400 mb-2 font-medium tracking-wider">Contact</h3>
-                      {/* Email with reveal/conceal functionality */}
-                      <div className="flex items-center text-sm text-white rounded-md">
-                        <Mail className="w-4 h-4 mr-2 text-white" />
-                        <span className="flex-1">
-                          {isEmailVisible ? (
-                            "neil@neilmcardle.com"
-                          ) : (
-                            <span className="text-gray-500">Click eye icon to reveal email</span>
-                          )}
-                        </span>
-                        <button
-                          onClick={toggleEmailVisibility}
-                          className="ml-2 p-1 rounded-full hover:bg-gray-800 transition-colors"
-                          aria-label={isEmailVisible ? "Hide email" : "Show email"}
-                        >
-                          {isEmailVisible ? (
-                            <EyeOff className="w-4 h-4 text-gray-400" />
-                          ) : (
-                            <Eye className="w-4 h-4 text-gray-400" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                    {/* Social Links */}
-                    <div className="mt-2">
-                      <h3 className="text-xs uppercase text-gray-400 mb-2 font-medium tracking-wider">
-                        Read my mind
-                      </h3>
-                      <div className="flex items-center gap-6">
-                        <Link
-                          href="https://www.linkedin.com/in/neilmcardle/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-white hover:text-gray-300 transition-colors"
-                        >
-                          <LinkedInIcon className="w-4 h-4" />
-                        </Link>
-                        <Link
-                          href="https://x.com/betterneil"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-white hover:text-gray-300 transition-colors"
-                        >
-                          <XIcon />
-                        </Link>
-                        <Link
-                          href="https://medium.com/@BetterNeil"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-white hover:text-gray-300 transition-colors"
-                        >
-                          <MediumIcon className="w-4 h-4" />
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Design Agency Link - Moved to bottom */}
-                    <Link
-                      href="https://www.betterthings.design"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-sm text-white hover:text-gray-300 transition-colors mt-2 underline"
-                    >
-                      <span>Looking for my design agency?</span>
-                      <ExternalLink className="w-3 h-3 ml-1 text-gray-400" />
-                    </Link>
-                  </div>
-                </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Header />
+      
+      {/* Hero Section */}
+      <main className="pt-20">
+        <section className={`container mx-auto px-4 py-16 text-center transition-all duration-1000 ease-out transform ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
+          <div className="max-w-4xl mx-auto">
+            <div className="flex justify-center mb-8">
+              <div className="p-4 bg-blue-100 rounded-full">
+                <Book className="w-16 h-16 text-blue-600" />
               </div>
             </div>
+            
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+              Create Beautiful
+              <span className="block text-blue-600">eBooks Effortlessly</span>
+            </h1>
+            
+            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              Professional eBook creation tool with rich text editing, chapter management, and export capabilities. 
+              Perfect for authors, educators, and content creators.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              {user ? (
+                <Link href="/make-ebook">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
+                    <Plus className="w-5 h-5 mr-2" />
+                    Start Creating
+                  </Button>
+                </Link>
+              ) : (
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
+                  <ArrowRight className="w-5 h-5 mr-2" />
+                  Get Started Free
+                </Button>
+              )}
+              <Button variant="outline" size="lg" className="px-8 py-3">
+                <FileText className="w-5 h-5 mr-2" />
+                View Examples
+              </Button>
+            </div>
           </div>
-          {/* END always-digital block */}
+        </section>
+
+        {/* Features Section */}
+        <section className="container mx-auto px-4 py-16">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Everything You Need to Create Amazing eBooks
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Powerful tools designed to make eBook creation simple and professional
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="text-center p-8 bg-white rounded-lg shadow-sm border">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FileText className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Rich Text Editor</h3>
+              <p className="text-gray-600">
+                Professional WYSIWYG editor with formatting options, images, and multimedia support
+              </p>
+            </div>
+
+            <div className="text-center p-8 bg-white rounded-lg shadow-sm border">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Book className="w-8 h-8 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Chapter Management</h3>
+              <p className="text-gray-600">
+                Organize your content with intuitive chapter structure and navigation
+              </p>
+            </div>
+
+            <div className="text-center p-8 bg-white rounded-lg shadow-sm border">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Download className="w-8 h-8 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Multiple Export Formats</h3>
+              <p className="text-gray-600">
+                Export your eBooks in various formats including PDF, EPUB, and more
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section className="container mx-auto px-4 py-16 bg-white">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="text-xl text-gray-600">
+              Choose the plan that works best for you
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="p-8 bg-gray-50 rounded-lg border">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Free</h3>
+              <div className="text-4xl font-bold text-gray-900 mb-6">
+                $0<span className="text-lg font-normal text-gray-600">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span>3 eBooks</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Basic templates</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span>PDF export</span>
+                </li>
+              </ul>
+              <Button className="w-full" variant="outline">
+                Get Started Free
+              </Button>
+            </div>
+
+            <div className="p-8 bg-blue-50 rounded-lg border-2 border-blue-200 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <span className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                  Most Popular
+                </span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Pro</h3>
+              <div className="text-4xl font-bold text-gray-900 mb-6">
+                $9<span className="text-lg font-normal text-gray-600">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Unlimited eBooks</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Premium templates</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span>All export formats</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Priority support</span>
+                </li>
+              </ul>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                Upgrade to Pro
+              </Button>
+            </div>
+          </div>
         </section>
       </main>
     </div>
