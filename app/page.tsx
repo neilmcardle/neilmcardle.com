@@ -40,18 +40,6 @@ export default function Home() {
             <GlossyEmailRevealButton className="w-full" />
           </div>
 
-          {/* Read my mind */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600 mb-3">Read my mind</p>
-            <Link 
-              href="https://www.betterthings.design/" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-black hover:text-gray-600 transition-colors font-medium border-b border-black hover:border-gray-600 text-sm"
-            >
-              Looking for my design agency?
-            </Link>
-          </div>
         </div>
       </div>
     </div>
