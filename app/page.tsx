@@ -25,9 +25,7 @@ export default function Home() {
               </Link>
               <span className="text-gray-400">|</span>
               <Link 
-                href="https://vectorpaint.vercel.app/" 
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/vector-paint"
                 className="text-black hover:text-gray-600 transition-colors font-medium border-b border-black hover:border-gray-600"
               >
                 Vector Paint
