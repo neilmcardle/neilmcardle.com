@@ -16,8 +16,8 @@ export function SecureEmailLink({ className = "" }: SecureEmailLinkProps) {
   // Email parts are split to prevent scraping
   const emailParts = {
     username: "neil",
-    domain: "mcardle",
-    tld: "design",
+    domain: "neilmcardle",
+    tld: "com",
   }
 
   const handleReveal = () => {
