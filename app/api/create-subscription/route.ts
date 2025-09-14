@@ -3,16 +3,21 @@ import Stripe from 'stripe'
 import { createServerClient } from '@supabase/ssr'
 import { CookieOptions } from '@supabase/ssr'
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY')
-}
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-08-27.basil',
-})
-
 export async function POST(req: NextRequest) {
   try {
+    // Check for Stripe secret key at runtime, not build time
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return NextResponse.json(
+        { error: 'Stripe is not configured' },
+        { status: 500 }
+      )
+    }
+
+    // Initialize Stripe with the secret key
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-08-27.basil',
+    })
+
     const { priceId } = await req.json()
     
     const response = NextResponse.json({ error: 'Internal server error' }, { status: 500 })
