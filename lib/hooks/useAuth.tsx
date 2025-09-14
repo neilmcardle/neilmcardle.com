@@ -3,9 +3,22 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { getSupabaseBrowserClient } from '../supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
-// Initialize singleton client at module scope
-const supabase = getSupabaseBrowserClient()!
+// Lazy initialize Supabase client to prevent hydration issues
+function ensureSupabase(): SupabaseClient | null {
+  if (typeof window === 'undefined') {
+    console.log('Supabase: not in browser, skipping')
+    return null
+  }
+  
+  try {
+    return getSupabaseBrowserClient() || null
+  } catch (error) {
+    console.error('Failed to initialize Supabase client:', error)
+    return null
+  }
+}
 
 interface AuthContextType {
   user: User | null
@@ -22,6 +35,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const supabase = ensureSupabase()
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
@@ -52,6 +71,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signUp = async (email: string, password: string) => {
+    const supabase = ensureSupabase()
+    if (!supabase) {
+      return { error: { message: 'Supabase client not available' } }
+    }
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -63,6 +87,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signIn = async (email: string, password: string) => {
+    const supabase = ensureSupabase()
+    if (!supabase) {
+      return { error: { message: 'Supabase client not available' } }
+    }
+    
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -71,6 +100,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
+    const supabase = ensureSupabase()
+    if (!supabase) {
+      console.log('Supabase client not available for sign out')
+      return
+    }
+    
     await supabase.auth.signOut()
   }
 
