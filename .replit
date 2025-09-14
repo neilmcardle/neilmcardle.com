@@ -1,7 +1,7 @@
-modules = ["nodejs-20", "web"]
+modules = ["nodejs-20", "web", "postgresql-16"]
 [agent]
 expertMode = true
-integrations = ["javascript_supabase:1.0.0", "javascript_stripe:1.0.0"]
+integrations = ["javascript_supabase:1.0.0", "javascript_stripe:1.0.0", "javascript_database:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
@@ -35,16 +35,16 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 33599
-externalPort = 3002
-
-[[ports]]
 localPort = 40283
 externalPort = 3000
 
 [[ports]]
 localPort = 41077
 externalPort = 3001
+
+[[ports]]
+localPort = 45339
+externalPort = 3002
 
 [deployment]
 deploymentTarget = "autoscale"
