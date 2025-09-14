@@ -2,7 +2,10 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
-import { createSupabaseBrowserClient } from '../supabase'
+import { getSupabaseBrowserClient } from '../supabase'
+
+// Initialize singleton client at module scope
+const supabase = getSupabaseBrowserClient()!
 
 interface AuthContextType {
   user: User | null
@@ -19,8 +22,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const supabase = createSupabaseBrowserClient()
-    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
@@ -51,7 +52,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signUp = async (email: string, password: string) => {
-    const supabase = createSupabaseBrowserClient()
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -63,7 +63,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signIn = async (email: string, password: string) => {
-    const supabase = createSupabaseBrowserClient()
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -72,7 +71,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    const supabase = createSupabaseBrowserClient()
     await supabase.auth.signOut()
   }
 
