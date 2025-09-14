@@ -17,7 +17,7 @@ export default function Home() {
             <h2 className="text-2xl font-semibold text-black mb-6">Products</h2>
             <div className="space-y-4">
               <Link 
-                href="/make-ebook" 
+                href="/make-ebook/explore" 
                 className="inline-block text-lg text-black hover:text-gray-600 transition-colors underline"
               >
                 makeEbook
