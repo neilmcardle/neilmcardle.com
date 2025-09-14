@@ -39,8 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // User creation is now handled securely server-side in auth callback
           // If user has verified their email, redirect to make-ebook
           if (session.user.email_confirmed_at && typeof window !== 'undefined') {
-            // Check if we're not already on the make-ebook page to avoid redirect loops
-            if (!window.location.pathname.startsWith('/make-ebook')) {
+            // Redirect to tool unless already on the main tool page
+            if (window.location.pathname !== '/make-ebook') {
               window.location.href = '/make-ebook'
             }
           }
