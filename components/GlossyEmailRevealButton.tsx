@@ -50,7 +50,7 @@ export function GlossyEmailRevealButton({ className = "" }: GlossyEmailRevealBut
           <span className="absolute inset-y-0 left-[-100%] w-[35%] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-100 group-hover:translate-x-[250%] transition-transform duration-1500 ease-in-out"></span>
 
           <Mail className="h-5 w-5 mr-2 relative z-10" />
-          <span className="relative z-10">Get in Touch for Pricing</span>
+          <span className="relative z-10">Get in Touch</span>
         </button>
       ) : (
         <div
