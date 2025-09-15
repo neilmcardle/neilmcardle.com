@@ -1,80 +1,78 @@
-"use client";
-
-import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { Header } from "@/components/Header";
-import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, Trash2, BookOpen } from "lucide-react";
-import { LANGUAGES, today } from "./utils/constants";
-import MetaTabContent from "./components/MetaTabContent";
-import PreviewPanel from "./components/PreviewPanel";
-import AiTabContent from "./components/AiTabContent";
-import { useChapters } from "./hooks/useChapters";
-import { useTags } from "./hooks/useTags";
-import { useCover } from "./hooks/useCover";
-import { useLockedSections } from "./hooks/useLockedSections";
-import { exportEpub } from "./utils/exportEpub";
-import RichTextEditor from "./components/RichTextEditor";
+import { ArrowRight, BookOpen, Zap, Users } from "lucide-react";
 
-const BOOK_LIBRARY_KEY = "makeebook_library";
-
-// --- Book Library Helpers ---
-// ... unchanged ...
-
-function MakeEbookPage() {
-  // ... all your state/logic unchanged ...
-  // You can keep your chapter, tag, and book logic as before.
-
+export default function HomePage() {
   return (
-    <>
-      <Header
-        onSave={handleSaveBook}
-        onExport={handleExportEPUB}
-        onNewBook={handleNewBook}
-        saveFeedback={saveFeedback}
-      />
-      <div className="min-h-screen bg-[#f7f9fa] text-[#15161a] mt-4">
-        {/* Main layout (unchanged), everything under header */}
-        <div className="flex flex-1 min-h-0 h-0">
-          {/* Left sidebar, main panel, etc. */}
-          {/* ... your original main layout ... */}
-        </div>
-        {/* Floating legal links (unchanged) */}
-        <div
-          className="fixed bottom-4 right-6 z-50 flex flex-col items-end space-y-1"
-          style={{ pointerEvents: "none" }}
-        >
-          <div
-            className="bg-white/90 rounded-md px-3 py-1 shadow border border-gray-200 text-xs text-gray-500 space-x-3"
-            style={{ pointerEvents: "auto" }}
-          >
-            <Link
-              href="/terms"
-              className="hover:underline text-gray-500"
-              target="_blank"
-            >
-              Terms of Service
-            </Link>
-            <span className="mx-1 text-gray-300">|</span>
-            <Link
-              href="/privacy"
-              className="hover:underline text-gray-500"
-              target="_blank"
-            >
-              Privacy Policy
-            </Link>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Hero Section */}
+      <div className="relative px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl pt-20 pb-32 sm:pt-48 sm:pb-40">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+              Create Beautiful <span className="text-indigo-600">eBooks</span> Effortlessly
+            </h1>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              Professional eBook creation tool with rich text editing, chapter management, and export capabilities. 
+              No technical skills required.
+            </p>
+            <div className="mt-10 flex items-center justify-center gap-x-6">
+              <Link
+                href="/make-ebook"
+                className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 flex items-center gap-2"
+              >
+                Start Creating <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/about"
+                className="text-sm font-semibold leading-6 text-gray-900"
+              >
+                Learn more <span aria-hidden="true">→</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-    </>
-  );
-}
 
-export default function ProtectedMakeEbookPage() {
-  return (
-    <ProtectedRoute>
-      <MakeEbookPage />
-    </ProtectedRoute>
-  )
+      {/* Features Section */}
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 pb-20">
+        <div className="mx-auto max-w-2xl lg:text-center">
+          <h2 className="text-base font-semibold leading-7 text-indigo-600">Everything you need</h2>
+          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Professional eBook creation made simple
+          </p>
+        </div>
+        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+            <div className="flex flex-col">
+              <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                <BookOpen className="h-5 w-5 flex-none text-indigo-600" />
+                Rich Text Editor
+              </dt>
+              <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                <p className="flex-auto">Full-featured editor with formatting, images, and chapter organization.</p>
+              </dd>
+            </div>
+            <div className="flex flex-col">
+              <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                <Zap className="h-5 w-5 flex-none text-indigo-600" />
+                Export Ready
+              </dt>
+              <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                <p className="flex-auto">Export to EPUB format ready for publishing on any platform.</p>
+              </dd>
+            </div>
+            <div className="flex flex-col">
+              <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                <Users className="h-5 w-5 flex-none text-indigo-600" />
+                User Friendly
+              </dt>
+              <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                <p className="flex-auto">Intuitive interface designed for writers, not developers.</p>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  );
 }
