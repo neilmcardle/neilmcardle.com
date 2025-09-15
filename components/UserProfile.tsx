@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback } from './ui/avatar'
 import { User, Settings, LogOut, CreditCard } from 'lucide-react'
 import { AuthModal } from './AuthModal'
+import Image from "next/image"
 
 export function UserProfile() {
   const { user, signOut, loading } = useAuth()
@@ -45,9 +46,21 @@ export function UserProfile() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback>{initials}</AvatarFallback>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
+          <Avatar className="h-8 w-8 overflow-hidden">
+            {user?.image ? (
+              <Image
+                src={user.image}
+                alt={user?.name ?? "User"}
+                width={32}
+                height={32}
+                className="rounded-full object-cover w-8 h-8 border border-gray-200"
+                style={{ background: "#fff" }}
+                priority
+              />
+            ) : (
+              <AvatarFallback>{initials}</AvatarFallback>
+            )}
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

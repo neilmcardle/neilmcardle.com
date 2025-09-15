@@ -1,45 +1,80 @@
-import Link from "next/link"
-import { GlossyEmailRevealButton } from "@/components/GlossyEmailRevealButton"
+"use client";
 
-export default function Home() {
+import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { Header } from "@/components/Header";
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { Plus, Trash2, BookOpen } from "lucide-react";
+import { LANGUAGES, today } from "./utils/constants";
+import MetaTabContent from "./components/MetaTabContent";
+import PreviewPanel from "./components/PreviewPanel";
+import AiTabContent from "./components/AiTabContent";
+import { useChapters } from "./hooks/useChapters";
+import { useTags } from "./hooks/useTags";
+import { useCover } from "./hooks/useCover";
+import { useLockedSections } from "./hooks/useLockedSections";
+import { exportEpub } from "./utils/exportEpub";
+import RichTextEditor from "./components/RichTextEditor";
+
+const BOOK_LIBRARY_KEY = "makeebook_library";
+
+// --- Book Library Helpers ---
+// ... unchanged ...
+
+function MakeEbookPage() {
+  // ... all your state/logic unchanged ...
+  // You can keep your chapter, tag, and book logic as before.
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-      <div className="max-w-md w-full mx-4">
-        {/* Digital Business Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 backdrop-blur-lg border border-gray-200">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-black mb-2">Neil McArdle</h1>
-            <p className="text-lg text-gray-600 font-medium">Designer.</p>
+    <>
+      <Header
+        onSave={handleSaveBook}
+        onExport={handleExportEPUB}
+        onNewBook={handleNewBook}
+        saveFeedback={saveFeedback}
+      />
+      <div className="min-h-screen bg-[#f7f9fa] text-[#15161a] mt-4">
+        {/* Main layout (unchanged), everything under header */}
+        <div className="flex flex-1 min-h-0 h-0">
+          {/* Left sidebar, main panel, etc. */}
+          {/* ... your original main layout ... */}
+        </div>
+        {/* Floating legal links (unchanged) */}
+        <div
+          className="fixed bottom-4 right-6 z-50 flex flex-col items-end space-y-1"
+          style={{ pointerEvents: "none" }}
+        >
+          <div
+            className="bg-white/90 rounded-md px-3 py-1 shadow border border-gray-200 text-xs text-gray-500 space-x-3"
+            style={{ pointerEvents: "auto" }}
+          >
+            <Link
+              href="/terms"
+              className="hover:underline text-gray-500"
+              target="_blank"
+            >
+              Terms of Service
+            </Link>
+            <span className="mx-1 text-gray-300">|</span>
+            <Link
+              href="/privacy"
+              className="hover:underline text-gray-500"
+              target="_blank"
+            >
+              Privacy Policy
+            </Link>
           </div>
-
-          {/* Products */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-black mb-4 text-center">Products</h2>
-            <div className="flex justify-center items-center space-x-4">
-              <Link 
-                href="/make-ebook/explore" 
-                className="text-black hover:text-gray-600 transition-colors font-medium border-b border-black hover:border-gray-600"
-              >
-                makeEbook
-              </Link>
-              <span className="text-gray-400">|</span>
-              <Link 
-                href="/vector-paint"
-                className="text-black hover:text-gray-600 transition-colors font-medium border-b border-black hover:border-gray-600"
-              >
-                Vector Paint
-              </Link>
-            </div>
-          </div>
-
-          {/* Contact */}
-          <div className="mb-8">
-            <GlossyEmailRevealButton className="w-full" />
-          </div>
-
         </div>
       </div>
-    </div>
+    </>
+  );
+}
+
+export default function ProtectedMakeEbookPage() {
+  return (
+    <ProtectedRoute>
+      <MakeEbookPage />
+    </ProtectedRoute>
   )
 }

@@ -29,10 +29,21 @@ const nextConfig = {
           },
         ],
       }] : [
-        // Production - HTML/API routes with no caching
+        // Production - HTML/API routes with no caching and CSP
         {
           source: '/((?!_next/static|_next/image|favicon.ico).*)',
           headers: [
+            {
+              key: 'Content-Security-Policy',
+              value:
+                "default-src 'self'; " +
+                "script-src 'self' 'unsafe-inline'; " +
+                "style-src 'self' 'unsafe-inline'; " +
+                "img-src 'self' data: https:; " +
+                "font-src 'self' data:; " +
+                "connect-src 'self' https://firebase.googleapis.com https://firestore.googleapis.com https://hhsiuvalashrqtpluxan.supabase.co; " +
+                "frame-ancestors 'none';",
+            },
             {
               key: 'Cache-Control',
               value: 'private, max-age=0, must-revalidate',
@@ -52,10 +63,6 @@ const nextConfig = {
             {
               key: 'Permissions-Policy',
               value: 'camera=(), microphone=(), geolocation=()',
-            },
-            {
-              key: 'Content-Security-Policy',
-              value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://firebase.googleapis.com https://firestore.googleapis.com; frame-ancestors 'none';",
             },
           ],
         },
