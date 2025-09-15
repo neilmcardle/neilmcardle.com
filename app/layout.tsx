@@ -6,7 +6,7 @@ import "../styles/immersive.css";
 import 'draft-js/dist/Draft.css';
 import { AuthProvider } from "@/lib/hooks/useAuth";
 import { Toaster } from "@/components/ui/toaster";
-import { Footer } from "@/components/Footer";
+import { ConditionalFooter } from "@/components/ConditionalFooter";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <div className="min-h-screen flex flex-col">
             <main className="flex-1">{children}</main>
-            <Footer />
+            <ConditionalFooter />
           </div>
           <Toaster />
         </AuthProvider>
