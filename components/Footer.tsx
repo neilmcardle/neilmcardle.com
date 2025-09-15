@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 
-export function Footer() {
+export default function Footer() {
   return (
     <footer className="bg-white border-t border-gray-200 mt-auto">
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -16,10 +16,9 @@ export function Footer() {
               Privacy Policy
             </Link>
           </div>
-
           <div className="text-center">
             <p className="text-gray-500 text-sm">
-              © 2025 makeEbook. All rights reserved.
+              © 2025 Neil McArdle. All rights reserved.
             </p>
           </div>
         </div>
