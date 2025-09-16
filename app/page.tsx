@@ -48,11 +48,11 @@ export default function ProfileCardHomepage() {
             {/* Name and Title */}
             <div className="mb-4"> {/* Reduced bottom margin */}
               <p
-                className="text-gray-900 text-lg font-semibold"
+                className="text-gray-400 text-lg font-semibold"
                 style={{ fontFamily: "Inter, sans-serif" }}
                 data-testid="text-title"
               >
-                Designer | Oil painter
+                Artist & Designer
               </p>
             </div>
 
