@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Mail, Check, Copy } from "lucide-react"
+import { useState } from "react";
+import { Mail, Check, Copy } from "lucide-react";
 
 interface GlossyEmailRevealButtonProps {
-  className?: string
+  className?: string;
 }
 
 export function GlossyEmailRevealButton({ className = "" }: GlossyEmailRevealButtonProps) {
-  const [isRevealed, setIsRevealed] = useState(false)
-  const [isCopied, setIsCopied] = useState(false)
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   // Email parts are split to prevent scraping
   const emailParts = {
     username: "neil",
     domain: "neilmcardle",
     tld: "com",
-  }
+  };
 
   const handleReveal = () => {
-    setIsRevealed(true)
-  }
+    setIsRevealed(true);
+  };
 
   const handleCopy = () => {
-    const email = `${emailParts.username}@${emailParts.domain}.${emailParts.tld}`
-    navigator.clipboard.writeText(email)
-    setIsCopied(true)
-    setTimeout(() => setIsCopied(false), 2000)
-  }
+    const email = `${emailParts.username}@${emailParts.domain}.${emailParts.tld}`;
+    navigator.clipboard.writeText(email);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
 
   return (
     <div className={`flex items-center justify-center ${className}`}>
@@ -80,5 +80,5 @@ export function GlossyEmailRevealButton({ className = "" }: GlossyEmailRevealBut
         </div>
       )}
     </div>
-  )
+  );
 }
