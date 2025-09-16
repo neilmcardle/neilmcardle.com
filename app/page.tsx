@@ -113,7 +113,7 @@ export default function ProfileCardHomepage() {
                 }}
               >
                 <Mail className="w-5 h-5" />
-                Get in Touch
+                Get in Touch.
               </a>
             </div>
           </div>
