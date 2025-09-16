@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Mail, MapPin, Calendar } from "lucide-react";
 import Image from "next/image";
 
@@ -6,25 +5,24 @@ export default function ProfileCardHomepage() {
   return (
     <div className="min-h-screen bg-gray-50 relative">
       {/* Massive Name in Background (Desktop Only) */}
-      <div className="absolute inset-0 hidden lg:block">
+      <div className="absolute inset-0 hidden lg:block pointer-events-none">
         <Image
           src="/neil-mcardle.svg" /* Points to the SVG file in the public folder */
           alt="Neil McArdle"
-          layout="fill"
-          objectFit="contain"
-          className="opacity-10"
+          fill
+          className="object-contain opacity-10"
         />
       </div>
       {/* Profile Card Container */}
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full">
           {/* Banner Section */}
-          <div className="relative h-40 md:h-48 px-6 md:px-[6rem] flex items-center justify-between">
+          <div className="relative h-40 md:h-48 px-6 md:px-[6rem] flex items-center justify-between pointer-events-none">
             <Image
               src="/baner-top-split-icons.png" /* Points to the banner image in public folder */
               alt="Banner"
-              layout="fill"
-              objectFit="cover"
+              fill
+              className="object-cover"
             />
           </div>
 
@@ -68,20 +66,24 @@ export default function ProfileCardHomepage() {
                 Products
               </h2>
               <div className="flex items-center justify-center gap-8">
-                <Link
+                <a
                   href="https://vectorpaint.vercel.app/"
                   className="text-gray-900 hover:text-orange-600 font-medium border-b border-gray-300 hover:border-gray-600 transition-colors"
                   data-testid="link-vectorpaint"
+                  target="_blank" 
+                  rel="noopener noreferrer"
                 >
                   Vector Paint
-                </Link>
-                <Link
+                </a>
+                <a
                   href="https://neilmcardle.com/make-ebook"
                   className="text-gray-900 hover:text-orange-600 font-medium border-b border-gray-300 hover:border-gray-600 transition-colors"
                   data-testid="link-makeebook"
+                  target="_blank" 
+                  rel="noopener noreferrer"
                 >
                   makeEbook
-                </Link>
+                </a>
               </div>
             </div>
 
@@ -101,13 +103,18 @@ export default function ProfileCardHomepage() {
 
             {/* Get in Touch Button */}
             <div className="text-center mt-4"> {/* Added top margin */}
-              <button
-                className="bg-gray-900 hover:bg-gray-800 hover:scale-105 text-white px-8 py-3 rounded-full font-medium flex items-center gap-2 mx-auto transition-transform shadow-lg"
+              <a
+                href="mailto:neil@neilmcardle.com"
+                className="bg-gray-900 hover:bg-gray-300 text-white px-6 py-2 rounded-full font-medium inline-flex items-center gap-2 transition-transform shadow-md"
                 data-testid="button-contact"
+                style={{
+                  boxShadow:
+                    "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                }}
               >
-                <Mail className="w-4 h-4" />
+                <Mail className="w-5 h-5" />
                 Get in Touch
-              </button>
+              </a>
             </div>
           </div>
         </div>
