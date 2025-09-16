@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
-import { ProtectedRoute } from "@/components/ProtectedRoute"; // Commented out
+// import { ProtectedRoute } from "@/components/ProtectedRoute"; 
 import { Header } from "@/components/Header";
 import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -635,10 +635,6 @@ function MakeEbookPage() {
 }
 
 export default function ProtectedMakeEbookPage() {
-  return (
-    <ProtectedRoute>
-      <MakeEbookPage />
-    </ProtectedRoute>
-  );
+  return <MakeEbookPage />;
 }
 
