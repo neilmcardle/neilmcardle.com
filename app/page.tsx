@@ -52,7 +52,7 @@ export default function ProfileCardHomepage() {
                 style={{ fontFamily: "Inter, sans-serif" }}
                 data-testid="text-title"
               >
-                Designer | Oil painter
+                Artist & Designer
               </p>
             </div>
 
@@ -68,7 +68,7 @@ export default function ProfileCardHomepage() {
               <div className="flex items-center justify-center gap-8">
                 <a
                   href="https://vectorpaint.vercel.app/"
-                  className="text-gray-900 hover:text-orange-600 font-medium border-b border-gray-300 hover:border-gray-600 transition-colors"
+                  className="text-gray-900 hover:text-orange-500 font-medium border-b border-gray-300 hover:border-gray-600 transition-colors"
                   data-testid="link-vectorpaint"
                   target="_blank" 
                   rel="noopener noreferrer"
@@ -77,7 +77,7 @@ export default function ProfileCardHomepage() {
                 </a>
                 <a
                   href="https://neilmcardle.com/make-ebook"
-                  className="text-gray-900 hover:text-orange-600 font-medium border-b border-gray-300 hover:border-gray-600 transition-colors"
+                  className="text-gray-900 hover:text-orange-500 font-medium border-b border-gray-300 hover:border-gray-600 transition-colors"
                   data-testid="link-makeebook"
                   target="_blank" 
                   rel="noopener noreferrer"
@@ -96,7 +96,7 @@ export default function ProfileCardHomepage() {
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <span data-testid="text-joined">
-                  Oil Painting since 2007. Designing since 2014.
+                  Painting since 2007. Designing since 2017.
                 </span>
               </div>
             </div>
@@ -105,7 +105,7 @@ export default function ProfileCardHomepage() {
             <div className="text-center mt-4"> {/* Added top margin */}
               <a
                 href="mailto:neil@neilmcardle.com"
-                className="bg-gray-900 hover:bg-gray-300 text-white px-6 py-2 rounded-full font-medium inline-flex items-center gap-2 transition-transform shadow-md"
+                className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-2 rounded-full font-medium inline-flex items-center gap-2 transition-transform shadow-md"
                 data-testid="button-contact"
                 style={{
                   boxShadow:
