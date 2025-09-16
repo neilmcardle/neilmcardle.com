@@ -57,6 +57,18 @@ export default function ProfileCardHomepage() {
             </div>
 
             {/* Products Section */}
+            <div className="space-y-2 text-sm text-gray-600 mb-8">
+              <div className="flex items-center justify-center gap-2"> {/* Flexbox for alignment */}
+                <MapPin className="w-4 h-4 text-gray-500" />
+                <span className="text-gray-900" data-testid="text-location">United Kingdom</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {/* <Calendar className="w-4 h-4" />
+                <span data-testid="text-joined">
+                  
+                </span> */}
+              </div>
+            </div>
             <div className="mb-6"> {/* Adjusted bottom margin */}
               <h2
                 className="text-xs font-bold text-gray-900 uppercase mb-4"
@@ -65,6 +77,8 @@ export default function ProfileCardHomepage() {
               >
                 Products
               </h2>
+              {/* Profile Details */}
+            
               <div className="flex items-center justify-center gap-8">
                 <a
                   href="https://vectorpaint.vercel.app/"
@@ -87,19 +101,7 @@ export default function ProfileCardHomepage() {
               </div>
             </div>
 
-            {/* Profile Details */}
-            <div className="space-y-2 text-sm text-gray-600 mb-8">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                <span data-testid="text-location">United Kingdom</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span data-testid="text-joined">
-                  Painting since 2007. Designing since 2014.
-                </span>
-              </div>
-            </div>
+            
 
             {/* Get in Touch Button */}
             <div className="text-center mt-4"> {/* Added top margin */}

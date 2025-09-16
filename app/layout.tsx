@@ -12,10 +12,10 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
-  title: "makeEbook - Create Beautiful eBooks",
+  title: "Neil McArdle - Artist & Designer",
   description:
-    "Professional eBook creation tool with rich text editing, chapter management, and export capabilities.",
-  generator: "makeEbook",
+    "Personal wesbite of Artist and Designer, Neil McArdle.",
+  generator: "",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
