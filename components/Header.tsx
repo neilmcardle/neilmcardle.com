@@ -62,8 +62,15 @@ export function Header() {
         <div className="flex items-center gap-2 min-w-[40px] justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="inline-flex rounded-full w-8 h-8 bg-gray-100 items-center justify-center hover:bg-gray-200 transition px-0" aria-label="User menu">
-                <UserIcon className="w-5 h-5 text-gray-400" />
+              <button className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition px-0" aria-label="User menu">
+                <Image
+              src="/user-icon.svg"
+              alt="user icon"
+              width={16}
+              height={16}
+              className="w-6 h-6"
+              priority
+            />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
