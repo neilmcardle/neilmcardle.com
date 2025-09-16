@@ -96,7 +96,7 @@ export default function ProfileCardHomepage() {
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <span data-testid="text-joined">
-                  Painting since 2007. Designing since 2017.
+                  Painting since 2007. Designing since 2014.
                 </span>
               </div>
             </div>
