@@ -1,14 +1,13 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { User } from '@supabase/supabase-js'
+import { User, AuthError } from '@supabase/supabase-js'
 import { getSupabaseBrowserClient } from '../supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 // Lazy initialize Supabase client to prevent hydration issues
 function ensureSupabase(): SupabaseClient | null {
   if (typeof window === 'undefined') {
-    console.log('Supabase: not in browser, skipping')
     return null
   }
   
@@ -23,9 +22,12 @@ function ensureSupabase(): SupabaseClient | null {
 interface AuthContextType {
   user: User | null
   loading: boolean
-  signUp: (email: string, password: string) => Promise<{ error: any }>
-  signIn: (email: string, password: string) => Promise<{ error: any }>
+  isAuthenticated: boolean
+  signUp: (email: string, password: string) => Promise<{ error: AuthError | null, needsVerification?: boolean }>
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
+  clearError: () => void
+  authError: string | null
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -33,6 +35,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [authError, setAuthError] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = ensureSupabase()
@@ -71,51 +74,95 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signUp = async (email: string, password: string) => {
+    setAuthError(null)
     const supabase = ensureSupabase()
     if (!supabase) {
-      return { error: { message: 'Supabase client not available' } }
+      const error = { name: 'ClientError', message: 'Authentication service unavailable' } as AuthError
+      setAuthError(error.message)
+      return { error }
     }
     
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      
+      if (error) {
+        setAuthError(error.message)
+        return { error }
       }
-    })
-    return { error }
+      
+      // Check if user needs email verification
+      const needsVerification = data.user && !data.user.email_confirmed_at ? true : undefined
+      return { error: null, needsVerification }
+    } catch (err) {
+      const error = { name: 'UnknownError', message: 'Sign-up failed' } as AuthError
+      setAuthError(error.message)
+      return { error }
+    }
   }
 
   const signIn = async (email: string, password: string) => {
+    setAuthError(null)
     const supabase = ensureSupabase()
     if (!supabase) {
-      return { error: { message: 'Supabase client not available' } }
+      const error = { name: 'ClientError', message: 'Authentication service unavailable' } as AuthError
+      setAuthError(error.message)
+      return { error }
     }
     
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    return { error }
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      
+      if (error) {
+        setAuthError(error.message)
+      }
+      
+      return { error }
+    } catch (err) {
+      const error = { name: 'UnknownError', message: 'Sign-in failed' } as AuthError
+      setAuthError(error.message)
+      return { error }
+    }
   }
 
   const signOut = async () => {
+    setAuthError(null)
     const supabase = ensureSupabase()
     if (!supabase) {
-      console.log('Supabase client not available for sign out')
+      console.log('Authentication service not available for sign out')
       return
     }
     
-    await supabase.auth.signOut()
+    try {
+      await supabase.auth.signOut()
+    } catch (error) {
+      console.error('Sign out error:', error)
+      setAuthError('Failed to sign out')
+    }
+  }
+  
+  const clearError = () => {
+    setAuthError(null)
   }
 
   return (
     <AuthContext.Provider value={{
       user,
       loading,
+      isAuthenticated: !!user,
       signUp,
       signIn,
       signOut,
+      clearError,
+      authError,
     }}>
       {children}
     </AuthContext.Provider>

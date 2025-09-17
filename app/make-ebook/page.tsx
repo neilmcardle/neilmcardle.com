@@ -1,8 +1,9 @@
 "use client";
 
 import React, { Suspense, useState, useRef, useLayoutEffect, useEffect } from "react";
-// import { ProtectedRoute } from "@/components/ProtectedRoute"; 
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Header } from "@/components/Header";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -634,11 +635,13 @@ function MakeEbookPage() {
   );
 }
 
-// Wrap `MakeEbookPage` in a `Suspense` boundary
+// Wrap `MakeEbookPage` in authentication protection and `Suspense` boundary
 export default function ProtectedMakeEbookPage() {
   return (
-    <Suspense fallback={<div>Loading makeEbook...</div>}>
-      <MakeEbookPage />
-    </Suspense>
+    <ProtectedRoute>
+      <Suspense fallback={<div>Loading makeEbook...</div>}>
+        <MakeEbookPage />
+      </Suspense>
+    </ProtectedRoute>
   );
 }
