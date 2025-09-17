@@ -26,6 +26,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error: AuthError | null, needsVerification?: boolean }>
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
+  resetPassword: (email: string) => Promise<{ error: AuthError | null, resetSent?: boolean }>
   clearError: () => void
   authError: string | null
 }
@@ -149,6 +150,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
   
+  const resetPassword = async (email: string) => {
+    setAuthError(null)
+    const supabase = ensureSupabase()
+    if (!supabase) {
+      const error = { name: 'ClientError', message: 'Authentication service unavailable' } as AuthError
+      setAuthError(error.message)
+      return { error }
+    }
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/update-password`
+      })
+      
+      if (error) {
+        setAuthError(error.message)
+        return { error }
+      }
+      
+      return { error: null, resetSent: true }
+    } catch (err) {
+      const error = { name: 'UnknownError', message: 'Password reset failed' } as AuthError
+      setAuthError(error.message)
+      return { error }
+    }
+  }
+  
   const clearError = () => {
     setAuthError(null)
   }
@@ -161,6 +189,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signUp,
       signIn,
       signOut,
+      resetPassword,
       clearError,
       authError,
     }}>
