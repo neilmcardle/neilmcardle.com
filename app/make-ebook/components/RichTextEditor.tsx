@@ -413,7 +413,7 @@ export default function RichTextEditor({
       
       {/* Mobile Toolbar - Fixed at bottom */}
       {focused && (
-        <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#ececec] shadow-lg z-50 p-3">
+        <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#ececec] shadow-lg z-[9999] p-3">
           <div className="flex items-center justify-center gap-3 max-w-md mx-auto">
             {/* Text formatting */}
             <div className="flex gap-2">

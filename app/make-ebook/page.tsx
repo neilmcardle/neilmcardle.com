@@ -545,7 +545,7 @@ function MakeEbookPage() {
           {/* Main Editor Panel - Mobile Optimized */}
           <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-2 sm:px-8 py-2 sm:py-8 min-w-0 h-full overflow-y-auto">
             {/* Mobile Header with Hamburger Menu */}
-            <div className="sm:hidden flex items-center justify-between mb-4 pb-2 border-b border-[#ececec]">
+            <div className="sm:hidden flex items-center justify-center mb-4 pb-2 border-b border-[#ececec]">
               <button
                 onClick={() => setMobileSidebarOpen(true)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#f4f4f5] hover:bg-[#ececec] transition-colors"
@@ -553,8 +553,6 @@ function MakeEbookPage() {
                 <Menu className="w-5 h-5" />
                 <span className="text-sm font-medium">Tools</span>
               </button>
-              <h1 className="text-lg font-semibold">Create eBook</h1>
-              <div className="w-16"></div> {/* Spacer for balance */}
             </div>
 
             {/* Book-level toolbar */}
