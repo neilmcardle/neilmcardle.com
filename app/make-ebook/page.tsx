@@ -583,10 +583,9 @@ function MakeEbookPage() {
             <div className="sm:hidden flex items-center justify-start mb-4 pb-2 border-b border-[#ececec]">
               <button
                 onClick={() => setMobileSidebarOpen(true)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#f4f4f5] hover:bg-[#ececec] transition-colors"
+                className="p-2 rounded-lg bg-[#f4f4f5] hover:bg-[#ececec] transition-colors"
               >
                 <Menu className="w-5 h-5" />
-                <span className="text-sm font-medium">Tools</span>
               </button>
             </div>
 
