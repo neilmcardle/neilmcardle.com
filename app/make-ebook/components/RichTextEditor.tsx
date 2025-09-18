@@ -153,6 +153,17 @@ export default function RichTextEditor({
     onFocusStateChange?.(true);
     refreshStates();
     ensureInitialParagraph();
+    
+    // On mobile, scroll the editor to near the top of viewport for optimal writing space
+    if (window.innerWidth < 1024 && editorRef.current) { // lg breakpoint is 1024px
+      setTimeout(() => {
+        if (editorRef.current) {
+          const editorRect = editorRef.current.getBoundingClientRect();
+          const scrollOffset = window.scrollY + editorRect.top - 4; // 4px from top as requested
+          window.scrollTo({ top: scrollOffset, behavior: 'smooth' });
+        }
+      }, 100); // Small delay to ensure keyboard is starting to appear
+    }
   };
 
   const handleBlur = () => {
