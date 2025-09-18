@@ -122,6 +122,7 @@ function MakeEbookPage() {
     handleTouchStart,
     handleTouchMove,
     handleTouchEnd,
+    isDragging,
     handleSelectChapter,
   } = useChapters();
 
@@ -667,7 +668,7 @@ function MakeEbookPage() {
                 </div>
                 
                 {/* Horizontal Chapter Pills */}
-                <div className="flex gap-2 overflow-x-auto pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+                <div className="flex gap-2 overflow-x-auto pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x'}}>
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
                     const displayTitle = ch.title?.trim() || `Chapter ${i + 1}`;
@@ -680,6 +681,7 @@ function MakeEbookPage() {
                             ? "bg-[#181a1d] text-white shadow-sm" 
                             : "bg-[#f4f4f5] text-[#6a6c72] hover:bg-[#ececec]"
                         }`}
+                        style={{ touchAction: 'manipulation' }}
                         draggable
                         onDragStart={() => handleDragStart(i)}
                         onDragEnter={() => handleDragEnter(i)}

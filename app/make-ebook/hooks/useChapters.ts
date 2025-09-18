@@ -8,12 +8,17 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
   const [selectedChapter, setSelectedChapter] = useState(0);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
+  const isDragging = useRef<boolean>(false);
 
   function handleAddChapter() {
     setChapters((chs) => [...chs, { title: "", content: "" }]);
     setSelectedChapter(chapters.length);
   }
-  function handleSelectChapter(idx: number) { setSelectedChapter(idx); }
+  function handleSelectChapter(idx: number) { 
+    // Prevent selection if we just finished dragging
+    if (isDragging.current) return;
+    setSelectedChapter(idx); 
+  }
   function handleChapterTitleChange(idx: number, value: string) {
     setChapters((chs) => chs.map((ch, i) => (i === idx ? { ...ch, title: value } : ch)));
   }
@@ -43,8 +48,15 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
     dragItem.current = null;
     dragOverItem.current = null;
   }
-  function handleTouchStart(index: number) { dragItem.current = index; }
+  function handleTouchStart(index: number) { 
+    dragItem.current = index;
+    isDragging.current = false; // Reset dragging state
+  }
   function handleTouchMove(index: number, e: React.TouchEvent) {
+    // Prevent scrolling once we start dragging
+    e.preventDefault();
+    isDragging.current = true;
+    
     const touch = e.touches[0];
     const target = document.elementFromPoint(touch.clientX, touch.clientY);
     const chapterEls = Array.from(document.querySelectorAll('[data-chapter-idx]'));
@@ -56,7 +68,13 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
       }
     }
   }
-  function handleTouchEnd() { handleDragEnd(); }
+  function handleTouchEnd() { 
+    handleDragEnd();
+    // Reset dragging state after a short delay to prevent ghost clicks
+    setTimeout(() => {
+      isDragging.current = false;
+    }, 100);
+  }
 
   return {
     chapters,
@@ -74,5 +92,6 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
     handleTouchStart,
     handleTouchMove,
     handleTouchEnd,
+    isDragging,
   };
 }
