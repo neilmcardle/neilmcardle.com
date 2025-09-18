@@ -12,6 +12,16 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
   const isDragging = useRef<boolean>(false);
   const touchStartPos = useRef<{x: number, y: number} | null>(null);
   const dragThreshold = 8; // pixels to move before considering it a drag
+  const [ghostPillPosition, setGhostPillPosition] = useState<{x: number, y: number, visible: boolean}>({
+    x: 0, 
+    y: 0, 
+    visible: false
+  });
+  const [ghostPillContent, setGhostPillContent] = useState<{title: string, isSelected: boolean}>({
+    title: '',
+    isSelected: false
+  });
+  const [dragItemIndex, setDragItemIndex] = useState<number | null>(null);
 
   function handleAddChapter() {
     setChapters((chs) => [...chs, { title: "", content: "" }]);
@@ -69,11 +79,20 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
   }
   function handleTouchStart(index: number, e: React.TouchEvent) { 
     dragItem.current = index;
+    setDragItemIndex(index);
     isDragging.current = false;
     
     // Store initial touch position
     const touch = e.touches[0];
     touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+    
+    // Prepare ghost pill content
+    const chapter = chapters[index];
+    const displayTitle = chapter?.title?.trim() || `Chapter ${index + 1}`;
+    setGhostPillContent({
+      title: displayTitle,
+      isSelected: selectedChapter === index
+    });
   }
   function handleTouchMove(index: number, e: React.TouchEvent) {
     if (!touchStartPos.current) return;
@@ -91,12 +110,31 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
       if (!isDragging.current) {
         isDragging.current = true;
         
+        // Add haptic feedback for drag start
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
+        
         // Disable horizontal scrolling on the container during drag
         const scrollContainer = document.querySelector('.chapter-pills-container') as HTMLElement;
         if (scrollContainer) {
           scrollContainer.style.touchAction = 'none';
           scrollContainer.style.overflowX = 'hidden';
         }
+        
+        // Show ghost pill at finger position
+        setGhostPillPosition({
+          x: touch.clientX - 80, // Offset to center pill under finger
+          y: touch.clientY - 20,
+          visible: true
+        });
+      } else {
+        // Update ghost pill position while dragging
+        setGhostPillPosition(prev => ({
+          ...prev,
+          x: touch.clientX - 80,
+          y: touch.clientY - 20
+        }));
       }
       
       const target = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -123,10 +161,25 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
     
     // Only handle drag end if we were actually dragging
     if (isDragging.current) {
+      const dragWasSuccessful = dragItem.current !== null && dragOverItem.current !== null && dragItem.current !== dragOverItem.current;
+      
       handleDragEnd();
+      
+      // Add haptic feedback based on drag result
+      if (navigator.vibrate) {
+        if (dragWasSuccessful) {
+          // Success: double vibration
+          navigator.vibrate([100, 50, 100]);
+        } else {
+          // No change or invalid: single short vibration
+          navigator.vibrate(30);
+        }
+      }
     }
     
-    // Reset all drag states
+    // Hide ghost pill and reset all drag states
+    setGhostPillPosition({ x: 0, y: 0, visible: false });
+    setDragItemIndex(null);
     touchStartPos.current = null;
     setTimeout(() => {
       isDragging.current = false;
@@ -152,5 +205,8 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
     handleTouchEnd,
     isDragging,
     dragOverIndex,
+    ghostPillPosition,
+    ghostPillContent,
+    dragItemIndex,
   };
 }

@@ -125,6 +125,9 @@ function MakeEbookPage() {
     isDragging,
     dragOverIndex,
     handleSelectChapter,
+    ghostPillPosition,
+    ghostPillContent,
+    dragItemIndex,
   } = useChapters();
 
   const {
@@ -702,6 +705,7 @@ function MakeEbookPage() {
                         onTouchMove={(e) => handleTouchMove(i, e)}
                         onTouchEnd={handleTouchEnd}
                         onClick={() => handleSelectChapter(i)}
+                        style={{ opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1 }}
                       >
                         <HandleDots />
                         <span className="truncate max-w-[120px] flex-1 text-center">{displayTitle}</span>
@@ -721,6 +725,26 @@ function MakeEbookPage() {
                     );
                   })}
                 </div>
+                
+                {/* Ghost Pill for Finger-Following Drag */}
+                {ghostPillPosition.visible && (
+                  <div
+                    className="fixed z-50 pointer-events-none flex items-center gap-2 flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium shadow-xl"
+                    style={{
+                      left: ghostPillPosition.x,
+                      top: ghostPillPosition.y,
+                      backgroundColor: ghostPillContent.isSelected ? "#181a1d" : "#f4f4f5",
+                      color: ghostPillContent.isSelected ? "white" : "#6a6c72",
+                      transform: "scale(1.1)",
+                      opacity: 0.9,
+                    }}
+                  >
+                    <HandleDots />
+                    <span className="truncate max-w-[120px] flex-1 text-center">
+                      {ghostPillContent.title}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Chapter Title Input - Touch Optimized */}
