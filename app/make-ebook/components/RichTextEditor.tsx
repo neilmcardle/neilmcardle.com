@@ -11,6 +11,7 @@ import React, {
   ChangeEvent,
   KeyboardEvent,
 } from 'react';
+import Link from 'next/link';
 
 interface RichTextEditorProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -410,8 +411,23 @@ export default function RichTextEditor({
           }
         `}</style>
         {showWordCount && (
-          <div className="px-4 pb-2 text-[11px] text-[#86868B] flex justify-end select-none">
-            Words: {wordCount} | Characters: {charCount}
+          <div className="px-4 pb-2 text-[11px] text-[#86868B] flex justify-between items-center select-none">
+            {/* Terms/Privacy links - only on mobile */}
+            <div className="lg:hidden flex items-center space-x-2">
+              <Link href="/terms" className="hover:underline" target="_blank">
+                Terms
+              </Link>
+              <span className="text-gray-300">|</span>
+              <Link href="/privacy" className="hover:underline" target="_blank">
+                Privacy
+              </Link>
+            </div>
+            {/* Spacer for desktop when links are hidden */}
+            <div className="hidden lg:block"></div>
+            {/* Word count - always on the right */}
+            <div>
+              Words: {wordCount} | Characters: {charCount}
+            </div>
           </div>
         )}
         {/* Hidden image file picker */}

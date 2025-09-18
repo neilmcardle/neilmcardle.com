@@ -669,7 +669,7 @@ function MakeEbookPage() {
                 </div>
                 
                 {/* Horizontal Chapter Pills */}
-                <div className="flex gap-2 overflow-x-auto pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x', userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
+                <div className="chapter-pills-container flex gap-2 overflow-x-auto pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x', userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
                     const displayTitle = ch.title?.trim() || `Chapter ${i + 1}`;
@@ -677,20 +677,29 @@ function MakeEbookPage() {
                       <div
                         key={i}
                         data-chapter-idx={i}
-                        className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all touch-manipulation cursor-pointer select-none group ${
-                          dragOverIndex === i ? 'border-2 border-dashed border-blue-400' : 'border-2 border-transparent'
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all touch-manipulation cursor-pointer select-none group relative ${
+                          dragOverIndex === i 
+                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
+                            : 'border-2 border-transparent'
                         } ${
                           isSelected 
                             ? "bg-[#181a1d] text-white shadow-sm" 
                             : "bg-[#f4f4f5] text-[#6a6c72] hover:bg-[#ececec]"
                         }`}
-                        style={{ touchAction: 'manipulation', userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none', WebkitUserDrag: 'none' }}
+                        style={{ 
+                          touchAction: 'manipulation', 
+                          userSelect: 'none', 
+                          WebkitUserSelect: 'none', 
+                          WebkitTouchCallout: 'none',
+                          // @ts-ignore - WebkitUserDrag is valid but not in TypeScript types
+                          WebkitUserDrag: 'none'
+                        } as React.CSSProperties}
                         draggable
                         onDragStart={() => handleDragStart(i)}
                         onDragEnter={() => handleDragEnter(i)}
                         onDragEnd={handleDragEnd}
                         onDragOver={(e) => e.preventDefault()}
-                        onTouchStart={() => handleTouchStart(i)}
+                        onTouchStart={(e) => handleTouchStart(i, e)}
                         onTouchMove={(e) => handleTouchMove(i, e)}
                         onTouchEnd={handleTouchEnd}
                         onClick={() => handleSelectChapter(i)}
@@ -773,11 +782,12 @@ function MakeEbookPage() {
                       <div
                         key={i}
                         ref={el => { chapterRefs.current[i] = el }}
-                        className={`flex items-center px-6 py-2.5 mb-2 cursor-pointer transition
+                        className={`flex items-center px-6 py-2.5 mb-2 cursor-pointer transition relative
                           ${isSelected ? "text-white font-semibold" : "text-white/75"}
-                          ${dragOverIndex === i ? 'border-2 border-dashed border-blue-400' : 'border-2 border-transparent'}
+                          ${dragOverIndex === i 
+                            ? 'border-2 border-dashed border-blue-400 bg-blue-500/20 scale-105 shadow-lg' 
+                            : 'border-2 border-transparent'}
                           rounded-full
-                          relative
                           `}
                         style={{
                           backgroundColor: "#181a1d",
@@ -841,33 +851,7 @@ function MakeEbookPage() {
           </main>
         </div>
 
-        {/* --- Begin: Floating Legal Links --- */}
-        <div
-          className="fixed bottom-4 right-6 z-50 flex flex-col items-end space-y-1"
-          style={{ pointerEvents: "none" }}
-        >
-          <div
-            className="bg-white/90 rounded-md px-3 py-1 shadow border border-gray-200 text-xs text-gray-500 space-x-3"
-            style={{ pointerEvents: "auto" }}
-          >
-            <Link
-              href="/terms"
-              className="hover:underline text-gray-500"
-              target="_blank"
-            >
-              Terms of Service
-            </Link>
-            <span className="mx-1 text-gray-300">|</span>
-            <Link
-              href="/privacy"
-              className="hover:underline text-gray-500"
-              target="_blank"
-            >
-              Privacy Policy
-            </Link>
-          </div>
-        </div>
-        {/* --- End: Floating Legal Links --- */}
+        {/* Terms/Privacy links moved to mobile editor footer */}
       </div>
     </>
   );

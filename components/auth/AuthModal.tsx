@@ -7,7 +7,7 @@ import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog'
 import { Alert, AlertDescription } from '../ui/alert'
-import { Loader2, Mail, CheckCircle, AlertCircle } from 'lucide-react'
+import { Loader2, Mail, CheckCircle, AlertCircle, Lock } from 'lucide-react'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -232,7 +232,12 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signup' }: AuthModal
             disabled={isLoading}
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {mode === 'signin' ? 'Sign In' : mode === 'reset' ? 'Send Reset Link' : 'Create Free Account'}
+            {mode === 'signin' ? 'Sign In' : mode === 'reset' ? 'Send Reset Link' : (
+              <span className="flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                Sign up for free
+              </span>
+            )}
           </Button>
         </form>
         

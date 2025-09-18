@@ -60,10 +60,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Handle user authentication events
         if (event === 'SIGNED_IN' && session?.user) {
           // User creation is now handled securely server-side in auth callback
-          // If user has verified their email, redirect to make-ebook
+          // If user has verified their email, redirect to make-ebook only from auth flows
           if (session.user.email_confirmed_at && typeof window !== 'undefined') {
-            // Redirect to tool unless already on the main tool page
-            if (window.location.pathname !== '/make-ebook') {
+            // Only redirect if user is on explore page or auth-related pages, not the homepage
+            const currentPath = window.location.pathname
+            const shouldRedirect = currentPath === '/make-ebook/explore' || 
+                                 currentPath.includes('auth') || 
+                                 currentPath.includes('login') ||
+                                 currentPath.includes('signup')
+            
+            if (shouldRedirect && currentPath !== '/make-ebook') {
               window.location.href = '/make-ebook'
             }
           }

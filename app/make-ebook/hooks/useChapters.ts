@@ -10,6 +10,8 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
   const isDragging = useRef<boolean>(false);
+  const touchStartPos = useRef<{x: number, y: number} | null>(null);
+  const dragThreshold = 8; // pixels to move before considering it a drag
 
   function handleAddChapter() {
     setChapters((chs) => [...chs, { title: "", content: "" }]);
@@ -65,32 +67,67 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
     setChapters(updated);
     setSelectedChapter(to);
   }
-  function handleTouchStart(index: number) { 
+  function handleTouchStart(index: number, e: React.TouchEvent) { 
     dragItem.current = index;
-    isDragging.current = false; // Reset dragging state
+    isDragging.current = false;
+    
+    // Store initial touch position
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
   }
   function handleTouchMove(index: number, e: React.TouchEvent) {
-    // Prevent scrolling once we start dragging
-    e.preventDefault();
-    isDragging.current = true;
+    if (!touchStartPos.current) return;
     
     const touch = e.touches[0];
-    const target = document.elementFromPoint(touch.clientX, touch.clientY);
-    const chapterEls = Array.from(document.querySelectorAll('[data-chapter-idx]'));
-    if (!target) return;
-    for (const el of chapterEls) {
-      if (el.contains(target)) {
-        const idx = Number((el as HTMLElement).dataset.chapterIdx);
-        if (!isNaN(idx)) {
-          dragOverItem.current = idx;
-          setDragOverIndex(idx);
+    const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
+    
+    // Only start drag behavior if we've moved beyond the threshold
+    if (deltaX > dragThreshold || deltaY > dragThreshold) {
+      // Prevent scrolling once we're actually dragging
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (!isDragging.current) {
+        isDragging.current = true;
+        
+        // Disable horizontal scrolling on the container during drag
+        const scrollContainer = document.querySelector('.chapter-pills-container') as HTMLElement;
+        if (scrollContainer) {
+          scrollContainer.style.touchAction = 'none';
+          scrollContainer.style.overflowX = 'hidden';
+        }
+      }
+      
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      const chapterEls = Array.from(document.querySelectorAll('[data-chapter-idx]'));
+      if (!target) return;
+      for (const el of chapterEls) {
+        if (el.contains(target)) {
+          const idx = Number((el as HTMLElement).dataset.chapterIdx);
+          if (!isNaN(idx)) {
+            dragOverItem.current = idx;
+            setDragOverIndex(idx);
+          }
         }
       }
     }
   }
   function handleTouchEnd() { 
-    handleDragEnd();
-    // Reset dragging state after a short delay to prevent ghost clicks
+    // Re-enable horizontal scrolling on the container
+    const scrollContainer = document.querySelector('.chapter-pills-container') as HTMLElement;
+    if (scrollContainer) {
+      scrollContainer.style.touchAction = 'pan-x';
+      scrollContainer.style.overflowX = 'auto';
+    }
+    
+    // Only handle drag end if we were actually dragging
+    if (isDragging.current) {
+      handleDragEnd();
+    }
+    
+    // Reset all drag states
+    touchStartPos.current = null;
     setTimeout(() => {
       isDragging.current = false;
       setDragOverIndex(null);

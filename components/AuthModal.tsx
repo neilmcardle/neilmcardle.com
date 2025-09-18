@@ -8,6 +8,7 @@ import { Label } from './ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
 import { Checkbox } from './ui/checkbox'
 import { useToast } from './ui/use-toast'
+import { Lock } from 'lucide-react'
 import Link from 'next/link'
 
 interface AuthModalProps {
@@ -174,7 +175,12 @@ export function AuthModal({ trigger, mode = 'signin' }: AuthModalProps) {
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Processing...' : (authMode === 'signin' ? 'Sign In' : 'Sign Up')}
+              {loading ? 'Processing...' : (authMode === 'signin' ? 'Sign In' : (
+                <span className="flex items-center gap-2">
+                  <Lock className="w-4 h-4" />
+                  Sign up for free
+                </span>
+              ))}
             </Button>
           </form>
         )}
