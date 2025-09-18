@@ -6,6 +6,7 @@ import { AuthModal } from './AuthModal'
 import { Button } from '../ui/button'
 import { Lock, Edit3, BookOpen, Download } from 'lucide-react'
 import { MakeEbookIcon } from '@/components/MakeEbookIcon'
+import Image from 'next/image'
 
 interface ProtectedRouteProps {
   children: ReactNode
@@ -60,7 +61,13 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
           <div className="max-w-md mx-auto p-8 text-center">
             <div className="mb-6">
               <div className="flex justify-center mb-4">
-                <MakeEbookIcon className="w-20 h-20 text-gray-600" />
+                <Image
+                  src="/makeebook-logo-full.png"
+                  alt="MakeEbook Logo"
+                  width={120}
+                  height={120}
+                  className="object-contain"
+                />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Start Creating eBooks
