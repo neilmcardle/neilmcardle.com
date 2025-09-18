@@ -813,7 +813,7 @@ function MakeEbookPage() {
                     <span>Add new chapter</span>
                   </button>
                 </div>
-                <div className="flex flex-wrap gap-3 min-h-[80px]">
+                <div className="flex flex-wrap gap-3 min-h-[8px]">
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
                     const displayTitle =
