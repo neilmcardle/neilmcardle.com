@@ -914,7 +914,7 @@ function MakeEbookPage() {
               
               {/* Editor Area */}
               <section className="flex flex-col min-w-0">
-                <div className="relative mb-3">
+                <div className="relative mb-8">
                   <input
                     className="w-full px-4 py-2.5 rounded-xl border border-[#e4e5e7] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8]"
                     placeholder="Enter the chapter title..."
