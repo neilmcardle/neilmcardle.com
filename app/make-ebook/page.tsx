@@ -405,7 +405,7 @@ function MakeEbookPage() {
                 
                 {/* Tab Navigation */}
                 <nav className="flex border-b border-[#ececec] p-4 gap-2 overflow-x-auto">
-                  {["setup", "preview", "ai", "library"].map((key) => (
+                  {["setup", "preview", "library"].map((key) => (
                     <button
                       key={key}
                       className={`px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap ${
@@ -516,7 +516,7 @@ function MakeEbookPage() {
                       readingTime={readingTime}
                     />
                   )}
-                  {tab === "ai" && <AiTabContent />}
+                  {/* {tab === "ai" && <AiTabContent />} */}
                   {tab === "library" && (
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Your Library</h3>
@@ -564,7 +564,7 @@ function MakeEbookPage() {
           {/* Desktop Sidebar - Hidden on Mobile */}
           <aside className="hidden lg:flex flex-col w-full lg:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 lg:min-w-[340px] lg:h-full overflow-y-auto shadow-sm p-4 gap-4">
             <nav className="flex flex-row border-b border-[#ececec] items-center gap-2 pb-2">
-              {["setup", "preview", "ai"].map((key) => (
+              {["setup", "preview"].map((key) => (
                 <button
                   key={key}
                   className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
@@ -629,7 +629,7 @@ function MakeEbookPage() {
                   readingTime={readingTime}
                 />
               )}
-              {tab === "ai" && <AiTabContent />}
+              {/* {tab === "ai" && <AiTabContent />} */}
             </div>
           </aside>
 
@@ -778,7 +778,7 @@ function MakeEbookPage() {
                     handleChapterTitleChange(selectedChapter, e.target.value)
                   }
                 />
-                <span className="absolute -top-2 right-3 bg-white px-2 text-xs text-[#9ca3af]">Chapter title</span>
+                <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af]">Chapter title</span>
               </div>
 
               {/* Rich Text Editor - Maximized for Mobile with Safe Spacing */}
@@ -795,7 +795,7 @@ function MakeEbookPage() {
                   }
                   className="h-full"
                 />
-                <span className="absolute -top-2 right-3 bg-white px-2 text-xs text-[#9ca3af] z-10">Chapter content</span>
+                <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af] z-10">Chapter content</span>
               </div>
             </div>
 
@@ -880,7 +880,7 @@ function MakeEbookPage() {
                       handleChapterTitleChange(selectedChapter, e.target.value)
                     }
                   />
-                  <span className="absolute -top-2 right-3 bg-white px-2 text-xs text-[#9ca3af]">Chapter title</span>
+                  <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af]">Chapter title</span>
                 </div>
                 <div className="relative">
                   <RichTextEditor
@@ -896,7 +896,7 @@ function MakeEbookPage() {
                         : "Start writing your chapter here..."
                     }
                   />
-                  <span className="absolute -top-2 right-3 bg-white px-2 text-xs text-[#9ca3af] z-10">Chapter content</span>
+                  <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af] z-10">Chapter content</span>
                 </div>
               </section>
             </div>
