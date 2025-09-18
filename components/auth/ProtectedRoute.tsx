@@ -4,7 +4,7 @@ import { ReactNode, useState } from 'react'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { AuthModal } from './AuthModal'
 import { Button } from '../ui/button'
-import { Lock, Users, Download } from 'lucide-react'
+import { Lock, Edit3, BookOpen, Download } from 'lucide-react'
 import { MakeEbookIcon } from '@/components/MakeEbookIcon'
 
 interface ProtectedRouteProps {
@@ -59,8 +59,8 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
         <div className="absolute inset-0 bg-white/90 flex items-center justify-center">
           <div className="max-w-md mx-auto p-8 text-center">
             <div className="mb-6">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MakeEbookIcon className="w-8 h-8 text-gray-600" />
+              <div className="flex justify-center mb-4">
+                <MakeEbookIcon className="w-20 h-20 text-gray-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Start Creating eBooks
@@ -73,11 +73,11 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
             {/* Features Preview */}
             <div className="space-y-3 mb-6 text-left">
               <div className="flex items-center text-sm text-gray-600">
-                <MakeEbookIcon className="w-4 h-4 mr-3 text-gray-400" />
+                <Edit3 className="w-4 h-4 mr-3 text-gray-400" />
                 Rich text editor with formatting
               </div>
               <div className="flex items-center text-sm text-gray-600">
-                <Users className="w-4 h-4 mr-3 text-gray-400" />
+                <BookOpen className="w-4 h-4 mr-3 text-gray-400" />
                 Chapter management & organization
               </div>
               <div className="flex items-center text-sm text-gray-600">
