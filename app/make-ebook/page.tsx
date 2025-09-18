@@ -791,9 +791,9 @@ function MakeEbookPage() {
             </div>
 
             {/* DESKTOP layout */}
-            <div className="hidden lg:flex flex-row gap-6">
-              {/* Chapters Column (redesigned) */}
-              <div className="flex flex-col min-w-[250px] w-[270px] gap-4">
+            <div className="hidden lg:flex flex-col gap-6">
+              {/* Chapters Section */}
+              <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-[11px] font-semibold uppercase tracking-wide text-[#6a6c72]">
                     Chapters
@@ -807,8 +807,7 @@ function MakeEbookPage() {
                     <span>Add new chapter</span>
                   </button>
                 </div>
-                <div className="relative flex flex-col gap-3 pr-1 min-h-[120px]">
-                  <ChapterCapsuleMarker markerStyle={markerStyle} />
+                <div className="flex flex-wrap gap-3 min-h-[80px]">
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
                     const displayTitle =
@@ -819,17 +818,14 @@ function MakeEbookPage() {
                       <div
                         key={i}
                         ref={el => { chapterRefs.current[i] = el }}
-                        className={`flex items-center px-6 py-2.5 mb-2 cursor-pointer transition relative
-                          ${isSelected ? "text-white font-semibold" : "text-white/75"}
+                        className={`flex items-center px-4 py-2 cursor-pointer transition relative rounded-full flex-shrink-0
+                          ${isSelected 
+                            ? "bg-[#181a1d] text-white font-semibold" 
+                            : "bg-[#f4f4f5] text-[#6a6c72] hover:bg-[#ececec]"}
                           ${dragOverIndex === i 
-                            ? 'border-2 border-dashed border-blue-400 bg-blue-500/20 scale-105 shadow-lg' 
+                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
                             : 'border-2 border-transparent'}
-                          rounded-full
                           `}
-                        style={{
-                          backgroundColor: "#181a1d",
-                          borderRadius: 9999,
-                        }}
                         draggable
                         onDragStart={() => handleDragStart(i)}
                         onDragEnter={() => handleDragEnter(i)}
@@ -838,30 +834,33 @@ function MakeEbookPage() {
                         onClick={() => handleSelectChapter(i)}
                       >
                         <HandleDots />
-                        <span className="ml-3 text-[12px] truncate flex-1 min-w-0">
+                        <span className="ml-2 text-[12px] truncate min-w-0">
                           {displayTitle}
                         </span>
-                        <span className="ml-4 text-[11px] font-medium whitespace-nowrap">
-                          {plainText(ch.content).length} chars
-                        </span>
-                        <button
-                          className="ml-4 p-1 rounded hover:bg-white/10 text-white/65 hover:text-white transition"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveChapter(i);
-                          }}
-                          aria-label="Delete Chapter"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {chapters.length > 1 && (
+                          <button
+                            className={`ml-2 p-1 rounded transition ${
+                              isSelected 
+                                ? "hover:bg-white/10 text-white/65 hover:text-white" 
+                                : "hover:bg-black/10 text-[#6a6c72]/65 hover:text-[#6a6c72]"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveChapter(i);
+                            }}
+                            aria-label="Delete Chapter"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     );
                   })}
                 </div>
               </div>
-
+              
               {/* Editor Area */}
-              <section className="flex-1 flex flex-col min-w-0">
+              <section className="flex flex-col min-w-0">
                 <input
                   className="w-full mb-3 px-4 py-2.5 rounded-xl border border-[#e4e5e7] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8]"
                   placeholder="Enter the chapter title..."
