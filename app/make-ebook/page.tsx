@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, Trash2, BookOpen, Menu, X } from "lucide-react";
+import { Plus, Trash2, BookOpen, Menu, X, Save, Download } from "lucide-react";
 import { LANGUAGES, today } from "./utils/constants";
 import MetaTabContent from "./components/MetaTabContent";
 import PreviewPanel from "./components/PreviewPanel";
@@ -423,34 +423,42 @@ function MakeEbookPage() {
                 
                 {/* Additional Actions */}
                 <div className="p-4 border-b border-[#ececec]">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex justify-around gap-4">
                     <button
                       onClick={() => {
                         handleSaveBook();
                         setMobileSidebarOpen(false);
                       }}
-                      className="w-full px-3 py-2 rounded-lg bg-[#181a1d] text-white text-sm font-medium hover:bg-[#23252a] transition-colors"
+                      className="flex flex-col items-center gap-1 text-[#23242a] hover:text-black transition min-w-[64px] text-xs bg-transparent border-none outline-none"
+                      disabled={!!saveFeedback}
+                      type="button"
                     >
-                      Save Book
+                      <Save className="w-5 h-5" />
+                      <span className={`transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
+                        {saveFeedback ? "Saved!" : "Save"}
+                      </span>
                     </button>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          handleExportEPUB();
-                          setMobileSidebarOpen(false);
-                        }}
-                        className="flex-1 px-3 py-2 rounded-lg border border-[#ececec] text-sm font-medium hover:bg-[#f4f4f5] transition-colors"
+                    <button
+                      onClick={() => {
+                        handleExportEPUB();
+                        setMobileSidebarOpen(false);
+                      }}
+                      className="flex flex-col items-center gap-1 text-[#23242a] hover:text-black transition min-w-[64px] text-xs bg-transparent border-none outline-none"
+                      type="button"
                     >
-                      Export EPUB
+                      <Download className="w-5 h-5" />
+                      <span>Export</span>
                     </button>
                     <button
                       onClick={() => {
                         showNewBookConfirmation();
                         setMobileSidebarOpen(false);
                       }}
-                      className="flex-1 px-3 py-2 rounded-lg border border-[#ececec] text-sm font-medium hover:bg-[#f4f4f5] transition-colors"
+                      className="flex flex-col items-center gap-1 text-[#23242a] hover:text-black transition min-w-[64px] text-xs bg-transparent border-none outline-none"
+                      type="button"
                     >
-                      New Book
+                      <Plus className="w-5 h-5" />
+                      <span>New Book</span>
                     </button>
                   </div>
                 </div>
