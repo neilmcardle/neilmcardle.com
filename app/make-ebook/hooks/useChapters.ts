@@ -22,6 +22,49 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
     isSelected: false
   });
   const [dragItemIndex, setDragItemIndex] = useState<number | null>(null);
+  const autoScrollInterval = useRef<number | null>(null);
+
+  function startAutoScroll(touchX: number) {
+    const scrollContainer = document.querySelector('.chapter-pills-container') as HTMLElement;
+    if (!scrollContainer) return;
+    
+    const containerRect = scrollContainer.getBoundingClientRect();
+    const edgeThreshold = 50; // pixels from edge to trigger scroll
+    const scrollSpeed = 3; // base scroll speed
+    
+    const leftEdge = containerRect.left;
+    const rightEdge = containerRect.right;
+    
+    let scrollDirection = 0;
+    if (touchX < leftEdge + edgeThreshold) {
+      scrollDirection = -1; // scroll left
+    } else if (touchX > rightEdge - edgeThreshold) {
+      scrollDirection = 1; // scroll right
+    }
+    
+    if (scrollDirection !== 0) {
+      if (autoScrollInterval.current) {
+        cancelAnimationFrame(autoScrollInterval.current);
+      }
+      
+      function scroll() {
+        if (scrollContainer) {
+          scrollContainer.scrollBy({ left: scrollDirection * scrollSpeed });
+          autoScrollInterval.current = requestAnimationFrame(scroll);
+        }
+      }
+      autoScrollInterval.current = requestAnimationFrame(scroll);
+    } else {
+      stopAutoScroll();
+    }
+  }
+  
+  function stopAutoScroll() {
+    if (autoScrollInterval.current) {
+      cancelAnimationFrame(autoScrollInterval.current);
+      autoScrollInterval.current = null;
+    }
+  }
 
   function handleAddChapter() {
     setChapters((chs) => [...chs, { title: "", content: "" }]);
@@ -116,11 +159,10 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
           navigator.vibrate(50);
         }
         
-        // Disable horizontal scrolling on the container during drag
+        // Disable page scrolling but allow container scrolling during drag
         const scrollContainer = document.querySelector('.chapter-pills-container') as HTMLElement;
         if (scrollContainer) {
           scrollContainer.style.touchAction = 'none';
-          scrollContainer.style.overflowX = 'hidden';
         }
         
         // Show ghost pill at finger position (allow movement beyond viewport)
@@ -138,6 +180,9 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
         }));
       }
       
+      // Start auto-scroll if near edges
+      startAutoScroll(touch.clientX);
+      
       const target = document.elementFromPoint(touch.clientX, touch.clientY);
       const chapterEls = Array.from(document.querySelectorAll('[data-chapter-idx]'));
       if (!target) return;
@@ -153,11 +198,11 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
     }
   }
   function handleTouchEnd() { 
-    // Re-enable horizontal scrolling on the container
+    // Stop auto-scroll and re-enable touch scrolling
+    stopAutoScroll();
     const scrollContainer = document.querySelector('.chapter-pills-container') as HTMLElement;
     if (scrollContainer) {
       scrollContainer.style.touchAction = 'pan-x';
-      scrollContainer.style.overflowX = 'auto';
     }
     
     // Only handle drag end if we were actually dragging
