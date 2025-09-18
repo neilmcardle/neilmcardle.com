@@ -769,7 +769,7 @@ function MakeEbookPage() {
               </div>
 
               {/* Chapter Title Input - Touch Optimized */}
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 relative">
                 <input
                   className="w-full px-4 py-3.5 rounded-xl border border-[#e4e5e7] text-base bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] touch-manipulation"
                   placeholder="Chapter title..."
@@ -778,10 +778,11 @@ function MakeEbookPage() {
                     handleChapterTitleChange(selectedChapter, e.target.value)
                   }
                 />
+                <span className="absolute -top-2 right-3 bg-white px-2 text-xs text-[#9ca3af]">Chapter title</span>
               </div>
 
               {/* Rich Text Editor - Maximized for Mobile with Safe Spacing */}
-              <div className="flex-1 min-h-0 pb-20 sm:pb-0"> {/* Add bottom padding on mobile for toolbar */}
+              <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative"> {/* Add bottom padding on mobile for toolbar */}
                 <RichTextEditor
                   value={chapters[selectedChapter]?.content || ""}
                   onChange={(html) => handleChapterContentChange(selectedChapter, html)}
@@ -794,6 +795,7 @@ function MakeEbookPage() {
                   }
                   className="h-full"
                 />
+                <span className="absolute -top-2 right-3 bg-white px-2 text-xs text-[#9ca3af] z-10">Chapter content</span>
               </div>
             </div>
 
@@ -869,27 +871,33 @@ function MakeEbookPage() {
               
               {/* Editor Area */}
               <section className="flex flex-col min-w-0">
-                <input
-                  className="w-full mb-3 px-4 py-2.5 rounded-xl border border-[#e4e5e7] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8]"
-                  placeholder="Enter the chapter title..."
-                  value={chapters[selectedChapter]?.title ?? ""}
-                  onChange={(e) =>
-                    handleChapterTitleChange(selectedChapter, e.target.value)
-                  }
-                />
-                <RichTextEditor
-                  value={chapters[selectedChapter]?.content || ""}
-                  onChange={(html) =>
-                    handleChapterContentChange(selectedChapter, html)
-                  }
-                  minHeight={360}
-                  showWordCount
-                  placeholder={
-                    selectedChapter === 0
-                      ? "Start writing your first chapter here..."
-                      : "Start writing your chapter here..."
-                  }
-                />
+                <div className="relative mb-3">
+                  <input
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#e4e5e7] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8]"
+                    placeholder="Enter the chapter title..."
+                    value={chapters[selectedChapter]?.title ?? ""}
+                    onChange={(e) =>
+                      handleChapterTitleChange(selectedChapter, e.target.value)
+                    }
+                  />
+                  <span className="absolute -top-2 right-3 bg-white px-2 text-xs text-[#9ca3af]">Chapter title</span>
+                </div>
+                <div className="relative">
+                  <RichTextEditor
+                    value={chapters[selectedChapter]?.content || ""}
+                    onChange={(html) =>
+                      handleChapterContentChange(selectedChapter, html)
+                    }
+                    minHeight={360}
+                    showWordCount
+                    placeholder={
+                      selectedChapter === 0
+                        ? "Start writing your first chapter here..."
+                        : "Start writing your chapter here..."
+                    }
+                  />
+                  <span className="absolute -top-2 right-3 bg-white px-2 text-xs text-[#9ca3af] z-10">Chapter content</span>
+                </div>
               </section>
             </div>
           </main>
