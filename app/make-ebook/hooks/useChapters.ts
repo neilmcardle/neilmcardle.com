@@ -11,7 +11,7 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
   const dragOverItem = useRef<number | null>(null);
   const isDragging = useRef<boolean>(false);
   const touchStartPos = useRef<{x: number, y: number} | null>(null);
-  const dragThreshold = 8; // pixels to move before considering it a drag
+  const dragThreshold = 15; // pixels to move before considering it a drag
   const [ghostPillPosition, setGhostPillPosition] = useState<{x: number, y: number, visible: boolean}>({
     x: 0, 
     y: 0, 
@@ -101,8 +101,9 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
     const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
     const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
     
-    // Only start drag behavior if we've moved beyond the threshold
-    if (deltaX > dragThreshold || deltaY > dragThreshold) {
+    // Only start drag behavior for primarily vertical movements beyond threshold
+    // Allow horizontal scrolling by requiring vertical movement to be greater than horizontal
+    if ((deltaY > dragThreshold) && (deltaY > deltaX + 5)) {
       // Prevent scrolling once we're actually dragging
       e.preventDefault();
       e.stopPropagation();
@@ -122,14 +123,14 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
           scrollContainer.style.overflowX = 'hidden';
         }
         
-        // Show ghost pill at finger position
+        // Show ghost pill at finger position (allow movement beyond viewport)
         setGhostPillPosition({
           x: touch.clientX - 80, // Offset to center pill under finger
           y: touch.clientY - 20,
           visible: true
         });
       } else {
-        // Update ghost pill position while dragging
+        // Update ghost pill position while dragging (allow movement beyond viewport)
         setGhostPillPosition(prev => ({
           ...prev,
           x: touch.clientX - 80,

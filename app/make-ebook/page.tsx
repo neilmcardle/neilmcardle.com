@@ -636,17 +636,31 @@ function MakeEbookPage() {
           {/* Main Editor Panel - Mobile Optimized */}
           <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-2 lg:px-8 py-2 lg:py-8 min-w-0 h-full overflow-y-auto">
             {/* Mobile Header with Hamburger Menu */}
-            <div className="lg:hidden flex items-center justify-start mb-4 pb-2 border-b border-[#ececec]">
+            <div className="lg:hidden flex items-center justify-between mb-4 pb-2 border-b border-[#ececec]">
               <button
                 onClick={() => setMobileSidebarOpen(true)}
                 className="p-2 rounded-lg bg-[#f4f4f5] hover:bg-[#ececec] transition-colors"
               >
                 <Menu className="w-5 h-5" />
               </button>
+              {title && (
+                <div className="flex-1 text-center">
+                  <h1 className="text-sm font-medium text-[#6a6c72] truncate px-4">
+                    {title}
+                  </h1>
+                </div>
+              )}
             </div>
 
-            {/* Book-level toolbar */}
+            {/* Desktop Book Title and Toolbar */}
             <div className="hidden lg:block">
+              {title && (
+                <div className="mb-3 pb-2 border-b border-[#f4f4f5]">
+                  <h1 className="text-lg font-medium text-[#23242a] truncate">
+                    {title}
+                  </h1>
+                </div>
+              )}
               <BookToolbar
                 onNewBook={showNewBookConfirmation}
                 onSave={handleSaveBook}
