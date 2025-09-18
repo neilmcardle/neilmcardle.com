@@ -94,7 +94,7 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
             </Button>
 
             <p className="text-xs text-gray-500 mt-4">
-              No credit card required • Free forever
+              No credit card required
             </p>
           </div>
         </div>

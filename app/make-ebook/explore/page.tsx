@@ -53,15 +53,25 @@ export default function ExplorePage() {
                   </Button>
                 </Link>
               ) : (
-                <AuthModal 
-                  trigger={
-                    <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white">
-                      Get Started Free
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
-                  }
-                  mode="signup"
-                />
+                <div className="flex flex-col items-center gap-2">
+                  <AuthModal 
+                    trigger={
+                      <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white">
+                        Get Started Free
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Button>
+                    }
+                    mode="signup"
+                  />
+                  <AuthModal 
+                    trigger={
+                      <button className="text-sm text-gray-600 hover:text-gray-900 underline">
+                        Sign in
+                      </button>
+                    }
+                    mode="signin"
+                  />
+                </div>
               )}
             </div>
           </div>
@@ -154,11 +164,21 @@ export default function ExplorePage() {
                   </Button>
                 </Link>
               ) : (
-                <AuthModal trigger={
-                  <Button className="w-full bg-gray-900 hover:bg-gray-800">
-                    Get Started Free
-                  </Button>
-                } mode="signup" />
+                <div className="flex flex-col items-center gap-3">
+                  <AuthModal trigger={
+                    <Button className="w-full bg-gray-900 hover:bg-gray-800">
+                      Get Started Free
+                    </Button>
+                  } mode="signup" />
+                  <AuthModal 
+                    trigger={
+                      <button className="text-sm text-gray-600 hover:text-gray-900 underline">
+                        Sign in
+                      </button>
+                    }
+                    mode="signin"
+                  />
+                </div>
               )}
             </div>
           </div>
