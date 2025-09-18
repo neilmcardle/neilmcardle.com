@@ -694,7 +694,8 @@ function MakeEbookPage() {
                           WebkitUserSelect: 'none', 
                           WebkitTouchCallout: 'none',
                           // @ts-ignore - WebkitUserDrag is valid but not in TypeScript types
-                          WebkitUserDrag: 'none'
+                          WebkitUserDrag: 'none',
+                          opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
                         } as React.CSSProperties}
                         draggable
                         onDragStart={() => handleDragStart(i)}
@@ -705,7 +706,6 @@ function MakeEbookPage() {
                         onTouchMove={(e) => handleTouchMove(i, e)}
                         onTouchEnd={handleTouchEnd}
                         onClick={() => handleSelectChapter(i)}
-                        style={{ opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1 }}
                       >
                         <HandleDots />
                         <span className="truncate max-w-[120px] flex-1 text-center">{displayTitle}</span>
