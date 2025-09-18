@@ -673,7 +673,7 @@ function MakeEbookPage() {
             <div className="lg:hidden flex flex-col gap-4 h-full">
               {/* Chapter Selection - Compact Horizontal Scroll */}
               <div className="flex-shrink-0">
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center gap-3 mb-1">
                   <h3 className="text-sm font-semibold text-[#6a6c72]">Chapters</h3>
                   <button
                     onClick={handleAddChapter}
@@ -684,6 +684,7 @@ function MakeEbookPage() {
                     <span>Add</span>
                   </button>
                 </div>
+                <p className="text-xs text-[#9ca3af] mb-3">Drag and drop to re-order your chapters</p>
                 
                 {/* Chapter Pills - Wrapping Layout */}
                 <div className="chapter-pills-container flex flex-wrap gap-2 pb-2" style={{userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
@@ -800,7 +801,7 @@ function MakeEbookPage() {
             <div className="hidden lg:flex flex-col gap-6">
               {/* Chapters Section */}
               <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 mb-1">
                   <h3 className="text-[11px] font-semibold uppercase tracking-wide text-[#6a6c72]">
                     Chapters
                   </h3>
@@ -813,6 +814,7 @@ function MakeEbookPage() {
                     <span>Add new chapter</span>
                   </button>
                 </div>
+                <p className="text-[10px] text-[#9ca3af] mb-2">Drag and drop to re-order your chapters</p>
                 <div className="flex flex-wrap gap-3 min-h-[8px]">
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
