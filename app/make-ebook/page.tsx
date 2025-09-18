@@ -838,7 +838,7 @@ function MakeEbookPage() {
                   }
                   className="h-full"
                 />
-                <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af] z-10">Chapter content</span>
+                <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af] z-10 whitespace-nowrap">Chapter content</span>
               </div>
             </div>
 
@@ -939,7 +939,7 @@ function MakeEbookPage() {
                         : "Start writing your chapter here..."
                     }
                   />
-                  <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af] z-10">Chapter content</span>
+                  <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af] z-10 whitespace-nowrap">Chapter content</span>
                 </div>
               </section>
             </div>
