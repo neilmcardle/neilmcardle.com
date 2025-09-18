@@ -481,17 +481,21 @@ export default function RichTextEditor({
           </button>
         </Section>
 
-        <Section label="Misc">
+        <Section label="Clear chapter">
           <button
             onMouseDown={e => e.preventDefault()}
-            title="Remove formatting"
+            title="Clear chapter content"
             type="button"
             className={BTN}
             onClick={() => {
-              focusEditor();
-              document.execCommand('removeFormat');
-              emitChange();
-              refreshStates();
+              if (window.confirm('Are you sure you want to clear this chapter? This action cannot be undone.')) {
+                focusEditor();
+                if (editorRef.current) {
+                  editorRef.current.innerHTML = '';
+                }
+                emitChange();
+                refreshStates();
+              }
             }}
             disabled={disabled}
           >
