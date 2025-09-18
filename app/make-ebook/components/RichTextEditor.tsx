@@ -269,9 +269,98 @@ export default function RichTextEditor({
 
   return (
     <div
-      className={`relative border border-[#ececec] rounded-lg bg-[#fafbfc] focus-within:bg-white transition-colors flex editor-root ${className}`}
+      className={`relative border border-[#ececec] rounded-lg bg-[#fafbfc] focus-within:bg-white transition-colors flex flex-col sm:flex-row editor-root ${className}`}
       {...rest}
     >
+      {/* Mobile Toolbar - Above content when focused */}
+      {focused && (
+        <div className="sm:hidden border-b border-[#ececec] bg-white">
+          <div className="p-2 overflow-x-auto">
+            <div className="flex items-start gap-4 min-w-max">
+              {/* Format section */}
+              <div className="flex flex-col gap-1">
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Format</div>
+                <div className="flex gap-1">
+                  {INLINE.map(b => (
+                    <button
+                      key={b.cmd}
+                      onMouseDown={e => e.preventDefault()}
+                      title={b.title}
+                      type="button"
+                      className={`w-8 h-8 rounded-md border text-xs font-bold transition-colors touch-manipulation ${
+                        formats[b.cmd] 
+                          ? 'bg-[#181a1d] text-white border-[#181a1d]' 
+                          : 'bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5]'
+                      } ${b.className || ''}`}
+                      onClick={() => applyInlineOrAlign(b.cmd)}
+                      disabled={disabled}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Align section */}
+              <div className="flex flex-col gap-1">
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Align</div>
+                <div className="flex gap-1">
+                  {ALIGN.slice(0, 3).map(a => (
+                    <button
+                      key={a.cmd}
+                      onMouseDown={e => e.preventDefault()}
+                      title={a.title}
+                      type="button"
+                      className={`w-8 h-8 rounded-md border text-xs font-bold transition-colors touch-manipulation ${
+                        formats[a.cmd] 
+                          ? 'bg-[#181a1d] text-white border-[#181a1d]' 
+                          : 'bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5]'
+                      }`}
+                      onClick={() => applyInlineOrAlign(a.cmd)}
+                      disabled={disabled}
+                    >
+                      {a.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Tools section */}
+              <div className="flex flex-col gap-1">
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Tools</div>
+                <div className="flex gap-1">
+                  <button
+                    onMouseDown={e => e.preventDefault()}
+                    title="Insert Image"
+                    type="button"
+                    className="w-8 h-8 rounded-md border bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5] text-[10px] font-medium transition-colors touch-manipulation"
+                    onClick={handleImageButtonClick}
+                    disabled={disabled}
+                  >
+                    IMG
+                  </button>
+                  <button
+                    onMouseDown={e => e.preventDefault()}
+                    title="Clear formatting"
+                    type="button"
+                    className="w-8 h-8 rounded-md border bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5] text-[10px] font-medium transition-colors touch-manipulation"
+                    onClick={() => {
+                      focusEditor();
+                      document.execCommand('removeFormat');
+                      emitChange();
+                      refreshStates();
+                    }}
+                    disabled={disabled}
+                  >
+                    CLR
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Editable area */}
       <div className="flex-1 min-w-0 relative">
         {showPlaceholder && (
@@ -411,91 +500,6 @@ export default function RichTextEditor({
         </Section>
       </div>
       
-      {/* Mobile Toolbar - Fixed at bottom */}
-      {focused && (
-        <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#ececec] shadow-lg z-[9999] p-3">
-          <div className="overflow-x-auto">
-            <div className="flex items-center gap-3 min-w-max pb-1">
-              {/* Text formatting */}
-              <div className="flex gap-2">
-                {INLINE.map(b => (
-                  <button
-                    key={b.cmd}
-                    onMouseDown={e => e.preventDefault()}
-                    title={b.title}
-                    type="button"
-                    className={`w-10 h-10 rounded-lg border text-sm font-bold transition-colors touch-manipulation ${
-                      formats[b.cmd] 
-                        ? 'bg-[#181a1d] text-white border-[#181a1d]' 
-                        : 'bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5]'
-                    } ${b.className || ''}`}
-                    onClick={() => applyInlineOrAlign(b.cmd)}
-                    disabled={disabled}
-                  >
-                    {b.label}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Divider */}
-              <div className="h-8 w-px bg-[#ececec]"></div>
-              
-              {/* Alignment */}
-              <div className="flex gap-2">
-                {ALIGN.slice(0, 3).map(a => ( // Only show L, C, R on mobile
-                  <button
-                    key={a.cmd}
-                    onMouseDown={e => e.preventDefault()}
-                    title={a.title}
-                    type="button"
-                    className={`w-10 h-10 rounded-lg border text-sm font-bold transition-colors touch-manipulation ${
-                      formats[a.cmd] 
-                        ? 'bg-[#181a1d] text-white border-[#181a1d]' 
-                        : 'bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5]'
-                    }`}
-                    onClick={() => applyInlineOrAlign(a.cmd)}
-                    disabled={disabled}
-                  >
-                    {a.label}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Divider */}
-              <div className="h-8 w-px bg-[#ececec]"></div>
-              
-              {/* Actions */}
-              <div className="flex gap-2">
-                <button
-                  onMouseDown={e => e.preventDefault()}
-                  title="Insert Image"
-                  type="button"
-                  className="w-10 h-10 rounded-lg border bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5] text-xs font-medium transition-colors touch-manipulation"
-                  onClick={handleImageButtonClick}
-                  disabled={disabled}
-                >
-                  IMG
-                </button>
-                <button
-                  onMouseDown={e => e.preventDefault()}
-                  title="Clear formatting"
-                  type="button"
-                  className="w-10 h-10 rounded-lg border bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5] text-xs font-medium transition-colors touch-manipulation"
-                  onClick={() => {
-                    focusEditor();
-                    document.execCommand('removeFormat');
-                    emitChange();
-                    refreshStates();
-                  }}
-                  disabled={disabled}
-                >
-                  CLR
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   ); 
 }
