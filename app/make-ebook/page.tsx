@@ -685,8 +685,8 @@ function MakeEbookPage() {
                   </button>
                 </div>
                 
-                {/* Horizontal Chapter Pills */}
-                <div className="chapter-pills-container flex gap-2 overflow-x-auto pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x', userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
+                {/* Chapter Pills - Wrapping Layout */}
+                <div className="chapter-pills-container flex flex-wrap gap-2 pb-2" style={{userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
                     const displayTitle = ch.title?.trim() || `Chapter ${i + 1}`;
@@ -694,7 +694,7 @@ function MakeEbookPage() {
                       <div
                         key={i}
                         data-chapter-idx={i}
-                        className={`flex items-center gap-2 flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer select-none group relative ${
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer select-none group relative ${
                           dragOverIndex === i 
                             ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
                             : 'border-2 border-transparent'
@@ -818,7 +818,7 @@ function MakeEbookPage() {
                       <div
                         key={i}
                         ref={el => { chapterRefs.current[i] = el }}
-                        className={`flex items-center px-4 py-2 cursor-pointer transition relative rounded-full flex-shrink-0
+                        className={`flex items-center px-3 py-1 cursor-pointer transition relative rounded-full flex-shrink-0
                           ${isSelected 
                             ? "bg-[#181a1d] text-white font-semibold" 
                             : "bg-[#f4f4f5] text-[#6a6c72] hover:bg-[#ececec]"}
