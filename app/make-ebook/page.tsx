@@ -379,7 +379,7 @@ function MakeEbookPage() {
 
         {/* Mobile Sidebar Overlay */}
         {mobileSidebarOpen && (
-          <div className="fixed inset-0 z-[100] sm:hidden">
+          <div className="fixed inset-0 z-[100] md:hidden">
             {/* Backdrop */}
             <div 
               className="absolute inset-0 bg-black/20" 
@@ -555,9 +555,9 @@ function MakeEbookPage() {
         )}
 
         {/* Main layout: Mobile-optimized */}
-        <div className="flex flex-col sm:flex-row h-[calc(100vh-64px)]">
+        <div className="flex flex-col md:flex-row h-[calc(100vh-64px)]">
           {/* Desktop Sidebar - Hidden on Mobile */}
-          <aside className="hidden sm:flex flex-col w-full sm:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 sm:min-w-[340px] sm:h-full overflow-y-auto shadow-sm p-4 gap-4">
+          <aside className="hidden md:flex flex-col w-full md:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 md:min-w-[340px] md:h-full overflow-y-auto shadow-sm p-4 gap-4">
             <nav className="flex flex-row border-b border-[#ececec] items-center gap-2 pb-2">
               {["setup", "preview", "ai"].map((key) => (
                 <button
@@ -629,9 +629,9 @@ function MakeEbookPage() {
           </aside>
 
           {/* Main Editor Panel - Mobile Optimized */}
-          <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-2 sm:px-8 py-2 sm:py-8 min-w-0 h-full overflow-y-auto">
+          <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-2 md:px-8 py-2 md:py-8 min-w-0 h-full overflow-y-auto">
             {/* Mobile Header with Hamburger Menu */}
-            <div className="sm:hidden flex items-center justify-start mb-4 pb-2 border-b border-[#ececec]">
+            <div className="md:hidden flex items-center justify-start mb-4 pb-2 border-b border-[#ececec]">
               <button
                 onClick={() => setMobileSidebarOpen(true)}
                 className="p-2 rounded-lg bg-[#f4f4f5] hover:bg-[#ececec] transition-colors"
@@ -641,7 +641,7 @@ function MakeEbookPage() {
             </div>
 
             {/* Book-level toolbar */}
-            <div className="hidden sm:block">
+            <div className="hidden md:block">
               <BookToolbar
                 onNewBook={showNewBookConfirmation}
                 onSave={handleSaveBook}

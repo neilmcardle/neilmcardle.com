@@ -269,12 +269,12 @@ export default function RichTextEditor({
 
   return (
     <div
-      className={`relative border border-[#ececec] rounded-lg bg-[#fafbfc] focus-within:bg-white transition-colors flex flex-col sm:flex-row editor-root ${className}`}
+      className={`relative border border-[#ececec] rounded-lg bg-[#fafbfc] focus-within:bg-white transition-colors flex flex-col md:flex-row editor-root ${className}`}
       {...rest}
     >
       {/* Mobile Toolbar - Above content when focused */}
       {focused && (
-        <div className="sm:hidden border-b border-[#ececec] bg-white">
+        <div className="md:hidden border-b border-[#ececec] bg-white">
           <div className="p-2 overflow-x-auto">
             <div className="flex items-start gap-4 min-w-max">
               {/* Format section */}
@@ -428,7 +428,7 @@ export default function RichTextEditor({
       {/* Desktop Toolbar */}
       <div
         onMouseDown={toolbarMouseDown}
-        className={`hidden sm:flex w-32 border-l bg-[#f4f4f5] flex-col gap-4 p-2 overflow-y-auto ${
+        className={`hidden md:flex w-32 border-l bg-[#f4f4f5] flex-col gap-4 p-2 overflow-y-auto ${
           focused ? 'opacity-100' : 'opacity-70'
         } transition`}
       >
