@@ -346,26 +346,13 @@ function MakeEbookPage() {
             <div className="absolute top-0 left-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl transform transition-transform duration-300 ease-out">
               <div className="flex flex-col h-full">
                 {/* Header with Actions */}
-                <div className="flex items-center justify-between p-4 border-b border-[#ececec]">
-                  <h2 className="text-lg font-semibold">eBook Tools</h2>
-                  <div className="flex items-center gap-2">
-                    {/* Mobile Book Actions */}
-                    <button
-                      onClick={() => {
-                        handleSaveBook();
-                        setMobileSidebarOpen(false);
-                      }}
-                      className="px-3 py-1.5 rounded-lg bg-[#181a1d] text-white text-sm font-medium hover:bg-[#23252a] transition-colors"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => setMobileSidebarOpen(false)}
-                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
+                <div className="flex items-center justify-end p-4 border-b border-[#ececec]">
+                  <button
+                    onClick={() => setMobileSidebarOpen(false)}
+                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
                 
                 {/* Tab Navigation */}
@@ -393,13 +380,23 @@ function MakeEbookPage() {
                 
                 {/* Additional Actions */}
                 <div className="p-4 border-b border-[#ececec]">
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2">
                     <button
                       onClick={() => {
-                        handleExportEPUB();
+                        handleSaveBook();
                         setMobileSidebarOpen(false);
                       }}
-                      className="flex-1 px-3 py-2 rounded-lg border border-[#ececec] text-sm font-medium hover:bg-[#f4f4f5] transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-[#181a1d] text-white text-sm font-medium hover:bg-[#23252a] transition-colors"
+                    >
+                      Save Book
+                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          handleExportEPUB();
+                          setMobileSidebarOpen(false);
+                        }}
+                        className="flex-1 px-3 py-2 rounded-lg border border-[#ececec] text-sm font-medium hover:bg-[#f4f4f5] transition-colors"
                     >
                       Export EPUB
                     </button>
