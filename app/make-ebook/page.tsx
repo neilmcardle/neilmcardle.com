@@ -129,7 +129,7 @@ function MakeEbookPage() {
     tags, setTags, tagInput, setTagInput, handleAddTag, handleRemoveTag
   } = useTags();
 
-  const [tab, setTab] = useState<"setup" | "ai" | "preview">("setup");
+  const [tab, setTab] = useState<"setup" | "ai" | "preview" | "library">("setup");
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [blurb, setBlurb] = useState("");
@@ -369,11 +369,11 @@ function MakeEbookPage() {
                 </div>
                 
                 {/* Tab Navigation */}
-                <nav className="flex border-b border-[#ececec] p-4 gap-2">
-                  {["setup", "preview", "ai"].map((key) => (
+                <nav className="flex border-b border-[#ececec] p-4 gap-2 overflow-x-auto">
+                  {["setup", "preview", "ai", "library"].map((key) => (
                     <button
                       key={key}
-                      className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
+                      className={`px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap ${
                         tab === key
                           ? "bg-[#f4f4f5] text-[#15161a] shadow-sm"
                           : "hover:bg-[#f4f4f5] text-[#86868B]"
@@ -384,7 +384,9 @@ function MakeEbookPage() {
                         ? "Metadata"
                         : key === "preview"
                         ? "Preview"
-                        : "AI"}
+                        : key === "ai"
+                        ? "AI"
+                        : "Library"}
                     </button>
                   ))}
                 </nav>
@@ -462,6 +464,42 @@ function MakeEbookPage() {
                     />
                   )}
                   {tab === "ai" && <AiTabContent />}
+                  {tab === "library" && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Your Library</h3>
+                      {libraryBooks.length === 0 ? (
+                        <p className="text-gray-500 text-center py-8">
+                          No saved books yet. Create and save a book to see it here.
+                        </p>
+                      ) : (
+                        <ul className="space-y-2">
+                          {libraryBooks.map((b: any) => (
+                            <li key={b.id} className="flex items-center justify-between p-3 border border-[#ececec] rounded-lg hover:bg-[#f4f4f5] transition-colors">
+                              <button
+                                className="flex-1 text-left"
+                                onClick={() => {
+                                  handleLoadBook(b.id);
+                                  setMobileSidebarOpen(false);
+                                }}
+                                title={b.title}
+                              >
+                                <div className="font-semibold">{b.title || "Untitled"}</div>
+                                <div className="text-sm text-gray-500">{b.author}</div>
+                                <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
+                              </button>
+                              <button
+                                className="text-gray-400 hover:text-red-500 p-1"
+                                onClick={() => handleDeleteBook(b.id)}
+                                title="Delete book"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
