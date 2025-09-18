@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { FileText, Download, Plus, ArrowRight, Check } from "lucide-react"
+import { FileText, Download, Plus, ArrowRight, Check, Edit3, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/Header"
 import { MakeEbookIcon } from "@/components/MakeEbookIcon"
@@ -29,9 +29,7 @@ export default function ExplorePage() {
         <section className={`container mx-auto px-4 py-16 text-center transition-all duration-1000 ease-out transform ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
           <div className="max-w-4xl mx-auto">
             <div className="flex justify-center mb-8">
-              <div className="p-4 bg-gray-100 rounded-full">
-                <MakeEbookIcon className="w-16 h-16 text-gray-900" />
-              </div>
+              <MakeEbookIcon className="w-24 h-24 text-gray-900" />
             </div>
             
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
@@ -91,7 +89,7 @@ export default function ExplorePage() {
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <div className="text-center p-8 bg-white rounded-lg shadow-sm border">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FileText className="w-8 h-8 text-gray-900" />
+                <Edit3 className="w-8 h-8 text-gray-900" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Rich Text Editor</h3>
               <p className="text-gray-600">
@@ -101,7 +99,7 @@ export default function ExplorePage() {
 
             <div className="text-center p-8 bg-white rounded-lg shadow-sm border">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <MakeEbookIcon className="w-8 h-8 text-gray-900" />
+                <BookOpen className="w-8 h-8 text-gray-900" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Chapter Management</h3>
               <p className="text-gray-600">
