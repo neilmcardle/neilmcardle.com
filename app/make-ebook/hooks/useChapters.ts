@@ -83,12 +83,18 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
   }
   function handleRemoveChapter(idx: number) {
     if (chapters.length <= 1) return;
-    setChapters((chs) => chs.filter((_, i) => i !== idx));
-    setSelectedChapter((prev) => {
-      if (prev > idx) return prev - 1;
-      if (prev === idx) return 0;
-      return prev;
-    });
+    
+    const chapterTitle = chapters[idx]?.title?.trim() || `Chapter ${idx + 1}`;
+    const confirmMessage = `Are you sure you want to delete "${chapterTitle}"? This action cannot be undone.`;
+    
+    if (confirm(confirmMessage)) {
+      setChapters((chs) => chs.filter((_, i) => i !== idx));
+      setSelectedChapter((prev) => {
+        if (prev > idx) return prev - 1;
+        if (prev === idx) return 0;
+        return prev;
+      });
+    }
   }
   function handleDragStart(index: number) { 
     dragItem.current = index;

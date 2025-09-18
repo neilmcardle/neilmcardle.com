@@ -689,8 +689,12 @@ function MakeEbookPage() {
                 <div className="chapter-pills-container flex flex-wrap gap-2 pb-2" style={{userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
-                    const displayTitle = ch.title?.trim() 
-                      ? `${i + 1}. ${ch.title.trim()}`
+                    const titleText = ch.title?.trim() || '';
+                    const truncatedTitle = titleText.length > 8 
+                      ? titleText.substring(0, 8) + '...' 
+                      : titleText;
+                    const displayTitle = truncatedTitle 
+                      ? `${i + 1}. ${truncatedTitle}` 
                       : `${i + 1}.`;
                     return (
                       <div
