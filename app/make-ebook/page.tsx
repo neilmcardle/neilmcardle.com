@@ -677,7 +677,7 @@ function MakeEbookPage() {
                       <div
                         key={i}
                         data-chapter-idx={i}
-                        className={`flex items-center gap-2 flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all touch-manipulation cursor-pointer select-none group relative ${
+                        className={`flex items-center gap-2 flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer select-none group relative ${
                           dragOverIndex === i 
                             ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
                             : 'border-2 border-transparent'
@@ -687,7 +687,6 @@ function MakeEbookPage() {
                             : "bg-[#f4f4f5] text-[#6a6c72] hover:bg-[#ececec]"
                         }`}
                         style={{ 
-                          touchAction: 'manipulation', 
                           userSelect: 'none', 
                           WebkitUserSelect: 'none', 
                           WebkitTouchCallout: 'none',
