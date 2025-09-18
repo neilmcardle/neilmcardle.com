@@ -144,6 +144,7 @@ function MakeEbookPage() {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
 
   const [saveFeedback, setSaveFeedback] = useState(false);
 
@@ -160,7 +161,17 @@ function MakeEbookPage() {
     }
   }, [selectedChapter, chapters.length]);
 
-  function handleNewBook() {
+  function showNewBookConfirmation() {
+    setNewBookConfirmOpen(true);
+  }
+
+  function handleNewBookConfirm() {
+    // Save current book before starting new one
+    if (title || author || chapters.some(ch => ch.content.trim())) {
+      handleSaveBook();
+    }
+    
+    // Clear all data for new book
     setTitle("");
     setAuthor("");
     setBlurb("");
@@ -173,6 +184,12 @@ function MakeEbookPage() {
     setCoverFile(null);
     setChapters([]);
     setCurrentBookId(undefined);
+    setNewBookConfirmOpen(false);
+  }
+
+  function handleNewBook() {
+    // Legacy function for backwards compatibility
+    handleNewBookConfirm();
   }
 
   useEffect(() => {
@@ -334,6 +351,32 @@ function MakeEbookPage() {
           </div>
         )}
 
+        {/* New Book Confirmation Dialog */}
+        {newBookConfirmOpen && (
+          <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
+              <h2 className="text-lg font-bold mb-4">Start New Book?</h2>
+              <p className="text-gray-600 mb-6">
+                This will save your current book and start a new one. All your current work will be preserved in the library.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setNewBookConfirmOpen(false)}
+                  className="flex-1 px-4 py-2 rounded-lg border border-[#ececec] text-sm font-medium hover:bg-[#f4f4f5] transition-colors"
+                >
+                  Go Back
+                </button>
+                <button
+                  onClick={handleNewBookConfirm}
+                  className="flex-1 px-4 py-2 rounded-lg bg-[#181a1d] text-white text-sm font-medium hover:bg-[#23252a] transition-colors"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Mobile Sidebar Overlay */}
         {mobileSidebarOpen && (
           <div className="fixed inset-0 z-[100] sm:hidden">
@@ -402,7 +445,7 @@ function MakeEbookPage() {
                     </button>
                     <button
                       onClick={() => {
-                        handleNewBook();
+                        showNewBookConfirmation();
                         setMobileSidebarOpen(false);
                       }}
                       className="flex-1 px-3 py-2 rounded-lg border border-[#ececec] text-sm font-medium hover:bg-[#f4f4f5] transition-colors"
@@ -592,7 +635,7 @@ function MakeEbookPage() {
             {/* Book-level toolbar */}
             <div className="hidden sm:block">
               <BookToolbar
-                onNewBook={handleNewBook}
+                onNewBook={showNewBookConfirmation}
                 onSave={handleSaveBook}
                 onExport={handleExportEPUB}
                 saveFeedback={saveFeedback}
