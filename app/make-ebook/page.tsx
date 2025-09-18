@@ -170,13 +170,8 @@ function MakeEbookPage() {
     setNewBookConfirmOpen(true);
   }
 
-  function handleNewBookConfirm() {
-    // Save current book before starting new one
-    if (title || author || chapters.some(ch => ch.content.trim())) {
-      handleSaveBook();
-    }
-    
-    // Clear all data for new book
+  function clearEditorState() {
+    // Clear all editor data for new book
     setTitle("");
     setAuthor("");
     setBlurb("");
@@ -189,6 +184,16 @@ function MakeEbookPage() {
     setCoverFile(null);
     setChapters([]);
     setCurrentBookId(undefined);
+  }
+
+  function handleNewBookConfirm() {
+    // Save current book before starting new one
+    if (title || author || chapters.some(ch => ch.content.trim())) {
+      handleSaveBook();
+    }
+    
+    // Clear all data for new book
+    clearEditorState();
     setNewBookConfirmOpen(false);
   }
 
@@ -292,10 +297,13 @@ function MakeEbookPage() {
   }
 
   function handleDeleteBook(id: string) {
-    removeBookFromLibrary(id);
-    setLibraryBooks(loadBookLibrary());
-    if (currentBookId === id) {
-      handleNewBook();
+    if (confirm('Are you sure you want to delete this eBook? This action cannot be undone.')) {
+      removeBookFromLibrary(id);
+      setLibraryBooks(loadBookLibrary());
+      if (currentBookId === id) {
+        // Clear editor state directly without saving (to avoid recreating the deleted book)
+        clearEditorState();
+      }
     }
   }
 
@@ -564,7 +572,7 @@ function MakeEbookPage() {
           {/* Desktop Sidebar - Hidden on Mobile */}
           <aside className="hidden lg:flex flex-col w-full lg:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 lg:min-w-[340px] lg:h-full overflow-y-auto shadow-sm p-4 gap-4">
             <nav className="flex flex-row border-b border-[#ececec] items-center gap-2 pb-2">
-              {["setup", "preview"].map((key) => (
+              {["setup", "preview", "library"].map((key) => (
                 <button
                   key={key}
                   className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
@@ -578,7 +586,7 @@ function MakeEbookPage() {
                     ? "Metadata"
                     : key === "preview"
                     ? "Preview"
-                    : "AI"}
+                    : "Library"}
                 </button>
               ))}
             </nav>
@@ -630,6 +638,41 @@ function MakeEbookPage() {
                 />
               )}
               {/* {tab === "ai" && <AiTabContent />} */}
+              {tab === "library" && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Your Library</h3>
+                  {libraryBooks.length === 0 ? (
+                    <p className="text-gray-500 text-center py-8">
+                      No saved books yet. Create and save a book to see it here.
+                    </p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {libraryBooks.map((b: any) => (
+                        <li key={b.id} className="flex items-center justify-between p-3 border border-[#ececec] rounded-lg hover:bg-[#f4f4f5] transition-colors">
+                          <button
+                            className="flex-1 text-left"
+                            onClick={() => {
+                              handleLoadBook(b.id);
+                            }}
+                            title={b.title}
+                          >
+                            <div className="font-semibold">{b.title || "Untitled"}</div>
+                            <div className="text-sm text-gray-500">{b.author}</div>
+                            <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
+                          </button>
+                          <button
+                            className="text-gray-400 hover:text-red-500 p-1"
+                            onClick={() => handleDeleteBook(b.id)}
+                            title="Delete book"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
             </div>
           </aside>
 

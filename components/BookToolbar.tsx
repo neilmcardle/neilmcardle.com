@@ -48,14 +48,6 @@ export function BookToolbar({
           {startedFeedback ? "Started!" : "New Book"}
         </span>
       </button>
-      <Link
-        href="/my-ebooks"
-        className="flex flex-col items-center gap-1 text-[#23242a] hover:text-black transition min-w-[64px] text-xs"
-        title="Library"
-      >
-        <Library className="w-6 h-6" />
-        <span>Library</span>
-      </Link>
       <button
         onClick={onSave}
         className="flex flex-col items-center gap-1 text-[#23242a] hover:text-black transition min-w-[64px] text-xs bg-transparent border-none outline-none"
