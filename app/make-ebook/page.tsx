@@ -672,13 +672,22 @@ function MakeEbookPage() {
                     const isSelected = selectedChapter === i;
                     const displayTitle = ch.title?.trim() || `Chapter ${i + 1}`;
                     return (
-                      <button
+                      <div
                         key={i}
-                        className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all touch-manipulation ${
+                        data-chapter-idx={i}
+                        className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all touch-manipulation cursor-pointer select-none ${
                           isSelected 
                             ? "bg-[#181a1d] text-white shadow-sm" 
                             : "bg-[#f4f4f5] text-[#6a6c72] hover:bg-[#ececec]"
                         }`}
+                        draggable
+                        onDragStart={() => handleDragStart(i)}
+                        onDragEnter={() => handleDragEnter(i)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={(e) => e.preventDefault()}
+                        onTouchStart={() => handleTouchStart(i)}
+                        onTouchMove={(e) => handleTouchMove(i, e)}
+                        onTouchEnd={handleTouchEnd}
                         onClick={() => handleSelectChapter(i)}
                       >
                         <span className="truncate max-w-[120px]">{displayTitle}</span>
@@ -694,7 +703,7 @@ function MakeEbookPage() {
                             <X className="w-3 h-3" />
                           </button>
                         )}
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
