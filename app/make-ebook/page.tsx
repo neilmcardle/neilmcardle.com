@@ -690,6 +690,17 @@ function MakeEbookPage() {
                         onTouchEnd={handleTouchEnd}
                         onClick={() => handleSelectChapter(i)}
                       >
+                        {/* Mobile drag handle */}
+                        <div className="flex-shrink-0 mr-2 opacity-50">
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <circle cx="3" cy="3" r="1" fill="currentColor"/>
+                            <circle cx="9" cy="3" r="1" fill="currentColor"/>
+                            <circle cx="3" cy="6" r="1" fill="currentColor"/>
+                            <circle cx="9" cy="6" r="1" fill="currentColor"/>
+                            <circle cx="3" cy="9" r="1" fill="currentColor"/>
+                            <circle cx="9" cy="9" r="1" fill="currentColor"/>
+                          </svg>
+                        </div>
                         <span className="truncate max-w-[120px]">{displayTitle}</span>
                         {chapters.length > 1 && (
                           <button
