@@ -6,6 +6,7 @@ type Chapter = { title: string; content: string };
 export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
   const [chapters, setChapters] = useState(initial);
   const [selectedChapter, setSelectedChapter] = useState(0);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
   const isDragging = useRef<boolean>(false);
@@ -34,19 +35,35 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
       return prev;
     });
   }
-  function handleDragStart(index: number) { dragItem.current = index; }
-  function handleDragEnter(index: number) { dragOverItem.current = index; }
+  function handleDragStart(index: number) { 
+    dragItem.current = index;
+    isDragging.current = true;
+  }
+  function handleDragEnter(index: number) { 
+    dragOverItem.current = index;
+    setDragOverIndex(index);
+  }
   function handleDragEnd() {
     const from = dragItem.current;
     const to = dragOverItem.current;
+    
+    // Reset state first
+    dragItem.current = null;
+    dragOverItem.current = null;
+    setDragOverIndex(null);
+    isDragging.current = false;
+    
+    // Early return if invalid drag
+    if (from === null || to === null || from === to) { 
+      return; 
+    }
+    
+    // Perform the reordering
     const updated = [...chapters];
-    const [removed] = updated.splice(from!, 1);
-    if (from === null || to === null || from === to) { dragItem.current = null; dragOverItem.current = null; return; }
+    const [removed] = updated.splice(from, 1);
     updated.splice(to, 0, removed);
     setChapters(updated);
     setSelectedChapter(to);
-    dragItem.current = null;
-    dragOverItem.current = null;
   }
   function handleTouchStart(index: number) { 
     dragItem.current = index;
@@ -64,7 +81,10 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
     for (const el of chapterEls) {
       if (el.contains(target)) {
         const idx = Number((el as HTMLElement).dataset.chapterIdx);
-        if (!isNaN(idx)) dragOverItem.current = idx;
+        if (!isNaN(idx)) {
+          dragOverItem.current = idx;
+          setDragOverIndex(idx);
+        }
       }
     }
   }
@@ -73,6 +93,7 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
     // Reset dragging state after a short delay to prevent ghost clicks
     setTimeout(() => {
       isDragging.current = false;
+      setDragOverIndex(null);
     }, 100);
   }
 
@@ -93,5 +114,6 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
     handleTouchMove,
     handleTouchEnd,
     isDragging,
+    dragOverIndex,
   };
 }

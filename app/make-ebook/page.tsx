@@ -123,6 +123,7 @@ function MakeEbookPage() {
     handleTouchMove,
     handleTouchEnd,
     isDragging,
+    dragOverIndex,
     handleSelectChapter,
   } = useChapters();
 
@@ -677,6 +678,8 @@ function MakeEbookPage() {
                         key={i}
                         data-chapter-idx={i}
                         className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all touch-manipulation cursor-pointer select-none group ${
+                          dragOverIndex === i ? 'border-2 border-dashed border-blue-400' : 'border-2 border-transparent'
+                        } ${
                           isSelected 
                             ? "bg-[#181a1d] text-white shadow-sm" 
                             : "bg-[#f4f4f5] text-[#6a6c72] hover:bg-[#ececec]"
@@ -772,6 +775,7 @@ function MakeEbookPage() {
                         ref={el => { chapterRefs.current[i] = el }}
                         className={`flex items-center px-6 py-2.5 mb-2 cursor-pointer transition
                           ${isSelected ? "text-white font-semibold" : "text-white/75"}
+                          ${dragOverIndex === i ? 'border-2 border-dashed border-blue-400' : 'border-2 border-transparent'}
                           rounded-full
                           relative
                           `}
