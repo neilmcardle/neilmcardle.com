@@ -14,11 +14,11 @@ import {
 } from "./ui/dropdown-menu";
 import { BackArrowButton } from "./BackArrowButton";
 import { useState } from "react";
-import { useAuth } from "@/lib/hooks/useAuth"; // Use your own auth hook!
+import { useAuth } from "@/lib/hooks/useAuth";
 
 export function Header() {
   const pathname = usePathname();
-  const { signOut } = useAuth(); // Get signOut from your own hook!
+  const { signOut, user } = useAuth();
 
   // Set the root page(s) where you do NOT want the back arrow to show:
   const ROOT_EDITOR_PATHS = ["/make-ebook", "/make-ebook/"];
@@ -76,26 +76,9 @@ export function Header() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">User</p>
-                  <p className="text-xs leading-none text-muted-foreground">user@email.com</p>
+                  <p className="text-sm font-medium leading-none">{user?.email || 'user@email.com'}</p>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem disabled className="opacity-50">
-                <span className="mr-2"><UserIcon className="h-4 w-4" /></span>
-                <span>Profile</span>
-                <span className="ml-auto text-xs text-gray-400">Soon</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled className="opacity-50">
-                <span className="mr-2"></span>
-                <span>Subscription</span>
-                <span className="ml-auto text-xs text-gray-400">Soon</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled className="opacity-50">
-                <span className="mr-2"></span>
-                <span>Settings</span>
-                <span className="ml-auto text-xs text-gray-400">Soon</span>
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} disabled={loggingOut}>
                 <span className="mr-2"></span>
