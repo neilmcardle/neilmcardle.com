@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Lock, Unlock, UploadCloud } from "lucide-react";
 import { LANGUAGES, GENRES } from "../utils/constants";
 
@@ -270,6 +270,10 @@ export default function MetaTabContent({
             type="button"
             className="px-3 py-1 rounded-full bg-[#ececef] text-xs text-[#15161a] mt-2"
             disabled={lockedSections.cover}
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('cover-upload')?.click();
+            }}
           >
             Choose File
           </button>

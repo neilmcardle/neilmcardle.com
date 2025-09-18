@@ -925,7 +925,7 @@ function MakeEbookPage() {
                   />
                   <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af]">Chapter title</span>
                 </div>
-                <div className="relative">
+                <div className="relative w-full max-w-full overflow-hidden">
                   <RichTextEditor
                     value={chapters[selectedChapter]?.content || ""}
                     onChange={(html) =>

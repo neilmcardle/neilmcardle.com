@@ -385,7 +385,7 @@ export default function RichTextEditor({
         )}
         <div
           ref={editorRef}
-          className="p-4 text-base leading-6 focus:outline-none whitespace-pre-wrap break-words"
+          className="p-4 text-base leading-6 focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-hidden"
           style={{ minHeight }}
           contentEditable={!disabled}
           suppressContentEditableWarning
