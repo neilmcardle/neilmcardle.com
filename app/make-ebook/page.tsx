@@ -677,7 +677,7 @@ function MakeEbookPage() {
                       <div
                         key={i}
                         data-chapter-idx={i}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all touch-manipulation cursor-pointer select-none group relative ${
+                        className={`flex items-center gap-2 flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all touch-manipulation cursor-pointer select-none group relative ${
                           dragOverIndex === i 
                             ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
                             : 'border-2 border-transparent'
@@ -705,17 +705,17 @@ function MakeEbookPage() {
                         onClick={() => handleSelectChapter(i)}
                       >
                         <HandleDots />
-                        <span className="truncate max-w-[120px]">{displayTitle}</span>
+                        <span className="truncate max-w-[120px] flex-1 text-center">{displayTitle}</span>
                         {chapters.length > 1 && (
                           <button
-                            className="ml-2 opacity-60 hover:opacity-100"
+                            className="opacity-60 hover:opacity-100 flex items-center justify-center"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleRemoveChapter(i);
                             }}
                             aria-label="Delete Chapter"
                           >
-                            <X className="w-3 h-3" />
+                            <X className="w-4 h-4" />
                           </button>
                         )}
                       </div>
