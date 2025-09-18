@@ -380,7 +380,7 @@ function MakeEbookPage() {
 
         {/* Mobile Sidebar Overlay */}
         {mobileSidebarOpen && (
-          <div className="fixed inset-0 z-[100] md:hidden">
+          <div className="fixed inset-0 z-[100] lg:hidden">
             {/* Backdrop */}
             <div 
               className="absolute inset-0 bg-black/20" 
@@ -556,9 +556,9 @@ function MakeEbookPage() {
         )}
 
         {/* Main layout: Mobile-optimized */}
-        <div className="flex flex-col md:flex-row h-[calc(100vh-64px)]">
+        <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)]">
           {/* Desktop Sidebar - Hidden on Mobile */}
-          <aside className="hidden md:flex flex-col w-full md:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 md:min-w-[340px] md:h-full overflow-y-auto shadow-sm p-4 gap-4">
+          <aside className="hidden lg:flex flex-col w-full lg:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 lg:min-w-[340px] lg:h-full overflow-y-auto shadow-sm p-4 gap-4">
             <nav className="flex flex-row border-b border-[#ececec] items-center gap-2 pb-2">
               {["setup", "preview", "ai"].map((key) => (
                 <button
@@ -630,9 +630,9 @@ function MakeEbookPage() {
           </aside>
 
           {/* Main Editor Panel - Mobile Optimized */}
-          <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-2 md:px-8 py-2 md:py-8 min-w-0 h-full overflow-y-auto">
+          <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-2 lg:px-8 py-2 lg:py-8 min-w-0 h-full overflow-y-auto">
             {/* Mobile Header with Hamburger Menu */}
-            <div className="md:hidden flex items-center justify-start mb-4 pb-2 border-b border-[#ececec]">
+            <div className="lg:hidden flex items-center justify-start mb-4 pb-2 border-b border-[#ececec]">
               <button
                 onClick={() => setMobileSidebarOpen(true)}
                 className="p-2 rounded-lg bg-[#f4f4f5] hover:bg-[#ececec] transition-colors"
@@ -642,7 +642,7 @@ function MakeEbookPage() {
             </div>
 
             {/* Book-level toolbar */}
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <BookToolbar
                 onNewBook={showNewBookConfirmation}
                 onSave={handleSaveBook}
@@ -651,8 +651,8 @@ function MakeEbookPage() {
               />
             </div>
 
-            {/* MOBILE OPTIMIZED EDITOR - Full Viewport */}
-            <div className="sm:hidden flex flex-col gap-4 h-full">
+            {/* MOBILE OPTIMIZED EDITOR - Full Viewport (including tablets) */}
+            <div className="lg:hidden flex flex-col gap-4 h-full">
               {/* Chapter Selection - Compact Horizontal Scroll */}
               <div className="flex-shrink-0">
                 <div className="flex items-center gap-3 mb-3">
@@ -668,7 +668,7 @@ function MakeEbookPage() {
                 </div>
                 
                 {/* Horizontal Chapter Pills */}
-                <div className="flex gap-2 overflow-x-auto pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x'}}>
+                <div className="flex gap-2 overflow-x-auto pb-2" style={{scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x', userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
                     const displayTitle = ch.title?.trim() || `Chapter ${i + 1}`;
@@ -676,12 +676,12 @@ function MakeEbookPage() {
                       <div
                         key={i}
                         data-chapter-idx={i}
-                        className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all touch-manipulation cursor-pointer select-none ${
+                        className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all touch-manipulation cursor-pointer select-none group ${
                           isSelected 
                             ? "bg-[#181a1d] text-white shadow-sm" 
                             : "bg-[#f4f4f5] text-[#6a6c72] hover:bg-[#ececec]"
                         }`}
-                        style={{ touchAction: 'manipulation' }}
+                        style={{ touchAction: 'manipulation', userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none', WebkitUserDrag: 'none' }}
                         draggable
                         onDragStart={() => handleDragStart(i)}
                         onDragEnter={() => handleDragEnter(i)}
@@ -692,17 +692,7 @@ function MakeEbookPage() {
                         onTouchEnd={handleTouchEnd}
                         onClick={() => handleSelectChapter(i)}
                       >
-                        {/* Mobile drag handle */}
-                        <div className="flex-shrink-0 mr-2 opacity-50">
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <circle cx="3" cy="3" r="1" fill="currentColor"/>
-                            <circle cx="9" cy="3" r="1" fill="currentColor"/>
-                            <circle cx="3" cy="6" r="1" fill="currentColor"/>
-                            <circle cx="9" cy="6" r="1" fill="currentColor"/>
-                            <circle cx="3" cy="9" r="1" fill="currentColor"/>
-                            <circle cx="9" cy="9" r="1" fill="currentColor"/>
-                          </svg>
-                        </div>
+                        <HandleDots />
                         <span className="truncate max-w-[120px]">{displayTitle}</span>
                         {chapters.length > 1 && (
                           <button
@@ -752,7 +742,7 @@ function MakeEbookPage() {
             </div>
 
             {/* DESKTOP layout */}
-            <div className="hidden sm:flex flex-row gap-6">
+            <div className="hidden lg:flex flex-row gap-6">
               {/* Chapters Column (redesigned) */}
               <div className="flex flex-col min-w-[250px] w-[270px] gap-4">
                 <div className="flex items-center justify-between">
