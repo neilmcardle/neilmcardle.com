@@ -676,7 +676,7 @@ function MakeEbookPage() {
             </div>
           </aside>
 
-          {/* Main Editor Panel - Mobile Optimized */}
+          {/* Main Editor Panel - Mobile Optimised */}
           <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-2 lg:px-8 py-2 lg:py-8 min-w-0 h-full overflow-y-auto">
             {/* Mobile Header with Hamburger Menu */}
             <div className="lg:hidden flex items-center justify-between mb-4 pb-2 border-b border-[#ececec]">
@@ -712,7 +712,7 @@ function MakeEbookPage() {
               />
             </div>
 
-            {/* MOBILE OPTIMIZED EDITOR - Full Viewport (including tablets) */}
+            {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
             <div className="lg:hidden flex flex-col gap-4 h-full">
               {/* Chapter Selection - Compact Horizontal Scroll */}
               <div className="flex-shrink-0">
@@ -810,7 +810,7 @@ function MakeEbookPage() {
                 )}
               </div>
 
-              {/* Chapter Title Input - Touch Optimized */}
+              {/* Chapter Title Input - Touch Optimised */}
               <div className="flex-shrink-0">
                 <div className="mb-2">
                   <span className="text-xs text-[#9ca3af] whitespace-nowrap">Chapter title</span>
@@ -825,7 +825,7 @@ function MakeEbookPage() {
                 />
               </div>
 
-              {/* Rich Text Editor - Maximized for Mobile with Safe Spacing */}
+              {/* Rich Text Editor - Maximised for Mobile with Safe Spacing */}
               <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative"> {/* Add bottom padding on mobile for toolbar */}
                 <div className="mb-2">
                   <span className="text-xs text-[#9ca3af] whitespace-nowrap">Chapter content</span>

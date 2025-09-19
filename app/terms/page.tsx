@@ -48,7 +48,7 @@ export default function TermsPage() {
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
                 <li>Maintaining the confidentiality of your account credentials</li>
                 <li>All activities that occur under your account</li>
-                <li>Notifying us immediately of any unauthorized use</li>
+                <li>Notifying us immediately of any unauthorised use</li>
               </ul>
             </section>
 
@@ -72,7 +72,7 @@ export default function TermsPage() {
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
                 <li>Create content that is illegal, harmful, or offensive</li>
                 <li>Infringe on intellectual property rights</li>
-                <li>Attempt to gain unauthorized access to the Service or other users' accounts</li>
+                <li>Attempt to gain unauthorised access to the Service or other users' accounts</li>
                 <li>Use the Service for any commercial purpose without permission</li>
                 <li>Transmit malware, viruses, or other harmful code</li>
               </ul>

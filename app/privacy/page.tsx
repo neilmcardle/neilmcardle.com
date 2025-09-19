@@ -129,7 +129,7 @@ export default function PrivacyPage() {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. Data Security</h2>
               <p className="text-gray-700 mb-4">
-                We implement appropriate technical and organizational measures to protect your data:
+                We implement appropriate technical and organisational measures to protect your data:
               </p>
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
                 <li>Encryption of data in transit and at rest</li>
