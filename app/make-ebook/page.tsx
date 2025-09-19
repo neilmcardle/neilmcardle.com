@@ -826,6 +826,9 @@ function MakeEbookPage() {
 
               {/* Rich Text Editor - Maximized for Mobile with Safe Spacing */}
               <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative"> {/* Add bottom padding on mobile for toolbar */}
+                <div className="mb-2">
+                  <span className="text-xs text-[#9ca3af] whitespace-nowrap">Chapter content</span>
+                </div>
                 <RichTextEditor
                   value={chapters[selectedChapter]?.content || ""}
                   onChange={(html) => handleChapterContentChange(selectedChapter, html)}
@@ -838,7 +841,6 @@ function MakeEbookPage() {
                   }
                   className="h-full"
                 />
-                <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af] z-10 whitespace-nowrap">Chapter content</span>
               </div>
             </div>
 
@@ -925,7 +927,10 @@ function MakeEbookPage() {
                   />
                   <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af]">Chapter title</span>
                 </div>
-                <div className="relative w-full max-w-full overflow-hidden">
+                <div className="w-full max-w-full overflow-hidden">
+                  <div className="mb-2">
+                    <span className="text-xs text-[#9ca3af] whitespace-nowrap">Chapter content</span>
+                  </div>
                   <RichTextEditor
                     value={chapters[selectedChapter]?.content || ""}
                     onChange={(html) =>
@@ -939,7 +944,6 @@ function MakeEbookPage() {
                         : "Start writing your chapter here..."
                     }
                   />
-                  <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af] z-10 whitespace-nowrap">Chapter content</span>
                 </div>
               </section>
             </div>
