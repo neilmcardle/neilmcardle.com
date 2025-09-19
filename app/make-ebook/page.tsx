@@ -727,8 +727,6 @@ function MakeEbookPage() {
                     <span>Add</span>
                   </button>
                 </div>
-                <p className="text-xs text-[#9ca3af] mb-3">Drag and drop to re-order your chapters</p>
-                
                 {/* Chapter Pills - Wrapping Layout */}
                 <div className="chapter-pills-container flex flex-wrap gap-2 pb-2" style={{userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
                   {chapters.map((ch, i) => {
@@ -789,6 +787,7 @@ function MakeEbookPage() {
                     );
                   })}
                 </div>
+                <p className="text-xs text-[#9ca3af] mt-3">Drag and drop to re-order your chapters</p>
                 
                 {/* Ghost Pill for Finger-Following Drag */}
                 {ghostPillPosition.visible && (
@@ -812,7 +811,10 @@ function MakeEbookPage() {
               </div>
 
               {/* Chapter Title Input - Touch Optimized */}
-              <div className="flex-shrink-0 relative">
+              <div className="flex-shrink-0">
+                <div className="mb-2">
+                  <span className="text-xs text-[#9ca3af] whitespace-nowrap">Chapter title</span>
+                </div>
                 <input
                   className="w-full px-4 py-3.5 rounded-xl border border-[#e4e5e7] text-base bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8] touch-manipulation"
                   placeholder="Chapter title..."
@@ -821,7 +823,6 @@ function MakeEbookPage() {
                     handleChapterTitleChange(selectedChapter, e.target.value)
                   }
                 />
-                <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af]">Chapter title</span>
               </div>
 
               {/* Rich Text Editor - Maximized for Mobile with Safe Spacing */}
@@ -861,7 +862,6 @@ function MakeEbookPage() {
                     <span>Add new chapter</span>
                   </button>
                 </div>
-                <p className="text-[10px] text-[#9ca3af] mb-2">Drag and drop to re-order your chapters</p>
                 <div className="flex flex-wrap gap-3 min-h-[8px]">
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
@@ -912,11 +912,15 @@ function MakeEbookPage() {
                     );
                   })}
                 </div>
+                <p className="text-[10px] text-[#9ca3af] mt-2">Drag and drop to re-order your chapters</p>
               </div>
               
               {/* Editor Area */}
               <section className="flex flex-col min-w-0">
-                <div className="relative mb-8">
+                <div className="mb-8">
+                  <div className="mb-2">
+                    <span className="text-xs text-[#9ca3af] whitespace-nowrap">Chapter title</span>
+                  </div>
                   <input
                     className="w-full px-4 py-2.5 rounded-xl border border-[#e4e5e7] text-sm bg-[#fafbfc] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#b0b3b8]"
                     placeholder="Enter the chapter title..."
@@ -925,7 +929,6 @@ function MakeEbookPage() {
                       handleChapterTitleChange(selectedChapter, e.target.value)
                     }
                   />
-                  <span className="absolute -top-2 left-3 bg-white px-2 text-xs text-[#9ca3af]">Chapter title</span>
                 </div>
                 <div className="w-full max-w-full overflow-hidden">
                   <div className="mb-2">
