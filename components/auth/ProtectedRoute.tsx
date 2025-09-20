@@ -70,10 +70,10 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
                 />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Start Creating eBooks
+                Sign up
               </h2>
               <p className="text-gray-600 mb-6">
-                Sign up to makeEbook for free and access my eBook creation tool to start building professional eBooks in minutes.
+                Access my free eBook creation tool to start building professional eBooks in minutes.
               </p>
             </div>
 
@@ -81,15 +81,15 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
             <div className="space-y-3 mb-6 text-left">
               <div className="flex items-center text-sm text-gray-600">
                 <Edit3 className="w-4 h-4 mr-3 text-gray-400" />
-                Chapter content editor with rich text formatting
+                Rich text formatting
               </div>
               <div className="flex items-center text-sm text-gray-600">
                 <BookOpen className="w-4 h-4 mr-3 text-gray-400" />
-                Cover image upload, chapter management & organisation
+                Cover image upload, chapter & metadata management
               </div>
               <div className="flex items-center text-sm text-gray-600">
                 <Download className="w-4 h-4 mr-3 text-gray-400" />
-                Save to your library and export as ePub format for eReaders
+                Save to your library and export for ePub eReaders
               </div>
             </div>
 
