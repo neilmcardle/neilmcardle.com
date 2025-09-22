@@ -698,27 +698,33 @@ export default function RichTextEditor({
           onDrop={handleDrop}
           onPaste={handlePaste}
         />
-        <style jsx>{`
+        <style jsx global>{`
           .editor-root p {
             margin: 0.5rem 0;
           }
           .editor-root h1 {
-            font-size: 2rem;
-            font-weight: bold;
-            margin: 1.5rem 0 1rem 0;
-            line-height: 1.2;
+            font-size: 2rem !important;
+            font-weight: 700 !important;
+            margin: 1.5rem 0 1rem 0 !important;
+            line-height: 1.2 !important;
+            color: inherit !important;
+            display: block !important;
           }
           .editor-root h2 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 1.25rem 0 0.75rem 0;
-            line-height: 1.3;
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+            margin: 1.25rem 0 0.75rem 0 !important;
+            line-height: 1.3 !important;
+            color: inherit !important;
+            display: block !important;
           }
           .editor-root h3 {
-            font-size: 1.25rem;
-            font-weight: bold;
-            margin: 1rem 0 0.5rem 0;
-            line-height: 1.4;
+            font-size: 1.25rem !important;
+            font-weight: 700 !important;
+            margin: 1rem 0 0.5rem 0 !important;
+            line-height: 1.4 !important;
+            color: inherit !important;
+            display: block !important;
           }
           .editor-root pre {
             background: #f2f3f5;
