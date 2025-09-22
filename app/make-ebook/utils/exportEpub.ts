@@ -10,6 +10,69 @@ function toXhtml(html: string): string {
     .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "");
 }
 
+/** Comprehensive EPUB content normalization with strict validation */
+function normalizeHtmlForEpub(html: string): string {
+  try {
+    let normalized = html;
+    
+    // Remove any remaining script or style tags
+    normalized = normalized
+      .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, '')
+      .replace(/<link[^>]*>/gi, '');
+    
+    // Remove dangerous attributes
+    normalized = normalized
+      .replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '') // onclick, onload, etc.
+      .replace(/\s*style\s*=\s*["'][^"']*["']/gi, '') // inline styles
+      .replace(/\s*data-[^=]*\s*=\s*["'][^"']*["']/gi, ''); // data attributes
+    
+    // Normalize heading levels (cap at H3 for EPUB)
+    normalized = normalized
+      .replace(/<h[4-6]([^>]*)>/gi, '<h3$1>')
+      .replace(/<\/h[4-6]>/gi, '</h3>');
+    
+    // Ensure proper paragraph structure
+    normalized = normalized
+      .replace(/<div([^>]*)>/gi, '<p$1>')
+      .replace(/<\/div>/gi, '</p>')
+      .replace(/<p[^>]*>\s*<\/p>/gi, '') // Remove empty paragraphs
+      .replace(/<p[^>]*>\s*<br\s*\/>\s*<\/p>/gi, '<p><br /></p>'); // Clean up paragraphs with only breaks
+    
+    // Clean up list structures
+    normalized = normalized
+      .replace(/<li[^>]*>\s*<\/li>/gi, '') // Remove empty list items
+      .replace(/<ul[^>]*>\s*<\/ul>/gi, '') // Remove empty unordered lists
+      .replace(/<ol[^>]*>\s*<\/ol>/gi, ''); // Remove empty ordered lists
+    
+    // Validate and clean image tags
+    normalized = normalized
+      .replace(/<img([^>]*?)(?<!\/)>/gi, '<img$1 />') // Self-close img tags
+      .replace(/<img[^>]*src\s*=\s*["']data:[^"']*["'][^>]*>/gi, ''); // Remove data URLs (should be handled by extractImages)
+    
+    // Clean up whitespace and normalize structure
+    normalized = normalized
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .replace(/>\s+</g, '><') // Remove whitespace between tags
+      .trim();
+    
+    // Final validation: ensure no forbidden tags remain
+    const forbiddenTags = ['script', 'style', 'object', 'embed', 'iframe', 'form', 'input', 'button'];
+    forbiddenTags.forEach(tag => {
+      const regex = new RegExp(`<${tag}[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi');
+      normalized = normalized.replace(regex, '');
+      const selfClosing = new RegExp(`<${tag}[^>]*\\/?>`, 'gi');
+      normalized = normalized.replace(selfClosing, '');
+    });
+    
+    return normalized;
+  } catch (error) {
+    console.warn('Error normalizing HTML for EPUB:', error);
+    // Fallback to basic XHTML conversion
+    return toXhtml(html);
+  }
+}
+
 /** Extracts embedded images from HTML as {src, ext, data, filename}[] */
 function extractImages(html: string) {
   const re = /<img[^>]+src=['"]data:image\/(png|jpeg|jpg);base64,([^'"]+)['"][^>]*>/gi;
@@ -198,7 +261,9 @@ export async function exportEpub({
     let chapterHtml = ch.content;
     const imgs = extractImages(chapterHtml);
     chapterHtml = replaceImgSrcs(chapterHtml, imgs);
-    chapterHtml = toXhtml(chapterHtml.replace(/\n/g, "<br />"));
+    // Apply comprehensive EPUB normalization and convert to XHTML
+    chapterHtml = normalizeHtmlForEpub(chapterHtml);
+    chapterHtml = toXhtml(chapterHtml);
     zip.file(
       `OEBPS/${filename}`,
       `<?xml version="1.0" encoding="utf-8"?>

@@ -13,6 +13,8 @@ import React, {
 } from 'react';
 import Link from 'next/link';
 import DOMPurify from 'dompurify';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 
 interface RichTextEditorProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -58,10 +60,20 @@ const EPUB_SAFE_CONFIG = {
   ALLOWED_TAGS: [
     'p', 'br', 'strong', 'em', 'u', 's', 'sub', 'sup',
     'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote',
-    'pre', 'code', 'a', 'img', 'hr'
+    'pre', 'code', 'a', 'img', 'hr',
+    // MathML tags for EPUB 3 compatibility
+    'math', 'mrow', 'mi', 'mn', 'mo', 'mfrac', 'msup', 'msub',
+    'msubsup', 'msqrt', 'mroot', 'mtext', 'mspace', 'mtable',
+    'mtr', 'mtd', 'mover', 'munder', 'munderover', 'mfenced',
+    'menclose', 'mstyle', 'mpadded', 'mphantom', 'mglyph'
   ],
   ALLOWED_ATTR: [
-    'href', 'src', 'alt', 'title', 'class', 'id'
+    'href', 'src', 'alt', 'title', 'class', 'id',
+    // MathML attributes
+    'xmlns', 'display', 'mathvariant', 'mathsize', 'mathcolor',
+    'mathbackground', 'fence', 'separator', 'stretchy', 'symmetric',
+    'maxsize', 'minsize', 'largeop', 'movablelimits', 'accent',
+    'form', 'lspace', 'rspace'
   ],
   ALLOW_DATA_ATTR: false,
   FORBID_TAGS: ['script', 'style', 'object', 'embed', 'iframe', 'form', 'input'],
@@ -152,6 +164,24 @@ export default function RichTextEditor({
     refreshStates();
   };
 
+  // Convert LaTeX math to MathML for EPUB compatibility
+  const convertMathToMathML = (latex: string, displayMode: boolean = false): string => {
+    try {
+      const mathmlString = katex.renderToString(latex, {
+        output: 'mathml',
+        displayMode,
+        throwOnError: false,
+        errorColor: '#cc0000',
+        strict: false
+      });
+      return mathmlString;
+    } catch (error) {
+      console.warn('Error converting LaTeX to MathML:', error);
+      // Fallback: wrap in a span with error styling
+      return `<span style="color: #cc0000; font-style: italic;">Math Error: ${latex}</span>`;
+    }
+  };
+
   // Clean pasted content for EPUB compatibility
   const cleanPastedContent = (html: string): string => {
     try {
@@ -180,6 +210,22 @@ export default function RichTextEditor({
         // Handle line breaks
         .replace(/<br[^>]*>\s*<br[^>]*>/gi, '</p><p>')
         .replace(/\r\n|\n|\r/g, ' ');
+
+      // Detect and convert LaTeX math expressions
+      // Block math: $$...$$
+      cleaned = cleaned.replace(/\$\$([^$]+)\$\$/g, (match, latex) => {
+        return convertMathToMathML(latex.trim(), true);
+      });
+      
+      // Inline math: $...$
+      cleaned = cleaned.replace(/\$([^$]+)\$/g, (match, latex) => {
+        return convertMathToMathML(latex.trim(), false);
+      });
+      
+      // Detect math code blocks: ```math...```
+      cleaned = cleaned.replace(/```math\s*([\s\S]*?)```/gi, (match, latex) => {
+        return convertMathToMathML(latex.trim(), true);
+      });
 
       // Detect and wrap code blocks (indented text or monospace fonts)
       cleaned = cleaned.replace(
