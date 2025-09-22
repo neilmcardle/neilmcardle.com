@@ -233,9 +233,9 @@ export async function exportEpub({
       </head>
       <body>
         <h2>Table of Contents</h2>
-        <ol>
+        <ul>
           ${tocLinks}
-        </ol>
+        </ul>
       </body>
     </html>`
   );
