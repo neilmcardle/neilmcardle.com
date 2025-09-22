@@ -185,8 +185,69 @@ export default function RichTextEditor({
   // Clean pasted content for EPUB compatibility
   const cleanPastedContent = (html: string): string => {
     try {
+      // Preserve existing code blocks before any processing
+      const preservedCodeBlocks = new Map<string, string>();
+      let codeBlockCounter = 0;
+      
+      let cleaned = html;
+      
+      // Extract and preserve existing code blocks with HTML escaping
+      // Handle <pre> blocks first (including nested <code>)
+      cleaned = cleaned.replace(/<pre[^>]*>[\s\S]*?<\/pre>/gi, (match) => {
+        const placeholder = `__SECURE_CODE_BLOCK_${Date.now()}_${codeBlockCounter++}__`;
+        // For pre blocks, preserve structure but escape inner text content
+        const safeCodeBlock = match.replace(/>([^<]*)</g, (textMatch, text) => {
+          const escapedText = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#x27;');
+          return `>${escapedText}<`;
+        });
+        preservedCodeBlocks.set(placeholder, safeCodeBlock);
+        return placeholder;
+      });
+      
+      // Handle standalone <code> blocks
+      cleaned = cleaned.replace(/<code[^>]*>[\s\S]*?<\/code>/gi, (match) => {
+        const placeholder = `__SECURE_CODE_BLOCK_${Date.now()}_${codeBlockCounter++}__`;
+        // Extract and escape the text content
+        const safeCodeBlock = match.replace(/>([^<]*)</g, (textMatch, text) => {
+          const escapedText = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#x27;');
+          return `>${escapedText}<`;
+        });
+        preservedCodeBlocks.set(placeholder, safeCodeBlock);
+        return placeholder;
+      });
+
+      // Handle math code fences FIRST (```math...```) before general code fences
+      cleaned = cleaned.replace(/```math\s*\n([\s\S]*?)\n```/gi, (match, latex) => {
+        return convertMathToMathML(latex.trim(), true);
+      });
+
+      // Then detect other code fences (```...```)
+      cleaned = cleaned.replace(/```(\w*)\s*\n([\s\S]*?)\n```/g, (match, language, code) => {
+        const placeholder = `__SECURE_CODE_BLOCK_${Date.now()}_${codeBlockCounter++}__`;
+        // HTML-escape the code content to preserve angle brackets and special chars
+        const escapedCode = code
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#x27;');
+        const codeBlock = `<pre><code${language ? ` class="language-${language}"` : ''}>${escapedCode}</code></pre>`;
+        preservedCodeBlocks.set(placeholder, codeBlock);
+        return placeholder;
+      });
+
       // First pass: Remove Word-specific elements and attributes
-      let cleaned = html
+      cleaned = cleaned
         // Remove Word namespace declarations and comments
         .replace(/<!--\[if [^>]*>[\s\S]*?<!\[endif\]-->/gi, '')
         .replace(/<!--[\s\S]*?-->/g, '')
@@ -236,11 +297,29 @@ export default function RichTextEditor({
       // Second pass: Use DOMPurify with EPUB-safe configuration
       const purified = DOMPurify.sanitize(cleaned, EPUB_SAFE_CONFIG);
 
-      // Third pass: Clean up empty elements and normalize structure
-      return purified
+      // Restore preserved code blocks with proper sanitization
+      let result = purified;
+      preservedCodeBlocks.forEach((codeBlock, placeholder) => {
+        // Safely sanitize the code block content only
+        const sanitizedCodeBlock = DOMPurify.sanitize(codeBlock, {
+          ALLOWED_TAGS: ['pre', 'code'],
+          ALLOWED_ATTR: ['class'], // Only allow class attribute for language highlighting
+          KEEP_CONTENT: true,
+          RETURN_DOM: false
+        });
+        result = result.replace(placeholder, sanitizedCodeBlock);
+      });
+
+      // Third pass: Clean up empty elements but preserve code block formatting
+      return result
         .replace(/<p>\s*<\/p>/g, '')
         .replace(/<p>\s*<br[^>]*>\s*<\/p>/g, '<p><br></p>')
-        .replace(/\s+/g, ' ')
+        // Use markers to preserve code blocks during whitespace normalization
+        .replace(/<(pre|code)[^>]*>[\s\S]*?<\/\1>/g, (match) => {
+          return '___CODE_PRESERVE___' + match + '___/CODE_PRESERVE___';
+        })
+        .replace(/\s+/g, ' ') // Normalize whitespace outside code blocks
+        .replace(/___CODE_PRESERVE___([\s\S]*?)___\/CODE_PRESERVE___/g, '$1') // Restore code blocks
         .trim();
     } catch (error) {
       console.warn('Error cleaning pasted content:', error);

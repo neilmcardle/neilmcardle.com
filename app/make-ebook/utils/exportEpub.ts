@@ -15,6 +15,17 @@ function normalizeHtmlForEpub(html: string): string {
   try {
     let normalized = html;
     
+    // Preserve code blocks during normalization
+    const preservedCodeBlocks = new Map<string, string>();
+    let codeBlockCounter = 0;
+    
+    // Extract and preserve code blocks
+    normalized = normalized.replace(/<(pre|code)[^>]*>[\s\S]*?<\/\1>/gi, (match) => {
+      const placeholder = `__EPUB_CODE_BLOCK_${codeBlockCounter++}__`;
+      preservedCodeBlocks.set(placeholder, match);
+      return placeholder;
+    });
+    
     // Remove any remaining script or style tags
     normalized = normalized
       .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
@@ -50,11 +61,16 @@ function normalizeHtmlForEpub(html: string): string {
       .replace(/<img([^>]*?)(?<!\/)>/gi, '<img$1 />') // Self-close img tags
       .replace(/<img[^>]*src\s*=\s*["']data:[^"']*["'][^>]*>/gi, ''); // Remove data URLs (should be handled by extractImages)
     
-    // Clean up whitespace and normalize structure
+    // Clean up whitespace and normalize structure (excluding code blocks)
     normalized = normalized
       .replace(/\s+/g, ' ') // Normalize whitespace
       .replace(/>\s+</g, '><') // Remove whitespace between tags
       .trim();
+    
+    // Restore preserved code blocks before final validation
+    preservedCodeBlocks.forEach((codeBlock, placeholder) => {
+      normalized = normalized.replace(placeholder, codeBlock);
+    });
     
     // Final validation: ensure no forbidden tags remain
     const forbiddenTags = ['script', 'style', 'object', 'embed', 'iframe', 'form', 'input', 'button'];
