@@ -233,7 +233,7 @@ export async function exportEpub({
       </head>
       <body>
         <h2>Table of Contents</h2>
-        <ul>
+        <ul style="list-style-type: none; padding-left: 0;">
           ${tocLinks}
         </ul>
       </body>
@@ -250,7 +250,7 @@ export async function exportEpub({
       </head>
       <body>
         <h2>Publisher Information</h2>
-        <ul>
+        <ul style="list-style-type: none; padding-left: 0;">
           <li><strong>Title:</strong> ${safeTitle}</li>
           <li><strong>Author:</strong> ${safeAuthor}</li>
           <li><strong>Publisher:</strong> ${safePublisher}</li>
