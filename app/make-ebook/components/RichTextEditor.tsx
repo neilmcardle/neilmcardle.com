@@ -46,6 +46,12 @@ const ALIGN = [
   { cmd: 'justifyFull', label: 'J', title: 'Justify' },
 ];
 
+const HEADINGS = [
+  { level: 1, label: 'H1', title: 'Heading 1' },
+  { level: 2, label: 'H2', title: 'Heading 2' },
+  { level: 3, label: 'H3', title: 'Heading 3' },
+];
+
 export default function RichTextEditor({
   value,
   onChange,
@@ -119,6 +125,15 @@ export default function RichTextEditor({
     refreshStates();
   };
 
+  const applyHeading = (level: number) => {
+    if (disabled) return;
+    focusEditor();
+    const tagName = level === 0 ? 'p' : `h${level}`;
+    document.execCommand('formatBlock', false, tagName);
+    emitChange();
+    refreshStates();
+  };
+
   const refreshStates = useCallback(() => {
     const s: FormatState = {};
     try {
@@ -130,6 +145,27 @@ export default function RichTextEditor({
       s.justifyCenter = document.queryCommandState('justifyCenter');
       s.justifyRight = document.queryCommandState('justifyRight');
       s.justifyFull = document.queryCommandState('justifyFull');
+      
+      // Detect current heading level
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        let element: Node | null = range.commonAncestorContainer;
+        if (element.nodeType === Node.TEXT_NODE) {
+          element = element.parentElement;
+        }
+        while (element && element !== editorRef.current) {
+          if (element instanceof HTMLElement) {
+            const tagName = element.tagName.toLowerCase();
+            if (tagName.match(/^h[1-6]$/)) {
+              const level = parseInt(tagName.charAt(1));
+              s[`heading${level}`] = true;
+              break;
+            }
+          }
+          element = element.parentElement;
+        }
+      }
     } catch {
       // ignore
     }
@@ -313,6 +349,30 @@ export default function RichTextEditor({
                 </div>
               </div>
               
+              {/* Headings section */}
+              <div className="flex flex-col gap-1">
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Headings</div>
+                <div className="flex gap-1">
+                  {HEADINGS.map(h => (
+                    <button
+                      key={h.level}
+                      onMouseDown={e => e.preventDefault()}
+                      title={h.title}
+                      type="button"
+                      className={`w-8 h-8 rounded-md border text-xs font-bold transition-colors touch-manipulation ${
+                        formats[`heading${h.level}`] 
+                          ? 'bg-[#181a1d] text-white border-[#181a1d]' 
+                          : 'bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5]'
+                      }`}
+                      onClick={() => applyHeading(h.level)}
+                      disabled={disabled}
+                    >
+                      {h.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
               {/* Align section */}
               <div className="flex flex-col gap-1">
                 <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Align</div>
@@ -401,6 +461,24 @@ export default function RichTextEditor({
           .editor-root p {
             margin: 0.5rem 0;
           }
+          .editor-root h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1.5rem 0 1rem 0;
+            line-height: 1.2;
+          }
+          .editor-root h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1.25rem 0 0.75rem 0;
+            line-height: 1.3;
+          }
+          .editor-root h3 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin: 1rem 0 0.5rem 0;
+            line-height: 1.4;
+          }
           .editor-root pre {
             background: #f2f3f5;
             padding: 0.75rem 0.9rem;
@@ -472,6 +550,24 @@ export default function RichTextEditor({
                 disabled={disabled}
               >
                 {b.label}
+              </button>
+            ))}
+          </div>
+        </Section>
+
+        <Section label="Headings">
+          <div className="grid grid-cols-3 gap-1">
+            {HEADINGS.map(h => (
+              <button
+                key={h.level}
+                onMouseDown={e => e.preventDefault()}
+                title={h.title}
+                type="button"
+                className={`${BTN} ${formats[`heading${h.level}`] ? BTN_ACTIVE : ''}`}
+                onClick={() => applyHeading(h.level)}
+                disabled={disabled}
+              >
+                {h.label}
               </button>
             ))}
           </div>
