@@ -12,6 +12,7 @@ import React, {
   KeyboardEvent,
 } from 'react';
 import Link from 'next/link';
+import DOMPurify from 'dompurify';
 
 interface RichTextEditorProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -51,6 +52,23 @@ const HEADINGS = [
   { level: 2, label: 'H2', title: 'Heading 2' },
   { level: 3, label: 'H3', title: 'Heading 3' },
 ];
+
+// EPUB-safe DOMPurify configuration
+const EPUB_SAFE_CONFIG = {
+  ALLOWED_TAGS: [
+    'p', 'br', 'strong', 'em', 'u', 's', 'sub', 'sup',
+    'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote',
+    'pre', 'code', 'a', 'img', 'hr'
+  ],
+  ALLOWED_ATTR: [
+    'href', 'src', 'alt', 'title', 'class', 'id'
+  ],
+  ALLOW_DATA_ATTR: false,
+  FORBID_TAGS: ['script', 'style', 'object', 'embed', 'iframe', 'form', 'input'],
+  FORBID_ATTR: ['style', 'onclick', 'onload', 'onerror', 'data-*'],
+  KEEP_CONTENT: true,
+  USE_PROFILES: { html: true }
+};
 
 export default function RichTextEditor({
   value,
@@ -132,6 +150,57 @@ export default function RichTextEditor({
     document.execCommand('formatBlock', false, tagName);
     emitChange();
     refreshStates();
+  };
+
+  // Clean pasted content for EPUB compatibility
+  const cleanPastedContent = (html: string): string => {
+    try {
+      // First pass: Remove Word-specific elements and attributes
+      let cleaned = html
+        // Remove Word namespace declarations and comments
+        .replace(/<!--\[if [^>]*>[\s\S]*?<!\[endif\]-->/gi, '')
+        .replace(/<!--[\s\S]*?-->/g, '')
+        .replace(/<o:p[^>]*>[\s\S]*?<\/o:p>/gi, '')
+        .replace(/<\/o:p>/gi, '')
+        .replace(/<o:[^>]*>/gi, '')
+        // Remove mso-* CSS properties and styles
+        .replace(/\s*mso-[^:]*:[^;"]*;?/gi, '')
+        .replace(/\s*style\s*=\s*["'][^"']*["']/gi, '')
+        .replace(/\s*class\s*=\s*["'][^"']*["']/gi, '')
+        // Convert common Word formatting to standard HTML
+        .replace(/<b\b[^>]*>/gi, '<strong>')
+        .replace(/<\/b>/gi, '</strong>')
+        .replace(/<i\b[^>]*>/gi, '<em>')
+        .replace(/<\/i>/gi, '</em>')
+        .replace(/<strike\b[^>]*>/gi, '<s>')
+        .replace(/<\/strike>/gi, '</s>')
+        // Convert div-heavy structure to paragraphs
+        .replace(/<div[^>]*>/gi, '<p>')
+        .replace(/<\/div>/gi, '</p>')
+        // Handle line breaks
+        .replace(/<br[^>]*>\s*<br[^>]*>/gi, '</p><p>')
+        .replace(/\r\n|\n|\r/g, ' ');
+
+      // Detect and wrap code blocks (indented text or monospace fonts)
+      cleaned = cleaned.replace(
+        /<p[^>]*>\s*(\s{4,}[^<]+|[^<]*font-family[^>]*monospace[^<]*)<\/p>/gi,
+        '<pre><code>$1</code></pre>'
+      );
+
+      // Second pass: Use DOMPurify with EPUB-safe configuration
+      const purified = DOMPurify.sanitize(cleaned, EPUB_SAFE_CONFIG);
+
+      // Third pass: Clean up empty elements and normalize structure
+      return purified
+        .replace(/<p>\s*<\/p>/g, '')
+        .replace(/<p>\s*<br[^>]*>\s*<\/p>/g, '<p><br></p>')
+        .replace(/\s+/g, ' ')
+        .trim();
+    } catch (error) {
+      console.warn('Error cleaning pasted content:', error);
+      // Fallback: just use DOMPurify with basic config
+      return DOMPurify.sanitize(html, EPUB_SAFE_CONFIG);
+    }
   };
 
   const refreshStates = useCallback(() => {
@@ -288,13 +357,60 @@ export default function RichTextEditor({
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-    const items = e.clipboardData.items;
-    for (let i = 0; i < items.length; ++i) {
+    if (disabled) return;
+    
+    const clipboardData = e.clipboardData;
+    const items = clipboardData.items;
+    
+    // Check for images first (higher priority)
+    for (let i = 0; i < items.length; i++) {
       const item = items[i];
       if (item.kind === 'file' && item.type.startsWith('image/')) {
         e.preventDefault();
         const file = item.getAsFile();
         if (file) insertImageFile(file);
+        return;
+      }
+    }
+    
+    // Handle HTML content (Word documents, rich text)
+    const htmlData = clipboardData.getData('text/html');
+    if (htmlData && htmlData.trim()) {
+      e.preventDefault();
+      
+      // Clean the HTML content for EPUB compatibility
+      const cleanedHtml = cleanPastedContent(htmlData);
+      
+      // Insert cleaned HTML at cursor position
+      focusEditor();
+      if (cleanedHtml) {
+        document.execCommand('insertHTML', false, cleanedHtml);
+        emitChange();
+        refreshStates();
+      }
+      return;
+    }
+    
+    // Fallback to plain text
+    const textData = clipboardData.getData('text/plain');
+    if (textData && textData.trim()) {
+      e.preventDefault();
+      
+      // Convert line breaks to paragraphs and clean
+      const lines = textData.split(/\r\n|\n|\r/);
+      const htmlContent = lines
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .map(line => `<p>${line}</p>`)
+        .join('');
+      
+      const cleanedHtml = cleanPastedContent(htmlContent);
+      
+      focusEditor();
+      if (cleanedHtml) {
+        document.execCommand('insertHTML', false, cleanedHtml);
+        emitChange();
+        refreshStates();
       }
     }
   };
