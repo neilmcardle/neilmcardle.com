@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import "../styles/immersive.css";
-import 'draft-js/dist/Draft.css';
+import "../styles/vendor/draft-js.css";
 import { AuthProvider } from "@/lib/hooks/useAuth";
 import { Toaster } from "@/components/ui/toaster";
 import ClientFooterWrapper from "@/components/ClientFooterWrapper"; // NEW

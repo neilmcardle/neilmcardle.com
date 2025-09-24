@@ -14,7 +14,7 @@ import React, {
 import Link from 'next/link';
 import DOMPurify from 'dompurify';
 import katex from 'katex';
-import 'katex/dist/katex.min.css';
+import "../../../styles/vendor/katex.css";
 
 interface RichTextEditorProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
