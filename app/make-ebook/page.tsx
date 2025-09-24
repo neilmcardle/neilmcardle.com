@@ -570,27 +570,28 @@ function MakeEbookPage() {
         {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)]">
           {/* Desktop Sidebar - Hidden on Mobile */}
-          <aside className="hidden lg:flex flex-col w-full lg:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 lg:min-w-[340px] lg:h-full overflow-y-auto shadow-sm p-4 gap-4">
-            <nav className="flex flex-row border-b border-[#ececec] items-center gap-2 pb-2">
-              {["setup", "preview", "library"].map((key) => (
-                <button
-                  key={key}
-                  className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                    tab === key
-                      ? "bg-[#f4f4f5] text-[#15161a] shadow-sm"
-                      : "hover:bg-[#f4f4f5] text-[#86868B]"
-                  }`}
-                  onClick={() => setTab(key as any)}
-                >
-                  {key === "setup"
-                    ? "Metadata"
-                    : key === "preview"
-                    ? "Preview"
-                    : "Library"}
-                </button>
-              ))}
-            </nav>
-            <div className="flex-1 overflow-y-auto">
+          <aside className="hidden lg:flex flex-col w-full lg:max-w-xs brilliant-sidebar min-w-0 lg:min-w-[340px] lg:h-full">
+            <div className="brilliant-sidebar-header">
+              <h2 className="brilliant-subtitle mb-3">eBook Creator</h2>
+              <div className="brilliant-tabs">
+                {["setup", "preview", "library"].map((key) => (
+                  <button
+                    key={key}
+                    className={`brilliant-tab ${
+                      tab === key ? "active" : ""
+                    }`}
+                    onClick={() => setTab(key as any)}
+                  >
+                    {key === "setup"
+                      ? "Setup"
+                      : key === "preview"
+                      ? "Preview"
+                      : "Library"}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="brilliant-sidebar-content brilliant-scrollbar flex-1 overflow-y-auto">
               {tab === "setup" && (
                 <MetaTabContent
                   title={title}
@@ -677,56 +678,97 @@ function MakeEbookPage() {
           </aside>
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className="flex-1 flex flex-col overflow-x-auto bg-white rounded-xl shadow-sm border border-[#ececec] px-2 lg:px-8 py-2 lg:py-8 min-w-0 h-full overflow-y-auto">
+          <main className="flex-1 flex flex-col overflow-x-auto brilliant-editor px-2 lg:px-8 py-2 lg:py-8 min-w-0 h-full brilliant-scrollbar">
             {/* Mobile Header with Hamburger Menu */}
-            <div className="lg:hidden flex items-center justify-between mb-4 pb-2 border-b border-[#ececec]">
-              <button
-                onClick={() => setMobileSidebarOpen(true)}
-                className="p-2 rounded-lg bg-[#f4f4f5] hover:bg-[#ececec] transition-colors"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-              {title && (
-                <div className="flex-1 text-center">
-                  <h1 className="text-sm font-medium text-[#6a6c72] truncate px-4">
-                    {title}
-                  </h1>
-                </div>
-              )}
+            <div className="lg:hidden brilliant-card mb-4">
+              <div className="flex items-center justify-between p-4">
+                <button
+                  onClick={() => setMobileSidebarOpen(true)}
+                  className="brilliant-btn-icon-only brilliant-btn-secondary"
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
+                {title && (
+                  <div className="flex-1 text-center">
+                    <h1 className="brilliant-subtitle text-center">
+                      {title}
+                    </h1>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Desktop Book Title and Toolbar */}
             <div className="hidden lg:block">
-              {title && (
-                <div className="mb-3 pb-2 border-b border-[#f4f4f5]">
-                  <h1 className="text-lg font-medium text-[#23242a] truncate">
-                    {title}
-                  </h1>
+              <div className="brilliant-card-elevated p-6 mb-6">
+                <div className="brilliant-flex brilliant-flex-between mb-6">
+                  <div>
+                    <h1 className="brilliant-title">{title || "Untitled eBook"}</h1>
+                    <div className="brilliant-stats mt-4">
+                      <div className="brilliant-stat-card">
+                        <div className="brilliant-stat-value">{totalWords.toLocaleString()}</div>
+                        <div className="brilliant-stat-label">Words</div>
+                      </div>
+                      <div className="brilliant-stat-card">
+                        <div className="brilliant-stat-value">{pageCount}</div>
+                        <div className="brilliant-stat-label">Pages</div>
+                      </div>
+                      <div className="brilliant-stat-card">
+                        <div className="brilliant-stat-value">{readingTime}min</div>
+                        <div className="brilliant-stat-label">Read Time</div>
+                      </div>
+                      <div className="brilliant-stat-card">
+                        <div className="brilliant-stat-value">{chapters.length}</div>
+                        <div className="brilliant-stat-label">Chapters</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="brilliant-flex gap-2">
+                    <button
+                      onClick={handleSaveBook}
+                      className={`brilliant-btn brilliant-btn-sm ${
+                        saveFeedback ? "brilliant-btn-success" : "brilliant-btn-secondary"
+                      }`}
+                      disabled={!!saveFeedback}
+                    >
+                      <Save className="w-4 h-4" />
+                      {saveFeedback ? "Saved!" : "Save"}
+                    </button>
+                    <button
+                      onClick={handleExportEPUB}
+                      className="brilliant-btn brilliant-btn-sm brilliant-btn-warning"
+                    >
+                      <Download className="w-4 h-4" />
+                      Export EPUB
+                    </button>
+                    <button
+                      onClick={showNewBookConfirmation}
+                      className="brilliant-btn brilliant-btn-sm brilliant-btn-primary"
+                    >
+                      <Plus className="w-4 h-4" />
+                      New Book
+                    </button>
+                  </div>
                 </div>
-              )}
-              <BookToolbar
-                onNewBook={showNewBookConfirmation}
-                onSave={handleSaveBook}
-                onExport={handleExportEPUB}
-                saveFeedback={saveFeedback}
-              />
+              </div>
             </div>
 
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
             <div className="lg:hidden flex flex-col gap-4 h-full">
               {/* Chapter Selection - Compact Horizontal Scroll */}
               <div className="flex-shrink-0">
-                <div className="flex items-center gap-3 mb-1">
-                  <h3 className="text-sm font-semibold text-[#6a6c72]">Chapters</h3>
-                  <button
-                    onClick={handleAddChapter}
-                    aria-label="Add new chapter"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#f4f4f5] hover:bg-[#ececec] text-xs font-semibold text-[#15161a] transition-colors"
-                  >
-                    <Plus className="w-3 h-3" />
-                    <span>Add</span>
-                  </button>
-                </div>
+                <div className="brilliant-card p-4 mb-4">
+                  <div className="brilliant-flex brilliant-flex-between mb-4">
+                    <h3 className="brilliant-subtitle">Chapters</h3>
+                    <button
+                      onClick={handleAddChapter}
+                      aria-label="Add new chapter"
+                      className="brilliant-btn brilliant-btn-sm brilliant-btn-primary"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add
+                    </button>
+                  </div>
                 {/* Chapter Pills - Wrapping Layout */}
                 <div className="chapter-pills-container flex flex-wrap gap-2 pb-2" style={{userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
                   {chapters.map((ch, i) => {
@@ -742,14 +784,12 @@ function MakeEbookPage() {
                       <div
                         key={i}
                         data-chapter-idx={i}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer select-none group relative ${
+                        className={`brilliant-chapter-pill ${
+                          isSelected ? 'active' : ''
+                        } ${
                           dragOverIndex === i 
                             ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
-                            : 'border-2 border-transparent'
-                        } ${
-                          isSelected 
-                            ? "bg-[#181a1d] text-white shadow-sm" 
-                            : "bg-[#f4f4f5] text-[#6a6c72] hover:bg-[#ececec]"
+                            : ''
                         }`}
                         style={{ 
                           userSelect: 'none', 
@@ -769,11 +809,18 @@ function MakeEbookPage() {
                         onTouchEnd={handleTouchEnd}
                         onClick={() => handleSelectChapter(i)}
                       >
-                        <HandleDots />
-                        <span className="truncate max-w-[120px] flex-1 text-center">{displayTitle}</span>
+                        <div className="brilliant-chapter-number">{i + 1}</div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm">{ch.title || `Chapter ${i + 1}`}</div>
+                          {plainText(ch.content).length > 0 && (
+                            <div className="brilliant-caption mt-1">
+                              {plainText(ch.content).split(' ').length} words
+                            </div>
+                          )}
+                        </div>
                         {chapters.length > 1 && (
                           <button
-                            className="opacity-60 hover:opacity-100 flex items-center justify-center"
+                            className="opacity-60 hover:opacity-100 flex items-center justify-center p-1 rounded-full hover:bg-red-100 transition-colors"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleRemoveChapter(i);
@@ -788,6 +835,7 @@ function MakeEbookPage() {
                   })}
                 </div>
                 <p className="text-xs text-[#9ca3af] mt-3">Drag and drop to re-order your chapters</p>
+                </div>
                 
                 {/* Ghost Pill for Finger-Following Drag */}
                 {ghostPillPosition.visible && (
