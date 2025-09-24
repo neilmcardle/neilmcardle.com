@@ -1,15 +1,12 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import "../styles/immersive.css";
 import "../styles/vendor/draft-js.css";
+import "../styles/vendor/google-fonts.css";
 import { AuthProvider } from "@/lib/hooks/useAuth";
 import { Toaster } from "@/components/ui/toaster";
 import ClientFooterWrapper from "@/components/ClientFooterWrapper"; // NEW
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
   title: "Neil McArdle - Artist & Designer",
@@ -21,7 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${playfair.variable} font-sans`}>
+      <body className="font-sans" style={{ fontFamily: 'var(--font-inter)' }}>
         <AuthProvider>
           <div className="min-h-screen flex flex-col">
             <main className="flex-1">{children}</main>
