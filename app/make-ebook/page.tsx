@@ -18,6 +18,7 @@ import { useCover } from "./hooks/useCover";
 import { useLockedSections } from "./hooks/useLockedSections";
 import { exportEpub } from "./utils/exportEpub";
 import RichTextEditor from "./components/RichTextEditor";
+import "./styles/brilliant.css";
 
 const HEADER_HEIGHT = 64; // px (adjust if your header is taller/shorter)
 const BOOK_LIBRARY_KEY = "makeebook_library";
@@ -321,7 +322,7 @@ function MakeEbookPage() {
         <Header />
       </div>
       {/* Main Content */}
-      <div className="bg-[#f7f9fa] text-[#15161a] pt-[64px]">
+      <div className="brilliant-container text-[#15161a] pt-[64px]">
         {/* Library Panel */}
         {libraryOpen && (
           <div className="fixed inset-0 z-[120] bg-black/20 flex items-start justify-center">
@@ -568,7 +569,7 @@ function MakeEbookPage() {
         )}
 
         {/* Main layout: Mobile-optimized */}
-        <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)]">
+        <div className="brilliant-main-layout h-[calc(100vh-64px)]">
           {/* Desktop Sidebar - Hidden on Mobile */}
           <aside className="hidden lg:flex flex-col w-full lg:max-w-xs brilliant-sidebar min-w-0 lg:min-w-[340px] lg:h-full">
             <div className="brilliant-sidebar-header">
