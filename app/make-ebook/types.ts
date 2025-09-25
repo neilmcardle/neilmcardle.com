@@ -4,23 +4,26 @@ export type Chapter = {
   type: 'frontmatter' | 'content' | 'backmatter';
 };
 
+// Reorganized with most common selections at the top
 export const CHAPTER_TEMPLATES = {
+  common: [
+    { title: 'Chapter', description: 'A main content chapter', type: 'content' as const },
+    { title: 'Preface', description: 'An introduction by the author', type: 'frontmatter' as const },
+    { title: 'Introduction', description: 'An opening section', type: 'frontmatter' as const },
+    { title: 'Epilogue', description: 'A concluding section', type: 'backmatter' as const },
+  ],
   frontmatter: [
-    { title: 'Preface', description: 'An introduction by the author' },
     { title: 'Dedication', description: 'A personal dedication' },
     { title: 'Acknowledgments', description: 'Thank you to contributors' },
     { title: 'Foreword', description: 'An introduction by someone else' },
-    { title: 'Introduction', description: 'An opening section' },
     { title: 'Prologue', description: 'A preliminary section' },
     { title: 'Custom Front Matter', description: 'Create your own front matter chapter' },
   ],
   content: [
-    { title: 'Chapter', description: 'A main content chapter' },
     { title: 'Part', description: 'A major section or part' },
     { title: 'Custom Chapter', description: 'Create your own chapter' },
   ],
   backmatter: [
-    { title: 'Epilogue', description: 'A concluding section' },
     { title: 'Endnotes', description: 'Notes and references' },
     { title: 'Bibliography', description: 'List of sources' },
     { title: 'Glossary', description: 'Definitions of terms' },

@@ -747,13 +747,38 @@ function MakeEbookPage() {
                       <div className="absolute z-50 top-full left-0 mt-1 w-72 bg-white rounded-lg border border-[#ececec] shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-2">
                           <div className="space-y-3">
+                            {/* Common selections first */}
+                            <div>
+                              <h4 className="text-xs font-semibold text-[#6a6c72] mb-1">Most Common</h4>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.common.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Clicked template:', template);
+                                      handleAddChapter(template.type, template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#f4f4f5] transition-colors"
+                                  >
+                                    <div className="text-xs font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-xs text-[#6a6c72]">{template.description}</div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
                             <div>
                               <h4 className="text-xs font-semibold text-[#6a6c72] mb-1">Front Matter</h4>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
                                   <button
                                     key={template.title}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Clicked template:', template);
                                       handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
@@ -771,7 +796,10 @@ function MakeEbookPage() {
                                 {CHAPTER_TEMPLATES.content.map((template) => (
                                   <button
                                     key={template.title}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Clicked template:', template);
                                       handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
@@ -789,7 +817,10 @@ function MakeEbookPage() {
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
                                   <button
                                     key={template.title}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Clicked template:', template);
                                       handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
