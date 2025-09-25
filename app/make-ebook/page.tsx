@@ -9,6 +9,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus, Trash2, BookOpen, Menu, X, Save, Download } from "lucide-react";
 import { LANGUAGES, today } from "./utils/constants";
+import { CHAPTER_TEMPLATES } from "./types";
 import MetaTabContent from "./components/MetaTabContent";
 import PreviewPanel from "./components/PreviewPanel";
 import AiTabContent from "./components/AiTabContent";
@@ -150,11 +151,13 @@ function MakeEbookPage() {
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
+  const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
 
   const [saveFeedback, setSaveFeedback] = useState(false);
 
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [markerStyle, setMarkerStyle] = useState({ top: 0, height: 0 });
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const el = chapterRefs.current[selectedChapter];
@@ -165,6 +168,19 @@ function MakeEbookPage() {
       });
     }
   }, [selectedChapter, chapters.length]);
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setChapterTypeDropdownOpen(false);
+      }
+    }
+    if (chapterTypeDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [chapterTypeDropdownOpen]);
 
   function showNewBookConfirmation() {
     setNewBookConfirmOpen(true);
@@ -718,26 +734,95 @@ function MakeEbookPage() {
               <div className="flex-shrink-0">
                 <div className="flex items-center gap-3 mb-1">
                   <h3 className="text-sm font-semibold text-[#6a6c72]">Chapters</h3>
-                  <button
-                    onClick={handleAddChapter}
-                    aria-label="Add new chapter"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#f4f4f5] hover:bg-[#ececec] text-xs font-semibold text-[#15161a] transition-colors"
-                  >
-                    <Plus className="w-3 h-3" />
-                    <span>Add</span>
-                  </button>
+                  <div className="relative" ref={dropdownRef}>
+                    <button
+                      onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
+                      aria-label="Add new chapter"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#f4f4f5] hover:bg-[#ececec] text-xs font-semibold text-[#15161a] transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>Add</span>
+                    </button>
+                    {chapterTypeDropdownOpen && (
+                      <div className="absolute z-50 top-full left-0 mt-1 w-72 bg-white rounded-lg border border-[#ececec] shadow-lg max-h-96 overflow-y-auto">
+                        <div className="p-2">
+                          <div className="space-y-3">
+                            <div>
+                              <h4 className="text-xs font-semibold text-[#6a6c72] mb-1">Front Matter</h4>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.frontmatter.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onClick={() => {
+                                      handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#f4f4f5] transition-colors"
+                                  >
+                                    <div className="text-xs font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-xs text-[#6a6c72]">{template.description}</div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-semibold text-[#6a6c72] mb-1">Main Content</h4>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.content.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onClick={() => {
+                                      handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#f4f4f5] transition-colors"
+                                  >
+                                    <div className="text-xs font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-xs text-[#6a6c72]">{template.description}</div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-semibold text-[#6a6c72] mb-1">Back Matter</h4>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.backmatter.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onClick={() => {
+                                      handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#f4f4f5] transition-colors"
+                                  >
+                                    <div className="text-xs font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-xs text-[#6a6c72]">{template.description}</div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {/* Chapter Pills - Wrapping Layout */}
                 <div className="chapter-pills-container flex flex-wrap gap-2 pb-2" style={{userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
                     const titleText = ch.title?.trim() || '';
-                    const truncatedTitle = titleText.length > 8 
-                      ? titleText.substring(0, 8) + '...' 
-                      : titleText;
-                    const displayTitle = truncatedTitle 
-                      ? `${i + 1}. ${truncatedTitle}` 
-                      : `${i + 1}.`;
+                    const displayTitle = (() => {
+                      if (ch.type === 'frontmatter' || ch.type === 'backmatter') {
+                        return titleText || `${ch.type === 'frontmatter' ? 'Front' : 'Back'} Matter`;
+                      }
+                      const truncatedTitle = titleText.length > 8 
+                        ? titleText.substring(0, 8) + '...' 
+                        : titleText;
+                      return truncatedTitle 
+                        ? `${i + 1}. ${truncatedTitle}` 
+                        : `${i + 1}.`;
+                    })();
                     return (
                       <div
                         key={i}
@@ -853,22 +938,89 @@ function MakeEbookPage() {
                   <h3 className="text-[11px] font-semibold uppercase tracking-wide text-[#6a6c72]">
                     Chapters
                   </h3>
-                  <button
-                    onClick={handleAddChapter}
-                    aria-label="Add new chapter"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-[22px] border border-[#e5e5e6] bg-[#f7f8f9] text-[12px] font-semibold text-[#6d6f74] hover:text-[#15161a] hover:border-[#d3d4d6] active:scale-[0.97] transition"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add new chapter</span>
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
+                      aria-label="Add new chapter"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-[22px] border border-[#e5e5e6] bg-[#f7f8f9] text-[12px] font-semibold text-[#6d6f74] hover:text-[#15161a] hover:border-[#d3d4d6] active:scale-[0.97] transition"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add new chapter</span>
+                    </button>
+                    {chapterTypeDropdownOpen && (
+                      <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white rounded-lg border border-[#ececec] shadow-lg max-h-96 overflow-y-auto">
+                        <div className="p-3">
+                          <div className="space-y-4">
+                            <div>
+                              <h4 className="text-sm font-semibold text-[#6a6c72] mb-2">Front Matter</h4>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.frontmatter.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onClick={() => {
+                                      handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#f4f4f5] transition-colors"
+                                  >
+                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-xs text-[#6a6c72]">{template.description}</div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-[#6a6c72] mb-2">Main Content</h4>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.content.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onClick={() => {
+                                      handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#f4f4f5] transition-colors"
+                                  >
+                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-xs text-[#6a6c72]">{template.description}</div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-[#6a6c72] mb-2">Back Matter</h4>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.backmatter.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onClick={() => {
+                                      handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#f4f4f5] transition-colors"
+                                  >
+                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-xs text-[#6a6c72]">{template.description}</div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-3 min-h-[8px]">
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
-                    const displayTitle =
-                      ch.title?.trim()
-                        ? `${i + 1}. ${ch.title.trim()}`
-                        : `${i + 1}.`;
+                    const displayTitle = (() => {
+                      const titleText = ch.title?.trim() || '';
+                      if (ch.type === 'frontmatter' || ch.type === 'backmatter') {
+                        return titleText || `${ch.type === 'frontmatter' ? 'Front' : 'Back'} Matter`;
+                      }
+                      return titleText ? `${i + 1}. ${titleText}` : `${i + 1}.`;
+                    })();
                     return (
                       <div
                         key={i}

@@ -65,8 +65,13 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "", type
     }
   }
 
-  function handleAddChapter() {
-    setChapters((chs) => [...chs, { title: "", content: "", type: "content" }]);
+  function handleAddChapter(chapterType: 'frontmatter' | 'content' | 'backmatter' = 'content', customTitle?: string) {
+    const newChapter: Chapter = {
+      title: customTitle || "",
+      content: "",
+      type: chapterType
+    };
+    setChapters((chs) => [...chs, newChapter]);
     setSelectedChapter(chapters.length);
   }
   function handleSelectChapter(idx: number) { 

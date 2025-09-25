@@ -120,7 +120,7 @@ function replaceImgSrcs(html: string, images: { tag: string; ext: string; data: 
   return newHtml;
 }
 
-type Chapter = { title: string; content: string };
+type Chapter = { title: string; content: string; type: 'frontmatter' | 'content' | 'backmatter' };
 
 interface ExportEpubOptions {
   title: string;
@@ -197,9 +197,17 @@ export async function exportEpub({
     coverMeta = `<meta name="cover" content="cover-image"/>`;
   }
 
+  // Sort chapters by type (frontmatter → content → backmatter), then by original order
+  const typeOrder = { frontmatter: 0, content: 1, backmatter: 2 };
+  const sortedChapters = [...chapters].sort((a, b) => {
+    const typeComparison = typeOrder[a.type] - typeOrder[b.type];
+    if (typeComparison !== 0) return typeComparison;
+    return 0; // Maintain original order within same type
+  });
+
   // --- CHAPTERS: Collect images and write chapter files ---
   let allImages: { tag: string; ext: string; data: string; filename: string }[] = [];
-  chapters.forEach(ch => {
+  sortedChapters.forEach(ch => {
     allImages = allImages.concat(extractImages(ch.content));
   });
   // Deduplicate images by filename
@@ -218,10 +226,23 @@ export async function exportEpub({
   // Generate TOC links (Publisher Page + Chapters)
   const tocLinks = [
     `<li><a href="${publisherPageFilename}">Publisher Page</a></li>`,
-    ...chapters.map(
-      (ch, idx) =>
-        `<li><a href="chapter${idx + 1}.xhtml">${ch.title || `Chapter ${idx + 1}`}</a></li>`
-    ),
+    ...(() => {
+      let contentNum = 1;
+      return sortedChapters.map((ch, idx) => {
+        const getTitle = (chapter: Chapter, contentNumber: number) => {
+          if (chapter.title?.trim()) return chapter.title.trim();
+          switch (chapter.type) {
+            case 'frontmatter': return 'Front Matter';
+            case 'backmatter': return 'Back Matter';
+            case 'content': return `Chapter ${contentNumber}`;
+            default: return `Chapter ${contentNumber}`;
+          }
+        };
+        const displayTitle = getTitle(ch, contentNum);
+        if (ch.type === 'content') contentNum++;
+        return `<li><a href="chapter${idx + 1}.xhtml">${displayTitle}</a></li>`;
+      });
+    })(),
   ].join("\n          ");
 
   zip.file(
@@ -270,9 +291,35 @@ export async function exportEpub({
 
   // --- CHAPTERS ---
   const chapterHrefs: string[] = [];
-  chapters.forEach((ch, idx) => {
+  let contentChapterNumber = 1;
+  
+  sortedChapters.forEach((ch, idx) => {
     const filename = `chapter${idx + 1}.xhtml`;
     chapterHrefs.push(filename);
+    
+    // Generate chapter title based on type
+    const getChapterTitle = (chapter: Chapter, contentNumber: number) => {
+      if (chapter.title?.trim()) {
+        return chapter.title.trim();
+      }
+      
+      switch (chapter.type) {
+        case 'frontmatter':
+          return 'Front Matter';
+        case 'backmatter':
+          return 'Back Matter';
+        case 'content':
+          return `Chapter ${contentNumber}`;
+        default:
+          return `Chapter ${contentNumber}`;
+      }
+    };
+    
+    const chapterTitle = getChapterTitle(ch, ch.type === 'content' ? contentChapterNumber : 0);
+    if (ch.type === 'content') {
+      contentChapterNumber++;
+    }
+    
     // Replace inline image data URLs with file references
     let chapterHtml = ch.content;
     const imgs = extractImages(chapterHtml);
@@ -284,9 +331,9 @@ export async function exportEpub({
       `OEBPS/${filename}`,
       `<?xml version="1.0" encoding="utf-8"?>
       <html xmlns="http://www.w3.org/1999/xhtml">
-        <head><title>${ch.title || `Chapter ${idx + 1}`}</title></head>
+        <head><title>${chapterTitle}</title></head>
         <body>
-          <h2>${ch.title || `Chapter ${idx + 1}`}</h2>
+          <h2>${chapterTitle}</h2>
           <div>${chapterHtml}</div>
         </body>
       </html>`
@@ -307,12 +354,23 @@ export async function exportEpub({
           ${coverFile instanceof File ? `<li><a href="cover.xhtml">Cover</a></li>` : ""}
           <li><a href="${tocPageFilename}">Table of Contents</a></li>
           <li><a href="${publisherPageFilename}">Publisher Page</a></li>
-          ${chapters
-            .map(
-              (ch, idx) =>
-                `<li><a href="chapter${idx + 1}.xhtml">${ch.title || `Chapter ${idx + 1}`}</a></li>`
-            )
-            .join("\n")}
+          ${(() => {
+            let contentNum = 1;
+            return sortedChapters.map((ch, idx) => {
+              const getTitle = (chapter: Chapter, contentNumber: number) => {
+                if (chapter.title?.trim()) return chapter.title.trim();
+                switch (chapter.type) {
+                  case 'frontmatter': return 'Front Matter';
+                  case 'backmatter': return 'Back Matter';
+                  case 'content': return `Chapter ${contentNumber}`;
+                  default: return `Chapter ${contentNumber}`;
+                }
+              };
+              const displayTitle = getTitle(ch, contentNum);
+              if (ch.type === 'content') contentNum++;
+              return `<li><a href="chapter${idx + 1}.xhtml">${displayTitle}</a></li>`;
+            }).join("\n");
+          })()}
         </ol>
       </nav>
     </body>
@@ -410,14 +468,26 @@ export async function exportEpub({
           <navLabel><text>Publisher Page</text></navLabel>
           <content src="${publisherPageFilename}"/>
         </navPoint>
-        ${chapters
-          .map(
-            (ch, i) => `<navPoint id="navPoint-${i + 3}" playOrder="${i + 3}">
-              <navLabel><text>${ch.title || `Chapter ${i + 1}`}</text></navLabel>
+        ${(() => {
+          let contentNum = 1;
+          return sortedChapters.map((ch, i) => {
+            const getTitle = (chapter: Chapter, contentNumber: number) => {
+              if (chapter.title?.trim()) return chapter.title.trim();
+              switch (chapter.type) {
+                case 'frontmatter': return 'Front Matter';
+                case 'backmatter': return 'Back Matter';
+                case 'content': return `Chapter ${contentNumber}`;
+                default: return `Chapter ${contentNumber}`;
+              }
+            };
+            const displayTitle = getTitle(ch, contentNum);
+            if (ch.type === 'content') contentNum++;
+            return `<navPoint id="navPoint-${i + 3}" playOrder="${i + 3}">
+              <navLabel><text>${displayTitle}</text></navLabel>
               <content src="${chapterHrefs[i]}"/>
-            </navPoint>`
-          )
-          .join("\n")}
+            </navPoint>`;
+          }).join("\n");
+        })()}
       </navMap>
     </ncx>`
   );
