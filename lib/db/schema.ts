@@ -23,6 +23,7 @@ export const ebooks = pgTable('ebooks', {
     title: string
     content: string
     order: number
+    type: 'frontmatter' | 'content' | 'backmatter'
   }>>().notNull().default([]),
   tags: json('tags').$type<string[]>().default([]),
   createdAt: timestamp('created_at').defaultNow().notNull(),

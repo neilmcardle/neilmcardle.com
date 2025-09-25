@@ -1,6 +1,7 @@
 export type Chapter = {
   title: string;
   content: string;
+  type: 'frontmatter' | 'content' | 'backmatter';
 };
 
 export interface BookData {

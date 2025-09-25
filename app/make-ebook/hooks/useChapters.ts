@@ -1,9 +1,8 @@
 import { useState, useRef } from "react";
 import { uuidv4 } from "../utils/uuid";
+import { Chapter } from "../types";
 
-type Chapter = { title: string; content: string };
-
-export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
+export function useChapters(initial: Chapter[] = [{ title: "", content: "", type: "content" }]) {
   const [chapters, setChapters] = useState(initial);
   const [selectedChapter, setSelectedChapter] = useState(0);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -67,7 +66,7 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "" }]) {
   }
 
   function handleAddChapter() {
-    setChapters((chs) => [...chs, { title: "", content: "" }]);
+    setChapters((chs) => [...chs, { title: "", content: "", type: "content" }]);
     setSelectedChapter(chapters.length);
   }
   function handleSelectChapter(idx: number) { 
