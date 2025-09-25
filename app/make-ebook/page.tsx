@@ -163,6 +163,7 @@ function MakeEbookPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
   const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
   const [saveFeedback, setSaveFeedback] = useState(false);
 
@@ -216,10 +217,28 @@ function MakeEbookPage() {
   function handleNewBookConfirm() {
     // Save current book before starting new one
     if (title || author || chapters.some(ch => ch.content.trim())) {
-      handleSaveBook();
+      // Save first, then clear editor state in the callback
+      saveForNewBook();
+    } else {
+      // No content to save, just clear and start new
+      clearEditorState();
+      setNewBookConfirmOpen(false);
+    }
+  }
+
+  function saveForNewBook() {
+    // If there's already a book ID and it exists in library, show save dialog
+    if (currentBookId) {
+      const library = loadBookLibrary();
+      const existingBook = library.find((b: any) => b.id === currentBookId);
+      if (existingBook) {
+        setSaveDialogOpen(true);
+        return;
+      }
     }
     
-    // Clear all data for new book
+    // No existing book, save and then clear
+    saveBookDirectly(false);
     clearEditorState();
     setNewBookConfirmOpen(false);
   }
@@ -284,8 +303,23 @@ function MakeEbookPage() {
   }
 
   function handleSaveBook() {
-    const id = saveBookToLibrary({
-      id: currentBookId,
+    // If there's already a book ID and it exists in library, show save dialog
+    if (currentBookId) {
+      const library = loadBookLibrary();
+      const existingBook = library.find((b: any) => b.id === currentBookId);
+      if (existingBook) {
+        setSaveDialogOpen(true);
+        return;
+      }
+    }
+    
+    // No existing book, save normally
+    saveBookDirectly(false);
+  }
+
+  function saveBookDirectly(forceNewVersion: boolean) {
+    const bookData = {
+      id: forceNewVersion ? undefined : currentBookId, // Force new ID if creating new version
       title,
       author,
       blurb,
@@ -297,11 +331,35 @@ function MakeEbookPage() {
       tags,
       coverFile,
       chapters,
-    });
+    };
+    
+    const id = saveBookToLibrary(bookData);
     setCurrentBookId(id);
     setLibraryBooks(loadBookLibrary());
     setSaveFeedback(true);
     setTimeout(() => setSaveFeedback(false), 1300);
+  }
+
+  function handleOverwriteBook() {
+    setSaveDialogOpen(false);
+    saveBookDirectly(false);
+    
+    // If this was triggered from new book flow, clear editor after save
+    if (newBookConfirmOpen) {
+      clearEditorState();
+      setNewBookConfirmOpen(false);
+    }
+  }
+
+  function handleSaveAsNewVersion() {
+    setSaveDialogOpen(false);
+    saveBookDirectly(true);
+    
+    // If this was triggered from new book flow, clear editor after save
+    if (newBookConfirmOpen) {
+      clearEditorState();
+      setNewBookConfirmOpen(false);
+    }
   }
 
   function handleLoadBook(id: string) {
@@ -411,6 +469,38 @@ function MakeEbookPage() {
                   className="flex-1 px-4 py-2 rounded-lg bg-[#181a1d] text-white text-sm font-medium hover:bg-[#23252a] transition-colors"
                 >
                   Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Save Dialog */}
+        {saveDialogOpen && (
+          <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
+              <h2 className="text-lg font-bold mb-4">Save Book</h2>
+              <p className="text-gray-600 mb-6">
+                This book already exists in your library. Do you want to overwrite the existing version or save as a new version?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setSaveDialogOpen(false)}
+                  className="flex-1 px-4 py-2 rounded-lg border border-[#ececec] text-sm font-medium hover:bg-[#f4f4f5] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleOverwriteBook}
+                  className="flex-1 px-4 py-2 rounded-lg bg-orange-600 text-white text-sm font-medium hover:bg-orange-700 transition-colors"
+                >
+                  Overwrite
+                </button>
+                <button
+                  onClick={handleSaveAsNewVersion}
+                  className="flex-1 px-4 py-2 rounded-lg bg-[#181a1d] text-white text-sm font-medium hover:bg-[#23252a] transition-colors"
+                >
+                  Save as New
                 </button>
               </div>
             </div>
