@@ -66,6 +66,17 @@ function plainText(html: string) {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function getContentChapterNumber(chapters: any[], currentIndex: number) {
+  // Count only content chapters up to and including the current index
+  let contentChapterCount = 0;
+  for (let i = 0; i <= currentIndex; i++) {
+    if (chapters[i]?.type === 'content') {
+      contentChapterCount++;
+    }
+  }
+  return contentChapterCount;
+}
+
 function ChapterCapsuleMarker({ markerStyle }: { markerStyle: { top: number; height: number } }) {
   return (
     <span
@@ -747,12 +758,8 @@ function MakeEbookPage() {
                       <div className="absolute z-50 top-full left-0 mt-1 w-72 bg-white rounded-lg border border-[#ececec] shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-2">
                           <div className="space-y-3">
-                            {/* Common selections first */}
+                            {/* Most common selections at the top - no header */}
                             <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-700 rounded">★</span>
-                                <h4 className="text-xs font-semibold text-[#6a6c72]">Most Common</h4>
-                              </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.common.map((template) => (
                                   <button
@@ -760,7 +767,7 @@ function MakeEbookPage() {
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      console.log('Clicked template:', template);
+                                      console.log('Mobile clicked template:', template);
                                       handleAddChapter(template.type, template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
@@ -859,12 +866,13 @@ function MakeEbookPage() {
                       if (ch.type === 'frontmatter' || ch.type === 'backmatter') {
                         return titleText || `${ch.type === 'frontmatter' ? 'Front' : 'Back'} Matter`;
                       }
+                      const contentChapterNum = getContentChapterNumber(chapters, i);
                       const truncatedTitle = titleText.length > 8 
                         ? titleText.substring(0, 8) + '...' 
                         : titleText;
                       return truncatedTitle 
-                        ? `${i + 1}. ${truncatedTitle}` 
-                        : `${i + 1}.`;
+                        ? `${contentChapterNum}. ${truncatedTitle}` 
+                        : `${contentChapterNum}.`;
                     })();
                     return (
                       <div
@@ -1018,17 +1026,13 @@ function MakeEbookPage() {
                       <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white rounded-lg border border-[#ececec] shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-3">
                           <div className="space-y-4">
-                            {/* Common selections first */}
+                            {/* Most common selections at the top - no header */}
                             <div>
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-700 rounded">★</span>
-                                <h4 className="text-sm font-semibold text-[#6a6c72]">Most Common</h4>
-                              </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.common.map((template) => (
                                   <button
                                     key={template.title}
-                                    onClick={(e) => {
+                                    onMouseDown={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
                                       console.log('Desktop clicked template:', template);
@@ -1052,7 +1056,7 @@ function MakeEbookPage() {
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
                                   <button
                                     key={template.title}
-                                    onClick={(e) => {
+                                    onMouseDown={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
                                       console.log('Desktop clicked template:', template);
@@ -1076,7 +1080,7 @@ function MakeEbookPage() {
                                 {CHAPTER_TEMPLATES.content.map((template) => (
                                   <button
                                     key={template.title}
-                                    onClick={(e) => {
+                                    onMouseDown={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
                                       console.log('Desktop clicked template:', template);
@@ -1100,7 +1104,7 @@ function MakeEbookPage() {
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
                                   <button
                                     key={template.title}
-                                    onClick={(e) => {
+                                    onMouseDown={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
                                       console.log('Desktop clicked template:', template);
@@ -1129,7 +1133,8 @@ function MakeEbookPage() {
                       if (ch.type === 'frontmatter' || ch.type === 'backmatter') {
                         return titleText || `${ch.type === 'frontmatter' ? 'Front' : 'Back'} Matter`;
                       }
-                      return titleText ? `${i + 1}. ${titleText}` : `${i + 1}.`;
+                      const contentChapterNum = getContentChapterNumber(chapters, i);
+                      return titleText ? `${contentChapterNum}. ${titleText}` : `${contentChapterNum}.`;
                     })();
                     return (
                       <div

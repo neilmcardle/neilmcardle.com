@@ -1,5 +1,16 @@
 import React, { useRef, useLayoutEffect, useState } from "react";
 
+function getContentChapterNumber(chapters: any[], currentIndex: number) {
+  // Count only content chapters up to and including the current index
+  let contentChapterCount = 0;
+  for (let i = 0; i <= currentIndex; i++) {
+    if (chapters[i]?.type === 'content') {
+      contentChapterCount++;
+    }
+  }
+  return contentChapterCount;
+}
+
 export function ChapterList({
   chapters,
   selectedChapter,
@@ -35,10 +46,16 @@ export function ChapterList({
       />
       {chapters.map((ch, i) => {
         const isSelected = selectedChapter === i;
-        const displayTitle =
-          ch.title?.trim()
-            ? `Chapter ${i + 1}: ${ch.title.trim()}`
-            : `Chapter ${i + 1}`;
+        const displayTitle = (() => {
+          const titleText = ch.title?.trim() || '';
+          if (ch.type === 'frontmatter' || ch.type === 'backmatter') {
+            return titleText || `${ch.type === 'frontmatter' ? 'Front' : 'Back'} Matter`;
+          }
+          const contentChapterNum = getContentChapterNumber(chapters, i);
+          return titleText
+            ? `Chapter ${contentChapterNum}: ${titleText}`
+            : `Chapter ${contentChapterNum}`;
+        })();
         return (
           <div
             key={i}
