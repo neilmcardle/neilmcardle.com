@@ -165,6 +165,22 @@ export default function RichTextEditor({
     refreshStates();
   };
 
+  const applyUndo = () => {
+    if (disabled) return;
+    focusEditor();
+    document.execCommand('undo');
+    emitChange();
+    refreshStates();
+  };
+
+  const applyRedo = () => {
+    if (disabled) return;
+    focusEditor();
+    document.execCommand('redo');
+    emitChange();
+    refreshStates();
+  };
+
   // Convert LaTeX math to MathML for EPUB compatibility
   const convertMathToMathML = (latex: string, displayMode: boolean = false): string => {
     try {
@@ -655,6 +671,26 @@ export default function RichTextEditor({
                 <div className="flex gap-1">
                   <button
                     onMouseDown={e => e.preventDefault()}
+                    title="Undo"
+                    type="button"
+                    className="w-8 h-8 rounded-md border bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5] text-[10px] font-medium transition-colors touch-manipulation"
+                    onClick={applyUndo}
+                    disabled={disabled}
+                  >
+                    ↶
+                  </button>
+                  <button
+                    onMouseDown={e => e.preventDefault()}
+                    title="Redo"
+                    type="button"
+                    className="w-8 h-8 rounded-md border bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5] text-[10px] font-medium transition-colors touch-manipulation"
+                    onClick={applyRedo}
+                    disabled={disabled}
+                  >
+                    ↷
+                  </button>
+                  <button
+                    onMouseDown={e => e.preventDefault()}
                     title="Insert Image"
                     type="button"
                     className="w-8 h-8 rounded-md border bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5] text-[10px] font-medium transition-colors touch-manipulation"
@@ -846,6 +882,31 @@ export default function RichTextEditor({
                 {a.label}
               </button>
             ))}
+          </div>
+        </Section>
+
+        <Section label="History">
+          <div className="grid grid-cols-2 gap-1">
+            <button
+              onMouseDown={e => e.preventDefault()}
+              title="Undo"
+              type="button"
+              className={BTN}
+              onClick={applyUndo}
+              disabled={disabled}
+            >
+              ↶
+            </button>
+            <button
+              onMouseDown={e => e.preventDefault()}
+              title="Redo"
+              type="button"
+              className={BTN}
+              onClick={applyRedo}
+              disabled={disabled}
+            >
+              ↷
+            </button>
           </div>
         </Section>
 
