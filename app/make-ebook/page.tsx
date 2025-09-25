@@ -855,7 +855,19 @@ function MakeEbookPage() {
                         onClick={() => handleSelectChapter(i)}
                       >
                         <HandleDots />
-                        <span className="truncate max-w-[120px] flex-1 text-center">{displayTitle}</span>
+                        <div className="flex items-center gap-1.5 flex-1 justify-center">
+                          {/* Chapter Type Badge */}
+                          {ch.type === 'frontmatter' && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">F</span>
+                          )}
+                          {ch.type === 'backmatter' && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-purple-100 text-purple-700 rounded">B</span>
+                          )}
+                          {ch.type === 'content' && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 rounded">C</span>
+                          )}
+                          <span className="truncate max-w-[100px]">{displayTitle}</span>
+                        </div>
                         {chapters.length > 1 && (
                           <button
                             className="opacity-60 hover:opacity-100 flex items-center justify-center"
@@ -888,9 +900,21 @@ function MakeEbookPage() {
                     }}
                   >
                     <HandleDots />
-                    <span className="truncate max-w-[120px] flex-1 text-center">
-                      {ghostPillContent.title}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-1 justify-center">
+                      {/* Chapter Type Badge */}
+                      {ghostPillContent.type === 'frontmatter' && (
+                        <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">F</span>
+                      )}
+                      {ghostPillContent.type === 'backmatter' && (
+                        <span className="px-1.5 py-0.5 text-[10px] font-medium bg-purple-100 text-purple-700 rounded">B</span>
+                      )}
+                      {ghostPillContent.type === 'content' && (
+                        <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 rounded">C</span>
+                      )}
+                      <span className="truncate max-w-[100px]">
+                        {ghostPillContent.title}
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1041,9 +1065,21 @@ function MakeEbookPage() {
                         onClick={() => handleSelectChapter(i)}
                       >
                         <HandleDots />
-                        <span className="ml-2 text-[12px] truncate min-w-0">
-                          {displayTitle}
-                        </span>
+                        <div className="flex items-center gap-1.5 ml-2 min-w-0">
+                          {/* Chapter Type Badge */}
+                          {ch.type === 'frontmatter' && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded flex-shrink-0">F</span>
+                          )}
+                          {ch.type === 'backmatter' && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-purple-100 text-purple-700 rounded flex-shrink-0">B</span>
+                          )}
+                          {ch.type === 'content' && (
+                            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 rounded flex-shrink-0">C</span>
+                          )}
+                          <span className="text-[12px] truncate min-w-0">
+                            {displayTitle}
+                          </span>
+                        </div>
                         {chapters.length > 1 && (
                           <button
                             className={`ml-2 p-1 rounded transition ${

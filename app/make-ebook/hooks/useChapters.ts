@@ -16,9 +16,10 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "", type
     y: 0, 
     visible: false
   });
-  const [ghostPillContent, setGhostPillContent] = useState<{title: string, isSelected: boolean}>({
+  const [ghostPillContent, setGhostPillContent] = useState<{title: string, isSelected: boolean, type: 'frontmatter' | 'content' | 'backmatter'}>({
     title: '',
-    isSelected: false
+    isSelected: false,
+    type: 'content'
   });
   const [dragItemIndex, setDragItemIndex] = useState<number | null>(null);
   const autoScrollInterval = useRef<number | null>(null);
@@ -144,7 +145,8 @@ export function useChapters(initial: Chapter[] = [{ title: "", content: "", type
     const displayTitle = chapter?.title?.trim() || `Chapter ${index + 1}`;
     setGhostPillContent({
       title: displayTitle,
-      isSelected: selectedChapter === index
+      isSelected: selectedChapter === index,
+      type: chapter?.type || 'content'
     });
   }
   function handleTouchMove(index: number, e: React.TouchEvent) {
