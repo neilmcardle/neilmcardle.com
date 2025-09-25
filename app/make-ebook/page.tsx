@@ -749,7 +749,10 @@ function MakeEbookPage() {
                           <div className="space-y-3">
                             {/* Common selections first */}
                             <div>
-                              <h4 className="text-xs font-semibold text-[#6a6c72] mb-1">Most Common</h4>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-700 rounded">★</span>
+                                <h4 className="text-xs font-semibold text-[#6a6c72]">Most Common</h4>
+                              </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.common.map((template) => (
                                   <button
@@ -770,7 +773,10 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <h4 className="text-xs font-semibold text-[#6a6c72] mb-1">Front Matter</h4>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">F</span>
+                                <h4 className="text-xs font-semibold text-[#6a6c72]">Front Matter</h4>
+                              </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
                                   <button
@@ -791,7 +797,10 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <h4 className="text-xs font-semibold text-[#6a6c72] mb-1">Main Content</h4>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 rounded">C</span>
+                                <h4 className="text-xs font-semibold text-[#6a6c72]">Main Content</h4>
+                              </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.content.map((template) => (
                                   <button
@@ -812,7 +821,10 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <h4 className="text-xs font-semibold text-[#6a6c72] mb-1">Back Matter</h4>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-purple-100 text-purple-700 rounded">B</span>
+                                <h4 className="text-xs font-semibold text-[#6a6c72]">Back Matter</h4>
+                              </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
                                   <button
@@ -1006,13 +1018,44 @@ function MakeEbookPage() {
                       <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white rounded-lg border border-[#ececec] shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-3">
                           <div className="space-y-4">
+                            {/* Common selections first */}
                             <div>
-                              <h4 className="text-sm font-semibold text-[#6a6c72] mb-2">Front Matter</h4>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-700 rounded">★</span>
+                                <h4 className="text-sm font-semibold text-[#6a6c72]">Most Common</h4>
+                              </div>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.common.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Desktop clicked template:', template);
+                                      handleAddChapter(template.type, template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#f4f4f5] transition-colors"
+                                  >
+                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-xs text-[#6a6c72]">{template.description}</div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">F</span>
+                                <h4 className="text-sm font-semibold text-[#6a6c72]">Front Matter</h4>
+                              </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
                                   <button
                                     key={template.title}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Desktop clicked template:', template);
                                       handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
@@ -1025,12 +1068,18 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <h4 className="text-sm font-semibold text-[#6a6c72] mb-2">Main Content</h4>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 rounded">C</span>
+                                <h4 className="text-sm font-semibold text-[#6a6c72]">Main Content</h4>
+                              </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.content.map((template) => (
                                   <button
                                     key={template.title}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Desktop clicked template:', template);
                                       handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
@@ -1043,12 +1092,18 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <h4 className="text-sm font-semibold text-[#6a6c72] mb-2">Back Matter</h4>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-purple-100 text-purple-700 rounded">B</span>
+                                <h4 className="text-sm font-semibold text-[#6a6c72]">Back Matter</h4>
+                              </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
                                   <button
                                     key={template.title}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Desktop clicked template:', template);
                                       handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
