@@ -50,6 +50,7 @@ const ALIGN = [
 ];
 
 const HEADINGS = [
+  { level: 0, label: 'P', title: 'Body Text' },
   { level: 1, label: 'H1', title: 'Heading 1' },
   { level: 2, label: 'H2', title: 'Heading 2' },
   { level: 3, label: 'H3', title: 'Heading 3' },
@@ -340,7 +341,7 @@ export default function RichTextEditor({
       s.justifyRight = document.queryCommandState('justifyRight');
       s.justifyFull = document.queryCommandState('justifyFull');
       
-      // Detect current heading level
+      // Detect current heading level or body text
       const selection = window.getSelection();
       if (selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
@@ -348,16 +349,26 @@ export default function RichTextEditor({
         if (element.nodeType === Node.TEXT_NODE) {
           element = element.parentElement;
         }
+        let isHeading = false;
         while (element && element !== editorRef.current) {
           if (element instanceof HTMLElement) {
             const tagName = element.tagName.toLowerCase();
             if (tagName.match(/^h[1-6]$/)) {
               const level = parseInt(tagName.charAt(1));
               s[`heading${level}`] = true;
+              isHeading = true;
+              break;
+            } else if (tagName === 'p') {
+              s['heading0'] = true;
+              isHeading = true;
               break;
             }
           }
           element = element.parentElement;
+        }
+        // If no specific block element found, assume it's body text
+        if (!isHeading) {
+          s['heading0'] = true;
         }
       }
     } catch {
