@@ -9,7 +9,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus, Trash2, BookOpen, Menu, X, Save, Download } from "lucide-react";
 import { LANGUAGES, today } from "./utils/constants";
-import { CHAPTER_TEMPLATES } from "./types";
+import { CHAPTER_TEMPLATES, Endnote, EndnoteReference } from "./types";
 import MetaTabContent from "./components/MetaTabContent";
 import PreviewPanel from "./components/PreviewPanel";
 import AiTabContent from "./components/AiTabContent";
@@ -164,6 +164,9 @@ function MakeEbookPage() {
   const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
   const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [endnotes, setEndnotes] = useState<Endnote[]>([]);
+  const [endnoteReferences, setEndnoteReferences] = useState<EndnoteReference[]>([]);
+  const [nextEndnoteNumber, setNextEndnoteNumber] = useState(1);
 
   const [saveFeedback, setSaveFeedback] = useState(false);
 
@@ -211,6 +214,9 @@ function MakeEbookPage() {
     setTags([]);
     setCoverFile(null);
     setChapters([]);
+    setEndnotes([]);
+    setEndnoteReferences([]);
+    setNextEndnoteNumber(1);
     setCurrentBookId(undefined);
   }
 
@@ -331,6 +337,8 @@ function MakeEbookPage() {
       tags,
       coverFile,
       chapters,
+      endnotes,
+      endnoteReferences,
     };
     
     const id = saveBookToLibrary(bookData);
@@ -360,6 +368,60 @@ function MakeEbookPage() {
       clearEditorState();
       setNewBookConfirmOpen(false);
     }
+  }
+
+  // Endnote Management Functions
+  function createEndnote(selectedText: string, sourceChapterId: string) {
+    const endnoteId = `endnote-${Date.now()}`;
+    const endnoteNumber = nextEndnoteNumber;
+    
+    // Create the endnote
+    const newEndnote: Endnote = {
+      id: endnoteId,
+      number: endnoteNumber,
+      content: selectedText,
+      sourceChapterId,
+      sourceText: selectedText,
+    };
+    
+    // Create the reference
+    const newReference: EndnoteReference = {
+      id: `ref-${Date.now()}`,
+      number: endnoteNumber,
+      chapterId: sourceChapterId,
+      endnoteId,
+    };
+    
+    setEndnotes(prev => [...prev, newEndnote]);
+    setEndnoteReferences(prev => [...prev, newReference]);
+    setNextEndnoteNumber(prev => prev + 1);
+    
+    // Replace selected text with endnote link
+    const endnoteLink = `<a href="#endnote-${endnoteNumber}" data-endnote-ref="${endnoteNumber}" class="endnote-ref" onclick="navigateToEndnote(${endnoteNumber}); return false;">[${endnoteNumber}]</a>`;
+    
+    return endnoteLink;
+  }
+  
+  function handleCreateEndnote(selectedText: string, chapterId?: string) {
+    if (!selectedText.trim()) return;
+    
+    const currentChapterId = chapterId || (selectedChapter >= 0 ? `chapter-${selectedChapter}` : 'unknown');
+    const endnoteLink = createEndnote(selectedText, currentChapterId);
+    
+    // Replace selected text with endnote link in the current editor
+    if (window.getSelection) {
+      const selection = window.getSelection();
+      if (selection && !selection.isCollapsed) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const linkElement = document.createElement('span');
+        linkElement.innerHTML = endnoteLink;
+        range.insertNode(linkElement.firstChild!);
+        selection.removeAllRanges();
+      }
+    }
+    
+    return endnoteLink;
   }
 
   function handleLoadBook(id: string) {
@@ -1091,6 +1153,8 @@ function MakeEbookPage() {
                       : "Start writing your chapter here..."
                   }
                   className="h-full"
+                  onCreateEndnote={handleCreateEndnote}
+                  chapterId={`chapter-${selectedChapter}`}
                 />
               </div>
             </div>
@@ -1315,6 +1379,8 @@ function MakeEbookPage() {
                         ? "Start writing your first chapter here..."
                         : "Start writing your chapter here..."
                     }
+                    onCreateEndnote={handleCreateEndnote}
+                    chapterId={`chapter-${selectedChapter}`}
                   />
                 </div>
               </section>

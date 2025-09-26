@@ -27,6 +27,8 @@ interface RichTextEditorProps
   onFocusStateChange?: (focused: boolean) => void;
   className?: string;
   externalVersion?: number;
+  onCreateEndnote?: (selectedText: string) => void;
+  chapterId?: string;
 }
 
 type FormatState = Record<string, boolean>;
@@ -54,6 +56,11 @@ const HEADINGS = [
   { level: 1, label: 'H1', title: 'Heading 1' },
   { level: 2, label: 'H2', title: 'Heading 2' },
   { level: 3, label: 'H3', title: 'Heading 3' },
+];
+
+const ACTIONS = [
+  { cmd: 'endnote', label: '¹', title: 'Insert Endnote' },
+  { cmd: 'link', label: '🔗', title: 'Insert Link' },
 ];
 
 // EPUB-safe DOMPurify configuration
@@ -93,6 +100,8 @@ export default function RichTextEditor({
   onFocusStateChange,
   className = '',
   externalVersion,
+  onCreateEndnote,
+  chapterId,
   ...rest
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement | null>(null);
@@ -179,6 +188,43 @@ export default function RichTextEditor({
     document.execCommand('redo');
     emitChange();
     refreshStates();
+  };
+
+  const handleEndnoteClick = () => {
+    if (disabled || !onCreateEndnote) return;
+    
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed) {
+      alert('Please select some text to turn into an endnote.');
+      return;
+    }
+    
+    const selectedText = selection.toString().trim();
+    if (!selectedText) {
+      alert('Please select some text to turn into an endnote.');
+      return;
+    }
+    
+    // Call the callback to create endnote
+    onCreateEndnote(selectedText);
+  };
+
+  const handleLinkClick = () => {
+    if (disabled) return;
+    
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed) {
+      alert('Please select some text to turn into a link.');
+      return;
+    }
+    
+    const url = prompt('Enter the URL:');
+    if (url) {
+      focusEditor();
+      document.execCommand('createLink', false, url);
+      emitChange();
+      refreshStates();
+    }
   };
 
   // Convert LaTeX math to MathML for EPUB compatibility
@@ -641,6 +687,32 @@ export default function RichTextEditor({
                 </div>
               </div>
               
+              {/* Actions section */}
+              <div className="flex flex-col gap-1">
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Actions</div>
+                <div className="flex gap-1">
+                  {ACTIONS.map(action => (
+                    <button
+                      key={action.cmd}
+                      onMouseDown={e => e.preventDefault()}
+                      title={action.title}
+                      type="button"
+                      className="w-8 h-8 rounded-md border text-xs font-bold transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5]"
+                      onClick={() => {
+                        if (action.cmd === 'endnote') {
+                          handleEndnoteClick();
+                        } else if (action.cmd === 'link') {
+                          handleLinkClick();
+                        }
+                      }}
+                      disabled={disabled || (action.cmd === 'endnote' && !onCreateEndnote)}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
               {/* Align section */}
               <div className="flex flex-col gap-1">
                 <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Align</div>
@@ -921,6 +993,30 @@ export default function RichTextEditor({
           >
             Image
           </button>
+        </Section>
+
+        <Section label="Actions">
+          <div className="grid grid-cols-2 gap-1">
+            {ACTIONS.map(action => (
+              <button
+                key={action.cmd}
+                onMouseDown={e => e.preventDefault()}
+                title={action.title}
+                type="button"
+                className={BTN}
+                onClick={() => {
+                  if (action.cmd === 'endnote') {
+                    handleEndnoteClick();
+                  } else if (action.cmd === 'link') {
+                    handleLinkClick();
+                  }
+                }}
+                disabled={disabled || (action.cmd === 'endnote' && !onCreateEndnote)}
+              >
+                {action.cmd === 'endnote' ? 'Note' : 'Link'}
+              </button>
+            ))}
+          </div>
         </Section>
 
         <Section label="Clear formatting">

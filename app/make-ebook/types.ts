@@ -4,6 +4,21 @@ export type Chapter = {
   type: 'frontmatter' | 'content' | 'backmatter';
 };
 
+export type Endnote = {
+  id: string;
+  number: number;
+  content: string;
+  sourceChapterId?: string;
+  sourceText?: string;
+};
+
+export type EndnoteReference = {
+  id: string;
+  number: number;
+  chapterId: string;
+  endnoteId: string;
+};
+
 // Reorganized with most common selections at the top
 export const CHAPTER_TEMPLATES = {
   common: [
@@ -39,4 +54,6 @@ export interface BookData {
   isbn: string;
   cover: string | null;
   chapters: Chapter[];
+  endnotes?: Endnote[];
+  endnoteReferences?: EndnoteReference[];
 }
