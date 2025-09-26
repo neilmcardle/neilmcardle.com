@@ -333,23 +333,42 @@ export async function exportEpub({
     const imgs = extractImages(chapterHtml);
     chapterHtml = replaceImgSrcs(chapterHtml, imgs);
     
-    // If this is the endnotes chapter, fix cross-document links
-    if (ch.title?.toLowerCase() === 'endnotes' && endnoteReferences) {
-      chapterHtml = chapterHtml.replace(
-        /href="#ref-(\d+)"/g, 
-        (match, refNumber) => {
-          // Find which chapter contains this endnote reference
-          const ref = endnoteReferences.find((r: { id: string; number: number; chapterId: string; endnoteId: string }) => r.number === parseInt(refNumber));
-          if (ref && ref.chapterId) {
-            // Use the actual chapter ID to find the target filename
-            const targetFilename = chapterIdToFilename.get(ref.chapterId);
-            if (targetFilename) {
-              return `href="${targetFilename}#ref-${refNumber}"`;
+    // Fix cross-document endnote links
+    if (endnoteReferences) {
+      // If this is the endnotes chapter, fix back-links to chapters
+      if (ch.title?.toLowerCase() === 'endnotes') {
+        chapterHtml = chapterHtml.replace(
+          /href="#ref(\d+)"/g, 
+          (match, refNumber) => {
+            // Find which chapter contains this endnote reference
+            const ref = endnoteReferences.find((r: { id: string; number: number; chapterId: string; endnoteId: string }) => r.number === parseInt(refNumber));
+            if (ref && ref.chapterId) {
+              // Use the actual chapter ID to find the target filename
+              const targetFilename = chapterIdToFilename.get(ref.chapterId);
+              if (targetFilename) {
+                return `href="${targetFilename}#ref${refNumber}"`;
+              }
             }
+            return match;
           }
-          return match;
-        }
-      );
+        );
+      } else {
+        // For regular chapters, fix forward-links to endnotes
+        chapterHtml = chapterHtml.replace(
+          /href="#end(\d+)"/g, 
+          (match, endnoteNumber) => {
+            // Find the endnotes chapter filename
+            const endnotesChapter = sortedChapters.find(c => c.title?.toLowerCase() === 'endnotes');
+            if (endnotesChapter) {
+              const endnotesFilename = chapterIdToFilename.get(endnotesChapter.id);
+              if (endnotesFilename) {
+                return `href="${endnotesFilename}#end${endnoteNumber}"`;
+              }
+            }
+            return match;
+          }
+        );
+      }
     }
     
     // Apply comprehensive EPUB normalization and convert to XHTML

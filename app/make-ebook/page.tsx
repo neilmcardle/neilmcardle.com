@@ -192,7 +192,7 @@ function MakeEbookPage() {
         console.log('Back navigation clicked, refNumber:', refNumber);
         
         if (refNumber) {
-          const refElement = document.getElementById(`ref-${refNumber}`);
+          const refElement = document.getElementById(`ref${refNumber}`);
           console.log('Found ref element:', refElement);
           
           if (refElement) {
@@ -203,7 +203,7 @@ function MakeEbookPage() {
               refElement.style.backgroundColor = '';
             }, 1000);
           } else {
-            console.warn(`Could not find reference element with ID: ref-${refNumber}`);
+            console.warn(`Could not find reference element with ID: ref${refNumber}`);
           }
         }
       }
@@ -450,7 +450,7 @@ function MakeEbookPage() {
     
     // Create the reference
     const newReference: EndnoteReference = {
-      id: `ref-${Date.now()}`,
+      id: `ref${endnoteNumber}`,
       number: endnoteNumber,
       chapterId: sourceChapterId,
       endnoteId,
@@ -460,8 +460,8 @@ function MakeEbookPage() {
     setEndnoteReferences(prev => [...prev, newReference]);
     setNextEndnoteNumber(prev => prev + 1);
     
-    // Create a clickable endnote reference with proper ID for back-navigation
-    const endnoteLink = `<a href="#endnote-${endnoteNumber}" id="ref-${endnoteNumber}" data-endnote-ref="${endnoteNumber}" data-endnote-id="${endnoteId}" class="endnote-ref" style="color: #0066cc; text-decoration: none; font-weight: bold;">[${endnoteNumber}]</a>`;
+    // Create a clickable endnote reference with proper ePub structure
+    const endnoteLink = `<a class="note-${endnoteNumber}" href="#end${endnoteNumber}" id="ref${endnoteNumber}" title="note ${endnoteNumber}" data-endnote-ref="${endnoteNumber}" data-endnote-id="${endnoteId}" style="color: #0066cc; text-decoration: none;"><sup>[${endnoteNumber}]</sup></a>`;
     
     return endnoteLink;
   }
@@ -473,8 +473,8 @@ function MakeEbookPage() {
     const endnotesContent = [...endnotes]
       .sort((a, b) => a.number - b.number)
       .map(endnote => {
-        const backLink = `<a href="#ref-${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: none; margin-left: 8px; cursor: pointer; user-select: none; font-weight: bold; font-size: 16px; padding: 4px 8px; border: 1px solid #0066cc; border-radius: 4px; background-color: #f0f8ff; display: inline-block; line-height: 1; text-align: center; min-width: 24px; min-height: 24px; vertical-align: middle;">[↑]</a>`;
-        return `<p id="endnote-${endnote.number}"><strong>${endnote.number}.</strong> ${endnote.content} ${backLink}</p>`;
+        const backLink = `<a href="#ref${endnote.number}" id="end${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: none; margin-left: 8px; cursor: pointer; user-select: none; font-weight: bold; font-size: 14px; padding: 2px 6px; border: 1px solid #0066cc; border-radius: 3px; background-color: #f0f8ff; display: inline-block;">[${endnote.number}]</a>`;
+        return `<p>${endnote.number}. ${endnote.content} ${backLink}</p>`;
       })
       .join('');
     
