@@ -170,6 +170,11 @@ function MakeEbookPage() {
 
   const [saveFeedback, setSaveFeedback] = useState(false);
 
+  // Update endnotes chapter content whenever endnotes change
+  useEffect(() => {
+    updateEndnotesChapterContent();
+  }, [endnotes]);
+
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [markerStyle, setMarkerStyle] = useState({ top: 0, height: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -396,30 +401,39 @@ function MakeEbookPage() {
     setEndnoteReferences(prev => [...prev, newReference]);
     setNextEndnoteNumber(prev => prev + 1);
     
-    // Replace selected text with endnote link
-    const endnoteLink = `<a href="#endnote-${endnoteNumber}" data-endnote-ref="${endnoteNumber}" class="endnote-ref" onclick="navigateToEndnote(${endnoteNumber}); return false;">[${endnoteNumber}]</a>`;
+    // Create a clickable endnote reference with proper ID for back-navigation
+    const endnoteLink = `<a href="#endnote-${endnoteNumber}" id="ref-${endnoteNumber}" data-endnote-ref="${endnoteNumber}" data-endnote-id="${endnoteId}" class="endnote-ref" style="color: #0066cc; text-decoration: none; font-weight: bold;">[${endnoteNumber}]</a>`;
     
     return endnoteLink;
   }
   
+  function updateEndnotesChapterContent() {
+    const endnotesChapterIndex = chapters.findIndex(ch => ch.title.toLowerCase() === 'endnotes');
+    if (endnotesChapterIndex === -1) return;
+    
+    // Generate endnotes content (create shallow copy to avoid mutating state)
+    const endnotesContent = [...endnotes]
+      .sort((a, b) => a.number - b.number)
+      .map(endnote => {
+        const backLink = `<a href="#ref-${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: none; margin-left: 8px;">↑</a>`;
+        return `<p id="endnote-${endnote.number}"><strong>${endnote.number}.</strong> ${endnote.content} ${backLink}</p>`;
+      })
+      .join('');
+    
+    // Update the endnotes chapter
+    const updatedChapters = [...chapters];
+    updatedChapters[endnotesChapterIndex] = {
+      ...updatedChapters[endnotesChapterIndex],
+      content: endnotesContent,
+    };
+    setChapters(updatedChapters);
+  }
+  
   function handleCreateEndnote(selectedText: string, chapterId?: string) {
-    if (!selectedText.trim()) return;
+    if (!selectedText.trim()) return '';
     
     const currentChapterId = chapterId || (selectedChapter >= 0 ? `chapter-${selectedChapter}` : 'unknown');
     const endnoteLink = createEndnote(selectedText, currentChapterId);
-    
-    // Replace selected text with endnote link in the current editor
-    if (window.getSelection) {
-      const selection = window.getSelection();
-      if (selection && !selection.isCollapsed) {
-        const range = selection.getRangeAt(0);
-        range.deleteContents();
-        const linkElement = document.createElement('span');
-        linkElement.innerHTML = endnoteLink;
-        range.insertNode(linkElement.firstChild!);
-        selection.removeAllRanges();
-      }
-    }
     
     return endnoteLink;
   }

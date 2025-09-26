@@ -27,7 +27,7 @@ interface RichTextEditorProps
   onFocusStateChange?: (focused: boolean) => void;
   className?: string;
   externalVersion?: number;
-  onCreateEndnote?: (selectedText: string) => void;
+  onCreateEndnote?: (selectedText: string, chapterId?: string) => string;
   chapterId?: string;
 }
 
@@ -205,8 +205,32 @@ export default function RichTextEditor({
       return;
     }
     
-    // Call the callback to create endnote
-    onCreateEndnote(selectedText);
+    // Get the range before calling the callback
+    const range = selection.getRangeAt(0);
+    
+    // Call the callback to create endnote and get the link
+    const endnoteLink = onCreateEndnote(selectedText, chapterId);
+    
+    if (endnoteLink && endnoteLink.trim()) {
+      // Replace the selected text with the endnote reference
+      range.deleteContents();
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = endnoteLink;
+      const endnoteElement = tempDiv.firstChild;
+      
+      if (endnoteElement) {
+        range.insertNode(endnoteElement);
+        
+        // Clear the selection and position cursor after the inserted link
+        selection.removeAllRanges();
+        range.setStartAfter(endnoteElement);
+        range.collapse(true);
+        selection.addRange(range);
+        
+        // Trigger change event
+        emitChange();
+      }
+    }
   };
 
   const handleLinkClick = () => {
