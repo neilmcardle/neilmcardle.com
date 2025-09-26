@@ -32,11 +32,11 @@ function normalizeHtmlForEpub(html: string): string {
       .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, '')
       .replace(/<link[^>]*>/gi, '');
     
-    // Remove dangerous attributes
+    // Remove dangerous attributes but preserve endnote data attributes
     normalized = normalized
       .replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '') // onclick, onload, etc.
       .replace(/\s*style\s*=\s*["'][^"']*["']/gi, '') // inline styles
-      .replace(/\s*data-[^=]*\s*=\s*["'][^"']*["']/gi, ''); // data attributes
+      .replace(/\s*data-(?!back-to-ref|endnote)[^=]*\s*=\s*["'][^"']*["']/gi, ''); // data attributes except endnote ones
     
     // Normalize heading levels (cap at H3 for EPUB)
     normalized = normalized
@@ -120,7 +120,7 @@ function replaceImgSrcs(html: string, images: { tag: string; ext: string; data: 
   return newHtml;
 }
 
-type Chapter = { title: string; content: string; type: 'frontmatter' | 'content' | 'backmatter' };
+type Chapter = { id: string; title: string; content: string; type: 'frontmatter' | 'content' | 'backmatter' };
 
 interface ExportEpubOptions {
   title: string;
@@ -134,6 +134,7 @@ interface ExportEpubOptions {
   tags: string[];
   coverFile: File | null;
   chapters: Chapter[];
+  endnoteReferences?: { id: string; number: number; chapterId: string; endnoteId: string }[];
 }
 
 export async function exportEpub({
@@ -148,6 +149,7 @@ export async function exportEpub({
   tags,
   coverFile,
   chapters,
+  endnoteReferences,
 }: ExportEpubOptions) {
   const bookId = isbn.trim() ? isbn.trim() : "urn:uuid:" + uuidv4();
   const safeTitle = title.trim() || "Untitled";
@@ -203,6 +205,12 @@ export async function exportEpub({
     const typeComparison = typeOrder[a.type] - typeOrder[b.type];
     if (typeComparison !== 0) return typeComparison;
     return 0; // Maintain original order within same type
+  });
+
+  // Create a mapping from chapter ID to sorted chapter filename for endnote cross-references
+  const chapterIdToFilename = new Map<string, string>();
+  sortedChapters.forEach((chapter, sortedIndex) => {
+    chapterIdToFilename.set(chapter.id, `chapter${sortedIndex + 1}.xhtml`);
   });
 
   // --- CHAPTERS: Collect images and write chapter files ---
@@ -324,6 +332,26 @@ export async function exportEpub({
     let chapterHtml = ch.content;
     const imgs = extractImages(chapterHtml);
     chapterHtml = replaceImgSrcs(chapterHtml, imgs);
+    
+    // If this is the endnotes chapter, fix cross-document links
+    if (ch.title?.toLowerCase() === 'endnotes' && endnoteReferences) {
+      chapterHtml = chapterHtml.replace(
+        /href="#ref-(\d+)"/g, 
+        (match, refNumber) => {
+          // Find which chapter contains this endnote reference
+          const ref = endnoteReferences.find((r: { id: string; number: number; chapterId: string; endnoteId: string }) => r.number === parseInt(refNumber));
+          if (ref && ref.chapterId) {
+            // Use the actual chapter ID to find the target filename
+            const targetFilename = chapterIdToFilename.get(ref.chapterId);
+            if (targetFilename) {
+              return `href="${targetFilename}#ref-${refNumber}"`;
+            }
+          }
+          return match;
+        }
+      );
+    }
+    
     // Apply comprehensive EPUB normalization and convert to XHTML
     chapterHtml = normalizeHtmlForEpub(chapterHtml);
     chapterHtml = toXhtml(chapterHtml);

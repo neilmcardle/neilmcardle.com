@@ -1,4 +1,5 @@
 export type Chapter = {
+  id: string;
   title: string;
   content: string;
   type: 'frontmatter' | 'content' | 'backmatter';

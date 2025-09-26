@@ -9,7 +9,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus, Trash2, BookOpen, Menu, X, Save, Download } from "lucide-react";
 import { LANGUAGES, today } from "./utils/constants";
-import { CHAPTER_TEMPLATES, Endnote, EndnoteReference } from "./types";
+import { CHAPTER_TEMPLATES, Chapter, Endnote, EndnoteReference } from "./types";
 import MetaTabContent from "./components/MetaTabContent";
 import PreviewPanel from "./components/PreviewPanel";
 import AiTabContent from "./components/AiTabContent";
@@ -179,11 +179,22 @@ function MakeEbookPage() {
   useEffect(() => {
     function handleEndnoteBackClick(event: Event) {
       const target = event.target as HTMLElement;
-      if (target.classList.contains('endnote-back')) {
+      
+      // Check if the clicked element or its parent has the endnote-back class
+      const backLink = target.closest('.endnote-back') || 
+                      (target.classList?.contains('endnote-back') ? target : null);
+      
+      if (backLink) {
         event.preventDefault();
-        const refNumber = target.getAttribute('data-back-to-ref');
+        event.stopPropagation();
+        
+        const refNumber = backLink.getAttribute('data-back-to-ref');
+        console.log('Back navigation clicked, refNumber:', refNumber);
+        
         if (refNumber) {
           const refElement = document.getElementById(`ref-${refNumber}`);
+          console.log('Found ref element:', refElement);
+          
           if (refElement) {
             refElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             // Add a brief highlight effect
@@ -191,13 +202,16 @@ function MakeEbookPage() {
             setTimeout(() => {
               refElement.style.backgroundColor = '';
             }, 1000);
+          } else {
+            console.warn(`Could not find reference element with ID: ref-${refNumber}`);
           }
         }
       }
     }
 
-    document.addEventListener('click', handleEndnoteBackClick);
-    return () => document.removeEventListener('click', handleEndnoteBackClick);
+    // Use capture phase to catch events before they might be stopped
+    document.addEventListener('click', handleEndnoteBackClick, true);
+    return () => document.removeEventListener('click', handleEndnoteBackClick, true);
   }, []);
 
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -315,7 +329,18 @@ function MakeEbookPage() {
       setGenre(mostRecent.genre || "");
       setTags(mostRecent.tags || []);
       setCoverFile(mostRecent.coverFile || null);
-      setChapters(mostRecent.chapters || []);
+      
+      // Migrate chapters to ensure they have IDs
+      const migratedChapters = ensureChapterIds(mostRecent.chapters || []);
+      setChapters(migratedChapters);
+      
+      // Migrate endnote references if they exist
+      if (mostRecent.endnoteReferences) {
+        const migratedEndnoteRefs = migrateEndnoteReferences(mostRecent.endnoteReferences, migratedChapters);
+        setEndnoteReferences(migratedEndnoteRefs);
+      }
+      
+      setEndnotes(mostRecent.endnotes || []);
       setCurrentBookId(mostRecent.id);
     }
 
@@ -323,6 +348,14 @@ function MakeEbookPage() {
   }, [searchParams, initialized, currentBookId, chapters.length]);
 
   async function handleExportEPUB() {
+    // Ensure all chapters have IDs before export
+    const migratedChapters = ensureChapterIds(chapters);
+    const migratedEndnoteRefs = migrateEndnoteReferences(endnoteReferences, migratedChapters);
+    
+    // Update state with migrated data
+    setChapters(migratedChapters);
+    setEndnoteReferences(migratedEndnoteRefs);
+    
     await exportEpub({
       title,
       author,
@@ -334,7 +367,8 @@ function MakeEbookPage() {
       genre,
       tags,
       coverFile,
-      chapters,
+      chapters: migratedChapters,
+      endnoteReferences: migratedEndnoteRefs,
     });
   }
 
@@ -439,7 +473,7 @@ function MakeEbookPage() {
     const endnotesContent = [...endnotes]
       .sort((a, b) => a.number - b.number)
       .map(endnote => {
-        const backLink = `<a href="#ref-${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: none; margin-left: 8px; cursor: pointer;">↑</a>`;
+        const backLink = `<a href="#ref-${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: underline; margin-left: 8px; cursor: pointer; user-select: none;">↑</a>`;
         return `<p id="endnote-${endnote.number}"><strong>${endnote.number}.</strong> ${endnote.content} ${backLink}</p>`;
       })
       .join('');
@@ -451,7 +485,7 @@ function MakeEbookPage() {
       if (endnotes.length === 0) return;
       
       const newEndnotesChapter = {
-        id: Date.now().toString(),
+        id: `endnotes-${Date.now()}`,
         title: 'Endnotes',
         content: endnotesContent,
         type: 'backmatter' as const,
@@ -473,10 +507,33 @@ function MakeEbookPage() {
     setChapters(updatedChapters);
   }
   
+  // Migration function to ensure all chapters have IDs
+  function ensureChapterIds(chapters: Chapter[]): Chapter[] {
+    return chapters.map(chapter => ({
+      ...chapter,
+      id: chapter.id || `chapter-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    }));
+  }
+
+  // Migration function to update endnote references with unknown chapter IDs
+  function migrateEndnoteReferences(endnoteRefs: EndnoteReference[], chapters: Chapter[]): EndnoteReference[] {
+    return endnoteRefs.map(ref => {
+      if (ref.chapterId === 'unknown' || !ref.chapterId) {
+        // Try to find the chapter by context - for now, assign to first content chapter
+        const firstContentChapter = chapters.find(ch => ch.type === 'content');
+        return {
+          ...ref,
+          chapterId: firstContentChapter?.id || chapters[0]?.id || 'fallback-chapter'
+        };
+      }
+      return ref;
+    });
+  }
+
   function handleCreateEndnote(selectedText: string, chapterId?: string) {
     if (!selectedText.trim()) return '';
     
-    const currentChapterId = chapterId || (selectedChapter >= 0 ? `chapter-${selectedChapter}` : 'unknown');
+    const currentChapterId = chapterId || (selectedChapter >= 0 && chapters[selectedChapter] ? chapters[selectedChapter].id : 'unknown');
     const endnoteLink = createEndnote(selectedText, currentChapterId);
     
     return endnoteLink;
@@ -495,7 +552,18 @@ function MakeEbookPage() {
       setGenre(loaded.genre || "");
       setTags(loaded.tags || []);
       setCoverFile(loaded.coverFile || null);
-      setChapters(loaded.chapters || []);
+      
+      // Migrate chapters to ensure they have IDs
+      const migratedChapters = ensureChapterIds(loaded.chapters || []);
+      setChapters(migratedChapters);
+      
+      // Migrate endnote references if they exist
+      if (loaded.endnoteReferences) {
+        const migratedEndnoteRefs = migrateEndnoteReferences(loaded.endnoteReferences, migratedChapters);
+        setEndnoteReferences(migratedEndnoteRefs);
+      }
+      
+      setEndnotes(loaded.endnotes || []);
       setCurrentBookId(loaded.id);
       setLibraryOpen(false);
     }
