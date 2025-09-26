@@ -175,6 +175,31 @@ function MakeEbookPage() {
     updateEndnotesChapterContent();
   }, [endnotes]);
 
+  // Handle back-navigation from endnotes to references
+  useEffect(() => {
+    function handleEndnoteBackClick(event: Event) {
+      const target = event.target as HTMLElement;
+      if (target.classList.contains('endnote-back')) {
+        event.preventDefault();
+        const refNumber = target.getAttribute('data-back-to-ref');
+        if (refNumber) {
+          const refElement = document.getElementById(`ref-${refNumber}`);
+          if (refElement) {
+            refElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Add a brief highlight effect
+            refElement.style.backgroundColor = '#ffeb3b';
+            setTimeout(() => {
+              refElement.style.backgroundColor = '';
+            }, 1000);
+          }
+        }
+      }
+    }
+
+    document.addEventListener('click', handleEndnoteBackClick);
+    return () => document.removeEventListener('click', handleEndnoteBackClick);
+  }, []);
+
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [markerStyle, setMarkerStyle] = useState({ top: 0, height: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -408,24 +433,43 @@ function MakeEbookPage() {
   }
   
   function updateEndnotesChapterContent() {
-    const endnotesChapterIndex = chapters.findIndex(ch => ch.title.toLowerCase() === 'endnotes');
-    if (endnotesChapterIndex === -1) return;
+    let endnotesChapterIndex = chapters.findIndex(ch => ch.title.toLowerCase() === 'endnotes');
     
     // Generate endnotes content (create shallow copy to avoid mutating state)
     const endnotesContent = [...endnotes]
       .sort((a, b) => a.number - b.number)
       .map(endnote => {
-        const backLink = `<a href="#ref-${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: none; margin-left: 8px;">↑</a>`;
+        const backLink = `<a href="#ref-${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: none; margin-left: 8px; cursor: pointer;">↑</a>`;
         return `<p id="endnote-${endnote.number}"><strong>${endnote.number}.</strong> ${endnote.content} ${backLink}</p>`;
       })
       .join('');
     
-    // Update the endnotes chapter
     const updatedChapters = [...chapters];
-    updatedChapters[endnotesChapterIndex] = {
-      ...updatedChapters[endnotesChapterIndex],
-      content: endnotesContent,
-    };
+    
+    if (endnotesChapterIndex === -1) {
+      // Only create new endnotes chapter if we have endnotes to show
+      if (endnotes.length === 0) return;
+      
+      const newEndnotesChapter = {
+        id: Date.now().toString(),
+        title: 'Endnotes',
+        content: endnotesContent,
+        type: 'backmatter' as const,
+      };
+      updatedChapters.push(newEndnotesChapter);
+    } else {
+      // Update existing endnotes chapter (or remove if no endnotes)
+      if (endnotes.length === 0) {
+        // Remove the endnotes chapter if there are no endnotes
+        updatedChapters.splice(endnotesChapterIndex, 1);
+      } else {
+        updatedChapters[endnotesChapterIndex] = {
+          ...updatedChapters[endnotesChapterIndex],
+          content: endnotesContent,
+        };
+      }
+    }
+    
     setChapters(updatedChapters);
   }
   
