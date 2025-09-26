@@ -212,13 +212,14 @@ export default function RichTextEditor({
     const endnoteLink = onCreateEndnote(selectedText, chapterId);
     
     if (endnoteLink && endnoteLink.trim()) {
-      // Replace the selected text with the endnote reference
-      range.deleteContents();
+      // Keep the selected text and add the endnote reference beside it
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = endnoteLink;
       const endnoteElement = tempDiv.firstChild;
       
       if (endnoteElement) {
+        // Move cursor to end of selection and insert the reference
+        range.collapse(false); // Collapse to end of selection
         range.insertNode(endnoteElement);
         
         // Clear the selection and position cursor after the inserted link

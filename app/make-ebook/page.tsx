@@ -473,7 +473,7 @@ function MakeEbookPage() {
     const endnotesContent = [...endnotes]
       .sort((a, b) => a.number - b.number)
       .map(endnote => {
-        const backLink = `<a href="#ref-${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: underline; margin-left: 8px; cursor: pointer; user-select: none;">↑</a>`;
+        const backLink = `<a href="#ref-${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: none; margin-left: 8px; cursor: pointer; user-select: none; font-weight: bold; font-size: 16px; padding: 4px 8px; border: 1px solid #0066cc; border-radius: 4px; background-color: #f0f8ff; display: inline-block; line-height: 1; text-align: center; min-width: 24px; min-height: 24px; vertical-align: middle;">[↑]</a>`;
         return `<p id="endnote-${endnote.number}"><strong>${endnote.number}.</strong> ${endnote.content} ${backLink}</p>`;
       })
       .join('');
