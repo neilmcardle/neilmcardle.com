@@ -59,6 +59,7 @@ export function Header() {
           </Link>
           {/* Avatar image followed by tagline with only 2px gap */}
           <span className="flex items-center" style={{ gap: "2px" }}>
+            <span className="mx-2 text-gray-300 select-none" aria-hidden="true">|</span>
             <Image
               src="/neil-avatar.png"
               alt="Neil McArdle"
