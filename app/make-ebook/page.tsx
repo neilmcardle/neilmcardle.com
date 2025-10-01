@@ -875,7 +875,7 @@ function MakeEbookPage() {
         {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)]">
           {/* Desktop Sidebar - Hidden on Mobile */}
-          <aside className="hidden lg:flex flex-col w-full lg:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 lg:min-w-[340px] lg:h-full overflow-y-auto shadow-sm p-4 gap-4">
+          <aside className="hidden lg:flex flex-col w-full lg:max-w-xs border border-[#ececec] rounded-xl bg-white min-w-0 lg:min-w-[340px] lg:h-full overflow-y-auto shadow-sm mt-8 ml-8 p-4 gap-4">
             <nav className="flex flex-row border-b border-[#ececec] items-center gap-2 pb-2">
               {["setup", "preview", "library"].map((key) => (
                 <button
