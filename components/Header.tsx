@@ -65,7 +65,7 @@ export function Header() {
               alt="Neil McArdle"
               width={22}
               height={22}
-              className="rounded-full border border-gray-200 shadow-sm"
+              className="rounded-full border border-gray-200 shadow-sm object-cover w-6 h-6" // Fixed size and circle
               priority
             />
           </span>
