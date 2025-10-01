@@ -39,7 +39,7 @@ export function Header() {
   return (
     <header className="w-full border-b border-gray-200 bg-white flex-shrink-0 h-[64px] flex items-center">
       <div className="max-w-full mx-auto flex items-center justify-between px-4 sm:px-6 py-2 gap-2 w-full">
-        {/* Left: Back arrow (if not on root editor), logo */}
+        {/* Left: Back arrow (if not on root editor), logo, tagline, profile image */}
         <div className="flex items-center gap-2 min-w-0">
           {showBack && (
             <BackArrowButton className="mr-2" label="Back" />
@@ -57,6 +57,18 @@ export function Header() {
               make<span className="font-extrabold">E</span>book
             </span>
           </Link>
+          {/* Tagline and profile image */}
+          <span className="flex items-center gap-1 ml-3">
+            <span className="text-xs text-gray-400">designed by Neil McArdle</span>
+            <Image
+              src="/neil-avatar.png"
+              alt="Neil McArdle"
+              width={22}
+              height={22}
+              className="rounded-full border border-gray-200 shadow-sm"
+              priority
+            />
+          </span>
         </div>
         {/* Right: User icon */}
         <div className="flex items-center gap-2 min-w-[40px] justify-end">
@@ -64,13 +76,13 @@ export function Header() {
             <DropdownMenuTrigger asChild>
               <button className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition px-0" aria-label="User menu">
                 <Image
-              src="/user-icon.svg"
-              alt="user icon"
-              width={16}
-              height={16}
-              className="w-6 h-6"
-              priority
-            />
+                  src="/user-icon.svg"
+                  alt="user icon"
+                  width={16}
+                  height={16}
+                  className="w-6 h-6"
+                  priority
+                />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
