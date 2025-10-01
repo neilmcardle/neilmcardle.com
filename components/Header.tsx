@@ -57,17 +57,17 @@ export function Header() {
               make<span className="font-extrabold">E</span>book
             </span>
           </Link>
-          {/* Tagline and profile image */}
-          <span className="flex items-center gap-1 ml-3">
-            <span className="text-xs text-gray-400">designed by Neil McArdle</span>
+          {/* Avatar image followed by tagline with only 2px gap */}
+          <span className="flex items-center" style={{ gap: "2px" }}>
             <Image
               src="/neil-avatar.png"
               alt="Neil McArdle"
               width={22}
               height={22}
-              className="rounded-full border border-gray-200 shadow-sm object-cover w-6 h-6" // Fixed size and circle
+              className="rounded-full border-none object-cover w-[22px] h-[22px] pl-0"
               priority
             />
+            <span className="text-xs text-gray-400 ml-0">designed by Neil McArdle</span>
           </span>
         </div>
         {/* Right: User icon */}
