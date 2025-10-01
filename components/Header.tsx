@@ -64,9 +64,9 @@ export function Header() {
               alt="Neil McArdle"
               width={22}
               height={22}
-              className="rounded-full border-none object-cover w-[22px] h-[22px] pl-0"
+              className="rounded-full object-cover w-[22px] h-[22px] border-none p-0"
               priority
-            />
+            />          
             <span className="text-xs text-gray-400 ml-0">designed by Neil McArdle</span>
           </span>
         </div>
