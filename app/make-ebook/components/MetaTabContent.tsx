@@ -282,18 +282,16 @@ export default function MetaTabContent({
         {!coverUrl && (
           <div className="flex items-center mt-4">
             <img
-              src="/images/neil-profile.jpg"
               alt="Neil McArdle"
-              style={{
-                width: 24,
-                height: 24,
-                borderRadius: '50%',
-                marginRight: 8,
-                border: '1px solid #ececec',
-                objectFit: 'cover',
-              }}
+              width={22}
+              height={22}
+              decoding="async"
+              data-nimg="1"
+              className="rounded-full object-cover w-[22px] h-[22px] border-none p-0"
+              style={{ color: "transparent" }}
+              src="/neil-avatar.png"
             />
-            <span className="text-xs text-[#15161a]">
+            <span className="text-xs text-[#15161a] ml-2">
               Neil can design a cover for you.{' '}
               <a
                 href="https://x.com/BetterNeil"
