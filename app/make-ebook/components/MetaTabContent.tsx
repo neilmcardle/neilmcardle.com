@@ -278,6 +278,34 @@ export default function MetaTabContent({
             Choose File
           </button>
         </label>
+        {/* New Feature: Offer cover design if no cover uploaded */}
+        {!coverUrl && (
+          <div className="flex items-center mt-4">
+            <img
+              src="/images/neil-profile.jpg"
+              alt="Neil McArdle"
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                marginRight: 8,
+                border: '1px solid #ececec',
+                objectFit: 'cover',
+              }}
+            />
+            <span className="text-xs text-[#15161a]">
+              Neil can design a cover for you.{' '}
+              <a
+                href="https://x.com/BetterNeil"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#1da1f2] underline"
+              >
+                Get in touch on X
+              </a>
+            </span>
+          </div>
+        )}
         {coverUrl && (
           <img
             src={coverUrl}
