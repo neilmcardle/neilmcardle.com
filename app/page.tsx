@@ -57,7 +57,7 @@ export default function ProfileCardHomepage() {
                 className="text-gray-600 text-lg font-regular"
                 style={{ fontFamily: "Inter, sans-serif" }}
                 data-testid="text-title"
-              >Product Designer & Builder
+              >Digital Product Designer
               </p>
             </div>
 
