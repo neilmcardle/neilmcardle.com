@@ -32,7 +32,7 @@ export default function ProfileCardHomepage() {
             <div className="relative -mt-16 flex justify-center z-50"> {/* Increased z-index */}
               <div className="w-49 h-49 rounded-full"> {/* Increased size and removed border */}
                 <Image
-                  src="/illustration-600.png" /* Points to the profile image in public folder */
+                  src="/me.png" /* Points to the profile image in public folder */
                   alt="Neil McArdle"
                   width={144}
                   height={144} /* Increased size of the profile image */
