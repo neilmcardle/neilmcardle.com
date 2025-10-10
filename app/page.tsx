@@ -47,20 +47,26 @@ export default function ProfileCardHomepage() {
           <div className="px-6 pt-4 pb-8 text-center"> {/* Adjusted padding */}
             {/* Name and Title */}
             <div className="mb-4"> {/* Reduced bottom margin */}
-              <p
-                className="text-gray-900 text-lg font-semibold"
+             <h1
+                className="text-gray-800 text-lg font-bold"
                 style={{ fontFamily: "Inter, sans-serif" }}
                 data-testid="text-title"
-              >
-                Artist & Designer
+              >Neil McArdle
+             </h1>
+              <p
+                className="text-gray-600 text-lg font-regular"
+                style={{ fontFamily: "Inter, sans-serif" }}
+                data-testid="text-title"
+              >Product Designer & Builder
               </p>
             </div>
 
             {/* Products Section */}
             <div className="space-y-2 text-sm text-gray-600 mb-8">
               <div className="flex items-center justify-center gap-2"> {/* Flexbox for alignment */}
-                <MapPin className="w-4 h-4 text-gray-500" />
-                <span className="text-gray-900" data-testid="text-location">United Kingdom</span>
+               {/*  <MapPin className="w-4 h-4 text-gray-500" /> */}
+                <span className="text-gray-900" data-testid="text-location">I design UI for millions and code side projects with AI.
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 {/* <Calendar className="w-4 h-4" />
