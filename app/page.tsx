@@ -5,7 +5,7 @@ export default function ProfileCardHomepage() {
   return (
     <div className="min-h-screen bg-gray-50 relative">
       {/* Massive Name in Background (Desktop Only) */}
-      <div className="absolute inset-0 hidden lg:block pointer-events-none z-100">
+      <div className="absolute inset-0 hidden lg:block pointer-events-none z-0">
         <Image
           src="/neil-mcardle.svg" /* Points to the SVG file in the public folder */
           alt="Neil McArdle"
@@ -15,7 +15,7 @@ export default function ProfileCardHomepage() {
       </div>
       {/* Profile Card Container */}
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10">
           {/* Banner Section */}
           <div className="relative h-40 md:h-48 px-6 md:px-[6rem] flex items-center justify-between pointer-events-none">
             <Image
