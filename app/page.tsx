@@ -5,7 +5,7 @@ export default function ProfileCardHomepage() {
   return (
     <div className="min-h-screen bg-gray-50 relative">
       {/* Massive Name in Background (Desktop Only) */}
-      <div className="absolute inset-0 hidden lg:block pointer-events-none">
+      <div className="absolute inset-0 hidden lg:block pointer-events-none z-100">
         <Image
           src="/neil-mcardle.svg" /* Points to the SVG file in the public folder */
           alt="Neil McArdle"
