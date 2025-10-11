@@ -10,7 +10,7 @@ export default function ProfileCardHomepage() {
           src="/neil-mcardle.svg" /* Points to the SVG file in the public folder */
           alt="Neil McArdle"
           fill
-          className="object-contain opacity-20"
+          className="object-contain opacity-10"
         />
       </div>
       {/* Profile Card Container */}
