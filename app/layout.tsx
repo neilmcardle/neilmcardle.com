@@ -9,9 +9,9 @@ import { Toaster } from "@/components/ui/toaster";
 import ClientFooterWrapper from "@/components/ClientFooterWrapper"; // NEW
 
 export const metadata: Metadata = {
-  title: "Neil McArdle - Artist & Designer",
+  title: "Neil McArdle - Digital Product Designer",
   description:
-    "Personal wesbite of Artist and Designer, Neil McArdle.",
+    "Personal wesbite of Digital Product Designer, Neil McArdle.",
   generator: "",
 };
 
