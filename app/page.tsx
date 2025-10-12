@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Mail, Copy } from "lucide-react";
 import Image from "next/image";
