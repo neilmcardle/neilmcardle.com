@@ -9,3 +9,6 @@ export { CalendarIcon } from './CalendarIcon';
 export { LanguagesIcon } from './LanguagesIcon';
 export { LockIcon } from './LockIcon';
 export { UnlockIcon } from './UnlockIcon';
+export { BookIcon } from './BookIcon';
+export { PreviewIcon } from './PreviewIcon';
+export { MetadataIcon } from './MetadataIcon';

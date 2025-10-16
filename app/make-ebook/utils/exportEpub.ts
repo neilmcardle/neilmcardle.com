@@ -201,11 +201,14 @@ export async function exportEpub({
 
   // Sort chapters by type (frontmatter → content → backmatter), then by original order
   const typeOrder = { frontmatter: 0, content: 1, backmatter: 2 };
-  const sortedChapters = [...chapters].sort((a, b) => {
-    const typeComparison = typeOrder[a.type] - typeOrder[b.type];
-    if (typeComparison !== 0) return typeComparison;
-    return 0; // Maintain original order within same type
-  });
+  const sortedChapters = [...chapters]
+    .map((chapter, originalIndex) => ({ chapter, originalIndex }))
+    .sort((a, b) => {
+      const typeComparison = typeOrder[a.chapter.type] - typeOrder[b.chapter.type];
+      if (typeComparison !== 0) return typeComparison;
+      return a.originalIndex - b.originalIndex; // Maintain original order within same type
+    })
+    .map(({ chapter }) => chapter);
 
   // Create a mapping from chapter ID to sorted chapter filename for endnote cross-references
   const chapterIdToFilename = new Map<string, string>();

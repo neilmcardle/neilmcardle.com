@@ -82,7 +82,7 @@ export default function MetaTabContent({
           <div>
             <label className="block text-xs mb-1">Title *</label>
             <input
-              className={`w-full px-3 py-2 rounded border border-[#E8E8E8] text-base bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-base bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
               placeholder="Enter book title..."
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -92,7 +92,7 @@ export default function MetaTabContent({
           <div>
             <label className="block text-xs mb-1">Author *</label>
             <input
-              className={`w-full px-3 py-2 rounded border border-[#E8E8E8] text-base bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-base bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
               placeholder="Enter author name..."
               value={author}
               onChange={e => setAuthor(e.target.value)}
@@ -102,7 +102,7 @@ export default function MetaTabContent({
           <div>
             <label className="block text-xs mb-1">Description/Blurb</label>
             <textarea
-              className={`w-full px-3 py-2 rounded border border-[#E8E8E8] text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
               placeholder="Enter book description..."
               value={blurb}
               onChange={e => setBlurb(e.target.value)}
@@ -130,7 +130,7 @@ export default function MetaTabContent({
           <div>
             <label className="block text-xs mb-1">Publisher</label>
             <input
-              className={`w-full px-3 py-2 rounded border border-[#E8E8E8] text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
               placeholder="Enter publisher name..."
               value={publisher}
               onChange={e => setPublisher(e.target.value)}
@@ -141,7 +141,7 @@ export default function MetaTabContent({
             <label className="block text-xs mb-1">Publication Date</label>
             <input
               type="date"
-              className={`w-full px-3 py-2 rounded border border-[#E8E8E8] text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
               value={pubDate}
               onChange={(e) => setPubDate(e.target.value)}
               disabled={lockedSections.publishing}
@@ -150,7 +150,7 @@ export default function MetaTabContent({
           <div>
             <label className="block text-xs mb-1">ISBN</label>
             <input
-              className={`w-full px-3 py-2 rounded border border-[#E8E8E8] text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
               placeholder="978-0-000000-00-0"
               value={isbn}
               onChange={e => setIsbn(e.target.value)}
@@ -160,7 +160,7 @@ export default function MetaTabContent({
           <div>
             <label className="block text-xs mb-1">Language</label>
             <select
-              className={`w-full px-3 py-2 rounded border border-[#E8E8E8] text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
               disabled={lockedSections.publishing}
@@ -173,7 +173,7 @@ export default function MetaTabContent({
           <div>
             <label className="block text-xs mb-1">Genre</label>
             <select
-              className={`w-full px-3 py-2 rounded border border-[#E8E8E8] text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
               value={genre}
               onChange={(e) => setGenre(e.target.value)}
               disabled={lockedSections.publishing}
@@ -202,7 +202,7 @@ export default function MetaTabContent({
         </h2>
         <div className="flex gap-2">
           <input
-            className={`w-full px-3 py-2 rounded border border-[#E8E8E8] text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`w-full px-3 py-2 rounded text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
             placeholder="Add a tag..."
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
@@ -222,7 +222,7 @@ export default function MetaTabContent({
           {tags.map((tag: string) => (
             <span
               key={tag}
-              className="bg-[#F7F7F7] text-xs px-2 py-1 rounded flex items-center border border-[#E8E8E8]"
+              className="bg-[#F7F7F7] text-xs px-2 py-1 rounded flex items-center"
             >
               {tag}
               <button
@@ -309,7 +309,7 @@ export default function MetaTabContent({
           <img
             src={coverUrl}
             alt="Book cover preview"
-            className="mt-2 rounded shadow max-h-40 border border-[#E8E8E8]"
+            className="mt-2 rounded shadow max-h-40"
           />
         )}
       </section>

@@ -30,8 +30,7 @@ export default function PreviewPanel({
   readingTime,
 }: PreviewPanelProps) {
   return (
-    <div className="w-full max-w-xs mx-auto pt-2 pb-8">
-      <h2 className="font-bold text-xl mb-5">Book Preview</h2>
+    <div className="w-full max-w-xs mx-auto pt-2 pb-8 px-4">
       {/* Book Cover + Info */}
       <div className="flex flex-col items-center mb-6">
         <div className="w-56 h-80 rounded bg-gradient-to-br from-[#f5f5f7] to-[#ececef] border border-[#E8E8E8] shadow flex items-center justify-center overflow-hidden mb-3 relative">

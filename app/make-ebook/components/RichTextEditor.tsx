@@ -659,11 +659,10 @@ export default function RichTextEditor({
       className={`relative border border-[#E8E8E8] rounded bg-[#F7F7F7] focus-within:bg-white hover:focus-within:bg-white hover:bg-[#F2F2F2] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
-      {/* Toolbar - Above content when focused */}
-      {focused && (
-        <div className="border-b border-[#E8E8E8] bg-white">
-          <div className="p-2 overflow-x-auto">
-            <div className="flex items-start gap-4 min-w-max">
+      {/* Toolbar - Always visible on desktop, focus-triggered on mobile */}
+      <div className={`border-b border-[#E8E8E8] bg-white ${focused ? 'block' : 'hidden lg:block'}`}>
+        <div className="p-2 overflow-x-auto">
+          <div className="flex items-start gap-4 min-w-max">
               {/* Format section */}
               <div className="flex flex-col gap-1">
                 <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Format</div>
@@ -816,7 +815,6 @@ export default function RichTextEditor({
             </div>
           </div>
         </div>
-      )}
       
       {/* Editable area */}
       <div className="flex-1 min-w-0 relative flex flex-col min-h-0">

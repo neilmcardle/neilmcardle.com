@@ -7,7 +7,9 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { PlusIcon, TrashIcon, LibraryIcon, MenuIcon, CloseIcon, SaveIcon, DownloadIcon } from "./components/icons";
+import { PlusIcon, TrashIcon, LibraryIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, PreviewIcon, LockIcon, MetadataIcon } from "./components/icons";
+import { ChevronDown, MoreHorizontal } from "lucide-react";
+import Image from "next/image";
 import DragIcon from "./components/icons/DragIcon";
 import BinIcon from "./components/icons/BinIcon";
 import { LANGUAGES, today } from "./utils/constants";
@@ -162,6 +164,9 @@ function MakeEbookPage() {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
+  const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
   const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
@@ -347,6 +352,40 @@ function MakeEbookPage() {
 
     if (!initialized) setInitialized(true);
   }, [searchParams, initialized, currentBookId, chapters.length]);
+
+  // Scroll indicator effect for mobile sidebar
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollContainerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+        const hasMoreContent = scrollTop + clientHeight < scrollHeight - 10; // 10px threshold
+        setShowScrollIndicator(hasMoreContent);
+      }
+    };
+
+    const container = scrollContainerRef.current;
+    if (container && mobileSidebarOpen) {
+      // Check initially
+      handleScroll();
+      // Add scroll listener
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [mobileSidebarOpen, tab]); // Re-check when tab changes as content changes
+
+  // Close mobile actions dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileActionsOpen && !(event.target as Element).closest('.relative')) {
+        setMobileActionsOpen(false);
+      }
+    };
+
+    if (mobileActionsOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [mobileActionsOpen]);
 
   async function handleExportEPUB() {
     // Ensure all chapters have IDs before export
@@ -591,7 +630,7 @@ function MakeEbookPage() {
   return (
     <>
       {/* Fixed Header */}
-      <div className="fixed top-0 left-0 w-full z-50">
+      <div className="fixed top-0 left-0 w-full z-[110]">
         <Header />
       </div>
       {/* Main Content */}
@@ -698,123 +737,152 @@ function MakeEbookPage() {
 
         {/* Mobile Sidebar Overlay */}
         {mobileSidebarOpen && (
-          <div className="fixed inset-0 z-[100] lg:hidden">
+          <div className="fixed top-[64px] left-0 right-0 bottom-0 z-[100] lg:hidden">
             {/* Backdrop */}
             <div 
               className="absolute inset-0 bg-black/20" 
               onClick={() => setMobileSidebarOpen(false)}
             />
             {/* Sidebar Panel */}
-            <div className="absolute top-0 left-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl transform transition-transform duration-300 ease-out">
+            <div className="absolute top-0 left-0 h-full w-full bg-white shadow-2xl transform transition-transform duration-300 ease-out">
               <div className="flex flex-col h-full">
                 {/* Header with Actions */}
                 <div className="flex items-center justify-end p-4 border-b border-[#E8E8E8]">
                   <button
                     onClick={() => setMobileSidebarOpen(false)}
-                    className="p-2 rounded hover:bg-gray-100 transition-colors"
+                    className="p-2 rounded hover:bg-gray-100 transition-colors flex items-center gap-2"
+                    aria-label="Close sidebar menu"
                   >
                     <CloseIcon className="w-5 h-5" />
+                    <span className="text-xs font-medium text-[#050505]">Close</span>
                   </button>
                 </div>
                 
                 {/* Tab Navigation */}
-                <nav className="flex p-4 gap-2 overflow-x-auto">
+                <nav className="flex p-3 gap-2">
                   {["setup", "preview", "library"].map((key) => (
                     <button
                       key={key}
-                      className={`px-4 py-2 rounded text-sm font-semibold transition whitespace-nowrap ${
+                      className={`flex flex-col items-center gap-1 px-4 py-2 rounded text-xs font-semibold transition whitespace-nowrap min-w-0 flex-1 ${
                         tab === key
                           ? "bg-white text-[#15161a] border border-[#050505] shadow-sm"
                           : "hover:bg-[#F2F2F2] text-[#737373]"
                       }`}
                       onClick={() => setTab(key as any)}
                     >
-                      {key === "setup"
-                        ? "Metadata"
-                        : key === "preview"
-                        ? "Preview"
-                        : key === "ai"
-                        ? "AI"
-                        : "Library"}
+                      {key === "setup" && <MetadataIcon className="w-5 h-5" />}
+                      {key === "preview" && <PreviewIcon className="w-5 h-5" />}
+                      {key === "library" && <LibraryIcon className="w-5 h-5" />}
+                      <span>
+                        {key === "setup"
+                          ? "Metadata"
+                          : key === "preview"
+                          ? "Preview"
+                          : key === "ai"
+                          ? "AI"
+                          : "Library"}
+                      </span>
                     </button>
                   ))}
                 </nav>
                 
-                {/* Additional Actions */}
-                <div className="p-4 border-b border-[#E8E8E8]">
-                  <div className="flex justify-around gap-4">
+                {/* Divider */}
+                <div className="border-t border-[#E8E8E8]"></div>
+                
+                {/* Action Menu Header */}
+                <div className="flex items-center justify-end px-4 pt-3 pb-2">
+                  <div className="relative">
                     <button
-                      onClick={() => {
-                        handleSaveBook();
-                        setMobileSidebarOpen(false);
-                      }}
-                      className="flex flex-col items-center gap-1 text-[#23242a] hover:text-black transition min-w-[64px] text-xs bg-transparent border-none outline-none"
-                      disabled={!!saveFeedback}
-                      type="button"
+                      onClick={() => setMobileActionsOpen(!mobileActionsOpen)}
+                      className="p-2 rounded hover:bg-gray-100 transition-colors"
+                      aria-label="More actions"
                     >
-                      <SaveIcon className="w-5 h-5" />
-                      <span className={`transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
-                        {saveFeedback ? "Saved!" : "Save"}
-                      </span>
+                      <MoreHorizontal className="w-5 h-5 text-[#23242a]" />
                     </button>
-                    <button
-                      onClick={() => {
-                        handleExportEPUB();
-                        setMobileSidebarOpen(false);
-                      }}
-                      className="flex flex-col items-center gap-1 text-[#23242a] hover:text-black transition min-w-[64px] text-xs bg-transparent border-none outline-none"
-                      type="button"
-                    >
-                      <DownloadIcon className="w-5 h-5" />
-                      <span>Export</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        showNewBookConfirmation();
-                        setMobileSidebarOpen(false);
-                      }}
-                      className="flex flex-col items-center gap-1 text-[#23242a] hover:text-black transition min-w-[64px] text-xs bg-transparent border-none outline-none"
-                      type="button"
-                    >
-                      <PlusIcon className="w-5 h-5" />
-                      <span>New Book</span>
-                    </button>
+                    
+                    {/* Dropdown Menu */}
+                    {mobileActionsOpen && (
+                      <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                        <div className="py-1">
+                          <button
+                            onClick={() => {
+                              handleSaveBook();
+                              setMobileSidebarOpen(false);
+                              setMobileActionsOpen(false);
+                            }}
+                            className="flex items-center gap-3 w-full text-left px-3 py-2 text-[#23242a] hover:bg-[#F7F7F7] transition text-sm"
+                            disabled={!!saveFeedback}
+                            type="button"
+                          >
+                            <SaveIcon className="w-4 h-4" />
+                            <span className={`transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
+                              {saveFeedback ? "Saved!" : "Save Book"}
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleExportEPUB();
+                              setMobileSidebarOpen(false);
+                              setMobileActionsOpen(false);
+                            }}
+                            className="flex items-center gap-3 w-full text-left px-3 py-2 text-[#23242a] hover:bg-[#F7F7F7] transition text-sm"
+                            type="button"
+                          >
+                            <DownloadIcon className="w-4 h-4" />
+                            <span>Export for eReader</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              showNewBookConfirmation();
+                              setMobileSidebarOpen(false);
+                              setMobileActionsOpen(false);
+                            }}
+                            className="flex items-center gap-3 w-full text-left px-3 py-2 text-[#23242a] hover:bg-[#F7F7F7] transition text-sm"
+                            type="button"
+                          >
+                            <PlusIcon className="w-4 h-4" />
+                            <span>New Book</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-4">
-                  {tab === "setup" && (
-                    <MetaTabContent
-                      title={title}
-                      setTitle={setTitle}
-                      author={author}
-                      setAuthor={setAuthor}
-                      blurb={blurb}
-                      setBlurb={setBlurb}
-                      publisher={publisher}
-                      setPublisher={setPublisher}
-                      pubDate={pubDate}
-                      setPubDate={setPubDate}
-                      isbn={isbn}
-                      setIsbn={setIsbn}
-                      language={language}
-                      setLanguage={setLanguage}
-                      genre={genre}
-                      setGenre={setGenre}
-                      tags={tags}
-                      setTags={setTags}
-                      tagInput={tagInput}
-                      setTagInput={setTagInput}
-                      coverFile={coverFile}
-                      setCoverFile={setCoverFile}
-                      lockedSections={lockedSections}
-                      setLockedSections={setLockedSections}
-                      handleAddTag={handleAddTag}
-                      handleRemoveTag={handleRemoveTag}
-                      handleCoverChange={handleCoverChange}
-                    />
-                  )}
+                <div className="relative flex-1 min-h-0">
+                  <div ref={scrollContainerRef} className="h-full max-h-[60vh] overflow-y-auto px-4 pb-4">
+                    {tab === "setup" && (
+                      <MetaTabContent
+                        title={title}
+                        setTitle={setTitle}
+                        author={author}
+                        setAuthor={setAuthor}
+                        blurb={blurb}
+                        setBlurb={setBlurb}
+                        publisher={publisher}
+                        setPublisher={setPublisher}
+                        pubDate={pubDate}
+                        setPubDate={setPubDate}
+                        isbn={isbn}
+                        setIsbn={setIsbn}
+                        language={language}
+                        setLanguage={setLanguage}
+                        genre={genre}
+                        setGenre={setGenre}
+                        tags={tags}
+                        setTags={setTags}
+                        tagInput={tagInput}
+                        setTagInput={setTagInput}
+                        coverFile={coverFile}
+                        setCoverFile={setCoverFile}
+                        lockedSections={lockedSections}
+                        setLockedSections={setLockedSections}
+                        handleAddTag={handleAddTag}
+                        handleRemoveTag={handleRemoveTag}
+                        handleCoverChange={handleCoverChange}
+                      />
+                    )}
                   {tab === "preview" && (
                     <PreviewPanel
                       coverUrl={coverUrl}
@@ -833,11 +901,20 @@ function MakeEbookPage() {
                   {/* {tab === "ai" && <AiTabContent />} */}
                   {tab === "library" && (
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Your Library</h3>
                       {libraryBooks.length === 0 ? (
-                        <p className="text-gray-500 text-center py-8">
-                          No saved books yet. Create and save a book to see it here.
-                        </p>
+                        <div className="text-center py-12">
+                          <Image
+                            src="/caveman.svg"
+                            alt="makeEbook caveman"
+                            width={48}
+                            height={48}
+                            className="w-12 h-12 mx-auto mb-4 opacity-60"
+                          />
+                          <p className="text-gray-500">
+                            Why not write your first master piece?<br />
+                            <span className="text-sm">The Biscuit Thief. Chapter one: The Thief Grows Peckish!📚</span>
+                          </p>
+                        </div>
                       ) : (
                         <ul className="space-y-2">
                           {libraryBooks.map((b: any) => (
@@ -868,6 +945,16 @@ function MakeEbookPage() {
                     </div>
                   )}
                 </div>
+                  
+                  {/* Scroll Indicator */}
+                  {showScrollIndicator && (
+                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-10">
+                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                        <ChevronDown className="w-4 h-4 text-gray-600" />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -877,17 +964,20 @@ function MakeEbookPage() {
         <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden">
           {/* Desktop Sidebar - Hidden on Mobile */}
           <aside className="hidden lg:flex flex-col w-full lg:max-w-xs bg-white min-w-0 lg:min-w-[340px] lg:h-full overflow-y-auto shadow-sm mt-4 ml-4 p-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
-            <nav className="flex flex-row items-center gap-2 pb-2">
+            <nav className="flex flex-row items-center gap-1 pb-2 overflow-x-auto">
               {["setup", "preview", "library"].map((key) => (
                 <button
                   key={key}
-                  className={`px-5 py-2 rounded text-sm font-semibold transition ${
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded text-xs font-semibold transition whitespace-nowrap ${
                     tab === key
                       ? "bg-white text-[#15161a] border border-[#050505] shadow-sm"
                       : "hover:bg-[#F2F2F2] text-[#737373]"
                   }`}
                   onClick={() => setTab(key as any)}
                 >
+                  {key === "setup" && <MetadataIcon className="w-4 h-4" />}
+                  {key === "preview" && <PreviewIcon className="w-4 h-4" />}
+                  {key === "library" && <LibraryIcon className="w-4 h-4" />}
                   {key === "setup"
                     ? "Metadata"
                     : key === "preview"
@@ -946,11 +1036,20 @@ function MakeEbookPage() {
               {/* {tab === "ai" && <AiTabContent />} */}
               {tab === "library" && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Your Library</h3>
                   {libraryBooks.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">
-                      No saved books yet. Create and save a book to see it here.
-                    </p>
+                    <div className="text-center py-12">
+                      <Image
+                        src="/caveman.svg"
+                        alt="makeEbook caveman"
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 mx-auto mb-4 opacity-60"
+                      />
+                      <p className="text-gray-500">
+                        Why not write your first master piece?<br />
+                        <span className="text-sm">The Biscuit Thief. Chapter one: The Thief Grows Peckish!📚</span>
+                      </p>
+                    </div>
                   ) : (
                     <ul className="space-y-2">
                       {libraryBooks.map((b: any) => (
@@ -983,61 +1082,88 @@ function MakeEbookPage() {
           </aside>
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className="flex-1 flex flex-col bg-white rounded shadow-sm border border-[#E8E8E8] mt-4 ml-4 px-2 lg:px-8 py-2 lg:py-8 min-w-0 overflow-hidden">
-            {/* Mobile Header with Hamburger Menu */}
-            <div className="lg:hidden flex items-center justify-between mb-4 pb-2 border-b border-[#E8E8E8] flex-shrink-0">
-              <button
-                onClick={() => setMobileSidebarOpen(true)}
-                className="p-2 rounded bg-[#F7F7F7] hover:bg-[#F2F2F2] transition-colors"
-              >
-                <MenuIcon className="w-5 h-5" />
-              </button>
-              {title && (
-                <div className="flex-1 text-center">
-                  <h1 className="text-sm font-medium text-[#050505] truncate px-4">
-                    {title}
-                  </h1>
-                </div>
-              )}
+          <main className="flex-1 flex flex-col bg-white rounded shadow-sm mt-4 lg:ml-4 px-4 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
+            {/* Mobile Hamburger Menu - Fixed Position */}
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className="lg:hidden fixed top-[80px] left-4 z-10 p-2 rounded hover:bg-gray-100 transition-colors flex items-center gap-2"
+              aria-label="Open sidebar menu"
+            >
+              <Image
+                src="/hamburger-menu-icon.svg"
+                alt="hamburger menu"
+                width={20}
+                height={20}
+                className="w-5 h-5"
+              />
+              <span className="text-xs font-medium text-[#050505]">Menu</span>
+            </button>
+
+            {/* Mobile Divider Line */}
+            <div className="lg:hidden mt-6 mb-4">
+              <div className="border-t border-[#E8E8E8]"></div>
             </div>
 
-            {/* Desktop Book Title and Toolbar */}
+            {/* Mobile Title Header - Only shown when title exists */}
+            {title && (
+              <div className="lg:hidden flex items-start justify-start mb-4 pb-2 flex-shrink-0">
+                <h1 className="text-sm font-medium text-[#050505] truncate">
+                  {title}
+                </h1>
+              </div>
+            )}
+
+            {/* Desktop Header with Title and Toolbar */}
             <div className="hidden lg:block">
-              {title && (
-                <div className="mb-3 pb-2 border-b border-[#E8E8E8]">
-                  <h1 className="text-lg font-medium text-[#23242a] truncate">
-                    {title}
-                  </h1>
+              <div className="mb-3 pb-2 border-b border-[#E8E8E8]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1">
+                    <PreviewIcon className="w-6 h-6" stroke={title ? "#23242a" : "#737373"} />
+                    {lockedSections.bookInfo && (
+                      <LockIcon className="w-5 h-5 opacity-60" />
+                    )}
+                    <input
+                      type="text"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      disabled={lockedSections.bookInfo}
+                      className="text-lg font-medium bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-none flex-1 disabled:cursor-not-allowed"
+                      style={{ 
+                        color: lockedSections.bookInfo ? "#737373" : (title ? "#23242a" : "#737373"),
+                        boxShadow: "none"
+                      }}
+                      placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Give your book a title"}
+                    />
+                  </div>
+                  <BookToolbar
+                    onNewBook={showNewBookConfirmation}
+                    onSave={handleSaveBook}
+                    onExport={handleExportEPUB}
+                    saveFeedback={saveFeedback}
+                  />
                 </div>
-              )}
-              <BookToolbar
-                onNewBook={showNewBookConfirmation}
-                onSave={handleSaveBook}
-                onExport={handleExportEPUB}
-                saveFeedback={saveFeedback}
-              />
+              </div>
             </div>
 
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
-            <div className="lg:hidden flex flex-col gap-4 flex-1 min-h-0 overflow-y-auto">
-              {/* Chapter Selection - Compact Horizontal Scroll */}
-              <div className="flex-shrink-0">
+            <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto">
+              {/* Compact Chapter Header */}
+              <div className="flex-shrink-0 bg-white border-b border-[#F2F2F2] pb-2">
+                {/* Compact Chapter Tabs */}
                 <div className="mb-2">
-                  <div className="mb-2">
-                    <h3 className="text-sm font-semibold text-[#050505]">Chapters</h3>
-                  </div>
-                  <div className="flex items-center gap-3 mb-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-xs font-semibold text-[#050505]">Chapters</h3>
                     <div className="relative" ref={dropdownRef}>
                     <button
                       onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
                       aria-label="Add new chapter"
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-[#F7F7F7] hover:bg-[#F2F2F2] text-xs font-medium text-[#050505] transition-colors"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#F7F7F7] hover:bg-[#F2F2F2] text-xs font-medium text-[#050505] transition-colors"
                     >
                       <PlusIcon className="w-3 h-3" />
                       <span>Add</span>
                     </button>
                     {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full left-0 mt-1 w-72 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
+                      <div className="absolute z-50 top-full right-0 mt-1 w-72 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-2">
                           <div className="space-y-3">
                             {/* Most common selections at the top - no header */}
@@ -1062,9 +1188,8 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">F</span>
-                                <h4 className="text-xs font-semibold text-[#050505]">Front Matter</h4>
+                              <div className="mb-2">
+                                <h4 className="text-sm font-semibold text-[#050505] px-3">Front Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
@@ -1086,9 +1211,8 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 rounded">C</span>
-                                <h4 className="text-xs font-semibold text-[#050505]">Main Content</h4>
+                              <div className="mb-2">
+                                <h4 className="text-sm font-semibold text-[#050505] px-3">Main Content</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.content.map((template) => (
@@ -1110,9 +1234,8 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-purple-100 text-purple-700 rounded">B</span>
-                                <h4 className="text-xs font-semibold text-[#050505]">Back Matter</h4>
+                              <div className="mb-2">
+                                <h4 className="text-sm font-semibold text-[#050505] px-3">Back Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
@@ -1150,21 +1273,21 @@ function MakeEbookPage() {
                     const getChapterInfo = () => {
                       if (ch.type === 'frontmatter') {
                         return {
-                          typeLabel: titleText && titleText !== 'Title' ? titleText : 'Frontmatter',
-                          title: 'Title'
+                          typeLabel: 'Frontmatter',
+                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
                         };
                       }
                       if (ch.type === 'backmatter') {
                         return {
-                          typeLabel: titleText && titleText !== 'Title' ? titleText : 'Backmatter', 
-                          title: 'Title'
+                          typeLabel: 'Backmatter', 
+                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
                         };
                       }
                       // Content chapters
                       const contentChapterNum = getContentChapterNumber(chapters, i);
                       return {
                         typeLabel: `Chapter ${contentChapterNum}`,
-                        title: 'Title'
+                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
                       };
                     };
 
@@ -1248,50 +1371,41 @@ function MakeEbookPage() {
                     }}
                   >
                     <HandleDragIcon isSelected={ghostPillContent.isSelected} />
-                    <div className="flex items-center gap-1.5 flex-1 justify-center">
-                      {/* Chapter Type Badge */}
-                      {ghostPillContent.type === 'frontmatter' && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">F</span>
-                      )}
-                      {ghostPillContent.type === 'backmatter' && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-medium bg-purple-100 text-purple-700 rounded">B</span>
-                      )}
-                      {ghostPillContent.type === 'content' && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 rounded">C</span>
-                      )}
-                      <span className="truncate max-w-[100px]">
+                    <div className="flex flex-col items-center gap-0 flex-1 justify-center">
+                      <span className={`text-[10px] font-normal ${ghostPillContent.isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
+                        {ghostPillContent.type === 'frontmatter' && 'Frontmatter'}
+                        {ghostPillContent.type === 'backmatter' && 'Backmatter'} 
+                        {ghostPillContent.type === 'content' && 'Chapter'}
+                      </span>
+                      <span className={`text-xs font-medium ${ghostPillContent.isSelected ? 'text-white' : 'text-[#050505]'}`}>
                         {ghostPillContent.title}
                       </span>
                     </div>
                   </div>
                 )}
+                </div>
+                
+                {/* Compact Chapter Title Input in Header */}
+                <div className="mt-2">
+                  <label className="block text-xs text-[#737373] mb-1">Chapter title</label>
+                  <input
+                    className="w-full px-3 py-2 rounded text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-xs touch-manipulation"
+                    placeholder="Enter chapter title..."
+                    value={chapters[selectedChapter]?.title ?? ""}
+                    onChange={(e) =>
+                      handleChapterTitleChange(selectedChapter, e.target.value)
+                    }
+                  />
+                </div>
               </div>
 
-              {/* Chapter Title Input - Touch Optimised */}
-              <div className="flex-shrink-0">
-                <div className="mb-2">
-                  <span className="text-xs text-[#737373] whitespace-nowrap">Chapter title</span>
-                </div>
-                <input
-                  className="w-full px-4 py-3.5 rounded border border-[#E8E8E8] text-base bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm touch-manipulation"
-                  placeholder="Chapter title..."
-                  value={chapters[selectedChapter]?.title ?? ""}
-                  onChange={(e) =>
-                    handleChapterTitleChange(selectedChapter, e.target.value)
-                  }
-                />
-              </div>
-
-              {/* Rich Text Editor - Maximised for Mobile with Safe Spacing */}
-              <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col"> {/* Remove overflow-hidden to allow scrolling */}
-                <div className="mb-2 flex-shrink-0">
-                  <span className="text-xs text-[#737373] whitespace-nowrap">Chapter content</span>
-                </div>
+              {/* Rich Text Editor - Maximized for Writing */}
+              <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
                 <div className="flex-1 min-h-0">
                   <RichTextEditor
                     value={chapters[selectedChapter]?.content || ""}
                     onChange={(html) => handleChapterContentChange(selectedChapter, html)}
-                    minHeight={200}
+                    minHeight={300}
                     showWordCount
                     placeholder={
                       selectedChapter === 0
@@ -1305,30 +1419,27 @@ function MakeEbookPage() {
                 </div>
               </div>
             </div>
-            </div>
 
             {/* DESKTOP layout */}
-            <div className="hidden lg:flex flex-col gap-6 flex-1 min-h-0 overflow-y-auto">
-              {/* Chapters Section */}
-              <div className="flex flex-col gap-4 flex-shrink-0">
-                <div className="mb-2">
-                  <div className="mb-2">
-                    <h3 className="text-sm font-semibold text-[#050505]">
+            <div className="hidden lg:flex flex-col gap-3 flex-1 min-h-0 overflow-y-auto">
+              {/* Compact Chapters Section */}
+              <div className="flex flex-col gap-2 flex-shrink-0">
+                <div className="mb-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-xs font-semibold text-[#050505]">
                       Chapters
                     </h3>
-                  </div>
-                  <div className="flex items-center gap-3 mb-1">
                     <div className="relative">
                       <button
                         onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
                         aria-label="Add new chapter"
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#F7F7F7] hover:bg-[#F2F2F2] text-[12px] font-medium text-[#050505] transition-colors"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#F7F7F7] hover:bg-[#F2F2F2] text-xs font-medium text-[#050505] transition-colors"
                       >
-                        <PlusIcon className="w-4 h-4" />
+                        <PlusIcon className="w-3 h-3" />
                         <span>Add</span>
                       </button>
                       {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
+                      <div className="absolute z-50 top-full right-0 mt-1 w-80 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-3">
                           <div className="space-y-4">
                             {/* Most common selections at the top - no header */}
@@ -1353,9 +1464,8 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded">F</span>
-                                <h4 className="text-sm font-semibold text-[#050505]">Front Matter</h4>
+                              <div className="mb-3">
+                                <h4 className="text-sm font-semibold text-[#050505] px-3">Front Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
@@ -1377,9 +1487,8 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 rounded">C</span>
-                                <h4 className="text-sm font-semibold text-[#050505]">Main Content</h4>
+                              <div className="mb-3">
+                                <h4 className="text-sm font-semibold text-[#050505] px-3">Main Content</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.content.map((template) => (
@@ -1401,9 +1510,8 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-purple-100 text-purple-700 rounded">B</span>
-                                <h4 className="text-sm font-semibold text-[#050505]">Back Matter</h4>
+                              <div className="mb-3">
+                                <h4 className="text-sm font-semibold text-[#050505] px-3">Back Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
@@ -1430,9 +1538,8 @@ function MakeEbookPage() {
                       )}
                     </div>
                   </div>
-                  <p className="text-[9px] text-[#737373] -mb-1">Drag to reorder</p>
                 </div>
-                <div className="flex flex-wrap gap-3 min-h-[8px] pt-2">
+                <div className="flex flex-wrap gap-2 min-h-[8px] pt-1">
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
                     const titleText = ch.title?.trim() || 'Title';
@@ -1441,21 +1548,21 @@ function MakeEbookPage() {
                     const getChapterInfo = () => {
                       if (ch.type === 'frontmatter') {
                         return {
-                          typeLabel: titleText && titleText !== 'Title' ? titleText : 'Frontmatter',
-                          title: 'Title'
+                          typeLabel: 'Frontmatter',
+                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
                         };
                       }
                       if (ch.type === 'backmatter') {
                         return {
-                          typeLabel: titleText && titleText !== 'Title' ? titleText : 'Backmatter', 
-                          title: 'Title'
+                          typeLabel: 'Backmatter', 
+                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
                         };
                       }
                       // Content chapters
                       const contentChapterNum = getContentChapterNumber(chapters, i);
                       return {
                         typeLabel: `Chapter ${contentChapterNum}`,
-                        title: 'Title'
+                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
                       };
                     };
 
@@ -1514,32 +1621,29 @@ function MakeEbookPage() {
                 </div>
               </div>
               
-              {/* Editor Area */}
+              {/* Editor Area - Prioritized for Writing */}
               <section className="flex flex-col min-w-0 flex-1 min-h-0">
-                <div className="mb-2 flex-shrink-0">
-                  <div className="mb-2">
-                    <span className="text-xs text-[#737373] whitespace-nowrap">Chapter title</span>
-                  </div>
+                {/* Compact Chapter Title Header */}
+                <div className="mb-1 flex-shrink-0 bg-white border-b border-[#F2F2F2] pb-2">
+                  <label className="block text-xs text-[#737373] mb-1">Chapter title</label>
                   <input
-                    className="w-full px-4 py-2.5 rounded border border-[#E8E8E8] text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-sm"
-                    placeholder="Enter the chapter title..."
+                    className="w-full px-3 py-2 rounded text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-xs"
+                    placeholder="Enter chapter title..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
                       handleChapterTitleChange(selectedChapter, e.target.value)
                     }
                   />
                 </div>
+                {/* Rich Text Editor - Maximum Space */}
                 <div className="w-full max-w-full flex-1 min-h-0 flex flex-col">
-                  <div className="mb-2 flex-shrink-0">
-                    <span className="text-xs text-[#737373] whitespace-nowrap">Chapter content</span>
-                  </div>
                   <div className="flex-1 min-h-0">
                     <RichTextEditor
                       value={chapters[selectedChapter]?.content || ""}
                       onChange={(html) =>
                         handleChapterContentChange(selectedChapter, html)
                       }
-                      minHeight={250}
+                      minHeight={400}
                       showWordCount
                       placeholder={
                         selectedChapter === 0

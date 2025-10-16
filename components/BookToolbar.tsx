@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { PlusIcon, SaveIcon, DownloadIcon } from "../app/make-ebook/components/icons";
-import { Library, Trash2 } from "lucide-react";
+import { Library, Trash2, MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "./ui/dialog";
 
@@ -24,6 +24,7 @@ export function BookToolbar({
 }: BookToolbarProps) {
   const [startedFeedback, setStartedFeedback] = useState(false);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  const [actionsOpen, setActionsOpen] = useState(false);
 
   function handleNewBookClick() {
     if (onNewBook) onNewBook();
@@ -36,69 +37,77 @@ export function BookToolbar({
     setClearDialogOpen(false);
   }
 
+  // Close actions dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (actionsOpen && !(event.target as Element).closest('.relative')) {
+        setActionsOpen(false);
+      }
+    };
+
+    if (actionsOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [actionsOpen]);
+
   return (
-    <div className="flex flex-wrap gap-4 sm:gap-8 items-center mb-4">
-      <button
-        onClick={handleNewBookClick}
-        className="flex flex-col items-center gap-1 text-[#23242a] hover:text-black transition min-w-[64px] text-xs bg-transparent border-none outline-none"
-        type="button"
-        title="New Book"
-      >
-        <PlusIcon className="w-6 h-6" />
-        <span className={`transition-all ${startedFeedback ? "text-green-600 font-semibold" : ""}`}>
-          {startedFeedback ? "Started!" : "New Book"}
-        </span>
-      </button>
-      <button
-        onClick={onSave}
-        className="flex flex-col items-center gap-1 text-[#23242a] hover:text-black transition min-w-[64px] text-xs bg-transparent border-none outline-none"
-        disabled={!!saveFeedback}
-        title="Save book"
-        type="button"
-      >
-        <SaveIcon className="w-6 h-6" />
-        <span className={`transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
-          {saveFeedback ? "Saved!" : "Save book"}
-        </span>
-      </button>
-      <button
-        onClick={onExport}
-        className="flex flex-col items-center gap-1 text-[#23242a] hover:text-black transition min-w-[64px] text-xs bg-transparent border-none outline-none"
-        title="Export ePub"
-        type="button"
-      >
-        <DownloadIcon className="w-6 h-6" />
-        <span>Export ePub</span>
-      </button>
-      {/* MISC > Clear chapter
-      <Dialog open={clearDialogOpen} onOpenChange={setClearDialogOpen}>
-        <DialogTrigger asChild>
-          <button
-            className="flex flex-col items-center gap-1 text-[#9B1C1C] hover:text-red-700 transition min-w-[64px] text-xs bg-transparent border-none outline-none"
-            type="button"
-            title="Clear chapter"
-          >
-            <Trash2 className="w-6 h-6" />
-            <span>Clear chapter</span>
-          </button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Clear chapter</DialogTitle>
-          </DialogHeader>
-          <div className="mb-4">
-            Do you want to do this?
+    <div className="flex justify-end">
+      <div className="relative">
+        <button
+          onClick={() => setActionsOpen(!actionsOpen)}
+          className="p-2 rounded hover:bg-gray-100 transition-colors"
+          aria-label="More actions"
+        >
+          <MoreHorizontal className="w-5 h-5 text-[#23242a]" />
+        </button>
+        
+        {/* Dropdown Menu */}
+        {actionsOpen && (
+          <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+            <div className="py-1">
+              <button
+                onClick={() => {
+                  handleNewBookClick();
+                  setActionsOpen(false);
+                }}
+                className="flex items-center gap-3 w-full text-left px-3 py-2 text-[#23242a] hover:bg-[#F7F7F7] transition text-sm"
+                type="button"
+              >
+                <PlusIcon className="w-4 h-4" />
+                <span className={`transition-all ${startedFeedback ? "text-green-600 font-semibold" : ""}`}>
+                  {startedFeedback ? "Started!" : "New Book"}
+                </span>
+              </button>
+              <button
+                onClick={() => {
+                  onSave && onSave();
+                  setActionsOpen(false);
+                }}
+                className="flex items-center gap-3 w-full text-left px-3 py-2 text-[#23242a] hover:bg-[#F7F7F7] transition text-sm"
+                disabled={!!saveFeedback}
+                type="button"
+              >
+                <SaveIcon className="w-4 h-4" />
+                <span className={`transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
+                  {saveFeedback ? "Saved!" : "Save Book"}
+                </span>
+              </button>
+              <button
+                onClick={() => {
+                  onExport && onExport();
+                  setActionsOpen(false);
+                }}
+                className="flex items-center gap-3 w-full text-left px-3 py-2 text-[#23242a] hover:bg-[#F7F7F7] transition text-sm"
+                type="button"
+              >
+                <DownloadIcon className="w-4 h-4" />
+                <span>Export for eReader</span>
+              </button>
+            </div>
           </div>
-          <DialogFooter className="flex gap-2">
-            <Button variant="destructive" onClick={handleClearChapter}>
-              Confirm
-            </Button>
-            <Button variant="secondary" onClick={() => setClearDialogOpen(false)}>
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
+        )}
+      </div>
     </div>
   );
 }

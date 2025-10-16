@@ -39,37 +39,21 @@ export function Header() {
   return (
     <header className="w-full border-b border-gray-200 bg-white flex-shrink-0 h-[64px] flex items-center">
       <div className="max-w-full mx-auto flex items-center justify-between px-4 sm:px-6 py-2 gap-2 w-full">
-        {/* Left: Back arrow (if not on root editor), logo, tagline, profile image */}
+        {/* Left: Back arrow (if not on root editor) and logo */}
         <div className="flex items-center gap-2 min-w-0">
           {showBack && (
             <BackArrowButton className="mr-2" label="Back" />
           )}
           <Link href="/make-ebook/explore" className="flex items-center gap-2 min-w-0">
             <Image
-              src="/caveman.svg"
+              src="/makeEbook-full-logo.svg"
               alt="makeEbook logo"
-              width={28}
-              height={28}
-              className="w-7 h-7"
+              width={192}
+              height={51}
+              className="h-[51px]"
               priority
             />
-            <span className="font-bold text-xl text-[#23242a] tracking-tight select-none whitespace-nowrap">
-              make<span className="font-extrabold">E</span>book
-            </span>
           </Link>
-          {/* Avatar image followed by tagline with only 2px gap */}
-          <span className="flex items-center" style={{ gap: "4px" }}>
-            <span className="mx-2 text-gray-300 select-none" aria-hidden="true">|</span>
-            <Image
-              src="/neil-avatar.png"
-              alt="Neil McArdle"
-              width={22}
-              height={22}
-              className="rounded-full object-cover w-[22px] h-[22px] border-none p-0"
-              priority
-            />          
-            <span className="text-xs text-gray-400 ml-0">designed by Neil McArdle</span>
-          </span>
         </div>
         {/* Right: User icon */}
         <div className="flex items-center gap-2 min-w-[40px] justify-end">
