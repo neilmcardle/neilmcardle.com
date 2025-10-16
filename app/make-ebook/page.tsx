@@ -911,7 +911,7 @@ function MakeEbookPage() {
                             className="w-12 h-12 mx-auto mb-4 opacity-60"
                           />
                           <p className="text-gray-500">
-                            Why not write your first master piece?<br />
+                            Why not write your first masterpiece?<br />
                             <span className="text-sm">The Biscuit Thief. Chapter one: The Thief Grows Peckish!📚</span>
                           </p>
                         </div>
@@ -1046,7 +1046,7 @@ function MakeEbookPage() {
                         className="w-12 h-12 mx-auto mb-4 opacity-60"
                       />
                       <p className="text-gray-500">
-                        Why not write your first master piece?<br />
+                        Why not write your first masterpiece?<br />
                         <span className="text-sm">The Biscuit Thief. Chapter one: The Thief Grows Peckish!📚</span>
                       </p>
                     </div>
