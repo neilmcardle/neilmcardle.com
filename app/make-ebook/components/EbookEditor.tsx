@@ -20,7 +20,7 @@ export default function EbookEditor({ book, setBook, selectedChapterIdx, setSele
   return (
     <div className="w-full max-w-2xl">
       <h1 className="text-3xl font-bold mb-2">Your eBook Project</h1>
-      <p className="mb-4 text-[#86868B]">The AI will help you fill this out, or you can edit directly.</p>
+      <p className="mb-4 text-[#737373]">The AI will help you fill this out, or you can edit directly.</p>
       <div className="mb-4">
         <input
           className="w-full px-3 py-2 border rounded mb-2"

@@ -40,12 +40,12 @@ export default function ChapterEditor({
     setChapters(chapters.map(c => (c.id === id ? { ...c, content } : c)));
 
   return (
-    <section className="p-4 rounded-xl border border-[#ececec] bg-white mt-4">
+    <section className="p-4 rounded bg-white mt-4">
       <h2 className="text-sm font-semibold mb-3 flex items-center">
         Chapters
         <button
           type="button"
-          className="ml-2 text-[#b0b3b8] hover:text-[#86868B]"
+          className="ml-2 text-[#050505] hover:text-[#050505]"
           title={lockedSections.chapters ? 'Unlock to edit' : 'Lock section'}
           onClick={() =>
             setLockedSections((s: any) => ({ ...s, chapters: !s.chapters }))
@@ -60,7 +60,7 @@ export default function ChapterEditor({
           <div key={chapter.id} className="border-b pb-8 last:border-b-0">
             <input
               type="text"
-              className="w-full mb-3 px-3 py-2 rounded-lg border text-sm"
+              className="w-full mb-3 px-3 py-2 rounded border text-sm"
               placeholder={`Title for Chapter ${i + 1}`}
               value={chapter.title}
               onChange={e => updateTitle(chapter.id, e.target.value)}
@@ -89,9 +89,9 @@ export default function ChapterEditor({
 
         <button
           type="button"
-          onClick={handleAdd}
+          onClick={handleAddChapter}
           disabled={lockedSections.chapters}
-          className="px-5 py-2 rounded-full bg-[#15161a] text-white text-sm font-semibold disabled:opacity-50"
+          className="px-5 py-2 rounded bg-[#15161a] text-white text-sm font-semibold disabled:opacity-50"
         >
           Add Chapter
         </button>

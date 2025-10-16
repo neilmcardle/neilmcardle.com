@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Plus, Library, Save, Download, Trash2 } from "lucide-react";
+import { PlusIcon, SaveIcon, DownloadIcon } from "../app/make-ebook/components/icons";
+import { Library, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "./ui/dialog";
 
@@ -43,7 +44,7 @@ export function BookToolbar({
         type="button"
         title="New Book"
       >
-        <Plus className="w-6 h-6" />
+        <PlusIcon className="w-6 h-6" />
         <span className={`transition-all ${startedFeedback ? "text-green-600 font-semibold" : ""}`}>
           {startedFeedback ? "Started!" : "New Book"}
         </span>
@@ -55,7 +56,7 @@ export function BookToolbar({
         title="Save book"
         type="button"
       >
-        <Save className="w-6 h-6" />
+        <SaveIcon className="w-6 h-6" />
         <span className={`transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
           {saveFeedback ? "Saved!" : "Save book"}
         </span>
@@ -66,7 +67,7 @@ export function BookToolbar({
         title="Export ePub"
         type="button"
       >
-        <Download className="w-6 h-6" />
+        <DownloadIcon className="w-6 h-6" />
         <span>Export ePub</span>
       </button>
       {/* MISC > Clear chapter

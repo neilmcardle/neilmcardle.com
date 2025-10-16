@@ -656,12 +656,12 @@ export default function RichTextEditor({
 
   return (
     <div
-      className={`relative border border-[#ececec] rounded-lg bg-[#fafbfc] focus-within:bg-white transition-colors flex flex-col lg:flex-row editor-root ${className}`}
+      className={`relative border border-[#E8E8E8] rounded bg-[#F7F7F7] focus-within:bg-white hover:focus-within:bg-white hover:bg-[#F2F2F2] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
-      {/* Mobile Toolbar - Above content when focused */}
+      {/* Toolbar - Above content when focused */}
       {focused && (
-        <div className="lg:hidden border-b border-[#ececec] bg-white">
+        <div className="border-b border-[#E8E8E8] bg-white">
           <div className="p-2 overflow-x-auto">
             <div className="flex items-start gap-4 min-w-max">
               {/* Format section */}
@@ -674,10 +674,10 @@ export default function RichTextEditor({
                       onMouseDown={e => e.preventDefault()}
                       title={b.title}
                       type="button"
-                      className={`w-8 h-8 rounded-md border text-xs font-bold transition-colors touch-manipulation ${
+                      className={`w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation ${
                         formats[b.cmd] 
                           ? 'bg-[#181a1d] text-white border-[#181a1d]' 
-                          : 'bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5]'
+                          : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
                       } ${b.className || ''}`}
                       onClick={() => applyInlineOrAlign(b.cmd)}
                       disabled={disabled}
@@ -698,10 +698,10 @@ export default function RichTextEditor({
                       onMouseDown={e => e.preventDefault()}
                       title={h.title}
                       type="button"
-                      className={`w-8 h-8 rounded-md border text-xs font-bold transition-colors touch-manipulation ${
+                      className={`w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation ${
                         formats[`heading${h.level}`] 
                           ? 'bg-[#181a1d] text-white border-[#181a1d]' 
-                          : 'bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5]'
+                          : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
                       }`}
                       onClick={() => applyHeading(h.level)}
                       disabled={disabled}
@@ -722,7 +722,7 @@ export default function RichTextEditor({
                       onMouseDown={e => e.preventDefault()}
                       title={action.title}
                       type="button"
-                      className="w-8 h-8 rounded-md border text-xs font-bold transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5]"
+                      className="w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]"
                       onClick={() => {
                         if (action.cmd === 'endnote') {
                           handleEndnoteClick();
@@ -748,10 +748,10 @@ export default function RichTextEditor({
                       onMouseDown={e => e.preventDefault()}
                       title={a.title}
                       type="button"
-                      className={`w-8 h-8 rounded-md border text-xs font-bold transition-colors touch-manipulation ${
+                      className={`w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation ${
                         formats[a.cmd] 
                           ? 'bg-[#181a1d] text-white border-[#181a1d]' 
-                          : 'bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5]'
+                          : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
                       }`}
                       onClick={() => applyInlineOrAlign(a.cmd)}
                       disabled={disabled}
@@ -770,7 +770,7 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Undo"
                     type="button"
-                    className="w-8 h-8 rounded-md border bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5] text-[10px] font-medium transition-colors touch-manipulation"
+                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] text-[10px] font-medium transition-colors touch-manipulation"
                     onClick={applyUndo}
                     disabled={disabled}
                   >
@@ -780,7 +780,7 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Redo"
                     type="button"
-                    className="w-8 h-8 rounded-md border bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5] text-[10px] font-medium transition-colors touch-manipulation"
+                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] text-[10px] font-medium transition-colors touch-manipulation"
                     onClick={applyRedo}
                     disabled={disabled}
                   >
@@ -790,7 +790,7 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Insert Image"
                     type="button"
-                    className="w-8 h-8 rounded-md border bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5] text-[10px] font-medium transition-colors touch-manipulation"
+                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] text-[10px] font-medium transition-colors touch-manipulation"
                     onClick={handleImageButtonClick}
                     disabled={disabled}
                   >
@@ -800,7 +800,7 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Clear formatting"
                     type="button"
-                    className="w-8 h-8 rounded-md border bg-white text-[#6a6c72] border-[#ececec] hover:bg-[#f4f4f5] text-[10px] font-medium transition-colors touch-manipulation"
+                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] text-[10px] font-medium transition-colors touch-manipulation"
                     onClick={() => {
                       focusEditor();
                       document.execCommand('removeFormat');
@@ -819,19 +819,24 @@ export default function RichTextEditor({
       )}
       
       {/* Editable area */}
-      <div className="flex-1 min-w-0 relative">
+      <div className="flex-1 min-w-0 relative flex flex-col min-h-0">
         {showPlaceholder && (
           <div
-            className="absolute left-4 top-4 text-[#b0b3b8] pointer-events-none select-none z-10"
-            style={{ fontSize: 16 }}
+            className="absolute left-4 top-4 text-[#737373] text-sm pointer-events-none select-none z-10"
           >
             {placeholder}
           </div>
         )}
         <div
           ref={editorRef}
-          className="editor-root p-4 text-base leading-6 focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-hidden"
-          style={{ minHeight }}
+          className="editor-root p-4 text-base leading-6 focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-y-auto flex-1 min-h-0 overflow-x-hidden"
+          style={{ 
+            minHeight: Math.max(minHeight, 200),
+            maxHeight: 'calc(100vh - 300px)',
+            height: '100%',
+            position: 'relative',
+            contain: 'layout style'
+          }}
           contentEditable={!disabled}
           suppressContentEditableWarning
           onInput={handleInput}
@@ -921,10 +926,10 @@ export default function RichTextEditor({
         />
       </div>
 
-      {/* Desktop Toolbar */}
+      {/* Desktop Toolbar - Hidden (now using top toolbar for all devices) */}
       <div
         onMouseDown={toolbarMouseDown}
-        className={`hidden lg:flex w-32 border-l bg-[#f4f4f5] flex-col gap-4 p-2 overflow-y-auto ${
+        className={`hidden w-32 border-l bg-[#F7F7F7] flex-col gap-4 p-2 overflow-y-auto ${
           focused ? 'opacity-100' : 'opacity-70'
         } transition`}
       >

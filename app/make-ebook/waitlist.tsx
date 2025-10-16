@@ -50,10 +50,10 @@ export function WaitlistForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="rounded-lg"
+          className="rounded"
         />
       </div>
-      <Button type="submit" className="w-full bg-[#1D1D1F] hover:bg-black text-white rounded-full" disabled={loading}>
+      <Button type="submit" className="w-full bg-[#1D1D1F] hover:bg-black text-white rounded" disabled={loading}>
         {loading ? "Submitting..." : "Join the Waitlist"}
       </Button>
     </form>

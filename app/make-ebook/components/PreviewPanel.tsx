@@ -1,10 +1,6 @@
 import React from "react";
-import { Calendar, Languages } from "lucide-react";
-
-interface Chapter {
-  title: string;
-  content: string;
-}
+import { CalendarIcon, LanguagesIcon } from "./icons";
+import { Chapter } from "../types";
 
 interface PreviewPanelProps {
   coverUrl: string | null;
@@ -37,14 +33,14 @@ export default function PreviewPanel({
     <div className="w-full max-w-xs mx-auto pt-2 pb-8">
       <h2 className="font-bold text-xl mb-5">Book Preview</h2>
       {/* Book Cover + Info */}
-      <div className="w-full flex flex-col items-center mb-6">
-        <div className="w-56 h-80 rounded-xl bg-gradient-to-br from-[#f5f5f7] to-[#ececef] border border-[#ececec] shadow flex items-center justify-center overflow-hidden mb-3 relative">
+      <div className="flex flex-col items-center mb-6">
+        <div className="w-56 h-80 rounded bg-gradient-to-br from-[#f5f5f7] to-[#ececef] border border-[#E8E8E8] shadow flex items-center justify-center overflow-hidden mb-3 relative">
           {coverUrl ? (
             <img src={coverUrl} alt="Book cover" className="object-cover w-full h-full" />
           ) : (
             <div className="flex flex-col items-center justify-center w-full h-full">
               <span className="font-bold text-2xl text-[#23242a]">{title || "Untitled Book"}</span>
-              <span className="text-[#86868B] mt-2">{author || "by Unknown Author"}</span>
+              <span className="text-[#737373] mt-2">{author || "by Unknown Author"}</span>
             </div>
           )}
         </div>
@@ -75,12 +71,12 @@ export default function PreviewPanel({
       <div className="mb-6">
         <h3 className="font-bold mb-2 text-lg">Book Details</h3>
         <div className="flex items-center gap-2 mb-1">
-          <Calendar className="w-5 h-5 text-[#23242a]" />
+          <CalendarIcon className="w-5 h-5 text-[#23242a]" />
           <span className="font-medium">Published:</span>
           <span>{pubDate || "—"}</span>
         </div>
         <div className="flex items-center gap-2 mb-1">
-          <Languages className="w-5 h-5 text-[#23242a]" />
+          <LanguagesIcon className="w-5 h-5 text-[#23242a]" />
           <span className="font-medium">Language:</span>
           <span>{language ? language.slice(0, 2).toUpperCase() : "—"}</span>
         </div>
@@ -94,7 +90,7 @@ export default function PreviewPanel({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-medium">Tags:</span>
             {tags.map((tag) => (
-              <span key={tag} className="bg-[#f4f4f5] rounded-full px-2 py-1 text-xs border border-[#ececec] text-[#86868B]">{tag}</span>
+              <span key={tag} className="bg-[#F7F7F7] rounded px-2 py-1 text-xs border border-[#E8E8E8] text-[#737373]">{tag}</span>
             ))}
           </div>
         )}
