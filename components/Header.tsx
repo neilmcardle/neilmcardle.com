@@ -44,7 +44,7 @@ export function Header() {
           {showBack && (
             <BackArrowButton className="mr-2" label="Back" />
           )}
-          <Link href="/make-ebook/explore" className="flex items-center gap-2 min-w-0">
+          <Link href="/make-ebook/explore" className="flex items-center gap-2 min-w-0 -ml-2.5">
             <Image
               src="/makeEbook-full-logo.svg"
               alt="makeEbook logo"

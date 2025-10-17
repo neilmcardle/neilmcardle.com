@@ -499,7 +499,8 @@ export default function RichTextEditor({
     setTimeout(() => {
       if (
         editorRef.current &&
-        document.activeElement !== editorRef.current
+        document.activeElement !== editorRef.current &&
+        !editorRef.current.contains(document.activeElement)
       ) {
         ensureInitialParagraph();
         emitChange();
@@ -660,8 +661,8 @@ export default function RichTextEditor({
       className={`relative border border-[#E8E8E8] rounded bg-[#F7F7F7] focus-within:bg-white hover:focus-within:bg-white hover:bg-[#F2F2F2] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
-      {/* Toolbar - Always visible on desktop, focus-triggered on mobile */}
-      <div className={`border-b border-[#E8E8E8] bg-white ${focused ? 'block' : 'hidden lg:block'}`}>
+      {/* Toolbar - Always visible on all devices */}
+      <div className="border-b border-[#E8E8E8] bg-white">
         <div className="p-2 overflow-x-auto">
           <div className="flex items-start gap-4 min-w-max">
               {/* Format section */}

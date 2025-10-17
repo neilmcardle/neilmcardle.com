@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { PlusIcon, TrashIcon, LibraryIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, PreviewIcon, LockIcon, MetadataIcon } from "./components/icons";
+import { PlusIcon, TrashIcon, LibraryIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, PreviewIcon, LockIcon, MetadataIcon, MenuIcon } from "./components/icons";
 import { ChevronDown, MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import DragIcon from "./components/icons/DragIcon";
@@ -1089,14 +1089,8 @@ function MakeEbookPage() {
               className="lg:hidden fixed top-[80px] left-4 z-10 p-2 rounded hover:bg-gray-100 transition-colors flex items-center gap-2"
               aria-label="Open sidebar menu"
             >
-              <Image
-                src="/hamburger-menu-icon.svg"
-                alt="hamburger menu"
-                width={20}
-                height={20}
-                className="w-5 h-5"
-              />
-              <span className="text-xs font-medium text-[#050505]">Menu</span>
+              <MenuIcon className="w-5 h-5" />
+              <span className="text-xs font-medium text-[#050505]">Open Sidepanel</span>
             </button>
 
             {/* Mobile Divider Line */}
@@ -1104,14 +1098,29 @@ function MakeEbookPage() {
               <div className="border-t border-[#E8E8E8]"></div>
             </div>
 
-            {/* Mobile Title Header - Only shown when title exists */}
-            {title && (
-              <div className="lg:hidden flex items-start justify-start mb-4 pb-2 flex-shrink-0">
-                <h1 className="text-sm font-medium text-[#050505] truncate">
-                  {title}
-                </h1>
+            {/* Mobile Book Title Input */}
+            <div className="lg:hidden mb-4 flex-shrink-0">
+              <div className="pb-3 border-b border-[#E8E8E8]">
+                <div className="flex items-center gap-3">
+                  <PreviewIcon className="w-6 h-6" stroke={title ? "#23242a" : "#737373"} />
+                  {lockedSections.bookInfo && (
+                    <LockIcon className="w-5 h-5 opacity-60" />
+                  )}
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    disabled={lockedSections.bookInfo}
+                    className="text-lg font-medium bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-none flex-1 disabled:cursor-not-allowed"
+                    style={{ 
+                      color: lockedSections.bookInfo ? "#737373" : (title ? "#23242a" : "#737373"),
+                      boxShadow: "none"
+                    }}
+                    placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Give your book a title"}
+                  />
+                </div>
               </div>
-            )}
+            </div>
 
             {/* Desktop Header with Title and Toolbar */}
             <div className="hidden lg:block">
