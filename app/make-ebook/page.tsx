@@ -1368,7 +1368,7 @@ function MakeEbookPage() {
 
               {/* Rich Text Editor - Maximized for Writing */}
               <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
-                <div className="mb-1 flex-shrink-0">
+                <div className="mt-2 mb-1 flex-shrink-0">
                   <label className="block text-xs text-[#737373] mb-1">Chapter content</label>
                 </div>
                 <div className="flex-1 min-h-0" style={{ minHeight: '400px' }}>
@@ -1615,7 +1615,7 @@ function MakeEbookPage() {
                 </div>
                 {/* Rich Text Editor - Maximum Space */}
                 <div className="w-full max-w-full flex-1 min-h-0 flex flex-col">
-                  <div className="mb-1 flex-shrink-0">
+                  <div className="mt-2 mb-1 flex-shrink-0">
                     <label className="block text-xs text-[#737373] mb-1">Chapter content</label>
                   </div>
                   <div className="flex-1 min-h-0">
