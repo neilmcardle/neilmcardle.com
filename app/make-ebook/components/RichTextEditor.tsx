@@ -12,6 +12,7 @@ import React, {
   KeyboardEvent,
 } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import DOMPurify from 'dompurify';
 import katex from 'katex';
 import "../../../styles/vendor/katex.css";
@@ -34,7 +35,7 @@ interface RichTextEditorProps
 type FormatState = Record<string, boolean>;
 
 const BTN =
-  'w-full px-2 py-1 text-[11px] font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed';
+  'w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed overflow-visible';
 const BTN_ACTIVE = 'bg-gray-200 shadow-inner';
 
 const INLINE = [
@@ -721,7 +722,7 @@ export default function RichTextEditor({
                       onMouseDown={e => e.preventDefault()}
                       title={action.title}
                       type="button"
-                      className="w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]"
+                      className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
                       onClick={() => {
                         if (action.cmd === 'endnote') {
                           handleEndnoteClick();
@@ -731,7 +732,14 @@ export default function RichTextEditor({
                       }}
                       disabled={disabled || (action.cmd === 'endnote' && !onCreateEndnote)}
                     >
-                      {action.label}
+                      <Image
+                        src={action.cmd === 'endnote' ? '/endnote-icon.svg' : '/link-icon.svg'}
+                        alt={action.title}
+                        width={12}
+                        height={12}
+                        className="w-3 h-3"
+                        style={{ borderRadius: '0', boxShadow: 'none' }}
+                      />
                     </button>
                   ))}
                 </div>
@@ -769,21 +777,35 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Undo"
                     type="button"
-                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] text-[10px] font-medium transition-colors touch-manipulation"
+                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
                     onClick={applyUndo}
                     disabled={disabled}
                   >
-                    ↶
+                    <Image
+                      src="/undo-icon.svg"
+                      alt="Undo"
+                      width={12}
+                      height={12}
+                      className="w-3 h-3"
+                      style={{ borderRadius: '0', boxShadow: 'none' }}
+                    />
                   </button>
                   <button
                     onMouseDown={e => e.preventDefault()}
                     title="Redo"
                     type="button"
-                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] text-[10px] font-medium transition-colors touch-manipulation"
+                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
                     onClick={applyRedo}
                     disabled={disabled}
                   >
-                    ↷
+                    <Image
+                      src="/redo-icon.svg"
+                      alt="Redo"
+                      width={12}
+                      height={12}
+                      className="w-3 h-3"
+                      style={{ borderRadius: '0', boxShadow: 'none' }}
+                    />
                   </button>
                   <button
                     onMouseDown={e => e.preventDefault()}
@@ -991,21 +1013,34 @@ export default function RichTextEditor({
               onMouseDown={e => e.preventDefault()}
               title="Undo"
               type="button"
-              className={BTN}
+              className="w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
               onClick={applyUndo}
               disabled={disabled}
             >
-              ↶
+              <Image
+                src="/undo-icon.svg"
+                alt="Undo"
+                width={12}
+                height={12}
+                className="w-3 h-3"
+                style={{ borderRadius: '0', boxShadow: 'none' }}
+              />
             </button>
             <button
               onMouseDown={e => e.preventDefault()}
               title="Redo"
               type="button"
-              className={BTN}
+              className="w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
               onClick={applyRedo}
               disabled={disabled}
             >
-              ↷
+              <Image
+                src="/redo-icon.svg"
+                alt="Redo"
+                width={12}
+                height={12}
+                className="w-3 h-3"
+              />
             </button>
           </div>
         </Section>
@@ -1031,7 +1066,7 @@ export default function RichTextEditor({
                 onMouseDown={e => e.preventDefault()}
                 title={action.title}
                 type="button"
-                className={BTN}
+                className="w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
                 onClick={() => {
                   if (action.cmd === 'endnote') {
                     handleEndnoteClick();
@@ -1041,7 +1076,13 @@ export default function RichTextEditor({
                 }}
                 disabled={disabled || (action.cmd === 'endnote' && !onCreateEndnote)}
               >
-                {action.cmd === 'endnote' ? 'Note' : 'Link'}
+                <Image
+                  src={action.cmd === 'endnote' ? '/endnote-icon.svg' : '/link-icon.svg'}
+                  alt={action.title}
+                  width={12}
+                  height={12}
+                  className="w-3 h-3"
+                />
               </button>
             ))}
           </div>
