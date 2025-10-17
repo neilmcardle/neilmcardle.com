@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { PlusIcon, TrashIcon, LibraryIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, PreviewIcon, LockIcon, MetadataIcon, MenuIcon } from "./components/icons";
+import { PlusIcon, TrashIcon, LibraryIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, PreviewIcon, LockIcon, MetadataIcon, MenuIcon, ChaptersIcon } from "./components/icons";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import DragIcon from "./components/icons/DragIcon";
@@ -1117,8 +1117,8 @@ function MakeEbookPage() {
                 <div className="mb-2">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <BookIcon className="w-4 h-4" />
-                      <h3 className="text-xs font-semibold text-[#050505]">Chapters</h3>
+                      <ChaptersIcon className="w-5 h-5" />
+                      <h3 className="text-sm font-bold text-[#050505]">Chapters</h3>
                     </div>
                     <div className="relative" ref={dropdownRef}>
                     <button
@@ -1396,10 +1396,14 @@ function MakeEbookPage() {
               <div className="flex flex-col gap-2 flex-shrink-0">
                 <div className="mb-1">
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-xs font-semibold text-[#050505]">
-                      Chapters
-                    </h3>
+                    <div className="flex items-center gap-2">
+                      <ChaptersIcon className="w-5 h-5" />
+                      <h3 className="text-sm font-bold text-[#050505]">
+                        Chapters
+                      </h3>
+                    </div>
                   </div>
+                  <p className="text-[10px] text-[#737373] -mb-1">Drag to reorder</p>
                 </div>
                 <div className="flex flex-wrap gap-2 min-h-[8px] pt-1">
                   {chapters.map((ch, i) => {

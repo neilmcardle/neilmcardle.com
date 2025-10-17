@@ -12,3 +12,4 @@ export { UnlockIcon } from './UnlockIcon';
 export { BookIcon } from './BookIcon';
 export { PreviewIcon } from './PreviewIcon';
 export { MetadataIcon } from './MetadataIcon';
+export { ChaptersIcon } from './ChaptersIcon';
