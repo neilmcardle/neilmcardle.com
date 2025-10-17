@@ -44,6 +44,20 @@ export default function PreviewPanel({
           )}
         </div>
       </div>
+      
+      {/* Table of Contents */}
+      <div className="mb-6">
+        <h3 className="font-bold mb-2 text-lg">Table of Contents</h3>
+        <ul className="flex flex-col gap-1 text-base">
+          {chapters.map((ch, i) => (
+            <li key={i} className="flex justify-between">
+              <span>{ch.title || `Chapter ${i + 1}`}</span>
+              <span className="text-[#b0b3b8]">{ch.content.split(/\s+/).filter(Boolean).length} words</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      
       {/* Statistics */}
       <div className="mb-6">
         <h3 className="font-bold mb-2 text-lg">Statistics</h3>
@@ -93,18 +107,6 @@ export default function PreviewPanel({
             ))}
           </div>
         )}
-      </div>
-      {/* Table of Contents */}
-      <div>
-        <h3 className="font-bold mb-2 text-lg">Table of Contents</h3>
-        <ul className="flex flex-col gap-1 text-base">
-          {chapters.map((ch, i) => (
-            <li key={i} className="flex justify-between">
-              <span>{ch.title || `Chapter ${i + 1}`}</span>
-              <span className="text-[#b0b3b8]">{ch.content.split(/\s+/).filter(Boolean).length} words</span>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

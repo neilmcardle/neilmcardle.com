@@ -11,7 +11,7 @@ export const MetadataIcon: React.FC<MetadataIconProps> = ({
   return (
     <Image
       src="/metadata-icon.svg"
-      alt="Metadata"
+      alt="Book Details"
       width={20}
       height={20}
       className={className}

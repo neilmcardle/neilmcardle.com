@@ -8,7 +8,7 @@ import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { PlusIcon, TrashIcon, LibraryIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, PreviewIcon, LockIcon, MetadataIcon, MenuIcon } from "./components/icons";
-import { ChevronDown, MoreHorizontal } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import DragIcon from "./components/icons/DragIcon";
 import BinIcon from "./components/icons/BinIcon";
@@ -164,7 +164,6 @@ function MakeEbookPage() {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
@@ -372,20 +371,6 @@ function MakeEbookPage() {
       return () => container.removeEventListener('scroll', handleScroll);
     }
   }, [mobileSidebarOpen, tab]); // Re-check when tab changes as content changes
-
-  // Close mobile actions dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (mobileActionsOpen && !(event.target as Element).closest('.relative')) {
-        setMobileActionsOpen(false);
-      }
-    };
-
-    if (mobileActionsOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [mobileActionsOpen]);
 
   async function handleExportEPUB() {
     // Ensure all chapters have IDs before export
@@ -631,7 +616,7 @@ function MakeEbookPage() {
     <>
       {/* Fixed Header */}
       <div className="fixed top-0 left-0 w-full z-[110]">
-        <Header />
+        <Header onNewBook={showNewBookConfirmation} />
       </div>
       {/* Main Content */}
       <div className="bg-[#FFFFFF] text-[#15161a] pt-[64px]">
@@ -750,11 +735,11 @@ function MakeEbookPage() {
                 <div className="flex items-center justify-end p-4 border-b border-[#E8E8E8]">
                   <button
                     onClick={() => setMobileSidebarOpen(false)}
-                    className="p-2 rounded hover:bg-gray-100 transition-colors flex items-center gap-2"
+                    className="p-2 rounded hover:opacity-70 transition-opacity flex items-center gap-2"
                     aria-label="Close sidebar menu"
                   >
                     <CloseIcon className="w-5 h-5" />
-                    <span className="text-xs font-medium text-[#050505]">Close</span>
+                    <span className="text-xs font-medium text-[#050505]">Return to Editor</span>
                   </button>
                 </div>
                 
@@ -775,9 +760,9 @@ function MakeEbookPage() {
                       {key === "library" && <LibraryIcon className="w-5 h-5" />}
                       <span>
                         {key === "setup"
-                          ? "Metadata"
+                          ? "Book Details"
                           : key === "preview"
-                          ? "Preview"
+                          ? "Book Summary"
                           : key === "ai"
                           ? "AI"
                           : "Library"}
@@ -788,66 +773,6 @@ function MakeEbookPage() {
                 
                 {/* Divider */}
                 <div className="border-t border-[#E8E8E8]"></div>
-                
-                {/* Action Menu Header */}
-                <div className="flex items-center justify-end px-4 pt-3 pb-2">
-                  <div className="relative">
-                    <button
-                      onClick={() => setMobileActionsOpen(!mobileActionsOpen)}
-                      className="p-2 rounded hover:bg-gray-100 transition-colors"
-                      aria-label="More actions"
-                    >
-                      <MoreHorizontal className="w-5 h-5 text-[#23242a]" />
-                    </button>
-                    
-                    {/* Dropdown Menu */}
-                    {mobileActionsOpen && (
-                      <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                        <div className="py-1">
-                          <button
-                            onClick={() => {
-                              handleSaveBook();
-                              setMobileSidebarOpen(false);
-                              setMobileActionsOpen(false);
-                            }}
-                            className="flex items-center gap-3 w-full text-left px-3 py-2 text-[#23242a] hover:bg-[#F7F7F7] transition text-sm"
-                            disabled={!!saveFeedback}
-                            type="button"
-                          >
-                            <SaveIcon className="w-4 h-4" />
-                            <span className={`transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
-                              {saveFeedback ? "Saved!" : "Save Book"}
-                            </span>
-                          </button>
-                          <button
-                            onClick={() => {
-                              handleExportEPUB();
-                              setMobileSidebarOpen(false);
-                              setMobileActionsOpen(false);
-                            }}
-                            className="flex items-center gap-3 w-full text-left px-3 py-2 text-[#23242a] hover:bg-[#F7F7F7] transition text-sm"
-                            type="button"
-                          >
-                            <DownloadIcon className="w-4 h-4" />
-                            <span>Export for eReader</span>
-                          </button>
-                          <button
-                            onClick={() => {
-                              showNewBookConfirmation();
-                              setMobileSidebarOpen(false);
-                              setMobileActionsOpen(false);
-                            }}
-                            className="flex items-center gap-3 w-full text-left px-3 py-2 text-[#23242a] hover:bg-[#F7F7F7] transition text-sm"
-                            type="button"
-                          >
-                            <PlusIcon className="w-4 h-4" />
-                            <span>New Book</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
                 
                 {/* Content */}
                 <div className="relative flex-1 min-h-0">
@@ -963,7 +888,7 @@ function MakeEbookPage() {
         {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden">
           {/* Desktop Sidebar - Hidden on Mobile */}
-          <aside className="hidden lg:flex flex-col w-full lg:max-w-xs bg-white min-w-0 lg:min-w-[340px] lg:h-full overflow-y-auto shadow-sm mt-4 ml-4 p-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+          <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 ml-4 p-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
             <nav className="flex flex-row items-center gap-1 pb-2 overflow-x-auto">
               {["setup", "preview", "library"].map((key) => (
                 <button
@@ -979,9 +904,9 @@ function MakeEbookPage() {
                   {key === "preview" && <PreviewIcon className="w-4 h-4" />}
                   {key === "library" && <LibraryIcon className="w-4 h-4" />}
                   {key === "setup"
-                    ? "Metadata"
+                    ? "Book Details"
                     : key === "preview"
-                    ? "Preview"
+                    ? "Book Summary"
                     : "Library"}
                 </button>
               ))}
@@ -1086,7 +1011,8 @@ function MakeEbookPage() {
             {/* Mobile Hamburger Menu - Fixed Position */}
             <button
               onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden fixed top-[80px] left-4 z-10 p-2 rounded hover:bg-gray-100 transition-colors flex items-center gap-2"
+              className="lg:hidden fixed top-[80px] z-10 p-2 rounded hover:opacity-70 transition-opacity flex items-center gap-2"
+              style={{ left: '6px' }}
               aria-label="Open sidebar menu"
             >
               <MenuIcon className="w-5 h-5" />
@@ -1111,12 +1037,12 @@ function MakeEbookPage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     disabled={lockedSections.bookInfo}
-                    className="text-lg font-medium bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-none flex-1 disabled:cursor-not-allowed"
+                    className="text-lg font-medium bg-white border border-transparent focus:border-black outline-none focus:outline-none focus:ring-0 flex-1 disabled:cursor-not-allowed px-2 py-1 rounded placeholder:text-[#a0a0a0]"
                     style={{ 
                       color: lockedSections.bookInfo ? "#737373" : (title ? "#23242a" : "#737373"),
                       boxShadow: "none"
                     }}
-                    placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Give your book a title"}
+                    placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Enter book title..."}
                   />
                 </div>
               </div>
@@ -1136,16 +1062,15 @@ function MakeEbookPage() {
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       disabled={lockedSections.bookInfo}
-                      className="text-lg font-medium bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-none flex-1 disabled:cursor-not-allowed"
+                      className="text-lg font-medium bg-white border border-transparent focus:border-black outline-none focus:outline-none focus:ring-0 flex-1 disabled:cursor-not-allowed px-2 py-1 rounded placeholder:text-[#a0a0a0]"
                       style={{ 
                         color: lockedSections.bookInfo ? "#737373" : (title ? "#23242a" : "#737373"),
                         boxShadow: "none"
                       }}
-                      placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Give your book a title"}
+                      placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Enter book title..."}
                     />
                   </div>
                   <BookToolbar
-                    onNewBook={showNewBookConfirmation}
                     onSave={handleSaveBook}
                     onExport={handleExportEPUB}
                     saveFeedback={saveFeedback}
@@ -1156,12 +1081,45 @@ function MakeEbookPage() {
 
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
             <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto">
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2 pl-4 pt-2">
+                <button
+                  onClick={() => {
+                    handleSaveBook();
+                    setMobileSidebarOpen(false);
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
+                  disabled={!!saveFeedback}
+                  type="button"
+                >
+                  <SaveIcon className="w-4 h-4" />
+                  <span className={`transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
+                    {saveFeedback ? "Saved!" : "Save to Library"}
+                  </span>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    handleExportEPUB();
+                    setMobileSidebarOpen(false);
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
+                  type="button"
+                >
+                  <DownloadIcon className="w-4 h-4" />
+                  <span>Export for eReader</span>
+                </button>
+              </div>
+              
               {/* Compact Chapter Header */}
               <div className="flex-shrink-0 bg-white border-b border-[#F2F2F2] pb-2">
                 {/* Compact Chapter Tabs */}
                 <div className="mb-2">
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-xs font-semibold text-[#050505]">Chapters</h3>
+                    <div className="flex items-center gap-2">
+                      <BookIcon className="w-4 h-4" />
+                      <h3 className="text-xs font-semibold text-[#050505]">Chapters</h3>
+                    </div>
                     <div className="relative" ref={dropdownRef}>
                     <button
                       onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
@@ -1398,7 +1356,7 @@ function MakeEbookPage() {
                 <div className="mt-2">
                   <label className="block text-xs text-[#737373] mb-1">Chapter title</label>
                   <input
-                    className="w-full px-3 py-2 rounded text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-xs touch-manipulation"
+                    className="w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm touch-manipulation"
                     placeholder="Enter chapter title..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
@@ -1410,7 +1368,10 @@ function MakeEbookPage() {
 
               {/* Rich Text Editor - Maximized for Writing */}
               <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
-                <div className="flex-1 min-h-0">
+                <div className="mb-1 flex-shrink-0">
+                  <label className="block text-xs text-[#737373] mb-1">Chapter content</label>
+                </div>
+                <div className="flex-1 min-h-0" style={{ minHeight: '400px' }}>
                   <RichTextEditor
                     value={chapters[selectedChapter]?.content || ""}
                     onChange={(html) => handleChapterContentChange(selectedChapter, html)}
@@ -1644,7 +1605,7 @@ function MakeEbookPage() {
                 <div className="mb-1 flex-shrink-0 bg-white border-b border-[#F2F2F2] pb-2">
                   <label className="block text-xs text-[#737373] mb-1">Chapter title</label>
                   <input
-                    className="w-full px-3 py-2 rounded text-sm bg-[#F7F7F7] focus:bg-white hover:bg-[#F2F2F2] focus:outline-none focus:ring-2 focus:ring-[#e6e6e6] placeholder:text-[#737373] placeholder:text-xs"
+                    className="w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm"
                     placeholder="Enter chapter title..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
@@ -1654,6 +1615,9 @@ function MakeEbookPage() {
                 </div>
                 {/* Rich Text Editor - Maximum Space */}
                 <div className="w-full max-w-full flex-1 min-h-0 flex flex-col">
+                  <div className="mb-1 flex-shrink-0">
+                    <label className="block text-xs text-[#737373] mb-1">Chapter content</label>
+                  </div>
                   <div className="flex-1 min-h-0">
                     <RichTextEditor
                       value={chapters[selectedChapter]?.content || ""}

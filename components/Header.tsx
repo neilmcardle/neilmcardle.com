@@ -15,8 +15,13 @@ import {
 import { BackArrowButton } from "./BackArrowButton";
 import { useState } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { PlusIcon } from "../app/make-ebook/components/icons";
 
-export function Header() {
+interface HeaderProps {
+  onNewBook?: () => void;
+}
+
+export function Header({ onNewBook }: HeaderProps = {}) {
   const pathname = usePathname();
   const { signOut, user } = useAuth();
 
@@ -25,6 +30,7 @@ export function Header() {
   const showBack = !ROOT_EDITOR_PATHS.includes(pathname);
 
   const [loggingOut, setLoggingOut] = useState(false);
+  const [startedFeedback, setStartedFeedback] = useState(false);
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -34,6 +40,12 @@ export function Header() {
     } finally {
       setLoggingOut(false);
     }
+  }
+
+  function handleNewBookClick() {
+    if (onNewBook) onNewBook();
+    setStartedFeedback(true);
+    setTimeout(() => setStartedFeedback(false), 1500);
   }
 
   return (
@@ -55,8 +67,21 @@ export function Header() {
             />
           </Link>
         </div>
-        {/* Right: User icon */}
+        {/* Right: New button (if on make-ebook page) and User icon */}
         <div className="flex items-center gap-2 min-w-[40px] justify-end">
+          {pathname === "/make-ebook" && onNewBook && (
+            <button
+              onClick={handleNewBookClick}
+              className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
+              aria-label="New Book"
+              type="button"
+            >
+              <PlusIcon className="w-4 h-4" />
+              <span className={`transition-all ${startedFeedback ? "text-green-600 font-semibold" : ""}`}>
+                {startedFeedback ? "Started!" : "New Book"}
+              </span>
+            </button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition px-0" aria-label="User menu">

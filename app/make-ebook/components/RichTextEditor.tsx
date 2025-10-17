@@ -658,7 +658,7 @@ export default function RichTextEditor({
 
   return (
     <div
-      className={`relative border border-[#E8E8E8] rounded bg-[#F7F7F7] focus-within:bg-white hover:focus-within:bg-white hover:bg-[#F2F2F2] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
+      className={`relative border border-transparent focus-within:border-black rounded bg-white transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
       {/* Toolbar - Always visible on all devices */}
