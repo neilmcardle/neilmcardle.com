@@ -1040,6 +1040,7 @@ export default function RichTextEditor({
                 width={12}
                 height={12}
                 className="w-3 h-3"
+                style={{ borderRadius: '0', boxShadow: 'none' }}
               />
             </button>
           </div>
