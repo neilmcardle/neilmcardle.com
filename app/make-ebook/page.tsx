@@ -1429,17 +1429,106 @@ function MakeEbookPage() {
                     <h3 className="text-xs font-semibold text-[#050505]">
                       Chapters
                     </h3>
-                    <div className="relative">
-                      <button
-                        onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
-                        aria-label="Add new chapter"
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#F7F7F7] hover:bg-[#F2F2F2] text-xs font-medium text-[#050505] transition-colors"
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 min-h-[8px] pt-1">
+                  {chapters.map((ch, i) => {
+                    const isSelected = selectedChapter === i;
+                    const titleText = ch.title?.trim() || 'Title';
+                    
+                    // Calculate chapter type label and title
+                    const getChapterInfo = () => {
+                      if (ch.type === 'frontmatter') {
+                        return {
+                          typeLabel: 'Frontmatter',
+                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                        };
+                      }
+                      if (ch.type === 'backmatter') {
+                        return {
+                          typeLabel: 'Backmatter', 
+                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                        };
+                      }
+                      // Content chapters
+                      const contentChapterNum = getContentChapterNumber(chapters, i);
+                      return {
+                        typeLabel: `Chapter ${contentChapterNum}`,
+                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                      };
+                    };
+
+                    const { typeLabel, title } = getChapterInfo();
+                    return (
+                      <div
+                        key={i}
+                        ref={el => { chapterRefs.current[i] = el }}
+                        className={`flex items-center px-3 py-1 cursor-pointer transition relative rounded flex-shrink-0
+                          ${isSelected 
+                            ? "bg-[#181a1d] text-white font-semibold" 
+                            : "bg-[#F7F7F7] text-[#050505] hover:bg-[#F2F2F2]"}
+                          ${dragOverIndex === i 
+                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
+                            : 'border-2 border-transparent'}
+                          `}
+                        draggable
+                        onDragStart={() => handleDragStart(i)}
+                        onDragEnter={() => handleDragEnter(i)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={(e) => e.preventDefault()}
+                        onClick={() => handleSelectChapter(i)}
                       >
-                        <PlusIcon className="w-3 h-3" />
-                        <span>Add</span>
-                      </button>
-                      {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full right-0 mt-1 w-80 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
+                        <HandleDragIcon isSelected={isSelected} />
+                        <div className="flex flex-col gap-0 ml-2 min-w-0">
+                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
+                            {typeLabel}
+                          </span>
+                          <span className={`text-[12px] font-medium ${isSelected ? 'text-white' : 'text-[#050505]'}`}>
+                            {title}
+                          </span>
+                        </div>
+                        {chapters.length > 1 && (
+                          <button
+                            className={`ml-2 p-1 rounded transition focus:outline-none ${
+                              isSelected 
+                                ? "hover:bg-white/10 text-white/65 hover:text-white" 
+                                : "hover:bg-black/10 text-[#050505]/65 hover:text-[#050505]"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveChapter(i);
+                            }}
+                            aria-label="Delete Chapter"
+                          >
+                            <BinIcon 
+                              key={`desktop-bin-${i}-${isSelected}`}
+                              className="w-4 h-4"
+                              stroke={isSelected ? "#ffffff" : "#050505"}
+                            />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {/* Add Chapter Button */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
+                      aria-label="Add new chapter"
+                      className="flex items-center px-3 py-1 cursor-pointer transition rounded flex-shrink-0 bg-[#F7F7F7] text-[#050505] hover:bg-[#F2F2F2] border-2 border-dashed border-gray-300 hover:border-gray-400"
+                    >
+                      <PlusIcon className="w-4 h-4 mr-2" />
+                      <div className="flex flex-col gap-0 min-w-0">
+                        <span className="text-[10px] font-normal text-gray-500">
+                          Add Chapter
+                        </span>
+                        <span className="text-[12px] font-medium text-[#050505]">
+                          New
+                        </span>
+                      </div>
+                    </button>
+                    {chapterTypeDropdownOpen && (
+                      <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-3">
                           <div className="space-y-4">
                             {/* Most common selections at the top - no header */}
@@ -1535,89 +1624,8 @@ function MakeEbookPage() {
                           </div>
                         </div>
                       </div>
-                      )}
-                    </div>
+                    )}
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-2 min-h-[8px] pt-1">
-                  {chapters.map((ch, i) => {
-                    const isSelected = selectedChapter === i;
-                    const titleText = ch.title?.trim() || 'Title';
-                    
-                    // Calculate chapter type label and title
-                    const getChapterInfo = () => {
-                      if (ch.type === 'frontmatter') {
-                        return {
-                          typeLabel: 'Frontmatter',
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      if (ch.type === 'backmatter') {
-                        return {
-                          typeLabel: 'Backmatter', 
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      // Content chapters
-                      const contentChapterNum = getContentChapterNumber(chapters, i);
-                      return {
-                        typeLabel: `Chapter ${contentChapterNum}`,
-                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                      };
-                    };
-
-                    const { typeLabel, title } = getChapterInfo();
-                    return (
-                      <div
-                        key={i}
-                        ref={el => { chapterRefs.current[i] = el }}
-                        className={`flex items-center px-3 py-1 cursor-pointer transition relative rounded flex-shrink-0
-                          ${isSelected 
-                            ? "bg-[#181a1d] text-white font-semibold" 
-                            : "bg-[#F7F7F7] text-[#050505] hover:bg-[#F2F2F2]"}
-                          ${dragOverIndex === i 
-                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
-                            : 'border-2 border-transparent'}
-                          `}
-                        draggable
-                        onDragStart={() => handleDragStart(i)}
-                        onDragEnter={() => handleDragEnter(i)}
-                        onDragEnd={handleDragEnd}
-                        onDragOver={(e) => e.preventDefault()}
-                        onClick={() => handleSelectChapter(i)}
-                      >
-                        <HandleDragIcon isSelected={isSelected} />
-                        <div className="flex flex-col gap-0 ml-2 min-w-0">
-                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
-                            {typeLabel}
-                          </span>
-                          <span className={`text-[12px] font-medium ${isSelected ? 'text-white' : 'text-[#050505]'}`}>
-                            {title}
-                          </span>
-                        </div>
-                        {chapters.length > 1 && (
-                          <button
-                            className={`ml-2 p-1 rounded transition focus:outline-none ${
-                              isSelected 
-                                ? "hover:bg-white/10 text-white/65 hover:text-white" 
-                                : "hover:bg-black/10 text-[#050505]/65 hover:text-[#050505]"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveChapter(i);
-                            }}
-                            aria-label="Delete Chapter"
-                          >
-                            <BinIcon 
-                              key={`desktop-bin-${i}-${isSelected}`}
-                              className="w-4 h-4"
-                              stroke={isSelected ? "#ffffff" : "#050505"}
-                            />
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
                 </div>
               </div>
               
