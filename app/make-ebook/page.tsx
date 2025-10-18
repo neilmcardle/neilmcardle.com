@@ -150,6 +150,7 @@ function MakeEbookPage() {
   } = useTags();
 
   const [tab, setTab] = useState<"setup" | "ai" | "preview" | "library">("setup");
+  const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [blurb, setBlurb] = useState("");
@@ -721,15 +722,20 @@ function MakeEbookPage() {
         )}
 
         {/* Mobile Sidebar Overlay */}
-        {mobileSidebarOpen && (
-          <div className="fixed top-[64px] left-0 right-0 bottom-0 z-[100] lg:hidden">
-            {/* Backdrop */}
-            <div 
-              className="absolute inset-0 bg-black/20" 
-              onClick={() => setMobileSidebarOpen(false)}
-            />
-            {/* Sidebar Panel */}
-            <div className="absolute top-0 left-0 h-full w-full bg-white shadow-2xl transform transition-transform duration-300 ease-out">
+        <div className={`fixed top-[64px] left-0 right-0 bottom-0 z-[100] lg:hidden transition-all duration-300 ease-out ${
+          mobileSidebarOpen ? 'visible' : 'invisible'
+        }`}>
+          {/* Backdrop */}
+          <div 
+            className={`absolute inset-0 bg-black/20 transition-opacity duration-300 ease-out ${
+              mobileSidebarOpen ? 'opacity-100' : 'opacity-0'
+            }`}
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+          {/* Sidebar Panel */}
+          <div className={`absolute top-0 left-0 h-full w-full bg-white shadow-2xl transform transition-transform duration-300 ease-out ${
+            mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}>
               <div className="flex flex-col h-full">
                 {/* Header with Actions */}
                 <div className="flex items-center justify-end p-4 border-b border-[#E8E8E8]">
@@ -843,12 +849,15 @@ function MakeEbookPage() {
                       ) : (
                         <ul className="space-y-2">
                           {libraryBooks.map((b: any) => (
-                            <li key={b.id} className="flex items-center justify-between p-3 border border-[#E8E8E8] rounded hover:bg-[#F2F2F2] transition-colors focus-within:outline-none">
+                            <li key={b.id} className={`flex items-center justify-between p-3 border rounded transition-colors ${
+                              selectedBookId === b.id 
+                                ? 'border-black bg-white' 
+                                : 'border-[#E8E8E8] hover:bg-[#F2F2F2]'
+                            }`}>
                               <button
-                                className="flex-1 text-left focus:outline-none"
+                                className="flex-1 text-left focus:outline-none border-none bg-transparent"
                                 onClick={() => {
-                                  handleLoadBook(b.id);
-                                  setMobileSidebarOpen(false);
+                                  setSelectedBookId(selectedBookId === b.id ? null : b.id);
                                 }}
                                 title={b.title}
                               >
@@ -856,13 +865,33 @@ function MakeEbookPage() {
                                 <div className="text-sm text-gray-500">{b.author}</div>
                                 <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
                               </button>
-                              <button
-                                className="text-gray-400 hover:text-red-500 p-1 focus:outline-none"
-                                onClick={() => handleDeleteBook(b.id)}
-                                title="Delete book"
-                              >
-                                <TrashIcon className="w-4 h-4" />
-                              </button>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  className={`px-2 py-1 text-xs font-medium focus:outline-none transition-colors ${
+                                    selectedBookId === b.id 
+                                      ? 'text-black underline hover:no-underline' 
+                                      : 'text-gray-300 cursor-not-allowed'
+                                  }`}
+                                  onClick={() => {
+                                    if (selectedBookId === b.id) {
+                                      handleLoadBook(b.id);
+                                      setMobileSidebarOpen(false);
+                                      setSelectedBookId(null);
+                                    }
+                                  }}
+                                  disabled={selectedBookId !== b.id}
+                                  title={selectedBookId === b.id ? "Load selected book" : "Select book first"}
+                                >
+                                  Load
+                                </button>
+                                <button
+                                  className="text-gray-400 hover:text-red-500 p-1 focus:outline-none"
+                                  onClick={() => handleDeleteBook(b.id)}
+                                  title="Delete book"
+                                >
+                                  <TrashIcon className="w-4 h-4" />
+                                </button>
+                              </div>
                             </li>
                           ))}
                         </ul>
@@ -883,7 +912,6 @@ function MakeEbookPage() {
               </div>
             </div>
           </div>
-        )}
 
         {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden">
@@ -978,11 +1006,15 @@ function MakeEbookPage() {
                   ) : (
                     <ul className="space-y-2">
                       {libraryBooks.map((b: any) => (
-                        <li key={b.id} className="flex items-center justify-between p-3 border border-[#E8E8E8] rounded hover:bg-[#F2F2F2] transition-colors focus-within:outline-none">
+                        <li key={b.id} className={`flex items-center justify-between p-3 border rounded transition-colors ${
+                          selectedBookId === b.id 
+                            ? 'border-black bg-white' 
+                            : 'border-[#E8E8E8] hover:bg-[#F2F2F2]'
+                        }`}>
                           <button
-                            className="flex-1 text-left focus:outline-none"
+                            className="flex-1 text-left focus:outline-none border-none bg-transparent"
                             onClick={() => {
-                              handleLoadBook(b.id);
+                              setSelectedBookId(selectedBookId === b.id ? null : b.id);
                             }}
                             title={b.title}
                           >
@@ -990,13 +1022,32 @@ function MakeEbookPage() {
                             <div className="text-sm text-gray-500">{b.author}</div>
                             <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
                           </button>
-                          <button
-                            className="text-gray-400 hover:text-red-500 p-1 focus:outline-none"
-                            onClick={() => handleDeleteBook(b.id)}
-                            title="Delete book"
-                          >
-                            <TrashIcon className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              className={`px-2 py-1 text-xs font-medium focus:outline-none transition-colors ${
+                                selectedBookId === b.id 
+                                  ? 'text-black underline hover:no-underline' 
+                                  : 'text-gray-300 cursor-not-allowed'
+                              }`}
+                              onClick={() => {
+                                if (selectedBookId === b.id) {
+                                  handleLoadBook(b.id);
+                                  setSelectedBookId(null);
+                                }
+                              }}
+                              disabled={selectedBookId !== b.id}
+                              title={selectedBookId === b.id ? "Load selected book" : "Select book first"}
+                            >
+                              Load
+                            </button>
+                            <button
+                              className="text-gray-400 hover:text-red-500 p-1 focus:outline-none"
+                              onClick={() => handleDeleteBook(b.id)}
+                              title="Delete book"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -1133,27 +1184,6 @@ function MakeEbookPage() {
                       <div className="absolute z-50 top-full right-0 mt-1 w-72 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-2">
                           <div className="space-y-3">
-                            {/* Most common selections at the top - no header */}
-                            <div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.common.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      console.log('Mobile clicked template:', template);
-                                      handleAddChapter(template.type, template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
-                                  >
-                                    <div className="text-xs font-medium text-[#15161a]">{template.title}</div>
-                                    <div className="text-xs text-[#050505]">{template.description}</div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
                             <div>
                               <div className="mb-2">
                                 <h4 className="text-sm font-semibold text-[#050505] px-3">Front Matter</h4>
@@ -1171,8 +1201,7 @@ function MakeEbookPage() {
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
-                                    <div className="text-xs font-medium text-[#15161a]">{template.title}</div>
-                                    <div className="text-xs text-[#050505]">{template.description}</div>
+                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
                                   </button>
                                 ))}
                               </div>
@@ -1194,8 +1223,7 @@ function MakeEbookPage() {
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
-                                    <div className="text-xs font-medium text-[#15161a]">{template.title}</div>
-                                    <div className="text-xs text-[#050505]">{template.description}</div>
+                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
                                   </button>
                                 ))}
                               </div>
@@ -1217,8 +1245,7 @@ function MakeEbookPage() {
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
-                                    <div className="text-xs font-medium text-[#15161a]">{template.title}</div>
-                                    <div className="text-xs text-[#050505]">{template.description}</div>
+                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
                                   </button>
                                 ))}
                               </div>
@@ -1368,8 +1395,58 @@ function MakeEbookPage() {
 
               {/* Rich Text Editor - Maximized for Writing */}
               <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
-                <div className="mt-2 mb-1 flex-shrink-0">
-                  <label className="block text-xs text-[#737373] mb-1">Chapter content</label>
+                <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between">
+                  <label className="block text-xs text-[#737373]">Chapter content</label>
+                  <div className="flex items-start gap-2">
+                    <div className="flex flex-col items-center">
+                      <button
+                        title="Undo content changes"
+                        type="button"
+                        className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                        onClick={() => {
+                          const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
+                          if (editorElement) {
+                            editorElement.focus();
+                            document.execCommand('undo');
+                          }
+                        }}
+                      >
+                        <Image
+                          src="/undo-icon.svg"
+                          alt="Undo"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
+                          style={{ borderRadius: '0', boxShadow: 'none' }}
+                        />
+                      </button>
+                      <span className="text-xs text-gray-400 mt-1">UNDO</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <button
+                        title="Redo content changes"
+                        type="button"
+                        className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                        onClick={() => {
+                          const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
+                          if (editorElement) {
+                            editorElement.focus();
+                            document.execCommand('redo');
+                          }
+                        }}
+                      >
+                        <Image
+                          src="/redo-icon.svg"
+                          alt="Redo"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
+                          style={{ borderRadius: '0', boxShadow: 'none' }}
+                        />
+                      </button>
+                      <span className="text-xs text-gray-400 mt-1">REDO</span>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex-1 min-h-0" style={{ minHeight: '400px' }}>
                   <RichTextEditor
@@ -1505,27 +1582,6 @@ function MakeEbookPage() {
                       <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-3">
                           <div className="space-y-4">
-                            {/* Most common selections at the top - no header */}
-                            <div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.common.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      console.log('Desktop clicked template:', template);
-                                      handleAddChapter(template.type, template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
-                                    <div className="text-xs text-[#050505]">{template.description}</div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
                             <div>
                               <div className="mb-3">
                                 <h4 className="text-sm font-semibold text-[#050505] px-3">Front Matter</h4>
@@ -1544,7 +1600,6 @@ function MakeEbookPage() {
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
                                     <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
-                                    <div className="text-xs text-[#050505]">{template.description}</div>
                                   </button>
                                 ))}
                               </div>
@@ -1567,7 +1622,6 @@ function MakeEbookPage() {
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
                                     <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
-                                    <div className="text-xs text-[#050505]">{template.description}</div>
                                   </button>
                                 ))}
                               </div>
@@ -1590,7 +1644,6 @@ function MakeEbookPage() {
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
                                     <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
-                                    <div className="text-xs text-[#050505]">{template.description}</div>
                                   </button>
                                 ))}
                               </div>
@@ -1619,8 +1672,58 @@ function MakeEbookPage() {
                 </div>
                 {/* Rich Text Editor - Maximum Space */}
                 <div className="w-full max-w-full flex-1 min-h-0 flex flex-col">
-                  <div className="mt-2 mb-1 flex-shrink-0">
-                    <label className="block text-xs text-[#737373] mb-1">Chapter content</label>
+                  <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between">
+                    <label className="block text-xs text-[#737373]">Chapter content</label>
+                    <div className="flex items-start gap-2">
+                      <div className="flex flex-col items-center">
+                        <button
+                          title="Undo content changes"
+                          type="button"
+                          className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                          onClick={() => {
+                            const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
+                            if (editorElement) {
+                              editorElement.focus();
+                              document.execCommand('undo');
+                            }
+                          }}
+                        >
+                          <Image
+                            src="/undo-icon.svg"
+                            alt="Undo"
+                            width={20}
+                            height={20}
+                            className="w-5 h-5"
+                            style={{ borderRadius: '0', boxShadow: 'none' }}
+                          />
+                        </button>
+                        <span className="text-xs text-gray-400 mt-1">UNDO</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <button
+                          title="Redo content changes"
+                          type="button"
+                          className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                          onClick={() => {
+                            const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
+                            if (editorElement) {
+                              editorElement.focus();
+                              document.execCommand('redo');
+                            }
+                          }}
+                        >
+                          <Image
+                            src="/redo-icon.svg"
+                            alt="Redo"
+                            width={20}
+                            height={20}
+                            className="w-5 h-5"
+                            style={{ borderRadius: '0', boxShadow: 'none' }}
+                          />
+                        </button>
+                        <span className="text-xs text-gray-400 mt-1">REDO</span>
+                      </div>
+                    </div>
                   </div>
                   <div className="flex-1 min-h-0">
                     <RichTextEditor

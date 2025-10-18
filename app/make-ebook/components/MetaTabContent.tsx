@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { UploadCloud } from "lucide-react";
-import { LockIcon, UnlockIcon } from "./icons";
+import { LockIcon, UnlockIcon, PlusIcon } from "./icons";
 import { LANGUAGES, GENRES } from "../utils/constants";
 
 interface MetaTabContentProps {
@@ -210,12 +210,12 @@ export default function MetaTabContent({
             disabled={lockedSections.tags}
           />
           <button
-            className={`px-3 rounded bg-[#15161a] text-white font-semibold ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`px-3 rounded bg-[#15161a] text-white font-semibold flex items-center justify-center ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
             type="button"
             onClick={handleAddTag}
             disabled={lockedSections.tags}
           >
-            +
+            <PlusIcon className="w-4 h-4 text-white" />
           </button>
         </div>
         <div className="flex flex-wrap gap-2 mt-2">

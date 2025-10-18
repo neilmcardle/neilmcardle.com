@@ -713,36 +713,51 @@ export default function RichTextEditor({
                 </div>
               </div>
               
-              {/* Actions section */}
+              {/* Endnote section */}
               <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Actions</div>
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Endnote</div>
                 <div className="flex gap-1">
-                  {ACTIONS.map(action => (
-                    <button
-                      key={action.cmd}
-                      onMouseDown={e => e.preventDefault()}
-                      title={action.title}
-                      type="button"
-                      className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
-                      onClick={() => {
-                        if (action.cmd === 'endnote') {
-                          handleEndnoteClick();
-                        } else if (action.cmd === 'link') {
-                          handleLinkClick();
-                        }
-                      }}
-                      disabled={disabled || (action.cmd === 'endnote' && !onCreateEndnote)}
-                    >
-                      <Image
-                        src={action.cmd === 'endnote' ? '/endnote-icon.svg' : '/link-icon.svg'}
-                        alt={action.title}
-                        width={12}
-                        height={12}
-                        className="w-3 h-3"
-                        style={{ borderRadius: '0', boxShadow: 'none' }}
-                      />
-                    </button>
-                  ))}
+                  <button
+                    onMouseDown={e => e.preventDefault()}
+                    title="Insert Endnote"
+                    type="button"
+                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
+                    onClick={handleEndnoteClick}
+                    disabled={disabled || !onCreateEndnote}
+                  >
+                    <Image
+                      src="/endnote-icon.svg"
+                      alt="Insert Endnote"
+                      width={12}
+                      height={12}
+                      className="w-3 h-3"
+                      style={{ borderRadius: '0', boxShadow: 'none' }}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* Link section */}
+              <div className="flex flex-col gap-1">
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Link</div>
+                <div className="flex gap-1">
+                  <button
+                    onMouseDown={e => e.preventDefault()}
+                    title="Insert Link"
+                    type="button"
+                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
+                    onClick={handleLinkClick}
+                    disabled={disabled}
+                  >
+                    <Image
+                      src="/link-icon.svg"
+                      alt="Insert Link"
+                      width={12}
+                      height={12}
+                      className="w-3 h-3"
+                      style={{ borderRadius: '0', boxShadow: 'none' }}
+                    />
+                  </button>
                 </div>
               </div>
               
@@ -750,79 +765,132 @@ export default function RichTextEditor({
               <div className="flex flex-col gap-1">
                 <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Align</div>
                 <div className="flex gap-1">
-                  {ALIGN.slice(0, 3).map(a => (
-                    <button
-                      key={a.cmd}
-                      onMouseDown={e => e.preventDefault()}
-                      title={a.title}
-                      type="button"
-                      className={`w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation ${
-                        formats[a.cmd] 
-                          ? 'bg-[#181a1d] text-white border-[#181a1d]' 
-                          : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
-                      }`}
-                      onClick={() => applyInlineOrAlign(a.cmd)}
-                      disabled={disabled}
-                    >
-                      {a.label}
-                    </button>
-                  ))}
+                  <button
+                    title="Left Align"
+                    type="button"
+                    className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible ${
+                      formats['justifyLeft']
+                        ? 'bg-[#181a1d] text-white border-[#181a1d]'
+                        : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
+                    }`}
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={() => applyInlineOrAlign('justifyLeft')}
+                    disabled={disabled}
+                  >
+                    <img 
+                      alt="Left Align" 
+                      loading="lazy" 
+                      width="12" 
+                      height="12" 
+                      decoding="async" 
+                      data-nimg="1" 
+                      className="w-3 h-3" 
+                      style={{ 
+                        color: 'transparent', 
+                        borderRadius: '0px', 
+                        boxShadow: 'none',
+                        filter: formats['justifyLeft'] ? 'invert(1) brightness(2)' : 'none'
+                      }} 
+                      src="/left-align-icon.svg"
+                    />
+                  </button>
+                  <button
+                    title="Centrally Align"
+                    type="button"
+                    className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible ${
+                      formats['justifyCenter']
+                        ? 'bg-[#181a1d] text-white border-[#181a1d]'
+                        : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
+                    }`}
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={() => applyInlineOrAlign('justifyCenter')}
+                    disabled={disabled}
+                  >
+                    <img 
+                      alt="Centrally Align" 
+                      loading="lazy" 
+                      width="12" 
+                      height="12" 
+                      decoding="async" 
+                      data-nimg="1" 
+                      className="w-3 h-3" 
+                      style={{ 
+                        color: 'transparent', 
+                        borderRadius: '0px', 
+                        boxShadow: 'none',
+                        filter: formats['justifyCenter'] ? 'invert(1) brightness(2)' : 'none'
+                      }} 
+                      src="/centrally-align-icon.svg"
+                    />
+                  </button>
+                  <button
+                    title="Right Align"
+                    type="button"
+                    className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible ${
+                      formats['justifyRight']
+                        ? 'bg-[#181a1d] text-white border-[#181a1d]'
+                        : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
+                    }`}
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={() => applyInlineOrAlign('justifyRight')}
+                    disabled={disabled}
+                  >
+                    <img 
+                      alt="Right Align" 
+                      loading="lazy" 
+                      width="12" 
+                      height="12" 
+                      decoding="async" 
+                      data-nimg="1" 
+                      className="w-3 h-3" 
+                      style={{ 
+                        color: 'transparent', 
+                        borderRadius: '0px', 
+                        boxShadow: 'none',
+                        filter: formats['justifyRight'] ? 'invert(1) brightness(2)' : 'none'
+                      }} 
+                      src="/right-align-icon.svg"
+                    />
+                  </button>
                 </div>
               </div>
               
-              {/* Tools section */}
+              {/* Insert section */}
               <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Tools</div>
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Insert</div>
                 <div className="flex gap-1">
-                  <button
-                    onMouseDown={e => e.preventDefault()}
-                    title="Undo"
-                    type="button"
-                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
-                    onClick={applyUndo}
-                    disabled={disabled}
-                  >
-                    <Image
-                      src="/undo-icon.svg"
-                      alt="Undo"
-                      width={12}
-                      height={12}
-                      className="w-3 h-3"
-                      style={{ borderRadius: '0', boxShadow: 'none' }}
-                    />
-                  </button>
-                  <button
-                    onMouseDown={e => e.preventDefault()}
-                    title="Redo"
-                    type="button"
-                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
-                    onClick={applyRedo}
-                    disabled={disabled}
-                  >
-                    <Image
-                      src="/redo-icon.svg"
-                      alt="Redo"
-                      width={12}
-                      height={12}
-                      className="w-3 h-3"
-                      style={{ borderRadius: '0', boxShadow: 'none' }}
-                    />
-                  </button>
                   <button
                     onMouseDown={e => e.preventDefault()}
                     title="Insert Image"
                     type="button"
-                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] text-[10px] font-medium transition-colors touch-manipulation"
+                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
                     onClick={handleImageButtonClick}
                     disabled={disabled}
                   >
-                    IMG
+                    <img 
+                      alt="Insert Image" 
+                      loading="lazy" 
+                      width="12" 
+                      height="12" 
+                      decoding="async" 
+                      data-nimg="1" 
+                      className="w-3 h-3" 
+                      style={{ color: 'transparent', borderRadius: '0px', boxShadow: 'none' }} 
+                      src="/image-icon.svg"
+                    />
                   </button>
+                </div>
+              </div>
+
+              {/* Clear formatting section */}
+              <div className="flex flex-col gap-1">
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Clear formatting</div>
+                <div className="flex gap-1">
                   <button
                     onMouseDown={e => e.preventDefault()}
                     title="Clear formatting"
                     type="button"
-                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] text-[10px] font-medium transition-colors touch-manipulation"
+                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
                     onClick={() => {
                       focusEditor();
                       document.execCommand('removeFormat');
@@ -831,7 +899,17 @@ export default function RichTextEditor({
                     }}
                     disabled={disabled}
                   >
-                    CLR
+                    <img 
+                      alt="Clear formatting" 
+                      loading="lazy" 
+                      width="12" 
+                      height="12" 
+                      decoding="async" 
+                      data-nimg="1" 
+                      className="w-3 h-3" 
+                      style={{ color: 'transparent', borderRadius: '0px', boxShadow: 'none' }} 
+                      src="/clear-erase-icon.svg"
+                    />
                   </button>
                 </div>
               </div>
@@ -987,63 +1065,6 @@ export default function RichTextEditor({
                 {h.label}
               </button>
             ))}
-          </div>
-        </Section>
-
-        <Section label="Align">
-          <div className="grid grid-cols-4 gap-1">
-            {ALIGN.map(a => (
-              <button
-                key={a.cmd}
-                onMouseDown={e => e.preventDefault()}
-                title={a.title}
-                type="button"
-                className={`${BTN} ${formats[a.cmd] ? BTN_ACTIVE : ''}`}
-                onClick={() => applyInlineOrAlign(a.cmd)}
-                disabled={disabled}
-              >
-                {a.label}
-              </button>
-            ))}
-          </div>
-        </Section>
-
-        <Section label="History">
-          <div className="grid grid-cols-2 gap-1">
-            <button
-              onMouseDown={e => e.preventDefault()}
-              title="Undo"
-              type="button"
-              className="w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
-              onClick={applyUndo}
-              disabled={disabled}
-            >
-              <Image
-                src="/undo-icon.svg"
-                alt="Undo"
-                width={12}
-                height={12}
-                className="w-3 h-3"
-                style={{ borderRadius: '0', boxShadow: 'none' }}
-              />
-            </button>
-            <button
-              onMouseDown={e => e.preventDefault()}
-              title="Redo"
-              type="button"
-              className="w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
-              onClick={applyRedo}
-              disabled={disabled}
-            >
-              <Image
-                src="/redo-icon.svg"
-                alt="Redo"
-                width={12}
-                height={12}
-                className="w-3 h-3"
-                style={{ borderRadius: '0', boxShadow: 'none' }}
-              />
-            </button>
           </div>
         </Section>
 

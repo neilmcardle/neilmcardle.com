@@ -72,11 +72,11 @@ export function Header({ onNewBook }: HeaderProps = {}) {
           {pathname === "/make-ebook" && onNewBook && (
             <button
               onClick={handleNewBookClick}
-              className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#F7F7F7] hover:bg-[#F2F2F2] text-xs font-medium text-[#050505] transition-colors"
               aria-label="New Book"
               type="button"
             >
-              <PlusIcon className="w-4 h-4" />
+              <PlusIcon className="w-3 h-3" />
               <span className={`transition-all ${startedFeedback ? "text-green-600 font-semibold" : ""}`}>
                 {startedFeedback ? "Started!" : "New Book"}
               </span>

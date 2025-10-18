@@ -199,16 +199,8 @@ export async function exportEpub({
     coverMeta = `<meta name="cover" content="cover-image"/>`;
   }
 
-  // Sort chapters by type (frontmatter → content → backmatter), then by original order
-  const typeOrder = { frontmatter: 0, content: 1, backmatter: 2 };
-  const sortedChapters = [...chapters]
-    .map((chapter, originalIndex) => ({ chapter, originalIndex }))
-    .sort((a, b) => {
-      const typeComparison = typeOrder[a.chapter.type] - typeOrder[b.chapter.type];
-      if (typeComparison !== 0) return typeComparison;
-      return a.originalIndex - b.originalIndex; // Maintain original order within same type
-    })
-    .map(({ chapter }) => chapter);
+  // Use chapters in the exact order they appear in the editor (user-controlled order)
+  const sortedChapters = chapters;
 
   // Create a mapping from chapter ID to sorted chapter filename for endnote cross-references
   const chapterIdToFilename = new Map<string, string>();

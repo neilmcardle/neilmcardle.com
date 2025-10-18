@@ -13,3 +13,6 @@ export { BookIcon } from './BookIcon';
 export { PreviewIcon } from './PreviewIcon';
 export { MetadataIcon } from './MetadataIcon';
 export { ChaptersIcon } from './ChaptersIcon';
+export { LeftAlignIcon } from './LeftAlignIcon';
+export { CenterAlignIcon } from './CenterAlignIcon';
+export { RightAlignIcon } from './RightAlignIcon';
