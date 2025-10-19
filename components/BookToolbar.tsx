@@ -1,17 +1,19 @@
 "use client";
 
 import React from "react";
-import { SaveIcon, DownloadIcon } from "../app/make-ebook/components/icons";
+import { SaveIcon, DownloadIcon, PlusIcon } from "../app/make-ebook/components/icons";
 
 interface BookToolbarProps {
   onSave?: () => void;
   onExport?: () => void;
+  onNewBook?: () => void;
   saveFeedback?: boolean;
 }
 
 export function BookToolbar({
   onSave,
   onExport,
+  onNewBook,
   saveFeedback,
 }: BookToolbarProps) {
 
@@ -19,6 +21,20 @@ export function BookToolbar({
     <div className="flex justify-end">
       <div className="flex items-center gap-2">
         {/* Individual action buttons */}
+        {onNewBook && (
+          <button
+            onClick={() => onNewBook()}
+            className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
+            aria-label="New Book"
+            type="button"
+          >
+            <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+              <PlusIcon className="w-4 h-4" />
+            </div>
+            <span className="text-xs font-medium text-[#050505]">New Book</span>
+          </button>
+        )}
+        
         <button
           onClick={() => onSave && onSave()}
           className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"

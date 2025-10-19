@@ -67,21 +67,8 @@ export function Header({ onNewBook }: HeaderProps = {}) {
             />
           </Link>
         </div>
-        {/* Right: New button (if on make-ebook page, desktop only) and User icon */}
+        {/* Right: User icon only */}
         <div className="flex items-center gap-2 min-w-[40px] justify-end">
-          {pathname === "/make-ebook" && onNewBook && (
-            <button
-              onClick={handleNewBookClick}
-              className="hidden lg:inline-flex items-center gap-1 px-2 py-1 rounded bg-[#F7F7F7] hover:bg-[#F2F2F2] text-xs font-medium text-[#050505] transition-colors"
-              aria-label="New Book"
-              type="button"
-            >
-              <PlusIcon className="w-3 h-3" />
-              <span className={`transition-all ${startedFeedback ? "text-green-600 font-semibold" : ""}`}>
-                {startedFeedback ? "Started!" : "New Book"}
-              </span>
-            </button>
-          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition px-0" aria-label="User menu">

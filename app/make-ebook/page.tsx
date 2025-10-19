@@ -617,7 +617,7 @@ function MakeEbookPage() {
     <>
       {/* Fixed Header */}
       <div className="fixed top-0 left-0 w-full z-[110]">
-        <Header onNewBook={showNewBookConfirmation} />
+        <Header />
       </div>
       {/* Main Content */}
       <div className="bg-[#FFFFFF] text-[#15161a] pt-[64px]">
@@ -1213,6 +1213,7 @@ function MakeEbookPage() {
                     />
                   </div>
                   <BookToolbar
+                    onNewBook={showNewBookConfirmation}
                     onSave={handleSaveBook}
                     onExport={handleExportEPUB}
                     saveFeedback={saveFeedback}

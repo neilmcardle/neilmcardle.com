@@ -253,6 +253,27 @@ export default function RichTextEditor({
     }
   };
 
+  const handleAnchorClick = () => {
+    if (disabled) return;
+    
+    const anchorId = prompt('Enter anchor ID (for linking from index):\n\nExample: chapter-introduction\n\nThis will create: <a id="chapter-introduction"></a>');
+    if (anchorId && anchorId.trim()) {
+      // Clean the anchor ID to be URL-safe
+      const cleanId = anchorId.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+      
+      if (cleanId) {
+        const anchorHtml = `<a id="${cleanId}"></a>`;
+        
+        focusEditor();
+        document.execCommand('insertHTML', false, anchorHtml);
+        emitChange();
+        refreshStates();
+        
+        alert(`Anchor created! You can now link to this location using: #${cleanId}\n\nFor example, in your index: <a href="#${cleanId}">Link text</a>`);
+      }
+    }
+  };
+
   // Convert LaTeX math to MathML for EPUB compatibility
   const convertMathToMathML = (latex: string, displayMode: boolean = false): string => {
     try {
@@ -713,54 +734,6 @@ export default function RichTextEditor({
                 </div>
               </div>
               
-              {/* Endnote section */}
-              <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Endnote</div>
-                <div className="flex gap-1">
-                  <button
-                    onMouseDown={e => e.preventDefault()}
-                    title="Insert Endnote"
-                    type="button"
-                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
-                    onClick={handleEndnoteClick}
-                    disabled={disabled || !onCreateEndnote}
-                  >
-                    <Image
-                      src="/endnote-icon.svg"
-                      alt="Insert Endnote"
-                      width={12}
-                      height={12}
-                      className="w-3 h-3"
-                      style={{ borderRadius: '0', boxShadow: 'none' }}
-                    />
-                  </button>
-                </div>
-              </div>
-
-              {/* Link section */}
-              <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Link</div>
-                <div className="flex gap-1">
-                  <button
-                    onMouseDown={e => e.preventDefault()}
-                    title="Insert Link"
-                    type="button"
-                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
-                    onClick={handleLinkClick}
-                    disabled={disabled}
-                  >
-                    <Image
-                      src="/link-icon.svg"
-                      alt="Insert Link"
-                      width={12}
-                      height={12}
-                      className="w-3 h-3"
-                      style={{ borderRadius: '0', boxShadow: 'none' }}
-                    />
-                  </button>
-                </div>
-              </div>
-              
               {/* Align section */}
               <div className="flex flex-col gap-1">
                 <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Align</div>
@@ -850,6 +823,64 @@ export default function RichTextEditor({
                         filter: formats['justifyRight'] ? 'invert(1) brightness(2)' : 'none'
                       }} 
                       src="/right-align-icon.svg"
+                    />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Endnote / Link / Anchor section */}
+              <div className="flex flex-col gap-1">
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Endnote / Link / Anchor</div>
+                <div className="flex gap-1">
+                  <button
+                    onMouseDown={e => e.preventDefault()}
+                    title="Insert Endnote"
+                    type="button"
+                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
+                    onClick={handleEndnoteClick}
+                    disabled={disabled || !onCreateEndnote}
+                  >
+                    <Image
+                      src="/endnote-icon.svg"
+                      alt="Insert Endnote"
+                      width={12}
+                      height={12}
+                      className="w-3 h-3"
+                      style={{ borderRadius: '0', boxShadow: 'none' }}
+                    />
+                  </button>
+                  <button
+                    onMouseDown={e => e.preventDefault()}
+                    title="Insert Link"
+                    type="button"
+                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
+                    onClick={handleLinkClick}
+                    disabled={disabled}
+                  >
+                    <Image
+                      src="/link-icon.svg"
+                      alt="Insert Link"
+                      width={12}
+                      height={12}
+                      className="w-3 h-3"
+                      style={{ borderRadius: '0', boxShadow: 'none' }}
+                    />
+                  </button>
+                  <button
+                    onMouseDown={e => e.preventDefault()}
+                    title="Insert Anchor (for Index Links)"
+                    type="button"
+                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
+                    onClick={handleAnchorClick}
+                    disabled={disabled}
+                  >
+                    <Image
+                      src="/anchor-icon.svg"
+                      alt="Insert Anchor"
+                      width={12}
+                      height={12}
+                      className="w-3 h-3"
+                      style={{ borderRadius: '0', boxShadow: 'none' }}
                     />
                   </button>
                 </div>
