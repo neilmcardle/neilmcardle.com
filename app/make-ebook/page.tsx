@@ -425,7 +425,7 @@ function MakeEbookPage() {
       language,
       genre,
       tags,
-      coverFile,
+      coverUrl,
       chapters,
       endnotes,
       endnoteReferences,
@@ -854,17 +854,31 @@ function MakeEbookPage() {
                                 ? 'border-black bg-white' 
                                 : 'border-[#E8E8E8] hover:bg-[#F2F2F2]'
                             }`}>
-                              <button
-                                className="flex-1 text-left focus:outline-none border-none bg-transparent"
-                                onClick={() => {
-                                  setSelectedBookId(selectedBookId === b.id ? null : b.id);
-                                }}
-                                title={b.title}
-                              >
-                                <div className="font-semibold">{b.title || "Untitled"}</div>
-                                <div className="text-sm text-gray-500">{b.author}</div>
-                                <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
-                              </button>
+                              <div className="flex items-center gap-3 flex-1">
+                                {/* Book Cover Preview */}
+                                <div className="flex-shrink-0 w-8 h-12 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+                                  {b.coverUrl ? (
+                                    <img
+                                      src={b.coverUrl}
+                                      alt="Book cover"
+                                      className="w-full h-full object-cover rounded"
+                                    />
+                                  ) : (
+                                    <PreviewIcon className="w-4 h-4 text-gray-400" />
+                                  )}
+                                </div>
+                                <button
+                                  className="flex-1 text-left focus:outline-none border-none bg-transparent"
+                                  onClick={() => {
+                                    setSelectedBookId(selectedBookId === b.id ? null : b.id);
+                                  }}
+                                  title={b.title}
+                                >
+                                  <div className="font-semibold">{b.title || "Untitled"}</div>
+                                  <div className="text-sm text-gray-500">{b.author}</div>
+                                  <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
+                                </button>
+                              </div>
                               <div className="flex items-center gap-1">
                                 <button
                                   className={`px-2 py-1 text-xs font-medium focus:outline-none transition-colors ${
@@ -916,7 +930,7 @@ function MakeEbookPage() {
         {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden">
           {/* Desktop Sidebar - Hidden on Mobile */}
-          <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 ml-4 p-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+          <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 pl-2 pr-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
             <nav className="flex flex-row items-center gap-1 pb-2 overflow-x-auto">
               {["setup", "preview", "library"].map((key) => (
                 <button
@@ -1011,17 +1025,31 @@ function MakeEbookPage() {
                             ? 'border-black bg-white' 
                             : 'border-[#E8E8E8] hover:bg-[#F2F2F2]'
                         }`}>
-                          <button
-                            className="flex-1 text-left focus:outline-none border-none bg-transparent"
-                            onClick={() => {
-                              setSelectedBookId(selectedBookId === b.id ? null : b.id);
-                            }}
-                            title={b.title}
-                          >
-                            <div className="font-semibold">{b.title || "Untitled"}</div>
-                            <div className="text-sm text-gray-500">{b.author}</div>
-                            <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
-                          </button>
+                          <div className="flex items-center gap-3 flex-1">
+                            {/* Book Cover Preview */}
+                            <div className="flex-shrink-0 w-8 h-12 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+                              {b.coverUrl ? (
+                                <img
+                                  src={b.coverUrl}
+                                  alt="Book cover"
+                                  className="w-full h-full object-cover rounded"
+                                />
+                              ) : (
+                                <PreviewIcon className="w-4 h-4 text-gray-400" />
+                              )}
+                            </div>
+                            <button
+                              className="flex-1 text-left focus:outline-none border-none bg-transparent"
+                              onClick={() => {
+                                setSelectedBookId(selectedBookId === b.id ? null : b.id);
+                              }}
+                              title={b.title}
+                            >
+                              <div className="font-semibold">{b.title || "Untitled"}</div>
+                              <div className="text-sm text-gray-500">{b.author}</div>
+                              <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
+                            </button>
+                          </div>
                           <div className="flex items-center gap-1">
                             <button
                               className={`px-2 py-1 text-xs font-medium focus:outline-none transition-colors ${
@@ -1058,7 +1086,7 @@ function MakeEbookPage() {
           </aside>
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className="flex-1 flex flex-col bg-white rounded shadow-sm mt-4 lg:ml-4 px-4 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
+          <main className="flex-1 flex flex-col bg-white rounded shadow-sm mt-4 pr-4 lg:pr-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
             {/* Mobile Hamburger Menu - Fixed Position */}
             <button
               onClick={() => setMobileSidebarOpen(true)}
@@ -1077,9 +1105,15 @@ function MakeEbookPage() {
 
             {/* Mobile Book Title Input */}
             <div className="lg:hidden mb-4 flex-shrink-0">
+              {/* Book Heading */}
+              <div className="mb-2">
+                <h2 className="flex items-center gap-2 text-sm font-medium text-[#050505]">
+                  <PreviewIcon className="w-4 h-4" stroke="#050505" />
+                  Book
+                </h2>
+              </div>
               <div className="pb-3 border-b border-[#E8E8E8]">
                 <div className="flex items-center gap-3">
-                  <PreviewIcon className="w-6 h-6" stroke={title ? "#23242a" : "#737373"} />
                   {lockedSections.bookInfo && (
                     <LockIcon className="w-5 h-5 opacity-60" />
                   )}
@@ -1101,10 +1135,16 @@ function MakeEbookPage() {
 
             {/* Desktop Header with Title and Toolbar */}
             <div className="hidden lg:block">
+              {/* Book Heading */}
+              <div className="mb-2">
+                <h2 className="flex items-center gap-2 text-sm font-medium text-[#050505]">
+                  <PreviewIcon className="w-4 h-4" stroke="#050505" />
+                  Book
+                </h2>
+              </div>
               <div className="mb-3 pb-2 border-b border-[#E8E8E8]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 flex-1">
-                    <PreviewIcon className="w-6 h-6" stroke={title ? "#23242a" : "#737373"} />
                     {lockedSections.bookInfo && (
                       <LockIcon className="w-5 h-5 opacity-60" />
                     )}
@@ -1420,7 +1460,7 @@ function MakeEbookPage() {
                           style={{ borderRadius: '0', boxShadow: 'none' }}
                         />
                       </button>
-                      <span className="text-xs text-gray-400 mt-1">UNDO</span>
+                      <span className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] mt-1">UNDO</span>
                     </div>
                     <div className="flex flex-col items-center">
                       <button
@@ -1444,7 +1484,7 @@ function MakeEbookPage() {
                           style={{ borderRadius: '0', boxShadow: 'none' }}
                         />
                       </button>
-                      <span className="text-xs text-gray-400 mt-1">REDO</span>
+                      <span className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] mt-1">REDO</span>
                     </div>
                   </div>
                 </div>
@@ -1697,7 +1737,7 @@ function MakeEbookPage() {
                             style={{ borderRadius: '0', boxShadow: 'none' }}
                           />
                         </button>
-                        <span className="text-xs text-gray-400 mt-1">UNDO</span>
+                        <span className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] mt-1">UNDO</span>
                       </div>
                       <div className="flex flex-col items-center">
                         <button
@@ -1721,7 +1761,7 @@ function MakeEbookPage() {
                             style={{ borderRadius: '0', boxShadow: 'none' }}
                           />
                         </button>
-                        <span className="text-xs text-gray-400 mt-1">REDO</span>
+                        <span className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] mt-1">REDO</span>
                       </div>
                     </div>
                   </div>

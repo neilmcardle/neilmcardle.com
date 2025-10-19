@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { UploadCloud } from "lucide-react";
+import { UploadCloud, Edit2 } from "lucide-react";
 import { LockIcon, UnlockIcon, PlusIcon } from "./icons";
 import { LANGUAGES, GENRES } from "../utils/constants";
 
@@ -63,7 +63,99 @@ export default function MetaTabContent({
   }, [coverFile]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 pb-8">
+      {/* Cover Image */}
+      <section className="p-4 rounded bg-white relative">
+        <h2 className="text-sm font-semibold mb-2 flex items-center">
+          Cover Image
+          <button
+            type="button"
+            className="ml-2 text-[#050505] hover:text-[#050505] focus:outline-none"
+            title={lockedSections.cover ? "Unlock to edit" : "Lock section"}
+            onClick={() => setLockedSections((s: any) => ({ ...s, cover: !s.cover }))}
+            tabIndex={0}
+          >
+            {lockedSections.cover ? <LockIcon className="w-4 h-4" /> : <UnlockIcon className="w-4 h-4" />}
+          </button>
+        </h2>
+        {!coverUrl ? (
+          <label
+            htmlFor="cover-upload"
+            className={`w-full flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-[#E8E8E8] rounded bg-[#F7F7F7] text-[#737373] cursor-pointer hover:bg-[#F2F2F2] transition ${lockedSections.cover ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
+            style={{ minHeight: 120 }}
+          >
+            <UploadCloud className="w-7 h-7 mb-2" />
+            <span className="text-xs mb-1">Upload cover image</span>
+            <span className="text-[10px] mb-2">Recommended: 1600x2560px, JPG/PNG, 300dpi</span>
+            <button
+              type="button"
+              className="px-3 py-1 rounded bg-[#ececef] text-xs text-[#15161a] mt-2"
+              disabled={lockedSections.cover}
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('cover-upload')?.click();
+              }}
+            >
+              Choose File
+            </button>
+          </label>
+        ) : (
+          <div className="relative">
+            <img
+              src={coverUrl}
+              alt="Book cover preview"
+              className="mt-2 rounded shadow max-h-40 w-auto mx-auto"
+            />
+            <button
+              type="button"
+              className="absolute bottom-2 bg-white/90 hover:bg-white p-2 rounded-full shadow-md transition-all duration-200 flex items-center justify-center"
+              style={{ right: '40px' }}
+              onClick={() => document.getElementById('cover-upload')?.click()}
+              disabled={lockedSections.cover}
+              title="Edit cover image"
+            >
+              <Edit2 className="w-4 h-4 text-[#15161a]" />
+            </button>
+          </div>
+        )}
+        
+        <input
+          type="file"
+          id="cover-upload"
+          className="hidden"
+          accept="image/*"
+          onChange={handleCoverChange}
+          disabled={lockedSections.cover}
+        />
+        {/* New Feature: Offer cover design if no cover uploaded */}
+        {!coverUrl && (
+          <div className="flex items-center mt-4">
+            <img
+              alt="Neil McArdle"
+              width={22}
+              height={22}
+              decoding="async"
+              data-nimg="1"
+              className="rounded-full object-cover w-[22px] h-[22px] border-none p-0"
+              style={{ color: "transparent" }}
+              src="/neil-avatar.png"
+            />
+            <span className="text-xs text-[#15161a] ml-2">
+              Neil can design a cover for you.{' '}
+              <a
+                href="https://x.com/BetterNeil"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#1da1f2] underline"
+              >
+                Get in touch on X
+              </a>
+            </span>
+          </div>
+        )}
+
+      </section>
+      
       {/* Book Info */}
       <section className="p-4 rounded bg-white relative">
         <h2 className="text-sm font-semibold mb-2 flex items-center">
@@ -215,7 +307,7 @@ export default function MetaTabContent({
             onClick={handleAddTag}
             disabled={lockedSections.tags}
           >
-            <PlusIcon className="w-4 h-4 text-white" />
+            <PlusIcon className="w-4 h-4" color="white" />
           </button>
         </div>
         <div className="flex flex-wrap gap-2 mt-2">
@@ -236,82 +328,6 @@ export default function MetaTabContent({
             </span>
           ))}
         </div>
-      </section>
-      {/* Cover Image */}
-      <section className="p-4 rounded bg-white relative">
-        <h2 className="text-sm font-semibold mb-2 flex items-center">
-          Cover Image
-          <button
-            type="button"
-            className="ml-2 text-[#050505] hover:text-[#050505] focus:outline-none"
-            title={lockedSections.cover ? "Unlock to edit" : "Lock section"}
-            onClick={() => setLockedSections((s: any) => ({ ...s, cover: !s.cover }))}
-            tabIndex={0}
-          >
-            {lockedSections.cover ? <LockIcon className="w-4 h-4" /> : <UnlockIcon className="w-4 h-4" />}
-          </button>
-        </h2>
-        <label
-          htmlFor="cover-upload"
-          className={`w-full flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-[#E8E8E8] rounded bg-[#F7F7F7] text-[#737373] cursor-pointer hover:bg-[#F2F2F2] transition ${lockedSections.cover ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
-          style={{ minHeight: 120 }}
-        >
-          <UploadCloud className="w-7 h-7 mb-2" />
-          <span className="text-xs mb-1">Upload cover image</span>
-          <span className="text-[10px] mb-2">Recommended: 1600x2560px, JPG/PNG, 300dpi</span>
-          <input
-            type="file"
-            id="cover-upload"
-            className="hidden"
-            accept="image/*"
-            onChange={handleCoverChange}
-            disabled={lockedSections.cover}
-          />
-          <button
-            type="button"
-            className="px-3 py-1 rounded bg-[#ececef] text-xs text-[#15161a] mt-2"
-            disabled={lockedSections.cover}
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById('cover-upload')?.click();
-            }}
-          >
-            Choose File
-          </button>
-        </label>
-        {/* New Feature: Offer cover design if no cover uploaded */}
-        {!coverUrl && (
-          <div className="flex items-center mt-4">
-            <img
-              alt="Neil McArdle"
-              width={22}
-              height={22}
-              decoding="async"
-              data-nimg="1"
-              className="rounded-full object-cover w-[22px] h-[22px] border-none p-0"
-              style={{ color: "transparent" }}
-              src="/neil-avatar.png"
-            />
-            <span className="text-xs text-[#15161a] ml-2">
-              Neil can design a cover for you.{' '}
-              <a
-                href="https://x.com/BetterNeil"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#1da1f2] underline"
-              >
-                Get in touch on X
-              </a>
-            </span>
-          </div>
-        )}
-        {coverUrl && (
-          <img
-            src={coverUrl}
-            alt="Book cover preview"
-            className="mt-2 rounded shadow max-h-40"
-          />
-        )}
       </section>
     </div>
   );
