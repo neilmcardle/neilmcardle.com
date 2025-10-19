@@ -43,6 +43,7 @@ export const CHAPTER_TEMPLATES = {
     { title: 'Endnotes', description: 'Notes and references' },
     { title: 'Bibliography', description: 'List of sources' },
     { title: 'Glossary', description: 'Definitions of terms' },
+    { title: 'Index', description: 'Alphabetical list of topics' },
     { title: 'Appendix', description: 'Additional information' },
     { title: 'About the Author', description: 'Author biography' },
     { title: 'Custom Back Matter', description: 'Create your own back matter chapter' },

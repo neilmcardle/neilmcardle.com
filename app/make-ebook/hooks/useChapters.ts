@@ -67,10 +67,48 @@ export function useChapters(initial: Chapter[] = [{ id: uuidv4(), title: "", con
   }
 
   function handleAddChapter(chapterType: 'frontmatter' | 'content' | 'backmatter' = 'content', customTitle?: string) {
+    // Get template content based on title
+    const getTemplateContent = (title: string) => {
+      switch (title) {
+        case 'Chapter':
+          return 'Write your chapter content here. You can add text, format it with bold, italic, and other styling options.\n\nThis is where your story or main content will go. Feel free to delete this placeholder text and start writing.';
+        case 'Preface':
+          return 'The preface is where the author explains the purpose, scope, and approach of the book. It\'s your opportunity to connect with readers before they dive into the main content.\n\nYou might want to explain:\n• Why you wrote this book\n• Who it\'s intended for\n• How to best use the book\n• Any acknowledgments or special thanks';
+        case 'Introduction':
+          return 'The introduction sets the stage for your book. It should engage readers and provide them with the context they need to understand what follows.\n\nConsider including:\n• An overview of what readers will learn\n• The main themes or arguments\n• How the book is structured\n• What makes this book unique or valuable';
+        case 'Dedication':
+          return 'To [Name],\n\nwho [reason for dedication].\n\nWith love and gratitude.';
+        case 'Acknowledgments':
+          return 'I would like to thank the following people who made this book possible:\n\n• [Name] - for [contribution]\n• [Name] - for [contribution]\n• [Organization] - for [support]\n\nSpecial thanks to [specific person or group] for their invaluable support throughout this project.\n\nAny errors or omissions remain entirely my own.';
+        case 'Foreword':
+          return '[This section is typically written by someone other than the author]\n\nIt is my pleasure to introduce this important work by [Author Name]. [Brief explanation of your relationship to the author or expertise in the subject].\n\n[Why this book is significant, timely, or valuable]\n\n[Your name and credentials]';
+        case 'Prologue':
+          return 'This opening section sets the scene before the main narrative begins. It might provide background information, establish the setting, or introduce key concepts that will be important throughout the book.\n\nThe prologue should intrigue readers and make them want to continue reading.';
+        case 'Epilogue':
+          return 'The epilogue provides closure and reflection on the events or ideas presented in the main content. It\'s an opportunity to:\n\n• Summarize key takeaways\n• Reflect on the journey or lessons learned\n• Look toward the future\n• Provide final thoughts or inspiration for readers';
+        case 'Part':
+          return 'PART [NUMBER]: [PART TITLE]\n\n[Brief description of what this part covers and how it fits into the overall structure of the book]';
+        case 'Endnotes':
+          return 'Notes and References\n\n[Your endnotes will automatically appear here when you add them using the endnote tool in the editor]';
+        case 'Bibliography':
+          return 'Bibliography\n\n[List your sources here in your preferred citation style]\n\nExample entries:\n\n• Author, A. (Year). Title of Book. Publisher.\n\n• Author, B. (Year). "Title of Article." Journal Name, Volume(Issue), pages.\n\n• Author, C. (Year). "Title of Web Article." Website Name. URL';
+        case 'Glossary':
+          return 'Glossary\n\nDefinitions of key terms used throughout this book:\n\n**Term 1**: Definition of the first important term.\n\n**Term 2**: Definition of the second important term.\n\n**Term 3**: Definition of the third important term.\n\n[Add more terms as needed, organized alphabetically]';
+        case 'Index':
+          return 'Index\n\n[An alphabetical list of topics, names, and concepts with internal links. Use anchor links rather than page numbers for eBooks]\n\n**How to create internal links:**\n1. Create an anchor: <a id="topic-name"></a>\n2. Link to it: <a href="#topic-name">Topic Name</a>\n\n**A**\n• <a href="#author-bio">Author biography</a>\n• <a href="#appendix-a">Appendix A</a>, <a href="#appendix-b">Appendix B</a>\n• <a href="#acknowledgments">Acknowledgments</a>\n\n**B**\n• <a href="#bibliography">Bibliography</a>\n• <a href="#book-structure">Book structure</a>, <a href="#chapter-organization">organization</a>\n\n**C**\n• <a href="#chapter-1">Chapter organization</a>\n• <a href="#conclusions">Conclusions</a>, <a href="#final-thoughts">final thoughts</a>\n\n**E**\n• <a href="#epilogue">Epilogue</a>\n• <a href="#endnotes">Endnotes</a>, <a href="#endnote-1">note 1</a>, <a href="#endnote-15">note 15</a>\n\n[Continue with remaining entries... Each entry can have multiple links to different sections where the topic appears]';
+        case 'Appendix':
+          return 'Appendix\n\nAdditional Information and Resources\n\n[This section contains supplementary material that supports the main text but is too detailed or specialized for the main chapters]\n\n• Additional data or research\n• Detailed examples or case studies\n• Technical specifications\n• Extended quotes or documents\n• Useful resources for further reading';
+        case 'About the Author':
+          return 'About the Author\n\n[Author Name] is [brief professional description]. [He/She/They] [additional background, credentials, or experience relevant to the book\'s topic].\n\n[Author] has [relevant experience, education, or achievements]. [Optional: Previous works, awards, or recognition]\n\n[Author] currently [current position, location, or activities]. When not writing, [he/she/they] enjoys [personal interests or hobbies].\n\nFor more information, visit [website] or follow [social media handles].';
+        default:
+          return 'Start writing your content here...';
+      }
+    };
+
     const newChapter: Chapter = {
       id: uuidv4(),
       title: customTitle || "",
-      content: "",
+      content: customTitle ? getTemplateContent(customTitle) : "",
       type: chapterType
     };
     setChapters((chs) => [...chs, newChapter]);

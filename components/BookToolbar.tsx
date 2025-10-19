@@ -21,25 +21,29 @@ export function BookToolbar({
         {/* Individual action buttons */}
         <button
           onClick={() => onSave && onSave()}
-          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
+          className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
           disabled={!!saveFeedback}
           aria-label="Save Book"
           type="button"
         >
-          <SaveIcon className="w-4 h-4" />
-          <span className={`transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
-            {saveFeedback ? "Saved!" : "Save to Library"}
+          <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+            <SaveIcon className="w-4 h-4" />
+          </div>
+          <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
+            {saveFeedback ? "Saved!" : "Save"}
           </span>
         </button>
         
         <button
           onClick={() => onExport && onExport()}
-          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
+          className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
           aria-label="Export for eReader"
           type="button"
         >
-          <DownloadIcon className="w-4 h-4" />
-          <span>Export for eReader</span>
+          <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+            <DownloadIcon className="w-4 h-4" />
+          </div>
+          <span className="text-xs font-medium text-[#050505]">Export</span>
         </button>
       </div>
     </div>

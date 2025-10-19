@@ -1,6 +1,7 @@
 export { PlusIcon } from './PlusIcon';
 export { TrashIcon } from './TrashIcon';
 export { LibraryIcon } from './LibraryIcon';
+export { UploadIcon } from './UploadIcon';
 export { MenuIcon } from './MenuIcon';
 export { CloseIcon } from './CloseIcon';
 export { SaveIcon } from './SaveIcon';

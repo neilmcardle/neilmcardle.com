@@ -741,11 +741,13 @@ function MakeEbookPage() {
                 <div className="flex items-center justify-end p-4 border-b border-[#E8E8E8]">
                   <button
                     onClick={() => setMobileSidebarOpen(false)}
-                    className="p-2 rounded hover:opacity-70 transition-opacity flex items-center gap-2"
+                    className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
                     aria-label="Close sidebar menu"
                   >
-                    <CloseIcon className="w-5 h-5" />
-                    <span className="text-xs font-medium text-[#050505]">Return to Editor</span>
+                    <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                      <CloseIcon className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-medium text-[#050505]">Close</span>
                   </button>
                 </div>
                 
@@ -782,7 +784,7 @@ function MakeEbookPage() {
                 
                 {/* Content */}
                 <div className="relative flex-1 min-h-0">
-                  <div ref={scrollContainerRef} className="h-full max-h-[60vh] overflow-y-auto px-4 pb-4">
+                  <div ref={scrollContainerRef} className="h-full overflow-y-auto px-4 pb-4" style={{ maxHeight: 'calc(100vh - 180px)' }}>
                     {tab === "setup" && (
                       <MetaTabContent
                         title={title}
@@ -1086,31 +1088,80 @@ function MakeEbookPage() {
           </aside>
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className="flex-1 flex flex-col bg-white rounded shadow-sm mt-4 pr-4 lg:pr-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
+          <main className="flex-1 flex flex-col bg-white rounded shadow-sm mt-4 px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
             {/* Mobile Hamburger Menu - Fixed Position */}
             <button
               onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden fixed top-[80px] z-10 p-2 rounded hover:opacity-70 transition-opacity flex items-center gap-2"
-              style={{ left: '6px' }}
+              className="lg:hidden fixed top-[80px] z-10 hover:opacity-70 transition-opacity flex flex-col items-center gap-1 pb-5"
+              style={{ left: '8px' }}
               aria-label="Open sidebar menu"
             >
-              <MenuIcon className="w-5 h-5" />
-              <span className="text-xs font-medium text-[#050505]">Open Sidepanel</span>
+              <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                <MenuIcon className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-medium text-[#050505]">Open</span>
             </button>
 
             {/* Mobile Divider Line */}
-            <div className="lg:hidden mt-6 mb-4">
+            <div className="lg:hidden mt-11 mb-4">
               <div className="border-t border-[#E8E8E8]"></div>
             </div>
 
             {/* Mobile Book Title Input */}
             <div className="lg:hidden mb-4 flex-shrink-0">
-              {/* Book Heading */}
-              <div className="mb-2">
+              {/* Book Heading with Action Buttons */}
+              <div className="mb-2 flex items-center justify-between">
                 <h2 className="flex items-center gap-2 text-sm font-medium text-[#050505]">
                   <PreviewIcon className="w-4 h-4" stroke="#050505" />
                   Book
                 </h2>
+                {/* Action Buttons */}
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => {
+                      showNewBookConfirmation();
+                      setMobileSidebarOpen(false);
+                    }}
+                    className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
+                    type="button"
+                  >
+                    <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                      <PlusIcon className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-medium text-[#050505]">New Book</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      handleSaveBook();
+                      setMobileSidebarOpen(false);
+                    }}
+                    className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
+                    disabled={!!saveFeedback}
+                    type="button"
+                  >
+                    <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                      <SaveIcon className="w-4 h-4" />
+                    </div>
+                    <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
+                      {saveFeedback ? "Saved!" : "Save"}
+                    </span>
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      handleExportEPUB();
+                      setMobileSidebarOpen(false);
+                    }}
+                    className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
+                    type="button"
+                  >
+                    <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                      <DownloadIcon className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-medium text-[#050505]">Export</span>
+                  </button>
+                </div>
               </div>
               <div className="pb-3 border-b border-[#E8E8E8]">
                 <div className="flex items-center gap-3">
@@ -1172,36 +1223,6 @@ function MakeEbookPage() {
 
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
             <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto">
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-2 pl-4 pt-2">
-                <button
-                  onClick={() => {
-                    handleSaveBook();
-                    setMobileSidebarOpen(false);
-                  }}
-                  className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
-                  disabled={!!saveFeedback}
-                  type="button"
-                >
-                  <SaveIcon className="w-4 h-4" />
-                  <span className={`transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
-                    {saveFeedback ? "Saved!" : "Save to Library"}
-                  </span>
-                </button>
-                
-                <button
-                  onClick={() => {
-                    handleExportEPUB();
-                    setMobileSidebarOpen(false);
-                  }}
-                  className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
-                  type="button"
-                >
-                  <DownloadIcon className="w-4 h-4" />
-                  <span>Export for eReader</span>
-                </button>
-              </div>
-              
               {/* Compact Chapter Header */}
               <div className="flex-shrink-0 bg-white border-b border-[#F2F2F2] pb-2">
                 {/* Compact Chapter Tabs */}
@@ -1211,14 +1232,16 @@ function MakeEbookPage() {
                       <ChaptersIcon className="w-5 h-5" />
                       <h3 className="text-sm font-bold text-[#050505]">Chapters</h3>
                     </div>
-                    <div className="relative" ref={dropdownRef}>
+                    <div className="relative" ref={dropdownRef} style={{ marginLeft: '8px' }}>
                     <button
                       onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
                       aria-label="Add new chapter"
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#F7F7F7] hover:bg-[#F2F2F2] text-xs font-medium text-[#050505] transition-colors"
+                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
                     >
-                      <PlusIcon className="w-3 h-3" />
-                      <span>Add</span>
+                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                        <PlusIcon className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-medium text-[#050505]">Add</span>
                     </button>
                     {chapterTypeDropdownOpen && (
                       <div className="absolute z-50 top-full right-0 mt-1 w-72 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
@@ -1226,7 +1249,7 @@ function MakeEbookPage() {
                           <div className="space-y-3">
                             <div>
                               <div className="mb-2">
-                                <h4 className="text-sm font-semibold text-[#050505] px-3">Front Matter</h4>
+                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Front Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
@@ -1248,7 +1271,7 @@ function MakeEbookPage() {
                             </div>
                             <div>
                               <div className="mb-2">
-                                <h4 className="text-sm font-semibold text-[#050505] px-3">Main Content</h4>
+                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Main Content</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.content.map((template) => (
@@ -1270,7 +1293,7 @@ function MakeEbookPage() {
                             </div>
                             <div>
                               <div className="mb-2">
-                                <h4 className="text-sm font-semibold text-[#050505] px-3">Back Matter</h4>
+                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Back Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
@@ -1442,7 +1465,7 @@ function MakeEbookPage() {
                       <button
                         title="Undo content changes"
                         type="button"
-                        className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                        className="hover:opacity-70 transition-opacity"
                         onClick={() => {
                           const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
                           if (editorElement) {
@@ -1451,22 +1474,24 @@ function MakeEbookPage() {
                           }
                         }}
                       >
-                        <Image
-                          src="/undo-icon.svg"
-                          alt="Undo"
-                          width={20}
-                          height={20}
-                          className="w-5 h-5"
-                          style={{ borderRadius: '0', boxShadow: 'none' }}
-                        />
+                        <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                          <Image
+                            src="/undo-icon.svg"
+                            alt="Undo"
+                            width={16}
+                            height={16}
+                            className="w-4 h-4"
+                            style={{ borderRadius: '0', boxShadow: 'none' }}
+                          />
+                        </div>
                       </button>
-                      <span className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] mt-1">UNDO</span>
+                      <span className="text-xs font-medium text-[#050505] mt-1">Undo</span>
                     </div>
                     <div className="flex flex-col items-center">
                       <button
                         title="Redo content changes"
                         type="button"
-                        className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                        className="hover:opacity-70 transition-opacity"
                         onClick={() => {
                           const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
                           if (editorElement) {
@@ -1475,16 +1500,18 @@ function MakeEbookPage() {
                           }
                         }}
                       >
-                        <Image
-                          src="/redo-icon.svg"
-                          alt="Redo"
-                          width={20}
-                          height={20}
-                          className="w-5 h-5"
-                          style={{ borderRadius: '0', boxShadow: 'none' }}
-                        />
+                        <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                          <Image
+                            src="/redo-icon.svg"
+                            alt="Redo"
+                            width={16}
+                            height={16}
+                            className="w-4 h-4"
+                            style={{ borderRadius: '0', boxShadow: 'none' }}
+                          />
+                        </div>
                       </button>
-                      <span className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] mt-1">REDO</span>
+                      <span className="text-xs font-medium text-[#050505] mt-1">Redo</span>
                     </div>
                   </div>
                 </div>
@@ -1606,17 +1633,12 @@ function MakeEbookPage() {
                     <button
                       onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
                       aria-label="Add new chapter"
-                      className="flex items-center px-3 py-1 cursor-pointer transition rounded flex-shrink-0 bg-[#F7F7F7] text-[#050505] hover:bg-[#F2F2F2] border-2 border-dashed border-gray-300 hover:border-gray-400"
+                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
                     >
-                      <PlusIcon className="w-4 h-4 mr-2" />
-                      <div className="flex flex-col gap-0 min-w-0">
-                        <span className="text-[10px] font-normal text-gray-500">
-                          Add Chapter
-                        </span>
-                        <span className="text-[12px] font-medium text-[#050505]">
-                          New
-                        </span>
+                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                        <PlusIcon className="w-4 h-4" />
                       </div>
+                      <span className="text-xs font-medium text-[#050505]">Add</span>
                     </button>
                     {chapterTypeDropdownOpen && (
                       <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
@@ -1624,7 +1646,7 @@ function MakeEbookPage() {
                           <div className="space-y-4">
                             <div>
                               <div className="mb-3">
-                                <h4 className="text-sm font-semibold text-[#050505] px-3">Front Matter</h4>
+                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Front Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
@@ -1646,7 +1668,7 @@ function MakeEbookPage() {
                             </div>
                             <div>
                               <div className="mb-3">
-                                <h4 className="text-sm font-semibold text-[#050505] px-3">Main Content</h4>
+                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Main Content</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.content.map((template) => (
@@ -1668,7 +1690,7 @@ function MakeEbookPage() {
                             </div>
                             <div>
                               <div className="mb-3">
-                                <h4 className="text-sm font-semibold text-[#050505] px-3">Back Matter</h4>
+                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Back Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
@@ -1719,7 +1741,7 @@ function MakeEbookPage() {
                         <button
                           title="Undo content changes"
                           type="button"
-                          className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                          className="hover:opacity-70 transition-opacity"
                           onClick={() => {
                             const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
                             if (editorElement) {
@@ -1728,22 +1750,24 @@ function MakeEbookPage() {
                             }
                           }}
                         >
-                          <Image
-                            src="/undo-icon.svg"
-                            alt="Undo"
-                            width={20}
-                            height={20}
-                            className="w-5 h-5"
-                            style={{ borderRadius: '0', boxShadow: 'none' }}
-                          />
+                          <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                            <Image
+                              src="/undo-icon.svg"
+                              alt="Undo"
+                              width={16}
+                              height={16}
+                              className="w-4 h-4"
+                              style={{ borderRadius: '0', boxShadow: 'none' }}
+                            />
+                          </div>
                         </button>
-                        <span className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] mt-1">UNDO</span>
+                        <span className="text-xs font-medium text-[#050505] mt-1">Undo</span>
                       </div>
                       <div className="flex flex-col items-center">
                         <button
                           title="Redo content changes"
                           type="button"
-                          className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                          className="hover:opacity-70 transition-opacity"
                           onClick={() => {
                             const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
                             if (editorElement) {
@@ -1752,16 +1776,18 @@ function MakeEbookPage() {
                             }
                           }}
                         >
-                          <Image
-                            src="/redo-icon.svg"
-                            alt="Redo"
-                            width={20}
-                            height={20}
-                            className="w-5 h-5"
-                            style={{ borderRadius: '0', boxShadow: 'none' }}
-                          />
+                          <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                            <Image
+                              src="/redo-icon.svg"
+                              alt="Redo"
+                              width={16}
+                              height={16}
+                              className="w-4 h-4"
+                              style={{ borderRadius: '0', boxShadow: 'none' }}
+                            />
+                          </div>
                         </button>
-                        <span className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] mt-1">REDO</span>
+                        <span className="text-xs font-medium text-[#050505] mt-1">Redo</span>
                       </div>
                     </div>
                   </div>

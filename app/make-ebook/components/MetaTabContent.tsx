@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
-import { UploadCloud, Edit2 } from "lucide-react";
-import { LockIcon, UnlockIcon, PlusIcon } from "./icons";
+import { Edit2 } from "lucide-react";
+import { LockIcon, UnlockIcon, PlusIcon, UploadIcon } from "./icons";
 import { LANGUAGES, GENRES } from "../utils/constants";
 
 interface MetaTabContentProps {
@@ -81,10 +81,10 @@ export default function MetaTabContent({
         {!coverUrl ? (
           <label
             htmlFor="cover-upload"
-            className={`w-full flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-[#E8E8E8] rounded bg-[#F7F7F7] text-[#737373] cursor-pointer hover:bg-[#F2F2F2] transition ${lockedSections.cover ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
+            className={`w-full flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-[#E8E8E8] rounded bg-white text-[#737373] cursor-pointer hover:bg-[#F9F9F9] transition ${lockedSections.cover ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
             style={{ minHeight: 120 }}
           >
-            <UploadCloud className="w-7 h-7 mb-2" />
+            <UploadIcon className="w-5 h-5 mb-2" />
             <span className="text-xs mb-1">Upload cover image</span>
             <span className="text-[10px] mb-2">Recommended: 1600x2560px, JPG/PNG, 300dpi</span>
             <button
@@ -141,7 +141,7 @@ export default function MetaTabContent({
               src="/neil-avatar.png"
             />
             <span className="text-xs text-[#15161a] ml-2">
-              Neil can design a cover for you.{' '}
+              Neil has helped design published book covers. Let Neil customise your book cover.{' '}
               <a
                 href="https://x.com/BetterNeil"
                 target="_blank"
@@ -150,6 +150,7 @@ export default function MetaTabContent({
               >
                 Get in touch on X
               </a>
+              .
             </span>
           </div>
         )}

@@ -56,7 +56,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
           {showBack && (
             <BackArrowButton className="mr-2" label="Back" />
           )}
-          <Link href="/make-ebook/explore" className="flex items-center gap-2 min-w-0 -ml-2.5">
+          <Link href="/make-ebook/explore" className="flex items-center gap-2 min-w-0 -ml-[28px] lg:-ml-[28px]">
             <Image
               src="/makeEbook-full-logo.svg"
               alt="makeEbook logo"
@@ -67,12 +67,12 @@ export function Header({ onNewBook }: HeaderProps = {}) {
             />
           </Link>
         </div>
-        {/* Right: New button (if on make-ebook page) and User icon */}
+        {/* Right: New button (if on make-ebook page, desktop only) and User icon */}
         <div className="flex items-center gap-2 min-w-[40px] justify-end">
           {pathname === "/make-ebook" && onNewBook && (
             <button
               onClick={handleNewBookClick}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#F7F7F7] hover:bg-[#F2F2F2] text-xs font-medium text-[#050505] transition-colors"
+              className="hidden lg:inline-flex items-center gap-1 px-2 py-1 rounded bg-[#F7F7F7] hover:bg-[#F2F2F2] text-xs font-medium text-[#050505] transition-colors"
               aria-label="New Book"
               type="button"
             >
