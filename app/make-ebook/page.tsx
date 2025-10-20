@@ -23,6 +23,7 @@ import { useCover } from "./hooks/useCover";
 import { useLockedSections } from "./hooks/useLockedSections";
 import { exportEpub } from "./utils/exportEpub";
 import RichTextEditor from "./components/RichTextEditor";
+import DesktopEditor from "./components/DesktopEditor";
 import { useCloudBooks } from "./hooks/useCloudBooks";
 import { useAutosave } from "./hooks/useAutosave";
 
@@ -1758,27 +1759,18 @@ function MakeEbookPage() {
               </div>
 
               {/* Chapter Editor */}
-              {chapters[selectedChapter] && (
-                <div className="flex flex-col gap-3 flex-1 min-h-0">
-                  <input
-                    type="text"
-                    value={chapters[selectedChapter].title}
-                    onChange={(e) => { handleChapterTitleChange(selectedChapter, e.target.value); markDirty(); }}
-                    placeholder="Chapter Title"
-                    className="text-xl font-bold bg-white border border-[#E8E8E8] rounded px-4 py-3 focus:border-black outline-none focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0]"
-                    style={{ boxShadow: "none" }}
-                  />
-                  <div className="flex-1 min-h-0 overflow-hidden">
-                    <RichTextEditor
-                      value={chapters[selectedChapter].content}
-                      onChange={(value) => { handleChapterContentChange(selectedChapter, value); markDirty(); }}
-                      placeholder="Start writing your chapter..."
-                      onCreateEndnote={handleCreateEndnote}
-                      chapterId={chapters[selectedChapter].id}
-                    />
-                  </div>
-                </div>
-              )}</div></main></div></div>
+              <DesktopEditor
+                chapters={chapters}
+                selectedChapter={selectedChapter}
+                handleChapterTitleChange={handleChapterTitleChange}
+                handleChapterContentChange={handleChapterContentChange}
+                handleCreateEndnote={handleCreateEndnote}
+                markDirty={markDirty}
+              />
+            </div>
+          </main>
+        </div>
+      </div>
     </div>
   );
 }
