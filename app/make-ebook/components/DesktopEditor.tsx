@@ -1,7 +1,7 @@
 'use client';
 
 import { Chapter } from '../types';
-import RichTextEditor from '@/components/RichTextEditor';
+import RichTextEditor from './RichTextEditor';
 
 interface DesktopEditorProps {
   chapters: Chapter[];
@@ -35,7 +35,7 @@ export default function DesktopEditor({
           <div className="flex-1 min-h-0 overflow-hidden">
             <RichTextEditor
               value={chapters[selectedChapter].content}
-              onChange={(value) => { handleChapterContentChange(selectedChapter, value); markDirty(); }}
+              onChange={(value: string) => { handleChapterContentChange(selectedChapter, value); markDirty(); }}
               placeholder="Start writing your chapter..."
               onCreateEndnote={handleCreateEndnote}
               chapterId={chapters[selectedChapter].id}

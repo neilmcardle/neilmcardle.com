@@ -1,0 +1,75 @@
+'m encountering two JSX syntax errors in my Next.js project, specifically in the file ./app/make-ebook/page.tsx. The error messages are:
+
+1. Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+./app/make-ebook/page.tsx
+
+Error:   × Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+      ╭─[/home/runner/workspace/app/make-ebook/page.tsx:1771:1]
+ 1768 │                 markDirty={markDirty}
+ 1769 │               /></div></main></div></div></div>
+ 1770 │   );
+ 1771 │ }
+      · ▲
+ 1772 │ 
+ 1773 │ export default function MakeEbookPageWrapper() {
+ 1774 │   return (
+      ╰────
+
+2. Expected '</', got 'return'
+      ╭─[/home/runner/workspace/app/make-ebook/page.tsx:1774:1]
+ 1771 │ }
+ 1772 │ 
+ 1773 │ export default function MakeEbookPageWrapper() {
+ 1774 │   return (
+      ·   ──────
+ 1775 │     <ProtectedRoute>
+ 1776 │       <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
+ 1777 │         <MakeEbookPage />
+      ╰────
+Caused by: Syntax Error
+
+These errors suggest issues in the MakeEbookPage component, likely due to:
+
+
+
+
+
+Mismatched or excessive closing JSX tags (e.g., </div></main></div></div></div> on line 1769).
+
+
+
+A misplaced closing parenthesis ) or function brace } causing the parser to expect a closing tag but encounter a return statement in the MakeEbookPageWrapper component.
+
+Please help me fix these errors by:
+
+
+
+
+
+Analyzing the provided code snippet to identify the syntax issues in the MakeEbookPage component, particularly around lines 1768–1771, where multiple closing tags and a closing brace are causing the errors.
+
+
+
+Correcting the JSX structure to ensure all tags (<div>, <main>, etc.) are properly nested and closed, and the return statement’s parentheses wrap the entire JSX structure.
+
+
+
+Ensuring the MakeEbookPage component’s function body is properly closed with a } after the return statement.
+
+
+
+Verifying that the MakeEbookPageWrapper component (starting at line 1773) is unaffected by the fixes and remains correctly structured.
+
+
+
+Providing a corrected version of the page.tsx file, including both the MakeEbookPage and MakeEbookPageWrapper components, formatted to adhere to Next.js and TypeScript conventions.
+
+
+
+If the snippet is insufficient to pinpoint the exact issue, suggest what additional code (e.g., the full MakeEbookPage component) is needed for a precise fix.
+
+
+
+Making reasonable assumptions about undefined elements (e.g., SomeComponent or markDirty) and explaining them in comments within the code.
+
+Ensure the solution is compatible with Next.js 15.5.2 and TypeScript, and that it resolves both the "Unexpected token" and "Expected '</', got 'return'" errors.
