@@ -16,108 +16,122 @@ import { LANGUAGES, today } from "./utils/constants";
 import { CHAPTER_TEMPLATES, Chapter, Endnote, EndnoteReference } from "./types";
 import MetaTabContent from "./components/MetaTabContent";
 import PreviewPanel from "./components/PreviewPanel";
-import AiTabContent from "./components/AiTabContent";
+import RichTextEditor from "./components/RichTextEditor";
 import { useChapters } from "./hooks/useChapters";
 import { useTags } from "./hooks/useTags";
 import { useCover } from "./hooks/useCover";
 import { useLockedSections } from "./hooks/useLockedSections";
-import { exportEpub } from "./utils/exportEpub";
-import RichTextEditor from "./components/RichTextEditor";
 
-const HEADER_HEIGHT = 64; // px (adjust if your header is taller/shorter)
-const BOOK_LIBRARY_KEY = "makeebook_library";
-
-function saveBookToLibrary(book: any) {
-  if (typeof window === "undefined") return;
-  let library = loadBookLibrary();
-  if (!library) library = [];
-  const id = book.id || "book-" + Date.now();
-  const bookToSave = {
-    ...book,
-    id,
-    savedAt: Date.now(),
-  };
-  const idx = library.findIndex((b: any) => b.id === id);
-  if (idx >= 0) library[idx] = bookToSave;
-  else library.push(bookToSave);
-  localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
-  return id;
-}
-
-function loadBookLibrary(): any[] {
-  if (typeof window === "undefined") return [];
-  const str = localStorage.getItem(BOOK_LIBRARY_KEY);
-  if (str) {
-    try {
-      return JSON.parse(str);
-    } catch (e) {}
-  }
-  return [];
-}
-
-function loadBookById(id: string) {
-  const library = loadBookLibrary();
-  return library.find((b) => b.id === id);
-}
-
-function removeBookFromLibrary(id: string) {
-  let library = loadBookLibrary();
-  library = library.filter((b) => b.id !== id);
-  localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
-}
-
-function plainText(html: string) {
-  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-}
-
-function getContentChapterNumber(chapters: any[], currentIndex: number) {
-  // Count only content chapters up to and including the current index
-  let contentChapterCount = 0;
-  for (let i = 0; i <= currentIndex; i++) {
-    if (chapters[i]?.type === 'content') {
-      contentChapterCount++;
-    }
-  }
-  return contentChapterCount;
-}
-
-function ChapterCapsuleMarker({ markerStyle }: { markerStyle: { top: number; height: number } }) {
-  return (
-    <span
-      className="absolute"
-      style={{
-        left: -18,
-        top: (markerStyle.top ?? 0) + 12,
-        width: 4,
-        height: 24,
-        backgroundColor: "#717274",
-        borderRadius: 9999,
-        transition: "top 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        zIndex: 1,
-        display: "block",
-      }}
-      aria-hidden="true"
-    />
-  );
-}
-
-function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
-  return (
-    <span
-      className="relative w-4 h-5 shrink-0 flex items-center justify-center opacity-70 group-hover:opacity-100 transition"
-      aria-hidden="true"
-    >
-      <DragIcon 
-        className={`w-4 h-4 transition ${
-          isSelected ? "brightness-0 invert" : "brightness-0"
-        }`}
-      />
-    </span>
-  );
-}
+export const dynamic = "force-dynamic";
 
 function MakeEbookPage() {
-  const searchParams = useSearchParams();
+  // Chapter list refs for scrolling/highlighting
+  const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Helper to get chapter type label and title
+  const getChapterInfo = (ch: Chapter, i: number): { typeLabel: string; title: string } => {
+    const titleText = ch.title?.trim() || 'Title';
+    if (ch.type === 'frontmatter') {
+      return {
+        typeLabel: 'Frontmatter',
+        title: titleText && titleText !== 'Title' ? titleText : 'Title'
+      };
+    }
+    if (ch.type === 'backmatter') {
+      return {
+        typeLabel: 'Backmatter',
+        title: titleText && titleText !== 'Title' ? titleText : 'Title'
+      };
+    }
+    // Content chapters
+    const contentChapterNum = getContentChapterNumber(chapters, i);
+    return {
+      typeLabel: `Chapter ${contentChapterNum}`,
+      title: titleText && titleText !== 'Title' ? titleText : 'Title'
+    };
+  };
+
+  // Helper: Drag icon for chapter list
+  function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
+    return (
+      <span
+        className="relative w-4 h-5 shrink-0 flex items-center justify-center opacity-70 group-hover:opacity-100 transition"
+        aria-hidden="true"
+      >
+        <DragIcon 
+          className={`w-4 h-4 transition ${isSelected ? "brightness-0 invert" : "brightness-0"}`}
+        />
+      </span>
+    );
+  }
+
+  // Helper: Capsule marker for chapter list
+  function ChapterCapsuleMarker({ markerStyle }: { markerStyle: { top: number; height: number } }) {
+    return (
+      <span
+        className="absolute"
+        style={{
+          left: -18,
+          top: (markerStyle.top ?? 0) + 12,
+          width: 4,
+          height: 24,
+          backgroundColor: "#717274",
+          borderRadius: 9999,
+          transition: "top 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          zIndex: 1,
+          display: "block",
+        }}
+        aria-hidden="true"
+      />
+    );
+  }
+  // Helper: get content chapter number
+  function getContentChapterNumber(chapters: any[], currentIndex: number) {
+    let contentChapterCount = 0;
+    for (let i = 0; i <= currentIndex; i++) {
+      if (chapters[i]?.type === 'content') {
+        contentChapterCount++;
+      }
+    }
+    return contentChapterCount;
+  }
+
+  // Helper: plain text from HTML
+  function plainText(html: string) {
+    return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  }
+
+
+  // Helper: load book by id
+  function loadBookById(id: string) {
+    const library = loadBookLibrary();
+    return library.find((b) => b.id === id);
+  }
+
+  // Helper: remove book from library
+  function removeBookFromLibrary(id: string) {
+    let library = loadBookLibrary();
+    library = library.filter((b) => b.id !== id);
+    localStorage.setItem("makeebook_library", JSON.stringify(library));
+  }
+
+  // Helper: load book library
+  function loadBookLibrary(): any[] {
+    if (typeof window === "undefined") return [];
+    const str = localStorage.getItem("makeebook_library");
+    if (str) {
+      try {
+        return JSON.parse(str);
+      } catch (e) {}
+    }
+    return [];
+  }
+  // Wrap useSearchParams in Suspense boundary
+  let searchParams;
+  const SearchParamsSuspense = () => {
+    searchParams = useSearchParams();
+    return null;
+  };
   const router = useRouter();
   const { lockedSections, setLockedSections } = useLockedSections();
   const { coverFile, setCoverFile, handleCoverChange, coverUrl } = useCover();
@@ -174,7 +188,11 @@ function MakeEbookPage() {
   const [endnoteReferences, setEndnoteReferences] = useState<EndnoteReference[]>([]);
   const [nextEndnoteNumber, setNextEndnoteNumber] = useState(1);
 
-  const [saveFeedback, setSaveFeedback] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState<boolean>(false);
+  const [asideCollapsed, setAsideCollapsed] = useState(false);
+
+  // Refs
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Update endnotes chapter content whenever endnotes change
   useEffect(() => {
@@ -214,284 +232,8 @@ function MakeEbookPage() {
         }
       }
     }
-
-    // Use capture phase to catch events before they might be stopped
-    document.addEventListener('click', handleEndnoteBackClick, true);
-    return () => document.removeEventListener('click', handleEndnoteBackClick, true);
   }, []);
 
-  const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [markerStyle, setMarkerStyle] = useState({ top: 0, height: 0 });
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const el = chapterRefs.current[selectedChapter];
-    if (el) {
-      setMarkerStyle({
-        top: el.offsetTop,
-        height: el.offsetHeight,
-      });
-    }
-  }, [selectedChapter, chapters.length]);
-
-  // Click outside to close dropdown
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setChapterTypeDropdownOpen(false);
-      }
-    }
-    if (chapterTypeDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [chapterTypeDropdownOpen]);
-
-  function showNewBookConfirmation() {
-    setNewBookConfirmOpen(true);
-  }
-
-  function clearEditorState() {
-    // Clear all editor data for new book
-    setTitle("");
-    setAuthor("");
-    setBlurb("");
-    setPublisher("");
-    setPubDate(today);
-    setIsbn("");
-    setLanguage(LANGUAGES[0]);
-    setGenre("");
-    setTags([]);
-    setCoverFile(null);
-    setChapters([]);
-    setEndnotes([]);
-    setEndnoteReferences([]);
-    setNextEndnoteNumber(1);
-    setCurrentBookId(undefined);
-  }
-
-  function handleNewBookConfirm() {
-    // Save current book before starting new one
-    if (title || author || chapters.some(ch => ch.content.trim())) {
-      // Save first, then clear editor state in the callback
-      saveForNewBook();
-    } else {
-      // No content to save, just clear and start new
-      clearEditorState();
-      setNewBookConfirmOpen(false);
-    }
-  }
-
-  function saveForNewBook() {
-    // If there's already a book ID and it exists in library, show save dialog
-    if (currentBookId) {
-      const library = loadBookLibrary();
-      const existingBook = library.find((b: any) => b.id === currentBookId);
-      if (existingBook) {
-        setSaveDialogOpen(true);
-        return;
-      }
-    }
-    
-    // No existing book, save and then clear
-    saveBookDirectly(false);
-    clearEditorState();
-    setNewBookConfirmOpen(false);
-  }
-
-  function handleNewBook() {
-    // Legacy function for backwards compatibility
-    handleNewBookConfirm();
-  }
-
-  useEffect(() => {
-    const books = loadBookLibrary();
-    setLibraryBooks(books);
-
-    const loadBookId = searchParams.get('load');
-    if (loadBookId) {
-      const bookToLoad = books.find(book => book.id === loadBookId);
-      if (bookToLoad) {
-        handleLoadBook(loadBookId);
-        router.replace('/make-ebook', { scroll: false });
-        setInitialized(true);
-        return;
-      } else {
-        router.replace('/make-ebook', { scroll: false });
-        if (!initialized) setInitialized(true);
-        return;
-      }
-    }
-
-    if (!initialized && books.length > 0 && !currentBookId && chapters.length === 0) {
-      const mostRecent = books.reduce((a, b) => (a.savedAt > b.savedAt ? a : b));
-      setTitle(mostRecent.title || "");
-      setAuthor(mostRecent.author || "");
-      setBlurb(mostRecent.blurb || "");
-      setPublisher(mostRecent.publisher || "");
-      setPubDate(mostRecent.pubDate || today);
-      setIsbn(mostRecent.isbn || "");
-      setLanguage(mostRecent.language || LANGUAGES[0]);
-      setGenre(mostRecent.genre || "");
-      setTags(mostRecent.tags || []);
-      setCoverFile(mostRecent.coverFile || null);
-      
-      // Migrate chapters to ensure they have IDs
-      const migratedChapters = ensureChapterIds(mostRecent.chapters || []);
-      setChapters(migratedChapters);
-      
-      // Migrate endnote references if they exist
-      if (mostRecent.endnoteReferences) {
-        const migratedEndnoteRefs = migrateEndnoteReferences(mostRecent.endnoteReferences, migratedChapters);
-        setEndnoteReferences(migratedEndnoteRefs);
-      }
-      
-      setEndnotes(mostRecent.endnotes || []);
-      setCurrentBookId(mostRecent.id);
-    }
-
-    if (!initialized) setInitialized(true);
-  }, [searchParams, initialized, currentBookId, chapters.length]);
-
-  // Scroll indicator effect for mobile sidebar
-  useEffect(() => {
-    const handleScroll = () => {
-      if (scrollContainerRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
-        const hasMoreContent = scrollTop + clientHeight < scrollHeight - 10; // 10px threshold
-        setShowScrollIndicator(hasMoreContent);
-      }
-    };
-
-    const container = scrollContainerRef.current;
-    if (container && mobileSidebarOpen) {
-      // Check initially
-      handleScroll();
-      // Add scroll listener
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
-    }
-  }, [mobileSidebarOpen, tab]); // Re-check when tab changes as content changes
-
-  async function handleExportEPUB() {
-    // Ensure all chapters have IDs before export
-    const migratedChapters = ensureChapterIds(chapters);
-    const migratedEndnoteRefs = migrateEndnoteReferences(endnoteReferences, migratedChapters);
-    
-    // Update state with migrated data
-    setChapters(migratedChapters);
-    setEndnoteReferences(migratedEndnoteRefs);
-    
-    await exportEpub({
-      title,
-      author,
-      blurb,
-      publisher,
-      pubDate,
-      isbn,
-      language,
-      genre,
-      tags,
-      coverFile,
-      chapters: migratedChapters,
-      endnoteReferences: migratedEndnoteRefs,
-    });
-  }
-
-  function handleSaveBook() {
-    // If there's already a book ID and it exists in library, show save dialog
-    if (currentBookId) {
-      const library = loadBookLibrary();
-      const existingBook = library.find((b: any) => b.id === currentBookId);
-      if (existingBook) {
-        setSaveDialogOpen(true);
-        return;
-      }
-    }
-    
-    // No existing book, save normally
-    saveBookDirectly(false);
-  }
-
-  function saveBookDirectly(forceNewVersion: boolean) {
-    const bookData = {
-      id: forceNewVersion ? undefined : currentBookId, // Force new ID if creating new version
-      title,
-      author,
-      blurb,
-      publisher,
-      pubDate,
-      isbn,
-      language,
-      genre,
-      tags,
-      coverUrl,
-      chapters,
-      endnotes,
-      endnoteReferences,
-    };
-    
-    const id = saveBookToLibrary(bookData);
-    setCurrentBookId(id);
-    setLibraryBooks(loadBookLibrary());
-    setSaveFeedback(true);
-    setTimeout(() => setSaveFeedback(false), 1300);
-  }
-
-  function handleOverwriteBook() {
-    setSaveDialogOpen(false);
-    saveBookDirectly(false);
-    
-    // If this was triggered from new book flow, clear editor after save
-    if (newBookConfirmOpen) {
-      clearEditorState();
-      setNewBookConfirmOpen(false);
-    }
-  }
-
-  function handleSaveAsNewVersion() {
-    setSaveDialogOpen(false);
-    saveBookDirectly(true);
-    
-    // If this was triggered from new book flow, clear editor after save
-    if (newBookConfirmOpen) {
-      clearEditorState();
-      setNewBookConfirmOpen(false);
-    }
-  }
-
-  // Endnote Management Functions
-  function createEndnote(selectedText: string, sourceChapterId: string) {
-    const endnoteId = `endnote-${Date.now()}`;
-    const endnoteNumber = nextEndnoteNumber;
-    
-    // Create the endnote
-    const newEndnote: Endnote = {
-      id: endnoteId,
-      number: endnoteNumber,
-      content: selectedText,
-      sourceChapterId,
-      sourceText: selectedText,
-    };
-    
-    // Create the reference
-    const newReference: EndnoteReference = {
-      id: `ref${endnoteNumber}`,
-      number: endnoteNumber,
-      chapterId: sourceChapterId,
-      endnoteId,
-    };
-    
-    setEndnotes(prev => [...prev, newEndnote]);
-    setEndnoteReferences(prev => [...prev, newReference]);
-    setNextEndnoteNumber(prev => prev + 1);
-    
-    // Create a clickable endnote reference with proper ePub structure
-    const endnoteLink = `<a class="note-${endnoteNumber}" href="#end${endnoteNumber}" id="ref${endnoteNumber}" title="note ${endnoteNumber}" data-endnote-ref="${endnoteNumber}" data-endnote-id="${endnoteId}" style="color: #0066cc; text-decoration: none;"><sup>[${endnoteNumber}]</sup></a>`;
-    
-    return endnoteLink;
-  }
-  
   function updateEndnotesChapterContent() {
     let endnotesChapterIndex = chapters.findIndex(ch => ch.title.toLowerCase() === 'endnotes');
     
@@ -607,14 +349,152 @@ function MakeEbookPage() {
   }
 
   const totalWords = chapters.reduce(
-    (sum, ch) => sum + (plainText(ch.content).split(/\s+/).filter(Boolean).length || 0),
+    (sum: number, ch: Chapter) => sum + (plainText(ch.content).split(/\s+/).filter(Boolean).length || 0),
     0
   );
   const pageCount = Math.max(1, Math.ceil(totalWords / 300));
   const readingTime = Math.max(1, Math.round(totalWords / 200));
 
+  // Helper functions
+  function createEndnote(selectedText: string, chapterId: string): string {
+    const endnoteNumber = nextEndnoteNumber;
+    setNextEndnoteNumber(prev => prev + 1);
+    
+    const newEndnote = {
+      id: `endnote-${endnoteNumber}`,
+      number: endnoteNumber,
+      content: selectedText,
+      sourceChapterId: chapterId,
+      sourceText: selectedText
+    };
+    
+    setEndnotes(prev => [...prev, newEndnote]);
+    setEndnoteReferences(prev => [...prev, {
+      id: `ref-${endnoteNumber}`,
+      number: endnoteNumber,
+      chapterId: chapterId,
+      endnoteId: newEndnote.id
+    }]);
+    
+    return `<sup><a href="#end${endnoteNumber}" id="ref${endnoteNumber}" class="endnote-ref">[${endnoteNumber}]</a></sup>`;
+  }
+
+  function clearEditorState() {
+    setTitle("");
+    setAuthor("");
+    setBlurb("");
+    setPublisher("");
+    setPubDate(today);
+    setIsbn("");
+    setLanguage(LANGUAGES[0]);
+    setGenre("");
+    setTags([]);
+    setCoverFile(null);
+    setChapters([]);
+    setSelectedChapter(0);
+    setEndnotes([]);
+    setEndnoteReferences([]);
+    setCurrentBookId(undefined);
+    setNextEndnoteNumber(1);
+  }
+
+  function showNewBookConfirmation() {
+    setNewBookConfirmOpen(true);
+  }
+
+  function handleNewBookConfirm() {
+    // Save current book if it has content
+    if (title || chapters.some(ch => ch.content.trim())) {
+      handleSaveBook();
+    }
+    clearEditorState();
+    setNewBookConfirmOpen(false);
+  }
+
+  function handleOverwriteBook() {
+    const bookData = {
+      id: currentBookId || `book-${Date.now()}`,
+      title,
+      author,
+      blurb,
+      publisher,
+      pubDate,
+      isbn,
+      language,
+      genre,
+      tags,
+      coverFile,
+      chapters,
+      endnotes,
+      endnoteReferences,
+      savedAt: Date.now()
+    };
+    
+    const library = loadBookLibrary();
+    const existingIndex = library.findIndex(b => b.id === currentBookId);
+    if (existingIndex >= 0) {
+      library[existingIndex] = bookData;
+    } else {
+      library.push(bookData);
+    }
+    
+    localStorage.setItem("makeebook_library", JSON.stringify(library));
+    setCurrentBookId(bookData.id);
+    setSaveDialogOpen(false);
+    setSaveFeedback(true);
+    setTimeout(() => setSaveFeedback(false), 2000);
+  }
+
+  function handleSaveAsNewVersion() {
+    const bookData = {
+      id: `book-${Date.now()}`,
+      title,
+      author,
+      blurb,
+      publisher,
+      pubDate,
+      isbn,
+      language,
+      genre,
+      tags,
+      coverFile,
+      chapters,
+      endnotes,
+      endnoteReferences,
+      savedAt: Date.now()
+    };
+    
+    const library = loadBookLibrary();
+    library.push(bookData);
+    localStorage.setItem("makeebook_library", JSON.stringify(library));
+    setCurrentBookId(bookData.id);
+    setSaveDialogOpen(false);
+    setSaveFeedback(true);
+    setTimeout(() => setSaveFeedback(false), 2000);
+  }
+
+  function handleSaveBook() {
+    const library = loadBookLibrary();
+    const existingBook = library.find(b => b.id === currentBookId);
+    
+    if (existingBook) {
+      setSaveDialogOpen(true);
+    } else {
+      handleOverwriteBook();
+    }
+  }
+
+  function handleExportEPUB() {
+    // This would need to be implemented with a proper EPUB generation library
+    alert("EPUB export functionality would be implemented here");
+  }
+
   return (
     <>
+      {/* Suspense boundary for useSearchParams */}
+      <Suspense fallback={null}>
+        <SearchParamsSuspense />
+      </Suspense>
       {/* Fixed Header */}
       <div className="fixed top-0 left-0 w-full z-[110]">
         <Header />
@@ -932,7 +812,9 @@ function MakeEbookPage() {
         {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden">
           {/* Desktop Sidebar - Hidden on Mobile */}
-          <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 pl-2 pr-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+          <aside className={`hidden lg:flex flex-col bg-white min-w-0 lg:h-full overflow-y-auto shadow-sm mt-4 pl-2 pr-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 transition-all duration-300 ${
+            asideCollapsed ? 'lg:max-w-0 lg:min-w-0 lg:opacity-0 lg:pointer-events-none' : 'lg:max-w-sm lg:min-w-[400px] lg:opacity-100'
+          }`}>
             <nav className="flex flex-row items-center gap-1 pb-2 overflow-x-auto">
               {["setup", "preview", "library"].map((key) => (
                 <button
@@ -1086,6 +968,198 @@ function MakeEbookPage() {
               )}
             </div>
           </aside>
+
+          {/* Chevron Toggle Button - Desktop Only (match mobile style) */}
+          <button title="Hide sidebar" className="hidden lg:block hover:opacity-70 transition-opacity mt-4 mx-2 z-10">
+            <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+              <img alt="Close sidebar" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" className="w-4 h-4" style={{ color: "transparent", borderRadius: 0, boxShadow: "none" }} src="/close-sidebar-icon.svg" />
+            </div>
+          </button>
+
+          {/* Chapters Column - Desktop Only */}
+          <div className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200 mt-4 px-4 py-4 overflow-y-auto">
+            {/* Compact Chapters Section */}
+            <div className="flex flex-col gap-2 flex-shrink-0">
+              <div className="mb-1">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <ChaptersIcon className="w-5 h-5" />
+                    <h3 className="text-sm font-bold text-[#050505]">
+                      Chapters
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-[10px] text-[#737373] -mb-1">Drag to reorder</p>
+              </div>
+              <div className="flex flex-col gap-2 min-h-[8px] pt-1">
+                {chapters.map((ch, i) => {
+                  const isSelected = selectedChapter === i;
+                  const titleText = ch.title?.trim() || 'Title';
+                  
+                  // Calculate chapter type label and title
+                  const getChapterInfo = () => {
+                    if (ch.type === 'frontmatter') {
+                      return {
+                        typeLabel: 'Frontmatter',
+                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                      };
+                    }
+                    if (ch.type === 'backmatter') {
+                      return {
+                        typeLabel: 'Backmatter', 
+                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                      };
+                    }
+                    // Content chapters
+                    const contentChapterNum = getContentChapterNumber(chapters, i);
+                    return {
+                      typeLabel: `Chapter ${contentChapterNum}`,
+                      title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                    };
+                  };
+
+                  const { typeLabel, title } = getChapterInfo();
+                  return (
+                    <div
+                      key={i}
+                      ref={el => { chapterRefs.current[i] = el }}
+                      className={`flex items-center px-3 py-1 cursor-pointer transition relative rounded flex-shrink-0
+                        ${isSelected 
+                          ? "bg-[#181a1d] text-white font-semibold" 
+                          : "bg-[#F7F7F7] text-[#050505] hover:bg-[#F2F2F2]"}
+                        ${dragOverIndex === i 
+                          ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
+                          : 'border-2 border-transparent'}
+                        `}
+                      draggable
+                      onDragStart={() => handleDragStart(i)}
+                      onDragEnter={() => handleDragEnter(i)}
+                      onDragEnd={handleDragEnd}
+                      onDragOver={(e) => e.preventDefault()}
+                      onClick={() => handleSelectChapter(i)}
+                    >
+                      <HandleDragIcon isSelected={isSelected} />
+                      <div className="flex flex-col gap-0 ml-2 min-w-0">
+                        <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
+                          {typeLabel}
+                        </span>
+                        <span className={`text-[12px] font-medium ${isSelected ? 'text-white' : 'text-[#050505]'}`}>
+                          {title}
+                        </span>
+                      </div>
+                      {chapters.length > 1 && (
+                        <button
+                          className={`ml-2 p-1 rounded transition focus:outline-none ${
+                            isSelected 
+                              ? "hover:bg-white/10 text-white/65 hover:text-white" 
+                              : "hover:bg-black/10 text-[#050505]/65 hover:text-[#050505]"
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveChapter(i);
+                          }}
+                          aria-label="Delete Chapter"
+                        >
+                          <BinIcon 
+                            key={`desktop-bin-${i}-${isSelected}`}
+                            className="w-4 h-4"
+                            stroke={isSelected ? "#ffffff" : "#050505"}
+                          />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+                {/* Add Chapter Button */}
+                <div className="relative">
+                  <button
+                    onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
+                    aria-label="Add new chapter"
+                    className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
+                  >
+                    <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                      <PlusIcon className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-medium text-[#050505]">Add</span>
+                  </button>
+                  {chapterTypeDropdownOpen && (
+                    <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
+                      <div className="p-3">
+                        <div className="space-y-4">
+                          <div>
+                            <div className="mb-3">
+                              <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Front Matter</h4>
+                            </div>
+                            <div className="space-y-1">
+                              {CHAPTER_TEMPLATES.frontmatter.map((template) => (
+                                <button
+                                  key={template.title}
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log('Desktop clicked template:', template);
+                                    handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
+                                    setChapterTypeDropdownOpen(false);
+                                  }}
+                                  className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
+                                >
+                                  <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="mb-3">
+                              <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Main Content</h4>
+                            </div>
+                            <div className="space-y-1">
+                              {CHAPTER_TEMPLATES.content.map((template) => (
+                                <button
+                                  key={template.title}
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log('Desktop clicked template:', template);
+                                    handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
+                                    setChapterTypeDropdownOpen(false);
+                                  }}
+                                  className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
+                                >
+                                  <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="mb-3">
+                              <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Back Matter</h4>
+                            </div>
+                            <div className="space-y-1">
+                              {CHAPTER_TEMPLATES.backmatter.map((template) => (
+                                <button
+                                  key={template.title}
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log('Desktop clicked template:', template);
+                                    handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
+                                    setChapterTypeDropdownOpen(false);
+                                  }}
+                                  className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
+                                >
+                                  <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Main Editor Panel - Mobile Optimised */}
           <main className="flex-1 flex flex-col bg-white rounded shadow-sm mt-4 px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
@@ -1537,188 +1611,6 @@ function MakeEbookPage() {
 
             {/* DESKTOP layout */}
             <div className="hidden lg:flex flex-col gap-3 flex-1 min-h-0 overflow-y-auto">
-              {/* Compact Chapters Section */}
-              <div className="flex flex-col gap-2 flex-shrink-0">
-                <div className="mb-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <ChaptersIcon className="w-5 h-5" />
-                      <h3 className="text-sm font-bold text-[#050505]">
-                        Chapters
-                      </h3>
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-[#737373] -mb-1">Drag to reorder</p>
-                </div>
-                <div className="flex flex-wrap gap-2 min-h-[8px] pt-1">
-                  {chapters.map((ch, i) => {
-                    const isSelected = selectedChapter === i;
-                    const titleText = ch.title?.trim() || 'Title';
-                    
-                    // Calculate chapter type label and title
-                    const getChapterInfo = () => {
-                      if (ch.type === 'frontmatter') {
-                        return {
-                          typeLabel: 'Frontmatter',
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      if (ch.type === 'backmatter') {
-                        return {
-                          typeLabel: 'Backmatter', 
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      // Content chapters
-                      const contentChapterNum = getContentChapterNumber(chapters, i);
-                      return {
-                        typeLabel: `Chapter ${contentChapterNum}`,
-                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                      };
-                    };
-
-                    const { typeLabel, title } = getChapterInfo();
-                    return (
-                      <div
-                        key={i}
-                        ref={el => { chapterRefs.current[i] = el }}
-                        className={`flex items-center px-3 py-1 cursor-pointer transition relative rounded flex-shrink-0
-                          ${isSelected 
-                            ? "bg-[#181a1d] text-white font-semibold" 
-                            : "bg-[#F7F7F7] text-[#050505] hover:bg-[#F2F2F2]"}
-                          ${dragOverIndex === i 
-                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
-                            : 'border-2 border-transparent'}
-                          `}
-                        draggable
-                        onDragStart={() => handleDragStart(i)}
-                        onDragEnter={() => handleDragEnter(i)}
-                        onDragEnd={handleDragEnd}
-                        onDragOver={(e) => e.preventDefault()}
-                        onClick={() => handleSelectChapter(i)}
-                      >
-                        <HandleDragIcon isSelected={isSelected} />
-                        <div className="flex flex-col gap-0 ml-2 min-w-0">
-                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
-                            {typeLabel}
-                          </span>
-                          <span className={`text-[12px] font-medium ${isSelected ? 'text-white' : 'text-[#050505]'}`}>
-                            {title}
-                          </span>
-                        </div>
-                        {chapters.length > 1 && (
-                          <button
-                            className={`ml-2 p-1 rounded transition focus:outline-none ${
-                              isSelected 
-                                ? "hover:bg-white/10 text-white/65 hover:text-white" 
-                                : "hover:bg-black/10 text-[#050505]/65 hover:text-[#050505]"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveChapter(i);
-                            }}
-                            aria-label="Delete Chapter"
-                          >
-                            <BinIcon 
-                              key={`desktop-bin-${i}-${isSelected}`}
-                              className="w-4 h-4"
-                              stroke={isSelected ? "#ffffff" : "#050505"}
-                            />
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {/* Add Chapter Button */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
-                      aria-label="Add new chapter"
-                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
-                    >
-                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                        <PlusIcon className="w-4 h-4" />
-                      </div>
-                      <span className="text-xs font-medium text-[#050505]">Add</span>
-                    </button>
-                    {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
-                        <div className="p-3">
-                          <div className="space-y-4">
-                            <div>
-                              <div className="mb-3">
-                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Front Matter</h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.frontmatter.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      console.log('Desktop clicked template:', template);
-                                      handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="mb-3">
-                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Main Content</h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.content.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      console.log('Desktop clicked template:', template);
-                                      handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="mb-3">
-                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Back Matter</h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.backmatter.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      console.log('Desktop clicked template:', template);
-                                      handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
               {/* Editor Area - Prioritized for Writing */}
               <section className="flex flex-col min-w-0 flex-1 min-h-0">
                 {/* Compact Chapter Title Header */}
@@ -1815,20 +1707,10 @@ function MakeEbookPage() {
             </div>
           </main>
         </div>
-
-        {/* Terms/Privacy links moved to mobile editor footer */}
       </div>
     </>
+
   );
 }
 
-// Wrap `MakeEbookPage` in authentication protection and `Suspense` boundary
-export default function ProtectedMakeEbookPage() {
-  return (
-    <ProtectedRoute>
-      <Suspense fallback={<div>Loading makeEbook...</div>}>
-        <MakeEbookPage />
-      </Suspense>
-    </ProtectedRoute>
-  );
-}
+export default MakeEbookPage;
