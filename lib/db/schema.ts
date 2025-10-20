@@ -18,6 +18,11 @@ export const ebooks = pgTable('ebooks', {
   author: text('author').notNull(),
   description: text('description'),
   coverImage: text('cover_image'),
+  publisher: text('publisher'),
+  pubDate: text('pub_date'),
+  isbn: text('isbn'),
+  language: text('language'),
+  genre: text('genre'),
   chapters: json('chapters').$type<Array<{
     id: string
     title: string
