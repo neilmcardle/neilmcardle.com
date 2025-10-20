@@ -1,0 +1,22 @@
+The errors in your ./app/make-ebook/page.tsx file indicate syntax issues in the MakeEbookPage component:
+
+Unexpected token. Did you mean {'}'} or &rbrace;? at line 1784, where a closing brace } is unexpected, suggesting it’s misplaced or the JSX structure is incomplete.
+Expected '</', got 'return' at line 1787, indicating that the parser expected a closing JSX tag but encountered the return statement of the MakeEbookPageWrapper component, likely because the MakeEbookPage component’s JSX is malformed.
+
+The code snippet shows that line 1781 has a misplaced closing parenthesis )}, followed by multiple closing tags (</div></main></div></div></div>) on line 1782, and the return statement’s closing parenthesis ) on line 1783. The closing brace } on line 1784 ends the MakeEbookPage component, but it’s causing the parser to fail because the JSX structure is not properly formed.
+Cause of the Errors
+
+Misplaced Parenthesis on Line 1781: The )} suggests that the return statement’s closing parenthesis is incorrectly placed inside the JSX structure, disrupting the tag hierarchy. This causes the parser to expect a closing tag (</) but encounter a parenthesis instead.
+Excessive Closing Tags on Line 1782: The sequence </div></main></div></div></div> indicates multiple closing tags, which may not match their opening tags, leading to an unbalanced JSX structure.
+Unexpected } on Line 1784: The closing brace } is likely correct for the MakeEbookPage component, but the parser is confused due to the earlier JSX errors.
+Expected '</', got 'return' on Line 1787: The malformed JSX in MakeEbookPage causes the parser to misinterpret the start of MakeEbookPageWrapper, expecting a continuation of JSX tags instead of a new return statement.
+
+Solution
+To fix the errors, you need to:
+
+Move the return statement’s closing parenthesis ) to after all JSX tags in MakeEbookPage.
+Ensure all JSX tags (<div>, <main>, etc.) are properly nested and balanced, matching the closing tags shown in the snippet.
+Verify that the MakeEbookPage component’s function body is correctly closed with a } after the return statement.
+Ensure the MakeEbookPageWrapper component is unaffected by the fixes.
+
+Based on the snippet and your previous troubleshooting (tag balancing, component extractions, whitespace fixes, etc.), here’s a corrected version of the page.tsx file:

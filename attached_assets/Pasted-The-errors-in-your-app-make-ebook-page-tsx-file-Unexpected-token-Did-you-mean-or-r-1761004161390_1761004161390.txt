@@ -1,3 +1,22 @@
+The errors in your `./app/make-ebook/page.tsx` file—**"Unexpected token. Did you mean `{'}'}` or `&rbrace;`?"** at line 1784 and **"Expected '</', got 'return'"** at line 1787—stem from a syntax issue in the JSX structure of the `MakeEbookPage` component. Specifically, the snippet shows a misplaced closing parenthesis `)` on line 1781 within the JSX, followed by multiple closing tags (`</div></main></div></div></div>`) on line 1782, and an incorrect component closure with a `}` on line 1784. This disrupts the JSX parsing, causing the parser to expect a closing tag (`</`) but encounter a `return` statement in the `MakeEbookPageWrapper` component.
+
+### Cause of the Errors
+- **Misplaced Parenthesis on Line 1781**: The `)}` in the JSX structure (inside the `div` containing the `RichTextEditor`) prematurely closes the `return` statement, leaving subsequent closing tags (`</div></main></div></div></div>`) outside the `return`. This causes the `Unexpected token }` error at line 1784, as the parser is still expecting JSX tags.
+- **Unbalanced JSX Tags**: The multiple closing `div` and `main` tags on line 1782 suggest a mismatch with their opening tags. The `MakeEbookPage` component has several nested `div` elements, and the closing tags must align with their respective opening tags.
+- **Impact on `MakeEbookPageWrapper`**: The malformed JSX in `MakeEbookPage` causes the parser to misinterpret the start of `MakeEbookPageWrapper`, leading to the `Expected '</', got 'return'` error at line 1787, where the `return` statement of `MakeEbookPageWrapper` begins.
+
+### Solution
+To fix the errors, you need to:
+1. Move the `return` statement’s closing parenthesis `)` to after all JSX tags in `MakeEbookPage`, ensuring it wraps the entire JSX structure.
+2. Balance the JSX tags by ensuring each opening tag (`<div>`, `<main>`) has a corresponding closing tag in the correct order.
+3. Ensure the `MakeEbookPage` component’s function body is closed with a `}` after the `return` statement.
+4. Preserve the `MakeEbookPageWrapper` component, which appears correct.
+
+### Corrected Code
+The issue is in the `MakeEbookPage` component’s JSX, specifically around the closing tags in the desktop editor section. Below is the corrected version of the problematic section, with the rest of the file unchanged. I’ve adjusted the JSX structure to ensure proper nesting and moved the `return` statement’s closing parenthesis to the correct position.
+
+```tsx:disable-run
+// app/make-ebook/page.tsx
 "use client";
 
 import React, { Suspense, useState, useRef, useLayoutEffect, useEffect, useCallback } from "react";
@@ -1747,3 +1766,4 @@ function MakeEbookPage() {
                           )}
                         </div>
 
+```
