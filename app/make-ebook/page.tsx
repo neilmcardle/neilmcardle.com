@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useState, useRef, useLayoutEffect, useEffect } from "react";
+import React, { Suspense, useState, useRef, useLayoutEffect, useEffect, useCallback } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -23,10 +23,13 @@ import { useCover } from "./hooks/useCover";
 import { useLockedSections } from "./hooks/useLockedSections";
 import { exportEpub } from "./utils/exportEpub";
 import RichTextEditor from "./components/RichTextEditor";
+import { useCloudBooks } from "./hooks/useCloudBooks";
+import { useAutosave } from "./hooks/useAutosave";
 
 const HEADER_HEIGHT = 64; // px (adjust if your header is taller/shorter)
 const BOOK_LIBRARY_KEY = "makeebook_library";
 
+// Keep localStorage helper functions for migration
 function saveBookToLibrary(book: any) {
   if (typeof window === "undefined") return;
   let library = loadBookLibrary();
@@ -122,6 +125,9 @@ function MakeEbookPage() {
   const { lockedSections, setLockedSections } = useLockedSections();
   const { coverFile, setCoverFile, handleCoverChange, coverUrl } = useCover();
 
+  // Initialize cloud storage hooks
+  const cloudBooks = useCloudBooks();
+
   const {
     chapters,
     setChapters,
@@ -161,6 +167,7 @@ function MakeEbookPage() {
   const [genre, setGenre] = useState("");
   const [currentBookId, setCurrentBookId] = useState<string | undefined>(undefined);
   const [initialized, setInitialized] = useState(false);
+  const [migrated, setMigrated] = useState(false);
 
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
@@ -175,6 +182,40 @@ function MakeEbookPage() {
   const [nextEndnoteNumber, setNextEndnoteNumber] = useState(1);
 
   const [saveFeedback, setSaveFeedback] = useState(false);
+  const [isLoadingBooks, setIsLoadingBooks] = useState(true);
+
+  // Autosave function
+  const handleAutosave = useCallback(async () => {
+    if (!title && !author && chapters.length === 0) return;
+
+    const bookData = {
+      title,
+      author,
+      blurb,
+      publisher,
+      pubDate,
+      isbn,
+      language,
+      genre,
+      tags,
+      coverUrl,
+      chapters,
+      endnotes,
+      endnoteReferences,
+    };
+
+    const savedBook = await cloudBooks.saveBook(currentBookId, bookData);
+    if (savedBook && !currentBookId) {
+      setCurrentBookId(savedBook.id);
+    }
+  }, [title, author, blurb, publisher, pubDate, isbn, language, genre, tags, coverUrl, chapters, endnotes, endnoteReferences, currentBookId, cloudBooks]);
+
+  // Initialize autosave hook
+  const { saveStatus, markDirty, save: manualSave } = useAutosave({
+    onSave: handleAutosave,
+    debounceMs: 2000,
+    enabled: true,
+  });
 
   // Update endnotes chapter content whenever endnotes change
   useEffect(() => {
@@ -247,6 +288,83 @@ function MakeEbookPage() {
     }
   }, [chapterTypeDropdownOpen]);
 
+  // Migration from localStorage to cloud
+  useEffect(() => {
+    async function migrateLocalStorageToCloud() {
+      if (migrated) return;
+
+      const localBooks = loadBookLibrary();
+      if (localBooks.length > 0) {
+        console.log(`Migrating ${localBooks.length} books from localStorage to cloud...`);
+        
+        for (const book of localBooks) {
+          try {
+            await cloudBooks.createBook({
+              title: book.title || "",
+              author: book.author || "",
+              blurb: book.blurb || null,
+              coverUrl: book.coverUrl || null,
+              publisher: book.publisher || null,
+              pubDate: book.pubDate || null,
+              isbn: book.isbn || null,
+              language: book.language || null,
+              genre: book.genre || null,
+              chapters: book.chapters || [],
+              tags: book.tags || [],
+              endnotes: book.endnotes || [],
+              endnoteReferences: book.endnoteReferences || [],
+            });
+          } catch (error) {
+            console.error(`Failed to migrate book ${book.id}:`, error);
+          }
+        }
+
+        // Clear localStorage after successful migration
+        localStorage.removeItem(BOOK_LIBRARY_KEY);
+        console.log('Migration complete. LocalStorage cleared.');
+      }
+
+      setMigrated(true);
+    }
+
+    migrateLocalStorageToCloud();
+  }, [migrated, cloudBooks]);
+
+  // Load books from cloud
+  useEffect(() => {
+    async function loadCloudBooks() {
+      setIsLoadingBooks(true);
+      const books = await cloudBooks.getAllBooks();
+      setLibraryBooks(books);
+      setIsLoadingBooks(false);
+
+      const loadBookId = searchParams.get('load');
+      if (loadBookId) {
+        await handleLoadCloudBook(loadBookId);
+        router.replace('/make-ebook', { scroll: false });
+        setInitialized(true);
+        return;
+      }
+
+      if (!initialized && books.length > 0 && !currentBookId && chapters.length === 0) {
+        const mostRecent = books.reduce((a, b) => {
+          const aTime = new Date(a.updatedAt).getTime();
+          const bTime = new Date(b.updatedAt).getTime();
+          return aTime > bTime ? a : b;
+        });
+        
+        loadBookDataIntoEditor(mostRecent);
+        setCurrentBookId(mostRecent.id);
+      }
+
+      if (!initialized) setInitialized(true);
+    }
+
+    if (migrated) {
+      loadCloudBooks();
+    }
+  }, [searchParams, initialized, currentBookId, chapters.length, migrated, cloudBooks]);
+
   function showNewBookConfirmation() {
     setNewBookConfirmOpen(true);
   }
@@ -270,11 +388,10 @@ function MakeEbookPage() {
     setCurrentBookId(undefined);
   }
 
-  function handleNewBookConfirm() {
+  async function handleNewBookConfirm() {
     // Save current book before starting new one
     if (title || author || chapters.some(ch => ch.content.trim())) {
-      // Save first, then clear editor state in the callback
-      saveForNewBook();
+      await saveForNewBook();
     } else {
       // No content to save, just clear and start new
       clearEditorState();
@@ -282,76 +399,21 @@ function MakeEbookPage() {
     }
   }
 
-  function saveForNewBook() {
-    // If there's already a book ID and it exists in library, show save dialog
-    if (currentBookId) {
-      const library = loadBookLibrary();
-      const existingBook = library.find((b: any) => b.id === currentBookId);
-      if (existingBook) {
-        setSaveDialogOpen(true);
-        return;
-      }
-    }
-    
-    // No existing book, save and then clear
-    saveBookDirectly(false);
+  async function saveForNewBook() {
+    // Save and then clear
+    await saveBookToCloud(false);
     clearEditorState();
     setNewBookConfirmOpen(false);
+    
+    // Refresh library
+    const books = await cloudBooks.getAllBooks();
+    setLibraryBooks(books);
   }
 
   function handleNewBook() {
     // Legacy function for backwards compatibility
     handleNewBookConfirm();
   }
-
-  useEffect(() => {
-    const books = loadBookLibrary();
-    setLibraryBooks(books);
-
-    const loadBookId = searchParams.get('load');
-    if (loadBookId) {
-      const bookToLoad = books.find(book => book.id === loadBookId);
-      if (bookToLoad) {
-        handleLoadBook(loadBookId);
-        router.replace('/make-ebook', { scroll: false });
-        setInitialized(true);
-        return;
-      } else {
-        router.replace('/make-ebook', { scroll: false });
-        if (!initialized) setInitialized(true);
-        return;
-      }
-    }
-
-    if (!initialized && books.length > 0 && !currentBookId && chapters.length === 0) {
-      const mostRecent = books.reduce((a, b) => (a.savedAt > b.savedAt ? a : b));
-      setTitle(mostRecent.title || "");
-      setAuthor(mostRecent.author || "");
-      setBlurb(mostRecent.blurb || "");
-      setPublisher(mostRecent.publisher || "");
-      setPubDate(mostRecent.pubDate || today);
-      setIsbn(mostRecent.isbn || "");
-      setLanguage(mostRecent.language || LANGUAGES[0]);
-      setGenre(mostRecent.genre || "");
-      setTags(mostRecent.tags || []);
-      setCoverFile(mostRecent.coverFile || null);
-      
-      // Migrate chapters to ensure they have IDs
-      const migratedChapters = ensureChapterIds(mostRecent.chapters || []);
-      setChapters(migratedChapters);
-      
-      // Migrate endnote references if they exist
-      if (mostRecent.endnoteReferences) {
-        const migratedEndnoteRefs = migrateEndnoteReferences(mostRecent.endnoteReferences, migratedChapters);
-        setEndnoteReferences(migratedEndnoteRefs);
-      }
-      
-      setEndnotes(mostRecent.endnotes || []);
-      setCurrentBookId(mostRecent.id);
-    }
-
-    if (!initialized) setInitialized(true);
-  }, [searchParams, initialized, currentBookId, chapters.length]);
 
   // Scroll indicator effect for mobile sidebar
   useEffect(() => {
@@ -398,24 +460,18 @@ function MakeEbookPage() {
     });
   }
 
-  function handleSaveBook() {
-    // If there's already a book ID and it exists in library, show save dialog
+  async function handleSaveBook() {
     if (currentBookId) {
-      const library = loadBookLibrary();
-      const existingBook = library.find((b: any) => b.id === currentBookId);
-      if (existingBook) {
-        setSaveDialogOpen(true);
-        return;
-      }
+      setSaveDialogOpen(true);
+      return;
     }
     
     // No existing book, save normally
-    saveBookDirectly(false);
+    await saveBookToCloud(false);
   }
 
-  function saveBookDirectly(forceNewVersion: boolean) {
+  async function saveBookToCloud(forceNewVersion: boolean) {
     const bookData = {
-      id: forceNewVersion ? undefined : currentBookId, // Force new ID if creating new version
       title,
       author,
       blurb,
@@ -431,16 +487,25 @@ function MakeEbookPage() {
       endnoteReferences,
     };
     
-    const id = saveBookToLibrary(bookData);
-    setCurrentBookId(id);
-    setLibraryBooks(loadBookLibrary());
-    setSaveFeedback(true);
-    setTimeout(() => setSaveFeedback(false), 1300);
+    let savedBook;
+    if (forceNewVersion) {
+      savedBook = await cloudBooks.createBook(bookData);
+    } else {
+      savedBook = await cloudBooks.saveBook(currentBookId, bookData);
+    }
+
+    if (savedBook) {
+      setCurrentBookId(savedBook.id);
+      const books = await cloudBooks.getAllBooks();
+      setLibraryBooks(books);
+      setSaveFeedback(true);
+      setTimeout(() => setSaveFeedback(false), 1300);
+    }
   }
 
-  function handleOverwriteBook() {
+  async function handleOverwriteBook() {
     setSaveDialogOpen(false);
-    saveBookDirectly(false);
+    await saveBookToCloud(false);
     
     // If this was triggered from new book flow, clear editor after save
     if (newBookConfirmOpen) {
@@ -449,9 +514,9 @@ function MakeEbookPage() {
     }
   }
 
-  function handleSaveAsNewVersion() {
+  async function handleSaveAsNewVersion() {
     setSaveDialogOpen(false);
-    saveBookDirectly(true);
+    await saveBookToCloud(true);
     
     // If this was triggered from new book flow, clear editor after save
     if (newBookConfirmOpen) {
@@ -485,6 +550,7 @@ function MakeEbookPage() {
     setEndnotes(prev => [...prev, newEndnote]);
     setEndnoteReferences(prev => [...prev, newReference]);
     setNextEndnoteNumber(prev => prev + 1);
+    markDirty();
     
     // Create a clickable endnote reference with proper ePub structure
     const endnoteLink = `<a class="note-${endnoteNumber}" href="#end${endnoteNumber}" id="ref${endnoteNumber}" title="note ${endnoteNumber}" data-endnote-ref="${endnoteNumber}" data-endnote-id="${endnoteId}" style="color: #0066cc; text-decoration: none;"><sup>[${endnoteNumber}]</sup></a>`;
@@ -565,46 +631,59 @@ function MakeEbookPage() {
     return endnoteLink;
   }
 
-  function handleLoadBook(id: string) {
-    const loaded = loadBookById(id);
-    if (loaded) {
-      setTitle(loaded.title || "");
-      setAuthor(loaded.author || "");
-      setBlurb(loaded.blurb || "");
-      setPublisher(loaded.publisher || "");
-      setPubDate(loaded.pubDate || today);
-      setIsbn(loaded.isbn || "");
-      setLanguage(loaded.language || LANGUAGES[0]);
-      setGenre(loaded.genre || "");
-      setTags(loaded.tags || []);
-      setCoverFile(loaded.coverFile || null);
-      
-      // Migrate chapters to ensure they have IDs
-      const migratedChapters = ensureChapterIds(loaded.chapters || []);
-      setChapters(migratedChapters);
-      
-      // Migrate endnote references if they exist
-      if (loaded.endnoteReferences) {
-        const migratedEndnoteRefs = migrateEndnoteReferences(loaded.endnoteReferences, migratedChapters);
-        setEndnoteReferences(migratedEndnoteRefs);
-      }
-      
-      setEndnotes(loaded.endnotes || []);
-      setCurrentBookId(loaded.id);
+  function loadBookDataIntoEditor(book: any) {
+    setTitle(book.title || "");
+    setAuthor(book.author || "");
+    setBlurb(book.blurb || "");
+    setPublisher(book.publisher || "");
+    setPubDate(book.pubDate || today);
+    setIsbn(book.isbn || "");
+    setLanguage(book.language || LANGUAGES[0]);
+    setGenre(book.genre || "");
+    setTags(book.tags || []);
+    setCoverFile(book.coverFile || null);
+    
+    // Migrate chapters to ensure they have IDs
+    const migratedChapters = ensureChapterIds(book.chapters || []);
+    setChapters(migratedChapters);
+    
+    // Migrate endnote references if they exist
+    if (book.endnoteReferences) {
+      const migratedEndnoteRefs = migrateEndnoteReferences(book.endnoteReferences, migratedChapters);
+      setEndnoteReferences(migratedEndnoteRefs);
+    }
+    
+    setEndnotes(book.endnotes || []);
+  }
+
+  async function handleLoadCloudBook(id: string) {
+    const book = await cloudBooks.getBook(id);
+    if (book) {
+      loadBookDataIntoEditor(book);
+      setCurrentBookId(book.id);
       setLibraryOpen(false);
     }
   }
 
-  function handleDeleteBook(id: string) {
+  async function handleDeleteBook(id: string) {
     if (confirm('Are you sure you want to delete this eBook? This action cannot be undone.')) {
-      removeBookFromLibrary(id);
-      setLibraryBooks(loadBookLibrary());
-      if (currentBookId === id) {
-        // Clear editor state directly without saving (to avoid recreating the deleted book)
-        clearEditorState();
+      const success = await cloudBooks.deleteBook(id);
+      if (success) {
+        const books = await cloudBooks.getAllBooks();
+        setLibraryBooks(books);
+        if (currentBookId === id) {
+          clearEditorState();
+        }
       }
     }
   }
+
+  // Mark dirty when fields change
+  useEffect(() => {
+    if (initialized && currentBookId) {
+      markDirty();
+    }
+  }, [title, author, blurb, publisher, pubDate, isbn, language, genre, tags, coverUrl, chapters, endnotes, endnoteReferences]);
 
   const totalWords = chapters.reduce(
     (sum, ch) => sum + (plainText(ch.content).split(/\s+/).filter(Boolean).length || 0),
@@ -613,8 +692,43 @@ function MakeEbookPage() {
   const pageCount = Math.max(1, Math.ceil(totalWords / 300));
   const readingTime = Math.max(1, Math.round(totalWords / 200));
 
+  // Save status indicator component
+  const SaveStatusIndicator = () => {
+    if (saveStatus === 'idle') return null;
+    
+    return (
+      <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg transition-all">
+        {saveStatus === 'saving' && (
+          <div className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg">
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm font-medium">Saving...</span>
+          </div>
+        )}
+        {saveStatus === 'saved' && (
+          <div className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-sm font-medium">Saved</span>
+          </div>
+        )}
+        {saveStatus === 'error' && (
+          <div className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span className="text-sm font-medium">Error saving</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <>
+    <div>
+      {/* Save Status Indicator */}
+      <SaveStatusIndicator />
+
       {/* Fixed Header */}
       <div className="fixed top-0 left-0 w-full z-[110]">
         <Header />
@@ -631,22 +745,24 @@ function MakeEbookPage() {
                 </h2>
                 <button onClick={() => setLibraryOpen(false)} className="text-xl">&times;</button>
               </div>
-              {libraryBooks.length === 0 ? (
+              {isLoadingBooks ? (
+                <div className="text-gray-500 text-center py-8">Loading books...</div>
+              ) : libraryBooks.length === 0 ? (
                 <div className="text-gray-500 text-center py-8">No books saved</div>
               ) : (
                 <ul>
                   {libraryBooks
-                    .sort((a, b) => b.savedAt - a.savedAt)
+                    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
                     .map((b) => (
                     <li key={b.id} className="flex items-center gap-2 border-b last:border-b-0 py-2">
                       <button
                         className="flex-1 text-left hover:underline"
-                        onClick={() => handleLoadBook(b.id)}
+                        onClick={() => handleLoadCloudBook(b.id)}
                         title={b.title}
                       >
                         <span className="font-semibold">{b.title || "Untitled"}</span>
                         <span className="text-sm text-gray-500 ml-2">{b.author}</span>
-                        <span className="block text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</span>
+                        <span className="block text-xs text-gray-400">{new Date(b.updatedAt).toLocaleString()}</span>
                       </button>
                       <button
                         className="text-gray-400 hover:text-red-500"
@@ -766,56 +882,44 @@ function MakeEbookPage() {
                       {key === "setup" && <MetadataIcon className="w-5 h-5" />}
                       {key === "preview" && <PreviewIcon className="w-5 h-5" />}
                       {key === "library" && <LibraryIcon className="w-5 h-5" />}
-                      <span>
-                        {key === "setup"
-                          ? "Book Details"
-                          : key === "preview"
-                          ? "Book Summary"
-                          : key === "ai"
-                          ? "AI"
-                          : "Library"}
-                      </span>
+                      <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
                     </button>
                   ))}
                 </nav>
-                
-                {/* Divider */}
-                <div className="border-t border-[#E8E8E8]"></div>
-                
-                {/* Content */}
-                <div className="relative flex-1 min-h-0">
-                  <div ref={scrollContainerRef} className="h-full overflow-y-auto px-4 pb-4" style={{ maxHeight: 'calc(100vh - 180px)' }}>
-                    {tab === "setup" && (
-                      <MetaTabContent
-                        title={title}
-                        setTitle={setTitle}
-                        author={author}
-                        setAuthor={setAuthor}
-                        blurb={blurb}
-                        setBlurb={setBlurb}
-                        publisher={publisher}
-                        setPublisher={setPublisher}
-                        pubDate={pubDate}
-                        setPubDate={setPubDate}
-                        isbn={isbn}
-                        setIsbn={setIsbn}
-                        language={language}
-                        setLanguage={setLanguage}
-                        genre={genre}
-                        setGenre={setGenre}
-                        tags={tags}
-                        setTags={setTags}
-                        tagInput={tagInput}
-                        setTagInput={setTagInput}
-                        coverFile={coverFile}
-                        setCoverFile={setCoverFile}
-                        lockedSections={lockedSections}
-                        setLockedSections={setLockedSections}
-                        handleAddTag={handleAddTag}
-                        handleRemoveTag={handleRemoveTag}
-                        handleCoverChange={handleCoverChange}
-                      />
-                    )}
+
+                {/* Scroll Container */}
+                <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-4 pb-4 relative">
+                  {tab === "setup" && (
+                    <MetaTabContent
+                      title={title}
+                      setTitle={(val) => { setTitle(val); markDirty(); }}
+                      author={author}
+                      setAuthor={(val) => { setAuthor(val); markDirty(); }}
+                      blurb={blurb}
+                      setBlurb={(val) => { setBlurb(val); markDirty(); }}
+                      publisher={publisher}
+                      setPublisher={(val) => { setPublisher(val); markDirty(); }}
+                      pubDate={pubDate}
+                      setPubDate={(val) => { setPubDate(val); markDirty(); }}
+                      isbn={isbn}
+                      setIsbn={(val) => { setIsbn(val); markDirty(); }}
+                      language={language}
+                      setLanguage={(val) => { setLanguage(val); markDirty(); }}
+                      genre={genre}
+                      setGenre={(val) => { setGenre(val); markDirty(); }}
+                      tags={tags}
+                      setTags={(val) => { setTags(val); markDirty(); }}
+                      tagInput={tagInput}
+                      setTagInput={setTagInput}
+                      coverFile={coverFile}
+                      setCoverFile={(val) => { setCoverFile(val); markDirty(); }}
+                      lockedSections={lockedSections}
+                      setLockedSections={setLockedSections}
+                      handleAddTag={handleAddTag}
+                      handleRemoveTag={handleRemoveTag}
+                      handleCoverChange={handleCoverChange}
+                    />
+                  )}
                   {tab === "preview" && (
                     <PreviewPanel
                       coverUrl={coverUrl}
@@ -831,10 +935,13 @@ function MakeEbookPage() {
                       readingTime={readingTime}
                     />
                   )}
-                  {/* {tab === "ai" && <AiTabContent />} */}
                   {tab === "library" && (
                     <div className="space-y-4">
-                      {libraryBooks.length === 0 ? (
+                      {isLoadingBooks ? (
+                        <div className="text-center py-12">
+                          <p className="text-gray-500">Loading your library...</p>
+                        </div>
+                      ) : libraryBooks.length === 0 ? (
                         <div className="text-center py-12">
                           <Image
                             src="/caveman.svg"
@@ -878,7 +985,7 @@ function MakeEbookPage() {
                                 >
                                   <div className="font-semibold">{b.title || "Untitled"}</div>
                                   <div className="text-sm text-gray-500">{b.author}</div>
-                                  <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
+                                  <div className="text-xs text-gray-400">{new Date(b.updatedAt).toLocaleString()}</div>
                                 </button>
                               </div>
                               <div className="flex items-center gap-1">
@@ -890,8 +997,7 @@ function MakeEbookPage() {
                                   }`}
                                   onClick={() => {
                                     if (selectedBookId === b.id) {
-                                      handleLoadBook(b.id);
-                                      setMobileSidebarOpen(false);
+                                      handleLoadCloudBook(b.id);
                                       setSelectedBookId(null);
                                     }
                                   }}
@@ -915,71 +1021,67 @@ function MakeEbookPage() {
                     </div>
                   )}
                 </div>
-                  
-                  {/* Scroll Indicator */}
-                  {showScrollIndicator && (
-                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-10">
-                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                        <ChevronDown className="w-4 h-4 text-gray-600" />
-                      </div>
-                    </div>
-                  )}
-                </div>
+
+                {/* Scroll Indicator */}
+                {showScrollIndicator && (
+                  <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent pointer-events-none flex items-end justify-center pb-2">
+                    <div className="text-xs text-gray-400 animate-bounce">↓ Scroll for more</div>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+        </div>
 
-        {/* Main layout: Mobile-optimized */}
-        <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden">
-          {/* Desktop Sidebar - Hidden on Mobile */}
-          <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 pl-2 pr-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
-            <nav className="flex flex-row items-center gap-1 pb-2 overflow-x-auto">
+        {/* Desktop Layout */}
+        <div className="hidden lg:flex max-w-[1600px] mx-auto gap-6 px-6 pt-6 pb-12">
+          {/* Sidebar */}
+          <aside className="w-80 flex-shrink-0 h-[calc(100vh-64px-96px)] overflow-y-auto space-y-4 sticky top-[64px] flex flex-col gap-2">
+            {/* Tab Navigation */}
+            <nav className="flex gap-2 pb-3 border-b border-[#E8E8E8]">
               {["setup", "preview", "library"].map((key) => (
                 <button
                   key={key}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded text-xs font-semibold transition whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded text-xs font-semibold transition ${
                     tab === key
                       ? "bg-white text-[#15161a] border border-[#050505] shadow-sm"
                       : "hover:bg-[#F2F2F2] text-[#737373]"
                   }`}
                   onClick={() => setTab(key as any)}
                 >
-                  {key === "setup" && <MetadataIcon className="w-4 h-4" />}
-                  {key === "preview" && <PreviewIcon className="w-4 h-4" />}
-                  {key === "library" && <LibraryIcon className="w-4 h-4" />}
-                  {key === "setup"
-                    ? "Book Details"
-                    : key === "preview"
-                    ? "Book Summary"
-                    : "Library"}
+                  {key === "setup" && <MetadataIcon className="w-5 h-5" />}
+                  {key === "preview" && <PreviewIcon className="w-5 h-5" />}
+                  {key === "library" && <LibraryIcon className="w-5 h-5" />}
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
                 </button>
               ))}
             </nav>
+
+            {/* Tab Content */}
             <div className="flex-1 overflow-y-auto">
               {tab === "setup" && (
                 <MetaTabContent
                   title={title}
-                  setTitle={setTitle}
+                  setTitle={(val) => { setTitle(val); markDirty(); }}
                   author={author}
-                  setAuthor={setAuthor}
+                  setAuthor={(val) => { setAuthor(val); markDirty(); }}
                   blurb={blurb}
-                  setBlurb={setBlurb}
+                  setBlurb={(val) => { setBlurb(val); markDirty(); }}
                   publisher={publisher}
-                  setPublisher={setPublisher}
+                  setPublisher={(val) => { setPublisher(val); markDirty(); }}
                   pubDate={pubDate}
-                  setPubDate={setPubDate}
+                  setPubDate={(val) => { setPubDate(val); markDirty(); }}
                   isbn={isbn}
-                  setIsbn={setIsbn}
+                  setIsbn={(val) => { setIsbn(val); markDirty(); }}
                   language={language}
-                  setLanguage={setLanguage}
+                  setLanguage={(val) => { setLanguage(val); markDirty(); }}
                   genre={genre}
-                  setGenre={setGenre}
+                  setGenre={(val) => { setGenre(val); markDirty(); }}
                   tags={tags}
-                  setTags={setTags}
+                  setTags={(val) => { setTags(val); markDirty(); }}
                   tagInput={tagInput}
                   setTagInput={setTagInput}
                   coverFile={coverFile}
-                  setCoverFile={setCoverFile}
+                  setCoverFile={(val) => { setCoverFile(val); markDirty(); }}
                   lockedSections={lockedSections}
                   setLockedSections={setLockedSections}
                   handleAddTag={handleAddTag}
@@ -1002,10 +1104,13 @@ function MakeEbookPage() {
                   readingTime={readingTime}
                 />
               )}
-              {/* {tab === "ai" && <AiTabContent />} */}
               {tab === "library" && (
                 <div className="space-y-4">
-                  {libraryBooks.length === 0 ? (
+                  {isLoadingBooks ? (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500">Loading your library...</p>
+                    </div>
+                  ) : libraryBooks.length === 0 ? (
                     <div className="text-center py-12">
                       <Image
                         src="/caveman.svg"
@@ -1049,7 +1154,7 @@ function MakeEbookPage() {
                             >
                               <div className="font-semibold">{b.title || "Untitled"}</div>
                               <div className="text-sm text-gray-500">{b.author}</div>
-                              <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
+                              <div className="text-xs text-gray-400">{new Date(b.updatedAt).toLocaleString()}</div>
                             </button>
                           </div>
                           <div className="flex items-center gap-1">
@@ -1061,7 +1166,7 @@ function MakeEbookPage() {
                               }`}
                               onClick={() => {
                                 if (selectedBookId === b.id) {
-                                  handleLoadBook(b.id);
+                                  handleLoadCloudBook(b.id);
                                   setSelectedBookId(null);
                                 }
                               }}
@@ -1171,7 +1276,7 @@ function MakeEbookPage() {
                   <input
                     type="text"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => { setTitle(e.target.value); markDirty(); }}
                     disabled={lockedSections.bookInfo}
                     className="text-lg font-medium bg-white border border-transparent focus:border-black outline-none focus:outline-none focus:ring-0 flex-1 disabled:cursor-not-allowed px-2 py-1 rounded placeholder:text-[#a0a0a0]"
                     style={{ 
@@ -1202,7 +1307,7 @@ function MakeEbookPage() {
                     <input
                       type="text"
                       value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      onChange={(e) => { setTitle(e.target.value); markDirty(); }}
                       disabled={lockedSections.bookInfo}
                       className="text-lg font-medium bg-white border border-transparent focus:border-black outline-none focus:outline-none focus:ring-0 flex-1 disabled:cursor-not-allowed px-2 py-1 rounded placeholder:text-[#a0a0a0]"
                       style={{ 
@@ -1262,6 +1367,7 @@ function MakeEbookPage() {
                                       console.log('Clicked template:', template);
                                       handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
+                                      markDirty();
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
@@ -1284,6 +1390,7 @@ function MakeEbookPage() {
                                       console.log('Clicked template:', template);
                                       handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
+                                      markDirty();
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
@@ -1306,6 +1413,7 @@ function MakeEbookPage() {
                                       console.log('Clicked template:', template);
                                       handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
+                                      markDirty();
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
@@ -1372,7 +1480,7 @@ function MakeEbookPage() {
                           opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
                         } as React.CSSProperties}
                         draggable
-                        onDragStart={() => handleDragStart(i)}
+                        onDragStart={() => { handleDragStart(i); markDirty(); }}
                         onDragEnter={() => handleDragEnter(i)}
                         onDragEnd={handleDragEnd}
                         onDragOver={(e) => e.preventDefault()}
@@ -1400,6 +1508,7 @@ function MakeEbookPage() {
                             onClick={(e) => {
                               e.stopPropagation();
                               handleRemoveChapter(i);
+                              markDirty();
                             }}
                             aria-label="Delete Chapter"
                           >
@@ -1431,9 +1540,7 @@ function MakeEbookPage() {
                     <HandleDragIcon isSelected={ghostPillContent.isSelected} />
                     <div className="flex flex-col items-center gap-0 flex-1 justify-center">
                       <span className={`text-[10px] font-normal ${ghostPillContent.isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
-                        {ghostPillContent.type === 'frontmatter' && 'Frontmatter'}
-                        {ghostPillContent.type === 'backmatter' && 'Backmatter'} 
-                        {ghostPillContent.type === 'content' && 'Chapter'}
+                        {ghostPillContent.type === 'frontmatter' ? 'Front Matter' : ghostPillContent.type === 'backmatter' ? 'Back Matter' : 'Content'}
                       </span>
                       <span className={`text-xs font-medium ${ghostPillContent.isSelected ? 'text-white' : 'text-[#050505]'}`}>
                         {ghostPillContent.title}
@@ -1441,224 +1548,69 @@ function MakeEbookPage() {
                     </div>
                   </div>
                 )}
-                </div>
-                
-                {/* Compact Chapter Title Input in Header */}
-                <div className="mt-2">
-                  <label className="block text-xs text-[#737373] mb-1">Chapter title</label>
-                  <input
-                    className="w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm touch-manipulation"
-                    placeholder="Enter chapter title..."
-                    value={chapters[selectedChapter]?.title ?? ""}
-                    onChange={(e) =>
-                      handleChapterTitleChange(selectedChapter, e.target.value)
-                    }
-                  />
-                </div>
               </div>
 
-              {/* Rich Text Editor - Maximized for Writing */}
-              <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
-                <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between">
-                  <label className="block text-xs text-[#737373]">Chapter content</label>
-                  <div className="flex items-start gap-2">
-                    <div className="flex flex-col items-center">
-                      <button
-                        title="Undo content changes"
-                        type="button"
-                        className="hover:opacity-70 transition-opacity"
-                        onClick={() => {
-                          const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
-                          if (editorElement) {
-                            editorElement.focus();
-                            document.execCommand('undo');
-                          }
-                        }}
-                      >
-                        <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                          <Image
-                            src="/undo-icon.svg"
-                            alt="Undo"
-                            width={16}
-                            height={16}
-                            className="w-4 h-4"
-                            style={{ borderRadius: '0', boxShadow: 'none' }}
-                          />
-                        </div>
-                      </button>
-                      <span className="text-xs font-medium text-[#050505] mt-1">Undo</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <button
-                        title="Redo content changes"
-                        type="button"
-                        className="hover:opacity-70 transition-opacity"
-                        onClick={() => {
-                          const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
-                          if (editorElement) {
-                            editorElement.focus();
-                            document.execCommand('redo');
-                          }
-                        }}
-                      >
-                        <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                          <Image
-                            src="/redo-icon.svg"
-                            alt="Redo"
-                            width={16}
-                            height={16}
-                            className="w-4 h-4"
-                            style={{ borderRadius: '0', boxShadow: 'none' }}
-                          />
-                        </div>
-                      </button>
-                      <span className="text-xs font-medium text-[#050505] mt-1">Redo</span>
-                    </div>
+              {/* Selected Chapter Editor */}
+              {chapters[selectedChapter] && (
+                <div className="flex flex-col gap-3 flex-1 min-h-0">
+                  {/* Chapter Title */}
+                  <input
+                    type="text"
+                    value={chapters[selectedChapter].title}
+                    onChange={(e) => { handleChapterTitleChange(selectedChapter, e.target.value); markDirty(); }}
+                    placeholder="Chapter Title"
+                    className="text-xl font-bold bg-white border border-[#E8E8E8] rounded px-4 py-3 focus:border-black outline-none focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0]"
+                    style={{ boxShadow: "none" }}
+                  />
+                  {/* Chapter Content */}
+                  <div className="flex-1 min-h-0 overflow-hidden">
+                    <RichTextEditor
+                      value={chapters[selectedChapter].content}
+                      onChange={(value) => { handleChapterContentChange(selectedChapter, value); markDirty(); }}
+                      placeholder="Start writing your chapter..."
+                      onCreateEndnote={handleCreateEndnote}
+                      chapterId={chapters[selectedChapter].id}
+                    />
                   </div>
                 </div>
-                <div className="flex-1 min-h-0" style={{ minHeight: '400px' }}>
-                  <RichTextEditor
-                    value={chapters[selectedChapter]?.content || ""}
-                    onChange={(html) => handleChapterContentChange(selectedChapter, html)}
-                    minHeight={300}
-                    showWordCount
-                    placeholder={
-                      selectedChapter === 0
-                        ? "Start writing your first chapter here..."
-                        : "Start writing your chapter here..."
-                    }
-                    className="h-full"
-                    onCreateEndnote={handleCreateEndnote}
-                    chapterId={`chapter-${selectedChapter}`}
-                  />
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* DESKTOP layout */}
-            <div className="hidden lg:flex flex-col gap-3 flex-1 min-h-0 overflow-y-auto">
-              {/* Compact Chapters Section */}
-              <div className="flex flex-col gap-2 flex-shrink-0">
-                <div className="mb-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <ChaptersIcon className="w-5 h-5" />
-                      <h3 className="text-sm font-bold text-[#050505]">
-                        Chapters
-                      </h3>
-                    </div>
+            {/* DESKTOP EDITOR - Traditional layout (same as before) */}
+            <div className="hidden lg:flex flex-col gap-4 flex-1 min-h-0">
+              {/* Chapter Selection */}
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <ChaptersIcon className="w-5 h-5" />
+                    <h3 className="text-sm font-bold text-[#050505]">Chapters</h3>
                   </div>
-                  <p className="text-[10px] text-[#737373] -mb-1">Drag to reorder</p>
-                </div>
-                <div className="flex flex-wrap gap-2 min-h-[8px] pt-1">
-                  {chapters.map((ch, i) => {
-                    const isSelected = selectedChapter === i;
-                    const titleText = ch.title?.trim() || 'Title';
-                    
-                    // Calculate chapter type label and title
-                    const getChapterInfo = () => {
-                      if (ch.type === 'frontmatter') {
-                        return {
-                          typeLabel: 'Frontmatter',
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      if (ch.type === 'backmatter') {
-                        return {
-                          typeLabel: 'Backmatter', 
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      // Content chapters
-                      const contentChapterNum = getContentChapterNumber(chapters, i);
-                      return {
-                        typeLabel: `Chapter ${contentChapterNum}`,
-                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                      };
-                    };
-
-                    const { typeLabel, title } = getChapterInfo();
-                    return (
-                      <div
-                        key={i}
-                        ref={el => { chapterRefs.current[i] = el }}
-                        className={`flex items-center px-3 py-1 cursor-pointer transition relative rounded flex-shrink-0
-                          ${isSelected 
-                            ? "bg-[#181a1d] text-white font-semibold" 
-                            : "bg-[#F7F7F7] text-[#050505] hover:bg-[#F2F2F2]"}
-                          ${dragOverIndex === i 
-                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
-                            : 'border-2 border-transparent'}
-                          `}
-                        draggable
-                        onDragStart={() => handleDragStart(i)}
-                        onDragEnter={() => handleDragEnter(i)}
-                        onDragEnd={handleDragEnd}
-                        onDragOver={(e) => e.preventDefault()}
-                        onClick={() => handleSelectChapter(i)}
-                      >
-                        <HandleDragIcon isSelected={isSelected} />
-                        <div className="flex flex-col gap-0 ml-2 min-w-0">
-                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
-                            {typeLabel}
-                          </span>
-                          <span className={`text-[12px] font-medium ${isSelected ? 'text-white' : 'text-[#050505]'}`}>
-                            {title}
-                          </span>
-                        </div>
-                        {chapters.length > 1 && (
-                          <button
-                            className={`ml-2 p-1 rounded transition focus:outline-none ${
-                              isSelected 
-                                ? "hover:bg-white/10 text-white/65 hover:text-white" 
-                                : "hover:bg-black/10 text-[#050505]/65 hover:text-[#050505]"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveChapter(i);
-                            }}
-                            aria-label="Delete Chapter"
-                          >
-                            <BinIcon 
-                              key={`desktop-bin-${i}-${isSelected}`}
-                              className="w-4 h-4"
-                              stroke={isSelected ? "#ffffff" : "#050505"}
-                            />
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {/* Add Chapter Button */}
-                  <div className="relative">
+                  <div className="relative" ref={dropdownRef}>
                     <button
                       onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
-                      aria-label="Add new chapter"
-                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
+                      className="flex items-center gap-2 px-3 py-2 rounded text-xs font-medium bg-[#181a1d] text-white hover:bg-[#23252a] transition"
                     >
-                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                        <PlusIcon className="w-4 h-4" />
-                      </div>
-                      <span className="text-xs font-medium text-[#050505]">Add</span>
+                      <PlusIcon className="w-4 h-4" />
+                      Add Chapter
                     </button>
                     {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
-                        <div className="p-3">
-                          <div className="space-y-4">
+                      <div className="absolute z-50 top-full right-0 mt-1 w-72 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
+                        <div className="p-2">
+                          <div className="space-y-3">
                             <div>
-                              <div className="mb-3">
+                              <div className="mb-2">
                                 <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Front Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
                                   <button
                                     key={template.title}
-                                    onMouseDown={(e) => {
+                                    onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      console.log('Desktop clicked template:', template);
                                       handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
+                                      markDirty();
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
@@ -1668,19 +1620,19 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <div className="mb-3">
+                              <div className="mb-2">
                                 <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Main Content</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.content.map((template) => (
                                   <button
                                     key={template.title}
-                                    onMouseDown={(e) => {
+                                    onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      console.log('Desktop clicked template:', template);
                                       handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
+                                      markDirty();
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
@@ -1690,19 +1642,19 @@ function MakeEbookPage() {
                               </div>
                             </div>
                             <div>
-                              <div className="mb-3">
+                              <div className="mb-2">
                                 <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Back Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
                                   <button
                                     key={template.title}
-                                    onMouseDown={(e) => {
+                                    onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      console.log('Desktop clicked template:', template);
                                       handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
+                                      markDirty();
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
                                   >
@@ -1717,116 +1669,124 @@ function MakeEbookPage() {
                     )}
                   </div>
                 </div>
-              </div>
-              
-              {/* Editor Area - Prioritized for Writing */}
-              <section className="flex flex-col min-w-0 flex-1 min-h-0">
-                {/* Compact Chapter Title Header */}
-                <div className="mb-1 flex-shrink-0 bg-white border-b border-[#F2F2F2] pb-2">
-                  <label className="block text-xs text-[#737373] mb-1">Chapter title</label>
-                  <input
-                    className="w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm"
-                    placeholder="Enter chapter title..."
-                    value={chapters[selectedChapter]?.title ?? ""}
-                    onChange={(e) =>
-                      handleChapterTitleChange(selectedChapter, e.target.value)
-                    }
-                  />
-                </div>
-                {/* Rich Text Editor - Maximum Space */}
-                <div className="w-full max-w-full flex-1 min-h-0 flex flex-col">
-                  <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between">
-                    <label className="block text-xs text-[#737373]">Chapter content</label>
-                    <div className="flex items-start gap-2">
-                      <div className="flex flex-col items-center">
-                        <button
-                          title="Undo content changes"
-                          type="button"
-                          className="hover:opacity-70 transition-opacity"
-                          onClick={() => {
-                            const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
-                            if (editorElement) {
-                              editorElement.focus();
-                              document.execCommand('undo');
-                            }
-                          }}
+                <p className="text-xs text-[#737373] mb-2">Click to select, drag to reorder</p>
+                <div className="relative">
+                  <div className="flex flex-wrap gap-2">
+                    {chapters.map((ch, i) => {
+                      const isSelected = selectedChapter === i;
+                      const titleText = ch.title?.trim() || 'Title';
+                      
+                      const getChapterInfo = () => {
+                        if (ch.type === 'frontmatter') {
+                          return {
+                            typeLabel: 'Frontmatter',
+                            title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                          };
+                        }
+                        if (ch.type === 'backmatter') {
+                          return {
+                            typeLabel: 'Backmatter',
+                            title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                          };
+                        }
+                        const contentChapterNum = getContentChapterNumber(chapters, i);
+                        return {
+                          typeLabel: `Chapter ${contentChapterNum}`,
+                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                        };
+                      };
+
+                      const { typeLabel, title } = getChapterInfo();
+                      
+                      return (
+                        <div
+                          key={i}
+                          ref={(el) => { chapterRefs.current[i] = el; }}
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium transition-all cursor-pointer select-none group relative ${
+                            dragOverIndex === i 
+                              ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
+                              : 'border-2 border-transparent'
+                          } ${
+                            isSelected 
+                              ? "bg-[#181a1d] text-white shadow-sm" 
+                              : "bg-[#F7F7F7] text-[#050505] hover:bg-[#F2F2F2]"
+                          }`}
+                          draggable
+                          onDragStart={() => { handleDragStart(i); markDirty(); }}
+                          onDragEnter={() => handleDragEnter(i)}
+                          onDragEnd={handleDragEnd}
+                          onDragOver={(e) => e.preventDefault()}
+                          onClick={() => handleSelectChapter(i)}
                         >
-                          <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                            <Image
-                              src="/undo-icon.svg"
-                              alt="Undo"
-                              width={16}
-                              height={16}
-                              className="w-4 h-4"
-                              style={{ borderRadius: '0', boxShadow: 'none' }}
-                            />
+                          <HandleDragIcon isSelected={isSelected} />
+                          <div className="flex flex-col items-center gap-0 flex-1 justify-center">
+                            <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
+                              {typeLabel}
+                            </span>
+                            <span className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-[#050505]'}`}>
+                              {title}
+                            </span>
                           </div>
-                        </button>
-                        <span className="text-xs font-medium text-[#050505] mt-1">Undo</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <button
-                          title="Redo content changes"
-                          type="button"
-                          className="hover:opacity-70 transition-opacity"
-                          onClick={() => {
-                            const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
-                            if (editorElement) {
-                              editorElement.focus();
-                              document.execCommand('redo');
-                            }
-                          }}
-                        >
-                          <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                            <Image
-                              src="/redo-icon.svg"
-                              alt="Redo"
-                              width={16}
-                              height={16}
-                              className="w-4 h-4"
-                              style={{ borderRadius: '0', boxShadow: 'none' }}
-                            />
-                          </div>
-                        </button>
-                        <span className="text-xs font-medium text-[#050505] mt-1">Redo</span>
-                      </div>
-                    </div>
+                          {chapters.length > 1 && (
+                            <button
+                              className={`flex items-center justify-center focus:outline-none transition-all p-1 rounded ${
+                                isSelected 
+                                  ? "opacity-100 hover:bg-white/30" 
+                                  : "opacity-70 hover:opacity-100 hover:bg-black/10"
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveChapter(i);
+                                markDirty();
+                              }}
+                              aria-label="Delete Chapter"
+                            >
+                              <BinIcon 
+                                className="w-4 h-4 transition"
+                                stroke={isSelected ? "#ffffff" : "#050505"}
+                              />
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                  <div className="flex-1 min-h-0">
+                  {selectedChapter >= 0 && selectedChapter < chapters.length && (
+                    <ChapterCapsuleMarker markerStyle={markerStyle} />
+                  )}
+                </div>
+              </div>
+
+              {/* Chapter Editor */}
+              {chapters[selectedChapter] && (
+                <div className="flex flex-col gap-3 flex-1 min-h-0">
+                  <input
+                    type="text"
+                    value={chapters[selectedChapter].title}
+                    onChange={(e) => { handleChapterTitleChange(selectedChapter, e.target.value); markDirty(); }}
+                    placeholder="Chapter Title"
+                    className="text-xl font-bold bg-white border border-[#E8E8E8] rounded px-4 py-3 focus:border-black outline-none focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0]"
+                    style={{ boxShadow: "none" }}
+                  />
+                  <div className="flex-1 min-h-0 overflow-hidden">
                     <RichTextEditor
-                      value={chapters[selectedChapter]?.content || ""}
-                      onChange={(html) =>
-                        handleChapterContentChange(selectedChapter, html)
-                      }
-                      minHeight={400}
-                      showWordCount
-                      placeholder={
-                        selectedChapter === 0
-                          ? "Start writing your first chapter here..."
-                          : "Start writing your chapter here..."
-                      }
-                      className="h-full"
+                      value={chapters[selectedChapter].content}
+                      onChange={(value) => { handleChapterContentChange(selectedChapter, value); markDirty(); }}
+                      placeholder="Start writing your chapter..."
                       onCreateEndnote={handleCreateEndnote}
-                      chapterId={`chapter-${selectedChapter}`}
+                      chapterId={chapters[selectedChapter].id}
                     />
                   </div>
                 </div>
-              </section>
-            </div>
-          </main>
-        </div>
-
-        {/* Terms/Privacy links moved to mobile editor footer */}
-      </div>
-    </>
+              )}</div></main></div></div>
+    </div>
   );
 }
 
-// Wrap `MakeEbookPage` in authentication protection and `Suspense` boundary
-export default function ProtectedMakeEbookPage() {
+export default function MakeEbookPageWrapper() {
   return (
     <ProtectedRoute>
-      <Suspense fallback={<div>Loading makeEbook...</div>}>
+      <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
         <MakeEbookPage />
       </Suspense>
     </ProtectedRoute>

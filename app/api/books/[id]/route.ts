@@ -103,24 +103,26 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { title, author, description, coverImage, chapters, tags, publisher, pubDate, isbn, language, genre } = body
+    const { title, author, blurb, coverUrl, chapters, tags, publisher, pubDate, isbn, language, genre, endnotes, endnoteReferences } = body
+
+    const updateData: any = { updatedAt: new Date() }
+    if (title !== undefined) updateData.title = title
+    if (author !== undefined) updateData.author = author
+    if (blurb !== undefined) updateData.blurb = blurb
+    if (coverUrl !== undefined) updateData.coverUrl = coverUrl
+    if (chapters !== undefined) updateData.chapters = chapters
+    if (tags !== undefined) updateData.tags = tags
+    if (publisher !== undefined) updateData.publisher = publisher
+    if (pubDate !== undefined) updateData.pubDate = pubDate
+    if (isbn !== undefined) updateData.isbn = isbn
+    if (language !== undefined) updateData.language = language
+    if (genre !== undefined) updateData.genre = genre
+    if (endnotes !== undefined) updateData.endnotes = endnotes
+    if (endnoteReferences !== undefined) updateData.endnoteReferences = endnoteReferences
 
     const [book] = await db
       .update(ebooks)
-      .set({
-        title,
-        author,
-        description,
-        coverImage,
-        chapters,
-        tags,
-        publisher,
-        pubDate,
-        isbn,
-        language,
-        genre,
-        updatedAt: new Date(),
-      })
+      .set(updateData)
       .where(and(eq(ebooks.id, params.id), eq(ebooks.userId, user.id)))
       .returning()
     
