@@ -90,14 +90,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { title, author, description, coverImage, chapters, tags, publisher, pubDate, isbn, language, genre } = body
+    const { title, author, blurb, coverUrl, chapters, tags, publisher, pubDate, isbn, language, genre, endnotes, endnoteReferences } = body
 
     const [book] = await db.insert(ebooks).values({
       userId: user.id,
       title: title || 'Untitled Book',
       author: author || 'Unknown Author',
-      description: description || '',
-      coverImage: coverImage || null,
+      blurb: blurb || '',
+      coverUrl: coverUrl || null,
       chapters: chapters || [],
       tags: tags || [],
       publisher: publisher || null,
@@ -105,6 +105,8 @@ export async function POST(req: NextRequest) {
       isbn: isbn || null,
       language: language || null,
       genre: genre || null,
+      endnotes: endnotes || [],
+      endnoteReferences: endnoteReferences || [],
     }).returning()
     
     return NextResponse.json({ book }, { status: 201, headers: response.headers })

@@ -57,8 +57,8 @@ export async function POST(
       userId: user.id,
       title: `${originalBook.title} (Copy)`,
       author: originalBook.author,
-      description: originalBook.description,
-      coverImage: originalBook.coverImage,
+      blurb: originalBook.blurb,
+      coverUrl: originalBook.coverUrl,
       chapters: originalBook.chapters,
       tags: originalBook.tags,
       publisher: originalBook.publisher,
@@ -66,6 +66,8 @@ export async function POST(
       isbn: originalBook.isbn,
       language: originalBook.language,
       genre: originalBook.genre,
+      endnotes: originalBook.endnotes,
+      endnoteReferences: originalBook.endnoteReferences,
     }).returning()
     
     return NextResponse.json({ book: duplicatedBook }, { status: 201, headers: response.headers })

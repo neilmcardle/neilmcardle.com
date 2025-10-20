@@ -16,8 +16,8 @@ export const ebooks = pgTable('ebooks', {
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   title: text('title').notNull(),
   author: text('author').notNull(),
-  description: text('description'),
-  coverImage: text('cover_image'),
+  blurb: text('blurb'),
+  coverUrl: text('cover_url'),
   publisher: text('publisher'),
   pubDate: text('pub_date'),
   isbn: text('isbn'),
@@ -27,10 +27,22 @@ export const ebooks = pgTable('ebooks', {
     id: string
     title: string
     content: string
-    order: number
     type: 'frontmatter' | 'content' | 'backmatter'
   }>>().notNull().default([]),
   tags: json('tags').$type<string[]>().default([]),
+  endnotes: json('endnotes').$type<Array<{
+    id: string
+    number: number
+    content: string
+    sourceChapterId: string
+    sourceText: string
+  }>>().default([]),
+  endnoteReferences: json('endnote_references').$type<Array<{
+    id: string
+    number: number
+    chapterId: string
+    endnoteId: string
+  }>>().default([]),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
