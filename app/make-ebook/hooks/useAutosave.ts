@@ -8,7 +8,7 @@ interface UseAutosaveOptions {
   enabled?: boolean;
 }
 
-export function useAutosave({ onSave, debounceMs = 2000, enabled = true }: UseAutosaveOptions) {
+export function useAutosave({ onSave, debounceMs = 10000, enabled = true }: UseAutosaveOptions) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [isDirty, setIsDirty] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
