@@ -1575,6 +1575,7 @@ function MakeEbookPage() {
                 </div>
               )}
             </div>
+          </div>
 
             {/* DESKTOP EDITOR - Traditional layout (same as before) */}
             <div className="hidden lg:flex flex-col gap-4 flex-1 min-h-0">
@@ -1779,11 +1780,7 @@ function MakeEbookPage() {
                   </div>
                 </div>
               )}
-            </div>
-          </main>
-        </div>
-      </div>
-    </div>
+            </div></main></div></div></div>
   );
 }
 
