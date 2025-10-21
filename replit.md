@@ -26,7 +26,8 @@ Preferred communication style: Simple, everyday language.
 ### Data Storage Solutions
 - **Primary Database**: PostgreSQL hosted on Supabase
 - **ORM**: Drizzle ORM with TypeScript for database schema management
-- **Local Storage**: Browser localStorage for temporary data and user preferences
+- **Cloud Storage**: makeEbook uses PostgreSQL for persistent eBook storage with 10-second autosave
+- **Migration System**: Automatic one-time migration from localStorage to cloud on first authenticated login
 - **File Storage**: Supabase Storage for images, documents, and generated eBooks
 
 ### Authentication and Authorization
@@ -63,3 +64,36 @@ Preferred communication style: Simple, everyday language.
 - **Google Fonts**: Inter and Playfair Display fonts for typography
 - **Social Media Embeds**: Custom Twitter/X post embedding functionality
 - **EPUB Export**: Custom eBook generation and export functionality
+
+## makeEbook Feature Implementation
+
+### Cloud Storage System (October 2025)
+The makeEbook tool has been upgraded with a production-ready cloud storage system to replace localStorage and prevent data loss:
+
+**Key Features:**
+- **Cloud Persistence**: All books automatically saved to PostgreSQL database via Supabase
+- **10-Second Autosave**: Debounced autosave with visible status indicator (Saved/Saving/Unsaved)
+- **Authentication-Gated**: Cloud operations only execute when user is authenticated (prevents 401 errors)
+- **Automatic Migration**: One-time migration from localStorage to cloud on first authenticated login
+  - Reads both legacy storage keys (`makeebook_library` and `ebookLibrary`)
+  - Deduplicates books by title, author, and content
+  - Only marks migration complete on 100% success (allows retry on failures)
+  - Clears localStorage after successful migration
+
+**Database Schema:**
+The `ebooks` table includes:
+- Basic metadata: title, author, blurb, cover_url, publisher, pub_date, isbn, language, genre
+- Content: chapters (JSON array), tags (JSON array)
+- Academic features: endnotes, endnote_references (JSON arrays)
+- Tracking: created_at, updated_at timestamps
+- Foreign key relationship to users table
+
+**API Routes:**
+- `GET /api/books` - Fetch all books for authenticated user
+- `POST /api/books` - Create new book
+- `PUT /api/books/[id]` - Update existing book
+- `DELETE /api/books/[id]` - Delete book
+
+**Known Limitations:**
+- Foreign key constraint requires user record to exist in local database (auth callback issue)
+- Migration retry after partial failure may create duplicate cloud books (idempotency improvement planned)
