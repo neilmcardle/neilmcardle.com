@@ -25,6 +25,7 @@ import { exportEpub } from "./utils/exportEpub";
 import RichTextEditor from "./components/RichTextEditor";
 import { useCloudBooks } from "./hooks/useCloudBooks";
 import { useAutosave } from "./hooks/useAutosave";
+import { migrateLocalStorageBooksToCloud, hasCompletedMigration } from "./utils/migrateFromLocalStorage";
 
 const HEADER_HEIGHT = 64; // px (adjust if your header is taller/shorter)
 const BOOK_LIBRARY_KEY = "makeebook_library";
@@ -122,6 +123,7 @@ function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
 function MakeEbookPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const { lockedSections, setLockedSections } = useLockedSections();
   const { coverFile, setCoverFile, handleCoverChange, coverUrl } = useCover();
 
@@ -213,7 +215,7 @@ function MakeEbookPage() {
   // Initialize autosave hook
   const { saveStatus, markDirty, save: manualSave } = useAutosave({
     onSave: handleAutosave,
-    debounceMs: 2000,
+    debounceMs: 10000,
     enabled: true,
   });
 
@@ -291,48 +293,40 @@ function MakeEbookPage() {
   // Migration from localStorage to cloud
   useEffect(() => {
     async function migrateLocalStorageToCloud() {
-      if (migrated) return;
+      // Don't migrate if already completed or if user is not authenticated
+      if (!user || authLoading || hasCompletedMigration()) {
+        setMigrated(true);
+        return;
+      }
 
-      const localBooks = loadBookLibrary();
-      if (localBooks.length > 0) {
-        console.log(`Migrating ${localBooks.length} books from localStorage to cloud...`);
-        
-        for (const book of localBooks) {
-          try {
-            await cloudBooks.createBook({
-              title: book.title || "",
-              author: book.author || "",
-              blurb: book.blurb || null,
-              coverUrl: book.coverUrl || null,
-              publisher: book.publisher || null,
-              pubDate: book.pubDate || null,
-              isbn: book.isbn || null,
-              language: book.language || null,
-              genre: book.genre || null,
-              chapters: book.chapters || [],
-              tags: book.tags || [],
-              endnotes: book.endnotes || [],
-              endnoteReferences: book.endnoteReferences || [],
-            });
-          } catch (error) {
-            console.error(`Failed to migrate book ${book.id}:`, error);
-          }
-        }
-
-        // Clear localStorage after successful migration
-        localStorage.removeItem(BOOK_LIBRARY_KEY);
-        console.log('Migration complete. LocalStorage cleared.');
+      // Use the migration utility
+      const result = await migrateLocalStorageBooksToCloud(cloudBooks.createBook);
+      
+      if (result.migrated > 0) {
+        console.log(`Successfully migrated ${result.migrated} books to cloud`);
+      }
+      if (result.errors > 0) {
+        console.error(`Failed to migrate ${result.errors} books`);
       }
 
       setMigrated(true);
     }
 
     migrateLocalStorageToCloud();
-  }, [migrated, cloudBooks]);
+  }, [user, authLoading, cloudBooks]);
 
   // Load books from cloud
   useEffect(() => {
     async function loadCloudBooks() {
+      // Gate cloud fetches behind authentication
+      if (!user || authLoading) {
+        setIsLoadingBooks(false);
+        if (!authLoading) {
+          setInitialized(true);
+        }
+        return;
+      }
+
       setIsLoadingBooks(true);
       const books = await cloudBooks.getAllBooks();
       setLibraryBooks(books);
@@ -363,7 +357,7 @@ function MakeEbookPage() {
     if (migrated) {
       loadCloudBooks();
     }
-  }, [searchParams, initialized, currentBookId, chapters.length, migrated, cloudBooks]);
+  }, [searchParams, initialized, currentBookId, chapters.length, migrated, user, authLoading, cloudBooks]);
 
   function showNewBookConfirmation() {
     setNewBookConfirmOpen(true);
