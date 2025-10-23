@@ -28,19 +28,30 @@ export default function ExplorePage() {
       <main className="pt-20">
         <section className={`container mx-auto px-4 py-16 text-center transition-all duration-1000 ease-out transform ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
           <div className="max-w-4xl mx-auto">
-            <div className="flex justify-center mb-8">
-              <MakeEbookIcon className="w-24 h-24 text-gray-900" />
+            <div className="flex justify-center mb-6">
+              <MakeEbookIcon className="w-32 h-32 text-gray-900" />
             </div>
-            
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              Create Beautiful
-              <span className="block text-gray-900">eBooks Effortlessly</span>
-            </h1>
-            
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Professional eBook creation tool with rich text editing, chapter management, and export capabilities. 
-              Perfect for authors, educators, and content creators.
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 tracking-tight">Sign up</h1>
+            <p className="text-base text-gray-700 mb-6 max-w-xl mx-auto font-normal">
+              Access my free eBook creation tool to start building professional eBooks in minutes.
             </p>
+            <ul className="text-gray-700 text-sm mb-8 space-y-2 text-left font-normal max-w-md mx-auto">
+              <li className="flex items-center gap-2 justify-center"><FileText className="w-5 h-5" /> Rich text formatting</li>
+              <li className="flex items-center gap-2 justify-center"><BookOpen className="w-5 h-5" /> Cover image upload, chapter & metadata management</li>
+              <li className="flex items-center gap-2 justify-center"><Download className="w-5 h-5" /> Save to your library and export for ePub eReaders</li>
+            </ul>
+            <div className="flex justify-center">
+              <AuthModal 
+                trigger={
+                  <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white text-base px-8 py-3 rounded-full font-semibold shadow-md mb-2">
+                    Get Started Free
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                }
+                mode="signup"
+              />
+            </div>
+            <p className="text-xs text-gray-400 mt-2 text-center">No credit card required</p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {user ? (

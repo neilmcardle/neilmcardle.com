@@ -22,6 +22,20 @@ interface HeaderProps {
 }
 
 export function Header({ onNewBook }: HeaderProps = {}) {
+  // Stripe checkout handler
+  const handleStripeCheckout = async () => {
+    const res = await fetch('/api/create-checkout-session', { method: 'POST' });
+    const { sessionId } = await res.json();
+    const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+    if (!publishableKey) {
+      alert('Stripe publishable key is missing.');
+      return;
+    }
+    const stripe = await (await import('@stripe/stripe-js')).loadStripe(publishableKey);
+    if (stripe) {
+      await stripe.redirectToCheckout({ sessionId });
+    }
+  };
   const pathname = usePathname();
   const { signOut, user } = useAuth();
 
@@ -49,26 +63,33 @@ export function Header({ onNewBook }: HeaderProps = {}) {
   }
 
   return (
-    <header className="w-full border-b border-gray-200 bg-white flex-shrink-0 h-[64px] flex items-center">
-      <div className="max-w-full mx-auto flex items-center justify-between px-4 sm:px-6 py-2 gap-2 w-full">
-        {/* Left: Back arrow (if not on root editor) and logo */}
+    <header className="w-full border-b border-gray-200 bg-white flex-shrink-0 h-[64px]">
+  <div className="flex items-center justify-between pr-4 pl-2 h-[64px] w-full">
+        {/* Left: Logo flush with left edge */}
         <div className="flex items-center gap-2 min-w-0">
           {showBack && (
             <BackArrowButton className="mr-2" label="Back" />
           )}
-          <Link href="/make-ebook/explore" className="flex items-center gap-2 min-w-0 -ml-[28px] lg:-ml-[28px]">
+          <Link href="/make-ebook/explore" className="flex items-center gap-2 min-w-0">
             <Image
               src="/makeEbook-full-logo.svg"
-              alt="makeEbook logo"
-              width={192}
+              alt="makeEBook logo"
+              width={130}
               height={51}
-              className="h-[51px]"
+              className="h-[51px] w-[130px]"
               priority
             />
           </Link>
         </div>
-        {/* Right: User icon only */}
-        <div className="flex items-center gap-2 min-w-[40px] justify-end">
+        {/* Right: Stripe button and user icon flush with right edge */}
+        <div className="flex items-center gap-2 min-w-[40px]">
+          <button
+            onClick={handleStripeCheckout}
+            className="px-4 py-2 rounded bg-[#181a1d] text-white text-sm font-semibold hover:bg-[#23252a] transition-colors"
+            type="button"
+          >
+            Unlock Full Access
+          </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition px-0" aria-label="User menu">

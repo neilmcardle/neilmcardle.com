@@ -117,6 +117,20 @@ function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
 }
 
 function MakeEbookPage() {
+  // Stripe checkout handler
+  const handleStripeCheckout = async () => {
+    const res = await fetch('/api/create-checkout-session', { method: 'POST' });
+    const { sessionId } = await res.json();
+    const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+    if (!publishableKey) {
+      alert('Stripe publishable key is missing.');
+      return;
+    }
+    const stripe = await (await import('@stripe/stripe-js')).loadStripe(publishableKey);
+    if (stripe) {
+      await stripe.redirectToCheckout({ sessionId });
+    }
+  };
   const searchParams = useSearchParams();
   const router = useRouter();
   const { lockedSections, setLockedSections } = useLockedSections();
@@ -308,7 +322,7 @@ function MakeEbookPage() {
     const books = loadBookLibrary();
     setLibraryBooks(books);
 
-    const loadBookId = searchParams.get('load');
+  const loadBookId = searchParams ? searchParams.get('load') : null;
     if (loadBookId) {
       const bookToLoad = books.find(book => book.id === loadBookId);
       if (bookToLoad) {
@@ -616,11 +630,15 @@ function MakeEbookPage() {
   return (
     <>
       {/* Fixed Header */}
-      <div className="fixed top-0 left-0 w-full z-[110]">
-        <Header />
+        <div className="fixed top-0 left-0 w-full z-[110] bg-white border-b border-gray-100">
+          <div className="flex items-center justify-between pr-4 pl-4 h-[64px] w-full">
+          {/* Left: Logo and nav (Header) */}
+          <Header />
+          {/* User icon and Stripe button are now handled inside Header */}
+        </div>
       </div>
-      {/* Main Content */}
-      <div className="bg-[#FFFFFF] text-[#15161a] pt-[64px]">
+      {/* Main Content - add margin-top to offset header height */}
+      <div className="bg-[#FFFFFF] text-[#15161a] mt-[64px]">
         {/* Library Panel */}
         {libraryOpen && (
           <div className="fixed inset-0 z-[120] bg-black/20 flex items-start justify-center">
@@ -933,7 +951,7 @@ function MakeEbookPage() {
         <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden">
           {/* Desktop Sidebar - Hidden on Mobile */}
           <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 pl-2 pr-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
-            <nav className="flex flex-row items-center gap-1 pb-2 overflow-x-auto">
+            <nav className="flex flex-row items-center gap-1 pb-2 overflow-x-auto ml-4">
               {["setup", "preview", "library"].map((key) => (
                 <button
                   key={key}
