@@ -28,13 +28,13 @@ export default function ProfileCardHomepage() {
             <img
               src="/paintbrush.svg"
               alt="Paintbrush"
-              style={{ position: 'absolute', top: 40, left: 40, width: 56, height: 56 }}
+              style={{ position: 'absolute', top: 24, left: 24, width: 56, height: 56 }}
             />
             {/* Mouse icon, 16px from top/right, 40px size */}
             <img
               src="/mouse.svg"
               alt="Mouse"
-              style={{ position: 'absolute', top: 40, right: 40, width: 56, height: 56 }}
+              style={{ position: 'absolute', top: 24, right: 24, width: 56, height: 56 }}
             />
           </div>
 
@@ -163,7 +163,7 @@ export default function ProfileCardHomepage() {
                       onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
                     >
                       <Mail className="w-5 h-5" />
-                      
+                      Get in Touch
                     </button>
                 </div>
               ) : (
