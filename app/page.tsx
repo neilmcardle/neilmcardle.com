@@ -23,12 +23,18 @@ export default function ProfileCardHomepage() {
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10">
           {/* Banner Section */}
-          <div className="relative h-40 md:h-48 px-6 md:px-[6rem] flex items-center justify-between pointer-events-none">
-            <Image
-              src="/baner-top-split-icons.png"
-              alt="Banner"
-              fill
-              className="object-cover"
+          <div className="relative h-40 md:h-48 px-6 md:px-[6rem] flex items-center justify-between pointer-events-none" style={{ backgroundColor: '#f2f2f2' }}>
+            {/* Paintbrush icon, 16px from top/left, 40px size */}
+            <img
+              src="/paintbrush.svg"
+              alt="Paintbrush"
+              style={{ position: 'absolute', top: 40, left: 40, width: 56, height: 56 }}
+            />
+            {/* Mouse icon, 16px from top/right, 40px size */}
+            <img
+              src="/mouse.svg"
+              alt="Mouse"
+              style={{ position: 'absolute', top: 40, right: 40, width: 56, height: 56 }}
             />
           </div>
 
@@ -133,19 +139,33 @@ export default function ProfileCardHomepage() {
             {/* Get in Touch Reveal & Copy */}
             <div className="text-center mt-4 flex flex-col items-center">
               {!showEmail ? (
-                <button
-                  type="button"
-                  onClick={handleReveal}
-                  className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-2 rounded-full font-medium text-base inline-flex items-center gap-2 transition-transform shadow-md"
-                  aria-label="Reveal email"
+                <div
                   style={{
-                    boxShadow:
-                      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                    borderRadius: '999px',
+                    padding: '3px',
+                    background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                    boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
+                    display: 'inline-block',
                   }}
                 >
-                  <Mail className="w-5 h-5" />
-                  Get in Touch
-                </button>
+                    <button
+                      type="button"
+                      onClick={handleReveal}
+                      className="text-gray-900 px-6 py-2 font-medium text-base inline-flex items-center gap-2 transition-transform focus:outline-none"
+                      aria-label="Reveal email"
+                      style={{
+                        borderRadius: '999px',
+                        background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',  
+                        border: 'none',
+                        transition: 'background 0.2s',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
+                    >
+                      <Mail className="w-5 h-5" />
+                      
+                    </button>
+                </div>
               ) : (
                 <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full font-medium text-base">
                   <Mail className="w-5 h-5 text-gray-700" />
@@ -153,7 +173,7 @@ export default function ProfileCardHomepage() {
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className="text-gray-700 hover:text-green-600 transition-colors"
+                    className="text-gray-700 hover:text-green-600 transition-colors focus:outline-none"
                     aria-label="Copy email to clipboard"
                   >
                     <Copy className="w-5 h-5" />
