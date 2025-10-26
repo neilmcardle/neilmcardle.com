@@ -41,7 +41,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
 
   // Set the root page(s) where you do NOT want the back arrow to show:
   const ROOT_EDITOR_PATHS = ["/make-ebook", "/make-ebook/"];
-  const showBack = !ROOT_EDITOR_PATHS.includes(pathname);
+  const showBack = !ROOT_EDITOR_PATHS.includes(pathname ?? "");
 
   const [loggingOut, setLoggingOut] = useState(false);
   const [startedFeedback, setStartedFeedback] = useState(false);
@@ -83,13 +83,33 @@ export function Header({ onNewBook }: HeaderProps = {}) {
         </div>
         {/* Right: Stripe button and user icon flush with right edge */}
         <div className="flex items-center gap-2 min-w-[40px]">
-          <button
-            onClick={handleStripeCheckout}
-            className="px-4 py-2 rounded bg-[#181a1d] text-white text-sm font-semibold hover:bg-[#23252a] transition-colors"
-            type="button"
+          <div
+            style={{
+              borderRadius: '999px',
+              padding: '2.5px',
+              background: 'linear-gradient(90deg, #ff6ec4 0%, #7873f5 50%, #1fd1f9 100%)',
+              display: 'inline-block',
+            }}
           >
-            Unlock Full Access
-          </button>
+            <button
+              type="button"
+              onClick={handleStripeCheckout}
+              className="text-gray-900 px-6 py-2 font-medium text-base inline-flex items-center gap-2 transition-transform focus:outline-none"
+              aria-label="Unlock Pro"
+              style={{
+                borderRadius: '999px',
+                background:  '#f8f8f8ff',
+                border: 'none',
+                boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
+                transition: 'background 0.2s',
+                display: 'inline-block',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(90deg, #ff6ec4 0%, #7873f5 50%, #1fd1f9 100%)'}
+              onMouseLeave={e => e.currentTarget.style.background = '#f8f8f8ff'}
+            >
+              Unlock Pro
+            </button>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition px-0" aria-label="User menu">
@@ -116,6 +136,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          {/* DropdownMenu remains unchanged, just fixing closing tag position */}
         </div>
       </div>
     </header>

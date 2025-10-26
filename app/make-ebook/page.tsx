@@ -763,7 +763,30 @@ function MakeEbookPage() {
                     aria-label="Close sidebar menu"
                   >
                     <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                      <CloseIcon className="w-4 h-4" />
+                      <div
+                        style={{
+                          borderRadius: '999px',
+                          padding: '3px',
+                          background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                          boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
+                          display: 'inline-block',
+                        }}
+                      >
+                        <button
+                          className="flex items-center justify-center w-8 h-8"
+                          style={{
+                            borderRadius: '999px',
+                            background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                            border: 'none',
+                            transition: 'background 0.2s',
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
+                          aria-label="Close sidebar menu"
+                        >
+                          <CloseIcon className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                     <span className="text-xs font-medium text-[#050505]">Close</span>
                   </button>

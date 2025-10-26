@@ -22,25 +22,22 @@ export default function ProfileCardHomepage() {
       {/* Profile Card Container */}
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10">
-          {/* Banner Section */}
+          {/* Banner Section - keep grey background, remove SVG icons */}
           <div className="relative h-40 md:h-48 px-6 md:px-[6rem] flex items-center justify-between pointer-events-none" style={{ backgroundColor: '#f2f2f2' }}>
-            {/* Paintbrush icon, 24px from top/left, 40px size */}
-            <img
-              src="/paintbrush.svg"
-              alt="Paintbrush"
-              style={{ position: 'absolute', top: 24, left: 24, width: 56, height: 56 }}
-            />
-            {/* Mouse icon, 24px from top/right, 40px size */}
-            <img
-              src="/mouse.svg"
-              alt="Mouse"
-              style={{ position: 'absolute', top: 24, right: 24, width: 56, height: 56 }}
-            />
+            <div className="flex flex-col items-center w-full pt-6">
+              <h1
+                className="text-4xl font-extrabold text-gray-900 mb-2"
+                style={{ fontFamily: "Inter, sans-serif" }}
+                data-testid="text-title"
+              >
+                Neil McArdle
+              </h1>
+            </div>
           </div>
 
-          {/* Profile Image Section */}
-          <div className="relative -mt-16 flex flex-col items-center z-50">
-            <div className="relative -mt-16 flex justify-center z-50">
+          {/* Name above Profile Image */}
+          <div className="flex flex-col items-center z-50">
+            <div className="relative -mt-8 flex justify-center z-50">
               <div className="w-49 h-49 rounded-full">
                 <Image
                   src="/me.png"
@@ -56,16 +53,8 @@ export default function ProfileCardHomepage() {
 
           {/* Profile Info */}
           <div className="px-6 pt-4 pb-8 text-center">
-            {/* Name and Title */}
+            {/* Headline & Subheadline */}
             <div className="mb-6">
-              <h1
-                className="text-4xl font-extrabold text-gray-900 mb-1"
-                style={{ fontFamily: "Inter, sans-serif" }}
-                data-testid="text-title"
-              >
-                Neil McArdle
-              </h1>
-              {/* Headline & Subheadline */}
               <div className="mb-1">
                 <span className="text-lg font-normal text-gray-600" data-testid="text-location">
                   Designing for millions.
@@ -88,24 +77,58 @@ export default function ProfileCardHomepage() {
                 Products
               </h2>
               <div className="flex items-center justify-center gap-8">
-                <a
-                  href="https://vectorpaint.vercel.app/"
-                  className="text-xl font-semibold text-gray-900 border-b border-gray-300 transition-colors hover:text-[#c7c8c5]"
-                  data-testid="link-vectorpaint"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Vector Paint
-                </a>
-                <a
-                  href="https://neilmcardle.com/make-ebook"
-                  className="text-xl font-semibold text-gray-900 border-b border-gray-300 transition-colors hover:text-[#c7c8c5]"
-                  data-testid="link-makeebook"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  makeEbook
-                </a>
+                <div style={{
+                  borderRadius: '999px',
+                  padding: '2.5px',
+                  background: 'linear-gradient(90deg, #ebebebff 0%, #F4F4F4 50%, #F4F4F4 100%)',
+                  display: 'inline-block',
+                }}>
+                  <a
+                    href="https://vectorpaint.vercel.app/"
+                    className="text-gray-900 px-6 py-2 font-medium text-base inline-flex items-center gap-2 transition-transform focus:outline-none"
+                    style={{
+                      borderRadius: '999px',
+                      background:  '#f8f8f8ff',
+                      border: 'none',
+                      boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
+                      transition: 'background 0.2s',
+                      display: 'inline-block',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ebebebff 40%, #F4F4F4 100%)'}
+                    onMouseLeave={e => e.currentTarget.style.background = '#f8f8f8ff'}
+                    data-testid="link-vectorpaint"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Vector Paint
+                  </a>
+                </div>
+                <div style={{
+                  borderRadius: '999px',
+                  padding: '2.5px',
+                  background: 'linear-gradient(90deg, #ebebebff 0%, #F4F4F4 50%, #F4F4F4 100%)',
+                  display: 'inline-block',
+                }}>
+                  <a
+                    href="https://neilmcardle.com/make-ebook"
+                    className="text-gray-900 px-6 py-2 font-medium text-base inline-flex items-center gap-2 transition-transform focus:outline-none"
+                    style={{
+                      borderRadius: '999px',
+                      background:  '#f8f8f8ff',
+                      border: 'none',
+                      boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
+                      transition: 'background 0.2s',
+                      display: 'inline-block',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ebebebff 40%, #F4F4F4 100%)'}
+                    onMouseLeave={e => e.currentTarget.style.background = '#f8f8f8ff'}
+                    data-testid="link-makeebook"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    makeEbook
+                  </a>
+                </div>
               </div>
             </div>
             <div className="flex justify-center items-center gap-4 mb-4">
@@ -138,35 +161,7 @@ export default function ProfileCardHomepage() {
             </div>
             {/* Get in Touch Reveal & Copy */}
             <div className="text-center mt-4 flex flex-col items-center">
-              {!showEmail ? (
-                <div
-                  style={{
-                    borderRadius: '999px',
-                    padding: '3px',
-                    background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
-                    boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
-                    display: 'inline-block',
-                  }}
-                >
-                    <button
-                      type="button"
-                      onClick={handleReveal}
-                      className="text-gray-900 px-6 py-2 font-medium text-base inline-flex items-center gap-2 transition-transform focus:outline-none"
-                      aria-label="Reveal email"
-                      style={{
-                        borderRadius: '999px',
-                        background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',  
-                        border: 'none',
-                        transition: 'background 0.2s',
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
-                    >
-                      <Mail className="w-5 h-5" />
-                      Get in Touch
-                    </button>
-                </div>
-              ) : (
+              {!showEmail ? null : (
                 <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full font-medium text-base">
                   <Mail className="w-5 h-5 text-gray-700" />
                   <span className="text-gray-800">{email}</span>
