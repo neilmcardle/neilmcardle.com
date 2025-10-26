@@ -24,13 +24,13 @@ export default function ProfileCardHomepage() {
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10">
           {/* Banner Section */}
           <div className="relative h-40 md:h-48 px-6 md:px-[6rem] flex items-center justify-between pointer-events-none" style={{ backgroundColor: '#f2f2f2' }}>
-            {/* Paintbrush icon, 16px from top/left, 40px size */}
+            {/* Paintbrush icon, 24px from top/left, 40px size */}
             <img
               src="/paintbrush.svg"
               alt="Paintbrush"
               style={{ position: 'absolute', top: 24, left: 24, width: 56, height: 56 }}
             />
-            {/* Mouse icon, 16px from top/right, 40px size */}
+            {/* Mouse icon, 24px from top/right, 40px size */}
             <img
               src="/mouse.svg"
               alt="Mouse"
