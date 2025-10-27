@@ -23,7 +23,7 @@ export default function ProfileCardHomepage() {
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10">
           {/* Banner Section with Logomark */}
-          <div className="relative h-32 md:h-32 px-6 pb-8 md:px-[2rem] flex flex-col items-center justify-center pointer-events-none" style={{ backgroundColor: '#f8f8f8ff' }}>
+          <div className="relative h-32 md:h-32 px-6 pb-8 md:px-[2rem] flex flex-col items-center justify-center pointer-events-none" style={{ backgroundColor: '#fff' }}>
             <div className="flex justify-center items-center w-full" style={{ paddingTop: '8px' }}>
               <Image
                 src="/neil-mcardle-logomark.svg"
@@ -41,12 +41,12 @@ export default function ProfileCardHomepage() {
           {/* Profile Image and Name */}
           <div className="flex flex-col items-center z-50">
             <div className="relative -mt-8 flex justify-center z-50">
-              <div className="w-49 h-49 rounded-full">
+              <div className="w-40 h-40">
                 <Image
                   src="/me.png"
                   alt="Neil McArdle"
-                  width={144}
-                  height={144}
+                  width={120}
+                  height={120}
                   className="w-full h-full object-cover"
                   data-testid="img-profile"
                 />
@@ -180,7 +180,13 @@ export default function ProfileCardHomepage() {
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className="text-gray-700 hover:text-green-600 transition-colors focus:outline-none"
+                    className="flex items-center justify-center w-8 h-8 rounded-full p-2 shadow-lg border border-gray-200"
+                    style={{
+                      background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                      transition: 'background 0.2s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
                     aria-label="Copy email to clipboard"
                   >
                     <Copy className="w-5 h-5" />
