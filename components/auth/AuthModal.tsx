@@ -7,7 +7,7 @@ import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog'
 import { Alert, AlertDescription } from '../ui/alert'
-import { Loader2, Mail, CheckCircle, AlertCircle, Lock } from 'lucide-react'
+import { Loader2, Mail, CheckCircle, AlertCircle, Lock, Star, Rocket } from 'lucide-react'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -162,14 +162,18 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signup' }: AuthModal
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'signin' ? 'Welcome Back' : mode === 'reset' ? 'Reset Password' : 'Get Started Free'}
+            {mode === 'signin' ? 'Welcome Back' : mode === 'reset' ? 'Reset Password' : (
+              <span className="flex items-center justify-center">
+                <img src="/make-ebook-logomark.svg" alt="Make eBook logo" className="h-8 w-auto mx-auto" />
+              </span>
+            )}
           </DialogTitle>
           <DialogDescription>
             {mode === 'signin' 
               ? 'Sign in to access your eBook projects' 
               : mode === 'reset'
               ? 'Enter your email address and we\'ll send you a reset link'
-              : 'Create your free account to start building eBooks'
+              : ""
             }
           </DialogDescription>
         </DialogHeader>
@@ -235,7 +239,7 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signup' }: AuthModal
             {mode === 'signin' ? 'Sign In' : mode === 'reset' ? 'Send Reset Link' : (
               <span className="flex items-center gap-2">
                 <Lock className="w-4 h-4" />
-                Sign up for free
+                SIGN UP FOR FREE
               </span>
             )}
           </Button>

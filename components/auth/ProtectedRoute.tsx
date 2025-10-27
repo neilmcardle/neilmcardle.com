@@ -60,36 +60,25 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
         <div className="absolute inset-0 bg-white/90 flex items-center justify-center">
           <div className="max-w-md mx-auto p-8 text-center">
             <div className="mb-6">
-              <div className="flex justify-center mb-4">
+              <div className="flex justify-center mb-6">
                 <Image
                   src="/make-ebook-logomark.svg"
                   alt="MakeEbook Logo"
-                  width={120}
-                  height={120}
+                  width={160}
+                  height={160}
                   className="object-contain"
                 />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Sign up
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Access my free eBook creation tool to start building professional eBooks in minutes.
-              </p>
-            </div>
-
-            {/* Features Preview */}
-            <div className="space-y-3 mb-6 text-left">
-              <div className="flex items-center text-sm text-gray-600">
-                <Edit3 className="w-4 h-4 mr-3 text-gray-400" />
-                Rich text formatting
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <BookOpen className="w-4 h-4 mr-3 text-gray-400" />
-                Cover image upload, chapter & metadata management
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <Download className="w-4 h-4 mr-3 text-gray-400" />
-                Save to your library and export for ePub eReaders
+              <div className="space-y-3 mb-6 text-left">
+                <div className="flex items-center text-base text-gray-700">
+                  <Edit3 className="w-5 h-5 mr-3 text-green-600" /> Craft your own eBook masterpiece!
+                </div>
+                <div className="flex items-center text-base text-gray-700">
+                  <BookOpen className="w-5 h-5 mr-3 text-blue-600" /> Become a Pro with stunning eBooks & flawless eReader exports.
+                </div>
+                <div className="flex items-center text-base text-gray-700">
+                  <Download className="w-5 h-5 mr-3 text-purple-600" /> Start now, write your first eBook today!
+                </div>
               </div>
             </div>
 
@@ -98,12 +87,8 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
               className="w-full bg-gray-900 hover:bg-gray-800 text-white"
               size="lg"
             >
-              Get Started Free
+              Sign up for free
             </Button>
-
-            <p className="text-xs text-gray-500 mt-4">
-              No credit card required
-            </p>
           </div>
         </div>
       </div>
