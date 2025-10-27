@@ -22,20 +22,12 @@ export default function ProfileCardHomepage() {
       {/* Profile Card Container */}
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10">
-          {/* Banner Section - keep grey background, remove SVG icons */}
-          <div className="relative h-40 md:h-48 px-6 md:px-[6rem] flex items-center justify-between pointer-events-none" style={{ backgroundColor: '#f2f2f2' }}>
-            <div className="flex flex-col items-center w-full pt-6">
-              <h1
-                className="text-4xl font-extrabold text-gray-900 mb-2"
-                style={{ fontFamily: "Inter, sans-serif" }}
-                data-testid="text-title"
-              >
-                Neil McArdle
-              </h1>
-            </div>
+          {/* Banner Section */}
+          <div className="relative h-32 md:h-32 px-6 pb-8 md:px-[2rem] flex items-center justify-between pointer-events-none" style={{ backgroundColor: '#f8f8f8ff' }}>
+            {/* Banner can be used for background only now */}
           </div>
 
-          {/* Name above Profile Image */}
+          {/* Profile Image and Name */}
           <div className="flex flex-col items-center z-50">
             <div className="relative -mt-8 flex justify-center z-50">
               <div className="w-49 h-49 rounded-full">
@@ -49,6 +41,13 @@ export default function ProfileCardHomepage() {
                 />
               </div>
             </div>
+            <h1
+              className="text-4xl font-bold text-gray-800 mt-4"
+              style={{ fontFamily: "Inter, sans-serif" }}
+              data-testid="text-title"
+            >
+              Neil McArdle
+            </h1>
           </div>
 
           {/* Profile Info */}
@@ -85,7 +84,7 @@ export default function ProfileCardHomepage() {
                 }}>
                   <a
                     href="https://vectorpaint.vercel.app/"
-                    className="text-gray-900 px-6 py-2 font-medium text-base inline-flex items-center gap-2 transition-transform focus:outline-none"
+                    className="text-gray-900 px-6 py-2 font-medium inline-flex items-center gap-2 transition-transform focus:outline-none"
                     style={{
                       borderRadius: '999px',
                       background:  '#f8f8f8ff',
@@ -93,6 +92,7 @@ export default function ProfileCardHomepage() {
                       boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
                       transition: 'background 0.2s',
                       display: 'inline-block',
+                      fontSize: '12px',
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ebebebff 40%, #F4F4F4 100%)'}
                     onMouseLeave={e => e.currentTarget.style.background = '#f8f8f8ff'}
@@ -111,7 +111,7 @@ export default function ProfileCardHomepage() {
                 }}>
                   <a
                     href="https://neilmcardle.com/make-ebook"
-                    className="text-gray-900 px-6 py-2 font-medium text-base inline-flex items-center gap-2 transition-transform focus:outline-none"
+                    className="text-gray-900 px-6 py-2 font-medium inline-flex items-center gap-2 transition-transform focus:outline-none"
                     style={{
                       borderRadius: '999px',
                       background:  '#f8f8f8ff',
@@ -119,6 +119,7 @@ export default function ProfileCardHomepage() {
                       boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
                       transition: 'background 0.2s',
                       display: 'inline-block',
+                      fontSize: '12px',
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ebebebff 40%, #F4F4F4 100%)'}
                     onMouseLeave={e => e.currentTarget.style.background = '#f8f8f8ff'}
