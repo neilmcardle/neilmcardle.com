@@ -62,7 +62,7 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
             <div className="mb-6">
               <div className="flex justify-center mb-4">
                 <Image
-                  src="/makeebook-logo-full.png"
+                  src="/make-ebook-logomark.svg"
                   alt="MakeEbook Logo"
                   width={120}
                   height={120}

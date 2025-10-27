@@ -1131,21 +1131,48 @@ function MakeEbookPage() {
           {/* Main Editor Panel - Mobile Optimised */}
           <main className="flex-1 flex flex-col bg-white rounded shadow-sm mt-4 px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
             {/* Mobile Hamburger Menu - Fixed Position */}
-            <button
-              onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden fixed top-[80px] z-10 hover:opacity-70 transition-opacity flex flex-col items-center gap-1 pb-5"
+            <div
+              className="lg:hidden fixed top-[80px] z-10 flex flex-col items-center gap-1 pb-4"
               style={{ left: '8px' }}
-              aria-label="Open sidebar menu"
             >
+              <button
+                onClick={() => setMobileSidebarOpen(true)}
+                className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
+                aria-label="Open sidebar menu"
+              >
               <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                <MenuIcon className="w-4 h-4" />
+                <div
+                  style={{
+                    borderRadius: '999px',
+                    padding: '3px',
+                    background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                    boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
+                    display: 'inline-block',
+                  }}
+                >
+                  <button
+                    className="flex items-center justify-center w-8 h-8"
+                    style={{
+                      borderRadius: '999px',
+                      background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                      border: 'none',
+                      transition: 'background 0.2s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
+                    aria-label="Open sidebar menu"
+                  >
+                    <MenuIcon className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-              <span className="text-xs font-medium text-[#050505]">Open</span>
-            </button>
+                <span className="text-xs font-medium text-[#050505]">Open</span>
+              </button>
+            </div>
 
             {/* Mobile Divider Line */}
             <div className="lg:hidden mt-11 mb-4">
-              <div className="border-t border-[#E8E8E8]"></div>
+              <div className="border-t border-[#E8E8E8] mt-4"></div>
             </div>
 
             {/* Mobile Book Title Input */}
@@ -1253,12 +1280,114 @@ function MakeEbookPage() {
                       placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Enter book title..."}
                     />
                   </div>
-                  <BookToolbar
-                    onNewBook={showNewBookConfirmation}
-                    onSave={handleSaveBook}
-                    onExport={handleExportEPUB}
-                    saveFeedback={saveFeedback}
-                  />
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={showNewBookConfirmation}
+                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
+                      type="button"
+                      aria-label="New Book"
+                    >
+                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                        <div
+                          style={{
+                            borderRadius: '999px',
+                            padding: '3px',
+                            background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                            boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
+                            display: 'inline-block',
+                          }}
+                        >
+                          <button
+                            className="flex items-center justify-center w-8 h-8"
+                            style={{
+                              borderRadius: '999px',
+                              background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                              border: 'none',
+                              transition: 'background 0.2s',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
+                            aria-label="New Book"
+                          >
+                            <PlusIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <span className="text-xs font-medium text-[#050505]">New Book</span>
+                    </button>
+                    <button
+                      onClick={handleSaveBook}
+                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
+                      type="button"
+                      aria-label="Save Book"
+                      disabled={!!saveFeedback}
+                    >
+                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                        <div
+                          style={{
+                            borderRadius: '999px',
+                            padding: '3px',
+                            background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                            boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
+                            display: 'inline-block',
+                          }}
+                        >
+                          <button
+                            className="flex items-center justify-center w-8 h-8"
+                            style={{
+                              borderRadius: '999px',
+                              background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                              border: 'none',
+                              transition: 'background 0.2s',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
+                            aria-label="Save Book"
+                            disabled={!!saveFeedback}
+                          >
+                            <SaveIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
+                        {saveFeedback ? "Saved!" : "Save"}
+                      </span>
+                    </button>
+                    <button
+                      onClick={handleExportEPUB}
+                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
+                      type="button"
+                      aria-label="Export Book"
+                    >
+                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                        <div
+                          style={{
+                            borderRadius: '999px',
+                            padding: '3px',
+                            background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                            boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
+                            display: 'inline-block',
+                          }}
+                        >
+                          <button
+                            className="flex items-center justify-center w-8 h-8"
+                            style={{
+                              borderRadius: '999px',
+                              background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                              border: 'none',
+                              transition: 'background 0.2s',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
+                            aria-label="Export Book"
+                          >
+                            <DownloadIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <span className="text-xs font-medium text-[#050505]">Export</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -70,16 +70,14 @@ export function Header({ onNewBook }: HeaderProps = {}) {
           {showBack && (
             <BackArrowButton className="mr-2" label="Back" />
           )}
-          <Link href="/make-ebook/explore" className="flex items-center gap-2 min-w-0">
-            <Image
-              src="/makeEbook-full-logo.svg"
-              alt="makeEBook logo"
-              width={130}
-              height={51}
-              className="h-[51px] w-[130px]"
-              priority
-            />
-          </Link>
+          <Image
+            src="/make-ebook-logomark.svg"
+            alt="makeEBook logo"
+            width={130}
+            height={51}
+            className="h-[51px] w-[130px] -ml-[26px]"
+            priority
+          />
         </div>
         {/* Right: Stripe button and user icon flush with right edge */}
         <div className="flex items-center gap-2 min-w-[40px]">

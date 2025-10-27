@@ -31,14 +31,17 @@ export default function ExplorePage() {
             <div className="flex justify-center mb-6">
               <MakeEbookIcon className="w-32 h-32 text-gray-900" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 tracking-tight">Sign up</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 tracking-tight">Create Your Industry-Standard eBook</h1>
             <p className="text-base text-gray-700 mb-6 max-w-xl mx-auto font-normal">
-              Access my free eBook creation tool to start building professional eBooks in minutes.
+              Finally, anyone can publish a professional, industry-standard ePub eBook—no technical skills required. <br />
+              Go from idea to finished, export-ready eBook in minutes, not months.
             </p>
             <ul className="text-gray-700 text-sm mb-8 space-y-2 text-left font-normal max-w-md mx-auto">
-              <li className="flex items-center gap-2 justify-center"><FileText className="w-5 h-5" /> Rich text formatting</li>
-              <li className="flex items-center gap-2 justify-center"><BookOpen className="w-5 h-5" /> Cover image upload, chapter & metadata management</li>
-              <li className="flex items-center gap-2 justify-center"><Download className="w-5 h-5" /> Save to your library and export for ePub eReaders</li>
+              <li className="flex items-center gap-2 justify-center"><FileText className="w-5 h-5" /> Effortless rich text formatting for beautiful chapters</li>
+              <li className="flex items-center gap-2 justify-center"><BookOpen className="w-5 h-5" /> Upload a custom cover, manage chapters & metadata</li>
+              <li className="flex items-center gap-2 justify-center"><Download className="w-5 h-5" /> Export instantly to ePub for all major eReaders</li>
+              <li className="flex items-center gap-2 justify-center"><span className="w-5 h-5 flex items-center justify-center font-bold text-lg text-green-600">✓</span> No design or coding experience needed</li>
+              <li className="flex items-center gap-2 justify-center"><span className="w-5 h-5 flex items-center justify-center font-bold text-lg text-blue-600">✓</span> Save to your personal library for future updates</li>
             </ul>
             <div className="flex justify-center">
               <AuthModal 
