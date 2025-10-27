@@ -75,7 +75,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
             alt="makeEBook logo"
             width={130}
             height={51}
-            className="h-[51px] w-[130px] -ml-[26px]"
+            className="h-[51px] w-[130px] -ml-[0px]"
             priority
           />
         </div>
