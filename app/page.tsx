@@ -22,9 +22,20 @@ export default function ProfileCardHomepage() {
       {/* Profile Card Container */}
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10">
-          {/* Banner Section */}
-          <div className="relative h-32 md:h-32 px-6 pb-8 md:px-[2rem] flex items-center justify-between pointer-events-none" style={{ backgroundColor: '#f8f8f8ff' }}>
-            {/* Banner can be used for background only now */}
+          {/* Banner Section with Logomark */}
+          <div className="relative h-32 md:h-32 px-6 pb-8 md:px-[2rem] flex flex-col items-center justify-center pointer-events-none" style={{ backgroundColor: '#f8f8f8ff' }}>
+            <div className="flex justify-center items-center w-full" style={{ paddingTop: '8px' }}>
+              <Image
+                src="/neil-mcardle-logomark.svg"
+                alt="Neil McArdle Logomark"
+                width={48}
+                height={48}
+                className="object-contain"
+                data-testid="img-logomark"
+                priority
+                style={{ color: 'transparent' }}
+              />
+            </div>
           </div>
 
           {/* Profile Image and Name */}
