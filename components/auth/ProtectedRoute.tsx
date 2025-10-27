@@ -4,7 +4,7 @@ import { ReactNode, useState } from 'react'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { AuthModal } from './AuthModal'
 import { Button } from '../ui/button'
-import { Lock, Edit3, BookOpen, Download } from 'lucide-react'
+import { Lock, Edit3, BookOpen, Download, BookHeart, BookDown, BookText } from 'lucide-react'
 import { MakeEbookIcon } from '@/components/MakeEbookIcon'
 import Image from 'next/image'
 
@@ -71,13 +71,13 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
               </div>
               <div className="space-y-3 mb-6 text-left">
                 <div className="flex items-center text-base text-gray-700">
-                  <Edit3 className="w-5 h-5 mr-3 text-green-600" /> Craft your own eBook masterpiece!
+                  <BookHeart className="w-5 h-5 mr-3 text-green-600" /> Craft your own eBook masterpiece...
                 </div>
                 <div className="flex items-center text-base text-gray-700">
-                  <BookOpen className="w-5 h-5 mr-3 text-blue-600" /> Become a Pro with stunning eBooks & flawless eReader exports.
+                  <BookDown className="w-5 h-5 mr-3 text-blue-600" /> Author eBooks and export to eReader...
                 </div>
                 <div className="flex items-center text-base text-gray-700">
-                  <Download className="w-5 h-5 mr-3 text-purple-600" /> Start now, write your first eBook today!
+                  <BookText className="w-5 h-5 mr-3 text-purple-600" /> Start now, write your first eBook today!
                 </div>
               </div>
             </div>
