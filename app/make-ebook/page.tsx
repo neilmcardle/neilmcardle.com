@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { PlusIcon, TrashIcon, LibraryIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, PreviewIcon, LockIcon, MetadataIcon, MenuIcon, ChaptersIcon } from "./components/icons";
+import { PlusIcon, TrashIcon, LibraryIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, LockIcon, MetadataIcon, MenuIcon } from "./components/icons";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import DragIcon from "./components/icons/DragIcon";
@@ -805,7 +805,9 @@ function MakeEbookPage() {
                       onClick={() => setTab(key as any)}
                     >
                       {key === "setup" && <MetadataIcon className="w-5 h-5" />}
-                      {key === "preview" && <PreviewIcon className="w-5 h-5" />}
+                      {key === "preview" && (
+                        <img src="/preview-icon.svg" alt="Preview" className="w-5 h-5" />
+                      )}
                       {key === "library" && <LibraryIcon className="w-5 h-5" />}
                       <span>
                         {key === "setup"
@@ -907,7 +909,7 @@ function MakeEbookPage() {
                                       className="w-full h-full object-cover rounded"
                                     />
                                   ) : (
-                                    <PreviewIcon className="w-4 h-4 text-gray-400" />
+                                    <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4 text-gray-400" />
                                   )}
                                 </div>
                                 <button
@@ -986,7 +988,9 @@ function MakeEbookPage() {
                   onClick={() => setTab(key as any)}
                 >
                   {key === "setup" && <MetadataIcon className="w-4 h-4" />}
-                  {key === "preview" && <PreviewIcon className="w-4 h-4" />}
+                  {key === "preview" && (
+                    <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4" />
+                  )}
                   {key === "library" && <LibraryIcon className="w-4 h-4" />}
                   {key === "setup"
                     ? "Book Details"
@@ -1026,6 +1030,7 @@ function MakeEbookPage() {
                   handleAddTag={handleAddTag}
                   handleRemoveTag={handleRemoveTag}
                   handleCoverChange={handleCoverChange}
+                  // ...existing code...
                 />
               )}
               {tab === "preview" && (
@@ -1078,7 +1083,7 @@ function MakeEbookPage() {
                                   className="w-full h-full object-cover rounded"
                                 />
                               ) : (
-                                <PreviewIcon className="w-4 h-4 text-gray-400" />
+                                <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4 text-gray-400" />
                               )}
                             </div>
                             <button
@@ -1180,7 +1185,7 @@ function MakeEbookPage() {
               {/* Book Heading with Action Buttons */}
               <div className="mb-2 flex items-center justify-between">
                 <h2 className="flex items-center gap-2 text-sm font-medium text-[#050505]">
-                  <PreviewIcon className="w-4 h-4" stroke="#050505" />
+                  <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4" />
                   Book
                 </h2>
                 {/* Action Buttons */}
@@ -1257,7 +1262,7 @@ function MakeEbookPage() {
               {/* Book Heading */}
               <div className="mb-2">
                 <h2 className="flex items-center gap-2 text-sm font-medium text-[#050505]">
-                  <PreviewIcon className="w-4 h-4" stroke="#050505" />
+                  <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4" />
                   Book
                 </h2>
               </div>
@@ -1400,7 +1405,7 @@ function MakeEbookPage() {
                 <div className="mb-2">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <ChaptersIcon className="w-5 h-5" />
+                      <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5" />
                       <h3 className="text-sm font-bold text-[#050505]">Chapters</h3>
                     </div>
                     <div className="relative" ref={dropdownRef} style={{ marginLeft: '8px' }}>
@@ -1712,7 +1717,7 @@ function MakeEbookPage() {
                 <div className="mb-1">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <ChaptersIcon className="w-5 h-5" />
+                      <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5" />
                       <h3 className="text-sm font-bold text-[#050505]">
                         Chapters
                       </h3>

@@ -31,6 +31,9 @@ interface MetaTabContentProps {
   handleAddTag: () => void;
   handleRemoveTag: (t: string) => void;
   handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  calendarIcon?: React.ReactNode;
+  chevronIcon?: React.ReactNode;
+  cornerExpandIcon?: React.ReactNode;
 }
 
 export default function MetaTabContent({
@@ -49,6 +52,9 @@ export default function MetaTabContent({
   handleAddTag,
   handleRemoveTag,
   handleCoverChange,
+  calendarIcon,
+  chevronIcon,
+  cornerExpandIcon,
 }: MetaTabContentProps) {
   // Memoize and cleanup cover preview url
   const [coverUrl, setCoverUrl] = React.useState<string | null>(null);
@@ -231,14 +237,19 @@ export default function MetaTabContent({
             />
           </div>
           <div>
-            <label className="block text-xs mb-1">Publication Date</label>
-            <input
-              type="date"
-              className={`w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
-              value={pubDate}
-              onChange={(e) => setPubDate(e.target.value)}
-              disabled={lockedSections.publishing}
-            />
+            <label className="block text-xs mb-1 flex items-center gap-1">Publication Date</label>
+            <div className="relative flex items-center">
+              <input
+                type="date"
+                className={`w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+                value={pubDate}
+                onChange={(e) => setPubDate(e.target.value)}
+                disabled={lockedSections.publishing}
+              />
+              {calendarIcon && (
+                <span className="absolute right-3">{calendarIcon}</span>
+              )}
+            </div>
           </div>
           <div>
             <label className="block text-xs mb-1">ISBN</label>
@@ -252,30 +263,40 @@ export default function MetaTabContent({
           </div>
           <div>
             <label className="block text-xs mb-1">Language</label>
-            <select
-              className={`w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              disabled={lockedSections.publishing}
-            >
-              {LANGUAGES.map((lang) => (
-                <option key={lang}>{lang}</option>
-              ))}
-            </select>
+            <div className="relative flex items-center">
+              <select
+                className={`w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                disabled={lockedSections.publishing}
+              >
+                {LANGUAGES.map((lang) => (
+                  <option key={lang}>{lang}</option>
+                ))}
+              </select>
+              {chevronIcon && (
+                <span className="absolute right-3 pointer-events-none">{chevronIcon}</span>
+              )}
+            </div>
           </div>
           <div>
             <label className="block text-xs mb-1">Genre</label>
-            <select
-              className={`w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
-              disabled={lockedSections.publishing}
-            >
-              <option value="">Select genre</option>
-              {GENRES.map((g) => (
-                <option key={g}>{g}</option>
-              ))}
-            </select>
+            <div className="relative flex items-center">
+              <select
+                className={`w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm ${lockedSections.publishing ? "opacity-60 cursor-not-allowed" : ""}`}
+                value={genre}
+                onChange={(e) => setGenre(e.target.value)}
+                disabled={lockedSections.publishing}
+              >
+                <option value="">Select genre</option>
+                {GENRES.map((g) => (
+                  <option key={g}>{g}</option>
+                ))}
+              </select>
+              {cornerExpandIcon && (
+                <span className="absolute right-3 pointer-events-none">{cornerExpandIcon}</span>
+              )}
+            </div>
           </div>
         </div>
       </section>
