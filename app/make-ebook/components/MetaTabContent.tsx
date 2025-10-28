@@ -147,7 +147,7 @@ export default function MetaTabContent({
               src="/neil-avatar.png"
             />
             <span className="text-xs text-[#15161a] ml-2">
-              Neil has helped design published book covers. Let Neil customise your book cover.{' '}
+              Did you know Neil is a published book cover designer? Let him design yours.{' '}
               <a
                 href="https://x.com/BetterNeil"
                 target="_blank"

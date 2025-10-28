@@ -1189,51 +1189,43 @@ function MakeEbookPage() {
                   Book
                 </h2>
                 {/* Action Buttons */}
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => {
-                      showNewBookConfirmation();
-                      setMobileSidebarOpen(false);
-                    }}
-                    className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
-                    type="button"
-                  >
-                    <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                      <PlusIcon className="w-4 h-4" />
-                    </div>
-                    <span className="text-xs font-medium text-[#050505]">New Book</span>
-                  </button>
-                  
-                  <button
-                    onClick={() => {
-                      handleSaveBook();
-                      setMobileSidebarOpen(false);
-                    }}
-                    className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
-                    disabled={!!saveFeedback}
-                    type="button"
-                  >
-                    <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                      <SaveIcon className="w-4 h-4" />
-                    </div>
-                    <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
-                      {saveFeedback ? "Saved!" : "Save"}
-                    </span>
-                  </button>
-                  
-                  <button
-                    onClick={() => {
-                      handleExportEPUB();
-                      setMobileSidebarOpen(false);
-                    }}
-                    className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
-                    type="button"
-                  >
-                    <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                      <DownloadIcon className="w-4 h-4" />
-                    </div>
-                    <span className="text-xs font-medium text-[#050505]">Export</span>
-                  </button>
+                <div className="flex items-center justify-center">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-lg">
+                    <button
+                      onClick={() => {
+                        showNewBookConfirmation();
+                        setMobileSidebarOpen(false);
+                      }}
+                      className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
+                      type="button"
+                    >
+                      <PlusIcon className="w-5 h-5" />
+                      <span className="text-xs font-medium text-[#050505]">New Book</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleSaveBook();
+                        setMobileSidebarOpen(false);
+                      }}
+                      className={`hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none ${!!saveFeedback ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      disabled={!!saveFeedback}
+                      type="button"
+                    >
+                      <SaveIcon className="w-5 h-5" />
+                      <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleExportEPUB();
+                        setMobileSidebarOpen(false);
+                      }}
+                      className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
+                      type="button"
+                    >
+                      <DownloadIcon className="w-5 h-5" />
+                      <span className="text-xs font-medium text-[#050505]">Export</span>
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="pb-3 border-b border-[#E8E8E8]">
@@ -1285,113 +1277,37 @@ function MakeEbookPage() {
                       placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Enter book title..."}
                     />
                   </div>
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={showNewBookConfirmation}
-                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
-                      type="button"
-                      aria-label="New Book"
-                    >
-                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                        <div
-                          style={{
-                            borderRadius: '999px',
-                            padding: '3px',
-                            background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
-                            boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
-                            display: 'inline-block',
-                          }}
-                        >
-                          <button
-                            className="flex items-center justify-center w-8 h-8"
-                            style={{
-                              borderRadius: '999px',
-                              background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
-                              border: 'none',
-                              transition: 'background 0.2s',
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
-                            aria-label="New Book"
-                          >
-                            <PlusIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                      <span className="text-xs font-medium text-[#050505]">New Book</span>
-                    </button>
-                    <button
-                      onClick={handleSaveBook}
-                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
-                      type="button"
-                      aria-label="Save Book"
-                      disabled={!!saveFeedback}
-                    >
-                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                        <div
-                          style={{
-                            borderRadius: '999px',
-                            padding: '3px',
-                            background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
-                            boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
-                            display: 'inline-block',
-                          }}
-                        >
-                          <button
-                            className="flex items-center justify-center w-8 h-8"
-                            style={{
-                              borderRadius: '999px',
-                              background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
-                              border: 'none',
-                              transition: 'background 0.2s',
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
-                            aria-label="Save Book"
-                            disabled={!!saveFeedback}
-                          >
-                            <SaveIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                      <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>
-                        {saveFeedback ? "Saved!" : "Save"}
-                      </span>
-                    </button>
-                    <button
-                      onClick={handleExportEPUB}
-                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
-                      type="button"
-                      aria-label="Export Book"
-                    >
-                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                        <div
-                          style={{
-                            borderRadius: '999px',
-                            padding: '3px',
-                            background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
-                            boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
-                            display: 'inline-block',
-                          }}
-                        >
-                          <button
-                            className="flex items-center justify-center w-8 h-8"
-                            style={{
-                              borderRadius: '999px',
-                              background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
-                              border: 'none',
-                              transition: 'background 0.2s',
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
-                            aria-label="Export Book"
-                          >
-                            <DownloadIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                      <span className="text-xs font-medium text-[#050505]">Export</span>
-                    </button>
+                  <div className="flex items-center justify-center">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-lg">
+                      <button
+                        onClick={showNewBookConfirmation}
+                        className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
+                        type="button"
+                        aria-label="New Book"
+                      >
+                        <PlusIcon className="w-5 h-5" />
+                        <span className="text-xs font-medium text-[#050505]">New Book</span>
+                      </button>
+                      <button
+                        onClick={handleSaveBook}
+                        className={`hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none ${!!saveFeedback ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        disabled={!!saveFeedback}
+                        type="button"
+                        aria-label="Save Book"
+                      >
+                        <SaveIcon className="w-5 h-5" />
+                        <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
+                      </button>
+                      <button
+                        onClick={handleExportEPUB}
+                        className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
+                        type="button"
+                        aria-label="Export Book"
+                      >
+                        <DownloadIcon className="w-5 h-5" />
+                        <span className="text-xs font-medium text-[#050505]">Export</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
