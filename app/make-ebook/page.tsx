@@ -756,74 +756,57 @@ function MakeEbookPage() {
           }`}>
               <div className="flex flex-col h-full">
                 {/* Header with Actions */}
-                <div className="flex items-center justify-end p-4 border-b border-[#E8E8E8]">
+                <div className="flex items-center justify-end p-4 border-[#ffffff]">
                   <button
                     onClick={() => setMobileSidebarOpen(false)}
-                    className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
+                    className="flex items-center justify-center px-5 py-4 rounded-full bg-white gap-2 focus:outline-none transition-opacity mb-[-40px] relative"
                     aria-label="Close sidebar menu"
+                    style={{ minWidth: 56, minHeight: 56 }}
                   >
-                    <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                      <div
-                        style={{
-                          borderRadius: '999px',
-                          padding: '3px',
-                          background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
-                          boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
-                          display: 'inline-block',
-                        }}
-                      >
-                        <button
-                          className="flex items-center justify-center w-8 h-8"
-                          style={{
-                            borderRadius: '999px',
-                            background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
-                            border: 'none',
-                            transition: 'background 0.2s',
-                          }}
-                          onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
-                          aria-label="Close sidebar menu"
-                        >
-                          <CloseIcon className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <span className="text-xs font-medium text-[#050505]">Close</span>
+                    <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
+                    <img alt="Close" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-8 h-8" style={{ color: 'transparent', zIndex: 2 }} src="/close-sidebar-icon.svg" />
+                    <span className="text-base font-medium text-[#23242a]" style={{ zIndex: 2 }}>Close</span>
                   </button>
                 </div>
                 
                 {/* Tab Navigation */}
-                <nav className="flex p-3 gap-2">
-                  {["setup", "preview", "library"].map((key) => (
+                <nav className="flex items-center justify-center pb-2">
+                  <div className="flex items-center justify-between px-8 py-4 rounded-full bg-white border border-gray-200 shadow-lg w-full mt-6 ml-4 mr-4">
                     <button
-                      key={key}
-                      className={`flex flex-col items-center gap-1 px-4 py-2 rounded text-xs font-semibold transition whitespace-nowrap min-w-0 flex-1 ${
-                        tab === key
-                          ? "bg-white text-[#15161a] border border-[#050505] shadow-sm"
-                          : "hover:bg-[#F2F2F2] text-[#737373]"
-                      }`}
-                      onClick={() => setTab(key as any)}
+                      type="button"
+                      aria-label="Details"
+                      style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}
+                      className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'setup' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                      onClick={() => setTab('setup')}
                     >
-                      {key === "setup" && <MetadataIcon className="w-5 h-5" />}
-                      {key === "preview" && (
-                        <img src="/preview-icon.svg" alt="Preview" className="w-5 h-5" />
-                      )}
-                      {key === "library" && <LibraryIcon className="w-5 h-5" />}
-                      <span>
-                        {key === "setup"
-                          ? "Book Details"
-                          : key === "preview"
-                          ? "Book Summary"
-                          : key === "ai"
-                          ? "AI"
-                          : "Library"}
-                      </span>
+                      <img alt="Book Details" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-7 h-7" style={{ color: 'transparent' }} src="/metadata-icon.svg" />
+                      <span className="text-base font-medium text-[#050505]">Details</span>
                     </button>
-                  ))}
+                    <button
+                      style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}
+                      type="button"
+                      aria-label="Summary"
+                      className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'preview' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                      onClick={() => setTab('preview')}
+                    >
+                      <img alt="Summary" className="w-7 h-7" src="/preview-icon.svg" />
+                      <span className="text-base font-medium text-[#050505]">Summary</span>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Library"
+                      className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'library' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                      style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}
+                      onClick={() => setTab('library')}
+                    >
+                      <img alt="Library" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-7 h-7" style={{ color: 'transparent' }} src="/library-icon.svg" />
+                      <span className="text-base font-medium text-[#050505]">Library</span>
+                    </button>
+                  </div>
                 </nav>
                 
                 {/* Divider */}
-                <div className="border-t border-[#E8E8E8]"></div>
+                <div className="border-t border-white"></div>
                 
                 {/* Content */}
                 <div className="relative flex-1 min-h-0">
@@ -976,29 +959,39 @@ function MakeEbookPage() {
         <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden">
           {/* Desktop Sidebar - Hidden on Mobile */}
           <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 pl-2 pr-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
-            <nav className="flex flex-row items-center gap-1 pb-2 overflow-x-auto ml-4">
-              {["setup", "preview", "library"].map((key) => (
+            <nav className="flex items-center justify-center pb-2">
+              <div className="flex items-center justify-between px-8 py-4 rounded-full bg-white border border-gray-200 shadow-lg w-full mt-6">
                 <button
-                  key={key}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded text-xs font-semibold transition whitespace-nowrap ${
-                    tab === key
-                      ? "bg-white text-[#15161a] border border-[#050505] shadow-sm"
-                      : "hover:bg-[#F2F2F2] text-[#737373]"
-                  }`}
-                  onClick={() => setTab(key as any)}
+                  className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'setup' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                  style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '0.5rem', paddingRight: '1rem' }}
+                  onClick={() => setTab('setup')}
+                  type="button"
+                  aria-label="Details"
                 >
-                  {key === "setup" && <MetadataIcon className="w-4 h-4" />}
-                  {key === "preview" && (
-                    <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4" />
-                  )}
-                  {key === "library" && <LibraryIcon className="w-4 h-4" />}
-                  {key === "setup"
-                    ? "Book Details"
-                    : key === "preview"
-                    ? "Book Summary"
-                    : "Library"}
+                  <MetadataIcon className="w-7 h-7" />
+                  <span className="text-base font-medium text-[#050505]">Details</span>
                 </button>
-              ))}
+                <button
+                  className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'preview' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                  style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}
+                  onClick={() => setTab('preview')}
+                  type="button"
+                  aria-label="Summary"
+                >
+                  <img src="/preview-icon.svg" alt="Summary" className="w-7 h-7" />
+                  <span className="text-base font-medium text-[#050505]">Summary</span>
+                </button>
+                <button
+                  className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'library' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                  style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '1rem', paddingRight: '0.5rem' }}
+                  onClick={() => setTab('library')}
+                  type="button"
+                  aria-label="Library"
+                >
+                  <LibraryIcon className="w-7 h-7" />
+                  <span className="text-base font-medium text-[#050505]">Library</span>
+                </button>
+              </div>
             </nav>
             <div className="flex-1 overflow-y-auto">
               {tab === "setup" && (
@@ -1031,6 +1024,21 @@ function MakeEbookPage() {
                   handleRemoveTag={handleRemoveTag}
                   handleCoverChange={handleCoverChange}
                   // ...existing code...
+                />
+              )}
+              {tab === "preview" && (
+                <PreviewPanel
+                  coverUrl={coverUrl}
+                  title={title}
+                  author={author}
+                  pubDate={pubDate}
+                  language={language}
+                  genre={genre}
+                  tags={tags}
+                  chapters={chapters}
+                  totalWords={totalWords}
+                  pageCount={pageCount}
+                  readingTime={readingTime}
                 />
               )}
               {tab === "preview" && (
@@ -1136,56 +1144,31 @@ function MakeEbookPage() {
           {/* Main Editor Panel - Mobile Optimised */}
           <main className="flex-1 flex flex-col bg-white rounded shadow-sm mt-4 px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
             {/* Mobile Hamburger Menu - Fixed Position */}
-            <div
-              className="lg:hidden fixed top-[80px] z-10 flex flex-col items-center gap-1 pb-4"
-              style={{ left: '8px' }}
-            >
-              <button
-                onClick={() => setMobileSidebarOpen(true)}
-                className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
-                aria-label="Open sidebar menu"
-              >
-              <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                <div
-                  style={{
-                    borderRadius: '999px',
-                    padding: '3px',
-                    background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
-                    boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
-                    display: 'inline-block',
-                  }}
+            {!mobileSidebarOpen && (
+              <div className="lg:hidden fixed top-[80px] left-2 z-10 pb-4 mb-20">
+                <button
+                  onClick={() => setMobileSidebarOpen(true)}
+                  className="flex items-center justify-center px-5 py-4 rounded-full bg-white gap-2 focus:outline-none transition-opacity ml-[-20px] relative"
+                  aria-label="Open sidebar menu"
+                  style={{ minWidth: 56, minHeight: 56 }}
                 >
-                  <button
-                    className="flex items-center justify-center w-8 h-8"
-                    style={{
-                      borderRadius: '999px',
-                      background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
-                      border: 'none',
-                      transition: 'background 0.2s',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
-                    aria-label="Open sidebar menu"
-                  >
-                    <MenuIcon className="w-4 h-4" />
-                  </button>
-                </div>
+                  <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
+                  <img alt="Menu" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-8 h-8" style={{ color: 'transparent', zIndex: 2 }} src="/open-sidebar-icon.svg" />
+                  <span className="text-base font-medium text-[#050505]" style={{ zIndex: 2 }}>Open</span>
+                </button>
               </div>
-                <span className="text-xs font-medium text-[#050505]">Open</span>
-              </button>
-            </div>
+            )}
 
-            {/* Mobile Divider Line */}
-            <div className="lg:hidden mt-11 mb-4">
-              <div className="border-t border-[#E8E8E8] mt-4"></div>
+            <div className="lg:hidden mt-[-32px] mb-4">
+              <div className="border-t border-white mt-4"></div>
             </div>
 
             {/* Mobile Book Title Input */}
-            <div className="lg:hidden mb-4 flex-shrink-0">
+            <div className="lg:hidden mb-4 flex-shrink-0 ml-0 mt-8">
               {/* Book Heading with Action Buttons */}
               <div className="mb-2 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-sm font-medium text-[#050505]">
-                  <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4" />
+                <h2 className="flex items-center gap-2 text-sm font-bold text-[#050505]">
+                  <img src="/preview-icon.svg" alt="Preview" className="w-5 h-5" />
                   Book
                 </h2>
                 {/* Action Buttons */}
@@ -1203,13 +1186,11 @@ function MakeEbookPage() {
                       <span className="text-xs font-medium text-[#050505]">New Book</span>
                     </button>
                     <button
-                      onClick={() => {
-                        handleSaveBook();
-                        setMobileSidebarOpen(false);
-                      }}
+                      onClick={handleSaveBook}
                       className={`hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none ${!!saveFeedback ? 'opacity-60 cursor-not-allowed' : ''}`}
-                      disabled={!!saveFeedback}
                       type="button"
+                      aria-label="Save Book"
+                      disabled={!!saveFeedback}
                     >
                       <SaveIcon className="w-5 h-5" />
                       <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
@@ -1253,10 +1234,10 @@ function MakeEbookPage() {
             <div className="hidden lg:block">
               {/* Book Heading */}
               <div className="mb-2">
-                <h2 className="flex items-center gap-2 text-sm font-medium text-[#050505]">
-                  <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4" />
-                  Book
-                </h2>
+                <div className="flex items-center gap-2">
+                  <img src="/preview-icon.svg" alt="Book" className="w-5 h-5" />
+                  <h3 className="text-sm font-bold text-[#050505]">Book</h3>
+                </div>
               </div>
               <div className="mb-3 pb-2 border-b border-[#E8E8E8]">
                 <div className="flex items-center justify-between">
@@ -1291,9 +1272,9 @@ function MakeEbookPage() {
                       <button
                         onClick={handleSaveBook}
                         className={`hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none ${!!saveFeedback ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        disabled={!!saveFeedback}
                         type="button"
                         aria-label="Save Book"
+                        disabled={!!saveFeedback}
                       >
                         <SaveIcon className="w-5 h-5" />
                         <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
@@ -1486,7 +1467,7 @@ function MakeEbookPage() {
                             className={`flex items-center justify-center focus:outline-none transition-all p-1 rounded ${
                               isSelected 
                                 ? "opacity-100 hover:bg-white/30" 
-                                : "opacity-70 hover:opacity-100 hover:bg-black/10"
+                                : "opacity-40 hover:opacity-100 hover:bg-black/10"
                             }`}
                             onClick={(e) => {
                               e.stopPropagation();
