@@ -630,8 +630,8 @@ function MakeEbookPage() {
   return (
     <>
       {/* Fixed Header */}
-        <div className="fixed top-0 left-0 w-full z-[110] bg-white border-b border-gray-100">
-          <div className="flex items-center justify-between pr-4 pl-4 h-[64px] w-full">
+  <div className="fixed top-0 left-0 w-full z-[110] bg-white border-b border-gray-100">
+  <div className="flex items-center justify-between pr-0 pl-0 h-[64px] w-full">
           {/* Left: Logo and nav (Header) */}
           <Header />
           {/* User icon and Stripe button are now handled inside Header */}
@@ -764,43 +764,40 @@ function MakeEbookPage() {
                     style={{ minWidth: 56, minHeight: 56 }}
                   >
                     <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
-                    <img alt="Close" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-8 h-8" style={{ color: 'transparent', zIndex: 2 }} src="/close-sidebar-icon.svg" />
+                    <img alt="Close" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5" style={{ color: 'transparent', zIndex: 2 }} src="/close-sidebar-icon.svg" />
                     <span className="text-base font-medium text-[#23242a]" style={{ zIndex: 2 }}>Close</span>
                   </button>
                 </div>
                 
                 {/* Tab Navigation */}
                 <nav className="flex items-center justify-center pb-2">
-                  <div className="flex items-center justify-between px-8 py-4 rounded-full bg-white border border-gray-200 shadow-lg w-full mt-6 ml-4 mr-4">
+                  <div className="flex items-center justify-between px-4 py-2 rounded-full bg-white border border-gray-200 shadow-lg ml-2 mr-2 mt-8">
                     <button
                       type="button"
                       aria-label="Details"
-                      style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}
-                      className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'setup' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none transition-opacity flex-shrink-0 ${tab === 'setup' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                       onClick={() => setTab('setup')}
                     >
-                      <img alt="Book Details" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-7 h-7" style={{ color: 'transparent' }} src="/metadata-icon.svg" />
-                      <span className="text-base font-medium text-[#050505]">Details</span>
+                      <img alt="Book Details" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5" style={{ color: 'transparent' }} src="/metadata-icon.svg" />
+                      <span className="text-xs font-medium text-[#050505]">Details</span>
                     </button>
                     <button
-                      style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}
                       type="button"
                       aria-label="Summary"
-                      className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'preview' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none transition-opacity flex-shrink-0 ${tab === 'preview' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                       onClick={() => setTab('preview')}
                     >
-                      <img alt="Summary" className="w-7 h-7" src="/preview-icon.svg" />
-                      <span className="text-base font-medium text-[#050505]">Summary</span>
+                      <img alt="Summary" className="w-5 h-5" src="/preview-icon.svg" />
+                      <span className="text-xs font-medium text-[#050505]">Summary</span>
                     </button>
                     <button
                       type="button"
                       aria-label="Library"
-                      className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'library' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                      style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none transition-opacity flex-shrink-0 ${tab === 'library' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                       onClick={() => setTab('library')}
                     >
-                      <img alt="Library" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-7 h-7" style={{ color: 'transparent' }} src="/library-icon.svg" />
-                      <span className="text-base font-medium text-[#050505]">Library</span>
+                      <img alt="Library" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5" style={{ color: 'transparent' }} src="/library-icon.svg" />
+                      <span className="text-xs font-medium text-[#050505]">Library</span>
                     </button>
                   </div>
                 </nav>
@@ -810,7 +807,7 @@ function MakeEbookPage() {
                 
                 {/* Content */}
                 <div className="relative flex-1 min-h-0">
-                  <div ref={scrollContainerRef} className="h-full overflow-y-auto px-4 pb-4" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+                  <div ref={scrollContainerRef} className="h-full overflow-y-auto mt-2 px-4 pb-4" style={{ maxHeight: 'calc(100vh - 180px)' }}>
                     {tab === "setup" && (
                       <MetaTabContent
                         title={title}
@@ -1153,7 +1150,7 @@ function MakeEbookPage() {
                   style={{ minWidth: 56, minHeight: 56 }}
                 >
                   <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
-                  <img alt="Menu" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-8 h-8" style={{ color: 'transparent', zIndex: 2 }} src="/open-sidebar-icon.svg" />
+                  <img alt="Menu" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5" style={{ color: 'transparent', zIndex: 2 }} src="/open-sidebar-icon.svg" />
                   <span className="text-base font-medium text-[#050505]" style={{ zIndex: 2 }}>Open</span>
                 </button>
               </div>
@@ -1165,49 +1162,47 @@ function MakeEbookPage() {
 
             {/* Mobile Book Title Input */}
             <div className="lg:hidden mb-4 flex-shrink-0 ml-0 mt-8">
-              {/* Book Heading with Action Buttons */}
-              <div className="mb-2 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-sm font-bold text-[#050505]">
-                  <img src="/preview-icon.svg" alt="Preview" className="w-5 h-5" />
-                  Book
-                </h2>
-                {/* Action Buttons */}
-                <div className="flex items-center justify-center">
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-lg">
-                    <button
-                      onClick={() => {
-                        showNewBookConfirmation();
-                        setMobileSidebarOpen(false);
-                      }}
-                      className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
-                      type="button"
-                    >
-                      <PlusIcon className="w-5 h-5" />
-                      <span className="text-xs font-medium text-[#050505]">New Book</span>
-                    </button>
-                    <button
-                      onClick={handleSaveBook}
-                      className={`hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none ${!!saveFeedback ? 'opacity-60 cursor-not-allowed' : ''}`}
-                      type="button"
-                      aria-label="Save Book"
-                      disabled={!!saveFeedback}
-                    >
-                      <SaveIcon className="w-5 h-5" />
-                      <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleExportEPUB();
-                        setMobileSidebarOpen(false);
-                      }}
-                      className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
-                      type="button"
-                    >
-                      <DownloadIcon className="w-5 h-5" />
-                      <span className="text-xs font-medium text-[#050505]">Export</span>
-                    </button>
-                  </div>
+              {/* Action Buttons Panel */}
+              <div className="mb-2 flex items-center justify-center">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-lg">
+                  <button
+                    onClick={() => {
+                      showNewBookConfirmation();
+                      setMobileSidebarOpen(false);
+                    }}
+                    className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
+                    type="button"
+                  >
+                    <PlusIcon className="w-5 h-5" />
+                    <span className="text-xs font-medium text-[#050505]">New Book</span>
+                  </button>
+                  <button
+                    onClick={handleSaveBook}
+                    className={`hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none ${!!saveFeedback ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    type="button"
+                    aria-label="Save Book"
+                    disabled={!!saveFeedback}
+                  >
+                    <SaveIcon className="w-5 h-5" />
+                    <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleExportEPUB();
+                      setMobileSidebarOpen(false);
+                    }}
+                    className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
+                    type="button"
+                  >
+                    <DownloadIcon className="w-5 h-5" />
+                    <span className="text-xs font-medium text-[#050505]">Export</span>
+                  </button>
                 </div>
+              </div>
+              {/* Book Heading and Title Input Below Panel */}
+              <div className="mt-8 mb-2 flex items-center gap-2">
+                <img src="/preview-icon.svg" alt="Preview" className="w-5 h-5" />
+                <span className="text-sm font-bold text-[#050505]">Book</span>
               </div>
               <div className="pb-3 border-b border-[#E8E8E8]">
                 <div className="flex items-center gap-3">
