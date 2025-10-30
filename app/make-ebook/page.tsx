@@ -893,7 +893,8 @@ function MakeEbookPage() {
                                   )}
                                 </div>
                                 <button
-                                  className="flex-1 text-left focus:outline-none border-none bg-transparent"
+                                  className="flex-1 text-left outline-none focus:outline-none focus-visible:outline-none border-none focus:border-none bg-transparent"
+                                  style={{ boxShadow: 'none', border: 'none', outline: 'none' }}
                                   onClick={() => {
                                     setSelectedBookId(selectedBookId === b.id ? null : b.id);
                                   }}
@@ -906,7 +907,7 @@ function MakeEbookPage() {
                               </div>
                               <div className="flex items-center gap-1">
                                 <button
-                                  className={`px-2 py-1 text-xs font-medium focus:outline-none transition-colors ${
+                                  className={`px-2 py-1 text-xs font-medium outline-none focus:outline-none focus-visible:outline-none border-none focus:border-none transition-colors ${
                                     selectedBookId === b.id 
                                       ? 'text-black underline hover:no-underline' 
                                       : 'text-gray-300 cursor-not-allowed'
@@ -924,7 +925,8 @@ function MakeEbookPage() {
                                   Load
                                 </button>
                                 <button
-                                  className="text-gray-400 hover:text-red-500 p-1 focus:outline-none"
+                                  className="text-gray-400 hover:text-red-500 p-1 outline-none focus:outline-none focus-visible:outline-none border-none focus:border-none"
+                                  style={{ boxShadow: 'none', border: 'none', outline: 'none' }}
                                   onClick={() => handleDeleteBook(b.id)}
                                   title="Delete book"
                                 >
@@ -957,36 +959,33 @@ function MakeEbookPage() {
           {/* Desktop Sidebar - Hidden on Mobile */}
           <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 pl-2 pr-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
             <nav className="flex items-center justify-center pb-2">
-              <div className="flex items-center justify-between px-8 py-4 rounded-full bg-white border border-gray-200 shadow-lg w-full mt-6">
+              <div className="flex items-center justify-between px-4 py-2 rounded-full bg-white border border-gray-200 shadow-lg ml-2 mr-2 mt-8">
                 <button
-                  className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'setup' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                  style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '0.5rem', paddingRight: '1rem' }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-full outline-none focus:outline-none transition-opacity flex-shrink-0 ${tab === 'setup' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                   onClick={() => setTab('setup')}
                   type="button"
                   aria-label="Details"
                 >
-                  <MetadataIcon className="w-7 h-7" />
-                  <span className="text-base font-medium text-[#050505]">Details</span>
+                  <MetadataIcon className="w-5 h-5" />
+                  <span className="text-xs font-medium text-[#050505]">Details</span>
                 </button>
                 <button
-                  className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'preview' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                  style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '0.5rem', paddingRight: '0.5rem' }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-full outline-none focus:outline-none transition-opacity flex-shrink-0 ${tab === 'preview' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                   onClick={() => setTab('preview')}
                   type="button"
                   aria-label="Summary"
                 >
-                  <img src="/preview-icon.svg" alt="Summary" className="w-7 h-7" />
-                  <span className="text-base font-medium text-[#050505]">Summary</span>
+                  <img src="/preview-icon.svg" alt="Summary" className="w-5 h-5" />
+                  <span className="text-xs font-medium text-[#050505]">Summary</span>
                 </button>
                 <button
-                  className={`flex items-center gap-1 focus:outline-none transition-opacity flex-shrink-0 ${tab === 'library' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                  style={{ minWidth: 0, flexBasis: '33.33%', justifyContent: 'center', paddingLeft: '1rem', paddingRight: '0.5rem' }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-full outline-none focus:outline-none transition-opacity flex-shrink-0 ${tab === 'library' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                   onClick={() => setTab('library')}
                   type="button"
                   aria-label="Library"
                 >
-                  <LibraryIcon className="w-7 h-7" />
-                  <span className="text-base font-medium text-[#050505]">Library</span>
+                  <LibraryIcon className="w-5 h-5" />
+                  <span className="text-xs font-medium text-[#050505]">Library</span>
                 </button>
               </div>
             </nav>
@@ -1514,7 +1513,7 @@ function MakeEbookPage() {
                 <div className="mt-2">
                   <label className="block text-xs text-[#737373] mb-1">Chapter title</label>
                   <input
-                    className="w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm touch-manipulation"
+                    className="w-full px-3 py-2 rounded text-lg bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-lg touch-manipulation"
                     placeholder="Enter chapter title..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
@@ -1527,7 +1526,7 @@ function MakeEbookPage() {
               {/* Rich Text Editor - Maximized for Writing */}
               <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
                 <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between">
-                  <label className="block text-xs text-[#737373]">Chapter content</label>
+                  <label className="block text-xs text-[#737373] mb-0">Chapter content</label>
                   <div className="flex items-start gap-2">
                     <div className="flex flex-col items-center">
                       <button
@@ -1594,7 +1593,7 @@ function MakeEbookPage() {
                         ? "Start writing your first chapter here..."
                         : "Start writing your chapter here..."
                     }
-                    className="h-full"
+                    className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
                     onCreateEndnote={handleCreateEndnote}
                     chapterId={`chapter-${selectedChapter}`}
                   />
@@ -1792,7 +1791,7 @@ function MakeEbookPage() {
                 <div className="mb-1 flex-shrink-0 bg-white border-b border-[#F2F2F2] pb-2">
                   <label className="block text-xs text-[#737373] mb-1">Chapter title</label>
                   <input
-                    className="w-full px-3 py-2 rounded text-sm bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-sm"
+                    className="w-full px-3 py-2 rounded text-lg bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-lg"
                     placeholder="Enter chapter title..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
@@ -1867,12 +1866,12 @@ function MakeEbookPage() {
                       }
                       minHeight={400}
                       showWordCount
-                      placeholder={
-                        selectedChapter === 0
-                          ? "Start writing your first chapter here..."
-                          : "Start writing your chapter here..."
-                      }
-                      className="h-full"
+                        placeholder={
+                          selectedChapter === 0
+                            ? "Start writing your first chapter here..."
+                            : "Start writing your chapter here..."
+                        }
+                        className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
                       onCreateEndnote={handleCreateEndnote}
                       chapterId={`chapter-${selectedChapter}`}
                     />

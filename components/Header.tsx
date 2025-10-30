@@ -73,9 +73,17 @@ export function Header({ onNewBook }: HeaderProps = {}) {
           <Image
             src="/make-ebook-logomark.svg"
             alt="makeEBook logo"
+            width={120}
+            height={120}
+            className="h-[120px] w-[120px] ml-0 block lg:hidden"
+            priority
+          />
+          <Image
+            src="/make-ebook-logomark.svg"
+            alt="makeEBook logo"
             width={130}
             height={51}
-            className="h-[51px] w-[130px] -ml-[0px]"
+            className="h-[51px] w-[130px] ml-[4px] hidden lg:block"
             priority
           />
         </div>

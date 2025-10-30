@@ -952,7 +952,7 @@ export default function RichTextEditor({
       <div className="flex-1 min-w-0 relative flex flex-col min-h-0">
         {showPlaceholder && (
           <div
-            className="absolute left-4 top-4 text-[#737373] text-sm pointer-events-none select-none z-10"
+            className="absolute left-4 top-4 text-[#737373] text-lg pointer-events-none select-none z-10"
           >
             {placeholder}
           </div>
