@@ -787,7 +787,7 @@ function MakeEbookPage() {
                       className={`flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none transition-opacity flex-shrink-0 ${tab === 'preview' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                       onClick={() => setTab('preview')}
                     >
-                      <img alt="Summary" className="w-5 h-5" src="/preview-icon.svg" />
+                      <img alt="Summary" className="w-5 h-5" src="/summary-icon.svg" />
                       <span className="text-xs font-medium text-[#050505]">Summary</span>
                     </button>
                     <button
@@ -975,7 +975,7 @@ function MakeEbookPage() {
                   type="button"
                   aria-label="Summary"
                 >
-                  <img src="/preview-icon.svg" alt="Summary" className="w-5 h-5" />
+                  <img src="/summary-icon.svg" alt="Summary" className="w-5 h-5" />
                   <span className="text-xs font-medium text-[#050505]">Summary</span>
                 </button>
                 <button

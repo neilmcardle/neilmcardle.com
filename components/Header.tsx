@@ -93,7 +93,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
             style={{
               borderRadius: '999px',
               padding: '2.5px',
-              background: 'linear-gradient(90deg, #ff6ec4 0%, #7873f5 50%, #1fd1f9 100%)',
+              background: 'linear-gradient(45deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%)',
               display: 'inline-block',
             }}
           >
@@ -104,13 +104,13 @@ export function Header({ onNewBook }: HeaderProps = {}) {
               aria-label="Unlock Pro"
               style={{
                 borderRadius: '999px',
-                background:  '#f8f8f8ff',
+                background:  '#fff',
                 border: 'none',
                 boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
                 transition: 'background 0.2s',
                 display: 'inline-block',
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(90deg, #ff6ec4 0%, #7873f5 50%, #1fd1f9 100%)'}
+              onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(225deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%)'}
               onMouseLeave={e => e.currentTarget.style.background = '#f8f8f8ff'}
             >
               Unlock Pro

@@ -324,12 +324,12 @@ export default function MetaTabContent({
             disabled={lockedSections.tags}
           />
           <button
-            className={`px-3 rounded bg-[#15161a] text-white font-semibold flex items-center justify-center ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
             type="button"
             onClick={handleAddTag}
             disabled={lockedSections.tags}
           >
-            <PlusIcon className="w-4 h-4" color="white" />
+            <img src="/plus-icon.svg" alt="Add tag" className="w-4 h-4" />
           </button>
         </div>
         <div className="flex flex-wrap gap-2 mt-2">
