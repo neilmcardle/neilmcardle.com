@@ -782,7 +782,7 @@ function MakeEbookPage() {
                   >
                     <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
                     <img alt="Close" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5" style={{ color: 'transparent', zIndex: 2 }} src="/close-sidebar-icon.svg" />
-                    <span className="text-base font-medium text-[#23242a]" style={{ zIndex: 2 }}>Close</span>
+                    <span className="text-base font-medium text-[#23242a] underline" style={{ zIndex: 2 }}>Close</span>
                   </button>
                 </div>
                 
@@ -1162,19 +1162,16 @@ function MakeEbookPage() {
                 <button
                   onClick={() => setMobileSidebarOpen(true)}
                   className="flex items-center justify-center px-5 py-4 rounded-full bg-white gap-2 focus:outline-none transition-opacity ml-[-20px] relative"
-                  aria-label="Open sidebar menu"
+                  aria-label="Dashboard and Library sidebar menu"
                   style={{ minWidth: 56, minHeight: 56 }}
                 >
                   <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
-                  <img alt="Menu" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5" style={{ color: 'transparent', zIndex: 2 }} src="/open-sidebar-icon.svg" />
-                  <span className="text-base font-medium text-[#050505]" style={{ zIndex: 2 }}>Open</span>
+                  <img alt="Dashboard and Library" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5" style={{ color: 'transparent', zIndex: 2 }} src="/open-sidebar-icon.svg" />
+                  <span className="text-base font-medium text-[#050505] underline" style={{ zIndex: 2 }}>Open Dashboard &amp; Library</span>
                 </button>
               </div>
             )}
 
-            <div className="lg:hidden mt-[-32px] mb-4">
-              <div className="border-t border-white mt-4"></div>
-            </div>
 
             {/* Mobile Book Title Input */}
             <div className="lg:hidden mb-4 flex-shrink-0 ml-0 mt-8">
@@ -1258,7 +1255,7 @@ function MakeEbookPage() {
                 </div>
               </div>
               {/* Book Heading and Title Input Below Panel */}
-              <div className="pb-3 border-b border-[#E8E8E8]">
+              <div className="pb-3">
                 <div className="flex items-center gap-3">
                   {lockedSections.bookInfo && (
                     <LockIcon className="w-5 h-5 opacity-60" />
@@ -1288,7 +1285,7 @@ function MakeEbookPage() {
                   <h3 className="text-sm font-bold text-[#050505]">Book</h3>
                 </div>
               </div>
-              <div className="mb-3 pb-2 border-b border-[#E8E8E8]">
+              <div className="mb-3 pb-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 flex-1">
                     {lockedSections.bookInfo && (
@@ -1346,7 +1343,7 @@ function MakeEbookPage() {
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
             <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto">
               {/* Compact Chapter Header */}
-              <div className="flex-shrink-0 bg-white border-b border-[#F2F2F2] pb-2">
+              <div className="flex-shrink-0 bg-white border-none pb-2">
                 {/* Compact Chapter Tabs */}
                 <div className="mb-2">
                   <div className="flex items-center justify-between mb-1">
@@ -1566,10 +1563,10 @@ function MakeEbookPage() {
                 
                 {/* Compact Chapter Title Input in Header */}
                 <div className="mt-2">
-                  <label className="block text-xs text-[#737373] mb-1">Chapter title</label>
+                  {/* <label className="block text-xs text-[#737373] mb-1">Chapter title</label> */}
                   <input
                     className="w-full px-3 py-2 rounded text-lg bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-lg touch-manipulation"
-                    placeholder="Enter chapter title..."
+                    placeholder="Enter current chapter title..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
                       handleChapterTitleChange(selectedChapter, e.target.value)
@@ -1581,7 +1578,7 @@ function MakeEbookPage() {
               {/* Rich Text Editor - Maximized for Writing */}
               <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
                 <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between">
-                  <label className="block text-xs text-[#737373] mb-0">Chapter content</label>
+                  {/* <label className="block text-xs text-[#737373] mb-0">Chapter content</label> */}
                   <div className="flex items-start gap-2">
                     <div className="flex flex-col items-center">
                       <button
@@ -1843,11 +1840,11 @@ function MakeEbookPage() {
               {/* Editor Area - Prioritized for Writing */}
               <section className="flex flex-col min-w-0 flex-1 min-h-0">
                 {/* Compact Chapter Title Header */}
-                <div className="mb-1 flex-shrink-0 bg-white border-b border-[#F2F2F2] pb-2">
-                  <label className="block text-xs text-[#737373] mb-1">Chapter title</label>
+                <div className="mb-1 flex-shrink-0 bg-white pb-2">
+                  {/* <label className="block text-xs text-[#737373] mb-1">Chapter title</label> */}
                   <input
                     className="w-full px-3 py-2 rounded text-lg bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-lg"
-                    placeholder="Enter chapter title..."
+                    placeholder="Enter current chapter title..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
                       handleChapterTitleChange(selectedChapter, e.target.value)
@@ -1857,7 +1854,7 @@ function MakeEbookPage() {
                 {/* Rich Text Editor - Maximum Space */}
                 <div className="w-full max-w-full flex-1 min-h-0 flex flex-col">
                   <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between">
-                    <label className="block text-xs text-[#737373]">Chapter content</label>
+
                     <div className="flex items-start gap-2">
                       <div className="flex flex-col items-center">
                         <button
