@@ -117,6 +117,8 @@ function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
 }
 
 function MakeEbookPage() {
+  // State for mobile three-dots actions menu
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
   // Stripe checkout handler
   const handleStripeCheckout = async () => {
     const res = await fetch('/api/create-checkout-session', { method: 'POST' });
@@ -639,6 +641,21 @@ function MakeEbookPage() {
       </div>
       {/* Main Content - add margin-top to offset header height */}
       <div className="bg-[#FFFFFF] text-[#15161a] mt-[64px]">
+        {/* Current Book Indicator - Sticky Footer for All Screens */}
+        <div
+          className="fixed bottom-0 left-0 w-full flex items-center justify-center border-t border-gray-200 shadow z-[120]"
+          style={{
+            background: '#E6F9ED', // light green to match plus icon
+            fontSize: '12px',
+            padding: '6px 0',
+            minHeight: '32px'
+          }}
+        >
+          <BookIcon className="w-4 h-4 text-[#23242a] mr-1" />
+          <span className="font-medium text-[#23242a]">Currently editing:</span>
+          <span className="text-[#23242a] font-normal ml-1">{title ? title : "Untitled"}</span>
+          <span className="text-gray-500 font-normal ml-2">{author ? `by ${author}` : "by Unknown author"}</span>
+        </div>
         {/* Library Panel */}
         {libraryOpen && (
           <div className="fixed inset-0 z-[120] bg-black/20 flex items-start justify-center">
@@ -1162,12 +1179,55 @@ function MakeEbookPage() {
             {/* Mobile Book Title Input */}
             <div className="lg:hidden mb-4 flex-shrink-0 ml-0 mt-8">
               {/* Action Buttons Panel */}
-              <div className="mb-2 flex items-center justify-center">
+              {/* Mobile: Three dots menu for actions */}
+              <div className="flex items-center justify-between lg:hidden">
+                <div className="flex items-center gap-2">
+                  <img alt="Preview" className="w-5 h-5" src="/preview-icon.svg" />
+                  <span className="text-sm font-bold text-[#050505]">Book</span>
+                </div>
+                <div className="relative dropdown inline-block text-right">
+                  <button
+                    aria-label="Show actions menu"
+                    className="flex items-center justify-center w-18 h-18 rounded-full bg-white border border-gray-200 shadow-lg"
+                    onClick={() => setShowActionsMenu((prev: boolean) => !prev)}
+                  >
+                    <img alt="Three Dots" loading="lazy" width="20" height="20" decoding="async" style={{ color: 'transparent' }} className="w-4 h-4" src="/three-dots-icon.svg" />
+                  </button>
+                  {showActionsMenu && (
+                    <div className="absolute right-0 mt-2 w-44 bg-white rounded-2xl shadow-lg border border-gray-200 z-50">
+                      <button
+                        onClick={() => { showNewBookConfirmation(); setShowActionsMenu(false); }}
+                        className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-[#F2F2F2] border-b border-gray-100"
+                        type="button"
+                      >
+                        <PlusIcon className="w-5 h-5" /> New Book
+                      </button>
+                      <button
+                        onClick={() => { handleSaveBook(); setShowActionsMenu(false); }}
+                        className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-[#F2F2F2] border-b border-gray-100"
+                        type="button"
+                        aria-label="Save Book"
+                        disabled={!!saveFeedback}
+                      >
+                        <SaveIcon className="w-5 h-5" /> {saveFeedback ? "Saved!" : "Save"}
+                      </button>
+                      <button
+                        onClick={() => { handleExportEPUB(); setShowActionsMenu(false); }}
+                        className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-[#F2F2F2]"
+                        type="button"
+                      >
+                        <DownloadIcon className="w-5 h-5" /> Export
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* Desktop: Keep original toolbar */}
+              <div className="mb-2 flex items-center justify-center hidden lg:flex">
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-lg">
                   <button
                     onClick={() => {
                       showNewBookConfirmation();
-                      setMobileSidebarOpen(false);
                     }}
                     className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
                     type="button"
@@ -1188,7 +1248,6 @@ function MakeEbookPage() {
                   <button
                     onClick={() => {
                       handleExportEPUB();
-                      setMobileSidebarOpen(false);
                     }}
                     className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
                     type="button"
@@ -1199,10 +1258,6 @@ function MakeEbookPage() {
                 </div>
               </div>
               {/* Book Heading and Title Input Below Panel */}
-              <div className="mt-8 mb-2 flex items-center gap-2">
-                <img src="/preview-icon.svg" alt="Preview" className="w-5 h-5" />
-                <span className="text-sm font-bold text-[#050505]">Book</span>
-              </div>
               <div className="pb-3 border-b border-[#E8E8E8]">
                 <div className="flex items-center gap-3">
                   {lockedSections.bookInfo && (
