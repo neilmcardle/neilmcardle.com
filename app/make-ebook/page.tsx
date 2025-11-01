@@ -1270,7 +1270,7 @@ function MakeEbookPage() {
                       color: lockedSections.bookInfo ? "#737373" : (title ? "#23242a" : "#737373"),
                       boxShadow: "none"
                     }}
-                    placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Enter book title..."}
+                    placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Give your book a title..."}
                   />
                 </div>
               </div>
@@ -1301,7 +1301,7 @@ function MakeEbookPage() {
                         color: lockedSections.bookInfo ? "#737373" : (title ? "#23242a" : "#737373"),
                         boxShadow: "none"
                       }}
-                      placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Enter book title..."}
+                      placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Give your book a title..."}
                     />
                   </div>
                   <div className="flex items-center justify-center">
@@ -1566,7 +1566,7 @@ function MakeEbookPage() {
                   {/* <label className="block text-xs text-[#737373] mb-1">Chapter title</label> */}
                   <input
                     className="w-full px-3 py-2 rounded text-lg bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-lg touch-manipulation"
-                    placeholder="Enter current chapter title..."
+                    placeholder="Enter a title for this chapter..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
                       handleChapterTitleChange(selectedChapter, e.target.value)
@@ -1642,8 +1642,8 @@ function MakeEbookPage() {
                     showWordCount
                     placeholder={
                       selectedChapter === 0
-                        ? "Start writing your first chapter here..."
-                        : "Start writing your chapter here..."
+                        ? "Write your first chapter here..."
+                        : "Now add some content to your chapter..."
                     }
                     className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
                     onCreateEndnote={handleCreateEndnote}
@@ -1844,7 +1844,7 @@ function MakeEbookPage() {
                   {/* <label className="block text-xs text-[#737373] mb-1">Chapter title</label> */}
                   <input
                     className="w-full px-3 py-2 rounded text-lg bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-lg"
-                    placeholder="Enter current chapter title..."
+                    placeholder="Enter a title for this chapter..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
                       handleChapterTitleChange(selectedChapter, e.target.value)
@@ -1920,8 +1920,8 @@ function MakeEbookPage() {
                       showWordCount
                         placeholder={
                           selectedChapter === 0
-                            ? "Start writing your first chapter here..."
-                            : "Start writing your chapter here..."
+                            ? "Write your first chapter here..."
+                            : "Now add some content to your chapter..."
                         }
                         className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
                       onCreateEndnote={handleCreateEndnote}
