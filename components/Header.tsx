@@ -136,14 +136,14 @@ export function Header({ onNewBook }: HeaderProps = {}) {
                 />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
+            <DropdownMenuContent className="w-56" align="end" sideOffset={8} forceMount>
+              <DropdownMenuLabel className="font-normal pt-2">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user?.email || 'user@email.com'}</p>
+                  <p className="pt-2 pl-2 text-sm font-medium leading-none">{user?.email || 'user@email.com'}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} disabled={loggingOut}>
+              <DropdownMenuItem onClick={handleLogout} disabled={loggingOut} className="pr-2">
                 <span className="mr-2"></span>
                 <span>{loggingOut ? "Logging out..." : "Log out"}</span>
               </DropdownMenuItem>
