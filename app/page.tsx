@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { Mail, Copy } from "lucide-react";
 import Image from "next/image";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useTheme } from "@/lib/contexts/ThemeContext";
 
 export default function ProfileCardHomepage() {
+  const { theme } = useTheme();
   const [showEmail, setShowEmail] = useState(false);
   const [copied, setCopied] = useState(false);
   const email = "neil@neilmcardle.com";
@@ -18,19 +21,24 @@ export default function ProfileCardHomepage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 relative">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] relative transition-colors">
       {/* Profile Card Container */}
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10">
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10 transition-colors relative">
+          {/* Theme Toggle Button - Top Right of Card */}
+          <div className="absolute top-6 right-6 z-50">
+            <ThemeToggle />
+          </div>
+          
           {/* Banner Section with Logomark */}
-          <div className="relative h-32 md:h-32 px-6 pb-8 md:px-[2rem] flex flex-col items-center justify-center pointer-events-none" style={{ backgroundColor: '#fff' }}>
+          <div className="relative h-32 md:h-32 px-6 pb-8 md:px-[2rem] flex flex-col items-center justify-center pointer-events-none bg-white dark:bg-[#1a1a1a] transition-colors">{" "}
             <div className="flex justify-center items-center w-full" style={{ paddingTop: '8px' }}>
               <Image
                 src="/neil-mcardle-logomark.svg"
                 alt="Neil McArdle Logomark"
                 width={48}
                 height={48}
-                className="object-contain"
+                className="object-contain dark:invert"
                 data-testid="img-logomark"
                 priority
                 style={{ color: 'transparent' }}
@@ -53,7 +61,7 @@ export default function ProfileCardHomepage() {
               </div>
             </div>
             <h1
-              className="text-4xl font-bold text-gray-800 mt-4"
+              className="text-4xl font-bold text-gray-800 dark:text-white mt-4 transition-colors"
               style={{ fontFamily: "Inter, sans-serif" }}
               data-testid="text-title"
             >
@@ -66,12 +74,12 @@ export default function ProfileCardHomepage() {
             {/* Headline & Subheadline */}
             <div className="mb-6">
               <div className="mb-1">
-                <span className="text-lg font-normal text-gray-600" data-testid="text-location">
+                <span className="text-lg font-normal text-gray-600 dark:text-gray-300 transition-colors" data-testid="text-location">
                   Designing for millions.
                 </span>
               </div>
               <div className="mb-8">
-                <span className="text-lg font-normal text-gray-600" data-testid="text-location">
+                <span className="text-lg font-normal text-gray-600 dark:text-gray-300 transition-colors" data-testid="text-location">
                   Coding side projects.
                 </span>
               </div>
@@ -80,33 +88,37 @@ export default function ProfileCardHomepage() {
             {/* Products Section */}
             <div className="mb-6">
               <h2
-                className="text-xs font-semibold text-gray-500 uppercase mb-2 tracking-widest"
+                className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-widest transition-colors"
                 style={{ fontFamily: "Inter, sans-serif" }}
                 data-testid="text-products-heading"
               >
                 Products
               </h2>
-              <div className="flex items-center justify-center gap-8">
+              <div className="flex items-center justify-center gap-8">{" "}
                 <div style={{
                   borderRadius: '999px',
                   padding: '2.5px',
-                  background: 'linear-gradient(90deg, #ebebebff 0%, #F4F4F4 50%, #F4F4F4 100%)',
+                  background: theme === 'dark' 
+                    ? 'linear-gradient(90deg, #2a2a2a 0%, #3a3a3a 50%, #3a3a3a 100%)'
+                    : 'linear-gradient(90deg, #ebebebff 0%, #F4F4F4 50%, #F4F4F4 100%)',
                   display: 'inline-block',
                 }}>
                   <a
                     href="https://vectorpaint.vercel.app/"
-                    className="text-gray-900 px-6 py-2 font-medium inline-flex items-center gap-2 transition-transform focus:outline-none"
+                    className="text-gray-900 dark:text-white px-6 py-2 font-medium inline-flex items-center gap-2 transition-all focus:outline-none"
                     style={{
                       borderRadius: '999px',
-                      background:  '#f8f8f8ff',
+                      background: theme === 'dark' ? '#2a2a2a' : '#f8f8f8ff',
                       border: 'none',
-                      boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
+                      boxShadow: theme === 'dark' 
+                        ? '0 6px 8px 0 rgba(0,0,0,0.4)'
+                        : '0 6px 8px 0 rgba(0,0,0,0.16)',
                       transition: 'background 0.2s',
                       display: 'inline-block',
                       fontSize: '12px',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ebebebff 40%, #F4F4F4 100%)'}
-                    onMouseLeave={e => e.currentTarget.style.background = '#f8f8f8ff'}
+                    onMouseEnter={e => e.currentTarget.style.background = theme === 'dark' ? '#3a3a3a' : 'linear-gradient(180deg, #ebebebff 40%, #F4F4F4 100%)'}
+                    onMouseLeave={e => e.currentTarget.style.background = theme === 'dark' ? '#2a2a2a' : '#f8f8f8ff'}
                     data-testid="link-vectorpaint"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -117,23 +129,27 @@ export default function ProfileCardHomepage() {
                 <div style={{
                   borderRadius: '999px',
                   padding: '2.5px',
-                  background: 'linear-gradient(90deg, #ebebebff 0%, #F4F4F4 50%, #F4F4F4 100%)',
+                  background: theme === 'dark'
+                    ? 'linear-gradient(90deg, #2a2a2a 0%, #3a3a3a 50%, #3a3a3a 100%)'
+                    : 'linear-gradient(90deg, #ebebebff 0%, #F4F4F4 50%, #F4F4F4 100%)',
                   display: 'inline-block',
                 }}>
                   <a
                     href="https://neilmcardle.com/make-ebook"
-                    className="text-gray-900 px-6 py-2 font-medium inline-flex items-center gap-2 transition-transform focus:outline-none"
+                    className="text-gray-900 dark:text-white px-6 py-2 font-medium inline-flex items-center gap-2 transition-all focus:outline-none"
                     style={{
                       borderRadius: '999px',
-                      background:  '#f8f8f8ff',
+                      background: theme === 'dark' ? '#2a2a2a' : '#f8f8f8ff',
                       border: 'none',
-                      boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
+                      boxShadow: theme === 'dark'
+                        ? '0 6px 8px 0 rgba(0,0,0,0.4)'
+                        : '0 6px 8px 0 rgba(0,0,0,0.16)',
                       transition: 'background 0.2s',
                       display: 'inline-block',
                       fontSize: '12px',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ebebebff 40%, #F4F4F4 100%)'}
-                    onMouseLeave={e => e.currentTarget.style.background = '#f8f8f8ff'}
+                    onMouseEnter={e => e.currentTarget.style.background = theme === 'dark' ? '#3a3a3a' : 'linear-gradient(180deg, #ebebebff 40%, #F4F4F4 100%)'}
+                    onMouseLeave={e => e.currentTarget.style.background = theme === 'dark' ? '#2a2a2a' : '#f8f8f8ff'}
                     data-testid="link-makeebook"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -149,6 +165,7 @@ export default function ProfileCardHomepage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
+                className="dark:invert transition-all"
               >
                 <span className="inline-block w-6 h-6 align-middle">
                   {/* GitHub SVG */}
@@ -162,6 +179,7 @@ export default function ProfileCardHomepage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X"
+                className="dark:invert transition-all"
               >
                 <span className="inline-block w-6 h-6 align-middle">
                   {/* X SVG */}
@@ -174,25 +192,29 @@ export default function ProfileCardHomepage() {
             {/* Get in Touch Reveal & Copy */}
             <div className="text-center mt-4 flex flex-col items-center">
               {!showEmail ? null : (
-                <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full font-medium text-base">
-                  <Mail className="w-5 h-5 text-gray-700" />
-                  <span className="text-gray-800">{email}</span>
+                <div className="inline-flex items-center gap-2 bg-gray-100 dark:bg-[#2a2a2a] px-4 py-2 rounded-full font-medium text-base transition-colors">
+                  <Mail className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <span className="text-gray-800 dark:text-white">{email}</span>
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className="flex items-center justify-center w-8 h-8 rounded-full p-2 shadow-lg border border-gray-200"
+                    className="flex items-center justify-center w-8 h-8 rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-600 transition-colors"
                     style={{
-                      background: 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
+                      background: theme === 'dark' 
+                        ? 'linear-gradient(180deg, #2a2a2a 40%, #1a1a1a 60%, #3a3a3a 100%)'
+                        : 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)',
                       transition: 'background 0.2s',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
+                    onMouseEnter={e => e.currentTarget.style.background = theme === 'dark' ? '#3a3a3a' : '#FAFAFA'}
+                    onMouseLeave={e => e.currentTarget.style.background = theme === 'dark' 
+                      ? 'linear-gradient(180deg, #2a2a2a 40%, #1a1a1a 60%, #3a3a3a 100%)'
+                      : 'linear-gradient(180deg, #ECECEC 40%, #D2D2D2 60%, #F4F4F4 100%)'}
                     aria-label="Copy email to clipboard"
                   >
-                    <Copy className="w-5 h-5" />
+                    <Copy className="w-5 h-5 dark:text-gray-300" />
                   </button>
                   {copied && (
-                    <span className="ml-2 text-green-600 font-medium transition-opacity duration-200">
+                    <span className="ml-2 text-green-600 dark:text-green-400 font-medium transition-opacity duration-200">
                       Copied
                     </span>
                   )}
