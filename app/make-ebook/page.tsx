@@ -632,7 +632,7 @@ function MakeEbookPage() {
   return (
     <>
       {/* Fixed Header */}
-  <div className="fixed top-0 left-0 w-full z-[110] bg-white border-b border-gray-100">
+  <div className="fixed top-0 left-0 w-full z-[110] bg-white dark:bg-[#0f0f0f] border-b border-gray-100 dark:border-gray-800">
   <div className="flex items-center justify-between pr-0 pl-0 h-[64px] w-full">
           {/* Left: Logo and nav (Header) */}
           <Header />
@@ -640,51 +640,50 @@ function MakeEbookPage() {
         </div>
       </div>
       {/* Main Content - add margin-top to offset header height */}
-      <div className="bg-[#FFFFFF] text-[#15161a] mt-[64px]">
+      <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] text-[#15161a] dark:text-[#e5e5e5] mt-[64px]">
         {/* Current Book Indicator - Sticky Footer for All Screens */}
         <div
-          className="fixed bottom-0 left-0 w-full flex items-center justify-center border-t border-gray-200 shadow z-[120]"
+          className="fixed bottom-0 left-0 w-full flex items-center justify-center border-t border-gray-200 dark:border-gray-700 shadow z-[120] bg-[#E6F9ED] dark:bg-[#1a4d2e]"
           style={{
-            background: '#E6F9ED', // light green to match plus icon
             fontSize: '12px',
             padding: '6px 0',
             minHeight: '32px'
           }}
         >
-          <BookIcon className="w-4 h-4 text-[#23242a] mr-1" />
-          <span className="font-medium text-[#23242a]">Currently editing:</span>
-          <span className="text-[#23242a] font-normal ml-1">{title ? title : "Untitled"}</span>
-          <span className="text-gray-500 font-normal ml-2">{author ? `by ${author}` : "by Unknown author"}</span>
+          <BookIcon className="w-4 h-4 text-[#23242a] dark:text-[#e5e5e5] mr-1" />
+          <span className="font-medium text-[#23242a] dark:text-[#e5e5e5]">Currently editing:</span>
+          <span className="text-[#23242a] dark:text-[#e5e5e5] font-normal ml-1">{title ? title : "Untitled"}</span>
+          <span className="text-gray-500 dark:text-gray-400 font-normal ml-2">{author ? `by ${author}` : "by Unknown author"}</span>
         </div>
         {/* Library Panel */}
         {libraryOpen && (
           <div className="fixed inset-0 z-[120] bg-black/20 flex items-start justify-center">
-            <div className="bg-white rounded shadow-2xl p-6 mt-20 w-full max-w-md">
+            <div className="bg-white dark:bg-[#1a1a1a] rounded shadow-2xl p-6 mt-20 w-full max-w-md">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold flex items-center gap-2">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                   <LibraryIcon className="w-6 h-6" /> Library
                 </h2>
-                <button onClick={() => setLibraryOpen(false)} className="text-xl">&times;</button>
+                <button onClick={() => setLibraryOpen(false)} className="text-xl text-gray-600 dark:text-gray-400">&times;</button>
               </div>
               {libraryBooks.length === 0 ? (
-                <div className="text-gray-500 text-center py-8">No books saved</div>
+                <div className="text-gray-500 dark:text-gray-400 text-center py-8">No books saved</div>
               ) : (
                 <ul>
                   {libraryBooks
                     .sort((a, b) => b.savedAt - a.savedAt)
                     .map((b) => (
-                    <li key={b.id} className="flex items-center gap-2 border-b last:border-b-0 py-2">
+                    <li key={b.id} className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0 py-2">
                       <button
-                        className="flex-1 text-left hover:underline"
+                        className="flex-1 text-left hover:underline text-gray-900 dark:text-gray-100"
                         onClick={() => handleLoadBook(b.id)}
                         title={b.title}
                       >
                         <span className="font-semibold">{b.title || "Untitled"}</span>
-                        <span className="text-sm text-gray-500 ml-2">{b.author}</span>
-                        <span className="block text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">{b.author}</span>
+                        <span className="block text-xs text-gray-400 dark:text-gray-500">{new Date(b.savedAt).toLocaleString()}</span>
                       </button>
                       <button
-                        className="text-gray-400 hover:text-red-500"
+                        className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400"
                         onClick={() => handleDeleteBook(b.id)}
                         title="Delete book"
                       >
@@ -701,21 +700,21 @@ function MakeEbookPage() {
         {/* New Book Confirmation Dialog */}
         {newBookConfirmOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white rounded shadow-2xl p-6 max-w-md w-full">
-              <h2 className="text-lg font-bold mb-4">Start New Book?</h2>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-white dark:bg-[#1a1a1a] rounded shadow-2xl p-6 max-w-md w-full">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Start New Book?</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 This will save your current book and start a new one. All your current work will be preserved in the library.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setNewBookConfirmOpen(false)}
-                  className="flex-1 px-4 py-2 rounded border border-[#E8E8E8] text-sm font-medium hover:bg-[#F2F2F2] transition-colors"
+                  className="flex-1 px-4 py-2 rounded border border-[#E8E8E8] dark:border-gray-600 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-[#F2F2F2] dark:hover:bg-gray-800 transition-colors"
                 >
                   Go Back
                 </button>
                 <button
                   onClick={handleNewBookConfirm}
-                  className="flex-1 px-4 py-2 rounded bg-[#181a1d] text-white text-sm font-medium hover:bg-[#23252a] transition-colors"
+                  className="flex-1 px-4 py-2 rounded bg-[#181a1d] dark:bg-[#2a2a2a] text-white text-sm font-medium hover:bg-[#23252a] dark:hover:bg-[#3a3a3a] transition-colors"
                 >
                   Continue
                 </button>
@@ -727,27 +726,27 @@ function MakeEbookPage() {
         {/* Save Dialog */}
         {saveDialogOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white rounded shadow-2xl p-6 max-w-md w-full">
-              <h2 className="text-lg font-bold mb-4">Save Book</h2>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-white dark:bg-[#1a1a1a] rounded shadow-2xl p-6 max-w-md w-full">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Save Book</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 This book already exists in your library. Do you want to overwrite the existing version or save as a new version?
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setSaveDialogOpen(false)}
-                  className="flex-1 px-4 py-2 rounded border border-[#E8E8E8] text-sm font-medium hover:bg-[#F2F2F2] transition-colors"
+                  className="flex-1 px-4 py-2 rounded border border-[#E8E8E8] dark:border-gray-600 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-[#F2F2F2] dark:hover:bg-gray-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleOverwriteBook}
-                  className="flex-1 px-4 py-2 rounded bg-orange-600 text-white text-sm font-medium hover:bg-orange-700 transition-colors"
+                  className="flex-1 px-4 py-2 rounded bg-orange-600 dark:bg-orange-700 text-white text-sm font-medium hover:bg-orange-700 dark:hover:bg-orange-800 transition-colors"
                 >
                   Overwrite
                 </button>
                 <button
                   onClick={handleSaveAsNewVersion}
-                  className="flex-1 px-4 py-2 rounded bg-[#181a1d] text-white text-sm font-medium hover:bg-[#23252a] transition-colors"
+                  className="flex-1 px-4 py-2 rounded bg-[#181a1d] dark:bg-[#2a2a2a] text-white text-sm font-medium hover:bg-[#23252a] dark:hover:bg-[#3a3a3a] transition-colors"
                 >
                   Save as New
                 </button>
@@ -768,35 +767,35 @@ function MakeEbookPage() {
             onClick={() => setMobileSidebarOpen(false)}
           />
           {/* Sidebar Panel */}
-          <div className={`absolute top-0 left-0 h-full w-full bg-white shadow-2xl transform transition-transform duration-300 ease-out ${
+          <div className={`absolute top-0 left-0 h-full w-full bg-white dark:bg-[#1a1a1a] shadow-2xl transform transition-transform duration-300 ease-out ${
             mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
               <div className="flex flex-col h-full">
                 {/* Header with Actions */}
-                <div className="flex items-center justify-end p-4 border-[#ffffff]">
+                <div className="flex items-center justify-end p-4 border-[#ffffff] dark:border-gray-800">
                   <button
                     onClick={() => setMobileSidebarOpen(false)}
-                    className="flex items-center justify-center px-5 py-4 rounded-full bg-white gap-2 focus:outline-none transition-opacity mb-[-40px] relative"
+                    className="flex items-center justify-center px-5 py-4 rounded-full bg-white dark:bg-[#1a1a1a] gap-2 focus:outline-none transition-opacity mb-[-40px] relative"
                     aria-label="Close sidebar menu"
                     style={{ minWidth: 56, minHeight: 56 }}
                   >
                     <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
-                    <img alt="Close" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5" style={{ color: 'transparent', zIndex: 2 }} src="/close-sidebar-icon.svg" />
-                    <span className="text-base font-medium text-[#23242a] underline" style={{ zIndex: 2 }}>Close</span>
+                    <img alt="Close" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5 dark:invert" style={{ color: 'transparent', zIndex: 2 }} src="/close-sidebar-icon.svg" />
+                    <span className="text-base font-medium text-[#23242a] dark:text-[#e5e5e5] underline" style={{ zIndex: 2 }}>Close</span>
                   </button>
                 </div>
                 
                 {/* Tab Navigation */}
                 <nav className="flex items-center justify-center pb-2">
-                  <div className="flex items-center justify-between px-4 py-2 rounded-full bg-white border border-gray-200 shadow-lg ml-2 mr-2 mt-8">
+                  <div className="flex items-center justify-between px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg ml-2 mr-2 mt-8">
                     <button
                       type="button"
                       aria-label="Details"
                       className={`flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none transition-opacity flex-shrink-0 ${tab === 'setup' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                       onClick={() => setTab('setup')}
                     >
-                      <img alt="Book Details" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5" style={{ color: 'transparent' }} src="/metadata-icon.svg" />
-                      <span className="text-xs font-medium text-[#050505]">Details</span>
+                      <img alt="Book Details" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 dark:invert" style={{ color: 'transparent' }} src="/metadata-icon.svg" />
+                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Details</span>
                     </button>
                     <button
                       type="button"
@@ -804,8 +803,8 @@ function MakeEbookPage() {
                       className={`flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none transition-opacity flex-shrink-0 ${tab === 'preview' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                       onClick={() => setTab('preview')}
                     >
-                      <img alt="Summary" className="w-5 h-5" src="/summary-icon.svg" />
-                      <span className="text-xs font-medium text-[#050505]">Summary</span>
+                      <img alt="Summary" className="w-5 h-5 dark:invert" src="/summary-icon.svg" />
+                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Summary</span>
                     </button>
                     <button
                       type="button"
@@ -813,8 +812,8 @@ function MakeEbookPage() {
                       className={`flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none transition-opacity flex-shrink-0 ${tab === 'library' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                       onClick={() => setTab('library')}
                     >
-                      <img alt="Library" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5" style={{ color: 'transparent' }} src="/library-icon.svg" />
-                      <span className="text-xs font-medium text-[#050505]">Library</span>
+                      <img alt="Library" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 dark:invert" style={{ color: 'transparent' }} src="/library-icon.svg" />
+                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Library</span>
                     </button>
                   </div>
                 </nav>
@@ -893,12 +892,12 @@ function MakeEbookPage() {
                           {libraryBooks.map((b: any) => (
                             <li key={b.id} className={`flex items-center justify-between p-3 border rounded transition-colors ${
                               selectedBookId === b.id 
-                                ? 'border-black bg-white' 
-                                : 'border-[#E8E8E8] hover:bg-[#F2F2F2]'
+                                ? 'border-black dark:border-white bg-white dark:bg-[#2a2a2a]' 
+                                : 'border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a]'
                             }`}>
                               <div className="flex items-center gap-3 flex-1">
                                 {/* Book Cover Preview */}
-                                <div className="flex-shrink-0 w-8 h-12 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+                                <div className="flex-shrink-0 w-8 h-12 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center">
                                   {b.coverUrl ? (
                                     <img
                                       src={b.coverUrl}
@@ -906,7 +905,7 @@ function MakeEbookPage() {
                                       className="w-full h-full object-cover rounded"
                                     />
                                   ) : (
-                                    <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4 text-gray-400" />
+                                    <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4 text-gray-400 dark:invert" />
                                   )}
                                 </div>
                                 <button
@@ -917,17 +916,17 @@ function MakeEbookPage() {
                                   }}
                                   title={b.title}
                                 >
-                                  <div className="font-semibold">{b.title || "Untitled"}</div>
-                                  <div className="text-sm text-gray-500">{b.author}</div>
-                                  <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
+                                  <div className="font-semibold text-gray-900 dark:text-gray-100">{b.title || "Untitled"}</div>
+                                  <div className="text-sm text-gray-500 dark:text-gray-400">{b.author}</div>
+                                  <div className="text-xs text-gray-400 dark:text-gray-500">{new Date(b.savedAt).toLocaleString()}</div>
                                 </button>
                               </div>
                               <div className="flex items-center gap-1">
                                 <button
                                   className={`px-2 py-1 text-xs font-medium outline-none focus:outline-none focus-visible:outline-none border-none focus:border-none transition-colors ${
                                     selectedBookId === b.id 
-                                      ? 'text-black underline hover:no-underline' 
-                                      : 'text-gray-300 cursor-not-allowed'
+                                      ? 'text-black dark:text-white underline hover:no-underline' 
+                                      : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
                                   }`}
                                   onClick={() => {
                                     if (selectedBookId === b.id) {
@@ -942,7 +941,11 @@ function MakeEbookPage() {
                                   Load
                                 </button>
                                 <button
-                                  className="text-gray-400 hover:text-red-500 p-1 outline-none focus:outline-none focus-visible:outline-none border-none focus:border-none"
+                                  className={`p-1 outline-none focus:outline-none focus-visible:outline-none border-none focus:border-none transition-colors ${
+                                    selectedBookId === b.id
+                                      ? 'text-white dark:text-white hover:text-red-500 dark:hover:text-red-400'
+                                      : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400'
+                                  }`}
                                   style={{ boxShadow: 'none', border: 'none', outline: 'none' }}
                                   onClick={() => handleDeleteBook(b.id)}
                                   title="Delete book"
@@ -974,17 +977,17 @@ function MakeEbookPage() {
         {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden">
           {/* Desktop Sidebar - Hidden on Mobile */}
-          <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 pl-2 pr-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+          <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white dark:bg-[#1a1a1a] min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 pl-2 pr-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
             <nav className="flex items-center justify-center pb-2">
-              <div className="flex items-center justify-between px-4 py-2 rounded-full bg-white border border-gray-200 shadow-lg ml-2 mr-2 mt-8">
+              <div className="flex items-center justify-between px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg ml-2 mr-2 mt-8">
                 <button
                   className={`flex items-center gap-2 px-3 py-2 rounded-full outline-none focus:outline-none transition-opacity flex-shrink-0 ${tab === 'setup' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                   onClick={() => setTab('setup')}
                   type="button"
                   aria-label="Details"
                 >
-                  <MetadataIcon className="w-5 h-5" />
-                  <span className="text-xs font-medium text-[#050505]">Details</span>
+                  <MetadataIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+                  <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Details</span>
                 </button>
                 <button
                   className={`flex items-center gap-2 px-3 py-2 rounded-full outline-none focus:outline-none transition-opacity flex-shrink-0 ${tab === 'preview' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
@@ -992,8 +995,8 @@ function MakeEbookPage() {
                   type="button"
                   aria-label="Summary"
                 >
-                  <img src="/summary-icon.svg" alt="Summary" className="w-5 h-5" />
-                  <span className="text-xs font-medium text-[#050505]">Summary</span>
+                  <img src="/summary-icon.svg" alt="Summary" className="w-5 h-5 dark:invert" />
+                  <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Summary</span>
                 </button>
                 <button
                   className={`flex items-center gap-2 px-3 py-2 rounded-full outline-none focus:outline-none transition-opacity flex-shrink-0 ${tab === 'library' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
@@ -1001,8 +1004,8 @@ function MakeEbookPage() {
                   type="button"
                   aria-label="Library"
                 >
-                  <LibraryIcon className="w-5 h-5" />
-                  <span className="text-xs font-medium text-[#050505]">Library</span>
+                  <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+                  <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Library</span>
                 </button>
               </div>
             </nav>
@@ -1091,12 +1094,12 @@ function MakeEbookPage() {
                       {libraryBooks.map((b: any) => (
                         <li key={b.id} className={`flex items-center justify-between p-3 border rounded transition-colors ${
                           selectedBookId === b.id 
-                            ? 'border-black bg-white' 
-                            : 'border-[#E8E8E8] hover:bg-[#F2F2F2]'
+                            ? 'border-black dark:border-white bg-white dark:bg-[#2a2a2a]' 
+                            : 'border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a]'
                         }`}>
                           <div className="flex items-center gap-3 flex-1">
                             {/* Book Cover Preview */}
-                            <div className="flex-shrink-0 w-8 h-12 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+                            <div className="flex-shrink-0 w-8 h-12 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center">
                               {b.coverUrl ? (
                                 <img
                                   src={b.coverUrl}
@@ -1104,7 +1107,7 @@ function MakeEbookPage() {
                                   className="w-full h-full object-cover rounded"
                                 />
                               ) : (
-                                <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4 text-gray-400" />
+                                <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4 text-gray-400 dark:invert" />
                               )}
                             </div>
                             <button
@@ -1114,17 +1117,17 @@ function MakeEbookPage() {
                               }}
                               title={b.title}
                             >
-                              <div className="font-semibold">{b.title || "Untitled"}</div>
-                              <div className="text-sm text-gray-500">{b.author}</div>
-                              <div className="text-xs text-gray-400">{new Date(b.savedAt).toLocaleString()}</div>
+                              <div className="font-semibold text-gray-900 dark:text-gray-100">{b.title || "Untitled"}</div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">{b.author}</div>
+                              <div className="text-xs text-gray-400 dark:text-gray-500">{new Date(b.savedAt).toLocaleString()}</div>
                             </button>
                           </div>
                           <div className="flex items-center gap-1">
                             <button
                               className={`px-2 py-1 text-xs font-medium focus:outline-none transition-colors ${
                                 selectedBookId === b.id 
-                                  ? 'text-black underline hover:no-underline' 
-                                  : 'text-gray-300 cursor-not-allowed'
+                                  ? 'text-black dark:text-white underline hover:no-underline' 
+                                  : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
                               }`}
                               onClick={() => {
                                 if (selectedBookId === b.id) {
@@ -1138,7 +1141,11 @@ function MakeEbookPage() {
                               Load
                             </button>
                             <button
-                              className="text-gray-400 hover:text-red-500 p-1 focus:outline-none"
+                              className={`p-1 focus:outline-none transition-colors ${
+                                selectedBookId === b.id
+                                  ? 'text-white dark:text-white hover:text-red-500 dark:hover:text-red-400'
+                                  : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400'
+                              }`}
                               onClick={() => handleDeleteBook(b.id)}
                               title="Delete book"
                             >
@@ -1155,19 +1162,19 @@ function MakeEbookPage() {
           </aside>
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className="flex-1 flex flex-col bg-white rounded shadow-sm mt-4 px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
+          <main className="flex-1 flex flex-col bg-white dark:bg-[#1a1a1a] rounded shadow-sm mt-4 px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
             {/* Mobile Hamburger Menu - Fixed Position */}
             {!mobileSidebarOpen && (
               <div className="lg:hidden fixed top-[80px] left-2 z-10 pb-4 mb-20">
                 <button
                   onClick={() => setMobileSidebarOpen(true)}
-                  className="flex items-center justify-center px-5 py-4 rounded-full bg-white gap-2 focus:outline-none transition-opacity ml-[-20px] relative"
+                  className="flex items-center justify-center px-5 py-4 rounded-full bg-white dark:bg-[#1a1a1a] gap-2 focus:outline-none transition-opacity ml-[-20px] relative"
                   aria-label="Dashboard and Library sidebar menu"
                   style={{ minWidth: 56, minHeight: 56 }}
                 >
                   <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
-                  <img alt="Dashboard and Library" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5" style={{ color: 'transparent', zIndex: 2 }} src="/open-sidebar-icon.svg" />
-                  <span className="text-base font-medium text-[#050505] underline" style={{ zIndex: 2 }}>Open Dashboard &amp; Library</span>
+                  <img alt="Dashboard and Library" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5 dark:invert" style={{ color: 'transparent', zIndex: 2 }} src="/open-sidebar-icon.svg" />
+                  <span className="text-base font-medium text-[#050505] dark:text-[#e5e5e5] underline" style={{ zIndex: 2 }}>Open Dashboard &amp; Library</span>
                 </button>
               </div>
             )}
@@ -1179,19 +1186,19 @@ function MakeEbookPage() {
               {/* Mobile: Three dots menu for actions */}
               <div className="flex items-center justify-between lg:hidden">
                 <div className="flex items-center gap-2">
-                  <img alt="Preview" className="w-5 h-5" src="/preview-icon.svg" />
-                  <span className="text-sm font-bold text-[#050505]">Book</span>
+                  <img alt="Preview" className="w-5 h-5 dark:invert" src="/preview-icon.svg" />
+                  <span className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Book</span>
                 </div>
                 <div className="relative dropdown inline-block text-right">
                   <button
                     aria-label="Show actions menu"
-                    className="flex items-center justify-center w-18 h-18 rounded-full bg-white border border-gray-200 shadow-lg"
+                    className="flex items-center justify-center w-18 h-18 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg"
                     onClick={() => setShowActionsMenu((prev: boolean) => !prev)}
                   >
-                    <img alt="Three Dots" loading="lazy" width="20" height="20" decoding="async" style={{ color: 'transparent' }} className="w-4 h-4" src="/three-dots-icon.svg" />
+                    <img alt="Three Dots" loading="lazy" width="20" height="20" decoding="async" style={{ color: 'transparent' }} className="w-4 h-4 dark:invert" src="/three-dots-icon.svg" />
                   </button>
                   {showActionsMenu && (
-                    <div className="absolute right-0 mt-2 w-44 bg-white rounded-2xl shadow-lg border border-gray-200 z-50">
+                    <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 z-50">
                       <button
                         onClick={() => { showNewBookConfirmation(); setShowActionsMenu(false); }}
                         className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-[#F2F2F2] border-b border-gray-100"
@@ -1220,8 +1227,8 @@ function MakeEbookPage() {
                 </div>
               </div>
               {/* Desktop: Keep original toolbar */}
-              <div className="mb-2 flex items-center justify-center hidden lg:flex">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-lg">
+              <div className="mb-3 flex items-center justify-center hidden lg:flex">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg">
                   <button
                     onClick={() => {
                       showNewBookConfirmation();
@@ -1229,8 +1236,8 @@ function MakeEbookPage() {
                     className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
                     type="button"
                   >
-                    <PlusIcon className="w-5 h-5" />
-                    <span className="text-xs font-medium text-[#050505]">New Book</span>
+                    <PlusIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+                    <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">New Book</span>
                   </button>
                   <button
                     onClick={handleSaveBook}
@@ -1239,8 +1246,8 @@ function MakeEbookPage() {
                     aria-label="Save Book"
                     disabled={!!saveFeedback}
                   >
-                    <SaveIcon className="w-5 h-5" />
-                    <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
+                    <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+                    <span className={`text-xs font-medium text-[#050505] dark:text-[#e5e5e5] transition-all ${saveFeedback ? "text-green-600 dark:text-green-400 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
                   </button>
                   <button
                     onClick={() => {
@@ -1249,8 +1256,8 @@ function MakeEbookPage() {
                     className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
                     type="button"
                   >
-                    <DownloadIcon className="w-5 h-5" />
-                    <span className="text-xs font-medium text-[#050505]">Export</span>
+                    <DownloadIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+                    <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Export</span>
                   </button>
                 </div>
               </div>
@@ -1265,9 +1272,9 @@ function MakeEbookPage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     disabled={lockedSections.bookInfo}
-                    className="text-lg font-medium bg-white border border-transparent focus:border-black outline-none focus:outline-none focus:ring-0 flex-1 disabled:cursor-not-allowed px-2 py-1 rounded placeholder:text-[#a0a0a0]"
+                    className="text-lg font-medium bg-white dark:bg-[#1a1a1a] border border-transparent focus:border-black dark:focus:border-white outline-none focus:outline-none focus:ring-0 flex-1 disabled:cursor-not-allowed px-2 py-1 rounded placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] text-[#23242a] dark:text-[#e5e5e5]"
                     style={{ 
-                      color: lockedSections.bookInfo ? "#737373" : (title ? "#23242a" : "#737373"),
+                      color: lockedSections.bookInfo ? "#737373" : undefined,
                       boxShadow: "none"
                     }}
                     placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Give your book a title..."}
@@ -1281,8 +1288,8 @@ function MakeEbookPage() {
               {/* Book Heading */}
               <div className="mb-2">
                 <div className="flex items-center gap-2">
-                  <img src="/preview-icon.svg" alt="Book" className="w-5 h-5" />
-                  <h3 className="text-sm font-bold text-[#050505]">Book</h3>
+                  <img src="/preview-icon.svg" alt="Book" className="w-5 h-5 dark:invert" />
+                  <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Book</h3>
                 </div>
               </div>
               <div className="mb-3 pb-2">
@@ -1296,24 +1303,24 @@ function MakeEbookPage() {
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       disabled={lockedSections.bookInfo}
-                      className="text-lg font-medium bg-white border border-transparent focus:border-black outline-none focus:outline-none focus:ring-0 flex-1 disabled:cursor-not-allowed px-2 py-1 rounded placeholder:text-[#a0a0a0]"
+                      className="text-lg font-medium bg-white dark:bg-[#1a1a1a] border border-transparent focus:border-black dark:focus:border-white outline-none focus:outline-none focus:ring-0 flex-1 disabled:cursor-not-allowed px-2 py-1 rounded placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] text-[#23242a] dark:text-[#e5e5e5]"
                       style={{ 
-                        color: lockedSections.bookInfo ? "#737373" : (title ? "#23242a" : "#737373"),
+                        color: lockedSections.bookInfo ? "#737373" : undefined,
                         boxShadow: "none"
                       }}
                       placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Give your book a title..."}
                     />
                   </div>
                   <div className="flex items-center justify-center">
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-lg">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg">
                       <button
                         onClick={showNewBookConfirmation}
                         className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
                         type="button"
                         aria-label="New Book"
                       >
-                        <PlusIcon className="w-5 h-5" />
-                        <span className="text-xs font-medium text-[#050505]">New Book</span>
+                        <PlusIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">New Book</span>
                       </button>
                       <button
                         onClick={handleSaveBook}
@@ -1322,8 +1329,8 @@ function MakeEbookPage() {
                         aria-label="Save Book"
                         disabled={!!saveFeedback}
                       >
-                        <SaveIcon className="w-5 h-5" />
-                        <span className={`text-xs font-medium text-[#050505] transition-all ${saveFeedback ? "text-green-600 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
+                        <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+                        <span className={`text-xs font-medium text-[#050505] dark:text-[#e5e5e5] transition-all ${saveFeedback ? "text-green-600 dark:text-green-400 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
                       </button>
                       <button
                         onClick={handleExportEPUB}
@@ -1331,8 +1338,8 @@ function MakeEbookPage() {
                         type="button"
                         aria-label="Export Book"
                       >
-                        <DownloadIcon className="w-5 h-5" />
-                        <span className="text-xs font-medium text-[#050505]">Export</span>
+                        <DownloadIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Export</span>
                       </button>
                     </div>
                   </div>
@@ -1343,13 +1350,13 @@ function MakeEbookPage() {
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
             <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto">
               {/* Compact Chapter Header */}
-              <div className="flex-shrink-0 bg-white border-none pb-2">
+              <div className="flex-shrink-0 bg-white dark:bg-[#1a1a1a] border-none pb-2">
                 {/* Compact Chapter Tabs */}
                 <div className="mb-2">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5" />
-                      <h3 className="text-sm font-bold text-[#050505]">Chapters</h3>
+                      <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
+                      <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapters</h3>
                     </div>
                     <div className="relative" ref={dropdownRef} style={{ marginLeft: '8px' }}>
                     <button
@@ -1357,18 +1364,18 @@ function MakeEbookPage() {
                       aria-label="Add new chapter"
                       className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
                     >
-                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                      <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
                         <PlusIcon className="w-4 h-4" />
                       </div>
-                      <span className="text-xs font-medium text-[#050505]">Add</span>
+                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Add</span>
                     </button>
                     {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full right-0 mt-1 w-72 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
+                      <div className="absolute z-50 top-full right-0 mt-1 w-72 bg-white dark:bg-[#1a1a1a] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-2">
                           <div className="space-y-3">
                             <div>
                               <div className="mb-2">
-                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Front Matter</h4>
+                                <h4 className="text-xs font-semibold text-[#050505] dark:text-[#e5e5e5] px-3 uppercase tracking-wider">Front Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
@@ -1381,16 +1388,16 @@ function MakeEbookPage() {
                                       handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
-                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-sm font-medium text-[#15161a] dark:text-[#e5e5e5]">{template.title}</div>
                                   </button>
                                 ))}
                               </div>
                             </div>
                             <div>
                               <div className="mb-2">
-                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Main Content</h4>
+                                <h4 className="text-xs font-semibold text-[#050505] dark:text-[#e5e5e5] px-3 uppercase tracking-wider">Main Content</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.content.map((template) => (
@@ -1403,16 +1410,16 @@ function MakeEbookPage() {
                                       handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
-                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-sm font-medium text-[#15161a] dark:text-[#e5e5e5]">{template.title}</div>
                                   </button>
                                 ))}
                               </div>
                             </div>
                             <div>
                               <div className="mb-2">
-                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Back Matter</h4>
+                                <h4 className="text-xs font-semibold text-[#050505] dark:text-[#e5e5e5] px-3 uppercase tracking-wider">Back Matter</h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
@@ -1425,9 +1432,9 @@ function MakeEbookPage() {
                                       handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
-                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-sm font-medium text-[#15161a] dark:text-[#e5e5e5]">{template.title}</div>
                                   </button>
                                 ))}
                               </div>
@@ -1438,7 +1445,7 @@ function MakeEbookPage() {
                     )}
                   </div>
                 </div>
-                <p className="text-[10px] text-[#737373] -mb-1">Drag to reorder</p>
+                <p className="text-[10px] text-[#737373] dark:text-gray-400 -mb-1">Drag to reorder</p>
                 {/* Chapter Pills - Wrapping Layout */}
                 <div className="chapter-pills-container flex flex-wrap gap-2 pb-2 pt-2" style={{userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
                   {chapters.map((ch, i) => {
@@ -1475,11 +1482,13 @@ function MakeEbookPage() {
                         className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium transition-all cursor-pointer select-none group relative focus:outline-none ${
                           dragOverIndex === i 
                             ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
-                            : 'border-2 border-transparent'
+                            : isSelected
+                              ? 'border-2 border-gray-300 dark:border-gray-500'
+                              : 'border-2 border-transparent'
                         } ${
                           isSelected 
-                            ? "bg-[#181a1d] text-white shadow-sm" 
-                            : "bg-[#F7F7F7] text-[#050505] hover:bg-[#F2F2F2]"
+                            ? "bg-[#181a1d] dark:bg-[#2a2a2a] text-white shadow-sm" 
+                            : "bg-[#F7F7F7] dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5] hover:bg-[#F2F2F2] dark:hover:bg-[#3a3a3a]"
                         }`}
                         style={{ 
                           userSelect: 'none', 
@@ -1501,10 +1510,10 @@ function MakeEbookPage() {
                       >
                         <HandleDragIcon isSelected={isSelected} />
                         <div className="flex flex-col items-center gap-0 flex-1 justify-center">
-                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
+                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'}`}>
                             {typeLabel}
                           </span>
-                          <span className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-[#050505]'}`}>
+                          <span className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
                             {title}
                           </span>
                         </div>
@@ -1565,7 +1574,7 @@ function MakeEbookPage() {
                 <div className="mt-2">
                   {/* <label className="block text-xs text-[#737373] mb-1">Chapter title</label> */}
                   <input
-                    className="w-full px-3 py-2 rounded text-lg bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-lg touch-manipulation"
+                    className="w-full px-3 py-2 rounded text-lg bg-white dark:bg-[#1a1a1a] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-lg touch-manipulation text-[#23242a] dark:text-[#e5e5e5]"
                     placeholder="Enter a title for this chapter..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
@@ -1593,18 +1602,18 @@ function MakeEbookPage() {
                           }
                         }}
                       >
-                        <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                        <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
                           <Image
                             src="/undo-icon.svg"
                             alt="Undo"
                             width={16}
                             height={16}
-                            className="w-4 h-4"
+                            className="w-4 h-4 dark:invert"
                             style={{ borderRadius: '0', boxShadow: 'none' }}
                           />
                         </div>
                       </button>
-                      <span className="text-xs font-medium text-[#050505] mt-1">Undo</span>
+                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Undo</span>
                     </div>
                     <div className="flex flex-col items-center">
                       <button
@@ -1619,18 +1628,18 @@ function MakeEbookPage() {
                           }
                         }}
                       >
-                        <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                        <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
                           <Image
                             src="/redo-icon.svg"
                             alt="Redo"
                             width={16}
                             height={16}
-                            className="w-4 h-4"
+                            className="w-4 h-4 dark:invert"
                             style={{ borderRadius: '0', boxShadow: 'none' }}
                           />
                         </div>
                       </button>
-                      <span className="text-xs font-medium text-[#050505] mt-1">Redo</span>
+                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Redo</span>
                     </div>
                   </div>
                 </div>
@@ -1660,13 +1669,13 @@ function MakeEbookPage() {
                 <div className="mb-1">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5" />
-                      <h3 className="text-sm font-bold text-[#050505]">
+                      <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
+                      <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">
                         Chapters
                       </h3>
                     </div>
                   </div>
-                  <p className="text-[10px] text-[#737373] -mb-1">Drag to reorder</p>
+                  <p className="text-[10px] text-[#737373] dark:text-gray-400 -mb-1">Drag to reorder</p>
                 </div>
                 <div className="flex flex-wrap gap-2 min-h-[8px] pt-1">
                   {chapters.map((ch, i) => {
@@ -1702,11 +1711,13 @@ function MakeEbookPage() {
                         ref={el => { chapterRefs.current[i] = el }}
                         className={`flex items-center px-3 py-1 cursor-pointer transition relative rounded flex-shrink-0
                           ${isSelected 
-                            ? "bg-[#181a1d] text-white font-semibold" 
-                            : "bg-[#F7F7F7] text-[#050505] hover:bg-[#F2F2F2]"}
+                            ? "bg-[#181a1d] dark:bg-[#2a2a2a] text-white font-semibold" 
+                            : "bg-[#F7F7F7] dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5] hover:bg-[#F2F2F2] dark:hover:bg-[#3a3a3a]"}
                           ${dragOverIndex === i 
                             ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
-                            : 'border-2 border-transparent'}
+                            : isSelected
+                              ? 'border-2 border-gray-300 dark:border-gray-500'
+                              : 'border-2 border-transparent'}
                           `}
                         draggable
                         onDragStart={() => handleDragStart(i)}
@@ -1717,10 +1728,10 @@ function MakeEbookPage() {
                       >
                         <HandleDragIcon isSelected={isSelected} />
                         <div className="flex flex-col gap-0 ml-2 min-w-0">
-                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
+                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'}`}>
                             {typeLabel}
                           </span>
-                          <span className={`text-[12px] font-medium ${isSelected ? 'text-white' : 'text-[#050505]'}`}>
+                          <span className={`text-[12px] font-medium ${isSelected ? 'text-white' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
                             {title}
                           </span>
                         </div>
@@ -1754,13 +1765,13 @@ function MakeEbookPage() {
                       aria-label="Add new chapter"
                       className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
                     >
-                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                      <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
                         <PlusIcon className="w-4 h-4" />
                       </div>
-                      <span className="text-xs font-medium text-[#050505]">Add</span>
+                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Add</span>
                     </button>
                     {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white rounded border border-[#E8E8E8] shadow-lg max-h-96 overflow-y-auto">
+                      <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white dark:bg-[#1a1a1a] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-3">
                           <div className="space-y-4">
                             <div>
@@ -1840,10 +1851,10 @@ function MakeEbookPage() {
               {/* Editor Area - Prioritized for Writing */}
               <section className="flex flex-col min-w-0 flex-1 min-h-0">
                 {/* Compact Chapter Title Header */}
-                <div className="mb-1 flex-shrink-0 bg-white pb-2">
+                <div className="mb-1 flex-shrink-0 bg-white dark:bg-[#0f0f0f] pb-2">
                   {/* <label className="block text-xs text-[#737373] mb-1">Chapter title</label> */}
                   <input
-                    className="w-full px-3 py-2 rounded text-lg bg-white border border-transparent focus:border-black focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] placeholder:text-lg"
+                    className="w-full px-3 py-2 rounded text-lg bg-white dark:bg-[#1a1a1a] text-[#23242a] dark:text-[#e5e5e5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-lg"
                     placeholder="Enter a title for this chapter..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
@@ -1869,18 +1880,18 @@ function MakeEbookPage() {
                             }
                           }}
                         >
-                          <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                          <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
                             <Image
                               src="/undo-icon.svg"
                               alt="Undo"
                               width={16}
                               height={16}
-                              className="w-4 h-4"
+                              className="w-4 h-4 dark:invert"
                               style={{ borderRadius: '0', boxShadow: 'none' }}
                             />
                           </div>
                         </button>
-                        <span className="text-xs font-medium text-[#050505] mt-1">Undo</span>
+                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Undo</span>
                       </div>
                       <div className="flex flex-col items-center">
                         <button
@@ -1895,18 +1906,18 @@ function MakeEbookPage() {
                             }
                           }}
                         >
-                          <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
+                          <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
                             <Image
                               src="/redo-icon.svg"
                               alt="Redo"
                               width={16}
                               height={16}
-                              className="w-4 h-4"
+                              className="w-4 h-4 dark:invert"
                               style={{ borderRadius: '0', boxShadow: 'none' }}
                             />
                           </div>
                         </button>
-                        <span className="text-xs font-medium text-[#050505] mt-1">Redo</span>
+                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Redo</span>
                       </div>
                     </div>
                   </div>

@@ -11,7 +11,7 @@ export function DownloadIcon({ className = "w-5 h-5" }: DownloadIconProps) {
       alt="Download"
       width={20}
       height={20}
-      className={className}
+      className={`${className} dark:invert`}
     />
   );
 }

@@ -18,6 +18,17 @@ body, .bg-app {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
+/* Dark mode base styles */
+html.dark body,
+html.dark .bg-app {
+  background: #0f0f0f;
+  color: #e5e5e5;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -117,6 +128,16 @@ body, .bg-app {
     border: 1px solid #ececec;
     box-shadow: 0 1px 6px 0 rgba(60,60,60,0.03);
   }
+
+  html.dark .card,
+  html.dark .rounded-xl,
+  html.dark .rounded-2xl,
+  html.dark .sidebar-card {
+    background: #1a1a1a;
+    border: 1px solid #333333;
+    box-shadow: 0 1px 6px 0 rgba(0,0,0,0.2);
+  }
+
   /* Pill-shaped main buttons */
   .btn-pill, .rounded-full {
     border-radius: 9999px !important;
@@ -146,6 +167,16 @@ body, .bg-app {
   background: #e0e0e0;
 }
 
+/* Dark mode scrollbar */
+html.dark ::-webkit-scrollbar-thumb {
+  background: #444444;
+  border-radius: 8px;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
 /* Spacing helpers for cards/sections */
 .section {
   padding: 1.25rem 1.5rem;
@@ -153,6 +184,16 @@ body, .bg-app {
   border-radius: 1rem;
   background: #fff;
   border: 1px solid #ececec;
+}
+
+html[data-theme='dark'] .section {
+  background: #1a1a1a;
+  border: 1px solid #333333;
+}
+
+html.dark .section {
+  background: #1a1a1a;
+  border: 1px solid #333333;
 }
 
 /* Tag pills */
@@ -169,6 +210,18 @@ body, .bg-app {
   margin-bottom: 0.5rem;
 }
 
+html[data-theme='dark'] .tag-pill {
+  background: #2a2a2a;
+  border: 1px solid #444444;
+  color: #b0b0b0;
+}
+
+html.dark .tag-pill {
+  background: #2a2a2a;
+  border: 1px solid #444444;
+  color: #b0b0b0;
+}
+
 /* Search bar */
 .input-search {
   border-radius: 9999px;
@@ -181,6 +234,26 @@ body, .bg-app {
 .input-search:focus {
   border: 1.5px solid #d4d4d4;
   outline: none;
+}
+
+html[data-theme='dark'] .input-search {
+  border: 1px solid #444444;
+  background: #1e1e1e;
+  color: #e5e5e5;
+}
+
+html[data-theme='dark'] .input-search:focus {
+  border: 1.5px solid #666666;
+}
+
+html.dark .input-search {
+  border: 1px solid #444444;
+  background: #1e1e1e;
+  color: #e5e5e5;
+}
+
+html.dark .input-search:focus {
+  border: 1.5px solid #666666;
 }
 
 /* General input/textarea style */
@@ -198,15 +271,61 @@ input:focus, select:focus, textarea:focus {
   outline: none;
 }
 
+html.dark input,
+html.dark select,
+html.dark textarea {
+  border: 1px solid #444444;
+  background: #1e1e1e;
+  color: #e5e5e5;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border: 1.5px solid #666666;
+}
+
+html[data-theme='dark'] input,
+html[data-theme='dark'] select,
+html[data-theme='dark'] textarea {
+  border: 1px solid #444444;
+  background: #1e1e1e;
+  color: #e5e5e5;
+}
+
+html[data-theme='dark'] input:focus,
+html[data-theme='dark'] select:focus,
+html[data-theme='dark'] textarea:focus {
+  border: 1.5px solid #666666;
+}
+
 /* Remove outline on buttons for softer look */
 button:focus {
   outline: none;
   box-shadow: 0 0 0 2px #e6e6e6;
 }
 
+html.dark button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #444444;
+}
+
+html[data-theme='dark'] button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #444444;
+}
+
 /* Subtle shadow for floating containers */
 .shadow-card {
   box-shadow: 0 2px 12px 0 rgba(60,60,60,0.06);
+}
+
+html.dark .shadow-card {
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.3);
+}
+
+html[data-theme='dark'] .shadow-card {
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.3);
 }
 
 /* Custom 3D rotation for the glossy button */
@@ -251,9 +370,27 @@ button:focus {
   background-color: #f9f3e5;
 }
 
+html.dark .bg-cream {
+  background-color: #2a2416;
+}
+
+html[data-theme='dark'] .bg-cream {
+  background-color: #2a2416;
+}
+
 .ProseMirror {
   outline: none;
   min-height: 100px;
+}
+
+html.dark .ProseMirror {
+  background: #1e1e1e;
+  color: #e5e5e5;
+}
+
+html[data-theme='dark'] .ProseMirror {
+  background: #1e1e1e;
+  color: #e5e5e5;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
@@ -262,6 +399,14 @@ button:focus {
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+html.dark .ProseMirror p.is-editor-empty:first-child::before {
+  color: #666666;
+}
+
+html[data-theme='dark'] .ProseMirror p.is-editor-empty:first-child::before {
+  color: #666666;
 }
 
 /* Optional: Add some basic styling for content */
@@ -305,5 +450,37 @@ button:focus {
 }
 .chapter-pill:not(.chapter-pill-active):hover {
   background: #23252a;
+  color: #fff;
+}
+
+html.dark .chapter-pill {
+  background: #2a2a2a;
+  color: rgba(255,255,255,0.75);
+}
+
+html.dark .chapter-pill-active {
+  background: #4070ff;
+  color: #fff;
+  box-shadow: 0 2px 8px -3px #4070ff33;
+}
+
+html.dark .chapter-pill:not(.chapter-pill-active):hover {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+html[data-theme='dark'] .chapter-pill {
+  background: #2a2a2a;
+  color: rgba(255,255,255,0.75);
+}
+
+html[data-theme='dark'] .chapter-pill-active {
+  background: #4070ff;
+  color: #fff;
+  box-shadow: 0 2px 8px -3px #4070ff33;
+}
+
+html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
+  background: #3a3a3a;
   color: #fff;
 }

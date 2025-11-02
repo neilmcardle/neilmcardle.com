@@ -15,6 +15,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import DOMPurify from 'dompurify';
 import katex from 'katex';
+import { useTheme } from '../../../lib/contexts/ThemeContext';
 import "../../../styles/vendor/katex.css";
 
 interface RichTextEditorProps
@@ -105,6 +106,7 @@ export default function RichTextEditor({
   chapterId,
   ...rest
 }: RichTextEditorProps) {
+  const { theme } = useTheme();
   const editorRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [focused, setFocused] = useState(false);
@@ -679,16 +681,16 @@ export default function RichTextEditor({
 
   return (
     <div
-      className={`relative border border-transparent focus-within:border-black rounded bg-white transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
+      className={`relative border border-transparent focus-within:border-black dark:focus-within:border-white rounded bg-white dark:bg-[#1a1a1a] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
       {/* Toolbar - Always visible on all devices */}
-      <div className="border-b border-[#E8E8E8] bg-white">
+      <div className="border-b border-[#E8E8E8] dark:border-gray-700 bg-white dark:bg-[#1a1a1a]">
         <div className="p-2 overflow-x-auto">
           <div className="flex items-start gap-4 min-w-max">
               {/* Format section */}
               <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Format</div>
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Format</div>
                 <div className="flex gap-1">
                   {INLINE.map(b => (
                     <button
@@ -698,8 +700,8 @@ export default function RichTextEditor({
                       type="button"
                       className={`w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation ${
                         formats[b.cmd] 
-                          ? 'bg-[#181a1d] text-white border-[#181a1d]' 
-                          : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
+                          ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white' 
+                          : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
                       } ${b.className || ''}`}
                       onClick={() => applyInlineOrAlign(b.cmd)}
                       disabled={disabled}
@@ -712,7 +714,7 @@ export default function RichTextEditor({
               
               {/* Headings section */}
               <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Headings</div>
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Headings</div>
                 <div className="flex gap-1">
                   {HEADINGS.map(h => (
                     <button
@@ -722,8 +724,8 @@ export default function RichTextEditor({
                       type="button"
                       className={`w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation ${
                         formats[`heading${h.level}`] 
-                          ? 'bg-[#181a1d] text-white border-[#181a1d]' 
-                          : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
+                          ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white' 
+                          : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
                       }`}
                       onClick={() => applyHeading(h.level)}
                       disabled={disabled}
@@ -736,15 +738,15 @@ export default function RichTextEditor({
               
               {/* Align section */}
               <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Align</div>
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Align</div>
                 <div className="flex gap-1">
                   <button
                     title="Left Align"
                     type="button"
                     className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible ${
                       formats['justifyLeft']
-                        ? 'bg-[#181a1d] text-white border-[#181a1d]'
-                        : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
+                        ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white'
+                        : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
                     }`}
                     onMouseDown={e => e.preventDefault()}
                     onClick={() => applyInlineOrAlign('justifyLeft')}
@@ -757,12 +759,12 @@ export default function RichTextEditor({
                       height="12" 
                       decoding="async" 
                       data-nimg="1" 
-                      className="w-3 h-3" 
+                      className={`w-3 h-3 ${!formats['justifyLeft'] ? 'dark:invert' : ''}`}
                       style={{ 
                         color: 'transparent', 
                         borderRadius: '0px', 
                         boxShadow: 'none',
-                        filter: formats['justifyLeft'] ? 'invert(1) brightness(2)' : 'none'
+                        filter: (!formats['justifyLeft'] && theme === 'dark') || (formats['justifyLeft'] && theme === 'light') ? 'invert(1)' : 'none'
                       }} 
                       src="/left-align-icon.svg"
                     />
@@ -772,8 +774,8 @@ export default function RichTextEditor({
                     type="button"
                     className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible ${
                       formats['justifyCenter']
-                        ? 'bg-[#181a1d] text-white border-[#181a1d]'
-                        : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
+                        ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white'
+                        : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
                     }`}
                     onMouseDown={e => e.preventDefault()}
                     onClick={() => applyInlineOrAlign('justifyCenter')}
@@ -786,12 +788,12 @@ export default function RichTextEditor({
                       height="12" 
                       decoding="async" 
                       data-nimg="1" 
-                      className="w-3 h-3" 
+                      className={`w-3 h-3 ${!formats['justifyCenter'] ? 'dark:invert' : ''}`}
                       style={{ 
                         color: 'transparent', 
                         borderRadius: '0px', 
                         boxShadow: 'none',
-                        filter: formats['justifyCenter'] ? 'invert(1) brightness(2)' : 'none'
+                        filter: (!formats['justifyCenter'] && theme === 'dark') || (formats['justifyCenter'] && theme === 'light') ? 'invert(1)' : 'none'
                       }} 
                       src="/centrally-align-icon.svg"
                     />
@@ -801,8 +803,8 @@ export default function RichTextEditor({
                     type="button"
                     className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible ${
                       formats['justifyRight']
-                        ? 'bg-[#181a1d] text-white border-[#181a1d]'
-                        : 'bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7]'
+                        ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white'
+                        : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
                     }`}
                     onMouseDown={e => e.preventDefault()}
                     onClick={() => applyInlineOrAlign('justifyRight')}
@@ -815,12 +817,12 @@ export default function RichTextEditor({
                       height="12" 
                       decoding="async" 
                       data-nimg="1" 
-                      className="w-3 h-3" 
+                      className={`w-3 h-3 ${!formats['justifyRight'] ? 'dark:invert' : ''}`}
                       style={{ 
                         color: 'transparent', 
                         borderRadius: '0px', 
                         boxShadow: 'none',
-                        filter: formats['justifyRight'] ? 'invert(1) brightness(2)' : 'none'
+                        filter: (!formats['justifyRight'] && theme === 'dark') || (formats['justifyRight'] && theme === 'light') ? 'invert(1)' : 'none'
                       }} 
                       src="/right-align-icon.svg"
                     />
@@ -830,13 +832,13 @@ export default function RichTextEditor({
               
               {/* Endnote / Link / Anchor section */}
               <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Endnote / Link / Anchor</div>
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Endnote / Link / Anchor</div>
                 <div className="flex gap-1">
                   <button
                     onMouseDown={e => e.preventDefault()}
                     title="Insert Endnote"
                     type="button"
-                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
+                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
                     onClick={handleEndnoteClick}
                     disabled={disabled || !onCreateEndnote}
                   >
@@ -845,7 +847,7 @@ export default function RichTextEditor({
                       alt="Insert Endnote"
                       width={12}
                       height={12}
-                      className="w-3 h-3"
+                      className="w-3 h-3 dark:invert"
                       style={{ borderRadius: '0', boxShadow: 'none' }}
                     />
                   </button>
@@ -853,7 +855,7 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Insert Link"
                     type="button"
-                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
+                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
                     onClick={handleLinkClick}
                     disabled={disabled}
                   >
@@ -862,7 +864,7 @@ export default function RichTextEditor({
                       alt="Insert Link"
                       width={12}
                       height={12}
-                      className="w-3 h-3"
+                      className="w-3 h-3 dark:invert"
                       style={{ borderRadius: '0', boxShadow: 'none' }}
                     />
                   </button>
@@ -870,7 +872,7 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Insert Anchor (for Index Links)"
                     type="button"
-                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] flex items-center justify-center overflow-visible"
+                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
                     onClick={handleAnchorClick}
                     disabled={disabled}
                   >
@@ -879,7 +881,7 @@ export default function RichTextEditor({
                       alt="Insert Anchor"
                       width={12}
                       height={12}
-                      className="w-3 h-3"
+                      className="w-3 h-3 dark:invert"
                       style={{ borderRadius: '0', boxShadow: 'none' }}
                     />
                   </button>
@@ -888,13 +890,13 @@ export default function RichTextEditor({
               
               {/* Insert section */}
               <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Insert</div>
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Insert</div>
                 <div className="flex gap-1">
                   <button
                     onMouseDown={e => e.preventDefault()}
                     title="Insert Image"
                     type="button"
-                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                    className="w-8 h-8 rounded border bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
                     onClick={handleImageButtonClick}
                     disabled={disabled}
                   >
@@ -905,7 +907,7 @@ export default function RichTextEditor({
                       height="12" 
                       decoding="async" 
                       data-nimg="1" 
-                      className="w-3 h-3" 
+                      className="w-3 h-3 dark:invert" 
                       style={{ color: 'transparent', borderRadius: '0px', boxShadow: 'none' }} 
                       src="/image-icon.svg"
                     />
@@ -915,13 +917,13 @@ export default function RichTextEditor({
 
               {/* Clear formatting section */}
               <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] select-none px-1">Clear formatting</div>
+                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Clear formatting</div>
                 <div className="flex gap-1">
                   <button
                     onMouseDown={e => e.preventDefault()}
                     title="Clear formatting"
                     type="button"
-                    className="w-8 h-8 rounded border bg-white text-[#6a6c72] border-[#E8E8E8] hover:bg-[#F7F7F7] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                    className="w-8 h-8 rounded border bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
                     onClick={() => {
                       focusEditor();
                       document.execCommand('removeFormat');
@@ -937,7 +939,7 @@ export default function RichTextEditor({
                       height="12" 
                       decoding="async" 
                       data-nimg="1" 
-                      className="w-3 h-3" 
+                      className="w-3 h-3 dark:invert" 
                       style={{ color: 'transparent', borderRadius: '0px', boxShadow: 'none' }} 
                       src="/clear-erase-icon.svg"
                     />
@@ -959,7 +961,7 @@ export default function RichTextEditor({
         )}
         <div
           ref={editorRef}
-          className="editor-root p-4 text-base leading-6 focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-y-auto flex-1 min-h-0 overflow-x-hidden"
+          className="editor-root p-4 text-base leading-6 focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-y-auto flex-1 min-h-0 overflow-x-hidden text-gray-900 dark:text-gray-100"
           style={{ 
             minHeight: Math.max(minHeight, 200),
             maxHeight: 'calc(100vh - 300px)',
@@ -1026,7 +1028,7 @@ export default function RichTextEditor({
           }
         `}</style>
         {showWordCount && (
-          <div className="px-4 pb-2 text-[11px] text-[#86868B] flex justify-between items-center select-none">
+          <div className="px-4 pb-2 text-[11px] text-[#86868B] dark:text-gray-400 flex justify-between items-center select-none">
             {/* Terms/Privacy links - only on mobile */}
             <div className="lg:hidden flex items-center space-x-2">
               <Link href="/terms" className="hover:underline" target="_blank">

@@ -11,7 +11,7 @@ export function SaveIcon({ className = "w-5 h-5" }: SaveIconProps) {
       alt="Save"
       width={20}
       height={20}
-      className={className}
+      className={`${className} dark:invert`}
     />
   );
 }

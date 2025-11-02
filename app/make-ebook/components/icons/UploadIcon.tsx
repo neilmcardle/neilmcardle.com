@@ -12,7 +12,7 @@ export function UploadIcon({ className = "w-5 h-5", color }: UploadIconProps) {
       alt="Upload"
       width={20}
       height={20}
-      className={className}
+      className={`${className} dark:invert`}
       style={{ 
         filter: color === 'white' ? 'invert(1) brightness(2)' : undefined 
       }}

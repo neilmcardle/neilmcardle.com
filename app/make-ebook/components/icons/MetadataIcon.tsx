@@ -14,7 +14,7 @@ export const MetadataIcon: React.FC<MetadataIconProps> = ({
       alt="Book Details"
       width={20}
       height={20}
-      className={className}
+      className={`${className} dark:invert`}
     />
   );
 };

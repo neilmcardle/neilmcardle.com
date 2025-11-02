@@ -13,15 +13,19 @@ import {
   DropdownMenuTrigger
 } from "./ui/dropdown-menu";
 import { BackArrowButton } from "./BackArrowButton";
+import { ThemeToggle } from "./ThemeToggle";
 import { useState } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { PlusIcon } from "../app/make-ebook/components/icons";
+import { useTheme } from "@/lib/contexts/ThemeContext";
 
 interface HeaderProps {
   onNewBook?: () => void;
 }
 
 export function Header({ onNewBook }: HeaderProps = {}) {
+  const { theme } = useTheme();
+  
   // Stripe checkout handler
   const handleStripeCheckout = async () => {
     const res = await fetch('/api/create-checkout-session', { method: 'POST' });
@@ -63,7 +67,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
   }
 
   return (
-    <header className="w-full border-b border-gray-200 bg-white flex-shrink-0 h-[64px]">
+    <header className="w-full border-b border-gray-200 dark:border-gray-700 bg-[#f7f9fa] dark:bg-[#1a1a1a] flex-shrink-0 h-[64px]">
   <div className="flex items-center justify-between pr-4 pl-2 h-[64px] w-full">
         {/* Left: Logo flush with left edge */}
         <div className="flex items-center gap-2 min-w-0">
@@ -75,7 +79,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
             alt="makeEBook logo"
             width={120}
             height={120}
-            className="h-[120px] w-[120px] ml-0 block lg:hidden"
+            className="h-[120px] w-[120px] ml-0 block lg:hidden dark:invert"
             priority
           />
           <Image
@@ -83,7 +87,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
             alt="makeEBook logo"
             width={130}
             height={51}
-            className="h-[51px] w-[130px] ml-[4px] hidden lg:block"
+            className="h-[51px] w-[130px] ml-[4px] hidden lg:block dark:invert"
             priority
           />
         </div>
@@ -100,31 +104,32 @@ export function Header({ onNewBook }: HeaderProps = {}) {
             <button
               type="button"
               onClick={handleStripeCheckout}
-              className="text-gray-900 px-6 py-2 font-medium text-base inline-flex items-center gap-2 transition-transform focus:outline-none"
+              className="text-gray-900 dark:text-white px-6 py-2 font-medium text-base inline-flex items-center gap-2 transition-transform focus:outline-none"
               aria-label="Unlock Pro"
               style={{
                 borderRadius: '999px',
-                background:  '#fff',
+                background: theme === 'dark' ? '#1a1a1a' : '#fff',
                 border: 'none',
                 boxShadow: '0 6px 8px 0 rgba(0,0,0,0.16)',
                 transition: 'background 0.2s',
                 display: 'inline-block',
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(225deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%)'}
-              onMouseLeave={e => e.currentTarget.style.background = '#f8f8f8ff'}
+              onMouseEnter={e => e.currentTarget.style.background = theme === 'dark' ? '#2a2a2a' : 'linear-gradient(225deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%)'}
+              onMouseLeave={e => e.currentTarget.style.background = theme === 'dark' ? '#1a1a1a' : '#f8f8f8ff'}
             >
               Unlock Pro
             </button>
           </div>
+          <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 transition px-0" aria-label="User menu">
+              <button className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition px-0" aria-label="User menu">
                 <Image
                   src="/user-icon.svg"
                   alt="user icon"
                   width={16}
                   height={16}
-                  className="w-6 h-6"
+                  className="w-6 h-6 dark:invert"
                   priority
                 />
               </button>
