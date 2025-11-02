@@ -22,14 +22,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Check localStorage for saved preference
     const savedTheme = localStorage.getItem('theme') as Theme | null;
     
-    // Check system preference if no saved preference
+    // Use saved preference if available, otherwise default to light
     if (savedTheme) {
       setTheme(savedTheme);
       applyTheme(savedTheme);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
-      applyTheme('dark');
     } else {
+      // Default to light mode
       setTheme('light');
       applyTheme('light');
     }
