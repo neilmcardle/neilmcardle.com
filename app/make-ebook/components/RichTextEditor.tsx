@@ -685,7 +685,7 @@ export default function RichTextEditor({
       {...rest}
     >
       {/* Toolbar - Always visible on all devices */}
-      <div className="border-b border-[#E8E8E8] dark:border-gray-700 bg-white dark:bg-[#1a1a1a]">
+      <div className="bg-white dark:bg-[#1a1a1a]">
         <div className="p-2 overflow-x-auto">
           <div className="flex items-start gap-4 min-w-max">
               {/* Format section */}

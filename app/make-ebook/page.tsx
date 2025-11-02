@@ -1293,7 +1293,7 @@ function MakeEbookPage() {
                 </div>
               </div>
               <div className="mb-3 pb-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-3 flex-1">
                     {lockedSections.bookInfo && (
                       <LockIcon className="w-5 h-5 opacity-60" />
@@ -1851,7 +1851,7 @@ function MakeEbookPage() {
               {/* Editor Area - Prioritized for Writing */}
               <section className="flex flex-col min-w-0 flex-1 min-h-0">
                 {/* Compact Chapter Title Header */}
-                <div className="mb-1 flex-shrink-0 bg-white dark:bg-[#0f0f0f] pb-2">
+                <div className="mb-1 flex-shrink-0 bg-white dark:bg-[#1a1a1a] pb-2">
                   {/* <label className="block text-xs text-[#737373] mb-1">Chapter title</label> */}
                   <input
                     className="w-full px-3 py-2 rounded text-lg bg-white dark:bg-[#1a1a1a] text-[#23242a] dark:text-[#e5e5e5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-lg"

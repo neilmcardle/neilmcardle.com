@@ -93,6 +93,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
         </div>
         {/* Right: Stripe button and user icon flush with right edge */}
         <div className="flex items-center gap-2 min-w-[40px]">
+          {/* Unlock Pro button - commented out
           <div
             style={{
               borderRadius: '999px',
@@ -120,6 +121,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
               Unlock Pro
             </button>
           </div>
+          */}
           <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
