@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ThemeAwareImage } from "@/components/ThemeAwareImage";
 
 interface CalendarIconProps {
   className?: string;
@@ -6,7 +6,7 @@ interface CalendarIconProps {
 
 export function CalendarIcon({ className = "w-5 h-5" }: CalendarIconProps) {
   return (
-    <Image
+    <ThemeAwareImage
       src="/calendar-icon.svg"
       alt="Calendar"
       width={20}

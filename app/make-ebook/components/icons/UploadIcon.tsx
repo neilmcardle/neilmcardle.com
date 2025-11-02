@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ThemeAwareImage } from "@/components/ThemeAwareImage";
 
 interface UploadIconProps {
   className?: string;
@@ -7,12 +7,12 @@ interface UploadIconProps {
 
 export function UploadIcon({ className = "w-5 h-5", color }: UploadIconProps) {
   return (
-    <Image
+    <ThemeAwareImage
       src="/upload-icon.svg"
       alt="Upload"
       width={20}
       height={20}
-      className={`${className} dark:invert`}
+      className={className}
       style={{ 
         filter: color === 'white' ? 'invert(1) brightness(2)' : undefined 
       }}

@@ -14,6 +14,7 @@ import {
 } from "./ui/dropdown-menu";
 import { BackArrowButton } from "./BackArrowButton";
 import { ThemeToggle } from "./ThemeToggle";
+import { ThemeAwareImage } from "./ThemeAwareImage";
 import { useState } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { PlusIcon } from "../app/make-ebook/components/icons";
@@ -126,12 +127,12 @@ export function Header({ onNewBook }: HeaderProps = {}) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition px-0" aria-label="User menu">
-                <Image
+                <ThemeAwareImage
                   src="/user-icon.svg"
                   alt="user icon"
                   width={16}
                   height={16}
-                  className="w-6 h-6 dark:invert"
+                  className="w-6 h-6"
                   priority
                 />
               </button>

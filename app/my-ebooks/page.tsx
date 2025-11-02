@@ -128,50 +128,51 @@ function MyEbooksContent() {
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {books.map((book) => (
-                <Card key={book.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="line-clamp-2">
-                      {book.title || 'Untitled eBook'}
-                    </CardTitle>
-                    <CardDescription className="line-clamp-2">
-                      by {book.author || 'Unknown Author'}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {book.description && (
-                        <p className="text-sm text-gray-600 line-clamp-3">
-                          {book.description}
-                        </p>
-                      )}
-                      
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>{book.chapters.length} chapters</span>
-                        <span>{getWordCount(book).toLocaleString()} words</span>
+                <Card key={book.id} className="hover:shadow-lg transition-shadow relative group">
+                  <Link href={`/make-ebook?load=${book.id}`} className="block">
+                    <CardHeader>
+                      <CardTitle className="line-clamp-2">
+                        {book.title || 'Untitled eBook'}
+                      </CardTitle>
+                      <CardDescription className="line-clamp-2">
+                        by {book.author || 'Unknown Author'}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {book.description && (
+                          <p className="text-sm text-gray-600 line-clamp-3">
+                            {book.description}
+                          </p>
+                        )}
+                        
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <span>{book.chapters.length} chapters</span>
+                          <span>{getWordCount(book).toLocaleString()} words</span>
+                        </div>
+                        
+                        <div className="text-xs text-gray-500">
+                          Saved {formatDate(book.savedAt)}
+                        </div>
                       </div>
-                      
-                      <div className="text-xs text-gray-500">
-                        Saved {formatDate(book.savedAt)}
-                      </div>
-
-                      <div className="flex items-center gap-2 pt-2">
-                        <Link href={`/make-ebook?load=${book.id}`} className="flex-1">
-                          <Button variant="outline" size="sm" className="w-full">
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
-                          </Button>
-                        </Link>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteBook(book.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
+                    </CardContent>
+                  </Link>
+                  
+                  {/* Delete button positioned absolutely */}
+                  <div className="absolute top-4 right-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleDeleteBook(book.id)
+                      }}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </Card>
               ))}
             </div>

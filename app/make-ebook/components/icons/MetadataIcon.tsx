@@ -1,5 +1,5 @@
 import React from 'react';
-import Image from "next/image";
+import { ThemeAwareImage } from "@/components/ThemeAwareImage";
 
 interface MetadataIconProps {
   className?: string;
@@ -9,12 +9,12 @@ export const MetadataIcon: React.FC<MetadataIconProps> = ({
   className = "w-5 h-5"
 }) => {
   return (
-    <Image
+    <ThemeAwareImage
       src="/metadata-icon.svg"
       alt="Book Details"
       width={20}
       height={20}
-      className={`${className} dark:invert`}
+      className={className}
     />
   );
 };

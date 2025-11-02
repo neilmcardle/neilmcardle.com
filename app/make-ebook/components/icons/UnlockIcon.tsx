@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ThemeAwareImage } from "@/components/ThemeAwareImage";
 
 interface UnlockIconProps {
   className?: string;
@@ -6,7 +6,7 @@ interface UnlockIconProps {
 
 export function UnlockIcon({ className = "w-5 h-5" }: UnlockIconProps) {
   return (
-    <Image
+    <ThemeAwareImage
       src="/padlock-unlocked-icon.svg"
       alt="Unlock"
       width={20}

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ThemeAwareImage } from "@/components/ThemeAwareImage";
 
 interface SaveIconProps {
   className?: string;
@@ -6,12 +6,12 @@ interface SaveIconProps {
 
 export function SaveIcon({ className = "w-5 h-5" }: SaveIconProps) {
   return (
-    <Image
+    <ThemeAwareImage
       src="/save-icon.svg"
       alt="Save"
       width={20}
       height={20}
-      className={`${className} dark:invert`}
+      className={className}
     />
   );
 }

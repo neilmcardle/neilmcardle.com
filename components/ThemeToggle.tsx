@@ -34,7 +34,8 @@ export function ThemeToggle() {
           strokeWidth="2" 
           strokeLinecap="round" 
           strokeLinejoin="round" 
-          className="lucide lucide-sun w-5 h-5 text-yellow-400 group-hover:text-yellow-200 transition-colors" 
+          className="lucide lucide-sun w-5 h-5 transition-colors" 
+          style={{ color: '#efe8df' }}
           viewBox="0 0 24 24"
         >
           <circle cx="12" cy="12" r="4"></circle>

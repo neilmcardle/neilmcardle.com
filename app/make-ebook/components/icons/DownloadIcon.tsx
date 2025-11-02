@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ThemeAwareImage } from "@/components/ThemeAwareImage";
 
 interface DownloadIconProps {
   className?: string;
@@ -6,12 +6,12 @@ interface DownloadIconProps {
 
 export function DownloadIcon({ className = "w-5 h-5" }: DownloadIconProps) {
   return (
-    <Image
+    <ThemeAwareImage
       src="/export-download-icon.svg"
       alt="Download"
       width={20}
       height={20}
-      className={`${className} dark:invert`}
+      className={className}
     />
   );
 }
