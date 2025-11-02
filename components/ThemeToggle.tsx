@@ -8,7 +8,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="inline-flex rounded-full h-[48px] aspect-square items-center justify-center transition-colors group outline-none border-0"
+      className="inline-flex rounded-full h-8 items-center justify-center transition-colors group outline-none border-0"
       style={{ outline: 'none', boxShadow: 'none' }}
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
       title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
@@ -21,7 +21,7 @@ export function ThemeToggle() {
           strokeWidth="2" 
           strokeLinecap="round" 
           strokeLinejoin="round" 
-          className="lucide lucide-moon w-3.5 h-3.5 text-gray-700 group-hover:text-gray-400 transition-colors" 
+          className="lucide lucide-moon w-5 h-5 text-gray-700 dark:text-gray-300 group-hover:text-gray-400 dark:group-hover:text-gray-100 transition-colors" 
           viewBox="0 0 24 24"
         >
           <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
@@ -34,7 +34,7 @@ export function ThemeToggle() {
           strokeWidth="2" 
           strokeLinecap="round" 
           strokeLinejoin="round" 
-          className="lucide lucide-sun w-3.5 h-3.5 text-yellow-400 group-hover:text-white transition-colors" 
+          className="lucide lucide-sun w-5 h-5 text-yellow-400 group-hover:text-yellow-200 transition-colors" 
           viewBox="0 0 24 24"
         >
           <circle cx="12" cy="12" r="4"></circle>
