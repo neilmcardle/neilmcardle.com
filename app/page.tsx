@@ -26,7 +26,7 @@ export default function ProfileCardHomepage() {
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10 transition-colors relative">
           {/* Theme Toggle Button - Top Right of Card */}
-          <div className="absolute top-6 right-6 z-50">
+          <div className="absolute z-50" style={{ top: '20px', right: '-8px' }}>
             <ThemeToggle />
           </div>
           

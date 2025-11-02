@@ -772,7 +772,7 @@ function MakeEbookPage() {
           }`}>
               <div className="flex flex-col h-full">
                 {/* Header with Actions */}
-                <div className="flex items-center justify-end p-4 border-[#ffffff] dark:border-gray-800">
+                <div className="flex items-center justify-end p-4">
                   <button
                     onClick={() => setMobileSidebarOpen(false)}
                     className="flex items-center justify-center px-5 py-4 rounded-full bg-white dark:bg-[#1a1a1a] gap-2 focus:outline-none transition-opacity mb-[-40px] relative"
@@ -817,9 +817,6 @@ function MakeEbookPage() {
                     </button>
                   </div>
                 </nav>
-                
-                {/* Divider */}
-                <div className="border-t border-white"></div>
                 
                 {/* Content */}
                 <div className="relative flex-1 min-h-0">
@@ -1181,13 +1178,13 @@ function MakeEbookPage() {
 
 
             {/* Mobile Book Title Input */}
-            <div className="lg:hidden mb-4 flex-shrink-0 ml-0 mt-8">
+            <div className="lg:hidden mb-4 flex-shrink-0 ml-0 mt-20">
               {/* Action Buttons Panel */}
               {/* Mobile: Three dots menu for actions */}
-              <div className="flex items-center justify-between lg:hidden">
+              <div className="flex items-center justify-between lg:hidden mb-3 relative z-10">
                 <div className="flex items-center gap-2">
                   <img alt="Preview" className="w-5 h-5 dark:invert" src="/preview-icon.svg" />
-                  <span className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Book</span>
+                  <span className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Book title</span>
                 </div>
                 <div className="relative dropdown inline-block text-right">
                   <button
@@ -1262,7 +1259,7 @@ function MakeEbookPage() {
                 </div>
               </div>
               {/* Book Heading and Title Input Below Panel */}
-              <div className="pb-3">
+              <div className="pb-3 mt-4">
                 <div className="flex items-center gap-3">
                   {lockedSections.bookInfo && (
                     <LockIcon className="w-5 h-5 opacity-60" />
@@ -1289,7 +1286,7 @@ function MakeEbookPage() {
               <div className="mb-2">
                 <div className="flex items-center gap-2">
                   <img src="/preview-icon.svg" alt="Book" className="w-5 h-5 dark:invert" />
-                  <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Book</h3>
+                  <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Book title</h3>
                 </div>
               </div>
               <div className="mb-3 pb-2">
@@ -1356,7 +1353,7 @@ function MakeEbookPage() {
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
-                      <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapters</h3>
+                      <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapters list</h3>
                     </div>
                     <div className="relative" ref={dropdownRef} style={{ marginLeft: '8px' }}>
                     <button
@@ -1375,7 +1372,9 @@ function MakeEbookPage() {
                           <div className="space-y-3">
                             <div>
                               <div className="mb-2">
-                                <h4 className="text-xs font-semibold text-[#050505] dark:text-[#e5e5e5] px-3 uppercase tracking-wider">Front Matter</h4>
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider" style={{ color: 'var(--color-text-primary, #050505)' }}>
+                                  <span className="dark:text-white">Front Matter</span>
+                                </h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
@@ -1390,14 +1389,18 @@ function MakeEbookPage() {
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
-                                    <div className="text-sm font-medium text-[#15161a] dark:text-[#e5e5e5]">{template.title}</div>
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
                                   </button>
                                 ))}
                               </div>
                             </div>
                             <div>
                               <div className="mb-2">
-                                <h4 className="text-xs font-semibold text-[#050505] dark:text-[#e5e5e5] px-3 uppercase tracking-wider">Main Content</h4>
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
+                                  <span className="text-[#050505] dark:text-white">Main Content</span>
+                                </h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.content.map((template) => (
@@ -1412,14 +1415,18 @@ function MakeEbookPage() {
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
-                                    <div className="text-sm font-medium text-[#15161a] dark:text-[#e5e5e5]">{template.title}</div>
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
                                   </button>
                                 ))}
                               </div>
                             </div>
                             <div>
                               <div className="mb-2">
-                                <h4 className="text-xs font-semibold text-[#050505] dark:text-[#e5e5e5] px-3 uppercase tracking-wider">Back Matter</h4>
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
+                                  <span className="text-[#050505] dark:text-white">Back Matter</span>
+                                </h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
@@ -1434,7 +1441,9 @@ function MakeEbookPage() {
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
-                                    <div className="text-sm font-medium text-[#15161a] dark:text-[#e5e5e5]">{template.title}</div>
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
                                   </button>
                                 ))}
                               </div>
@@ -1776,7 +1785,9 @@ function MakeEbookPage() {
                           <div className="space-y-4">
                             <div>
                               <div className="mb-3">
-                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Front Matter</h4>
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
+                                  <span className="text-[#050505] dark:text-white">Front Matter</span>
+                                </h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.frontmatter.map((template) => (
@@ -1789,16 +1800,20 @@ function MakeEbookPage() {
                                       handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
-                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
                                   </button>
                                 ))}
                               </div>
                             </div>
                             <div>
                               <div className="mb-3">
-                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Main Content</h4>
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
+                                  <span className="text-[#050505] dark:text-white">Main Content</span>
+                                </h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.content.map((template) => (
@@ -1811,16 +1826,20 @@ function MakeEbookPage() {
                                       handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
-                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
                                   </button>
                                 ))}
                               </div>
                             </div>
                             <div>
                               <div className="mb-3">
-                                <h4 className="text-xs font-semibold text-[#050505] px-3 uppercase tracking-wider">Back Matter</h4>
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
+                                  <span className="text-[#050505] dark:text-white">Back Matter</span>
+                                </h4>
                               </div>
                               <div className="space-y-1">
                                 {CHAPTER_TEMPLATES.backmatter.map((template) => (
@@ -1833,9 +1852,11 @@ function MakeEbookPage() {
                                       handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
                                     }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] transition-colors"
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
-                                    <div className="text-sm font-medium text-[#15161a]">{template.title}</div>
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
                                   </button>
                                 ))}
                               </div>

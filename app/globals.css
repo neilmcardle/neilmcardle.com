@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Remove default browser focus outlines */
+button:focus,
+button:focus-visible,
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible,
+a:focus,
+a:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 html,
 body {
   height: 100%;

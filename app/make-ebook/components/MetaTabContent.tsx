@@ -323,7 +323,7 @@ export default function MetaTabContent({
             onClick={handleAddTag}
             disabled={lockedSections.tags}
           >
-            <img src="/plus-icon.svg" alt="Add tag" className="w-4 h-4" />
+            <PlusIcon className="w-4 h-4" />
           </button>
         </div>
         <div className="flex flex-wrap gap-2 mt-2">

@@ -68,7 +68,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
   }
 
   return (
-    <header className="w-full border-b border-gray-200 dark:border-gray-700 bg-[#f7f9fa] dark:bg-[#1a1a1a] flex-shrink-0 h-[64px]">
+    <header className="w-full border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] flex-shrink-0 h-[64px]">
   <div className="flex items-center justify-between pr-4 pl-2 h-[64px] w-full">
         {/* Left: Logo flush with left edge */}
         <div className="flex items-center gap-2 min-w-0">
