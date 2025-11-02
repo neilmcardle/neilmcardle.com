@@ -111,7 +111,7 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
                   onMouseEnter={e => e.currentTarget.style.background = theme === 'dark' ? '#2a2a2a' : 'linear-gradient(225deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%)'}
                   onMouseLeave={e => e.currentTarget.style.background = theme === 'dark' ? '#1a1a1a' : '#fff'}
                 >
-                  Sign up for free
+                  SIGN UP FOR FREE
                 </button>
               </div>
             </div>
