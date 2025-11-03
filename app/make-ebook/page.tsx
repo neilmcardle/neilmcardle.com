@@ -610,6 +610,7 @@ function MakeEbookPage() {
       setEndnotes(loaded.endnotes || []);
       setCurrentBookId(loaded.id);
       setLibraryOpen(false);
+      setShowEditingNotification(true);
     }
   }
 
@@ -646,22 +647,25 @@ function MakeEbookPage() {
         {/* Current Book Indicator - Sticky Footer for All Screens */}
         {showEditingNotification && (
           <div
-            className="fixed bottom-0 left-0 w-full flex items-center justify-center border-t border-gray-200 dark:border-gray-700 shadow z-[120] bg-[#E6F9ED] dark:bg-[#1a4d2e]"
+            className="fixed bottom-0 left-0 w-full flex items-center justify-between border-t border-gray-200 dark:border-gray-700 shadow z-[120] bg-[#E6F9ED] dark:bg-[#1a4d2e] px-4"
             style={{
               fontSize: '12px',
-              padding: '6px 0',
+              padding: '6px 16px',
               minHeight: '32px'
             }}
           >
-            <BookIcon className="w-4 h-4 text-[#23242a] dark:text-[#e5e5e5] mr-1" />
-            <span className="font-medium text-[#23242a] dark:text-[#e5e5e5]">Currently editing:</span>
-            <span className="text-[#23242a] dark:text-[#e5e5e5] font-normal ml-1">{title ? title : "Untitled"}</span>
-            <span className="text-gray-500 dark:text-gray-400 font-normal ml-2">{author ? `by ${author}` : "by Unknown author"}</span>
+            <div className="flex items-center justify-center flex-1">
+              <BookIcon className="w-4 h-4 text-[#23242a] dark:text-[#e5e5e5] mr-1" />
+              <span className="font-medium text-[#23242a] dark:text-[#e5e5e5]">Currently editing:</span>
+              <span className="text-[#23242a] dark:text-[#e5e5e5] font-normal ml-1">{title ? title : "Untitled"}</span>
+              <span className="text-gray-500 dark:text-gray-400 font-normal ml-2">{author ? `by ${author}` : "by Unknown author"}</span>
+            </div>
             <button
               onClick={() => setShowEditingNotification(false)}
-              className="ml-4 text-[#23242a] dark:text-[#e5e5e5] hover:opacity-70 transition-opacity"
+              className="text-[#23242a] dark:text-[#e5e5e5] hover:opacity-70 transition-opacity text-xl font-bold leading-none"
               aria-label="Close notification"
               title="Dismiss"
+              style={{ fontSize: '24px' }}
             >
               ×
             </button>
@@ -699,7 +703,12 @@ function MakeEbookPage() {
                         onClick={() => handleDeleteBook(b.id)}
                         title="Delete book"
                       >
-                        <TrashIcon className="w-4 h-4" />
+                        <img 
+                          src="/dark-bin-icon.svg" 
+                          alt="Delete" 
+                          className="w-4 h-4 hidden dark:block"
+                        />
+                        <TrashIcon className="w-4 h-4 dark:hidden" />
                       </button>
                     </li>
                   ))}
@@ -925,7 +934,11 @@ function MakeEbookPage() {
                                   }}
                                   title={b.title}
                                 >
-                                  <div className="font-semibold text-gray-900 dark:text-gray-100">{b.title || "Untitled"}</div>
+                                  <div className={`font-semibold ${
+                                    selectedBookId === b.id 
+                                      ? 'text-gray-900 dark:text-gray-100' 
+                                      : 'text-gray-600 dark:text-gray-400'
+                                  }`}>{b.title || "Untitled"}</div>
                                   <div className="text-sm text-gray-500 dark:text-gray-400">{b.author}</div>
                                   <div className="text-xs text-gray-400 dark:text-gray-500">{new Date(b.savedAt).toLocaleString()}</div>
                                 </button>
@@ -950,16 +963,21 @@ function MakeEbookPage() {
                                   Load
                                 </button>
                                 <button
-                                  className={`p-1 outline-none focus:outline-none focus-visible:outline-none border-none focus:border-none transition-colors ${
+                                  className={`p-1 outline-none focus:outline-none focus-visible:outline-none border-none focus:border-none transition-opacity ${
                                     selectedBookId === b.id
-                                      ? 'text-white dark:text-white hover:text-red-500 dark:hover:text-red-400'
-                                      : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400'
+                                      ? 'opacity-100 hover:opacity-70'
+                                      : 'opacity-40 hover:opacity-70'
                                   }`}
                                   style={{ boxShadow: 'none', border: 'none', outline: 'none' }}
                                   onClick={() => handleDeleteBook(b.id)}
                                   title="Delete book"
                                 >
-                                  <TrashIcon className="w-4 h-4" />
+                                  <img 
+                                    src="/dark-bin-icon.svg" 
+                                    alt="Delete" 
+                                    className="w-4 h-4 hidden dark:block"
+                                  />
+                                  <TrashIcon className="w-4 h-4 dark:hidden" />
                                 </button>
                               </div>
                             </li>
@@ -1367,7 +1385,11 @@ function MakeEbookPage() {
                               }}
                               title={b.title}
                             >
-                              <div className="font-semibold text-gray-900 dark:text-gray-100">{b.title || "Untitled"}</div>
+                              <div className={`font-semibold ${
+                                selectedBookId === b.id 
+                                  ? 'text-gray-900 dark:text-gray-100' 
+                                  : 'text-gray-600 dark:text-gray-400'
+                              }`}>{b.title || "Untitled"}</div>
                               <div className="text-sm text-gray-500 dark:text-gray-400">{b.author}</div>
                               <div className="text-xs text-gray-400 dark:text-gray-500">{new Date(b.savedAt).toLocaleString()}</div>
                             </button>
@@ -1391,15 +1413,20 @@ function MakeEbookPage() {
                               Load
                             </button>
                             <button
-                              className={`p-1 focus:outline-none transition-colors ${
+                              className={`p-1 focus:outline-none transition-opacity ${
                                 selectedBookId === b.id
-                                  ? 'text-white dark:text-white hover:text-red-500 dark:hover:text-red-400'
-                                  : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400'
+                                  ? 'opacity-100 hover:opacity-70'
+                                  : 'opacity-40 hover:opacity-70'
                               }`}
                               onClick={() => handleDeleteBook(b.id)}
                               title="Delete book"
                             >
-                              <TrashIcon className="w-4 h-4" />
+                              <img 
+                                src="/dark-bin-icon.svg" 
+                                alt="Delete" 
+                                className="w-4 h-4 hidden dark:block"
+                              />
+                              <TrashIcon className="w-4 h-4 dark:hidden" />
                             </button>
                           </div>
                         </li>

@@ -89,7 +89,8 @@ export default function PreviewPanel({
           <span>{pubDate || "—"}</span>
         </div>
         <div className="flex items-center gap-2 mb-1">
-          <LanguagesIcon className="w-5 h-5 text-[#23242a]" />
+          <img src="/dark-languages-icon.svg" alt="Language" className="w-5 h-5 hidden dark:block" />
+          <LanguagesIcon className="w-5 h-5 text-[#23242a] dark:hidden" />
           <span className="font-medium">Language:</span>
           <span>{language ? language.slice(0, 2).toUpperCase() : "—"}</span>
         </div>
