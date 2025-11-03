@@ -1492,7 +1492,7 @@ function MakeEbookPage() {
                           dragOverIndex === i 
                             ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
                             : isSelected
-                              ? 'border-2 border-gray-300 dark:border-gray-500'
+                              ? 'border'
                               : 'border-2 border-transparent'
                         } ${
                           isSelected 
@@ -1506,6 +1506,14 @@ function MakeEbookPage() {
                           // @ts-ignore - WebkitUserDrag is valid but not in TypeScript types
                           WebkitUserDrag: 'none',
                           opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
+                          ...(isSelected && dragOverIndex !== i
+                            ? {
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                                borderImage: 'linear-gradient(45deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%) 1',
+                                borderRadius: '2px',
+                              }
+                            : {}),
                         } as React.CSSProperties}
                         draggable
                         onDragStart={() => handleDragStart(i)}
@@ -1725,9 +1733,19 @@ function MakeEbookPage() {
                           ${dragOverIndex === i 
                             ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
                             : isSelected
-                              ? 'border-2 border-gray-300 dark:border-gray-500'
+                              ? 'border'
                               : 'border-2 border-transparent'}
                           `}
+                        style={{
+                          ...(isSelected && dragOverIndex !== i
+                            ? {
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                                borderImage: 'linear-gradient(45deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%) 1',
+                                borderRadius: '2px',
+                              }
+                            : {}),
+                        }}
                         draggable
                         onDragStart={() => handleDragStart(i)}
                         onDragEnter={() => handleDragEnter(i)}
