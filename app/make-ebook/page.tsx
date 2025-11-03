@@ -181,6 +181,7 @@ function MakeEbookPage() {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [mobileChaptersOpen, setMobileChaptersOpen] = useState(false);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
@@ -189,6 +190,7 @@ function MakeEbookPage() {
   const [endnotes, setEndnotes] = useState<Endnote[]>([]);
   const [endnoteReferences, setEndnoteReferences] = useState<EndnoteReference[]>([]);
   const [nextEndnoteNumber, setNextEndnoteNumber] = useState(1);
+  const [showEditingNotification, setShowEditingNotification] = useState(true);
 
   const [saveFeedback, setSaveFeedback] = useState(false);
 
@@ -642,19 +644,29 @@ function MakeEbookPage() {
       {/* Main Content - add margin-top to offset header height */}
       <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] text-[#15161a] dark:text-[#e5e5e5] mt-[64px]">
         {/* Current Book Indicator - Sticky Footer for All Screens */}
-        <div
-          className="fixed bottom-0 left-0 w-full flex items-center justify-center border-t border-gray-200 dark:border-gray-700 shadow z-[120] bg-[#E6F9ED] dark:bg-[#1a4d2e]"
-          style={{
-            fontSize: '12px',
-            padding: '6px 0',
-            minHeight: '32px'
-          }}
-        >
-          <BookIcon className="w-4 h-4 text-[#23242a] dark:text-[#e5e5e5] mr-1" />
-          <span className="font-medium text-[#23242a] dark:text-[#e5e5e5]">Currently editing:</span>
-          <span className="text-[#23242a] dark:text-[#e5e5e5] font-normal ml-1">{title ? title : "Untitled"}</span>
-          <span className="text-gray-500 dark:text-gray-400 font-normal ml-2">{author ? `by ${author}` : "by Unknown author"}</span>
-        </div>
+        {showEditingNotification && (
+          <div
+            className="fixed bottom-0 left-0 w-full flex items-center justify-center border-t border-gray-200 dark:border-gray-700 shadow z-[120] bg-[#E6F9ED] dark:bg-[#1a4d2e]"
+            style={{
+              fontSize: '12px',
+              padding: '6px 0',
+              minHeight: '32px'
+            }}
+          >
+            <BookIcon className="w-4 h-4 text-[#23242a] dark:text-[#e5e5e5] mr-1" />
+            <span className="font-medium text-[#23242a] dark:text-[#e5e5e5]">Currently editing:</span>
+            <span className="text-[#23242a] dark:text-[#e5e5e5] font-normal ml-1">{title ? title : "Untitled"}</span>
+            <span className="text-gray-500 dark:text-gray-400 font-normal ml-2">{author ? `by ${author}` : "by Unknown author"}</span>
+            <button
+              onClick={() => setShowEditingNotification(false)}
+              className="ml-4 text-[#23242a] dark:text-[#e5e5e5] hover:opacity-70 transition-opacity"
+              aria-label="Close notification"
+              title="Dismiss"
+            >
+              ×
+            </button>
+          </div>
+        )}
         {/* Library Panel */}
         {libraryOpen && (
           <div className="fixed inset-0 z-[120] bg-black/20 flex items-start justify-center">
@@ -971,6 +983,247 @@ function MakeEbookPage() {
             </div>
           </div>
 
+        {/* Mobile Chapters Panel */}
+        <div className={`fixed top-[64px] right-0 bottom-0 z-[100] lg:hidden transition-all duration-300 ease-out ${
+          mobileChaptersOpen ? 'visible' : 'invisible'
+        }`} style={{ left: 0 }}>
+          {/* Backdrop */}
+          <div 
+            className={`absolute inset-0 bg-black/20 transition-opacity duration-300 ease-out ${
+              mobileChaptersOpen ? 'opacity-100' : 'opacity-0'
+            }`}
+            onClick={() => setMobileChaptersOpen(false)}
+          />
+          {/* Chapters Panel */}
+          <div className={`absolute top-0 right-0 h-full w-full bg-white dark:bg-[#1a1a1a] shadow-2xl transform transition-transform duration-300 ease-out ${
+            mobileChaptersOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}>
+            <div className="flex flex-col h-full">
+              {/* Header with Close Button */}
+              <div className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-2">
+                  <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
+                  <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapters list</h3>
+                </div>
+                <button
+                  onClick={() => setMobileChaptersOpen(false)}
+                  className="flex items-center justify-center px-5 py-4 rounded-full bg-white dark:bg-[#1a1a1a] gap-2 focus:outline-none transition-opacity relative"
+                  aria-label="Close chapters menu"
+                  style={{ minWidth: 56, minHeight: 56 }}
+                >
+                  <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
+                  <img alt="Close" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5 dark:invert" style={{ color: 'transparent', zIndex: 2 }} src="/close-sidebar-icon.svg" />
+                  <span className="text-base font-medium text-[#23242a] dark:text-[#e5e5e5] underline" style={{ zIndex: 2 }}>Close</span>
+                </button>
+              </div>
+              
+              {/* Chapters Content */}
+              <div className="flex-1 overflow-y-auto px-4 pb-4">
+                <p className="text-[10px] text-[#737373] dark:text-gray-400 mb-3">Drag to reorder</p>
+                
+                {/* Chapter Pills */}
+                <div className="flex flex-col gap-2">
+                  {chapters.map((ch, i) => {
+                    const isSelected = selectedChapter === i;
+                    const titleText = ch.title?.trim() || 'Title';
+                    
+                    // Calculate chapter type label and title
+                    const getChapterInfo = () => {
+                      if (ch.type === 'frontmatter') {
+                        return {
+                          typeLabel: 'Frontmatter',
+                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                        };
+                      }
+                      if (ch.type === 'backmatter') {
+                        return {
+                          typeLabel: 'Backmatter', 
+                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                        };
+                      }
+                      // Content chapters
+                      const contentChapterNum = getContentChapterNumber(chapters, i);
+                      return {
+                        typeLabel: `Chapter ${contentChapterNum}`,
+                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                      };
+                    };
+
+                    const { typeLabel, title } = getChapterInfo();
+                    return (
+                      <div
+                        key={i}
+                        ref={el => { chapterRefs.current[i] = el }}
+                        className={`flex items-center gap-2 px-3 py-2 rounded text-sm font-medium transition-all cursor-pointer select-none group relative focus:outline-none ${
+                          dragOverIndex === i 
+                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
+                            : isSelected
+                              ? 'border'
+                              : 'border-2 border-transparent'
+                        } ${
+                          isSelected 
+                            ? "bg-[#181a1d] dark:bg-[#2a2a2a] text-white shadow-sm" 
+                            : "bg-[#F7F7F7] dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5] hover:bg-[#F2F2F2] dark:hover:bg-[#3a3a3a]"
+                        }`}
+                        style={{ 
+                          userSelect: 'none', 
+                          WebkitUserSelect: 'none', 
+                          WebkitTouchCallout: 'none',
+                          // @ts-ignore - WebkitUserDrag is valid but not in TypeScript types
+                          WebkitUserDrag: 'none',
+                          opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
+                          ...(isSelected && dragOverIndex !== i
+                            ? {
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                                borderImage: 'linear-gradient(45deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%) 1',
+                                borderRadius: '2px',
+                              }
+                            : {}),
+                        } as React.CSSProperties}
+                        draggable
+                        onDragStart={() => handleDragStart(i)}
+                        onDragEnter={() => handleDragEnter(i)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={(e) => e.preventDefault()}
+                        onTouchStart={(e) => handleTouchStart(i, e)}
+                        onTouchMove={(e) => handleTouchMove(i, e)}
+                        onTouchEnd={handleTouchEnd}
+                        onClick={() => handleSelectChapter(i)}
+                      >
+                        <HandleDragIcon isSelected={isSelected} />
+                        <div className="flex flex-col items-start gap-0 flex-1 justify-center min-w-0">
+                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'}`}>
+                            {typeLabel}
+                          </span>
+                          <span className={`text-sm font-medium truncate w-full ${isSelected ? 'text-white' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
+                            {title}
+                          </span>
+                        </div>
+                        {chapters.length > 1 && (
+                          <button
+                            className={`ml-1 p-1 rounded transition focus:outline-none flex-shrink-0 ${
+                              isSelected 
+                                ? "hover:bg-white/10 text-white/65 hover:text-white" 
+                                : "hover:bg-black/10 text-[#050505]/65 hover:text-[#050505] dark:text-[#e5e5e5]/65 dark:hover:text-[#e5e5e5]"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveChapter(i);
+                            }}
+                            aria-label="Delete Chapter"
+                          >
+                            <BinIcon 
+                              key={`mobile-panel-bin-${i}-${isSelected}`}
+                              className="w-4 h-4"
+                              stroke={isSelected ? "#ffffff" : "#050505"}
+                            />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Add Chapter Button */}
+                  <div className="relative mt-2">
+                    <button
+                      onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
+                      aria-label="Add new chapter"
+                      className="hover:opacity-70 transition-opacity flex items-center gap-2 w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] rounded border border-gray-200 dark:border-gray-700 shadow-sm"
+                    >
+                      <PlusIcon className="w-4 h-4" />
+                      <span className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5]">Add Chapter</span>
+                    </button>
+                    {chapterTypeDropdownOpen && (
+                      <div className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#1a1a1a] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
+                        <div className="p-3">
+                          <div className="space-y-4">
+                            <div>
+                              <div className="mb-3">
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
+                                  <span className="text-[#050505] dark:text-white">Front Matter</span>
+                                </h4>
+                              </div>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.frontmatter.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
+                                  >
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="mb-3">
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
+                                  <span className="text-[#050505] dark:text-white">Main Content</span>
+                                </h4>
+                              </div>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.content.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
+                                  >
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="mb-3">
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
+                                  <span className="text-[#050505] dark:text-white">Back Matter</span>
+                                </h4>
+                              </div>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.backmatter.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
+                                  >
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden">
           {/* Desktop Sidebar - Hidden on Mobile */}
@@ -1160,8 +1413,8 @@ function MakeEbookPage() {
 
           {/* Main Editor Panel - Mobile Optimised */}
           <main className="flex-1 flex flex-col bg-white dark:bg-[#1a1a1a] rounded shadow-sm mt-4 px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
-            {/* Mobile Hamburger Menu - Fixed Position */}
-            {!mobileSidebarOpen && (
+            {/* Mobile Dashboard Button - Fixed Position */}
+            {!mobileSidebarOpen && !mobileChaptersOpen && (
               <div className="lg:hidden fixed top-[80px] left-2 z-10 pb-4 mb-20">
                 <button
                   onClick={() => setMobileSidebarOpen(true)}
@@ -1259,7 +1512,7 @@ function MakeEbookPage() {
                 </div>
               </div>
               {/* Book Heading and Title Input Below Panel */}
-              <div className="pb-3 mt-4">
+              <div className="mt-4">
                 <div className="flex items-center gap-3">
                   {lockedSections.bookInfo && (
                     <LockIcon className="w-5 h-5 opacity-60" />
@@ -1277,6 +1530,19 @@ function MakeEbookPage() {
                     placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Give your book a title..."}
                   />
                 </div>
+                {/* Open Chapters Button - Right Aligned */}
+                {!mobileChaptersOpen && (
+                  <div className="flex justify-end mt-8">
+                    <button
+                      onClick={() => setMobileChaptersOpen(true)}
+                      className="flex items-center justify-center px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] gap-2 focus:outline-none transition-opacity border border-gray-200 dark:border-gray-700 shadow-md"
+                      aria-label="Open chapters menu"
+                    >
+                      <img alt="Chapters" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-4 h-4 dark:invert" style={{ color: 'transparent' }} src="/chapters-icon.svg" />
+                      <span className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5]">Open Chapters</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1348,248 +1614,12 @@ function MakeEbookPage() {
             <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto">
               {/* Compact Chapter Header */}
               <div className="flex-shrink-0 bg-white dark:bg-[#1a1a1a] border-none pb-2">
-                {/* Compact Chapter Tabs */}
-                <div className="mb-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
-                      <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapters list</h3>
-                    </div>
-                    <div className="relative" ref={dropdownRef} style={{ marginLeft: '8px' }}>
-                    <button
-                      onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
-                      aria-label="Add new chapter"
-                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
-                    >
-                      <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
-                        <PlusIcon className="w-4 h-4" />
-                      </div>
-                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Add</span>
-                    </button>
-                    {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full right-0 mt-1 w-72 bg-white dark:bg-[#1a1a1a] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
-                        <div className="p-2">
-                          <div className="space-y-3">
-                            <div>
-                              <div className="mb-2">
-                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider" style={{ color: 'var(--color-text-primary, #050505)' }}>
-                                  <span className="dark:text-white">Front Matter</span>
-                                </h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.frontmatter.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      console.log('Clicked template:', template);
-                                      handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="mb-2">
-                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">Main Content</span>
-                                </h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.content.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      console.log('Clicked template:', template);
-                                      handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="mb-2">
-                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">Back Matter</span>
-                                </h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.backmatter.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      console.log('Clicked template:', template);
-                                      handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                {/* Chapter Title Input */}
+                <div className="mt-0">
+                  <div className="flex items-center gap-2 pb-2 mb-1">
+                    <img alt="Chapter" className="w-5 h-5 dark:invert" src="/chapters-icon.svg" />
+                    <span className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapter title</span>
                   </div>
-                </div>
-                <p className="text-[10px] text-[#737373] dark:text-gray-400 -mb-1">Drag to reorder</p>
-                {/* Chapter Pills - Wrapping Layout */}
-                <div className="chapter-pills-container flex flex-wrap gap-2 pb-2 pt-2" style={{userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'}}>
-                  {chapters.map((ch, i) => {
-                    const isSelected = selectedChapter === i;
-                    const titleText = ch.title?.trim() || 'Title';
-                    
-                    // Calculate chapter type label and title
-                    const getChapterInfo = () => {
-                      if (ch.type === 'frontmatter') {
-                        return {
-                          typeLabel: 'Frontmatter',
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      if (ch.type === 'backmatter') {
-                        return {
-                          typeLabel: 'Backmatter', 
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      // Content chapters
-                      const contentChapterNum = getContentChapterNumber(chapters, i);
-                      return {
-                        typeLabel: `Chapter ${contentChapterNum}`,
-                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                      };
-                    };
-
-                    const { typeLabel, title } = getChapterInfo();
-                    return (
-                      <div
-                        key={i}
-                        data-chapter-idx={i}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium transition-all cursor-pointer select-none group relative focus:outline-none ${
-                          dragOverIndex === i 
-                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
-                            : isSelected
-                              ? 'border'
-                              : 'border-2 border-transparent'
-                        } ${
-                          isSelected 
-                            ? "bg-[#181a1d] dark:bg-[#2a2a2a] text-white shadow-sm" 
-                            : "bg-[#F7F7F7] dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5] hover:bg-[#F2F2F2] dark:hover:bg-[#3a3a3a]"
-                        }`}
-                        style={{ 
-                          userSelect: 'none', 
-                          WebkitUserSelect: 'none', 
-                          WebkitTouchCallout: 'none',
-                          // @ts-ignore - WebkitUserDrag is valid but not in TypeScript types
-                          WebkitUserDrag: 'none',
-                          opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
-                          ...(isSelected && dragOverIndex !== i
-                            ? {
-                                borderWidth: '1px',
-                                borderStyle: 'solid',
-                                borderImage: 'linear-gradient(45deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%) 1',
-                                borderRadius: '2px',
-                              }
-                            : {}),
-                        } as React.CSSProperties}
-                        draggable
-                        onDragStart={() => handleDragStart(i)}
-                        onDragEnter={() => handleDragEnter(i)}
-                        onDragEnd={handleDragEnd}
-                        onDragOver={(e) => e.preventDefault()}
-                        onTouchStart={(e) => handleTouchStart(i, e)}
-                        onTouchMove={(e) => handleTouchMove(i, e)}
-                        onTouchEnd={handleTouchEnd}
-                        onClick={() => handleSelectChapter(i)}
-                      >
-                        <HandleDragIcon isSelected={isSelected} />
-                        <div className="flex flex-col items-center gap-0 flex-1 justify-center">
-                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'}`}>
-                            {typeLabel}
-                          </span>
-                          <span className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
-                            {title}
-                          </span>
-                        </div>
-                        {chapters.length > 1 && (
-                          <button
-                            className={`flex items-center justify-center focus:outline-none transition-all p-1 rounded ${
-                              isSelected 
-                                ? "opacity-100 hover:bg-white/30" 
-                                : "opacity-40 hover:opacity-100 hover:bg-black/10"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveChapter(i);
-                            }}
-                            aria-label="Delete Chapter"
-                          >
-                            <BinIcon 
-                              key={`bin-${i}-${isSelected}`}
-                              className="w-4 h-4 transition"
-                              stroke={isSelected ? "#ffffff" : "#050505"}
-                            />
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                
-                {/* Ghost Pill for Finger-Following Drag */}
-                {ghostPillPosition.visible && (
-                  <div
-                    className="fixed z-50 pointer-events-none flex items-center gap-2 flex-shrink-0 px-3 py-1.5 rounded text-xs font-medium shadow-xl"
-                    style={{
-                      left: ghostPillPosition.x,
-                      top: ghostPillPosition.y,
-                      backgroundColor: ghostPillContent.isSelected ? "#181a1d" : "#F7F7F7",
-                      color: ghostPillContent.isSelected ? "white" : "#6a6c72",
-                      transform: "scale(1.1)",
-                      opacity: 0.9,
-                    }}
-                  >
-                    <HandleDragIcon isSelected={ghostPillContent.isSelected} />
-                    <div className="flex flex-col items-center gap-0 flex-1 justify-center">
-                      <span className={`text-[10px] font-normal ${ghostPillContent.isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
-                        {ghostPillContent.type === 'frontmatter' && 'Frontmatter'}
-                        {ghostPillContent.type === 'backmatter' && 'Backmatter'} 
-                        {ghostPillContent.type === 'content' && 'Chapter'}
-                      </span>
-                      <span className={`text-xs font-medium ${ghostPillContent.isSelected ? 'text-white' : 'text-[#050505]'}`}>
-                        {ghostPillContent.title}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                </div>
-                
-                {/* Compact Chapter Title Input in Header */}
-                <div className="mt-2">
-                  {/* <label className="block text-xs text-[#737373] mb-1">Chapter title</label> */}
                   <input
                     className="w-full px-3 py-2 rounded text-lg bg-white dark:bg-[#1a1a1a] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-lg touch-manipulation text-[#23242a] dark:text-[#e5e5e5]"
                     placeholder="Enter a title for this chapter..."
@@ -1681,217 +1711,14 @@ function MakeEbookPage() {
 
             {/* DESKTOP layout */}
             <div className="hidden lg:flex flex-col gap-3 flex-1 min-h-0 overflow-y-auto">
-              {/* Compact Chapters Section */}
-              <div className="flex flex-col gap-2 flex-shrink-0">
-                <div className="mb-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
-                      <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">
-                        Chapters
-                      </h3>
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-[#737373] dark:text-gray-400 -mb-1">Drag to reorder</p>
-                </div>
-                <div className="flex flex-wrap gap-2 min-h-[8px] pt-1">
-                  {chapters.map((ch, i) => {
-                    const isSelected = selectedChapter === i;
-                    const titleText = ch.title?.trim() || 'Title';
-                    
-                    // Calculate chapter type label and title
-                    const getChapterInfo = () => {
-                      if (ch.type === 'frontmatter') {
-                        return {
-                          typeLabel: 'Frontmatter',
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      if (ch.type === 'backmatter') {
-                        return {
-                          typeLabel: 'Backmatter', 
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      // Content chapters
-                      const contentChapterNum = getContentChapterNumber(chapters, i);
-                      return {
-                        typeLabel: `Chapter ${contentChapterNum}`,
-                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                      };
-                    };
-
-                    const { typeLabel, title } = getChapterInfo();
-                    return (
-                      <div
-                        key={i}
-                        ref={el => { chapterRefs.current[i] = el }}
-                        className={`flex items-center px-3 py-1 cursor-pointer transition relative rounded flex-shrink-0
-                          ${isSelected 
-                            ? "bg-[#181a1d] dark:bg-[#2a2a2a] text-white font-semibold" 
-                            : "bg-[#F7F7F7] dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5] hover:bg-[#F2F2F2] dark:hover:bg-[#3a3a3a]"}
-                          ${dragOverIndex === i 
-                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
-                            : isSelected
-                              ? 'border'
-                              : 'border-2 border-transparent'}
-                          `}
-                        style={{
-                          ...(isSelected && dragOverIndex !== i
-                            ? {
-                                borderWidth: '1px',
-                                borderStyle: 'solid',
-                                borderImage: 'linear-gradient(45deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%) 1',
-                                borderRadius: '2px',
-                              }
-                            : {}),
-                        }}
-                        draggable
-                        onDragStart={() => handleDragStart(i)}
-                        onDragEnter={() => handleDragEnter(i)}
-                        onDragEnd={handleDragEnd}
-                        onDragOver={(e) => e.preventDefault()}
-                        onClick={() => handleSelectChapter(i)}
-                      >
-                        <HandleDragIcon isSelected={isSelected} />
-                        <div className="flex flex-col gap-0 ml-2 min-w-0">
-                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'}`}>
-                            {typeLabel}
-                          </span>
-                          <span className={`text-[12px] font-medium ${isSelected ? 'text-white' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
-                            {title}
-                          </span>
-                        </div>
-                        {chapters.length > 1 && (
-                          <button
-                            className={`ml-2 p-1 rounded transition focus:outline-none ${
-                              isSelected 
-                                ? "hover:bg-white/10 text-white/65 hover:text-white" 
-                                : "hover:bg-black/10 text-[#050505]/65 hover:text-[#050505]"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveChapter(i);
-                            }}
-                            aria-label="Delete Chapter"
-                          >
-                            <BinIcon 
-                              key={`desktop-bin-${i}-${isSelected}`}
-                              className="w-4 h-4"
-                              stroke={isSelected ? "#ffffff" : "#050505"}
-                            />
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {/* Add Chapter Button */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
-                      aria-label="Add new chapter"
-                      className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1"
-                    >
-                      <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
-                        <PlusIcon className="w-4 h-4" />
-                      </div>
-                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Add</span>
-                    </button>
-                    {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full left-0 mt-1 w-80 bg-white dark:bg-[#1a1a1a] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
-                        <div className="p-3">
-                          <div className="space-y-4">
-                            <div>
-                              <div className="mb-3">
-                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">Front Matter</span>
-                                </h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.frontmatter.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      console.log('Desktop clicked template:', template);
-                                      handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="mb-3">
-                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">Main Content</span>
-                                </h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.content.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      console.log('Desktop clicked template:', template);
-                                      handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="mb-3">
-                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">Back Matter</span>
-                                </h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.backmatter.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      console.log('Desktop clicked template:', template);
-                                      handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
               {/* Editor Area - Prioritized for Writing */}
-              <section className="flex flex-col min-w-0 flex-1 min-h-0">
+              <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-8">
                 {/* Compact Chapter Title Header */}
                 <div className="mb-1 flex-shrink-0 bg-white dark:bg-[#1a1a1a] pb-2">
-                  {/* <label className="block text-xs text-[#737373] mb-1">Chapter title</label> */}
+                  <div className="flex items-center gap-2 pb-2 mb-1">
+                    <img alt="Chapter" className="w-5 h-5 dark:invert" src="/chapters-icon.svg" />
+                    <span className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapter title</span>
+                  </div>
                   <input
                     className="w-full px-3 py-2 rounded text-lg bg-white dark:bg-[#1a1a1a] text-[#23242a] dark:text-[#e5e5e5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-lg"
                     placeholder="Enter a title for this chapter..."
@@ -1982,6 +1809,224 @@ function MakeEbookPage() {
               </section>
             </div>
           </main>
+
+          {/* Right Sidebar - Chapters (Desktop Only) */}
+          <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white dark:bg-[#1a1a1a] min-w-0 lg:min-w-[320px] lg:max-w-[380px] lg:h-full overflow-y-auto shadow-sm mt-4 pr-2 pl-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
+            <div className="flex-1 overflow-y-auto pt-8">
+              <div className="flex flex-col gap-2">
+                <div className="mb-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
+                      <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">
+                        Chapters list
+                      </h3>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-[#737373] dark:text-gray-400 mb-2">Drag to reorder</p>
+                </div>
+                
+                {/* Chapter Pills */}
+                <div className="flex flex-col gap-2 min-h-[8px]">
+                  {chapters.map((ch, i) => {
+                    const isSelected = selectedChapter === i;
+                    const titleText = ch.title?.trim() || 'Title';
+                    
+                    // Calculate chapter type label and title
+                    const getChapterInfo = () => {
+                      if (ch.type === 'frontmatter') {
+                        return {
+                          typeLabel: 'Frontmatter',
+                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                        };
+                      }
+                      if (ch.type === 'backmatter') {
+                        return {
+                          typeLabel: 'Backmatter', 
+                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                        };
+                      }
+                      // Content chapters
+                      const contentChapterNum = getContentChapterNumber(chapters, i);
+                      return {
+                        typeLabel: `Chapter ${contentChapterNum}`,
+                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                      };
+                    };
+
+                    const { typeLabel, title } = getChapterInfo();
+                    return (
+                      <div
+                        key={i}
+                        data-chapter-idx={i}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium transition-all cursor-pointer select-none group relative focus:outline-none ${
+                          dragOverIndex === i 
+                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
+                            : isSelected
+                              ? 'border'
+                              : 'border-2 border-transparent'
+                        } ${
+                          isSelected 
+                            ? "bg-[#181a1d] dark:bg-[#2a2a2a] text-white shadow-sm" 
+                            : "bg-[#F7F7F7] dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5] hover:bg-[#F2F2F2] dark:hover:bg-[#3a3a3a]"
+                        }`}
+                        style={{ 
+                          userSelect: 'none', 
+                          WebkitUserSelect: 'none', 
+                          WebkitTouchCallout: 'none',
+                          // @ts-ignore - WebkitUserDrag is valid but not in TypeScript types
+                          WebkitUserDrag: 'none',
+                          opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
+                          ...(isSelected && dragOverIndex !== i
+                            ? {
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                                borderImage: 'linear-gradient(45deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%) 1',
+                                borderRadius: '2px',
+                              }
+                            : {}),
+                        } as React.CSSProperties}
+                        draggable
+                        onDragStart={() => handleDragStart(i)}
+                        onDragEnter={() => handleDragEnter(i)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={(e) => e.preventDefault()}
+                        onTouchStart={(e) => handleTouchStart(i, e)}
+                        onTouchMove={(e) => handleTouchMove(i, e)}
+                        onTouchEnd={handleTouchEnd}
+                        onClick={() => handleSelectChapter(i)}
+                      >
+                        <HandleDragIcon isSelected={isSelected} />
+                        <div className="flex flex-col items-start gap-0 flex-1 justify-center min-w-0">
+                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'}`}>
+                            {typeLabel}
+                          </span>
+                          <span className={`text-xs font-medium truncate w-full ${isSelected ? 'text-white' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
+                            {title}
+                          </span>
+                        </div>
+                        {chapters.length > 1 && (
+                          <button
+                            className={`ml-1 p-1 rounded transition focus:outline-none flex-shrink-0 ${
+                              isSelected 
+                                ? "hover:bg-white/10 text-white/65 hover:text-white" 
+                                : "hover:bg-black/10 text-[#050505]/65 hover:text-[#050505] dark:text-[#e5e5e5]/65 dark:hover:text-[#e5e5e5]"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveChapter(i);
+                            }}
+                            aria-label="Delete Chapter"
+                          >
+                            <BinIcon 
+                              key={`desktop-right-bin-${i}-${isSelected}`}
+                              className="w-4 h-4"
+                              stroke={isSelected ? "#ffffff" : "#050505"}
+                            />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Add Chapter Button */}
+                  <div className="relative mt-2">
+                    <button
+                      onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
+                      aria-label="Add new chapter"
+                      className="hover:opacity-70 transition-opacity flex items-center gap-2 w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] rounded border border-gray-200 dark:border-gray-700 shadow-sm"
+                    >
+                      <PlusIcon className="w-4 h-4" />
+                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Add Chapter</span>
+                    </button>
+                    {chapterTypeDropdownOpen && (
+                      <div className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#1a1a1a] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
+                        <div className="p-3">
+                          <div className="space-y-4">
+                            <div>
+                              <div className="mb-3">
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
+                                  <span className="text-[#050505] dark:text-white">Front Matter</span>
+                                </h4>
+                              </div>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.frontmatter.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
+                                  >
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="mb-3">
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
+                                  <span className="text-[#050505] dark:text-white">Main Content</span>
+                                </h4>
+                              </div>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.content.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
+                                  >
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="mb-3">
+                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
+                                  <span className="text-[#050505] dark:text-white">Back Matter</span>
+                                </h4>
+                              </div>
+                              <div className="space-y-1">
+                                {CHAPTER_TEMPLATES.backmatter.map((template) => (
+                                  <button
+                                    key={template.title}
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
+                                      setChapterTypeDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
+                                  >
+                                    <div className="text-sm font-medium">
+                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
 
         {/* Terms/Privacy links moved to mobile editor footer */}
