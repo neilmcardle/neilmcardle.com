@@ -1247,7 +1247,7 @@ function MakeEbookPage() {
           {/* Desktop Sidebar - Hidden on Mobile */}
           <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white dark:bg-[#1a1a1a] min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 pl-2 pr-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
             <nav className="flex items-center justify-center pb-2">
-              <div className="flex items-center justify-between px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg ml-2 mr-2 mt-8">
+              <div className="flex items-center justify-between px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg ml-2 mr-2">
                 <button
                   className={`flex items-center gap-2 px-3 py-2 rounded-full outline-none focus:outline-none transition-opacity flex-shrink-0 ${tab === 'setup' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
                   onClick={() => setTab('setup')}
@@ -1839,7 +1839,7 @@ function MakeEbookPage() {
 
           {/* Right Sidebar - Chapters (Desktop Only) */}
           <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white dark:bg-[#1a1a1a] min-w-0 lg:min-w-[320px] lg:max-w-[380px] lg:h-full overflow-y-auto shadow-sm mt-4 pr-2 pl-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
-            <div className="flex-1 overflow-y-auto pt-8">
+            <div className="flex-1 overflow-y-auto lg:pt-0 pt-8">
               <div className="flex flex-col gap-2">
                 <div className="mb-1">
                   <div className="flex items-center justify-between mb-2">
