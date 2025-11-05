@@ -1212,7 +1212,6 @@ function MakeEbookPage() {
                               onTouchEnd={handleTouchEnd}
                               onClick={() => {
                                 handleSelectChapter(i);
-                                setMobileSidebarOpen(false);
                               }}
                             >
                               <HandleDragIcon isSelected={isSelected} />
@@ -1695,7 +1694,7 @@ function MakeEbookPage() {
                     className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
                     aria-label="Open menu"
                   >
-                    <MenuIcon className="w-6 h-6 dark:[&_path]:stroke-white" />
+                    <MenuIcon className="w-5 h-5 dark:invert" />
                   </button>
                 )}
               </div>
