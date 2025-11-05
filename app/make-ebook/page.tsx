@@ -207,7 +207,6 @@ function MakeEbookPage() {
   const [saveFeedback, setSaveFeedback] = useState(false);
   const [bookJustLoaded, setBookJustLoaded] = useState(false);
   const [chapterJustAdded, setChapterJustAdded] = useState<string | null>(null);
-  const [chapterTitleFocused, setChapterTitleFocused] = useState(false);
 
   // Update endnotes chapter content whenever endnotes change
   useEffect(() => {
@@ -1753,50 +1752,14 @@ function MakeEbookPage() {
                   <div className="flex items-center gap-0 px-1 py-1">
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
-                    <div 
-                      className="flex-1 flex items-center min-w-0 cursor-text"
-                      onClick={(e) => {
-                        const input = e.currentTarget.querySelector('input');
-                        if (input) input.focus();
-                      }}
-                    >
-                      <input
-                        className="flex-1 bg-transparent text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:font-normal touch-manipulation min-w-0"
-                        placeholder="Chapter name"
-                        value={chapters[selectedChapter]?.title ?? ""}
-                        onChange={(e) =>
-                          handleChapterTitleChange(selectedChapter, e.target.value)
-                        }
-                        onFocus={() => setChapterTitleFocused(true)}
-                        onBlur={() => setChapterTitleFocused(false)}
-                      />
-                      {chapters[selectedChapter]?.title && !chapterTitleFocused && (
-                        <>
-                          <img 
-                            alt="Edit" 
-                            loading="lazy" 
-                            width="16" 
-                            height="16" 
-                            decoding="async" 
-                            data-nimg="1" 
-                            className="w-4 h-4 flex-shrink-0 opacity-60 dark:hidden ml-1" 
-                            style={{ color: 'transparent' }} 
-                            src="/pencil-icon.svg"
-                          />
-                          <img 
-                            alt="Edit" 
-                            loading="lazy" 
-                            width="16" 
-                            height="16" 
-                            decoding="async" 
-                            data-nimg="1" 
-                            className="w-4 h-4 flex-shrink-0 opacity-60 hidden dark:block ml-1" 
-                            style={{ color: 'transparent' }} 
-                            src="/dark-pencil-icon.svg"
-                          />
-                        </>
-                      )}
-                    </div>
+                    <input
+                      className="flex-1 bg-transparent text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:font-normal touch-manipulation min-w-0"
+                      placeholder="Chapter name"
+                      value={chapters[selectedChapter]?.title ?? ""}
+                      onChange={(e) =>
+                        handleChapterTitleChange(selectedChapter, e.target.value)
+                      }
+                    />
                   </div>
                 </div>
               </div>
@@ -1870,11 +1833,17 @@ function MakeEbookPage() {
                         className="hover:opacity-70 transition-opacity disabled:opacity-60"
                       >
                         <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2">
-                          <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                          {saveFeedback ? (
+                            <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                          )}
                         </div>
                       </button>
-                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">
-                        Save
+                      <span className={`text-xs font-medium mt-1 transition-colors ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
+                        {saveFeedback ? 'Saved!' : 'Save'}
                       </span>
                     </div>
                   </div>
@@ -1905,52 +1874,16 @@ function MakeEbookPage() {
                 {/* Compact Chapter Title Header - Clean UI */}
                 <div className="mb-1 flex-shrink-0 bg-white dark:bg-[#1a1a1a] pb-1">
                   <div className="flex items-center gap-1 px-1 py-1">
-                    <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
-                    <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
-                    <div 
-                      className="flex-1 flex items-center min-w-0 cursor-text"
-                      onClick={(e) => {
-                        const input = e.currentTarget.querySelector('input');
-                        if (input) input.focus();
-                      }}
-                    >
-                      <input
-                        className="flex-1 bg-transparent text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:font-normal min-w-0"
-                        placeholder="Chapter name"
-                        value={chapters[selectedChapter]?.title ?? ""}
-                        onChange={(e) =>
-                          handleChapterTitleChange(selectedChapter, e.target.value)
-                        }
-                        onFocus={() => setChapterTitleFocused(true)}
-                        onBlur={() => setChapterTitleFocused(false)}
-                      />
-                      {chapters[selectedChapter]?.title && !chapterTitleFocused && (
-                        <>
-                          <img 
-                            alt="Edit" 
-                            loading="lazy" 
-                            width="16" 
-                            height="16" 
-                            decoding="async" 
-                            data-nimg="1" 
-                            className="w-4 h-4 flex-shrink-0 opacity-60 dark:hidden ml-1" 
-                            style={{ color: 'transparent' }} 
-                            src="/pencil-icon.svg"
-                          />
-                          <img 
-                            alt="Edit" 
-                            loading="lazy" 
-                            width="16" 
-                            height="16" 
-                            decoding="async" 
-                            data-nimg="1" 
-                            className="w-4 h-4 flex-shrink-0 opacity-60 hidden dark:block ml-1" 
-                            style={{ color: 'transparent' }} 
-                            src="/dark-pencil-icon.svg"
-                          />
-                        </>
-                      )}
-                    </div>
+                    <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 dark:hidden ml-1" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
+                    <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 hidden dark:block ml-1" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
+                    <input
+                      className="flex-1 bg-transparent text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:font-normal min-w-0"
+                      placeholder="Chapter name"
+                      value={chapters[selectedChapter]?.title ?? ""}
+                      onChange={(e) =>
+                        handleChapterTitleChange(selectedChapter, e.target.value)
+                      }
+                    />
                   </div>
                 </div>
                 {/* Rich Text Editor - Maximum Space */}
@@ -1971,7 +1904,7 @@ function MakeEbookPage() {
                             }
                           }}
                         >
-                          <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
+                          <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2">
                             <Image
                               src="/undo-icon.svg"
                               alt="Undo"
@@ -1997,7 +1930,7 @@ function MakeEbookPage() {
                             }
                           }}
                         >
-                          <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
+                          <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2">
                             <Image
                               src="/redo-icon.svg"
                               alt="Redo"

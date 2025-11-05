@@ -375,10 +375,16 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             <button
               onClick={handleSaveBook}
               disabled={!!saveFeedback}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors disabled:opacity-60"
+              className={`p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-all disabled:opacity-60 ${saveFeedback ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
               title={saveFeedback ? "Saved!" : "Save book"}
             >
-              <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+              {saveFeedback ? (
+                <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+              )}
             </button>
             <button
               onClick={handleExportEPUB}
