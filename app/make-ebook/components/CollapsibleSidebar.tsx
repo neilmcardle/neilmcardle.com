@@ -255,6 +255,17 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
       <div className="border-b border-gray-200 dark:border-gray-700 pb-2 pt-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSidebarLibraryExpanded(!sidebarLibraryExpanded)}
+              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+              title={sidebarLibraryExpanded ? "Collapse library" : "Expand library"}
+            >
+              {sidebarLibraryExpanded ? (
+                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              )}
+            </button>
             <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
             <span className="text-xs text-gray-500 dark:text-gray-400">({libraryBooks.length})</span>
@@ -266,17 +277,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               title="New book"
             >
               <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-            </button>
-            <button
-              onClick={() => setSidebarLibraryExpanded(!sidebarLibraryExpanded)}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-              title={sidebarLibraryExpanded ? "Collapse library" : "Expand library"}
-            >
-              {sidebarLibraryExpanded ? (
-                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              )}
             </button>
           </div>
         </div>
@@ -349,16 +349,27 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
       {/* Book Details Section */}
       <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
-          <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <img src="/preview-icon.svg" alt="Details" className="w-5 h-5 dark:invert flex-shrink-0" />
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <button
+              onClick={() => setSidebarBookDetailsExpanded(!sidebarBookDetailsExpanded)}
+              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors flex-shrink-0"
+              title={sidebarBookDetailsExpanded ? "Collapse details" : "Expand details"}
+            >
+              {sidebarBookDetailsExpanded ? (
+                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              )}
+            </button>
+            <img src="/preview-icon.svg" alt="Details" className="w-5 h-5 dark:invert flex-shrink-0" />
+            <div className="flex flex-col gap-0.5 flex-1 min-w-0">
               <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Book</span>
+              {title && (
+                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {title}
+                </span>
+              )}
             </div>
-            {title && (
-              <span className="text-xs text-gray-500 dark:text-gray-400 ml-7 truncate">
-                {title}
-              </span>
-            )}
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
@@ -375,17 +386,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               title="Export as EPUB"
             >
               <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-            </button>
-            <button
-              onClick={() => setSidebarBookDetailsExpanded(!sidebarBookDetailsExpanded)}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-              title={sidebarBookDetailsExpanded ? "Collapse details" : "Expand details"}
-            >
-              {sidebarBookDetailsExpanded ? (
-                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              )}
             </button>
           </div>
         </div>
@@ -564,6 +564,17 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
       <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSidebarChaptersExpanded(!sidebarChaptersExpanded)}
+              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+              title={sidebarChaptersExpanded ? "Collapse chapters" : "Expand chapters"}
+            >
+              {sidebarChaptersExpanded ? (
+                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              )}
+            </button>
             <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Chapters</span>
             <span className="text-xs text-gray-500 dark:text-gray-400">({chapters.length})</span>
@@ -598,33 +609,33 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                         {template.title}
                       </button>
                     ))}
-                  </div>
-                  
-                  {/* Main Content */}
-                  <div>
-                    <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
-                      Main Content
                     </div>
-                    {CHAPTER_TEMPLATES.content.map((template) => (
-                      <button
-                        key={template.title}
-                        onClick={() => {
-                          handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
-                          setChapterTypeDropdownOpen(false);
-                        }}
-                        className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
-                      >
-                        {template.title}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  {/* Back Matter */}
-                  <div>
-                    <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
-                      Back Matter
+                    
+                    {/* Main Content */}
+                    <div>
+                      <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                        Main Content
+                      </div>
+                      {CHAPTER_TEMPLATES.content.map((template) => (
+                        <button
+                          key={template.title}
+                          onClick={() => {
+                            handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
+                            setChapterTypeDropdownOpen(false);
+                          }}
+                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                        >
+                          {template.title}
+                        </button>
+                      ))}
                     </div>
-                    {CHAPTER_TEMPLATES.backmatter.map((template) => (
+                    
+                    {/* Back Matter */}
+                    <div>
+                      <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                        Back Matter
+                      </div>
+                      {CHAPTER_TEMPLATES.backmatter.map((template) => (
                       <button
                         key={template.title}
                         onClick={() => {
@@ -641,21 +652,8 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               </div>
             )}
           </div>
-          <button
-            onClick={() => setSidebarChaptersExpanded(!sidebarChaptersExpanded)}
-            className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-            title={sidebarChaptersExpanded ? "Collapse chapters" : "Expand chapters"}
-          >
-            {sidebarChaptersExpanded ? (
-              <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-            )}
-          </button>
         </div>
-      </div>
-        
-        {sidebarChaptersExpanded && (
+      </div>        {sidebarChaptersExpanded && (
           <div className="mt-1 space-y-1 pl-2">
             <p className="text-[10px] text-gray-500 dark:text-gray-400 px-2 mb-1">Drag to reorder</p>
             {chapters.map((ch, i) => {
@@ -745,14 +743,16 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           className="w-full flex items-center justify-between py-2 px-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
         >
           <div className="flex items-center gap-2">
+            <div className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors">
+              {sidebarPreviewExpanded ? (
+                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              )}
+            </div>
             <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert" />
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Preview</span>
           </div>
-          {sidebarPreviewExpanded ? (
-            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-          ) : (
-            <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-          )}
         </button>
         
         {sidebarPreviewExpanded && (

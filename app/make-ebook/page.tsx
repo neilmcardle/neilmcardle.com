@@ -205,6 +205,9 @@ function MakeEbookPage() {
   const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] = useState(false);
 
   const [saveFeedback, setSaveFeedback] = useState(false);
+  const [bookJustLoaded, setBookJustLoaded] = useState(false);
+  const [chapterJustAdded, setChapterJustAdded] = useState<string | null>(null);
+  const [chapterTitleFocused, setChapterTitleFocused] = useState(false);
 
   // Update endnotes chapter content whenever endnotes change
   useEffect(() => {
@@ -621,6 +624,10 @@ function MakeEbookPage() {
       
       setEndnotes(loaded.endnotes || []);
       setCurrentBookId(loaded.id);
+      
+      // Trigger highlight animation
+      setBookJustLoaded(true);
+      setTimeout(() => setBookJustLoaded(false), 1000);
     }
   }
 
@@ -753,6 +760,17 @@ function MakeEbookPage() {
                   <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
                     <div className="flex items-center justify-between py-2 px-2">
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setSidebarLibraryExpanded(!sidebarLibraryExpanded)}
+                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          title={sidebarLibraryExpanded ? "Collapse" : "Expand"}
+                        >
+                          {sidebarLibraryExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          )}
+                        </button>
                         <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
                         <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
                         <span className="text-xs text-gray-500 dark:text-gray-400">({libraryBooks.length})</span>
@@ -767,17 +785,6 @@ function MakeEbookPage() {
                           title="New book"
                         >
                           <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                        </button>
-                        <button
-                          onClick={() => setSidebarLibraryExpanded(!sidebarLibraryExpanded)}
-                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-                          title={sidebarLibraryExpanded ? "Collapse" : "Expand"}
-                        >
-                          {sidebarLibraryExpanded ? (
-                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 transform -rotate-90" />
-                          )}
                         </button>
                       </div>
                     </div>
@@ -820,7 +827,6 @@ function MakeEbookPage() {
                                     <button
                                       onClick={() => {
                                         handleLoadBook(book.id);
-                                        setMobileSidebarOpen(false);
                                         setSelectedBookId(null);
                                       }}
                                       className="px-2 py-1 text-xs rounded bg-black dark:bg-white text-white dark:text-black hover:opacity-80"
@@ -845,18 +851,31 @@ function MakeEbookPage() {
                   </div>
 
                   {/* Book Details Section */}
-                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                  <div className={`border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors duration-1000 ease-out ${
+                    bookJustLoaded ? 'bg-gray-100/80 dark:bg-gray-700/20' : ''
+                  }`}>
                     <div className="flex items-center justify-between py-2 px-2">
-                      <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <img src="/preview-icon.svg" alt="Details" className="w-5 h-5 dark:invert flex-shrink-0" />
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <button
+                          onClick={() => setSidebarBookDetailsExpanded(!sidebarBookDetailsExpanded)}
+                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors flex-shrink-0"
+                          title={sidebarBookDetailsExpanded ? "Collapse details" : "Expand details"}
+                        >
+                          {sidebarBookDetailsExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          )}
+                        </button>
+                        <img src="/preview-icon.svg" alt="Details" className="w-5 h-5 dark:invert flex-shrink-0" />
+                        <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                           <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Book</span>
+                          {title && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              {title}
+                            </span>
+                          )}
                         </div>
-                        {title && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-7 truncate">
-                            {title}
-                          </span>
-                        )}
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
                         <button
@@ -877,17 +896,6 @@ function MakeEbookPage() {
                           title="Export as EPUB"
                         >
                           <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                        </button>
-                        <button
-                          onClick={() => setSidebarBookDetailsExpanded(!sidebarBookDetailsExpanded)}
-                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-                          title={sidebarBookDetailsExpanded ? "Collapse details" : "Expand details"}
-                        >
-                          {sidebarBookDetailsExpanded ? (
-                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                          )}
                         </button>
                       </div>
                     </div>
@@ -1065,12 +1073,23 @@ function MakeEbookPage() {
                   {/* Chapters Section */}
                   <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
                     <div className="flex items-center justify-between py-2 px-2">
-                      <div className="flex items-center gap-2">
-                        <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <button
+                          onClick={() => setSidebarChaptersExpanded(!sidebarChaptersExpanded)}
+                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors flex-shrink-0"
+                          title={sidebarChaptersExpanded ? "Collapse chapters" : "Expand chapters"}
+                        >
+                          {sidebarChaptersExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          )}
+                        </button>
+                        <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert flex-shrink-0" />
                         <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Chapters</span>
                         <span className="text-xs text-gray-500 dark:text-gray-400">({chapters.length})</span>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 flex-shrink-0">
                         <div className="relative">
                           <button
                             onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
@@ -1092,9 +1111,12 @@ function MakeEbookPage() {
                                     <button
                                       key={template.title}
                                       onClick={() => {
-                                        handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
+                                        const newChapterId = handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
                                         setChapterTypeDropdownOpen(false);
-                                        setMobileSidebarOpen(false);
+                                        setSidebarChaptersExpanded(true);
+                                        // Trigger highlight animation
+                                        setChapterJustAdded(newChapterId);
+                                        setTimeout(() => setChapterJustAdded(null), 1000);
                                       }}
                                       className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
                                     >
@@ -1112,9 +1134,12 @@ function MakeEbookPage() {
                                     <button
                                       key={template.title}
                                       onClick={() => {
-                                        handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
+                                        const newChapterId = handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
                                         setChapterTypeDropdownOpen(false);
-                                        setMobileSidebarOpen(false);
+                                        setSidebarChaptersExpanded(true);
+                                        // Trigger highlight animation
+                                        setChapterJustAdded(newChapterId);
+                                        setTimeout(() => setChapterJustAdded(null), 1000);
                                       }}
                                       className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
                                     >
@@ -1132,9 +1157,12 @@ function MakeEbookPage() {
                                     <button
                                       key={template.title}
                                       onClick={() => {
-                                        handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
+                                        const newChapterId = handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
                                         setChapterTypeDropdownOpen(false);
-                                        setMobileSidebarOpen(false);
+                                        setSidebarChaptersExpanded(true);
+                                        // Trigger highlight animation
+                                        setChapterJustAdded(newChapterId);
+                                        setTimeout(() => setChapterJustAdded(null), 1000);
                                       }}
                                       className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
                                     >
@@ -1146,17 +1174,6 @@ function MakeEbookPage() {
                             </div>
                           )}
                         </div>
-                        <button
-                          onClick={() => setSidebarChaptersExpanded(!sidebarChaptersExpanded)}
-                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-                          title={sidebarChaptersExpanded ? "Collapse chapters" : "Expand chapters"}
-                        >
-                          {sidebarChaptersExpanded ? (
-                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                          )}
-                        </button>
                       </div>
                     </div>
                     
@@ -1188,16 +1205,19 @@ function MakeEbookPage() {
                           };
 
                           const { typeLabel, title: chapterTitle } = getChapterInfo();
+                          const isJustAdded = chapterJustAdded === ch.id;
                           
                           return (
                             <div
                               key={ch.id}
-                              className={`group flex items-center gap-2 px-2 py-2 rounded text-sm transition-all cursor-pointer select-none ${
+                              className={`group flex items-center gap-2 px-2 py-2 rounded text-sm cursor-pointer select-none transition-all duration-1000 ease-out ${
                                 dragOverIndex === i
                                   ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
                                   : isSelected
                                     ? 'bg-gray-100 dark:bg-[#2a2a2a] border border-transparent'
-                                    : 'border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                                    : isJustAdded
+                                      ? 'bg-gray-100/80 dark:bg-gray-700/20 border border-transparent'
+                                      : 'border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
                               }`}
                               style={{
                                 opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
@@ -1247,20 +1267,23 @@ function MakeEbookPage() {
 
                   {/* Preview Section */}
                   <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
-                    <button
-                      onClick={() => setSidebarPreviewExpanded(!sidebarPreviewExpanded)}
-                      className="w-full flex items-center justify-between py-2 px-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert" />
+                    <div className="flex items-center justify-between py-2 px-2">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <button
+                          onClick={() => setSidebarPreviewExpanded(!sidebarPreviewExpanded)}
+                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors flex-shrink-0"
+                          title={sidebarPreviewExpanded ? "Collapse preview" : "Expand preview"}
+                        >
+                          {sidebarPreviewExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          )}
+                        </button>
+                        <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert flex-shrink-0" />
                         <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Preview</span>
                       </div>
-                      {sidebarPreviewExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                      )}
-                    </button>
+                    </div>
                     
                     {sidebarPreviewExpanded && (
                       <div className="mt-2 px-2">
@@ -1440,16 +1463,20 @@ function MakeEbookPage() {
                     };
 
                     const { typeLabel, title } = getChapterInfo();
+                    const isJustAdded = chapterJustAdded === ch.id;
+                    
                     return (
                       <div
                         key={i}
                         ref={el => { chapterRefs.current[i] = el }}
-                        className={`group flex items-center gap-2 px-3 py-2 rounded text-sm transition-all cursor-pointer select-none relative focus:outline-none ${
+                        className={`group flex items-center gap-2 px-3 py-2 rounded text-sm cursor-pointer select-none relative focus:outline-none transition-all duration-1000 ease-out ${
                           dragOverIndex === i 
                             ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20' 
                             : isSelected
                               ? 'bg-gray-100 dark:bg-[#2a2a2a] border border-transparent'
-                              : 'border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                              : isJustAdded
+                                ? 'bg-gray-100/80 dark:bg-gray-700/20 border border-transparent'
+                                : 'border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
                         }`}
                         style={{ 
                           userSelect: 'none', 
@@ -1525,8 +1552,12 @@ function MakeEbookPage() {
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
+                                      const newChapterId = handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
+                                      setSidebarChaptersExpanded(true);
+                                      // Trigger highlight animation
+                                      setChapterJustAdded(newChapterId);
+                                      setTimeout(() => setChapterJustAdded(null), 1000);
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
@@ -1550,8 +1581,12 @@ function MakeEbookPage() {
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
+                                      const newChapterId = handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
+                                      setSidebarChaptersExpanded(true);
+                                      // Trigger highlight animation
+                                      setChapterJustAdded(newChapterId);
+                                      setTimeout(() => setChapterJustAdded(null), 1000);
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
@@ -1575,8 +1610,12 @@ function MakeEbookPage() {
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
+                                      const newChapterId = handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
                                       setChapterTypeDropdownOpen(false);
+                                      setSidebarChaptersExpanded(true);
+                                      // Trigger highlight animation
+                                      setChapterJustAdded(newChapterId);
+                                      setTimeout(() => setChapterJustAdded(null), 1000);
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
@@ -1706,30 +1745,65 @@ function MakeEbookPage() {
             </div>
 
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
-            <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pt-16">
+            <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pt-8 pb-0">
               {/* Compact Chapter Header */}
-              <div className="flex-shrink-0 bg-white dark:bg-[#1a1a1a] border-none pb-2 px-2">
-                {/* Chapter Title Input */}
+              <div className="flex-shrink-0 bg-white dark:bg-[#1a1a1a] border-none pb-1 px-2">
+                {/* Chapter Title Input - Clean UI */}
                 <div className="mt-0">
-                  <div className="flex items-center gap-2 pb-2 mb-1">
-                    <img alt="Chapter" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
-                    <img alt="Chapter" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
-                    <span className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapter title</span>
+                  <div className="flex items-center gap-0 px-1 py-1">
+                    <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
+                    <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
+                    <div 
+                      className="flex-1 flex items-center min-w-0 cursor-text"
+                      onClick={(e) => {
+                        const input = e.currentTarget.querySelector('input');
+                        if (input) input.focus();
+                      }}
+                    >
+                      <input
+                        className="flex-1 bg-transparent text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:font-normal touch-manipulation min-w-0"
+                        placeholder="Chapter name"
+                        value={chapters[selectedChapter]?.title ?? ""}
+                        onChange={(e) =>
+                          handleChapterTitleChange(selectedChapter, e.target.value)
+                        }
+                        onFocus={() => setChapterTitleFocused(true)}
+                        onBlur={() => setChapterTitleFocused(false)}
+                      />
+                      {chapters[selectedChapter]?.title && !chapterTitleFocused && (
+                        <>
+                          <img 
+                            alt="Edit" 
+                            loading="lazy" 
+                            width="16" 
+                            height="16" 
+                            decoding="async" 
+                            data-nimg="1" 
+                            className="w-4 h-4 flex-shrink-0 opacity-60 dark:hidden ml-1" 
+                            style={{ color: 'transparent' }} 
+                            src="/pencil-icon.svg"
+                          />
+                          <img 
+                            alt="Edit" 
+                            loading="lazy" 
+                            width="16" 
+                            height="16" 
+                            decoding="async" 
+                            data-nimg="1" 
+                            className="w-4 h-4 flex-shrink-0 opacity-60 hidden dark:block ml-1" 
+                            style={{ color: 'transparent' }} 
+                            src="/dark-pencil-icon.svg"
+                          />
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <input
-                    className="w-full px-3 py-2 rounded text-lg bg-white dark:bg-[#1a1a1a] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-lg touch-manipulation text-[#23242a] dark:text-[#e5e5e5]"
-                    placeholder="Enter a title for this chapter..."
-                    value={chapters[selectedChapter]?.title ?? ""}
-                    onChange={(e) =>
-                      handleChapterTitleChange(selectedChapter, e.target.value)
-                    }
-                  />
                 </div>
               </div>
 
               {/* Rich Text Editor - Maximized for Writing */}
               <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
-                <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between">
+                <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between px-2">
                   {/* <label className="block text-xs text-[#737373] mb-0">Chapter content</label> */}
                   <div className="flex items-start gap-2">
                     <div className="flex flex-col items-center">
@@ -1745,7 +1819,7 @@ function MakeEbookPage() {
                           }
                         }}
                       >
-                        <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
+                        <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2">
                           <Image
                             src="/undo-icon.svg"
                             alt="Undo"
@@ -1771,7 +1845,7 @@ function MakeEbookPage() {
                           }
                         }}
                       >
-                        <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-700">
+                        <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2">
                           <Image
                             src="/redo-icon.svg"
                             alt="Redo"
@@ -1783,6 +1857,25 @@ function MakeEbookPage() {
                         </div>
                       </button>
                       <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Redo</span>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <div className="flex flex-col items-center">
+                      <button
+                        onClick={() => {
+                          handleSaveBook();
+                        }}
+                        disabled={!!saveFeedback}
+                        title={saveFeedback ? "Saved!" : "Save book"}
+                        className="hover:opacity-70 transition-opacity disabled:opacity-60"
+                      >
+                        <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2">
+                          <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                        </div>
+                      </button>
+                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">
+                        Save
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1808,26 +1901,61 @@ function MakeEbookPage() {
             {/* DESKTOP layout */}
             <div className="hidden lg:flex flex-col gap-3 flex-1 min-h-0 overflow-y-auto">
               {/* Editor Area - Prioritized for Writing */}
-              <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-8">
-                {/* Compact Chapter Title Header */}
-                <div className="mb-1 flex-shrink-0 bg-white dark:bg-[#1a1a1a] pb-2">
-                  <div className="flex items-center gap-2 pb-2 mb-1">
-                    <img alt="Chapter" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
-                    <img alt="Chapter" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
-                    <span className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapter title</span>
+              <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2">
+                {/* Compact Chapter Title Header - Clean UI */}
+                <div className="mb-1 flex-shrink-0 bg-white dark:bg-[#1a1a1a] pb-1">
+                  <div className="flex items-center gap-1 px-1 py-1">
+                    <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
+                    <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
+                    <div 
+                      className="flex-1 flex items-center min-w-0 cursor-text"
+                      onClick={(e) => {
+                        const input = e.currentTarget.querySelector('input');
+                        if (input) input.focus();
+                      }}
+                    >
+                      <input
+                        className="flex-1 bg-transparent text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:font-normal min-w-0"
+                        placeholder="Chapter name"
+                        value={chapters[selectedChapter]?.title ?? ""}
+                        onChange={(e) =>
+                          handleChapterTitleChange(selectedChapter, e.target.value)
+                        }
+                        onFocus={() => setChapterTitleFocused(true)}
+                        onBlur={() => setChapterTitleFocused(false)}
+                      />
+                      {chapters[selectedChapter]?.title && !chapterTitleFocused && (
+                        <>
+                          <img 
+                            alt="Edit" 
+                            loading="lazy" 
+                            width="16" 
+                            height="16" 
+                            decoding="async" 
+                            data-nimg="1" 
+                            className="w-4 h-4 flex-shrink-0 opacity-60 dark:hidden ml-1" 
+                            style={{ color: 'transparent' }} 
+                            src="/pencil-icon.svg"
+                          />
+                          <img 
+                            alt="Edit" 
+                            loading="lazy" 
+                            width="16" 
+                            height="16" 
+                            decoding="async" 
+                            data-nimg="1" 
+                            className="w-4 h-4 flex-shrink-0 opacity-60 hidden dark:block ml-1" 
+                            style={{ color: 'transparent' }} 
+                            src="/dark-pencil-icon.svg"
+                          />
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <input
-                    className="w-full px-3 py-2 rounded text-lg bg-white dark:bg-[#1a1a1a] text-[#23242a] dark:text-[#e5e5e5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-lg"
-                    placeholder="Enter a title for this chapter..."
-                    value={chapters[selectedChapter]?.title ?? ""}
-                    onChange={(e) =>
-                      handleChapterTitleChange(selectedChapter, e.target.value)
-                    }
-                  />
                 </div>
                 {/* Rich Text Editor - Maximum Space */}
                 <div className="w-full max-w-full flex-1 min-h-0 flex flex-col">
-                  <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between">
+                  <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between px-2">
 
                     <div className="flex items-start gap-2">
                       <div className="flex flex-col items-center">

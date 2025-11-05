@@ -66,7 +66,7 @@ export function useChapters(initial: Chapter[] = [{ id: uuidv4(), title: "", con
     }
   }
 
-  function handleAddChapter(chapterType: 'frontmatter' | 'content' | 'backmatter' = 'content', customTitle?: string) {
+  function handleAddChapter(chapterType: 'frontmatter' | 'content' | 'backmatter' = 'content', customTitle?: string): string {
     // Get template content based on title
     const getTemplateContent = (title: string) => {
       switch (title) {
@@ -113,6 +113,7 @@ export function useChapters(initial: Chapter[] = [{ id: uuidv4(), title: "", con
     };
     setChapters((chs) => [...chs, newChapter]);
     setSelectedChapter(chapters.length);
+    return newChapter.id;
   }
   function handleSelectChapter(idx: number) { 
     // Prevent selection if we just finished dragging
