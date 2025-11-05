@@ -12,7 +12,7 @@
       }
     </style>
   </defs>
-  <rect class="st0" x="2.1" y="1" width="19.8" height="5.4" rx="2" ry="2"/>
-  <rect class="st0" x="2.1" y="9.3" width="19.8" height="5.4" rx="2" ry="2"/>
-  <rect class="st0" x="2.1" y="17.6" width="19.8" height="5.4" rx="2" ry="2"/>
+  <rect class="st0" x="1" y="1" width="22" height="4" rx="2" ry="2"/>
+  <rect class="st0" x="1" y="19" width="22" height="4" rx="2" ry="2"/>
+  <rect class="st0" x="1" y="10" width="22" height="4" rx="2" ry="2"/>
 </svg>

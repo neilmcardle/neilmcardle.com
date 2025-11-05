@@ -2,13 +2,12 @@
 
 import React, { Suspense, useState, useRef, useLayoutEffect, useEffect } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { Header } from "@/components/Header";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { PlusIcon, TrashIcon, LibraryIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, LockIcon, MetadataIcon, MenuIcon } from "./components/icons";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import DragIcon from "./components/icons/DragIcon";
 import BinIcon from "./components/icons/BinIcon";
@@ -23,6 +22,17 @@ import { useCover } from "./hooks/useCover";
 import { useLockedSections } from "./hooks/useLockedSections";
 import { exportEpub } from "./utils/exportEpub";
 import RichTextEditor from "./components/RichTextEditor";
+import CollapsibleSidebar from "./components/CollapsibleSidebar";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { LogOut } from "lucide-react";
 
 const HEADER_HEIGHT = 64; // px (adjust if your header is taller/shorter)
 const BOOK_LIBRARY_KEY = "makeebook_library";
@@ -117,8 +127,6 @@ function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
 }
 
 function MakeEbookPage() {
-  // State for mobile three-dots actions menu
-  const [showActionsMenu, setShowActionsMenu] = useState(false);
   // Stripe checkout handler
   const handleStripeCheckout = async () => {
     const res = await fetch('/api/create-checkout-session', { method: 'POST' });
@@ -178,7 +186,6 @@ function MakeEbookPage() {
   const [currentBookId, setCurrentBookId] = useState<string | undefined>(undefined);
   const [initialized, setInitialized] = useState(false);
 
-  const [libraryOpen, setLibraryOpen] = useState(false);
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mobileChaptersOpen, setMobileChaptersOpen] = useState(false);
@@ -190,7 +197,12 @@ function MakeEbookPage() {
   const [endnotes, setEndnotes] = useState<Endnote[]>([]);
   const [endnoteReferences, setEndnoteReferences] = useState<EndnoteReference[]>([]);
   const [nextEndnoteNumber, setNextEndnoteNumber] = useState(1);
-  const [showEditingNotification, setShowEditingNotification] = useState(true);
+  
+  // Collapsible sidebar sections state
+  const [sidebarLibraryExpanded, setSidebarLibraryExpanded] = useState(true);
+  const [sidebarPreviewExpanded, setSidebarPreviewExpanded] = useState(false);
+  const [sidebarChaptersExpanded, setSidebarChaptersExpanded] = useState(true);
+  const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] = useState(false);
 
   const [saveFeedback, setSaveFeedback] = useState(false);
 
@@ -609,8 +621,6 @@ function MakeEbookPage() {
       
       setEndnotes(loaded.endnotes || []);
       setCurrentBookId(loaded.id);
-      setLibraryOpen(false);
-      setShowEditingNotification(true);
     }
   }
 
@@ -634,90 +644,9 @@ function MakeEbookPage() {
 
   return (
     <>
-      {/* Fixed Header */}
-  <div className="fixed top-0 left-0 w-full z-[110] bg-white dark:bg-[#0f0f0f] border-b border-gray-100 dark:border-gray-800">
-  <div className="flex items-center justify-between pr-0 pl-0 h-[64px] w-full">
-          {/* Left: Logo and nav (Header) */}
-          <Header />
-          {/* User icon and Stripe button are now handled inside Header */}
-        </div>
-      </div>
-      {/* Main Content - add margin-top to offset header height */}
-      <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] text-[#15161a] dark:text-[#e5e5e5] mt-[64px]">
-        {/* Current Book Indicator - Sticky Footer for All Screens */}
-        {showEditingNotification && (
-          <div
-            className="fixed bottom-0 left-0 w-full flex items-center justify-between border-t border-gray-200 dark:border-gray-700 shadow z-[120] bg-[#E6F9ED] dark:bg-[#1a4d2e] px-4"
-            style={{
-              fontSize: '12px',
-              padding: '6px 16px',
-              minHeight: '32px'
-            }}
-          >
-            <div className="flex items-center justify-center flex-1">
-              <BookIcon className="w-4 h-4 text-[#23242a] dark:text-[#e5e5e5] mr-1" />
-              <span className="font-medium text-[#23242a] dark:text-[#e5e5e5]">Currently editing:</span>
-              <span className="text-[#23242a] dark:text-[#e5e5e5] font-normal ml-1">{title ? title : "Untitled"}</span>
-              <span className="text-gray-500 dark:text-gray-400 font-normal ml-2">{author ? `by ${author}` : "by Unknown author"}</span>
-            </div>
-            <button
-              onClick={() => setShowEditingNotification(false)}
-              className="text-[#23242a] dark:text-[#e5e5e5] hover:opacity-70 transition-opacity text-xl font-bold leading-none"
-              aria-label="Close notification"
-              title="Dismiss"
-              style={{ fontSize: '24px' }}
-            >
-              ×
-            </button>
-          </div>
-        )}
-        {/* Library Panel */}
-        {libraryOpen && (
-          <div className="fixed inset-0 z-[120] bg-black/20 flex items-start justify-center">
-            <div className="bg-white dark:bg-[#1a1a1a] rounded shadow-2xl p-6 mt-20 w-full max-w-md">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <LibraryIcon className="w-6 h-6" /> Library
-                </h2>
-                <button onClick={() => setLibraryOpen(false)} className="text-xl text-gray-600 dark:text-gray-400">&times;</button>
-              </div>
-              {libraryBooks.length === 0 ? (
-                <div className="text-gray-500 dark:text-gray-400 text-center py-8">No books saved</div>
-              ) : (
-                <ul>
-                  {libraryBooks
-                    .sort((a, b) => b.savedAt - a.savedAt)
-                    .map((b) => (
-                    <li key={b.id} className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0 py-2">
-                      <button
-                        className="flex-1 text-left hover:underline text-gray-900 dark:text-gray-100"
-                        onClick={() => handleLoadBook(b.id)}
-                        title={b.title}
-                      >
-                        <span className="font-semibold">{b.title || "Untitled"}</span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">{b.author}</span>
-                        <span className="block text-xs text-gray-400 dark:text-gray-500">{new Date(b.savedAt).toLocaleString()}</span>
-                      </button>
-                      <button
-                        className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400"
-                        onClick={() => handleDeleteBook(b.id)}
-                        title="Delete book"
-                      >
-                        <img 
-                          src="/dark-bin-icon.svg" 
-                          alt="Delete" 
-                          className="w-4 h-4 hidden dark:block"
-                        />
-                        <TrashIcon className="w-4 h-4 dark:hidden" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        )}
-
+      {/* Main Content - Full height without header */}
+      <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] text-[#15161a] dark:text-[#e5e5e5]">
+        
         {/* New Book Confirmation Dialog */}
         {newBookConfirmOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
@@ -777,7 +706,7 @@ function MakeEbookPage() {
         )}
 
         {/* Mobile Sidebar Overlay */}
-        <div className={`fixed top-[64px] left-0 right-0 bottom-0 z-[100] lg:hidden transition-all duration-300 ease-out ${
+        <div className={`fixed top-0 left-0 right-0 bottom-0 z-[100] lg:hidden transition-all duration-300 ease-out ${
           mobileSidebarOpen ? 'visible' : 'invisible'
         }`}>
           {/* Backdrop */}
@@ -791,218 +720,662 @@ function MakeEbookPage() {
           <div className={`absolute top-0 left-0 h-full w-full bg-white dark:bg-[#1a1a1a] shadow-2xl transform transition-transform duration-300 ease-out ${
             mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
-              <div className="flex flex-col h-full">
-                {/* Header with Actions */}
-                <div className="flex items-center justify-end p-4">
+            <div className="flex flex-col h-full">
+              
+              {/* Logo Header - Sticky */}
+              <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                  <Image
+                    src="/make-ebook-logomark.svg"
+                    alt="makeEBook logo"
+                    width={100}
+                    height={39}
+                    className="h-[39px] w-[100px] dark:invert"
+                    priority
+                  />
                   <button
                     onClick={() => setMobileSidebarOpen(false)}
-                    className="flex items-center justify-center px-5 py-4 rounded-full bg-white dark:bg-[#1a1a1a] gap-2 focus:outline-none transition-opacity mb-[-40px] relative"
-                    aria-label="Close sidebar menu"
-                    style={{ minWidth: 56, minHeight: 56 }}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                    aria-label="Close sidebar"
                   >
-                    <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
-                    <img alt="Close" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5 dark:invert" style={{ color: 'transparent', zIndex: 2 }} src="/close-sidebar-icon.svg" />
-                    <span className="text-base font-medium text-[#23242a] dark:text-[#e5e5e5] underline" style={{ zIndex: 2 }}>Close</span>
+                    <img src="/close-sidebar-icon.svg" alt="Close" className="w-5 h-5 dark:invert" />
                   </button>
                 </div>
+              </div>
+
+              {/* Scrollable Content Area */}
+              <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
                 
-                {/* Tab Navigation */}
-                <nav className="flex items-center justify-center pb-2">
-                  <div className="flex items-center justify-between px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg ml-2 mr-2 mt-8">
-                    <button
-                      type="button"
-                      aria-label="Details"
-                      className={`flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none transition-opacity flex-shrink-0 ${tab === 'setup' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                      onClick={() => setTab('setup')}
-                    >
-                      <img alt="Book Details" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 dark:invert" style={{ color: 'transparent' }} src="/metadata-icon.svg" />
-                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Details</span>
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Summary"
-                      className={`flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none transition-opacity flex-shrink-0 ${tab === 'preview' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                      onClick={() => setTab('preview')}
-                    >
-                      <img alt="Summary" className="w-5 h-5 dark:invert" src="/summary-icon.svg" />
-                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Summary</span>
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Library"
-                      className={`flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none transition-opacity flex-shrink-0 ${tab === 'library' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                      onClick={() => setTab('library')}
-                    >
-                      <img alt="Library" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 dark:invert" style={{ color: 'transparent' }} src="/library-icon.svg" />
-                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Library</span>
-                    </button>
-                  </div>
-                </nav>
-                
-                {/* Content */}
-                <div className="relative flex-1 min-h-0">
-                  <div ref={scrollContainerRef} className="h-full overflow-y-auto mt-2 px-4 pb-4" style={{ maxHeight: 'calc(100vh - 180px)' }}>
-                    {tab === "setup" && (
-                      <MetaTabContent
-                        title={title}
-                        setTitle={setTitle}
-                        author={author}
-                        setAuthor={setAuthor}
-                        blurb={blurb}
-                        setBlurb={setBlurb}
-                        publisher={publisher}
-                        setPublisher={setPublisher}
-                        pubDate={pubDate}
-                        setPubDate={setPubDate}
-                        isbn={isbn}
-                        setIsbn={setIsbn}
-                        language={language}
-                        setLanguage={setLanguage}
-                        genre={genre}
-                        setGenre={setGenre}
-                        tags={tags}
-                        setTags={setTags}
-                        tagInput={tagInput}
-                        setTagInput={setTagInput}
-                        coverFile={coverFile}
-                        setCoverFile={setCoverFile}
-                        lockedSections={lockedSections}
-                        setLockedSections={setLockedSections}
-                        handleAddTag={handleAddTag}
-                        handleRemoveTag={handleRemoveTag}
-                        handleCoverChange={handleCoverChange}
-                      />
-                    )}
-                  {tab === "preview" && (
-                    <PreviewPanel
-                      coverUrl={coverUrl}
-                      title={title}
-                      author={author}
-                      pubDate={pubDate}
-                      language={language}
-                      genre={genre}
-                      tags={tags}
-                      chapters={chapters}
-                      totalWords={totalWords}
-                      pageCount={pageCount}
-                      readingTime={readingTime}
-                    />
-                  )}
-                  {/* {tab === "ai" && <AiTabContent />} */}
-                  {tab === "library" && (
-                    <div className="space-y-4">
-                      {libraryBooks.length === 0 ? (
-                        <div className="text-center py-12">
-                          <Image
-                            src="/caveman.svg"
-                            alt="makeEbook caveman"
-                            width={48}
-                            height={48}
-                            className="w-12 h-12 mx-auto mb-4 opacity-60"
-                          />
-                          <p className="text-gray-500">
-                            Why not write your first masterpiece?<br />
-                            <span className="text-sm">The Biscuit Thief. Chapter one: The Thief Grows Peckish!📚</span>
-                          </p>
-                        </div>
-                      ) : (
-                        <ul className="space-y-2">
-                          {libraryBooks.map((b: any) => (
-                            <li key={b.id} className={`flex items-center justify-between p-3 border rounded transition-colors ${
-                              selectedBookId === b.id 
-                                ? 'border-black dark:border-white bg-white dark:bg-[#2a2a2a]' 
-                                : 'border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a]'
-                            }`}>
-                              <div className="flex items-center gap-3 flex-1">
-                                {/* Book Cover Preview */}
-                                <div className="flex-shrink-0 w-8 h-12 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center">
-                                  {b.coverUrl ? (
-                                    <img
-                                      src={b.coverUrl}
-                                      alt="Book cover"
-                                      className="w-full h-full object-cover rounded"
-                                    />
-                                  ) : (
-                                    <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4 text-gray-400 dark:invert" />
-                                  )}
-                                </div>
-                                <button
-                                  className="flex-1 text-left outline-none focus:outline-none focus-visible:outline-none border-none focus:border-none bg-transparent"
-                                  style={{ boxShadow: 'none', border: 'none', outline: 'none' }}
-                                  onClick={() => {
-                                    setSelectedBookId(selectedBookId === b.id ? null : b.id);
-                                  }}
-                                  title={b.title}
-                                >
-                                  <div className={`font-semibold ${
-                                    selectedBookId === b.id 
-                                      ? 'text-gray-900 dark:text-gray-100' 
-                                      : 'text-gray-600 dark:text-gray-400'
-                                  }`}>{b.title || "Untitled"}</div>
-                                  <div className="text-sm text-gray-500 dark:text-gray-400">{b.author}</div>
-                                  <div className="text-xs text-gray-400 dark:text-gray-500">{new Date(b.savedAt).toLocaleString()}</div>
-                                </button>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <button
-                                  className={`px-2 py-1 text-xs font-medium outline-none focus:outline-none focus-visible:outline-none border-none focus:border-none transition-colors ${
-                                    selectedBookId === b.id 
-                                      ? 'text-black dark:text-white underline hover:no-underline' 
-                                      : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                                  }`}
-                                  onClick={() => {
-                                    if (selectedBookId === b.id) {
-                                      handleLoadBook(b.id);
-                                      setMobileSidebarOpen(false);
-                                      setSelectedBookId(null);
-                                    }
-                                  }}
-                                  disabled={selectedBookId !== b.id}
-                                  title={selectedBookId === b.id ? "Load selected book" : "Select book first"}
-                                >
-                                  Load
-                                </button>
-                                <button
-                                  className={`p-1 outline-none focus:outline-none focus-visible:outline-none border-none focus:border-none transition-opacity ${
-                                    selectedBookId === b.id
-                                      ? 'opacity-100 hover:opacity-70'
-                                      : 'opacity-40 hover:opacity-70'
-                                  }`}
-                                  style={{ boxShadow: 'none', border: 'none', outline: 'none' }}
-                                  onClick={() => handleDeleteBook(b.id)}
-                                  title="Delete book"
-                                >
-                                  <img 
-                                    src="/dark-bin-icon.svg" 
-                                    alt="Delete" 
-                                    className="w-4 h-4 hidden dark:block"
-                                  />
-                                  <TrashIcon className="w-4 h-4 dark:hidden" />
-                                </button>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  )}
-                </div>
+                {/* Note: All sections use same collapsible pattern as desktop */}
+                <div className="px-4 space-y-2 py-2">
                   
-                  {/* Scroll Indicator */}
-                  {showScrollIndicator && (
-                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-10">
-                      <div className="bg-white rounded-full p-2 shadow-lg border border-gray-200">
-                        <ChevronDown className="w-4 h-4 text-gray-600" />
+                  {/* Library Section */}
+                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                    <div className="flex items-center justify-between py-2 px-2">
+                      <div className="flex items-center gap-2">
+                        <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">({libraryBooks.length})</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => {
+                            showNewBookConfirmation();
+                            setMobileSidebarOpen(false);
+                          }}
+                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          title="New book"
+                        >
+                          <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                        </button>
+                        <button
+                          onClick={() => setSidebarLibraryExpanded(!sidebarLibraryExpanded)}
+                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          title={sidebarLibraryExpanded ? "Collapse" : "Expand"}
+                        >
+                          {sidebarLibraryExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 transform -rotate-90" />
+                          )}
+                        </button>
                       </div>
                     </div>
-                  )}
+                    
+                    {sidebarLibraryExpanded && (
+                      <div className={`mt-2 space-y-1 pl-2 ${libraryBooks.length > 4 ? 'max-h-[400px] overflow-y-auto pr-1' : ''}`}>
+                        {libraryBooks.length === 0 ? (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 py-4 px-2 text-center">
+                            No saved books yet
+                          </div>
+                        ) : (
+                          libraryBooks.map((book) => {
+                            const isSelected = selectedBookId === book.id;
+                            return (
+                              <div
+                                key={book.id}
+                                className={`group flex items-center justify-between py-2 px-2 rounded transition-colors ${
+                                  isSelected
+                                    ? 'bg-gray-100 dark:bg-[#2a2a2a]'
+                                    : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                                }`}
+                              >
+                                <button
+                                  onClick={() => setSelectedBookId(isSelected ? null : book.id)}
+                                  className="flex-1 text-left"
+                                >
+                                  <div className={`text-sm font-medium truncate ${
+                                    isSelected
+                                      ? 'text-gray-900 dark:text-gray-100'
+                                      : 'text-gray-600 dark:text-gray-400'
+                                  }`}>
+                                    {book.title || 'Untitled'}
+                                  </div>
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                    {book.author || 'Unknown'}
+                                  </div>
+                                </button>
+                                {isSelected && (
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      onClick={() => {
+                                        handleLoadBook(book.id);
+                                        setMobileSidebarOpen(false);
+                                        setSelectedBookId(null);
+                                      }}
+                                      className="px-2 py-1 text-xs rounded bg-black dark:bg-white text-white dark:text-black hover:opacity-80"
+                                    >
+                                      Load
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteBook(book.id)}
+                                      className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                                      title="Delete"
+                                    >
+                                      <TrashIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Book Details Section */}
+                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                    <div className="flex items-center justify-between py-2 px-2">
+                      <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <img src="/preview-icon.svg" alt="Details" className="w-5 h-5 dark:invert flex-shrink-0" />
+                          <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Book</span>
+                        </div>
+                        {title && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-7 truncate">
+                            {title}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => {
+                            handleSaveBook();
+                          }}
+                          disabled={!!saveFeedback}
+                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors disabled:opacity-60"
+                          title={saveFeedback ? "Saved!" : "Save book"}
+                        >
+                          <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleExportEPUB();
+                          }}
+                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          title="Export as EPUB"
+                        >
+                          <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                        </button>
+                        <button
+                          onClick={() => setSidebarBookDetailsExpanded(!sidebarBookDetailsExpanded)}
+                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          title={sidebarBookDetailsExpanded ? "Collapse details" : "Expand details"}
+                        >
+                          {sidebarBookDetailsExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {sidebarBookDetailsExpanded && (
+                      <div className="mt-2 space-y-3 pl-2 pr-2">
+                        {/* Title */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Title</label>
+                          <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            disabled={lockedSections.bookInfo}
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            placeholder="Book title"
+                          />
+                        </div>
+                        
+                        {/* Author */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Author</label>
+                          <input
+                            type="text"
+                            value={author}
+                            onChange={(e) => setAuthor(e.target.value)}
+                            disabled={lockedSections.bookInfo}
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            placeholder="Author name"
+                          />
+                        </div>
+                        
+                        {/* Blurb */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Description</label>
+                          <textarea
+                            value={blurb}
+                            onChange={(e) => setBlurb(e.target.value)}
+                            disabled={lockedSections.bookInfo}
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] resize-none"
+                            placeholder="Brief description"
+                            rows={3}
+                          />
+                        </div>
+                        
+                        {/* Publisher */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Publisher</label>
+                          <input
+                            type="text"
+                            value={publisher}
+                            onChange={(e) => setPublisher(e.target.value)}
+                            disabled={lockedSections.bookInfo}
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            placeholder="Publisher name"
+                          />
+                        </div>
+                        
+                        {/* Publication Date */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Publication Date</label>
+                          <input
+                            type="date"
+                            value={pubDate}
+                            onChange={(e) => setPubDate(e.target.value)}
+                            disabled={lockedSections.bookInfo}
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                          />
+                        </div>
+                        
+                        {/* Language */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Language</label>
+                          <select
+                            value={language}
+                            onChange={(e) => setLanguage(e.target.value)}
+                            disabled={lockedSections.bookInfo}
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                          >
+                            {LANGUAGES.map((lang) => (
+                              <option key={lang} value={lang}>
+                                {lang}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        
+                        {/* Genre */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Genre</label>
+                          <input
+                            type="text"
+                            value={genre}
+                            onChange={(e) => setGenre(e.target.value)}
+                            disabled={lockedSections.bookInfo}
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            placeholder="e.g. Fiction, Mystery"
+                          />
+                        </div>
+                        
+                        {/* ISBN */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">ISBN</label>
+                          <input
+                            type="text"
+                            value={isbn}
+                            onChange={(e) => setIsbn(e.target.value)}
+                            disabled={lockedSections.bookInfo}
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            placeholder="ISBN number"
+                          />
+                        </div>
+                        
+                        {/* Tags */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tags</label>
+                          <div className="flex gap-2 mb-2">
+                            <input
+                              type="text"
+                              value={tagInput}
+                              onChange={(e) => setTagInput(e.target.value)}
+                              onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+                              disabled={lockedSections.bookInfo}
+                              className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                              placeholder="Add tag"
+                            />
+                            <button
+                              onClick={handleAddTag}
+                              disabled={lockedSections.bookInfo}
+                              className="px-3 py-2 rounded bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                            >
+                              <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                            </button>
+                          </div>
+                          {tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {tags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-gray-100 dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5]"
+                                >
+                                  {tag}
+                                  <button
+                                    onClick={() => handleRemoveTag(tag)}
+                                    className="hover:text-red-500 dark:hover:text-red-400"
+                                  >
+                                    ×
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Cover Image */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Cover Image</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleCoverChange}
+                            disabled={lockedSections.bookInfo}
+                            className="w-full text-sm text-gray-600 dark:text-gray-400 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed"
+                          />
+                          {coverFile && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {coverFile.name}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Chapters Section */}
+                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                    <div className="flex items-center justify-between py-2 px-2">
+                      <div className="flex items-center gap-2">
+                        <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
+                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Chapters</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">({chapters.length})</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="relative">
+                          <button
+                            onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
+                            className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                            title="Add chapter"
+                          >
+                            <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                          </button>
+                          
+                          {chapterTypeDropdownOpen && (
+                            <div className="absolute right-0 top-full mt-1 w-56 bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 py-2 max-h-96 overflow-y-auto">
+                              <div className="space-y-3 px-2">
+                                {/* Front Matter */}
+                                <div>
+                                  <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                                    Front Matter
+                                  </div>
+                                  {CHAPTER_TEMPLATES.frontmatter.map((template) => (
+                                    <button
+                                      key={template.title}
+                                      onClick={() => {
+                                        handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
+                                        setChapterTypeDropdownOpen(false);
+                                        setMobileSidebarOpen(false);
+                                      }}
+                                      className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                                    >
+                                      {template.title}
+                                    </button>
+                                  ))}
+                                </div>
+                                
+                                {/* Main Content */}
+                                <div>
+                                  <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                                    Main Content
+                                  </div>
+                                  {CHAPTER_TEMPLATES.content.map((template) => (
+                                    <button
+                                      key={template.title}
+                                      onClick={() => {
+                                        handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
+                                        setChapterTypeDropdownOpen(false);
+                                        setMobileSidebarOpen(false);
+                                      }}
+                                      className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                                    >
+                                      {template.title}
+                                    </button>
+                                  ))}
+                                </div>
+                                
+                                {/* Back Matter */}
+                                <div>
+                                  <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                                    Back Matter
+                                  </div>
+                                  {CHAPTER_TEMPLATES.backmatter.map((template) => (
+                                    <button
+                                      key={template.title}
+                                      onClick={() => {
+                                        handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
+                                        setChapterTypeDropdownOpen(false);
+                                        setMobileSidebarOpen(false);
+                                      }}
+                                      className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                                    >
+                                      {template.title}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => setSidebarChaptersExpanded(!sidebarChaptersExpanded)}
+                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          title={sidebarChaptersExpanded ? "Collapse chapters" : "Expand chapters"}
+                        >
+                          {sidebarChaptersExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {sidebarChaptersExpanded && (
+                      <div className="mt-1 space-y-1 pl-2">
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 px-2 mb-1">Drag to reorder</p>
+                        {chapters.map((ch, i) => {
+                          const isSelected = selectedChapter === i;
+                          const titleText = ch.title?.trim() || 'Title';
+                          
+                          const getChapterInfo = () => {
+                            if (ch.type === 'frontmatter') {
+                              return {
+                                typeLabel: 'Frontmatter',
+                                title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                              };
+                            }
+                            if (ch.type === 'backmatter') {
+                              return {
+                                typeLabel: 'Backmatter',
+                                title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                              };
+                            }
+                            const contentChapterNum = getContentChapterNumber(chapters, i);
+                            return {
+                              typeLabel: `Chapter ${contentChapterNum}`,
+                              title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                            };
+                          };
+
+                          const { typeLabel, title: chapterTitle } = getChapterInfo();
+                          
+                          return (
+                            <div
+                              key={ch.id}
+                              className={`group flex items-center gap-2 px-2 py-2 rounded text-sm transition-all cursor-pointer select-none ${
+                                dragOverIndex === i
+                                  ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                                  : isSelected
+                                    ? 'bg-gray-100 dark:bg-[#2a2a2a] border border-transparent'
+                                    : 'border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                              }`}
+                              style={{
+                                opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
+                              } as React.CSSProperties}
+                              draggable
+                              onDragStart={() => handleDragStart(i)}
+                              onDragEnter={() => handleDragEnter(i)}
+                              onDragEnd={handleDragEnd}
+                              onDragOver={(e) => e.preventDefault()}
+                              onTouchStart={(e) => handleTouchStart(i, e)}
+                              onTouchMove={(e) => handleTouchMove(i, e)}
+                              onTouchEnd={handleTouchEnd}
+                              onClick={() => {
+                                handleSelectChapter(i);
+                                setMobileSidebarOpen(false);
+                              }}
+                            >
+                              <HandleDragIcon isSelected={isSelected} />
+                              <div className="flex flex-col flex-1 min-w-0">
+                                <span className={`text-[10px] ${isSelected ? 'text-gray-400 dark:text-gray-400' : 'text-gray-500 dark:text-gray-500'}`}>
+                                  {typeLabel}
+                                </span>
+                                <span className={`text-sm truncate ${isSelected ? 'text-gray-900 dark:text-gray-100 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
+                                  {chapterTitle}
+                                </span>
+                              </div>
+                              {chapters.length > 1 && (
+                                <button
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveChapter(i);
+                                  }}
+                                  aria-label="Delete chapter"
+                                >
+                                  <BinIcon
+                                    className="w-4 h-4"
+                                    stroke={isSelected ? "#050505" : "#666666"}
+                                  />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Preview Section */}
+                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                    <button
+                      onClick={() => setSidebarPreviewExpanded(!sidebarPreviewExpanded)}
+                      className="w-full flex items-center justify-between py-2 px-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert" />
+                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Preview</span>
+                      </div>
+                      {sidebarPreviewExpanded ? (
+                        <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      )}
+                    </button>
+                    
+                    {sidebarPreviewExpanded && (
+                      <div className="mt-2 px-2">
+                        {/* Cover Preview */}
+                        <div className="mb-4 flex justify-center">
+                          <div className="w-32 h-48 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden">
+                            {coverUrl ? (
+                              <img
+                                src={coverUrl}
+                                alt="Book cover"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <img src="/preview-icon.svg" alt="No cover" className="w-8 h-8 opacity-40 dark:invert" />
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Book Info */}
+                        <div className="space-y-2 text-sm">
+                          <div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Title</div>
+                            <div className="font-medium text-[#050505] dark:text-[#e5e5e5]">{title || 'Untitled'}</div>
+                          </div>
+                          
+                          <div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Author</div>
+                            <div className="text-[#050505] dark:text-[#e5e5e5]">{author || 'Unknown'}</div>
+                          </div>
+                          
+                          {pubDate && (
+                            <div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Publication Date</div>
+                              <div className="text-[#050505] dark:text-[#e5e5e5]">{new Date(pubDate).toLocaleDateString()}</div>
+                            </div>
+                          )}
+                          
+                          {language && (
+                            <div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Language</div>
+                              <div className="flex items-center gap-2">
+                                <img src="/dark-languages-icon.svg" className="w-4 h-4 hidden dark:block" alt="" />
+                                <img src="/languages-icon.svg" className="w-4 h-4 dark:hidden" alt="" />
+                                <span className="text-[#050505] dark:text-[#e5e5e5]">{language}</span>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {genre && (
+                            <div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Genre</div>
+                              <div className="text-[#050505] dark:text-[#e5e5e5]">{genre}</div>
+                            </div>
+                          )}
+                          
+                          {tags.length > 0 && (
+                            <div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Tags</div>
+                              <div className="flex flex-wrap gap-1">
+                                {tags.map((tag) => (
+                                  <span
+                                    key={tag}
+                                    className="inline-block px-2 py-0.5 text-xs rounded bg-gray-100 dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5]"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Stats */}
+                        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-500 dark:text-gray-400">Chapters</span>
+                            <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{chapters.length}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-500 dark:text-gray-400">Words</span>
+                            <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{totalWords.toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-500 dark:text-gray-400">Pages</span>
+                            <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{pageCount}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-500 dark:text-gray-400">Reading Time</span>
+                            <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">
+                              {readingTime} {readingTime === 1 ? 'minute' : 'minutes'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Footer - Sticky */}
+              <div className="flex-shrink-0 pt-4 pb-4 px-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between px-2 py-2">
+                  {/* User Dropdown - reuse from CollapsibleSidebar */}
+                  <UserDropdownMobile />
+                  <ThemeToggle />
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
         {/* Mobile Chapters Panel */}
-        <div className={`fixed top-[64px] right-0 bottom-0 z-[100] lg:hidden transition-all duration-300 ease-out ${
+        <div className={`fixed top-0 right-0 bottom-0 z-[100] lg:hidden transition-all duration-300 ease-out ${
           mobileChaptersOpen ? 'visible' : 'invisible'
         }`} style={{ left: 0 }}>
           {/* Backdrop */}
@@ -1072,16 +1445,12 @@ function MakeEbookPage() {
                       <div
                         key={i}
                         ref={el => { chapterRefs.current[i] = el }}
-                        className={`flex items-center gap-2 px-3 py-2 rounded text-sm font-medium transition-all cursor-pointer select-none group relative focus:outline-none ${
+                        className={`group flex items-center gap-2 px-3 py-2 rounded text-sm transition-all cursor-pointer select-none relative focus:outline-none ${
                           dragOverIndex === i 
-                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
+                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20' 
                             : isSelected
-                              ? 'border'
-                              : 'border-2 border-transparent'
-                        } ${
-                          isSelected 
-                            ? "bg-[#181a1d] dark:bg-[#2a2a2a] text-white shadow-sm" 
-                            : "bg-[#F7F7F7] dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5] hover:bg-[#F2F2F2] dark:hover:bg-[#3a3a3a]"
+                              ? 'bg-gray-100 dark:bg-[#2a2a2a] border border-transparent'
+                              : 'border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
                         }`}
                         style={{ 
                           userSelect: 'none', 
@@ -1090,14 +1459,6 @@ function MakeEbookPage() {
                           // @ts-ignore - WebkitUserDrag is valid but not in TypeScript types
                           WebkitUserDrag: 'none',
                           opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
-                          ...(isSelected && dragOverIndex !== i
-                            ? {
-                                borderWidth: '1px',
-                                borderStyle: 'solid',
-                                borderImage: 'linear-gradient(45deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%) 1',
-                                borderRadius: '2px',
-                              }
-                            : {}),
                         } as React.CSSProperties}
                         draggable
                         onDragStart={() => handleDragStart(i)}
@@ -1110,21 +1471,17 @@ function MakeEbookPage() {
                         onClick={() => handleSelectChapter(i)}
                       >
                         <HandleDragIcon isSelected={isSelected} />
-                        <div className="flex flex-col items-start gap-0 flex-1 justify-center min-w-0">
-                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'}`}>
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span className={`text-[10px] ${isSelected ? 'text-gray-400 dark:text-gray-400' : 'text-gray-500 dark:text-gray-500'}`}>
                             {typeLabel}
                           </span>
-                          <span className={`text-sm font-medium truncate w-full ${isSelected ? 'text-white' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
+                          <span className={`text-sm truncate ${isSelected ? 'text-gray-900 dark:text-gray-100 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
                             {title}
                           </span>
                         </div>
                         {chapters.length > 1 && (
                           <button
-                            className={`ml-1 p-1 rounded transition focus:outline-none flex-shrink-0 ${
-                              isSelected 
-                                ? "hover:bg-white/10 text-white/65 hover:text-white" 
-                                : "hover:bg-black/10 text-[#050505]/65 hover:text-[#050505] dark:text-[#e5e5e5]/65 dark:hover:text-[#e5e5e5]"
-                            }`}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleRemoveChapter(i);
@@ -1134,7 +1491,7 @@ function MakeEbookPage() {
                             <BinIcon 
                               key={`mobile-panel-bin-${i}-${isSelected}`}
                               className="w-4 h-4"
-                              stroke={isSelected ? "#ffffff" : "#050505"}
+                              stroke={isSelected ? "#050505" : "#666666"}
                             />
                           </button>
                         )}
@@ -1243,408 +1600,121 @@ function MakeEbookPage() {
         </div>
 
         {/* Main layout: Mobile-optimized */}
-        <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden">
+        <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
           {/* Desktop Sidebar - Hidden on Mobile */}
-          <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white dark:bg-[#1a1a1a] min-w-0 lg:min-w-[400px] lg:h-full overflow-y-auto shadow-sm mt-4 pl-2 pr-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
-            <nav className="flex items-center justify-center pb-2">
-              <div className="flex items-center justify-between px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg ml-2 mr-2">
-                <button
-                  className={`flex items-center gap-2 px-3 py-2 rounded-full outline-none focus:outline-none transition-opacity flex-shrink-0 ${tab === 'setup' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                  onClick={() => setTab('setup')}
-                  type="button"
-                  aria-label="Details"
-                >
-                  <MetadataIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-                  <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Details</span>
-                </button>
-                <button
-                  className={`flex items-center gap-2 px-3 py-2 rounded-full outline-none focus:outline-none transition-opacity flex-shrink-0 ${tab === 'preview' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                  onClick={() => setTab('preview')}
-                  type="button"
-                  aria-label="Summary"
-                >
-                  <img src="/summary-icon.svg" alt="Summary" className="w-5 h-5 dark:invert" />
-                  <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Summary</span>
-                </button>
-                <button
-                  className={`flex items-center gap-2 px-3 py-2 rounded-full outline-none focus:outline-none transition-opacity flex-shrink-0 ${tab === 'library' ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                  onClick={() => setTab('library')}
-                  type="button"
-                  aria-label="Library"
-                >
-                  <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-                  <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Library</span>
-                </button>
-              </div>
-            </nav>
-            <div className="flex-1 overflow-y-auto">
-              {tab === "setup" && (
-                <MetaTabContent
-                  title={title}
-                  setTitle={setTitle}
-                  author={author}
-                  setAuthor={setAuthor}
-                  blurb={blurb}
-                  setBlurb={setBlurb}
-                  publisher={publisher}
-                  setPublisher={setPublisher}
-                  pubDate={pubDate}
-                  setPubDate={setPubDate}
-                  isbn={isbn}
-                  setIsbn={setIsbn}
-                  language={language}
-                  setLanguage={setLanguage}
-                  genre={genre}
-                  setGenre={setGenre}
-                  tags={tags}
-                  setTags={setTags}
-                  tagInput={tagInput}
-                  setTagInput={setTagInput}
-                  coverFile={coverFile}
-                  setCoverFile={setCoverFile}
-                  lockedSections={lockedSections}
-                  setLockedSections={setLockedSections}
-                  handleAddTag={handleAddTag}
-                  handleRemoveTag={handleRemoveTag}
-                  handleCoverChange={handleCoverChange}
-                  // ...existing code...
-                />
-              )}
-              {tab === "preview" && (
-                <PreviewPanel
-                  coverUrl={coverUrl}
-                  title={title}
-                  author={author}
-                  pubDate={pubDate}
-                  language={language}
-                  genre={genre}
-                  tags={tags}
-                  chapters={chapters}
-                  totalWords={totalWords}
-                  pageCount={pageCount}
-                  readingTime={readingTime}
-                />
-              )}
-              {tab === "preview" && (
-                <PreviewPanel
-                  coverUrl={coverUrl}
-                  title={title}
-                  author={author}
-                  pubDate={pubDate}
-                  language={language}
-                  genre={genre}
-                  tags={tags}
-                  chapters={chapters}
-                  totalWords={totalWords}
-                  pageCount={pageCount}
-                  readingTime={readingTime}
-                />
-              )}
-              {/* {tab === "ai" && <AiTabContent />} */}
-              {tab === "library" && (
-                <div className="space-y-4">
-                  {libraryBooks.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Image
-                        src="/caveman.svg"
-                        alt="makeEbook caveman"
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 mx-auto mb-4 opacity-60"
-                      />
-                      <p className="text-gray-500">
-                        Why not write your first masterpiece?<br />
-                        <span className="text-sm">The Biscuit Thief. Chapter one: The Thief Grows Peckish!📚</span>
-                      </p>
-                    </div>
-                  ) : (
-                    <ul className="space-y-2">
-                      {libraryBooks.map((b: any) => (
-                        <li key={b.id} className={`flex items-center justify-between p-3 border rounded transition-colors ${
-                          selectedBookId === b.id 
-                            ? 'border-black dark:border-white bg-white dark:bg-[#2a2a2a]' 
-                            : 'border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a]'
-                        }`}>
-                          <div className="flex items-center gap-3 flex-1">
-                            {/* Book Cover Preview */}
-                            <div className="flex-shrink-0 w-8 h-12 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center">
-                              {b.coverUrl ? (
-                                <img
-                                  src={b.coverUrl}
-                                  alt="Book cover"
-                                  className="w-full h-full object-cover rounded"
-                                />
-                              ) : (
-                                <img src="/preview-icon.svg" alt="Preview" className="w-4 h-4 text-gray-400 dark:invert" />
-                              )}
-                            </div>
-                            <button
-                              className="flex-1 text-left focus:outline-none border-none bg-transparent"
-                              onClick={() => {
-                                setSelectedBookId(selectedBookId === b.id ? null : b.id);
-                              }}
-                              title={b.title}
-                            >
-                              <div className={`font-semibold ${
-                                selectedBookId === b.id 
-                                  ? 'text-gray-900 dark:text-gray-100' 
-                                  : 'text-gray-600 dark:text-gray-400'
-                              }`}>{b.title || "Untitled"}</div>
-                              <div className="text-sm text-gray-500 dark:text-gray-400">{b.author}</div>
-                              <div className="text-xs text-gray-400 dark:text-gray-500">{new Date(b.savedAt).toLocaleString()}</div>
-                            </button>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <button
-                              className={`px-2 py-1 text-xs font-medium focus:outline-none transition-colors ${
-                                selectedBookId === b.id 
-                                  ? 'text-black dark:text-white underline hover:no-underline' 
-                                  : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                              }`}
-                              onClick={() => {
-                                if (selectedBookId === b.id) {
-                                  handleLoadBook(b.id);
-                                  setSelectedBookId(null);
-                                }
-                              }}
-                              disabled={selectedBookId !== b.id}
-                              title={selectedBookId === b.id ? "Load selected book" : "Select book first"}
-                            >
-                              Load
-                            </button>
-                            <button
-                              className={`p-1 focus:outline-none transition-opacity ${
-                                selectedBookId === b.id
-                                  ? 'opacity-100 hover:opacity-70'
-                                  : 'opacity-40 hover:opacity-70'
-                              }`}
-                              onClick={() => handleDeleteBook(b.id)}
-                              title="Delete book"
-                            >
-                              <img 
-                                src="/dark-bin-icon.svg" 
-                                alt="Delete" 
-                                className="w-4 h-4 hidden dark:block"
-                              />
-                              <TrashIcon className="w-4 h-4 dark:hidden" />
-                            </button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-            </div>
-          </aside>
+          <CollapsibleSidebar
+            libraryBooks={libraryBooks}
+            selectedBookId={selectedBookId}
+            setSelectedBookId={setSelectedBookId}
+            handleLoadBook={handleLoadBook}
+            handleDeleteBook={handleDeleteBook}
+            showNewBookConfirmation={showNewBookConfirmation}
+            chapters={chapters}
+            selectedChapter={selectedChapter}
+            handleSelectChapter={handleSelectChapter}
+            handleAddChapter={handleAddChapter}
+            handleRemoveChapter={handleRemoveChapter}
+            handleDragStart={handleDragStart}
+            handleDragEnter={handleDragEnter}
+            handleDragEnd={handleDragEnd}
+            handleTouchStart={handleTouchStart}
+            handleTouchMove={handleTouchMove}
+            handleTouchEnd={handleTouchEnd}
+            dragOverIndex={dragOverIndex}
+            dragItemIndex={dragItemIndex}
+            ghostPillPosition={ghostPillPosition}
+            getContentChapterNumber={getContentChapterNumber}
+            title={title}
+            setTitle={setTitle}
+            author={author}
+            setAuthor={setAuthor}
+            blurb={blurb}
+            setBlurb={setBlurb}
+            publisher={publisher}
+            setPublisher={setPublisher}
+            pubDate={pubDate}
+            setPubDate={setPubDate}
+            isbn={isbn}
+            setIsbn={setIsbn}
+            language={language}
+            setLanguage={setLanguage}
+            genre={genre}
+            setGenre={setGenre}
+            tags={tags}
+            handleAddTag={handleAddTag}
+            handleRemoveTag={handleRemoveTag}
+            tagInput={tagInput}
+            setTagInput={setTagInput}
+            coverFile={coverFile}
+            handleCoverChange={handleCoverChange}
+            lockedSections={lockedSections}
+            coverUrl={coverUrl}
+            totalWords={totalWords}
+            pageCount={pageCount}
+            readingTime={readingTime}
+            handleSaveBook={handleSaveBook}
+            handleExportEPUB={handleExportEPUB}
+            saveFeedback={saveFeedback}
+            sidebarLibraryExpanded={sidebarLibraryExpanded}
+            setSidebarLibraryExpanded={setSidebarLibraryExpanded}
+            sidebarPreviewExpanded={sidebarPreviewExpanded}
+            setSidebarPreviewExpanded={setSidebarPreviewExpanded}
+            sidebarChaptersExpanded={sidebarChaptersExpanded}
+            setSidebarChaptersExpanded={setSidebarChaptersExpanded}
+            sidebarBookDetailsExpanded={sidebarBookDetailsExpanded}
+            setSidebarBookDetailsExpanded={setSidebarBookDetailsExpanded}
+          />
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className="flex-1 flex flex-col bg-white dark:bg-[#1a1a1a] rounded shadow-sm mt-4 px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
-            {/* Mobile Dashboard Button - Fixed Position */}
-            {!mobileSidebarOpen && !mobileChaptersOpen && (
-              <div className="lg:hidden fixed top-[80px] left-2 z-10 pb-4 mb-20">
-                <button
-                  onClick={() => setMobileSidebarOpen(true)}
-                  className="flex items-center justify-center px-5 py-4 rounded-full bg-white dark:bg-[#1a1a1a] gap-2 focus:outline-none transition-opacity ml-[-20px] relative"
-                  aria-label="Dashboard and Library sidebar menu"
-                  style={{ minWidth: 56, minHeight: 56 }}
-                >
-                  <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
-                  <img alt="Dashboard and Library" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5 dark:invert" style={{ color: 'transparent', zIndex: 2 }} src="/open-sidebar-icon.svg" />
-                  <span className="text-base font-medium text-[#050505] dark:text-[#e5e5e5] underline" style={{ zIndex: 2 }}>Open Dashboard &amp; Library</span>
-                </button>
-              </div>
-            )}
-
-
-            {/* Mobile Book Title Input */}
-            <div className="lg:hidden mb-4 flex-shrink-0 ml-0 mt-20">
-              {/* Action Buttons Panel */}
-              {/* Mobile: Three dots menu for actions */}
-              <div className="flex items-center justify-between lg:hidden mb-3 relative z-10">
-                <div className="flex items-center gap-2">
-                  <img alt="Preview" className="w-5 h-5 dark:invert" src="/preview-icon.svg" />
-                  <span className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Book title</span>
-                </div>
-                <div className="relative dropdown inline-block text-right">
-                  <button
-                    aria-label="Show actions menu"
-                    className="flex items-center justify-center w-18 h-18 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg"
-                    onClick={() => setShowActionsMenu((prev: boolean) => !prev)}
-                  >
-                    <img alt="Three Dots" loading="lazy" width="20" height="20" decoding="async" style={{ color: 'transparent' }} className="w-4 h-4 dark:invert" src="/three-dots-icon.svg" />
-                  </button>
-                  {showActionsMenu && (
-                    <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                      <button
-                        onClick={() => { showNewBookConfirmation(); setShowActionsMenu(false); }}
-                        className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-[#F2F2F2] border-b border-gray-100"
-                        type="button"
-                      >
-                        <PlusIcon className="w-5 h-5" /> New Book
-                      </button>
-                      <button
-                        onClick={() => { handleSaveBook(); setShowActionsMenu(false); }}
-                        className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-[#F2F2F2] border-b border-gray-100"
-                        type="button"
-                        aria-label="Save Book"
-                        disabled={!!saveFeedback}
-                      >
-                        <SaveIcon className="w-5 h-5" /> {saveFeedback ? "Saved!" : "Save"}
-                      </button>
-                      <button
-                        onClick={() => { handleExportEPUB(); setShowActionsMenu(false); }}
-                        className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-[#F2F2F2]"
-                        type="button"
-                      >
-                        <DownloadIcon className="w-5 h-5" /> Export
-                      </button>
+          <main className="flex-1 flex flex-col bg-white dark:bg-[#1a1a1a] rounded shadow-sm px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
+            
+            {/* Mobile Header - Logo + Menu Button */}
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between px-4 py-3 gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <Image
+                    src="/make-ebook-logomark.svg"
+                    alt="makeEbook"
+                    width={100}
+                    height={39}
+                    className="h-[39px] w-[100px] dark:invert flex-shrink-0"
+                    priority
+                  />
+                  {title && (
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Editing:</div>
+                      <div className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5] truncate">
+                        {title}
+                      </div>
                     </div>
                   )}
                 </div>
-              </div>
-              {/* Desktop: Keep original toolbar */}
-              <div className="mb-3 flex items-center justify-center hidden lg:flex">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg">
+                {!mobileSidebarOpen && (
                   <button
-                    onClick={() => {
-                      showNewBookConfirmation();
-                    }}
-                    className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
-                    type="button"
+                    onClick={() => setMobileSidebarOpen(true)}
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
+                    aria-label="Open menu"
                   >
-                    <PlusIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-                    <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">New Book</span>
+                    <MenuIcon className="w-6 h-6 dark:[&_path]:stroke-white" />
                   </button>
-                  <button
-                    onClick={handleSaveBook}
-                    className={`hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none ${!!saveFeedback ? 'opacity-60 cursor-not-allowed' : ''}`}
-                    type="button"
-                    aria-label="Save Book"
-                    disabled={!!saveFeedback}
-                  >
-                    <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-                    <span className={`text-xs font-medium text-[#050505] dark:text-[#e5e5e5] transition-all ${saveFeedback ? "text-green-600 dark:text-green-400 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleExportEPUB();
-                    }}
-                    className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
-                    type="button"
-                  >
-                    <DownloadIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-                    <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Export</span>
-                  </button>
-                </div>
-              </div>
-              {/* Book Heading and Title Input Below Panel */}
-              <div className="mt-4">
-                <div className="flex items-center gap-3">
-                  {lockedSections.bookInfo && (
-                    <LockIcon className="w-5 h-5 opacity-60" />
-                  )}
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    disabled={lockedSections.bookInfo}
-                    className="text-lg font-medium bg-white dark:bg-[#1a1a1a] border border-transparent focus:border-black dark:focus:border-white outline-none focus:outline-none focus:ring-0 flex-1 disabled:cursor-not-allowed px-2 py-1 rounded placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] text-[#23242a] dark:text-[#e5e5e5]"
-                    style={{ 
-                      color: lockedSections.bookInfo ? "#737373" : undefined,
-                      boxShadow: "none"
-                    }}
-                    placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Give your book a title..."}
-                  />
-                </div>
-                {/* Open Chapters Button - Right Aligned */}
-                {!mobileChaptersOpen && (
-                  <div className="flex justify-end mt-8">
-                    <button
-                      onClick={() => setMobileChaptersOpen(true)}
-                      className="flex items-center justify-center px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] gap-2 focus:outline-none transition-opacity border border-gray-200 dark:border-gray-700 shadow-md"
-                      aria-label="Open chapters menu"
-                    >
-                      <img alt="Chapters" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-4 h-4 dark:invert" style={{ color: 'transparent' }} src="/chapters-icon.svg" />
-                      <span className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5]">Open Chapters</span>
-                    </button>
-                  </div>
                 )}
               </div>
             </div>
 
             {/* Desktop Header with Title and Toolbar */}
             <div className="hidden lg:block">
-              {/* Book Heading */}
-              <div className="mb-2">
-                <div className="flex items-center gap-2">
-                  <img src="/preview-icon.svg" alt="Book" className="w-5 h-5 dark:invert" />
-                  <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Book title</h3>
-                </div>
-              </div>
-              <div className="mb-3 pb-2">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-3 flex-1">
-                    {lockedSections.bookInfo && (
-                      <LockIcon className="w-5 h-5 opacity-60" />
-                    )}
-                    <input
-                      type="text"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      disabled={lockedSections.bookInfo}
-                      className="text-lg font-medium bg-white dark:bg-[#1a1a1a] border border-transparent focus:border-black dark:focus:border-white outline-none focus:outline-none focus:ring-0 flex-1 disabled:cursor-not-allowed px-2 py-1 rounded placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] text-[#23242a] dark:text-[#e5e5e5]"
-                      style={{ 
-                        color: lockedSections.bookInfo ? "#737373" : undefined,
-                        boxShadow: "none"
-                      }}
-                      placeholder={lockedSections.bookInfo ? "Book title (locked)" : "Give your book a title..."}
-                    />
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 shadow-lg">
-                      <button
-                        onClick={showNewBookConfirmation}
-                        className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
-                        type="button"
-                        aria-label="New Book"
-                      >
-                        <PlusIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">New Book</span>
-                      </button>
-                      <button
-                        onClick={handleSaveBook}
-                        className={`hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none ${!!saveFeedback ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        type="button"
-                        aria-label="Save Book"
-                        disabled={!!saveFeedback}
-                      >
-                        <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-                        <span className={`text-xs font-medium text-[#050505] dark:text-[#e5e5e5] transition-all ${saveFeedback ? "text-green-600 dark:text-green-400 font-semibold" : ""}`}>{saveFeedback ? "Saved!" : "Save"}</span>
-                      </button>
-                      <button
-                        onClick={handleExportEPUB}
-                        className="hover:opacity-70 transition-opacity flex items-center gap-2 px-3 py-2 rounded-full focus:outline-none"
-                        type="button"
-                        aria-label="Export Book"
-                      >
-                        <DownloadIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Export</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {/* Chapter content starts here */}
             </div>
 
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
-            <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto">
+            <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pt-16">
               {/* Compact Chapter Header */}
-              <div className="flex-shrink-0 bg-white dark:bg-[#1a1a1a] border-none pb-2">
+              <div className="flex-shrink-0 bg-white dark:bg-[#1a1a1a] border-none pb-2 px-2">
                 {/* Chapter Title Input */}
                 <div className="mt-0">
                   <div className="flex items-center gap-2 pb-2 mb-1">
-                    <img alt="Chapter" className="w-5 h-5 dark:invert" src="/chapters-icon.svg" />
+                    <img alt="Chapter" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
+                    <img alt="Chapter" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
                     <span className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapter title</span>
                   </div>
                   <input
@@ -1743,7 +1813,8 @@ function MakeEbookPage() {
                 {/* Compact Chapter Title Header */}
                 <div className="mb-1 flex-shrink-0 bg-white dark:bg-[#1a1a1a] pb-2">
                   <div className="flex items-center gap-2 pb-2 mb-1">
-                    <img alt="Chapter" className="w-5 h-5 dark:invert" src="/chapters-icon.svg" />
+                    <img alt="Chapter" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
+                    <img alt="Chapter" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" className="w-5 h-5 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
                     <span className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapter title</span>
                   </div>
                   <input
@@ -1836,229 +1907,76 @@ function MakeEbookPage() {
               </section>
             </div>
           </main>
-
-          {/* Right Sidebar - Chapters (Desktop Only) */}
-          <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white dark:bg-[#1a1a1a] min-w-0 lg:min-w-[320px] lg:max-w-[380px] lg:h-full overflow-y-auto shadow-sm mt-4 pr-2 pl-4 pb-4 gap-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
-            <div className="flex-1 overflow-y-auto lg:pt-0 pt-8">
-              <div className="flex flex-col gap-2">
-                <div className="mb-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
-                      <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">
-                        Chapters list
-                      </h3>
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-[#737373] dark:text-gray-400 mb-2">Drag to reorder</p>
-                </div>
-                
-                {/* Chapter Pills */}
-                <div className="flex flex-col gap-2 min-h-[8px]">
-                  {chapters.map((ch, i) => {
-                    const isSelected = selectedChapter === i;
-                    const titleText = ch.title?.trim() || 'Title';
-                    
-                    // Calculate chapter type label and title
-                    const getChapterInfo = () => {
-                      if (ch.type === 'frontmatter') {
-                        return {
-                          typeLabel: 'Frontmatter',
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      if (ch.type === 'backmatter') {
-                        return {
-                          typeLabel: 'Backmatter', 
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                        };
-                      }
-                      // Content chapters
-                      const contentChapterNum = getContentChapterNumber(chapters, i);
-                      return {
-                        typeLabel: `Chapter ${contentChapterNum}`,
-                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
-                      };
-                    };
-
-                    const { typeLabel, title } = getChapterInfo();
-                    return (
-                      <div
-                        key={i}
-                        data-chapter-idx={i}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium transition-all cursor-pointer select-none group relative focus:outline-none ${
-                          dragOverIndex === i 
-                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 scale-105 shadow-lg' 
-                            : isSelected
-                              ? 'border'
-                              : 'border-2 border-transparent'
-                        } ${
-                          isSelected 
-                            ? "bg-[#181a1d] dark:bg-[#2a2a2a] text-white shadow-sm" 
-                            : "bg-[#F7F7F7] dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5] hover:bg-[#F2F2F2] dark:hover:bg-[#3a3a3a]"
-                        }`}
-                        style={{ 
-                          userSelect: 'none', 
-                          WebkitUserSelect: 'none', 
-                          WebkitTouchCallout: 'none',
-                          // @ts-ignore - WebkitUserDrag is valid but not in TypeScript types
-                          WebkitUserDrag: 'none',
-                          opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
-                          ...(isSelected && dragOverIndex !== i
-                            ? {
-                                borderWidth: '1px',
-                                borderStyle: 'solid',
-                                borderImage: 'linear-gradient(45deg, #733F06 0%, #FEF3E7 50%, #B1916B 100%) 1',
-                                borderRadius: '2px',
-                              }
-                            : {}),
-                        } as React.CSSProperties}
-                        draggable
-                        onDragStart={() => handleDragStart(i)}
-                        onDragEnter={() => handleDragEnter(i)}
-                        onDragEnd={handleDragEnd}
-                        onDragOver={(e) => e.preventDefault()}
-                        onTouchStart={(e) => handleTouchStart(i, e)}
-                        onTouchMove={(e) => handleTouchMove(i, e)}
-                        onTouchEnd={handleTouchEnd}
-                        onClick={() => handleSelectChapter(i)}
-                      >
-                        <HandleDragIcon isSelected={isSelected} />
-                        <div className="flex flex-col items-start gap-0 flex-1 justify-center min-w-0">
-                          <span className={`text-[10px] font-normal ${isSelected ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'}`}>
-                            {typeLabel}
-                          </span>
-                          <span className={`text-xs font-medium truncate w-full ${isSelected ? 'text-white' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
-                            {title}
-                          </span>
-                        </div>
-                        {chapters.length > 1 && (
-                          <button
-                            className={`ml-1 p-1 rounded transition focus:outline-none flex-shrink-0 ${
-                              isSelected 
-                                ? "hover:bg-white/10 text-white/65 hover:text-white" 
-                                : "hover:bg-black/10 text-[#050505]/65 hover:text-[#050505] dark:text-[#e5e5e5]/65 dark:hover:text-[#e5e5e5]"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveChapter(i);
-                            }}
-                            aria-label="Delete Chapter"
-                          >
-                            <BinIcon 
-                              key={`desktop-right-bin-${i}-${isSelected}`}
-                              className="w-4 h-4"
-                              stroke={isSelected ? "#ffffff" : "#050505"}
-                            />
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                  
-                  {/* Add Chapter Button */}
-                  <div className="relative mt-2">
-                    <button
-                      onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
-                      aria-label="Add new chapter"
-                      className="hover:opacity-70 transition-opacity flex items-center gap-2 w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] rounded border border-gray-200 dark:border-gray-700 shadow-sm"
-                    >
-                      <PlusIcon className="w-4 h-4" />
-                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Add Chapter</span>
-                    </button>
-                    {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#1a1a1a] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
-                        <div className="p-3">
-                          <div className="space-y-4">
-                            <div>
-                              <div className="mb-3">
-                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">Front Matter</span>
-                                </h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.frontmatter.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="mb-3">
-                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">Main Content</span>
-                                </h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.content.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="mb-3">
-                                <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">Back Matter</span>
-                                </h4>
-                              </div>
-                              <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.backmatter.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </aside>
         </div>
 
         {/* Terms/Privacy links moved to mobile editor footer */}
       </div>
     </>
+  );
+}
+
+// User Dropdown Component for Mobile
+function UserDropdownMobile() {
+  const { user, signOut, loading } = useAuth();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button 
+          className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition px-0" 
+          aria-label="User menu"
+        >
+          <img
+            src="/user-icon.svg"
+            alt="user icon"
+            width={24}
+            height={24}
+            className="dark:invert"
+          />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56">
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">Account</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user.email}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="cursor-pointer"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>{loggingOut ? 'Logging out...' : 'Log out'}</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

@@ -5,13 +5,15 @@
     <style>
       .st0 {
         fill: none;
-        stroke: #fff;
+        stroke: #000;
         stroke-linecap: round;
         stroke-linejoin: round;
         stroke-width: 2px;
       }
     </style>
   </defs>
-  <path class="st0" d="M12,1.6h0c2.8,0,5,2.2,5,5h0c0,2.8-2.2,5-5,5h0c-2.8,0-5-2.2-5-5h0c0-2.8,2.2-5,5-5Z"/>
-  <path class="st0" d="M1.1,22.5h0c0-6,4.8-10.9,10.9-10.9h0c6,0,10.9,4.8,10.9,10.9h0"/>
+  <rect class="st0" x="1" y="1.1" width="8" height="8" rx="2" ry="2"/>
+  <rect class="st0" x="15" y="1" width="8" height="8" rx="2" ry="2"/>
+  <rect class="st0" x="1" y="15" width="8" height="8" rx="2" ry="2"/>
+  <rect class="st0" x="15" y="15" width="8" height="8" rx="2" ry="2"/>
 </svg>

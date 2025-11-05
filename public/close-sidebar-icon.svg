@@ -4,23 +4,22 @@
   <defs>
     <style>
       .st0 {
-        fill: none;
         stroke-linecap: round;
         stroke-linejoin: round;
       }
 
       .st0, .st1 {
+        fill: none;
         stroke: #000;
         stroke-width: 2px;
       }
 
       .st1 {
-        fill: #fff;
         stroke-miterlimit: 10;
       }
     </style>
   </defs>
-  <rect class="st0" x="1" y="4.1" width="22" height="15.9" rx="2" ry="2"/>
-  <line class="st1" x1="16.6" y1="19.9" x2="16.6" y2="4"/>
+  <rect class="st0" x="1" y="1.1" width="22" height="22" rx="2" ry="2"/>
+  <line class="st1" x1="16.6" y1="22.9" x2="16.6" y2="1"/>
   <path class="st0" d="M10.3,9.4l-3.3,1.9c-.5.3-.5,1.1,0,1.4l3.3,1.9"/>
 </svg>
