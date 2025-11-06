@@ -9,6 +9,7 @@ import Link from "next/link";
 import { PlusIcon, TrashIcon, LibraryIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, LockIcon, MetadataIcon, MenuIcon } from "./components/icons";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import LandingPage from "./components/LandingPage";
 import DragIcon from "./components/icons/DragIcon";
 import BinIcon from "./components/icons/BinIcon";
 import { LANGUAGES, today } from "./utils/constants";
@@ -300,11 +301,21 @@ function MakeEbookPage() {
     setGenre("");
     setTags([]);
     setCoverFile(null);
-    setChapters([]);
+    setChapters([
+      {
+        id: `chapter-${Date.now()}`,
+        title: "",
+        content: "",
+        type: "content",
+      },
+    ]);
     setEndnotes([]);
     setEndnoteReferences([]);
     setNextEndnoteNumber(1);
     setCurrentBookId(undefined);
+    setSelectedChapter(0);
+    // Open Book panel to enter details
+    setSidebarView('book');
   }
 
   function handleNewBookConfirm() {
@@ -339,6 +350,16 @@ function MakeEbookPage() {
   function handleNewBook() {
     // Legacy function for backwards compatibility
     handleNewBookConfirm();
+  }
+
+  function handleGoToHome() {
+    // Clear current book and show landing page
+    setChapters([]);
+    setTitle("");
+    setAuthor("");
+    setCurrentBookId(undefined);
+    setSelectedChapter(0);
+    setSidebarView(null); // Close any open panels
   }
 
   useEffect(() => {
@@ -1716,6 +1737,7 @@ function MakeEbookPage() {
             libraryCount={libraryBooks.length}
             chaptersCount={chapters.length}
             isPanelOpen={isPanelOpen}
+            onLogoClick={handleGoToHome}
           />
           
           {/* Desktop Sidebar - Hidden on Mobile, shows/hides based on isPanelOpen */}
@@ -1954,6 +1976,15 @@ function MakeEbookPage() {
 
             {/* DESKTOP layout */}
             <div className="hidden lg:flex flex-col gap-3 flex-1 min-h-0 overflow-y-auto">
+              {chapters.length === 0 ? (
+                // Landing Page - Show when no book is loaded
+                <LandingPage
+                  onNewBook={handleNewBook}
+                  onOpenLibrary={() => setSidebarView('library')}
+                  libraryCount={libraryBooks.length}
+                />
+              ) : (
+              <>
               {/* Editor Area - Prioritized for Writing */}
               <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2">
                 {/* Compact Chapter Title Header - Clean UI */}
@@ -2051,6 +2082,8 @@ function MakeEbookPage() {
                   </div>
                 </div>
               </section>
+              </>
+              )}
             </div>
           </main>
         </div>

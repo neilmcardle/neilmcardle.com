@@ -22,6 +22,7 @@ interface SlimSidebarNavProps {
   libraryCount: number;
   chaptersCount: number;
   isPanelOpen: boolean;
+  onLogoClick?: () => void;
 }
 
 // Tooltip Component
@@ -155,7 +156,7 @@ function ThemeToggleButton() {
   );
 }
 
-export default function SlimSidebarNav({ activeView, onViewChange, libraryCount, chaptersCount, isPanelOpen }: SlimSidebarNavProps) {
+export default function SlimSidebarNav({ activeView, onViewChange, libraryCount, chaptersCount, isPanelOpen, onLogoClick }: SlimSidebarNavProps) {
   
   const handleViewClick = (view: 'library' | 'book' | 'chapters' | 'preview') => {
     // If clicking the same view and panel is open, close it
@@ -172,14 +173,20 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
       {/* Logo at top */}
       <div className="flex-shrink-0 pt-6 pb-6">
         <Tooltip text="makeEBook">
-          <Image
-            src="/make-ebook-logo.svg"
-            alt="makeEBook"
-            width={40}
-            height={40}
-            className="w-10 h-10 dark:invert"
-            priority
-          />
+          <button
+            onClick={onLogoClick}
+            className="hover:opacity-70 transition-opacity"
+            aria-label="Go to home"
+          >
+            <Image
+              src="/make-ebook-logo.svg"
+              alt="makeEBook"
+              width={40}
+              height={40}
+              className="w-10 h-10 dark:invert"
+              priority
+            />
+          </button>
         </Tooltip>
       </div>
 
