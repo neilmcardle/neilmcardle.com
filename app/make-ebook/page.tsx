@@ -1752,8 +1752,9 @@ function MakeEbookPage() {
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
                     <input
-                      className="flex-1 bg-transparent text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:font-normal touch-manipulation min-w-0"
-                      placeholder="Chapter name"
+                      className="flex-1 bg-transparent text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#a0a0a0] placeholder:font-normal touch-manipulation min-w-0"
+                      style={{ border: 'none', backgroundColor: 'transparent', boxShadow: 'none' }}
+                      placeholder="Give your chapter a title..."
                       value={chapters[selectedChapter]?.title ?? ""}
                       onChange={(e) =>
                         handleChapterTitleChange(selectedChapter, e.target.value)
@@ -1876,8 +1877,9 @@ function MakeEbookPage() {
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 dark:hidden ml-1" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 hidden dark:block ml-1" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
                     <input
-                      className="flex-1 bg-transparent text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:font-normal min-w-0"
-                      placeholder="Chapter name"
+                      className="flex-1 bg-transparent text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#a0a0a0] placeholder:font-normal min-w-0"
+                      style={{ border: 'none', backgroundColor: 'transparent', boxShadow: 'none' }}
+                      placeholder="Give your chapter a title..."
                       value={chapters[selectedChapter]?.title ?? ""}
                       onChange={(e) =>
                         handleChapterTitleChange(selectedChapter, e.target.value)
