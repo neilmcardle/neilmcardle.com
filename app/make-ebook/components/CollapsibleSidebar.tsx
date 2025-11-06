@@ -860,9 +860,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
 
       {/* Footer with Theme Toggle and User Profile - Sticky */}
       <div className="flex-shrink-0 pt-4 pb-4 border-t border-gray-200 dark:border-gray-700 px-4">
-        <div className="flex items-center justify-between px-2 py-2">
+        <div className="flex items-center justify-between px-0 py-2">
           <UserDropdown />
-          <ThemeToggle />
+          <div className="pr-2">
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </aside>

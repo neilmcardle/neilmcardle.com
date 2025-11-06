@@ -1385,12 +1385,10 @@ function MakeEbookPage() {
 
               {/* Footer - Sticky */}
               <div className="flex-shrink-0 pt-4 pb-4 px-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between px-0 py-2">
+                <div className="flex items-center justify-between px-2 py-2">
                   {/* User Dropdown - reuse from CollapsibleSidebar */}
                   <UserDropdownMobile />
-                  <div style={{ marginRight: '-22px' }}>
-                    <ThemeToggle />
-                  </div>
+                  <ThemeToggle />
                 </div>
               </div>
             </div>
