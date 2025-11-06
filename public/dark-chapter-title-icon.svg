@@ -12,8 +12,5 @@
       }
     </style>
   </defs>
-  <line class="st0" x1="8" y1="8" x2="16" y2="8"/>
-  <line class="st0" x1="6" y1="12" x2="18" y2="12"/>
-  <line class="st0" x1="8" y1="16" x2="16" y2="16"/>
-  <rect class="st0" x="1" y="1" width="22" height="22"/>
+  <path class="st0" d="M3,10h18c1.1,0,2,.9,2,2h0c0,1.1-.9,2-2,2H3c-1.1,0-2-.9-2-2h0c0-1.1.9-2,2-2Z"/>
 </svg>

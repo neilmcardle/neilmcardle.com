@@ -23,6 +23,7 @@ import { useLockedSections } from "./hooks/useLockedSections";
 import { exportEpub } from "./utils/exportEpub";
 import RichTextEditor from "./components/RichTextEditor";
 import CollapsibleSidebar from "./components/CollapsibleSidebar";
+import SlimSidebarNav from "./components/SlimSidebarNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { 
   DropdownMenu, 
@@ -174,6 +175,10 @@ function MakeEbookPage() {
   } = useTags();
 
   const [tab, setTab] = useState<"setup" | "ai" | "preview" | "library">("setup");
+  const [sidebarView, setSidebarView] = useState<'library' | 'book' | 'chapters' | 'preview' | null>(null);
+  
+  // Derived state: panel is open when sidebarView is not null
+  const isPanelOpen = sidebarView !== null;
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -641,6 +646,30 @@ function MakeEbookPage() {
     }
   }
 
+  async function handleExportLibraryBook(id: string) {
+    const book = libraryBooks.find(b => b.id === id);
+    if (!book) return;
+    
+    // Ensure all chapters have IDs before export
+    const migratedChapters = ensureChapterIds(book.chapters);
+    const migratedEndnoteRefs = migrateEndnoteReferences(book.endnoteReferences || [], migratedChapters);
+    
+    await exportEpub({
+      title: book.title,
+      author: book.author,
+      blurb: book.blurb,
+      publisher: book.publisher,
+      pubDate: book.pubDate,
+      isbn: book.isbn,
+      language: book.language,
+      genre: book.genre,
+      tags: book.tags,
+      coverFile: null, // Library books don't store the actual File object
+      chapters: migratedChapters,
+      endnoteReferences: migratedEndnoteRefs,
+    });
+  }
+
   const totalWords = chapters.reduce(
     (sum, ch) => sum + (plainText(ch.content).split(/\s+/).filter(Boolean).length || 0),
     0
@@ -829,8 +858,25 @@ function MakeEbookPage() {
                                         setSelectedBookId(null);
                                       }}
                                       className="px-2 py-1 text-xs rounded bg-black dark:bg-white text-white dark:text-black hover:opacity-80"
+                                      title="Load book"
                                     >
                                       Load
+                                    </button>
+                                    <button
+                                      onClick={() => handleExportLibraryBook(book.id)}
+                                      className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                                      title="Export as EPUB"
+                                    >
+                                      <img
+                                        src="/export-download-icon.svg"
+                                        alt="Export"
+                                        className="w-4 h-4 dark:hidden"
+                                      />
+                                      <img
+                                        src="/dark-export-download-icon.svg"
+                                        alt="Export"
+                                        className="w-4 h-4 hidden dark:block"
+                                      />
                                     </button>
                                     <button
                                       onClick={() => handleDeleteBook(book.id)}
@@ -1242,21 +1288,46 @@ function MakeEbookPage() {
                                   {chapterTitle}
                                 </span>
                               </div>
-                              {chapters.length > 1 && (
+                              <div className="flex items-center gap-1">
+                                {/* Edit button - Mobile only */}
                                 <button
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                                  className="lg:hidden opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleRemoveChapter(i);
+                                    handleSelectChapter(i);
+                                    setMobileSidebarOpen(false);
                                   }}
-                                  aria-label="Delete chapter"
+                                  aria-label="Edit chapter"
+                                  title="Edit chapter"
                                 >
-                                  <BinIcon
-                                    className="w-4 h-4"
-                                    stroke={isSelected ? "#050505" : "#666666"}
+                                  <img
+                                    src="/pencil-icon.svg"
+                                    alt="Edit"
+                                    className="w-4 h-4 dark:hidden"
+                                  />
+                                  <img
+                                    src="/dark-pencil-icon.svg"
+                                    alt="Edit"
+                                    className="w-4 h-4 hidden dark:block"
                                   />
                                 </button>
-                              )}
+                                {/* Delete button */}
+                                {chapters.length > 1 && (
+                                  <button
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleRemoveChapter(i);
+                                    }}
+                                    aria-label="Delete chapter"
+                                  >
+                                    <BinIcon
+                                      className="w-4 h-4"
+                                      stroke={isSelected ? "#050505" : "#666666"}
+                                    />
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           );
                         })}
@@ -1638,13 +1709,26 @@ function MakeEbookPage() {
 
         {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
-          {/* Desktop Sidebar - Hidden on Mobile */}
-          <CollapsibleSidebar
+          {/* Slim Sidebar Navigation - Desktop Only */}
+          <SlimSidebarNav
+            activeView={sidebarView}
+            onViewChange={setSidebarView}
+            libraryCount={libraryBooks.length}
+            chaptersCount={chapters.length}
+            isPanelOpen={isPanelOpen}
+          />
+          
+          {/* Desktop Sidebar - Hidden on Mobile, shows/hides based on isPanelOpen */}
+          {isPanelOpen && (
+            <CollapsibleSidebar
+            activeView={sidebarView}
+            onClose={() => setSidebarView(null)}
             libraryBooks={libraryBooks}
             selectedBookId={selectedBookId}
             setSelectedBookId={setSelectedBookId}
             handleLoadBook={handleLoadBook}
             handleDeleteBook={handleDeleteBook}
+            handleExportLibraryBook={handleExportLibraryBook}
             showNewBookConfirmation={showNewBookConfirmation}
             chapters={chapters}
             selectedChapter={selectedChapter}
@@ -1701,9 +1785,12 @@ function MakeEbookPage() {
             sidebarBookDetailsExpanded={sidebarBookDetailsExpanded}
             setSidebarBookDetailsExpanded={setSidebarBookDetailsExpanded}
           />
+          )}
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className="flex-1 flex flex-col bg-white dark:bg-[#1a1a1a] rounded shadow-sm px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative">
+          <main className={`flex-1 flex flex-col bg-white dark:bg-[#1a1a1a] rounded shadow-sm px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative transition-all duration-500 ease-in-out ${
+            isPanelOpen ? 'lg:ml-[366px]' : 'lg:ml-0'
+          }`}>
             
             {/* Mobile Header - Logo + Menu Button */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-700">

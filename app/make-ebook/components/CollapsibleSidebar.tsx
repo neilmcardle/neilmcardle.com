@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { LibraryIcon, PlusIcon, TrashIcon, SaveIcon, DownloadIcon } from './icons';
+import { LibraryIcon, PlusIcon, TrashIcon, SaveIcon, DownloadIcon, CloseIcon } from './icons';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import DragIcon from './icons/DragIcon';
 import BinIcon from './icons/BinIcon';
@@ -34,12 +34,18 @@ interface Book {
 }
 
 interface CollapsibleSidebarProps {
+  // Active view from slim sidebar
+  activeView: 'library' | 'book' | 'chapters' | 'preview' | null;
+  // Close handler
+  onClose: () => void;
+  
   // Library props
   libraryBooks: Book[];
   selectedBookId: string | null;
   setSelectedBookId: (id: string | null) => void;
   handleLoadBook: (id: string) => void;
   handleDeleteBook: (id: string) => void;
+  handleExportLibraryBook: (id: string) => void;
   showNewBookConfirmation: () => void;
   
   // Chapters props
@@ -170,11 +176,14 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
   
   const {
+    activeView,
+    onClose,
     libraryBooks,
     selectedBookId,
     setSelectedBookId,
     handleLoadBook,
     handleDeleteBook,
+    handleExportLibraryBook,
     showNewBookConfirmation,
     chapters,
     selectedChapter,
@@ -232,27 +241,59 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     setSidebarBookDetailsExpanded,
   } = props;
 
-  return (
-    <aside className="hidden lg:flex flex-col w-full lg:max-w-sm bg-white dark:bg-[#1a1a1a] min-w-0 lg:min-w-[300px] lg:max-w-[350px] lg:h-full shadow-sm">
+  const [isVisible, setIsVisible] = React.useState(false);
 
-      {/* Logo Header - Sticky */}
-      <div className="flex-shrink-0 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700 px-4">
-        <div className="flex items-center justify-center px-2">
-          <Image
-            src="/make-ebook-logomark.svg"
-            alt="makeEBook logo"
-            width={130}
-            height={51}
-            className="h-[51px] w-[130px] dark:invert"
-            priority
+  useEffect(() => {
+    // Small delay to trigger animation after mount
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 10);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleClose = () => {
+    // Animate out first
+    setIsVisible(false);
+    // Then actually close after animation completes
+    setTimeout(() => {
+      onClose();
+    }, 500); // Match the transition duration
+  };
+
+  return (
+    <aside 
+      className={`hidden lg:flex flex-col absolute left-16 top-0 w-full lg:max-w-sm bg-white dark:bg-[#1a1a1a] min-w-0 lg:min-w-[300px] lg:max-w-[350px] h-full shadow-sm border-r border-gray-200 dark:border-gray-700 z-40 transition-transform duration-500 ease-in-out ${
+        isVisible ? 'translate-x-0' : '-translate-x-full'
+      }`}
+    >
+
+      {/* Close Button Row */}
+      <div className="flex justify-end px-4 pt-4 pb-2">
+        <button
+          onClick={handleClose}
+          className="p-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
+          title="Close panel"
+          aria-label="Close panel"
+        >
+          <img
+            src="/close-sidebar-icon.svg"
+            alt="Close"
+            className="w-5 h-5 dark:hidden"
           />
-        </div>
+          <img
+            src="/dark-close-sidebar-icon.svg"
+            alt="Close"
+            className="w-5 h-5 hidden dark:block"
+          />
+        </button>
       </div>
 
       {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
+      <div className="flex-1 overflow-y-auto px-4 pb-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
+        
         {/* Library Section */}
-      <div className="border-b border-gray-200 dark:border-gray-700 pb-2 pt-2">
+        {activeView === 'library' && (
+      <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
             <button
@@ -270,15 +311,13 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
             <span className="text-xs text-gray-500 dark:text-gray-400">({libraryBooks.length})</span>
           </div>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={showNewBookConfirmation}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-              title="New book"
-            >
-              <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-            </button>
-          </div>
+          <button
+            onClick={showNewBookConfirmation}
+            className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+            title="New book"
+          >
+            <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+          </button>
         </div>
         
         {sidebarLibraryExpanded && (
@@ -322,12 +361,30 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                             setSelectedBookId(null);
                           }}
                           className="text-xs px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-[#3a3a3a] text-[#050505] dark:text-[#e5e5e5]"
+                          title="Load book"
                         >
                           Load
                         </button>
                         <button
+                          onClick={() => handleExportLibraryBook(book.id)}
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#3a3a3a]"
+                          title="Export as EPUB"
+                        >
+                          <img
+                            src="/export-download-icon.svg"
+                            alt="Export"
+                            className="w-4 h-4 dark:hidden"
+                          />
+                          <img
+                            src="/dark-export-download-icon.svg"
+                            alt="Export"
+                            className="w-4 h-4 hidden dark:block"
+                          />
+                        </button>
+                        <button
                           onClick={() => handleDeleteBook(book.id)}
                           className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#3a3a3a] opacity-100 hover:opacity-70 transition-opacity"
+                          title="Delete"
                         >
                           <img 
                             src="/dark-bin-icon.svg" 
@@ -345,8 +402,10 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           </div>
         )}
       </div>
+        )}
 
       {/* Book Details Section */}
+      {activeView === 'book' && (
       <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -565,8 +624,10 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           </div>
         )}
       </div>
+        )}
 
       {/* Chapters Section */}
+      {activeView === 'chapters' && (
       <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
@@ -741,25 +802,28 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           </div>
         )}
       </div>
+        )}
 
       {/* Preview Section */}
+      {activeView === 'preview' && (
       <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
-        <button
-          onClick={() => setSidebarPreviewExpanded(!sidebarPreviewExpanded)}
-          className="w-full flex items-center justify-between py-2 px-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-        >
+        <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
-            <div className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors">
+            <button
+              onClick={() => setSidebarPreviewExpanded(!sidebarPreviewExpanded)}
+              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+              title={sidebarPreviewExpanded ? "Collapse preview" : "Expand preview"}
+            >
               {sidebarPreviewExpanded ? (
                 <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               ) : (
                 <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               )}
-            </div>
+            </button>
             <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert" />
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Preview</span>
           </div>
-        </button>
+        </div>
         
         {sidebarPreviewExpanded && (
           <div className="mt-2 px-2">
@@ -856,16 +920,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           </div>
         )}
       </div>
-      </div>
-
-      {/* Footer with Theme Toggle and User Profile - Sticky */}
-      <div className="flex-shrink-0 pt-4 pb-4 border-t border-gray-200 dark:border-gray-700 px-4">
-        <div className="flex items-center justify-between px-0 py-2">
-          <UserDropdown />
-          <div className="pr-2">
-            <ThemeToggle />
-          </div>
-        </div>
+        )}
       </div>
     </aside>
   );
