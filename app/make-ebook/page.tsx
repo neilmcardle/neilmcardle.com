@@ -730,18 +730,18 @@ function MakeEbookPage() {
               
               {/* Logo Header - Sticky */}
               <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between pr-0">
                   <Image
                     src="/make-ebook-logomark.svg"
                     alt="makeEBook logo"
                     width={100}
                     height={39}
-                    className="h-[39px] w-[100px] dark:invert"
+                    className="h-[39px] w-[100px] dark:invert ml-2"
                     priority
                   />
                   <button
                     onClick={() => setMobileSidebarOpen(false)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                    className="px-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
                     aria-label="Close sidebar"
                   >
                     <img src="/close-sidebar-icon.svg" alt="Close" className="w-5 h-5 dark:invert" />
@@ -757,7 +757,7 @@ function MakeEbookPage() {
                   
                   {/* Library Section */}
                   <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
-                    <div className="flex items-center justify-between py-2 px-2">
+                    <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setSidebarLibraryExpanded(!sidebarLibraryExpanded)}
@@ -853,7 +853,7 @@ function MakeEbookPage() {
                   <div className={`border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors duration-1000 ease-out ${
                     bookJustLoaded ? 'bg-gray-100/80 dark:bg-gray-700/20' : ''
                   }`}>
-                    <div className="flex items-center justify-between py-2 px-2">
+                    <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <button
                           onClick={() => setSidebarBookDetailsExpanded(!sidebarBookDetailsExpanded)}
@@ -1071,7 +1071,7 @@ function MakeEbookPage() {
 
                   {/* Chapters Section */}
                   <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
-                    <div className="flex items-center justify-between py-2 px-2">
+                    <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <button
                           onClick={() => setSidebarChaptersExpanded(!sidebarChaptersExpanded)}
@@ -1177,7 +1177,7 @@ function MakeEbookPage() {
                     </div>
                     
                     {sidebarChaptersExpanded && (
-                      <div className="mt-1 space-y-1 pl-2">
+                      <div className="mt-1 space-y-1">
                         <p className="text-[10px] text-gray-500 dark:text-gray-400 px-2 mb-1">Drag to reorder</p>
                         {chapters.map((ch, i) => {
                           const isSelected = selectedChapter === i;
@@ -1266,7 +1266,7 @@ function MakeEbookPage() {
 
                   {/* Preview Section */}
                   <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
-                    <div className="flex items-center justify-between py-2 px-2">
+                    <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <button
                           onClick={() => setSidebarPreviewExpanded(!sidebarPreviewExpanded)}
@@ -1385,10 +1385,12 @@ function MakeEbookPage() {
 
               {/* Footer - Sticky */}
               <div className="flex-shrink-0 pt-4 pb-4 px-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between px-2 py-2">
+                <div className="flex items-center justify-between px-0 py-2">
                   {/* User Dropdown - reuse from CollapsibleSidebar */}
                   <UserDropdownMobile />
-                  <ThemeToggle />
+                  <div style={{ marginRight: '-22px' }}>
+                    <ThemeToggle />
+                  </div>
                 </div>
               </div>
             </div>
@@ -1709,32 +1711,29 @@ function MakeEbookPage() {
             <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between px-4 py-3 gap-3">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <Image
-                    src="/make-ebook-logomark.svg"
-                    alt="makeEbook"
-                    width={100}
-                    height={39}
-                    className="h-[39px] w-[100px] dark:invert flex-shrink-0"
-                    priority
-                  />
-                  {title && (
-                    <div className="min-w-0 flex-1">
-                      <div className="text-xs text-gray-500 dark:text-gray-400">Editing:</div>
-                      <div className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5] truncate">
-                        {title}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                {!mobileSidebarOpen && (
                   <button
                     onClick={() => setMobileSidebarOpen(true)}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0 -ml-0.5"
                     aria-label="Open menu"
                   >
-                    <MenuIcon className="w-5 h-5 dark:invert" />
+                    <img 
+                      src="/hamburger-menu-icon.svg" 
+                      alt="Menu" 
+                      className="w-5 h-5 dark:hidden" 
+                    />
+                    <img 
+                      src="/dark-hamburger-menu-icon.svg" 
+                      alt="Menu" 
+                      className="w-5 h-5 hidden dark:block" 
+                    />
                   </button>
-                )}
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Editing:</div>
+                    <div className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5] truncate">
+                      {title || 'Untitled Book'}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

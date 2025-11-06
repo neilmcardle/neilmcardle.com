@@ -687,7 +687,7 @@ export default function RichTextEditor({
       {/* Toolbar - Always visible on all devices */}
       <div className="bg-white dark:bg-[#1a1a1a]">
         <div className="p-2 overflow-x-auto">
-          <div className="flex items-start gap-4 min-w-max">
+          <div className="flex flex-wrap items-start gap-4">
               {/* Format section */}
               <div className="flex flex-col gap-1">
                 <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Format</div>
