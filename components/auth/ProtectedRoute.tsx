@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { AuthModal } from './AuthModal'
 import { Button } from '../ui/button'
@@ -8,6 +8,61 @@ import { Lock, Edit3, BookOpen, Download, BookHeart, BookDown, BookText } from '
 import { MakeEbookIcon } from '@/components/MakeEbookIcon'
 import Image from 'next/image'
 import { useTheme } from '@/lib/contexts/ThemeContext'
+
+const LITERARY_QUOTES = [
+  {
+    text: "There is no greater agony than bearing an untold story inside you.",
+    author: "Maya Angelou"
+  },
+  {
+    text: "The scariest moment is always just before you start.",
+    author: "Stephen King"
+  },
+  {
+    text: "You can make anything by writing.",
+    author: "C.S. Lewis"
+  },
+  {
+    text: "Start writing, no matter what. The water does not flow until the faucet is turned on.",
+    author: "Louis L'Amour"
+  },
+  {
+    text: "If there's a book that you want to read, but it hasn't been written yet, then you must write it.",
+    author: "Toni Morrison"
+  },
+  {
+    text: "Write what should not be forgotten.",
+    author: "Isabel Allende"
+  },
+  {
+    text: "One day I will find the right words, and they will be simple.",
+    author: "Jack Kerouac"
+  },
+  {
+    text: "The first draft is just you telling yourself the story.",
+    author: "Terry Pratchett"
+  },
+  {
+    text: "You don't start out writing good stuff. You start out writing crap and thinking it's good stuff, and then gradually you get better at it.",
+    author: "Octavia Butler"
+  },
+  {
+    text: "Fill your paper with the breathings of your heart.",
+    author: "William Wordsworth"
+  },
+  {
+    text: "I can shake off everything as I write; my sorrows disappear, my courage is reborn.",
+    author: "Anne Frank"
+  },
+  {
+    text: "We write to taste life twice, in the moment and in retrospect.",
+    author: "Anaïs Nin"
+  },
+  {
+    text: "A word after a word after a word is power.",
+    author: "Margaret Atwood"
+  }
+];
 
 interface ProtectedRouteProps {
   children: ReactNode
@@ -18,6 +73,13 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
   const { isAuthenticated, loading } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { theme } = useTheme()
+  const [quote, setQuote] = useState(LITERARY_QUOTES[0])
+
+  useEffect(() => {
+    // Select a random quote on mount
+    const randomIndex = Math.floor(Math.random() * LITERARY_QUOTES.length)
+    setQuote(LITERARY_QUOTES[randomIndex])
+  }, [])
 
   if (loading) {
     return (
@@ -56,21 +118,31 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
         <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10 transition-colors relative">
           
           {/* MakeEbook Logo Section */}
-          <div className="relative h-32 px-6 pb-8 flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a] transition-colors">
-            <div className="flex justify-center items-center w-full" style={{ paddingTop: '40px' }}>
+          <div className="relative px-6 pt-10 pb-6 flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a] transition-colors">
+            <div className="flex justify-center items-center w-full mb-6">
               <Image
                 src="/make-ebook-logomark.svg"
                 alt="MakeEbook Logo"
-                width={320}
-                height={320}
-                className="object-contain dark:invert"
+                width={240}
+                height={240}
+                className="object-contain dark:invert opacity-90"
                 style={{ color: 'transparent' }}
               />
+            </div>
+            
+            {/* Literary Quote */}
+            <div className="text-center mb-6 px-4 animate-in fade-in duration-1000">
+              <p className="text-lg md:text-xl font-serif italic text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+                "{quote.text}"
+              </p>
+              <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 font-light">
+                — {quote.author}
+              </p>
             </div>
           </div>
 
           {/* Content */}
-          <div className="px-6 pt-4 pb-8">
+          <div className="px-6 pt-2 pb-8">
             {/* Features List */}
             <div className="space-y-3 mb-8">
               <div className="flex items-center justify-center text-base text-gray-700 dark:text-gray-300">

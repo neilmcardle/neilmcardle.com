@@ -781,14 +781,23 @@ function MakeEbookPage() {
               {/* Logo Header - Sticky */}
               <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between pr-0">
-                  <Image
-                    src="/make-ebook-logomark.svg"
-                    alt="makeEBook logo"
-                    width={100}
-                    height={39}
-                    className="h-[39px] w-[100px] dark:invert ml-2"
-                    priority
-                  />
+                  <button
+                    onClick={() => {
+                      handleGoToHome();
+                      setMobileSidebarOpen(false);
+                    }}
+                    className="hover:opacity-70 transition-opacity ml-2"
+                    aria-label="Go to home"
+                  >
+                    <Image
+                      src="/make-ebook-logomark.svg"
+                      alt="makeEBook logo"
+                      width={100}
+                      height={39}
+                      className="h-[39px] w-[100px] dark:invert"
+                      priority
+                    />
+                  </button>
                   <button
                     onClick={() => setMobileSidebarOpen(false)}
                     className="px-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
@@ -1851,6 +1860,15 @@ function MakeEbookPage() {
 
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
             <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pt-8 pb-0">
+              {chapters.length === 0 ? (
+                // Landing Page - Mobile version
+                <LandingPage
+                  onNewBook={handleNewBook}
+                  onOpenLibrary={() => setMobileSidebarOpen(true)}
+                  libraryCount={libraryBooks.length}
+                />
+              ) : (
+              <>
               {/* Compact Chapter Header */}
               <div className="flex-shrink-0 bg-white dark:bg-[#1a1a1a] border-none pb-1 px-2">
                 {/* Chapter Title Input - Clean UI */}
@@ -1972,6 +1990,8 @@ function MakeEbookPage() {
                   />
                 </div>
               </div>
+              </>
+              )}
             </div>
 
             {/* DESKTOP layout */}
@@ -2136,7 +2156,7 @@ function UserDropdownMobile() {
           />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56">
+      <DropdownMenuContent align="start" className="w-56 z-[150]">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">Account</p>
