@@ -247,7 +247,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     // Small delay to trigger animation after mount
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 10);
+    }, 0);
     return () => clearTimeout(timer);
   }, []);
 
@@ -257,7 +257,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     // Then actually close after animation completes
     setTimeout(() => {
       onClose();
-    }, 500); // Match the transition duration
+    }, 8); // Match the transition duration
   };
 
   return (
