@@ -700,8 +700,8 @@ export default function RichTextEditor({
                       type="button"
                       className={`w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation ${
                         formats[b.cmd] 
-                          ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white' 
-                          : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
+                ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white' 
+                  : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
                       } ${b.className || ''}`}
                       onClick={() => applyInlineOrAlign(b.cmd)}
                       disabled={disabled}
@@ -725,7 +725,7 @@ export default function RichTextEditor({
                       className={`w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation ${
                         formats[`heading${h.level}`] 
                           ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white' 
-                          : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
+                            : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
                       }`}
                       onClick={() => applyHeading(h.level)}
                       disabled={disabled}
@@ -745,8 +745,8 @@ export default function RichTextEditor({
                     type="button"
                     className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible ${
                       formats['justifyLeft']
-                        ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white'
-                        : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
+                        ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white' 
+                        : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
                     }`}
                     onMouseDown={e => e.preventDefault()}
                     onClick={() => applyInlineOrAlign('justifyLeft')}
@@ -838,7 +838,7 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Insert Endnote"
                     type="button"
-                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
+                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
                     onClick={handleEndnoteClick}
                     disabled={disabled || !onCreateEndnote}
                   >
@@ -855,7 +855,7 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Insert Link"
                     type="button"
-                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
+                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
                     onClick={handleLinkClick}
                     disabled={disabled}
                   >
@@ -872,7 +872,7 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Insert Anchor (for Index Links)"
                     type="button"
-                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
+                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
                     onClick={handleAnchorClick}
                     disabled={disabled}
                   >
@@ -896,7 +896,7 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Insert Image"
                     type="button"
-                    className="w-8 h-8 rounded border bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                    className="w-8 h-8 rounded border bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
                     onClick={handleImageButtonClick}
                     disabled={disabled}
                   >
@@ -923,7 +923,7 @@ export default function RichTextEditor({
                     onMouseDown={e => e.preventDefault()}
                     title="Clear formatting"
                     type="button"
-                    className="w-8 h-8 rounded border bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
+                    className="w-8 h-8 rounded border bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
                     onClick={() => {
                       focusEditor();
                       document.execCommand('removeFormat');

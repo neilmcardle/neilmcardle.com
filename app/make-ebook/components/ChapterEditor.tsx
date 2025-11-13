@@ -60,7 +60,7 @@ export default function ChapterEditor({
           <div key={chapter.id} className="border-b pb-8 last:border-b-0">
             <input
               type="text"
-              className="w-full mb-3 px-3 py-2 rounded border text-sm"
+              className="w-full mb-3 px-3 py-2 rounded border text-sm placeholder-[#C0C0C0]"
               placeholder={`Title for Chapter ${i + 1}`}
               value={chapter.title}
               onChange={e => updateTitle(chapter.id, e.target.value)}
@@ -72,6 +72,7 @@ export default function ChapterEditor({
               onChange={html => updateContent(chapter.id, html)}
               disabled={lockedSections.chapters}
               placeholder="Write chapter content..."
+              className="placeholder-[#C0C0C0]"
             />
 
             <div className="mt-2 flex justify-end">

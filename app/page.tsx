@@ -21,7 +21,7 @@ export default function ProfileCardHomepage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] relative transition-colors">
+  <div className="min-h-screen bg-gray-50 dark:bg-[#2c2c2c] relative transition-colors">
       {/* Profile Card Container */}
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-2xl overflow-hidden max-w-md w-full z-10 transition-colors relative">
@@ -198,7 +198,7 @@ export default function ProfileCardHomepage() {
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className="flex items-center justify-center w-8 h-8 rounded-full p-2 shadow-lg border border-gray-200 dark:border-gray-600 transition-colors"
+                    className="flex items-center justify-center w-8 h-8 rounded-full p-2 shadow-lg border border-gray-200 dark:border-[#424242] transition-colors"
                     style={{
                       background: theme === 'dark' 
                         ? 'linear-gradient(180deg, #2a2a2a 40%, #1a1a1a 60%, #3a3a3a 100%)'

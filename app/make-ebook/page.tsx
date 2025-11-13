@@ -779,7 +779,7 @@ function MakeEbookPage() {
             <div className="flex flex-col h-full">
               
               {/* Logo Header - Sticky */}
-              <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-[#424242]">
                 <div className="flex items-center justify-between pr-0">
                   <button
                     onClick={() => {
@@ -815,7 +815,7 @@ function MakeEbookPage() {
                 <div className="px-4 space-y-2 py-2">
                   
                   {/* Library Section */}
-                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                  <div className="border-b border-gray-200 dark:border-[#424242] pb-2">
                     <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2">
                         <button
@@ -926,7 +926,7 @@ function MakeEbookPage() {
                   </div>
 
                   {/* Book Details Section */}
-                  <div className={`border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors duration-1000 ease-out ${
+                  <div className={`border-b border-gray-200 dark:border-[#424242] pb-2 transition-colors duration-1000 ease-out ${
                     bookJustLoaded ? 'bg-gray-100/80 dark:bg-gray-700/20' : ''
                   }`}>
                     <div className="flex items-center justify-between py-2">
@@ -985,7 +985,7 @@ function MakeEbookPage() {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
                             placeholder="Book title"
                           />
                         </div>
@@ -998,7 +998,7 @@ function MakeEbookPage() {
                             value={author}
                             onChange={(e) => setAuthor(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
                             placeholder="Author name"
                           />
                         </div>
@@ -1010,7 +1010,7 @@ function MakeEbookPage() {
                             value={blurb}
                             onChange={(e) => setBlurb(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] resize-none"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] resize-none"
                             placeholder="Brief description"
                             rows={3}
                           />
@@ -1024,7 +1024,7 @@ function MakeEbookPage() {
                             value={publisher}
                             onChange={(e) => setPublisher(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
                             placeholder="Publisher name"
                           />
                         </div>
@@ -1037,7 +1037,7 @@ function MakeEbookPage() {
                             value={pubDate}
                             onChange={(e) => setPubDate(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
                           />
                         </div>
                         
@@ -1048,7 +1048,7 @@ function MakeEbookPage() {
                             value={language}
                             onChange={(e) => setLanguage(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
                           >
                             {LANGUAGES.map((lang) => (
                               <option key={lang} value={lang}>
@@ -1066,7 +1066,7 @@ function MakeEbookPage() {
                             value={genre}
                             onChange={(e) => setGenre(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
                             placeholder="e.g. Fiction, Mystery"
                           />
                         </div>
@@ -1079,7 +1079,7 @@ function MakeEbookPage() {
                             value={isbn}
                             onChange={(e) => setIsbn(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
                             placeholder="ISBN number"
                           />
                         </div>
@@ -1094,7 +1094,7 @@ function MakeEbookPage() {
                               onChange={(e) => setTagInput(e.target.value)}
                               onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
                               disabled={lockedSections.bookInfo}
-                              className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                              className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
                               placeholder="Add tag"
                             />
                             <button
@@ -1146,7 +1146,7 @@ function MakeEbookPage() {
                   </div>
 
                   {/* Chapters Section */}
-                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                  <div className="border-b border-gray-200 dark:border-[#424242] pb-2">
                     <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <button
@@ -1175,7 +1175,7 @@ function MakeEbookPage() {
                           </button>
                           
                           {chapterTypeDropdownOpen && (
-                            <div className="absolute right-0 top-full mt-1 w-56 bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 py-2 max-h-96 overflow-y-auto">
+                            <div className="absolute right-0 top-full mt-1 w-56 bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl border border-gray-200 dark:border-[#424242] z-50 py-2 max-h-96 overflow-y-auto">
                               <div className="space-y-3 px-2">
                                 {/* Front Matter */}
                                 <div>
@@ -1366,7 +1366,7 @@ function MakeEbookPage() {
                   </div>
 
                   {/* Preview Section */}
-                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                  <div className="border-b border-gray-200 dark:border-[#424242] pb-2">
                     <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <button
@@ -1389,7 +1389,7 @@ function MakeEbookPage() {
                       <div className="mt-2 px-2">
                         {/* Cover Preview */}
                         <div className="mb-4 flex justify-center">
-                          <div className="w-32 h-48 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden">
+                          <div className="w-32 h-48 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-[#424242] flex items-center justify-center overflow-hidden">
                             {coverUrl ? (
                               <img
                                 src={coverUrl}
@@ -1457,7 +1457,7 @@ function MakeEbookPage() {
                         </div>
                         
                         {/* Stats */}
-                        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#424242] space-y-2">
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-500 dark:text-gray-400">Chapters</span>
                             <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{chapters.length}</span>
@@ -1485,7 +1485,7 @@ function MakeEbookPage() {
               </div>
 
               {/* Footer - Sticky */}
-              <div className="flex-shrink-0 pt-4 pb-4 px-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex-shrink-0 pt-4 pb-4 px-4 border-t border-gray-200 dark:border-[#424242]">
                 <div className="flex items-center justify-between px-2 py-2">
                   {/* User Dropdown - reuse from CollapsibleSidebar */}
                   <UserDropdownMobile />
@@ -1630,13 +1630,13 @@ function MakeEbookPage() {
                     <button
                       onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
                       aria-label="Add new chapter"
-                      className="hover:opacity-70 transition-opacity flex items-center gap-2 w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] rounded border border-gray-200 dark:border-gray-700 shadow-sm"
+                      className="hover:opacity-70 transition-opacity flex items-center gap-2 w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] rounded border border-gray-200 dark:border-[#424242] shadow-sm"
                     >
                       <PlusIcon className="w-4 h-4" />
                       <span className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5]">Add Chapter</span>
                     </button>
                     {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#1a1a1a] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
+                      <div className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#1a1a1a] rounded border border-[#E8E8E8] dark:border-[#424242] shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-3">
                           <div className="space-y-4">
                             <div>
@@ -1824,7 +1824,7 @@ function MakeEbookPage() {
           }`}>
             
             {/* Mobile Header - Logo + Menu Button */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-700">
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#424242]">
               <div className="flex items-center justify-between px-4 py-3 gap-3">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <button

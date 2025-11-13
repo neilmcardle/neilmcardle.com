@@ -90,7 +90,7 @@ function UserDropdownSlim() {
     return (
       <Tooltip text="Sign In">
         <button 
-          className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]" 
+          className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]" 
           aria-label="User menu"
         >
           <img
@@ -108,7 +108,7 @@ function UserDropdownSlim() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button 
-            className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]" 
+            className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]" 
             aria-label="User menu"
           >
             <img
@@ -143,7 +143,7 @@ function ThemeToggleButton() {
     <Tooltip text="Toggle Theme">
       <button
         onClick={toggleTheme}
-        className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+  className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
         aria-label="Toggle theme"
       >
         {theme === 'light' ? (
@@ -169,7 +169,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
   };
 
   return (
-    <aside className="hidden lg:flex flex-col w-16 bg-white dark:bg-[#1a1a1a] border-r border-gray-200 dark:border-gray-700 h-screen items-center relative overflow-x-hidden z-50">
+  <aside className="hidden lg:flex flex-col w-16 bg-white dark:bg-[#1a1a1a] border-r border-gray-200 dark:border-[#424242] h-screen items-center relative overflow-x-hidden z-50">
       {/* Logo at top */}
       <div className="flex-shrink-0 pt-6 pb-6">
         <Tooltip text="makeEBook">
@@ -199,7 +199,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             className={`relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors ${
               activeView === 'library' && isPanelOpen
                 ? 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-900 dark:text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                : 'text-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
             }`}
             aria-label="Library"
           >

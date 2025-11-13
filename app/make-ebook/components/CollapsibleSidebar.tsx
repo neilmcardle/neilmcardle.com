@@ -163,10 +163,15 @@ function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
       className="relative w-4 h-5 shrink-0 flex items-center justify-center opacity-70 group-hover:opacity-100 transition"
       aria-hidden="true"
     >
-      <DragIcon 
-        className={`w-4 h-4 transition ${
-          isSelected ? "dark:[&_path]:stroke-white" : "dark:[&_path]:stroke-[#a0a0a0]"
-        }`}
+      <img
+        src="/drag-icon.svg"
+        alt="Drag"
+        className="w-4 h-4 dark:hidden"
+      />
+      <img
+        src="/dark-drag-icon.svg"
+        alt="Drag"
+        className="w-4 h-4 hidden dark:block"
       />
     </span>
   );
@@ -247,7 +252,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     // Small delay to trigger animation after mount
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 0);
+    }, 10);
     return () => clearTimeout(timer);
   }, []);
 
@@ -257,12 +262,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     // Then actually close after animation completes
     setTimeout(() => {
       onClose();
-    }, 8); // Match the transition duration
+    }, 500); // Match the transition duration
   };
 
   return (
     <aside 
-      className={`hidden lg:flex flex-col absolute left-16 top-0 w-full lg:max-w-sm bg-white dark:bg-[#1a1a1a] min-w-0 lg:min-w-[300px] lg:max-w-[350px] h-full shadow-sm border-r border-gray-200 dark:border-gray-700 z-40 transition-transform duration-500 ease-in-out ${
+  className={`hidden lg:flex flex-col absolute left-16 top-0 w-full lg:max-w-sm bg-white dark:bg-[#2c2c2c] min-w-0 lg:min-w-[300px] lg:max-w-[350px] h-full shadow-sm border-r border-gray-200 dark:border-[#424242] z-40 transition-transform duration-500 ease-in-out ${
         isVisible ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
@@ -289,11 +294,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
       </div>
 
       {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto px-4 pb-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
+  <div className="flex-1 overflow-y-auto px-4 pb-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#C0C0C0] hover:scrollbar-thumb-[#C0C0C0] dark:scrollbar-thumb-[#C0C0C0] dark:hover:scrollbar-thumb-[#C0C0C0]">
         
         {/* Library Section */}
         {activeView === 'library' && (
-      <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+  <div className="border-b border-gray-200 dark:border-[#424242] pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
             <button
@@ -302,14 +307,14 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               title={sidebarLibraryExpanded ? "Collapse library" : "Expand library"}
             >
               {sidebarLibraryExpanded ? (
-                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <ChevronDown className="w-4 h-4 text-[#C0C0C0]" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <ChevronRight className="w-4 h-4 text-[#C0C0C0]" />
               )}
             </button>
             <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">({libraryBooks.length})</span>
+            <span className="text-xs text-[#C0C0C0]">({libraryBooks.length})</span>
           </div>
           <button
             onClick={showNewBookConfirmation}
@@ -323,7 +328,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         {sidebarLibraryExpanded && (
           <div className={`mt-2 space-y-1 pl-2 ${libraryBooks.length > 4 ? 'max-h-[400px] overflow-y-auto pr-1' : ''}`}>
             {libraryBooks.length === 0 ? (
-              <div className="text-xs text-gray-500 dark:text-gray-400 py-4 px-2 text-center">
+              <div className="text-xs text-[#C0C0C0] py-4 px-2 text-center">
                 No saved books yet
               </div>
             ) : (
@@ -345,11 +350,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                       <div className={`text-sm font-medium truncate ${
                         isSelected
                           ? 'text-gray-900 dark:text-gray-100'
-                          : 'text-gray-600 dark:text-gray-400'
+                          : 'text-[#C0C0C0]'
                       }`}>
                         {book.title || 'Untitled'}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      <div className="text-xs text-[#C0C0C0] truncate">
                         {book.author || 'Unknown author'}
                       </div>
                     </button>
@@ -406,7 +411,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
 
       {/* Book Details Section */}
       {activeView === 'book' && (
-      <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+  <div className="border-b border-gray-200 dark:border-[#424242] pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <button
@@ -415,16 +420,16 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               title={sidebarBookDetailsExpanded ? "Collapse details" : "Expand details"}
             >
               {sidebarBookDetailsExpanded ? (
-                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <ChevronDown className="w-4 h-4 text-[#C0C0C0]" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <ChevronRight className="w-4 h-4 text-[#C0C0C0]" />
               )}
             </button>
             <img src="/preview-icon.svg" alt="Details" className="w-5 h-5 dark:invert flex-shrink-0" />
             <div className="flex flex-col gap-0.5 flex-1 min-w-0">
               <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Book</span>
               {title && (
-                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                <span className="text-xs text-[#C0C0C0] truncate">
                   {title}
                 </span>
               )}
@@ -459,38 +464,38 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           <div className="mt-2 space-y-3 pl-2 pr-2">
             {/* Title */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Title</label>
+              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Title</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="Book title"
               />
             </div>
             
             {/* Author */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Author</label>
+              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Author</label>
               <input
                 type="text"
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="Author name"
               />
             </div>
             
             {/* Blurb */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Description</label>
+              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Description</label>
               <textarea
                 value={blurb}
                 onChange={(e) => setBlurb(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] resize-none"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] resize-none placeholder-[#C0C0C0]"
                 placeholder="Brief description"
                 rows={3}
               />
@@ -498,37 +503,37 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* Publisher */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Publisher</label>
+              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Publisher</label>
               <input
                 type="text"
                 value={publisher}
                 onChange={(e) => setPublisher(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="Publisher name"
               />
             </div>
             
             {/* Publication Date */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Publication Date</label>
+              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Publication Date</label>
               <input
                 type="date"
                 value={pubDate}
                 onChange={(e) => setPubDate(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
               />
             </div>
             
             {/* Language */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Language</label>
+              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Language</label>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
               >
                 {LANGUAGES.map((lang) => (
                   <option key={lang} value={lang}>
@@ -540,33 +545,33 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* Genre */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Genre</label>
+              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Genre</label>
               <input
                 type="text"
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="e.g. Fiction, Mystery"
               />
             </div>
             
             {/* ISBN */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">ISBN</label>
+              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">ISBN</label>
               <input
                 type="text"
                 value={isbn}
                 onChange={(e) => setIsbn(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="ISBN number"
               />
             </div>
             
             {/* Tags */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tags</label>
+              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Tags</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
@@ -574,7 +579,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
                   disabled={lockedSections.bookInfo}
-                  className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-700 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                  className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                   placeholder="Add tag"
                 />
                 <button
@@ -607,13 +612,13 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* Cover Image */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Cover Image</label>
+              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Cover Image</label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleCoverChange}
                 disabled={lockedSections.bookInfo}
-                className="w-full text-sm text-gray-600 dark:text-gray-400 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full text-sm text-[#C0C0C0] file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed"
               />
               {coverFile && (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -628,7 +633,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
 
       {/* Chapters Section */}
       {activeView === 'chapters' && (
-      <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+  <div className="border-b border-gray-200 dark:border-[#424242] pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
             <button
@@ -806,7 +811,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
 
       {/* Preview Section */}
       {activeView === 'preview' && (
-      <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+  <div className="border-b border-gray-200 dark:border-[#424242] pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
             <button
@@ -829,7 +834,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           <div className="mt-2 px-2">
             {/* Cover Preview */}
             <div className="mb-4 flex justify-center">
-              <div className="w-32 h-48 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden">
+              <div className="w-32 h-48 bg-gray-100 dark:bg-[#1e1e1e] rounded border border-gray-200 dark:border-[#424242] flex items-center justify-center overflow-hidden">
                 {coverUrl ? (
                   <img
                     src={coverUrl}
@@ -897,7 +902,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             </div>
             
             {/* Stats */}
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#424242] space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500 dark:text-gray-400">Chapters</span>
                 <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{chapters.length}</span>
