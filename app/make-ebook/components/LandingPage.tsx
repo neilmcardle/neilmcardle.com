@@ -13,6 +13,10 @@ const LITERARY_QUOTES = [
     author: "Stephen King"
   },
   {
+    text: "It is written: ‘Man shall not live on bread alone, but on every word that comes from the mouth of God.'",
+    author: "Matthew quoting Jesus, quoting Moses, quoting God"
+  },
+  {
     text: "You can make anything by writing.",
     author: "C.S. Lewis"
   },
@@ -37,24 +41,12 @@ const LITERARY_QUOTES = [
     author: "Terry Pratchett"
   },
   {
-    text: "You don't start out writing good stuff. You start out writing crap and thinking it's good stuff, and then gradually you get better at it.",
-    author: "Octavia Butler"
-  },
-  {
     text: "Fill your paper with the breathings of your heart.",
     author: "William Wordsworth"
   },
   {
-    text: "There is nothing to writing. All you do is sit down at a typewriter and bleed.",
-    author: "Ernest Hemingway"
-  },
-  {
     text: "We write to taste life twice, in the moment and in retrospect.",
     author: "Anaïs Nin"
-  },
-  {
-    text: "A word after a word after a word is power.",
-    author: "Margaret Atwood"
   },
   {
     text: "The role of a writer is not to say what we can all say, but what we are unable to say.",
