@@ -100,13 +100,13 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
         <p className="text-2xl md:text-3xl lg:text-4xl font-serif italic text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
           "{quote.text}"
         </p>
-        <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-light">
+  <p className="text-lg md:text-xl text-gray-500 dark:text-gray-200 font-light">
           — {quote.author}
         </p>
       </div>
 
       {/* Tagline */}
-      <h2 className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-12 font-light">
+  <h2 className="text-xl md:text-2xl text-gray-600 dark:text-gray-200 mb-12 font-light">
         What would you like to create today?
       </h2>
 
@@ -132,7 +132,7 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
       </div>
 
       {/* Helper text */}
-      <p className="text-sm text-gray-400 dark:text-gray-500 mt-8">
+  <p className="text-sm text-gray-200 dark:text-gray-200 mt-8">
         Click an icon on the left to get started
       </p>
     </div>
