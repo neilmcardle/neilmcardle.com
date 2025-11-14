@@ -112,29 +112,78 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
-        <button
-          onClick={onNewBook}
-          className="px-8 py-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
-        >
-          Start New Book
-        </button>
-        <button
-          onClick={onOpenLibrary}
-          className="px-8 py-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700"
-        >
-          Browse Library
-          {libraryCount > 0 && (
-            <span className="ml-2 px-2 py-0.5 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-full text-sm">
-              {libraryCount}
-            </span>
-          )}
-        </button>
+        {/* Start New Book Button */}
+        <div className="inline-flex items-center w-full" style={{background: 'linear-gradient(45deg, rgb(115, 63, 6) 0%, rgb(254, 243, 231) 50%, rgb(177, 145, 107) 100%)', borderRadius: '999px', padding: '2.5px'}}>
+          <div className="flex-1 flex">
+                <button
+                  type="button"
+                  onClick={onNewBook}
+                  className="w-full text-white dark:text-white px-6 py-3 font-medium flex items-center justify-center gap-2 transition-all focus:outline-none uppercase custom-pill-btn"
+                  style={{
+                    borderRadius: '999px',
+                    background: 'rgb(26, 26, 26)',
+                    border: 'none',
+                    boxShadow: 'rgba(0, 0, 0, 0.16) 0px 6px 8px 0px',
+                    fontSize: '14px',
+                    transition: 'background 0.2s',
+                    width: '100%'
+                  }}
+                >
+                  START NEW BOOK
+                </button>
+          </div>
+        </div>
+        {/* Browse Library Button - styled identically */}
+        <div className="inline-flex items-center w-full" style={{background: 'linear-gradient(45deg, rgb(115, 63, 6) 0%, rgb(254, 243, 231) 50%, rgb(177, 145, 107) 100%)', borderRadius: '999px', padding: '2.5px'}}>
+          <div className="flex-1 flex">
+                <button
+                  type="button"
+                  onClick={onOpenLibrary}
+                  className="w-full text-white dark:text-white px-6 py-3 font-medium flex items-center justify-center gap-2 transition-all focus:outline-none uppercase whitespace-nowrap custom-pill-btn"
+                  style={{
+                    borderRadius: '999px',
+                    background: 'rgb(26, 26, 26)',
+                    border: 'none',
+                    boxShadow: 'rgba(0, 0, 0, 0.16) 0px 6px 8px 0px',
+                    fontSize: '14px',
+                    transition: 'background 0.2s',
+                    width: '100%',
+                    minWidth: '220px'
+                  }}
+                >
+                  BROWSE LIBRARY
+                  {libraryCount > 0 && (
+                    <span style={{
+                      marginLeft: '0.75rem',
+                      padding: '0.125rem 0.75rem',
+                      background: '#23272b',
+                      color: '#fff',
+                      borderRadius: '999px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      display: 'inline-block',
+                      lineHeight: 1.2
+                    }}>
+                      {libraryCount}
+                    </span>
+                  )}
+                </button>
+          {/* Custom hover fill for pill buttons */}
+          <style jsx global>{`
+            .custom-pill-btn:hover {
+              background: #353535 !important;
+            }
+            @media (prefers-color-scheme: dark) {
+              .custom-pill-btn:hover {
+                background: #444 !important;
+              }
+            }
+          `}</style>
+          </div>
+        </div>
       </div>
 
       {/* Helper text */}
-  <p className="text-sm text-gray-200 dark:text-gray-200 mt-8">
-        Click an icon on the left to get started
-      </p>
     </div>
   );
 }
