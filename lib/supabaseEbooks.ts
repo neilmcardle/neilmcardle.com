@@ -2,6 +2,12 @@
 import { getSupabaseBrowserClient } from './supabase';
 import { v4 as uuidv4 } from 'uuid';
 
+function isUuid(str: any) {
+	if (typeof str !== 'string') return false;
+	// Simple UUID v4 regex (accepts lower/upper case)
+	return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(str);
+}
+
 // Save ebook and chapters to Supabase
 export async function saveEbookToSupabase(ebook: any, chapters: any[], userId: string) {
 	const supabase = getSupabaseBrowserClient();
@@ -13,7 +19,8 @@ export async function saveEbookToSupabase(ebook: any, chapters: any[], userId: s
 			{
 				...ebook,
 				user_id: userId,
-				id: ebook.id || uuidv4(),
+				// Ensure Supabase gets a proper UUID for the ebook id
+				id: isUuid(ebook.id) ? ebook.id : uuidv4(),
 				updated_at: new Date().toISOString(),
 			},
 		], { onConflict: ['id'] })
@@ -29,7 +36,9 @@ export async function saveEbookToSupabase(ebook: any, chapters: any[], userId: s
 			...ch,
 			ebook_id: ebookData.id,
 			chapter_order: idx,
-			id: ch.id || uuidv4(),
+			// Chapters created in the editor sometimes have temporary ids like "chapter-12345".
+			// Supabase expects a UUID, so only forward existing UUIDs; otherwise generate a new one.
+			id: isUuid(ch.id) ? ch.id : uuidv4(),
 			updated_at: new Date().toISOString(),
 		}));
 		const { error: chaptersError } = await supabase

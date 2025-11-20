@@ -1,5 +1,5 @@
 "use client";
-
+import { saveEbookToSupabase } from '@/lib/supabaseEbooks';
 import React, { Suspense, useState, useRef, useLayoutEffect, useEffect } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -36,6 +36,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut } from "lucide-react";
 
+// Local ebook library loader
+function loadBookLibrary(): any[] {
+  if (typeof window === "undefined") return [];
+  const str = localStorage.getItem(BOOK_LIBRARY_KEY);
+  if (str) {
+    try {
+      return JSON.parse(str);
+    } catch (e) {}
+  }
+  return [];
+
+}
+
 const HEADER_HEIGHT = 64; // px (adjust if your header is taller/shorter)
 const BOOK_LIBRARY_KEY = "makeebook_library";
 
@@ -54,17 +67,6 @@ function saveBookToLibrary(book: any) {
   else library.push(bookToSave);
   localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
   return id;
-}
-
-function loadBookLibrary(): any[] {
-  if (typeof window === "undefined") return [];
-  const str = localStorage.getItem(BOOK_LIBRARY_KEY);
-  if (str) {
-    try {
-      return JSON.parse(str);
-    } catch (e) {}
-  }
-  return [];
 }
 
 function loadBookById(id: string) {
@@ -129,34 +131,39 @@ function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
 }
 
 function MakeEbookPage() {
-  // Stripe checkout handler
-  const handleStripeCheckout = async () => {
-    const res = await fetch('/api/create-checkout-session', { method: 'POST' });
-    const { sessionId } = await res.json();
-    const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-    if (!publishableKey) {
-      alert('Stripe publishable key is missing.');
-      return;
-    }
-    const stripe = await (await import('@stripe/stripe-js')).loadStripe(publishableKey);
-    if (stripe) {
-      await stripe.redirectToCheckout({ sessionId });
-    }
-  };
+  // Auth context for Supabase user
+  const { user } = useAuth();
+  // Next/navigation helpers
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { lockedSections, setLockedSections } = useLockedSections();
-  const { coverFile, setCoverFile, handleCoverChange, coverUrl } = useCover();
 
+  // Fetch ebooks from Supabase on login
+  useEffect(() => {
+    async function fetchAndSyncSupabaseBooks() {
+      if (user && user.id) {
+        try {
+          const supabaseBooks = await import('@/lib/supabaseEbooks').then(m => m.fetchEbooksFromSupabase(user.id));
+          if (Array.isArray(supabaseBooks)) {
+            setLibraryBooks(supabaseBooks);
+            localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(supabaseBooks));
+          }
+        } catch (err) {
+          // Handle error (optional: log or show notification)
+        }
+      }
+    }
+    fetchAndSyncSupabaseBooks();
+  }, [user]);
   const {
     chapters,
     setChapters,
     selectedChapter,
     setSelectedChapter,
     handleAddChapter,
-    handleRemoveChapter,
+    handleSelectChapter,
     handleChapterTitleChange,
     handleChapterContentChange,
+    handleRemoveChapter,
     handleDragStart,
     handleDragEnter,
     handleDragEnd,
@@ -165,7 +172,6 @@ function MakeEbookPage() {
     handleTouchEnd,
     isDragging,
     dragOverIndex,
-    handleSelectChapter,
     ghostPillPosition,
     ghostPillContent,
     dragItemIndex,
@@ -174,6 +180,12 @@ function MakeEbookPage() {
   const {
     tags, setTags, tagInput, setTagInput, handleAddTag, handleRemoveTag
   } = useTags();
+
+  // Cover state and helpers
+  const { coverFile, setCoverFile, handleCoverChange, coverUrl } = useCover(null);
+
+  // Locked sections state
+  const { lockedSections, setLockedSections, toggleSection } = useLockedSections();
 
   const [tab, setTab] = useState<"setup" | "ai" | "preview" | "library">("setup");
   const [sidebarView, setSidebarView] = useState<'library' | 'book' | 'chapters' | 'preview' | null>(null);
@@ -209,6 +221,15 @@ function MakeEbookPage() {
   const [sidebarPreviewExpanded, setSidebarPreviewExpanded] = useState(false);
   const [sidebarChaptersExpanded, setSidebarChaptersExpanded] = useState(true);
   const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] = useState(false);
+
+  // When a sidebar view is opened, ensure its panel is expanded by default
+  useEffect(() => {
+    if (!sidebarView) return;
+    if (sidebarView === 'library') setSidebarLibraryExpanded(true);
+    if (sidebarView === 'book') setSidebarBookDetailsExpanded(true);
+    if (sidebarView === 'chapters') setSidebarChaptersExpanded(true);
+    if (sidebarView === 'preview') setSidebarPreviewExpanded(true);
+  }, [sidebarView]);
 
   const [saveFeedback, setSaveFeedback] = useState(false);
   const [bookJustLoaded, setBookJustLoaded] = useState(false);
@@ -471,29 +492,41 @@ function MakeEbookPage() {
     saveBookDirectly(false);
   }
 
-  function saveBookDirectly(forceNewVersion: boolean) {
+  async function saveBookDirectly(forceNewVersion: boolean) {
     const bookData = {
       id: forceNewVersion ? undefined : currentBookId, // Force new ID if creating new version
       title,
       author,
       blurb,
       publisher,
-      pubDate,
+      pub_date: pubDate, // Use snake_case for Supabase
       isbn,
       language,
       genre,
       tags,
-      coverUrl,
-      chapters,
+      cover_image_url: coverUrl,
       endnotes,
-      endnoteReferences,
+      endnote_references: endnoteReferences,
     };
-    
+
     const id = saveBookToLibrary(bookData);
     setCurrentBookId(id);
     setLibraryBooks(loadBookLibrary());
     setSaveFeedback(true);
     setTimeout(() => setSaveFeedback(false), 1300);
+
+    // Save to Supabase (if user is logged in)
+    try {
+      if (user && user.id) {
+        const result = await saveEbookToSupabase(bookData, chapters, user.id);
+        console.log('Supabase save result:', result);
+        if (!result) {
+          console.warn('No data returned from Supabase. Check RLS policies and table columns.');
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save to Supabase:', err, JSON.stringify(err));
+    }
   }
 
   function handleOverwriteBook() {
@@ -1946,30 +1979,41 @@ function MakeEbookPage() {
                       </button>
                       <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Redo</span>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <div className="flex flex-col items-center">
-                      <button
-                        onClick={() => {
-                          handleSaveBook();
-                        }}
-                        disabled={!!saveFeedback}
-                        title={saveFeedback ? "Saved!" : "Save book"}
-                        className="hover:opacity-70 transition-opacity disabled:opacity-60"
-                      >
-                        <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2">
-                          {saveFeedback ? (
-                            <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                          ) : (
-                            <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                          )}
-                        </div>
-                      </button>
-                      <span className={`text-xs font-medium mt-1 transition-colors ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
-                        {saveFeedback ? 'Saved!' : 'Save'}
-                      </span>
+                    {/* On mobile, right-align Save/Export, remove duplicate Save. On desktop, add Save/Export beside Undo/Redo. */}
+                    <div className="flex-1 flex justify-end gap-2 lg:justify-start">
+                      <div className="flex flex-col items-center">
+                        <button
+                          onClick={handleSaveBook}
+                          disabled={!!saveFeedback}
+                          title={saveFeedback ? "Saved!" : "Save book"}
+                          className="hover:opacity-70 transition-opacity disabled:opacity-60"
+                        >
+                          <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2">
+                            {saveFeedback ? (
+                              <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            ) : (
+                              <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                            )}
+                          </div>
+                        </button>
+                        <span className={`text-xs font-medium mt-1 transition-colors ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
+                          {saveFeedback ? 'Saved!' : 'Save'}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <button
+                          onClick={handleExportEPUB}
+                          title="Export book as EPUB"
+                          className="hover:opacity-70 transition-opacity"
+                        >
+                          <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2">
+                            <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                          </div>
+                        </button>
+                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Export</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2026,7 +2070,6 @@ function MakeEbookPage() {
                 {/* Rich Text Editor - Maximum Space */}
                 <div className="w-full max-w-full flex-1 min-h-0 flex flex-col">
                   <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between px-2">
-
                     <div className="flex items-start gap-2">
                       <div className="flex flex-col items-center">
                         <button
@@ -2080,6 +2123,41 @@ function MakeEbookPage() {
                         </button>
                         <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Redo</span>
                       </div>
+                      {/* Save Book Button */}
+                      <div className="flex flex-col items-center">
+                        <button
+                          onClick={handleSaveBook}
+                          disabled={!!saveFeedback}
+                          title={saveFeedback ? "Saved!" : "Save book"}
+                          className="hover:opacity-70 transition-opacity disabled:opacity-60"
+                        >
+                          <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2">
+                            {saveFeedback ? (
+                              <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            ) : (
+                              <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                            )}
+                          </div>
+                        </button>
+                        <span className={`text-xs font-medium mt-1 transition-colors ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
+                          {saveFeedback ? 'Saved!' : 'Save'}
+                        </span>
+                      </div>
+                      {/* Export Book Button */}
+                      <div className="flex flex-col items-center">
+                        <button
+                          onClick={handleExportEPUB}
+                          title="Export book as EPUB"
+                          className="hover:opacity-70 transition-opacity"
+                        >
+                          <div className="bg-white dark:bg-[#2a2a2a] rounded-full p-2">
+                            <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                          </div>
+                        </button>
+                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Export</span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex-1 min-h-0">
@@ -2113,7 +2191,6 @@ function MakeEbookPage() {
     </>
   );
 }
-
 // User Dropdown Component for Mobile
 function UserDropdownMobile() {
   const { user, signOut, loading } = useAuth();
