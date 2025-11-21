@@ -1173,6 +1173,27 @@ function MakeEbookPage() {
                               {coverFile.name}
                             </p>
                           )}
+                          <div className="mt-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const params = new URLSearchParams({
+                                  title: title || '',
+                                  author: author || ''
+                                }).toString();
+                                window.open(`https://make-ebook-cover.figma.site?${params}`, '_blank', 'noopener,noreferrer');
+                              }}
+                              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md border border-gray-200 dark:border-[#424242] bg-white dark:bg-[#1f1f1f] hover:bg-gray-50 dark:hover:bg-[#272727] transition-colors"
+                              title="Make-ebook cover generator (opens in new tab)"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 3h6v6" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 14L21 3" />
+                              </svg>
+                              <span>Make-ebook cover generator</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}
