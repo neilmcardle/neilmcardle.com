@@ -16,6 +16,7 @@ import { LANGUAGES, today } from "./utils/constants";
 import { CHAPTER_TEMPLATES, Chapter, Endnote, EndnoteReference } from "./types";
 import MetaTabContent from "./components/MetaTabContent";
 import PreviewPanel from "./components/PreviewPanel";
+import PreviewEreaderPanel from "./components/PreviewEreaderPanel";
 import AiTabContent from "./components/AiTabContent";
 import { useChapters } from "./hooks/useChapters";
 import { useTags } from "./hooks/useTags";
@@ -221,6 +222,7 @@ function MakeEbookPage() {
   const [sidebarPreviewExpanded, setSidebarPreviewExpanded] = useState(false);
   const [sidebarChaptersExpanded, setSidebarChaptersExpanded] = useState(true);
   const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] = useState(false);
+  const [showEreaderPreview, setShowEreaderPreview] = useState(false);
 
   // When a sidebar view is opened, ensure its panel is expanded by default
   useEffect(() => {
@@ -2201,11 +2203,32 @@ function MakeEbookPage() {
                   </div>
                 </div>
               </section>
+
+              {/* Right-side preview toggle (desktop) */}
+              <div className="hidden lg:block">
+                <div className="fixed right-4 bottom-6 z-40">
+                  <button
+                    onClick={() => setShowEreaderPreview((s) => !s)}
+                    className="px-3 py-2 rounded-full bg-white dark:bg-[#161616] border border-gray-200 dark:border-[#2a2a2a] shadow hover:shadow-md transition"
+                    title={showEreaderPreview ? 'Hide e‑Reader preview' : 'Show e‑Reader preview'}
+                  >
+                    {showEreaderPreview ? 'Hide Preview' : 'Show Preview'}
+                  </button>
+                </div>
+              </div>
               </>
               )}
             </div>
           </main>
         </div>
+        {showEreaderPreview && (
+          <PreviewEreaderPanel
+            chapters={chapters}
+            selectedChapter={selectedChapter}
+            setSelectedChapter={(i: number) => setSelectedChapter(i)}
+            onClose={() => setShowEreaderPreview(false)}
+          />
+        )}
 
         {/* Terms/Privacy links moved to mobile editor footer */}
       </div>

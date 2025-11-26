@@ -85,7 +85,7 @@ export default function ProfileCardHomepage() {
               </div>
             </div>
 
-            {/* Products Section */}
+            {/* Products Section (logos only) */}
             <div className="mb-6">
               <h2
                 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-widest transition-colors"
@@ -94,72 +94,21 @@ export default function ProfileCardHomepage() {
               >
                 Products
               </h2>
-              <div className="flex items-center justify-center gap-8">{" "}
-                <div style={{
-                  borderRadius: '999px',
-                  padding: '2.5px',
-                  background: theme === 'dark' 
-                    ? 'linear-gradient(90deg, #2a2a2a 0%, #3a3a3a 50%, #3a3a3a 100%)'
-                    : 'linear-gradient(90deg, #ebebebff 0%, #F4F4F4 50%, #F4F4F4 100%)',
-                  display: 'inline-block',
-                }}>
-                  <a
-                    href="https://vectorpaint.vercel.app/"
-                    className="text-gray-900 dark:text-white px-6 py-2 font-medium inline-flex items-center gap-2 transition-all focus:outline-none"
-                    style={{
-                      borderRadius: '999px',
-                      background: theme === 'dark' ? '#2a2a2a' : '#f8f8f8ff',
-                      border: 'none',
-                      boxShadow: theme === 'dark' 
-                        ? '0 6px 8px 0 rgba(0,0,0,0.4)'
-                        : '0 6px 8px 0 rgba(0,0,0,0.16)',
-                      transition: 'background 0.2s',
-                      display: 'inline-block',
-                      fontSize: '12px',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = theme === 'dark' ? '#3a3a3a' : 'linear-gradient(180deg, #ebebebff 40%, #F4F4F4 100%)'}
-                    onMouseLeave={e => e.currentTarget.style.background = theme === 'dark' ? '#2a2a2a' : '#f8f8f8ff'}
-                    data-testid="link-vectorpaint"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Vector Paint
-                  </a>
-                </div>
-                <div style={{
-                  borderRadius: '999px',
-                  padding: '2.5px',
-                  background: theme === 'dark'
-                    ? 'linear-gradient(90deg, #2a2a2a 0%, #3a3a3a 50%, #3a3a3a 100%)'
-                    : 'linear-gradient(90deg, #ebebebff 0%, #F4F4F4 50%, #F4F4F4 100%)',
-                  display: 'inline-block',
-                }}>
-                  <a
-                    href="https://neilmcardle.com/make-ebook"
-                    className="text-gray-900 dark:text-white px-6 py-2 font-medium inline-flex items-center gap-2 transition-all focus:outline-none"
-                    style={{
-                      borderRadius: '999px',
-                      background: theme === 'dark' ? '#2a2a2a' : '#f8f8f8ff',
-                      border: 'none',
-                      boxShadow: theme === 'dark'
-                        ? '0 6px 8px 0 rgba(0,0,0,0.4)'
-                        : '0 6px 8px 0 rgba(0,0,0,0.16)',
-                      transition: 'background 0.2s',
-                      display: 'inline-block',
-                      fontSize: '12px',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = theme === 'dark' ? '#3a3a3a' : 'linear-gradient(180deg, #ebebebff 40%, #F4F4F4 100%)'}
-                    onMouseLeave={e => e.currentTarget.style.background = theme === 'dark' ? '#2a2a2a' : '#f8f8f8ff'}
-                    data-testid="link-makeebook"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    makeEbook
-                  </a>
-                </div>
+              <div className="flex items-center justify-center gap-8">
+                <a href="https://neilmcardle.com/make-ebook" target="_blank" rel="noopener noreferrer" title="makeEbook" className="inline-block">
+                  <img src="/make-ebook-logomark.svg" alt="makeEbook" className="h-6 w-auto dark:hidden" />
+                  <img src="/dark-make-ebook-logomark.svg" alt="makeEbook" className="h-6 w-auto hidden dark:block" />
+                </a>
+
+                <span className="text-gray-300 dark:text-gray-600 mx-2">|</span>
+
+                <a href="https://coverly.figma.site" target="_blank" rel="noopener noreferrer" title="Coverly" className="inline-block">
+                  <img src="/coverly-logo.svg" alt="Coverly" className="h-6 w-auto dark:hidden" />
+                  <img src="/dark-coverly-logo.svg" alt="Coverly" className="h-6 w-auto hidden dark:block" />
+                </a>
               </div>
             </div>
-            <div className="flex justify-center items-center gap-4 mb-4">
+            <div className="flex justify-center items-center gap-4 mt-6 mb-4">
               <a
                 href="https://github.com/neilmcardle"
                 target="_blank"
