@@ -74,7 +74,7 @@
     "jszip": "^3.10.1",
     "katex": "^0.16.22",
     "lucide-react": "^0.454.0",
-    "next": "15.5.7",
+    "next": "15.5.9",
     "next-themes": "latest",
     "pg": "^8.16.3",
     "postgres": "^3.4.7",
