@@ -263,35 +263,6 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
         </Tooltip>
 
         {/* Coverly Button */}
-        <div className="flex flex-col items-center w-full mt-4">
-          <button
-            type="button"
-            onClick={() => {
-              const url = 'https://coverly.figma.site';
-              window.open(url, '_blank', 'noopener,noreferrer');
-            }}
-            className="flex flex-col items-center w-full gap-1 px-2 py-2 rounded-lg border border-gray-200 dark:border-[#424242] bg-white dark:bg-[#383838] hover:bg-gray-50 dark:hover:bg-[#2f2f2f] shadow transition-all"
-            title="Open Coverly: Book Cover Generator (opens in new tab)"
-          >
-            <img
-              src="/coverly-logo.svg"
-              alt="Coverly logo"
-              className="h-8 block dark:hidden mb-1"
-              style={{ margin: '0 auto' }}
-            />
-            <img
-              src="/dark-coverly-logo.svg"
-              alt="Coverly logo dark"
-              className="h-8 hidden dark:block mb-1"
-              style={{ margin: '0 auto' }}
-            />
-            <span className="text-[11px] text-[#4B3A8B] dark:text-[#D1C4F7] text-center leading-tight">Design your own book cover and upload it to MakeEbook</span>
-            <span className="flex items-center justify-center gap-1 mt-1 text-[11px] text-[#6C47FF] dark:text-[#B6A7FF] font-medium">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 3h6v6" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14L21 3" /></svg>
-              <span>Opens in new tab</span>
-            </span>
-          </button>
-        </div>
       </nav>
 
       {/* Bottom section - Theme Toggle and User */}
