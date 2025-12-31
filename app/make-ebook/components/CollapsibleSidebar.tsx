@@ -635,15 +635,28 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                     }).toString();
                     window.open(`https://coverly.figma.site?${params}`, '_blank', 'noopener,noreferrer');
                   }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md border border-gray-200 dark:border-[#424242] bg-white dark:bg-[#383838] hover:bg-gray-50 dark:hover:bg-[#2f2f2f] transition-colors"
-                  title="Make-ebook cover generator (opens in new tab)"
+                  className="flex flex-col items-center w-full gap-2 px-4 py-3 rounded-lg border border-gray-200 dark:border-[#424242] bg-white dark:bg-[#383838] hover:bg-gray-50 dark:hover:bg-[#2f2f2f] shadow transition-all mb-2"
+                  title="Open Coverly: Book Cover Generator (opens in new tab)"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 3h6v6" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 14L21 3" />
-                  </svg>
-                  <span>Make-ebook cover generator</span>
+                  <span className="flex items-center justify-center w-full mb-2">
+                    <img
+                      src="/coverly-logo.svg"
+                      alt="Coverly logo"
+                      className="h-8 block dark:hidden"
+                      style={{ margin: '0 auto' }}
+                    />
+                    <img
+                      src="/dark-coverly-logo.svg"
+                      alt="Coverly logo dark"
+                      className="h-8 hidden dark:block"
+                      style={{ margin: '0 auto' }}
+                    />
+                  </span>
+                  <span className="text-xs text-[#4B3A8B] dark:text-[#D1C4F7] text-center leading-tight">Design your own book cover and upload it to MakeEbook</span>
+                  <span className="flex items-center justify-center gap-1 mt-1 text-xs text-[#6C47FF] dark:text-[#B6A7FF] font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 3h6v6" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14L21 3" /></svg>
+                    <span>Opens in new tab</span>
+                  </span>
                 </button>
               </div>
             </div>
