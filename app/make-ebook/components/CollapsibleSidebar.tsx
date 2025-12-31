@@ -633,7 +633,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                       title: title || '',
                       author: author || ''
                     }).toString();
-                    window.open(`https://make-ebook-cover.figma.site?${params}`, '_blank', 'noopener,noreferrer');
+                    window.open(`https://coverly.figma.site?${params}`, '_blank', 'noopener,noreferrer');
                   }}
                   className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md border border-gray-200 dark:border-[#424242] bg-white dark:bg-[#383838] hover:bg-gray-50 dark:hover:bg-[#2f2f2f] transition-colors"
                   title="Make-ebook cover generator (opens in new tab)"
