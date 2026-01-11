@@ -1,6 +1,7 @@
 import JSZip from "jszip";
 import { uuidv4 } from "./uuid";
 import { today } from "./constants";
+import { generateEpubCSS, TypographyPreset } from "./typographyPresets";
 
 /** Converts HTML to valid XHTML for EPUB */
 function toXhtml(html: string): string {
@@ -135,6 +136,7 @@ interface ExportEpubOptions {
   coverFile: File | null;
   chapters: Chapter[];
   endnoteReferences?: { id: string; number: number; chapterId: string; endnoteId: string }[];
+  typographyPreset?: TypographyPreset;
 }
 
 export async function exportEpub({
@@ -150,6 +152,7 @@ export async function exportEpub({
   coverFile,
   chapters,
   endnoteReferences,
+  typographyPreset = 'default',
 }: ExportEpubOptions) {
   const bookId = isbn.trim() ? isbn.trim() : "urn:uuid:" + uuidv4();
   const safeTitle = title.trim() || "Untitled";
@@ -161,6 +164,9 @@ export async function exportEpub({
   const safePublisher = publisher && publisher.trim().length > 0 ? publisher.trim() : "N/A";
   const subjects = [genre, ...tags].filter(Boolean);
 
+  // Generate professional CSS based on typography preset
+  const epubCSS = generateEpubCSS(typographyPreset);
+  
   const zip = new JSZip();
 
   // Required mimetype and container.xml
@@ -174,6 +180,9 @@ export async function exportEpub({
       </rootfiles>
     </container>`
   );
+
+  // Add professional stylesheet
+  zip.file("OEBPS/styles.css", epubCSS);
 
   // --- COVER ---
   let coverHref = "";
@@ -373,10 +382,13 @@ export async function exportEpub({
       `OEBPS/${filename}`,
       `<?xml version="1.0" encoding="utf-8"?>
       <html xmlns="http://www.w3.org/1999/xhtml">
-        <head><title>${chapterTitle}</title></head>
+        <head>
+          <title>${chapterTitle}</title>
+          <link rel="stylesheet" type="text/css" href="styles.css"/>
+        </head>
         <body>
-          <h2>${chapterTitle}</h2>
-          <div>${chapterHtml}</div>
+          <h1 class="chapter-title">${chapterTitle}</h1>
+          <div class="chapter-content">${chapterHtml}</div>
         </body>
       </html>`
     );
@@ -445,6 +457,9 @@ export async function exportEpub({
   // Manifest for navigation
   const navManifestItem = `<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>`;
 
+  // Manifest for stylesheet
+  const styleManifestItem = `<item id="styles" href="styles.css" media-type="text/css"/>`;
+
   // Spine for reading order: cover → TOC → publisher → chapters
   const spineItems = [
     coverFile instanceof File ? `<itemref idref="cover" linear="yes"/>` : "",
@@ -478,6 +493,7 @@ export async function exportEpub({
         ${imageManifestItems}
         ${extraXhtmlManifestItems}
         ${navManifestItem}
+        ${styleManifestItem}
       </manifest>
       <spine toc="nav">
         ${spineItems}

@@ -1,6 +1,6 @@
 "use client";
 import { saveEbookToSupabase } from '@/lib/supabaseEbooks';
-import React, { Suspense, useState, useRef, useLayoutEffect, useEffect } from "react";
+import React, { Suspense, useState, useRef, useLayoutEffect, useEffect, useCallback } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { BookToolbar } from "@/components/BookToolbar";
@@ -22,10 +22,22 @@ import { useChapters } from "./hooks/useChapters";
 import { useTags } from "./hooks/useTags";
 import { useCover } from "./hooks/useCover";
 import { useLockedSections } from "./hooks/useLockedSections";
+import { useAutoSave, useUnsavedChangesWarning } from "./hooks/useAutoSave";
+import { useEditorShortcuts } from "./hooks/useKeyboardShortcuts";
+import { useQualityValidator } from "./hooks/useQualityValidator";
+import { autoFixAllChapters } from "./utils/typographyFixer";
 import { exportEpub } from "./utils/exportEpub";
+import { TypographyPreset } from "./utils/typographyPresets";
 import RichTextEditor from "./components/RichTextEditor";
 import CollapsibleSidebar from "./components/CollapsibleSidebar";
 import SlimSidebarNav from "./components/SlimSidebarNav";
+import AutoSaveIndicator from "./components/AutoSaveIndicator";
+import { QualityDropdown } from "./components/QualityPanel";
+import { WordStatsDropdown } from "./components/WordStatsDropdown";
+import { useWordStats } from "./hooks/useWordStats";
+import { useVersionHistory } from "./hooks/useVersionHistory";
+import { VersionHistoryPanel, VersionHistoryButton } from "./components/VersionHistoryPanel";
+import SplitPreviewLayout from "./components/SplitPreviewLayout";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { 
   DropdownMenu, 
@@ -208,6 +220,8 @@ function MakeEbookPage() {
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mobileChaptersOpen, setMobileChaptersOpen] = useState(false);
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [mobilePreviewDevice, setMobilePreviewDevice] = useState<'phone' | 'tablet'>('phone');
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
@@ -236,6 +250,110 @@ function MakeEbookPage() {
   const [saveFeedback, setSaveFeedback] = useState(false);
   const [bookJustLoaded, setBookJustLoaded] = useState(false);
   const [chapterJustAdded, setChapterJustAdded] = useState<string | null>(null);
+  
+  // Split preview state
+  const [isSplitPreviewEnabled, setIsSplitPreviewEnabled] = useState(false);
+  
+  // Typography preset for EPUB export
+  const [typographyPreset, setTypographyPreset] = useState<TypographyPreset>('default');
+
+  // Quality validator hook
+  const { issues: qualityIssues, score: qualityScore, autoFixableCount } = useQualityValidator({
+    chapters,
+    title,
+    author,
+    coverFile,
+  });
+
+  // Word stats hook
+  const { bookStats, sessionStats } = useWordStats(chapters);
+
+  // Version history hook
+  const { 
+    versions, 
+    saveVersion, 
+    deleteVersion, 
+    clearHistory, 
+    formatTimestamp,
+    hasVersions 
+  } = useVersionHistory({ bookId: currentBookId });
+
+  // State for version history panel visibility
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+
+  // Auto-save hook
+  const handleAutoSave = useCallback(() => {
+    if (currentBookId || title || author || chapters.some(ch => ch.content.trim())) {
+      saveBookDirectly(false);
+    }
+  }, [currentBookId, title, author, chapters]);
+
+  const { isDirty, isSaving, lastSaved, markDirty, markClean } = useAutoSave({
+    onSave: handleAutoSave,
+    interval: 30000, // 30 seconds
+    enabled: chapters.length > 0 && (!!title || !!author || chapters.some(ch => ch.content.trim())),
+  });
+
+  // Warn before leaving with unsaved changes
+  useUnsavedChangesWarning(isDirty);
+
+  // Keyboard shortcuts
+  useEditorShortcuts({
+    onSave: () => {
+      handleSaveBook();
+    },
+    onExport: () => {
+      handleExportEPUB();
+    },
+    onPreview: () => {
+      setIsSplitPreviewEnabled(prev => !prev);
+    },
+    onNewChapter: () => {
+      handleAddChapter('content', '');
+    },
+    enabled: chapters.length > 0,
+  });
+
+  // Mark dirty on content changes
+  useEffect(() => {
+    if (initialized && chapters.length > 0) {
+      markDirty();
+    }
+  }, [chapters, title, author, blurb, publisher, pubDate, genre, tags, coverFile]);
+
+  // Auto-fix typography handler
+  const handleAutoFixTypography = useCallback(() => {
+    const { fixedChapters, totalChanges } = autoFixAllChapters(chapters);
+    if (totalChanges > 0) {
+      setChapters(fixedChapters as Chapter[]);
+      alert(`Fixed ${totalChanges} typography issue${totalChanges === 1 ? '' : 's'} across all chapters.`);
+    } else {
+      alert('No typography issues found to fix.');
+    }
+  }, [chapters, setChapters]);
+
+  // Navigate to chapter from quality issue
+  const handleNavigateToChapterFromIssue = useCallback((chapterId: string) => {
+    const chapterIndex = chapters.findIndex(ch => ch.id === chapterId);
+    if (chapterIndex >= 0) {
+      setSelectedChapter(chapterIndex);
+    }
+  }, [chapters, setSelectedChapter]);
+
+  // Restore a version from history
+  const handleRestoreVersion = useCallback((restoredChapters: Chapter[], metadata: { blurb?: string; publisher?: string; pubDate?: string; genre?: string; tags?: string[] }) => {
+    if (confirm('Restore this version? Your current work will be replaced.')) {
+      setChapters(restoredChapters);
+      if (metadata.blurb) setBlurb(metadata.blurb);
+      if (metadata.publisher) setPublisher(metadata.publisher);
+      if (metadata.pubDate) setPubDate(metadata.pubDate);
+      if (metadata.genre) setGenre(metadata.genre);
+      if (metadata.tags) setTags(metadata.tags);
+      setSelectedChapter(0);
+      setShowVersionHistory(false);
+      markDirty();
+    }
+  }, [setChapters, setBlurb, setPublisher, setPubDate, setGenre, setTags, setSelectedChapter, markDirty]);
 
   // Update endnotes chapter content whenever endnotes change
   useEffect(() => {
@@ -476,7 +594,11 @@ function MakeEbookPage() {
       coverFile,
       chapters: migratedChapters,
       endnoteReferences: migratedEndnoteRefs,
+      typographyPreset,
     });
+    
+    // Mark as clean after successful export
+    markClean();
   }
 
   function handleSaveBook() {
@@ -515,6 +637,17 @@ function MakeEbookPage() {
     setCurrentBookId(id);
     setLibraryBooks(loadBookLibrary());
     setSaveFeedback(true);
+    markClean(); // Mark as saved for auto-save indicator
+    
+    // Save version to history
+    saveVersion(title, author, chapters, {
+      blurb,
+      publisher,
+      pubDate,
+      genre,
+      tags,
+    });
+    
     setTimeout(() => setSaveFeedback(false), 1300);
 
     // Save to Supabase (if user is logged in)
@@ -790,6 +923,143 @@ function MakeEbookPage() {
                   className="flex-1 px-4 py-2 rounded bg-[#181a1d] dark:bg-[#2a2a2a] text-white text-sm font-medium hover:bg-[#23252a] dark:hover:bg-[#3a3a3a] transition-colors"
                 >
                   Save as New
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Version History Panel */}
+        {showVersionHistory && (
+          <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#333]">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Version History</h2>
+                <button
+                  onClick={() => setShowVersionHistory(false)}
+                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                >
+                  <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <VersionHistoryPanel
+                  versions={versions}
+                  currentWordCount={bookStats.totalWords}
+                  onRestoreAction={handleRestoreVersion}
+                  onDeleteAction={deleteVersion}
+                  onClearAllAction={clearHistory}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Preview Modal */}
+        {mobilePreviewOpen && (
+          <div className="fixed inset-0 z-[130] bg-gray-900/95 flex flex-col lg:hidden overflow-hidden">
+            {/* Header - Sticky */}
+            <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700">
+              <div className="flex items-center gap-3">
+                <h2 className="text-sm font-medium text-white">Preview</h2>
+                {/* Device Toggle */}
+                <div className="flex bg-gray-700 rounded-lg p-0.5">
+                  <button
+                    onClick={() => setMobilePreviewDevice('phone')}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                      mobilePreviewDevice === 'phone' 
+                        ? 'bg-gray-600 text-white' 
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    Phone
+                  </button>
+                  <button
+                    onClick={() => setMobilePreviewDevice('tablet')}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                      mobilePreviewDevice === 'tablet' 
+                        ? 'bg-gray-600 text-white' 
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    Tablet
+                  </button>
+                </div>
+              </div>
+              <button
+                onClick={() => setMobilePreviewOpen(false)}
+                className="p-1.5 hover:bg-gray-700 rounded transition-colors"
+              >
+                <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {/* Preview Content - Scrollable middle area */}
+            <div className="flex-1 min-h-0 overflow-auto flex items-start justify-center p-4 pt-6">
+              <div 
+                className={`bg-[#FAF9F6] rounded-2xl shadow-2xl overflow-hidden flex-shrink-0 ${
+                  mobilePreviewDevice === 'phone' ? 'w-[280px]' : 'w-[340px]'
+                }`}
+                style={{ 
+                  height: mobilePreviewDevice === 'phone' ? '500px' : '480px',
+                  maxHeight: 'calc(100vh - 120px)'
+                }}
+              >
+                {/* eReader Screen - Reflowable content */}
+                <div className="h-full overflow-auto bg-[#FAF9F6] px-5 py-6">
+                  {chapters[selectedChapter] && (
+                    <div className="font-serif">
+                      {/* Book Title - small grey header */}
+                      <p className="text-[10px] uppercase tracking-[0.15em] text-gray-400 text-center mb-4">
+                        {title || 'Untitled Book'}
+                      </p>
+                      {/* Chapter Title */}
+                      <h1 className="text-xl font-medium text-gray-900 leading-tight text-center mb-8">
+                        {chapters[selectedChapter].title || 'Untitled'}
+                      </h1>
+                      {/* Chapter Content */}
+                      <div 
+                        className="text-[15px] text-gray-800 leading-[1.8] prose prose-sm max-w-none text-left
+                          prose-p:my-4 prose-p:indent-6 first:prose-p:indent-0
+                          prose-headings:font-serif prose-headings:font-medium
+                          prose-h1:text-lg prose-h2:text-base prose-h3:text-sm
+                          prose-blockquote:border-l-2 prose-blockquote:border-gray-300 prose-blockquote:italic"
+                        dangerouslySetInnerHTML={{ 
+                          __html: chapters[selectedChapter].content || '<p class="text-gray-400 italic">Start writing to see your content here...</p>' 
+                        }}
+                      />
+                    </div>
+                  )}
+                  {!chapters[selectedChapter] && (
+                    <div className="flex items-center justify-center h-full text-gray-400 text-sm italic">
+                      No chapter selected
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            {/* Chapter Navigation - Sticky bottom */}
+            <div className="flex-shrink-0 px-4 py-3 bg-gray-800 border-t border-gray-700">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setSelectedChapter(Math.max(0, selectedChapter - 1))}
+                  disabled={selectedChapter === 0}
+                  className="px-3 py-1.5 text-xs font-medium text-gray-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  ← Previous
+                </button>
+                <span className="text-xs text-gray-400">
+                  Chapter {selectedChapter + 1} of {chapters.length}
+                </span>
+                <button
+                  onClick={() => setSelectedChapter(Math.min(chapters.length - 1, selectedChapter + 1))}
+                  disabled={selectedChapter === chapters.length - 1}
+                  className="px-3 py-1.5 text-xs font-medium text-gray-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Next →
                 </button>
               </div>
             </div>
@@ -1875,38 +2145,73 @@ function MakeEbookPage() {
           )}
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className={`flex-1 flex flex-col bg-white dark:bg-[#1a1a1a] rounded shadow-sm px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-hidden relative transition-all duration-500 ease-in-out ${
+          <main className={`flex-1 flex flex-col bg-white dark:bg-[#1a1a1a] rounded shadow-sm px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-x-hidden overflow-y-auto relative transition-all duration-500 ease-in-out ${
             isPanelOpen ? 'lg:ml-[366px]' : 'lg:ml-0'
           }`}>
             
-            {/* Mobile Header - Logo + Menu Button */}
+            {/* Mobile Header - Compact Status Bar */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#424242]">
-              <div className="flex items-center justify-between px-4 py-3 gap-3">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <button
-                    onClick={() => setMobileSidebarOpen(true)}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0 -ml-0.5"
-                    aria-label="Open menu"
-                  >
-                    <img 
-                      src="/hamburger-menu-icon.svg" 
-                      alt="Menu" 
-                      className="w-5 h-5 dark:hidden" 
-                    />
-                    <img 
-                      src="/dark-hamburger-menu-icon.svg" 
-                      alt="Menu" 
-                      className="w-5 h-5 hidden dark:block" 
-                    />
-                  </button>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Editing:</div>
-                    <div className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5] truncate">
-                      {title || 'Untitled Book'}
-                    </div>
+              <div className="flex items-center justify-between px-2 py-1.5 gap-1">
+                {/* Left: Menu Button */}
+                <button
+                  onClick={() => setMobileSidebarOpen(true)}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
+                  aria-label="Open menu"
+                >
+                  <img 
+                    src="/hamburger-menu-icon.svg" 
+                    alt="Menu" 
+                    className="w-5 h-5 dark:hidden" 
+                  />
+                  <img 
+                    src="/dark-hamburger-menu-icon.svg" 
+                    alt="Menu" 
+                    className="w-5 h-5 hidden dark:block" 
+                  />
+                </button>
+                {/* Center: Book Title - truncated */}
+                <div className="flex-1 min-w-0 text-center px-1">
+                  <div className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5] truncate">
+                    {title || 'Untitled Book'}
                   </div>
                 </div>
+                {/* Right: Preview + Stats Dropdowns */}
+                {chapters.length > 0 && (
+                  <div className="flex items-center gap-0.5 flex-shrink-0">
+                    {/* Preview Button */}
+                    <button
+                      onClick={() => setMobilePreviewOpen(true)}
+                      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      aria-label="Preview book"
+                      title="Preview"
+                    >
+                      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                    <WordStatsDropdown
+                      bookStats={bookStats}
+                      currentChapterIndex={selectedChapter}
+                      wordsThisSession={sessionStats.wordsThisSession}
+                    />
+                    <QualityDropdown
+                      score={qualityScore}
+                      issues={qualityIssues}
+                      autoFixableCount={autoFixableCount}
+                      onNavigateToChapterAction={handleNavigateToChapterFromIssue}
+                      onAutoFixAllAction={handleAutoFixTypography}
+                    />
+                  </div>
+                )}
               </div>
+              {/* Floating Unsaved Bar - only shows when dirty */}
+              {isDirty && (
+                <div className="flex items-center justify-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-900/30 border-t border-amber-200 dark:border-amber-800">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  <span className="text-xs text-amber-700 dark:text-amber-300">Unsaved changes</span>
+                </div>
+              )}
             </div>
 
             {/* Desktop Header with Title and Toolbar */}
@@ -1915,7 +2220,7 @@ function MakeEbookPage() {
             </div>
 
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
-            <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pt-8 pb-0">
+            <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pt-14 pb-0">
               {chapters.length === 0 ? (
                 // Landing Page - Mobile version
                 <LandingPage
@@ -2071,9 +2376,52 @@ function MakeEbookPage() {
                   libraryCount={libraryBooks.length}
                 />
               ) : (
+              <SplitPreviewLayout
+                chapters={chapters}
+                selectedChapter={selectedChapter}
+                isPreviewEnabled={isSplitPreviewEnabled}
+                onTogglePreviewAction={() => setIsSplitPreviewEnabled(prev => !prev)}
+                onChapterSelectAction={(i) => setSelectedChapter(i)}
+              >
               <>
               {/* Editor Area - Prioritized for Writing */}
               <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2">
+                {/* Status Bar with Auto-Save and Quality Score */}
+                <div className="flex items-center justify-between px-2 mb-2">
+                  <AutoSaveIndicator isDirty={isDirty} isSaving={isSaving} lastSaved={lastSaved} />
+                  <div className="flex items-center gap-3">
+                    <VersionHistoryButton 
+                      versionCount={versions.length} 
+                      onClickAction={() => setShowVersionHistory(true)} 
+                    />
+                    <WordStatsDropdown
+                      bookStats={bookStats}
+                      currentChapterIndex={selectedChapter}
+                      wordsThisSession={sessionStats.wordsThisSession}
+                    />
+                    <QualityDropdown
+                      score={qualityScore}
+                      issues={qualityIssues}
+                      autoFixableCount={autoFixableCount}
+                      onNavigateToChapterAction={handleNavigateToChapterFromIssue}
+                      onAutoFixAllAction={handleAutoFixTypography}
+                    />
+                    <button
+                      onClick={() => setIsSplitPreviewEnabled(prev => !prev)}
+                      className={`p-1.5 rounded transition-colors ${
+                        isSplitPreviewEnabled 
+                          ? 'bg-black text-white dark:bg-white dark:text-black' 
+                          : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                      title={isSplitPreviewEnabled ? "Hide preview (⌘P)" : "Show preview (⌘P)"}
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
                 {/* Compact Chapter Title Header - Clean UI */}
                 <div className="mb-1 flex-shrink-0 bg-white dark:bg-[#1a1a1a] pb-1">
                   <div className="flex items-center gap-1 px-1 py-1">
@@ -2204,19 +2552,12 @@ function MakeEbookPage() {
                 </div>
               </section>
 
-              {/* Right-side preview toggle (desktop) */}
-              <div className="hidden lg:block">
-                <div className="fixed right-4 bottom-6 z-40">
-                  <button
-                    onClick={() => setShowEreaderPreview((s) => !s)}
-                    className="px-3 py-2 rounded-full bg-white dark:bg-[#161616] border border-gray-200 dark:border-[#2a2a2a] shadow hover:shadow-md transition"
-                    title={showEreaderPreview ? 'Hide e‑Reader preview' : 'Show e‑Reader preview'}
-                  >
-                    {showEreaderPreview ? 'Hide Preview' : 'Show Preview'}
-                  </button>
-                </div>
+              {/* Right-side preview toggle (desktop) - now uses split preview */}
+              <div className="hidden">
+                {/* Legacy floating preview toggle - replaced by split preview */}
               </div>
               </>
+              </SplitPreviewLayout>
               )}
             </div>
           </main>
