@@ -105,74 +105,27 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         {/* Start New Book Button */}
-        <div className="inline-flex items-center w-full" style={{background: 'linear-gradient(45deg, rgb(115, 63, 6) 0%, rgb(254, 243, 231) 50%, rgb(177, 145, 107) 100%)', borderRadius: '999px', padding: '2.5px'}}>
-          <div className="flex-1 flex">
-                <button
-                  type="button"
-                  onClick={onNewBook}
-                  className="w-full text-white dark:text-white px-6 py-3 font-medium flex items-center justify-center gap-2 transition-all focus:outline-none uppercase custom-pill-btn"
-                  style={{
-                    borderRadius: '999px',
-                    background: 'rgb(26, 26, 26)',
-                    border: 'none',
-                    boxShadow: 'rgba(0, 0, 0, 0.16) 0px 6px 8px 0px',
-                    fontSize: '14px',
-                    transition: 'background 0.2s',
-                    width: '100%'
-                  }}
-                >
-                  START NEW BOOK
-                </button>
-          </div>
-        </div>
-        {/* Browse Library Button - styled identically */}
-        <div className="inline-flex items-center w-full" style={{background: 'linear-gradient(45deg, rgb(115, 63, 6) 0%, rgb(254, 243, 231) 50%, rgb(177, 145, 107) 100%)', borderRadius: '999px', padding: '2.5px'}}>
-          <div className="flex-1 flex">
-                <button
-                  type="button"
-                  onClick={onOpenLibrary}
-                  className="w-full text-white dark:text-white px-6 py-3 font-medium flex items-center justify-center gap-2 transition-all focus:outline-none uppercase whitespace-nowrap custom-pill-btn"
-                  style={{
-                    borderRadius: '999px',
-                    background: 'rgb(26, 26, 26)',
-                    border: 'none',
-                    boxShadow: 'rgba(0, 0, 0, 0.16) 0px 6px 8px 0px',
-                    fontSize: '14px',
-                    transition: 'background 0.2s',
-                    width: '100%',
-                    minWidth: '220px'
-                  }}
-                >
-                  BROWSE LIBRARY
-                  {libraryCount > 0 && (
-                    <span style={{
-                      marginLeft: '0.75rem',
-                      padding: '0.125rem 0.75rem',
-                      background: '#23272b',
-                      color: '#fff',
-                      borderRadius: '999px',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      display: 'inline-block',
-                      lineHeight: 1.2
-                    }}>
-                      {libraryCount}
-                    </span>
-                  )}
-                </button>
-          {/* Custom hover fill for pill buttons */}
-          <style jsx global>{`
-            .custom-pill-btn:hover {
-              background: #353535 !important;
-            }
-            @media (prefers-color-scheme: dark) {
-              .custom-pill-btn:hover {
-                background: #444 !important;
-              }
-            }
-          `}</style>
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={onNewBook}
+          className="px-8 py-3.5 text-sm font-semibold uppercase tracking-wide bg-[#1a1a1a] dark:bg-white text-white dark:text-[#1a1a1a] rounded-full hover:bg-[#2a2a2a] dark:hover:bg-gray-100 transition-all shadow-lg"
+        >
+          Start New Book
+        </button>
+        
+        {/* Browse Library Button */}
+        <button
+          type="button"
+          onClick={onOpenLibrary}
+          className="px-8 py-3.5 text-sm font-semibold uppercase tracking-wide border-2 border-[#d1d5db] dark:border-[#525252] text-[#1a1a1a] dark:text-white rounded-full hover:border-[#9ca3af] dark:hover:border-[#737373] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-all flex items-center justify-center gap-3"
+        >
+          Browse Library
+          {libraryCount > 0 && (
+            <span className="px-2.5 py-0.5 bg-[#e5e7eb] dark:bg-[#404040] text-[#374151] dark:text-[#d1d5db] rounded-full text-xs font-semibold">
+              {libraryCount}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Helper text */}

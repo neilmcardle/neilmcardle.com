@@ -5,6 +5,26 @@ import { useAuth } from '@/lib/hooks/useAuth'
 import { Loader2, Mail, CheckCircle, AlertCircle, X, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 
+// CSS to override browser autofill styling
+const autofillStyles = `
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #111827 !important;
+    caret-color: #111827 !important;
+  }
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus,
+  .dark input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #111827 inset !important;
+    -webkit-text-fill-color: #fff !important;
+    caret-color: #fff !important;
+  }
+`;
+
 interface AuthModalProps {
   isOpen: boolean
   onCloseAction: () => void
@@ -89,10 +109,12 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
   // Success states (verification email sent, password reset sent)
   if (showVerificationMessage || showResetMessage) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        {/* Backdrop */}
-        <div 
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+      <>
+        <style dangerouslySetInnerHTML={{ __html: autofillStyles }} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={handleClose}
         />
         
@@ -153,24 +175,27 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
           </div>
         </div>
       </div>
+      </>
     )
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={handleClose}
-      />
-      
-      {/* Modal */}
-      <div className="relative w-full max-w-md bg-white dark:bg-[#0a0a0a] rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-        {/* Close button */}
-        <button
+    <>
+      <style dangerouslySetInnerHTML={{ __html: autofillStyles }} />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={handleClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors z-10"
-        >
+        />
+        
+        {/* Modal */}
+        <div className="relative w-full max-w-md bg-white dark:bg-[#0a0a0a] rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+          {/* Close button */}
+          <button
+            onClick={handleClose}
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors z-10"
+          >
           <X className="w-5 h-5 text-gray-500" />
         </button>
 
@@ -328,5 +353,6 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
         )}
       </div>
     </div>
+    </>
   )
 }

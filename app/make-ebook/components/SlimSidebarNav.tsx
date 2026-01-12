@@ -205,7 +205,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           >
             <LibraryIcon className="w-6 h-6 dark:[&_path]:stroke-white" />
             {libraryCount > 0 && (
-              <span className="text-[10px] font-medium mt-0.5">
+              <span className="text-[10px] font-medium mt-0.5 text-gray-600 dark:text-gray-400">
                 ({libraryCount})
               </span>
             )}
@@ -240,7 +240,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           >
             <img src="/chapters-icon.svg" alt="Chapters" className="w-6 h-6 dark:invert" />
             {chaptersCount > 0 && (
-              <span className="text-[10px] font-medium mt-0.5">
+              <span className="text-[10px] font-medium mt-0.5 text-gray-600 dark:text-gray-400">
                 ({chaptersCount})
               </span>
             )}

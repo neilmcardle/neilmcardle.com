@@ -227,14 +227,18 @@ function MakeEbookPage() {
     dragItemIndex,
   } = useChapters();
   
-  // Track previous user state to detect logout - reset to landing page
+  // Track previous user state to detect login/logout
   const prevUserRef = useRef(user);
   useEffect(() => {
-    // If user was logged in and is now logged out, reset to landing page
+    // If user was logged in and is now logged out, reset to marketing landing page
     if (prevUserRef.current && !user) {
       setChapters([]);
       setShowMarketingPage(true);
       setCurrentBookId(undefined);
+    }
+    // If user was logged out and is now logged in, go to editor dashboard
+    if (!prevUserRef.current && user) {
+      setShowMarketingPage(false);
     }
     prevUserRef.current = user;
   }, [user, setChapters]);
@@ -1209,7 +1213,7 @@ function MakeEbookPage() {
                 </button>
                 <button
                   onClick={handleOverwriteBook}
-                  className="flex-1 px-4 py-2 rounded bg-orange-600 dark:bg-orange-700 text-white text-sm font-medium hover:bg-orange-700 dark:hover:bg-orange-800 transition-colors"
+                  className="flex-1 px-4 py-2 rounded bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
                 >
                   Overwrite
                 </button>
@@ -1496,7 +1500,7 @@ function MakeEbookPage() {
                         </button>
                         <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
                         <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">({libraryBooks.length})</span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">({libraryBooks.length})</span>
                       </div>
                       <div className="flex items-center gap-1">
                         {libraryBooks.length > 0 && (
@@ -1548,7 +1552,7 @@ function MakeEbookPage() {
                             >
                               {selectedBookIds.size === libraryBooks.length ? 'Deselect All' : 'Select All'}
                             </button>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                            <span className="text-xs text-gray-600 dark:text-gray-400">
                               {selectedBookIds.size} selected
                             </span>
                             <button
@@ -1562,7 +1566,7 @@ function MakeEbookPage() {
                         )}
                         <div className={`mt-2 space-y-1 pl-2 ${libraryBooks.length > 4 ? 'max-h-[400px] overflow-y-auto pr-1' : ''}`}>
                         {libraryBooks.length === 0 ? (
-                          <div className="text-xs text-gray-500 dark:text-gray-400 py-4 px-2 text-center">
+                          <div className="text-xs text-gray-600 dark:text-gray-400 py-4 px-2 text-center">
                             No saved books yet
                           </div>
                         ) : (
@@ -1599,7 +1603,7 @@ function MakeEbookPage() {
                                   }`}>
                                     {book.title || 'Untitled'}
                                   </div>
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                  <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
                                     {book.author || 'Unknown'}
                                   </div>
                                 </button>
@@ -1670,7 +1674,7 @@ function MakeEbookPage() {
                         <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                           <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Book</span>
                           {title && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            <span className="text-xs text-gray-600 dark:text-gray-400 truncate">
                               {title}
                             </span>
                           )}
@@ -1703,7 +1707,7 @@ function MakeEbookPage() {
                       <div className="mt-2 space-y-3 pl-2 pr-2">
                         {/* Title */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Title</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Title</label>
                           <input
                             type="text"
                             value={title}
@@ -1716,7 +1720,7 @@ function MakeEbookPage() {
                         
                         {/* Author */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Author</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Author</label>
                           <input
                             type="text"
                             value={author}
@@ -1729,7 +1733,7 @@ function MakeEbookPage() {
                         
                         {/* Blurb */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Description</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Description</label>
                           <textarea
                             value={blurb}
                             onChange={(e) => setBlurb(e.target.value)}
@@ -1742,7 +1746,7 @@ function MakeEbookPage() {
                         
                         {/* Publisher */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Publisher</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Publisher</label>
                           <input
                             type="text"
                             value={publisher}
@@ -1755,7 +1759,7 @@ function MakeEbookPage() {
                         
                         {/* Publication Date */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Publication Date</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Publication Date</label>
                           <input
                             type="date"
                             value={pubDate}
@@ -1767,7 +1771,7 @@ function MakeEbookPage() {
                         
                         {/* Language */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Language</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Language</label>
                           <select
                             value={language}
                             onChange={(e) => setLanguage(e.target.value)}
@@ -1784,7 +1788,7 @@ function MakeEbookPage() {
                         
                         {/* Genre */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Genre</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Genre</label>
                           <input
                             type="text"
                             value={genre}
@@ -1797,7 +1801,7 @@ function MakeEbookPage() {
                         
                         {/* ISBN */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">ISBN</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">ISBN</label>
                           <input
                             type="text"
                             value={isbn}
@@ -1810,7 +1814,7 @@ function MakeEbookPage() {
                         
                         {/* Tags */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tags</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Tags</label>
                           <div className="flex gap-2 mb-2">
                             <input
                               type="text"
@@ -1851,7 +1855,7 @@ function MakeEbookPage() {
                         
                         {/* Cover Image */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Cover Image</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Cover Image</label>
                           <input
                             type="file"
                             accept="image/*"
@@ -1860,7 +1864,7 @@ function MakeEbookPage() {
                             className="w-full text-sm text-gray-600 dark:text-gray-400 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed"
                           />
                           {coverFile && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                               {coverFile.name}
                             </p>
                           )}
@@ -1878,7 +1882,7 @@ function MakeEbookPage() {
                               title="Create a professional book cover with Coverly"
                             >
                               {/* Gradient border */}
-                              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 opacity-80 group-hover:opacity-100 transition-opacity" />
+                              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300 dark:from-gray-600 dark:via-gray-500 dark:to-gray-600 opacity-80 group-hover:opacity-100 transition-opacity" />
                               
                               {/* Inner content */}
                               <div className="relative flex items-center gap-3 rounded-xl bg-white dark:bg-[#1a1a1a] px-3 py-3">
@@ -1895,14 +1899,14 @@ function MakeEbookPage() {
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-1.5 mb-1">
                                     <p className="text-sm font-semibold text-gray-900 dark:text-white">Need a cover?</p>
-                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white uppercase">
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 uppercase">
                                       Free
                                     </span>
                                   </div>
                                   <p className="text-xs text-gray-600 dark:text-gray-400 leading-tight">Design a professional cover in minutes</p>
                                   
                                   {/* CTA */}
-                                  <div className="flex items-center gap-1 mt-1.5 text-xs font-medium text-orange-600 dark:text-orange-400 group-hover:gap-1.5 transition-all">
+                                  <div className="flex items-center gap-1 mt-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 group-hover:gap-1.5 transition-all">
                                     <span>Open Coverly</span>
                                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -1934,7 +1938,7 @@ function MakeEbookPage() {
                         </button>
                         <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert flex-shrink-0" />
                         <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Chapters</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">({chapters.length})</span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">({chapters.length})</span>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
                         <div className="relative">
@@ -1951,7 +1955,7 @@ function MakeEbookPage() {
                               <div className="space-y-3 px-2">
                                 {/* Front Matter */}
                                 <div>
-                                  <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                                  <div className="px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
                                     Front Matter
                                   </div>
                                   {CHAPTER_TEMPLATES.frontmatter.map((template) => (
@@ -1974,7 +1978,7 @@ function MakeEbookPage() {
                                 
                                 {/* Main Content */}
                                 <div>
-                                  <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                                  <div className="px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
                                     Main Content
                                   </div>
                                   {CHAPTER_TEMPLATES.content.map((template) => (
@@ -1997,7 +2001,7 @@ function MakeEbookPage() {
                                 
                                 {/* Back Matter */}
                                 <div>
-                                  <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                                  <div className="px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
                                     Back Matter
                                   </div>
                                   {CHAPTER_TEMPLATES.backmatter.map((template) => (
@@ -2026,7 +2030,7 @@ function MakeEbookPage() {
                     
                     {sidebarChaptersExpanded && (
                       <div className="mt-1 space-y-1">
-                        <p className="text-[10px] text-gray-500 dark:text-gray-400 px-2 mb-1">Drag to reorder</p>
+                        <p className="text-[10px] text-gray-600 dark:text-gray-400 px-2 mb-1">Drag to reorder</p>
                         {chapters.map((ch, i) => {
                           const isSelected = selectedChapter === i;
                           const titleText = ch.title?.trim() || 'Title';
@@ -2177,25 +2181,25 @@ function MakeEbookPage() {
                         {/* Book Info */}
                         <div className="space-y-2 text-sm">
                           <div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Title</div>
+                            <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Title</div>
                             <div className="font-medium text-[#050505] dark:text-[#e5e5e5]">{title || 'Untitled'}</div>
                           </div>
                           
                           <div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Author</div>
+                            <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Author</div>
                             <div className="text-[#050505] dark:text-[#e5e5e5]">{author || 'Unknown'}</div>
                           </div>
                           
                           {pubDate && (
                             <div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Publication Date</div>
+                              <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Publication Date</div>
                               <div className="text-[#050505] dark:text-[#e5e5e5]">{new Date(pubDate).toLocaleDateString()}</div>
                             </div>
                           )}
                           
                           {language && (
                             <div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Language</div>
+                              <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Language</div>
                               <div className="flex items-center gap-2">
                                 <img src="/dark-languages-icon.svg" className="w-4 h-4 hidden dark:block" alt="" />
                                 <img src="/languages-icon.svg" className="w-4 h-4 dark:hidden" alt="" />
@@ -2206,14 +2210,14 @@ function MakeEbookPage() {
                           
                           {genre && (
                             <div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Genre</div>
+                              <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Genre</div>
                               <div className="text-[#050505] dark:text-[#e5e5e5]">{genre}</div>
                             </div>
                           )}
                           
                           {tags.length > 0 && (
                             <div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Tags</div>
+                              <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Tags</div>
                               <div className="flex flex-wrap gap-1">
                                 {tags.map((tag) => (
                                   <span
@@ -2231,19 +2235,19 @@ function MakeEbookPage() {
                         {/* Stats */}
                         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#424242] space-y-2">
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-500 dark:text-gray-400">Chapters</span>
+                            <span className="text-gray-700 dark:text-gray-400">Chapters</span>
                             <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{chapters.length}</span>
                           </div>
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-500 dark:text-gray-400">Words</span>
+                            <span className="text-gray-700 dark:text-gray-400">Words</span>
                             <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{totalWords.toLocaleString()}</span>
                           </div>
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-500 dark:text-gray-400">Pages</span>
+                            <span className="text-gray-700 dark:text-gray-400">Pages</span>
                             <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{pageCount}</span>
                           </div>
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-500 dark:text-gray-400">Reading Time</span>
+                            <span className="text-gray-700 dark:text-gray-400">Reading Time</span>
                             <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">
                               {readingTime} {readingTime === 1 ? 'minute' : 'minutes'}
                             </span>
@@ -2676,9 +2680,9 @@ function MakeEbookPage() {
               </div>
               {/* Floating Unsaved Bar - only shows when dirty */}
               {isDirty && (
-                <div className="flex items-center justify-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-900/30 border-t border-amber-200 dark:border-amber-800">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  <span className="text-xs text-amber-700 dark:text-amber-300">Unsaved changes</span>
+                <div className="flex items-center justify-center gap-2 px-3 py-1 bg-stone-100 dark:bg-stone-800/50 border-t border-stone-200 dark:border-stone-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-stone-500 animate-pulse" />
+                  <span className="text-xs text-stone-600 dark:text-stone-400">Unsaved changes</span>
                 </div>
               )}
             </div>

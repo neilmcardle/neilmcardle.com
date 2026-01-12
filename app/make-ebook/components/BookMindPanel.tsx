@@ -338,9 +338,9 @@ export function BookMindPanel({
               </div>
 
               {/* What I can't do */}
-              <div className="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30">
-                <p className="text-xs text-amber-800 dark:text-amber-200 font-medium mb-1">✍️ Note: I analyze, not write</p>
-                <p className="text-[10px] text-amber-700 dark:text-amber-300">
+              <div className="mt-4 p-3 rounded-lg bg-stone-100 dark:bg-stone-800/30 border border-stone-200 dark:border-stone-700/50">
+                <p className="text-xs text-stone-700 dark:text-stone-300 font-medium mb-1">✍️ Note: I analyze, not write</p>
+                <p className="text-[10px] text-stone-600 dark:text-stone-400">
                   I'm here to help you understand your own work, not to write it for you. Your voice is what makes your book unique!
                 </p>
               </div>
@@ -357,10 +357,10 @@ export function BookMindPanel({
                 className={`group max-w-[85%] rounded-2xl px-4 py-2.5 relative ${
                   message.role === 'user'
                     ? message.isBlocked 
-                      ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 rounded-br-md'
-                      : 'bg-violet-600 text-white rounded-br-md'
+                      ? 'bg-stone-200 dark:bg-stone-700/50 text-stone-800 dark:text-stone-200 rounded-br-md'
+                      : 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 rounded-br-md'
                     : message.isBlocked
-                      ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-900 dark:text-amber-100 border border-amber-200 dark:border-amber-800/30 rounded-bl-md'
+                      ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700/50 rounded-bl-md'
                       : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-900 dark:text-white rounded-bl-md'
                 }`}
               >

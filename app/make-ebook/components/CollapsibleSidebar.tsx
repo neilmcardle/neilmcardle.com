@@ -323,14 +323,14 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               title={sidebarLibraryExpanded ? "Collapse library" : "Expand library"}
             >
               {sidebarLibraryExpanded ? (
-                <ChevronDown className="w-4 h-4 text-[#C0C0C0]" />
+                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-[#C0C0C0]" />
+                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               )}
             </button>
             <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
-            <span className="text-xs text-[#C0C0C0]">({libraryBooks.length})</span>
+            <span className="text-xs text-gray-600 dark:text-gray-400">({libraryBooks.length})</span>
           </div>
           <div className="flex items-center gap-1">
             {libraryBooks.length > 0 && (
@@ -392,7 +392,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             )}
             <div className={`mt-2 space-y-1 pl-2 ${libraryBooks.length > 4 ? 'max-h-[400px] overflow-y-auto pr-1' : ''}`}>
             {libraryBooks.length === 0 ? (
-              <div className="text-xs text-[#C0C0C0] py-4 px-2 text-center">
+              <div className="text-xs text-gray-600 dark:text-gray-400 py-4 px-2 text-center">
                 No saved books yet
               </div>
             ) : (
@@ -425,11 +425,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                       <div className={`text-sm font-medium truncate ${
                         isSelected || isChecked
                           ? 'text-gray-900 dark:text-gray-100'
-                          : 'text-[#C0C0C0]'
+                          : 'text-gray-700 dark:text-gray-300'
                       }`}>
                         {book.title || 'Untitled'}
                       </div>
-                      <div className="text-xs text-[#C0C0C0] truncate">
+                      <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
                         {book.author || 'Unknown author'}
                       </div>
                     </button>
@@ -496,16 +496,16 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               title={sidebarBookDetailsExpanded ? "Collapse details" : "Expand details"}
             >
               {sidebarBookDetailsExpanded ? (
-                <ChevronDown className="w-4 h-4 text-[#C0C0C0]" />
+                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-[#C0C0C0]" />
+                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               )}
             </button>
             <img src="/preview-icon.svg" alt="Details" className="w-5 h-5 dark:invert flex-shrink-0" />
             <div className="flex flex-col gap-0.5 flex-1 min-w-0">
               <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Book</span>
               {title && (
-                <span className="text-xs text-[#C0C0C0] truncate">
+                <span className="text-xs text-gray-600 dark:text-gray-400 truncate">
                   {title}
                 </span>
               )}
@@ -540,7 +540,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           <div className="mt-2 space-y-3 pl-2 pr-2">
             {/* Title */}
             <div>
-              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Title</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Title</label>
               <input
                 type="text"
                 value={title}
@@ -553,7 +553,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* Author */}
             <div>
-              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Author</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Author</label>
               <input
                 type="text"
                 value={author}
@@ -566,7 +566,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* Blurb */}
             <div>
-              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Description</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Description</label>
               <textarea
                 value={blurb}
                 onChange={(e) => setBlurb(e.target.value)}
@@ -579,7 +579,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* Publisher */}
             <div>
-              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Publisher</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Publisher</label>
               <input
                 type="text"
                 value={publisher}
@@ -592,7 +592,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* Publication Date */}
             <div>
-              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Publication Date</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Publication Date</label>
               <input
                 type="date"
                 value={pubDate}
@@ -604,7 +604,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* Language */}
             <div>
-              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Language</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Language</label>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
@@ -621,7 +621,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* Genre */}
             <div>
-              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Genre</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Genre</label>
               <input
                 type="text"
                 value={genre}
@@ -634,7 +634,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* ISBN */}
             <div>
-              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">ISBN</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">ISBN</label>
               <input
                 type="text"
                 value={isbn}
@@ -647,7 +647,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* Tags */}
             <div>
-              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Tags</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Tags</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
@@ -688,7 +688,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             
             {/* Cover Image */}
             <div>
-              <label className="block text-xs font-medium text-[#C0C0C0] mb-1">Cover Image</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Cover Image</label>
               <input
                 type="file"
                 accept="image/*"
@@ -790,7 +790,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                   <div className="space-y-3 px-2">
                     {/* Front Matter */}
                     <div>
-                      <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                      <div className="px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
                         Front Matter
                       </div>
                       {CHAPTER_TEMPLATES.frontmatter.map((template) => (
@@ -809,7 +809,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                     
                     {/* Main Content */}
                     <div>
-                      <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                      <div className="px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
                         Main Content
                       </div>
                       {CHAPTER_TEMPLATES.content.map((template) => (
@@ -828,7 +828,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                     
                     {/* Back Matter */}
                     <div>
-                      <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                      <div className="px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
                         Back Matter
                       </div>
                       {CHAPTER_TEMPLATES.backmatter.map((template) => (
@@ -851,7 +851,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         </div>
       </div>        {sidebarChaptersExpanded && (
           <div className="mt-1 space-y-1 pl-2">
-            <p className="text-[10px] text-gray-200 dark:text-gray-200 px-2 mb-1">Drag to reorder</p>
+            <p className="text-[10px] text-gray-600 dark:text-gray-400 px-2 mb-1">Drag to reorder</p>
             {chapters.map((ch, i) => {
               const isSelected = selectedChapter === i;
               const titleText = ch.title?.trim() || 'Title';
@@ -903,7 +903,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 >
                   <HandleDragIcon isSelected={isSelected} />
                   <div className="flex flex-col flex-1 min-w-0">
-                    <span className={`text-[10px] ${isSelected ? 'text-gray-200 dark:text-gray-200' : 'text-gray-500 dark:text-gray-500'}`}> 
+                    <span className={`text-[10px] ${isSelected ? 'text-gray-500 dark:text-gray-400' : 'text-gray-500 dark:text-gray-500'}`}> 
                       {typeLabel}
                     </span>
                     <span className={`text-sm truncate ${isSelected ? 'text-gray-900 dark:text-gray-100 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
@@ -974,25 +974,25 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             {/* Book Info */}
             <div className="space-y-2 text-sm">
               <div>
-                <div className="text-xs text-gray-200 dark:text-gray-200 mb-1">Title</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Title</div>
                 <div className="font-medium text-[#050505] dark:text-[#e5e5e5]">{title || 'Untitled'}</div>
               </div>
               
               <div>
-                <div className="text-xs text-gray-200 dark:text-gray-200 mb-1">Author</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Author</div>
                 <div className="text-[#050505] dark:text-[#e5e5e5]">{author || 'Unknown'}</div>
               </div>
               
               {pubDate && (
                 <div>
-                  <div className="text-xs text-gray-200 dark:text-gray-200 mb-1">Publication Date</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Publication Date</div>
                   <div className="text-[#050505] dark:text-[#e5e5e5]">{new Date(pubDate).toLocaleDateString()}</div>
                 </div>
               )}
               
               {language && (
                 <div>
-                  <div className="text-xs text-gray-200 dark:text-gray-200 mb-1">Language</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Language</div>
                   <div className="flex items-center gap-2">
                     <img src="/dark-languages-icon.svg" className="w-4 h-4 hidden dark:block" alt="" />
                     <img src="/languages-icon.svg" className="w-4 h-4 dark:hidden" alt="" />
@@ -1003,14 +1003,14 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               
               {genre && (
                 <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Genre</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Genre</div>
                   <div className="text-[#050505] dark:text-[#e5e5e5]">{genre}</div>
                 </div>
               )}
               
               {tags.length > 0 && (
                 <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Tags</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Tags</div>
                   <div className="flex flex-wrap gap-1">
                     {tags.map((tag) => (
                       <span
@@ -1028,19 +1028,19 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             {/* Stats */}
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#424242] space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-200 dark:text-gray-200">Chapters</span>
+                <span className="text-gray-600 dark:text-gray-400">Chapters</span>
                 <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{chapters.length}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-200 dark:text-gray-200">Words</span>
+                <span className="text-gray-600 dark:text-gray-400">Words</span>
                 <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{totalWords.toLocaleString()}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-200 dark:text-gray-200">Pages</span>
+                <span className="text-gray-600 dark:text-gray-400">Pages</span>
                 <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{pageCount}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-200 dark:text-gray-200">Reading Time</span>
+                <span className="text-gray-600 dark:text-gray-400">Reading Time</span>
                 <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">
                   {readingTime} {readingTime === 1 ? 'minute' : 'minutes'}
                 </span>

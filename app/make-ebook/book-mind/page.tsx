@@ -379,7 +379,7 @@ function BookMindContent() {
               </div>
 
               {!selectedBook && libraryBooks.length > 0 && (
-                <p className="mt-6 text-sm text-amber-600 dark:text-amber-400">
+                <p className="mt-6 text-sm text-stone-600 dark:text-stone-400">
                   Select a book from the sidebar to get started
                 </p>
               )}
@@ -405,7 +405,7 @@ function BookMindContent() {
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        <div className={`prose prose-sm dark:prose-invert max-w-none ${message.isBlocked ? 'text-amber-700 dark:text-amber-400' : ''}`}>
+                        <div className={`prose prose-sm dark:prose-invert max-w-none ${message.isBlocked ? 'text-stone-600 dark:text-stone-400' : ''}`}>
                           <div 
                             className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"
                             dangerouslySetInnerHTML={{ 
