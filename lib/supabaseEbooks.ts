@@ -61,3 +61,28 @@ export async function fetchEbooksFromSupabase(userId: string) {
 	if (error) throw error;
 	return data;
 }
+
+// Delete an ebook and its chapters from Supabase
+export async function deleteEbookFromSupabase(ebookId: string) {
+	const supabase = getSupabaseBrowserClient();
+	
+	// First delete all chapters for this ebook
+	const { error: chaptersError } = await supabase
+		.from('chapters')
+		.delete()
+		.eq('ebook_id', ebookId);
+	
+	if (chaptersError) {
+		console.error('Error deleting chapters:', chaptersError);
+	}
+	
+	// Then delete the ebook itself
+	const { error: ebookError } = await supabase
+		.from('ebooks')
+		.delete()
+		.eq('id', ebookId);
+	
+	if (ebookError) throw ebookError;
+	
+	return true;
+}
