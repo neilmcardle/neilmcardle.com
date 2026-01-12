@@ -63,26 +63,47 @@ export async function fetchEbooksFromSupabase(userId: string) {
 }
 
 // Delete an ebook and its chapters from Supabase
-export async function deleteEbookFromSupabase(ebookId: string) {
+export async function deleteEbookFromSupabase(ebookId: string, userId?: string, bookTitle?: string) {
 	const supabase = getSupabaseBrowserClient();
 	
-	// First delete all chapters for this ebook
+	// First try to delete by exact ID
+	let targetEbookId = ebookId;
+	
+	// If the ID isn't a valid UUID and we have user info, try to find the book by other means
+	if (!isUuid(ebookId) && userId && bookTitle) {
+		// Try to find the book in Supabase by title and user
+		const { data: foundBooks } = await supabase
+			.from('ebooks')
+			.select('id')
+			.eq('user_id', userId)
+			.eq('title', bookTitle)
+			.limit(1);
+		
+		if (foundBooks && foundBooks.length > 0) {
+			targetEbookId = foundBooks[0].id;
+		}
+	}
+	
+	// Delete all chapters for this ebook
 	const { error: chaptersError } = await supabase
 		.from('chapters')
 		.delete()
-		.eq('ebook_id', ebookId);
+		.eq('ebook_id', targetEbookId);
 	
 	if (chaptersError) {
 		console.error('Error deleting chapters:', chaptersError);
 	}
 	
-	// Then delete the ebook itself
+	// Delete the ebook itself
 	const { error: ebookError } = await supabase
 		.from('ebooks')
 		.delete()
-		.eq('id', ebookId);
+		.eq('id', targetEbookId);
 	
-	if (ebookError) throw ebookError;
+	if (ebookError) {
+		console.error('Error deleting ebook:', ebookError);
+		throw ebookError;
+	}
 	
 	return true;
 }

@@ -10,6 +10,7 @@ import { PlusIcon, TrashIcon, LibraryIcon, CloseIcon, SaveIcon, DownloadIcon, Bo
 import { ChevronDown, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import LandingPage from "./components/LandingPage";
+import MarketingLandingPage from "./components/MarketingLandingPage";
 import DragIcon from "./components/icons/DragIcon";
 import BinIcon from "./components/icons/BinIcon";
 import { LANGUAGES, today } from "./utils/constants";
@@ -251,6 +252,9 @@ function MakeEbookPage() {
   const [genre, setGenre] = useState("");
   const [currentBookId, setCurrentBookId] = useState<string | undefined>(undefined);
   const [initialized, setInitialized] = useState(false);
+  
+  // Show marketing landing page when no books and user hasn't started editing
+  const [showMarketingPage, setShowMarketingPage] = useState(true);
 
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -645,7 +649,20 @@ function MakeEbookPage() {
 
   function handleNewBook() {
     // Legacy function for backwards compatibility
+    setShowMarketingPage(false); // Dismiss marketing page when starting a new book
     handleNewBookConfirm();
+  }
+  
+  function handleStartWriting() {
+    // Called from marketing page when user wants to enter the editor
+    setShowMarketingPage(false);
+    if (libraryBooks.length > 0) {
+      // If they have books, show the library sidebar
+      setSidebarView('library');
+    } else {
+      // Otherwise start a new book
+      handleNewBookConfirm();
+    }
   }
 
   function handleGoToHome() {
@@ -666,6 +683,7 @@ function MakeEbookPage() {
     if (loadBookId) {
       const bookToLoad = books.find(book => book.id === loadBookId);
       if (bookToLoad) {
+        setShowMarketingPage(false); // Dismiss marketing page when loading a book
         handleLoadBook(loadBookId);
         router.replace('/make-ebook', { scroll: false });
         setInitialized(true);
@@ -677,38 +695,8 @@ function MakeEbookPage() {
       }
     }
 
-    if (!initialized && books.length > 0 && !currentBookId && chapters.length === 0) {
-      const mostRecent = books.reduce((a, b) => (a.savedAt > b.savedAt ? a : b));
-      setTitle(mostRecent.title || "");
-      setAuthor(mostRecent.author || "");
-      setBlurb(mostRecent.blurb || "");
-      setPublisher(mostRecent.publisher || "");
-      setPubDate(mostRecent.pubDate || today);
-      setIsbn(mostRecent.isbn || "");
-      setLanguage(mostRecent.language || LANGUAGES[0]);
-      setGenre(mostRecent.genre || "");
-      setTags(mostRecent.tags || []);
-      setCoverFile(mostRecent.coverFile || null);
-      
-      // Migrate chapters to ensure they have IDs
-      // If no chapters exist, create a default one
-      const loadedChapters = mostRecent.chapters && Array.isArray(mostRecent.chapters) && mostRecent.chapters.length > 0 
-        ? mostRecent.chapters 
-        : [{ id: `chapter-${Date.now()}`, title: "", content: "", type: "content" as const }];
-      const migratedChapters = ensureChapterIds(loadedChapters);
-      setChapters(migratedChapters);
-      
-      // Migrate endnote references if they exist
-      if (mostRecent.endnoteReferences) {
-        const migratedEndnoteRefs = migrateEndnoteReferences(mostRecent.endnoteReferences, migratedChapters);
-        setEndnoteReferences(migratedEndnoteRefs);
-      }
-      
-      setEndnotes(mostRecent.endnotes || []);
-      setCurrentBookId(mostRecent.id);
-      setSelectedChapter(0);
-    }
-
+    // Don't auto-load books on initial visit - let marketing page show first
+    // Only set initialized to true so we don't keep re-running this effect
     if (!initialized) setInitialized(true);
   }, [searchParams, initialized, currentBookId, chapters.length]);
 
@@ -797,13 +785,17 @@ function MakeEbookPage() {
       author,
       blurb,
       publisher,
+      pubDate, // Keep camelCase for localStorage
       pub_date: pubDate, // Use snake_case for Supabase
       isbn,
       language,
       genre,
       tags,
+      chapters, // Include chapters in the save data
+      coverFile: coverUrl, // Include cover file
       cover_image_url: coverUrl,
       endnotes,
+      endnoteReferences, // Keep camelCase for localStorage
       endnote_references: endnoteReferences,
     };
 
@@ -987,6 +979,7 @@ function MakeEbookPage() {
   function handleLoadBook(id: string) {
     const loaded = loadBookById(id);
     if (loaded) {
+      setShowMarketingPage(false); // Dismiss marketing page when loading a book
       setTitle(loaded.title || "");
       setAuthor(loaded.author || "");
       setBlurb(loaded.blurb || "");
@@ -1024,6 +1017,9 @@ function MakeEbookPage() {
 
   async function handleDeleteBook(id: string) {
     if (confirm('Are you sure you want to delete this eBook? This action cannot be undone.')) {
+      // Find the book to get its title for fallback lookup
+      const bookToDelete = libraryBooks.find(b => b.id === id);
+      
       // Delete from local storage
       removeBookFromLibrary(id);
       setLibraryBooks(loadBookLibrary());
@@ -1032,7 +1028,7 @@ function MakeEbookPage() {
       if (user && user.id) {
         try {
           const { deleteEbookFromSupabase } = await import('@/lib/supabaseEbooks');
-          await deleteEbookFromSupabase(id);
+          await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
         } catch (err) {
           console.error('Failed to delete from Supabase:', err);
         }
@@ -1052,12 +1048,13 @@ function MakeEbookPage() {
     if (confirm(`Are you sure you want to delete ${count} book${count > 1 ? 's' : ''}? This action cannot be undone.`)) {
       // Delete each book from local storage and Supabase
       for (const id of selectedBookIds) {
+        const bookToDelete = libraryBooks.find(b => b.id === id);
         removeBookFromLibrary(id);
         
         if (user && user.id) {
           try {
             const { deleteEbookFromSupabase } = await import('@/lib/supabaseEbooks');
-            await deleteEbookFromSupabase(id);
+            await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
           } catch (err) {
             console.error('Failed to delete from Supabase:', err);
           }
@@ -1124,6 +1121,16 @@ function MakeEbookPage() {
   );
   const pageCount = Math.max(1, Math.ceil(totalWords / 300));
   const readingTime = Math.max(1, Math.round(totalWords / 200));
+
+  // Show marketing landing page for visitors (before they start editing)
+  if (showMarketingPage && chapters.length === 0) {
+    return (
+      <MarketingLandingPage
+        onStartWritingAction={handleStartWriting}
+        libraryCount={libraryBooks.length}
+      />
+    );
+  }
 
   return (
     <>
