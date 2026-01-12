@@ -359,6 +359,17 @@ export default function RichTextEditor({
       
       let cleaned = html;
       
+      // GOOGLE DOCS SPECIFIC: Preserve paragraph structure
+      // Google Docs uses <p> tags with inline styles, and <span> for formatting
+      // Also uses <br> between paragraphs in some cases
+      
+      // Convert Google Docs paragraph separator spans to paragraph breaks
+      cleaned = cleaned.replace(/<span[^>]*style="[^"]*white-space:\s*pre[^"]*"[^>]*>\s*<\/span>/gi, '</p><p>');
+      
+      // Preserve paragraph breaks from Google Docs (they use margin-bottom on p tags)
+      // Convert consecutive <br> tags to paragraph breaks
+      cleaned = cleaned.replace(/(<br\s*\/?>\s*){2,}/gi, '</p><p>');
+      
       // Extract and preserve existing code blocks with HTML escaping
       // Handle <pre> blocks first (including nested <code>)
       cleaned = cleaned.replace(/<pre[^>]*>[\s\S]*?<\/pre>/gi, (match) => {
@@ -436,9 +447,17 @@ export default function RichTextEditor({
         // Convert div-heavy structure to paragraphs
         .replace(/<div[^>]*>/gi, '<p>')
         .replace(/<\/div>/gi, '</p>')
-        // Handle line breaks
-        .replace(/<br[^>]*>\s*<br[^>]*>/gi, '</p><p>')
-        .replace(/\r\n|\n|\r/g, ' ');
+        // Keep single br tags but convert double br to paragraph break
+        .replace(/<br[^>]*>\s*<br[^>]*>/gi, '</p><p>');
+      
+      // Remove spans but keep their content (Google Docs uses lots of spans)
+      cleaned = cleaned.replace(/<span[^>]*>([\s\S]*?)<\/span>/gi, '$1');
+      
+      // Normalize line breaks - but keep paragraph structure
+      cleaned = cleaned.replace(/\r\n|\r/g, '\n');
+      
+      // Convert standalone newlines inside content to spaces, but not between tags
+      cleaned = cleaned.replace(/>(\s*)\n(\s*)</g, '>$1 $2<');
 
       // Detect and convert LaTeX math expressions
       // Block math: $$...$$
@@ -479,16 +498,27 @@ export default function RichTextEditor({
       });
 
       // Third pass: Clean up empty elements but preserve code block formatting
-      return result
+      // And preserve paragraph spacing
+      result = result
+        // Remove truly empty paragraphs (no content at all)
         .replace(/<p>\s*<\/p>/g, '')
+        // Keep paragraph breaks with br tags
         .replace(/<p>\s*<br[^>]*>\s*<\/p>/g, '<p><br></p>')
         // Use markers to preserve code blocks during whitespace normalization
         .replace(/<(pre|code)[^>]*>[\s\S]*?<\/\1>/g, (match) => {
           return '___CODE_PRESERVE___' + match + '___/CODE_PRESERVE___';
-        })
-        .replace(/\s+/g, ' ') // Normalize whitespace outside code blocks
-        .replace(/___CODE_PRESERVE___([\s\S]*?)___\/CODE_PRESERVE___/g, '$1') // Restore code blocks
-        .trim();
+        });
+      
+      // Normalize multiple spaces to single space (but not newlines)
+      result = result.replace(/  +/g, ' ');
+      
+      // Restore code blocks
+      result = result.replace(/___CODE_PRESERVE___([\s\S]*?)___\/CODE_PRESERVE___/g, '$1');
+      
+      // Clean up consecutive paragraph breaks (more than 2 becomes 2)
+      result = result.replace(/(<\/p>\s*<p>){3,}/gi, '</p><p><br></p><p>');
+      
+      return result.trim();
     } catch (error) {
       console.warn('Error cleaning pasted content:', error);
       // Fallback: just use DOMPurify with basic config
@@ -700,14 +730,26 @@ export default function RichTextEditor({
     if (textData && textData.trim()) {
       e.preventDefault();
       
-      // Convert line breaks to paragraphs and clean
+      // Convert line breaks to paragraphs, preserving blank lines as paragraph spacing
       const lines = textData.split(/\r\n|\n|\r/);
-      const htmlContent = lines
-        .map(line => line.trim())
-        .filter(line => line.length > 0)
-        .map(line => `<p>${line}</p>`)
-        .join('');
+      const htmlParts: string[] = [];
+      let consecutiveEmpty = 0;
       
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.length === 0) {
+          consecutiveEmpty++;
+          // Add a spacing paragraph for consecutive empty lines (paragraph break)
+          if (consecutiveEmpty === 1) {
+            htmlParts.push('<p><br></p>');
+          }
+        } else {
+          consecutiveEmpty = 0;
+          htmlParts.push(`<p>${trimmed}</p>`);
+        }
+      }
+      
+      const htmlContent = htmlParts.join('');
       const cleanedHtml = cleanPastedContent(htmlContent);
       
       focusEditor();

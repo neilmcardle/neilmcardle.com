@@ -511,6 +511,80 @@ function MakeEbookPage() {
     setNewBookConfirmOpen(true);
   }
 
+  // Document import state
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const importFileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleImportDocument(file: File) {
+    setImporting(true);
+    setImportError(null);
+    
+    try {
+      const { parseDocument, getSupportedFormats } = await import('./utils/documentParser');
+      
+      const extension = file.name.split('.').pop()?.toLowerCase();
+      const supported = getSupportedFormats().map(f => f.replace('.', ''));
+      
+      if (!extension || !supported.includes(extension)) {
+        throw new Error(`Unsupported format. Supported: ${getSupportedFormats().join(', ')}`);
+      }
+      
+      const parsed = await parseDocument(file);
+      
+      // Create a new book with the imported content
+      const newChapters = parsed.chapters.map((ch, idx) => ({
+        id: `chapter-${Date.now()}-${idx}`,
+        title: ch.title,
+        content: ch.content,
+        type: ch.type,
+      }));
+      
+      // Set the editor state
+      setTitle(parsed.title);
+      setAuthor(parsed.author);
+      setChapters(newChapters);
+      setSelectedChapter(0);
+      setCurrentBookId(undefined);
+      setBlurb("");
+      setPublisher("");
+      setPubDate(today);
+      setIsbn("");
+      setLanguage(LANGUAGES[0]);
+      setGenre("");
+      setTags([]);
+      setCoverFile(null);
+      setEndnotes([]);
+      setEndnoteReferences([]);
+      setNextEndnoteNumber(1);
+      
+      // Open Book panel for user to complete details
+      setSidebarView('book');
+      setImportDialogOpen(false);
+      
+    } catch (err) {
+      console.error('Import error:', err);
+      setImportError(err instanceof Error ? err.message : 'Failed to import document');
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  function handleImportFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleImportDocument(file);
+    }
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  }
+
+  function showImportDialog() {
+    setImportError(null);
+    setImportDialogOpen(true);
+  }
+
   function clearEditorState() {
     // Clear all editor data for new book
     setTitle("");
@@ -1117,6 +1191,69 @@ function MakeEbookPage() {
           </div>
         )}
 
+        {/* Import Document Dialog */}
+        {importDialogOpen && (
+          <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl p-6 max-w-md w-full">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Import Document</h2>
+                <button
+                  onClick={() => setImportDialogOpen(false)}
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                >
+                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Upload a document to automatically parse chapters and create a new book.
+              </p>
+              
+              <div className="mb-4 p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-center">
+                <input
+                  ref={importFileInputRef}
+                  type="file"
+                  accept=".txt,.doc,.docx,.pdf"
+                  onChange={handleImportFileSelect}
+                  className="hidden"
+                />
+                
+                <div className="mb-3">
+                  <svg className="w-10 h-10 mx-auto text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                
+                <button
+                  onClick={() => importFileInputRef.current?.click()}
+                  disabled={importing}
+                  className="px-4 py-2 rounded-lg bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-50"
+                >
+                  {importing ? 'Importing...' : 'Choose File'}
+                </button>
+                
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  Supported: .txt, .doc, .docx, .pdf
+                </p>
+              </div>
+              
+              {importError && (
+                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-4">
+                  <p className="text-sm text-red-600 dark:text-red-400">{importError}</p>
+                </div>
+              )}
+              
+              <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                <p>• Chapters are detected by headings like "Chapter 1", "Prologue", etc.</p>
+                <p>• The document title will be extracted if possible</p>
+                <p>• You can edit all details after import</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Version History Panel */}
         {showVersionHistory && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
@@ -1352,6 +1489,18 @@ function MakeEbookPage() {
                           title="New book"
                         >
                           <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            showImportDialog();
+                            setMobileSidebarOpen(false);
+                          }}
+                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          title="Import document"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                            <path className="dark:stroke-white" strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                          </svg>
                         </button>
                       </div>
                     </div>
@@ -2351,6 +2500,7 @@ function MakeEbookPage() {
             handleDeleteBook={handleDeleteBook}
             handleExportLibraryBook={handleExportLibraryBook}
             showNewBookConfirmation={showNewBookConfirmation}
+            showImportDialog={showImportDialog}
             multiSelectMode={multiSelectMode}
             setMultiSelectMode={setMultiSelectMode}
             selectedBookIds={selectedBookIds}
