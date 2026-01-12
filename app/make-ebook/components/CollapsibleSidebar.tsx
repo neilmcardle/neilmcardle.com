@@ -48,6 +48,14 @@ interface CollapsibleSidebarProps {
   handleExportLibraryBook: (id: string) => void;
   showNewBookConfirmation: () => void;
   
+  // Multi-select props
+  multiSelectMode: boolean;
+  setMultiSelectMode: (value: boolean) => void;
+  selectedBookIds: Set<string>;
+  toggleBookSelection: (id: string) => void;
+  toggleSelectAll: () => void;
+  handleDeleteSelectedBooks: () => void;
+  
   // Chapters props
   chapters: Chapter[];
   selectedChapter: number;
@@ -190,6 +198,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     handleDeleteBook,
     handleExportLibraryBook,
     showNewBookConfirmation,
+    multiSelectMode,
+    setMultiSelectMode,
+    selectedBookIds,
+    toggleBookSelection,
+    toggleSelectAll,
+    handleDeleteSelectedBooks,
     chapters,
     selectedChapter,
     handleSelectChapter,
@@ -316,17 +330,56 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
             <span className="text-xs text-[#C0C0C0]">({libraryBooks.length})</span>
           </div>
-          <button
-            onClick={showNewBookConfirmation}
-            className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-            title="New book"
-          >
-            <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-          </button>
+          <div className="flex items-center gap-1">
+            {libraryBooks.length > 0 && (
+              <button
+                onClick={() => {
+                  setMultiSelectMode(!multiSelectMode);
+                  if (multiSelectMode) {
+                    // Clear selection when exiting multi-select mode
+                  }
+                }}
+                className={`p-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}`}
+                title={multiSelectMode ? "Cancel selection" : "Select multiple"}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              </button>
+            )}
+            <button
+              onClick={showNewBookConfirmation}
+              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+              title="New book"
+            >
+              <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+            </button>
+          </div>
         </div>
         
         {sidebarLibraryExpanded && (
-          <div className={`mt-2 space-y-1 pl-2 ${libraryBooks.length > 4 ? 'max-h-[400px] overflow-y-auto pr-1' : ''}`}>
+          <>
+            {multiSelectMode && libraryBooks.length > 0 && (
+              <div className="flex items-center justify-between mt-2 px-2 py-1.5 bg-gray-50 dark:bg-[#2a2a2a] rounded-md">
+                <button
+                  onClick={toggleSelectAll}
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  {selectedBookIds.size === libraryBooks.length ? 'Deselect All' : 'Select All'}
+                </button>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {selectedBookIds.size} selected
+                </span>
+                <button
+                  onClick={handleDeleteSelectedBooks}
+                  disabled={selectedBookIds.size === 0}
+                  className="text-xs text-red-600 dark:text-red-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Delete Selected
+                </button>
+              </div>
+            )}
+            <div className={`mt-2 space-y-1 pl-2 ${libraryBooks.length > 4 ? 'max-h-[400px] overflow-y-auto pr-1' : ''}`}>
             {libraryBooks.length === 0 ? (
               <div className="text-xs text-[#C0C0C0] py-4 px-2 text-center">
                 No saved books yet
@@ -334,21 +387,32 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             ) : (
               libraryBooks.map((book) => {
                 const isSelected = selectedBookId === book.id;
+                const isChecked = selectedBookIds.has(book.id);
                 return (
                   <div
                     key={book.id}
                     className={`group flex items-center justify-between py-2 px-2 rounded transition-colors ${
-                      isSelected
+                      isSelected || isChecked
                         ? 'bg-gray-100 dark:bg-[#2a2a2a]'
                         : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
                     }`}
                   >
+                    {multiSelectMode && (
+                      <label className="flex items-center mr-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleBookSelection(book.id)}
+                          className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:focus:ring-blue-400 cursor-pointer"
+                        />
+                      </label>
+                    )}
                     <button
-                      onClick={() => setSelectedBookId(isSelected ? null : book.id)}
+                      onClick={() => multiSelectMode ? toggleBookSelection(book.id) : setSelectedBookId(isSelected ? null : book.id)}
                       className="flex-1 text-left"
                     >
                       <div className={`text-sm font-medium truncate ${
-                        isSelected
+                        isSelected || isChecked
                           ? 'text-gray-900 dark:text-gray-100'
                           : 'text-[#C0C0C0]'
                       }`}>
@@ -358,7 +422,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                         {book.author || 'Unknown author'}
                       </div>
                     </button>
-                    {isSelected && (
+                    {!multiSelectMode && isSelected && (
                       <div className="flex items-center gap-1 ml-2">
                         <button
                           onClick={() => {
@@ -404,7 +468,8 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 );
               })
             )}
-          </div>
+            </div>
+          </>
         )}
       </div>
         )}

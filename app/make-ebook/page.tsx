@@ -2351,6 +2351,12 @@ function MakeEbookPage() {
             handleDeleteBook={handleDeleteBook}
             handleExportLibraryBook={handleExportLibraryBook}
             showNewBookConfirmation={showNewBookConfirmation}
+            multiSelectMode={multiSelectMode}
+            setMultiSelectMode={setMultiSelectMode}
+            selectedBookIds={selectedBookIds}
+            toggleBookSelection={toggleBookSelection}
+            toggleSelectAll={toggleSelectAll}
+            handleDeleteSelectedBooks={handleDeleteSelectedBooks}
             chapters={chapters}
             selectedChapter={selectedChapter}
             handleSelectChapter={handleSelectChapter}
