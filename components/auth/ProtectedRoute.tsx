@@ -43,10 +43,6 @@ const LITERARY_QUOTES = [
     author: "Terry Pratchett"
   },
   {
-    text: "You don't start out writing good stuff. You start out writing crap and thinking it's good stuff, and then gradually you get better at it.",
-    author: "Octavia Butler"
-  },
-  {
     text: "Fill your paper with the breathings of your heart.",
     author: "William Wordsworth"
   },
