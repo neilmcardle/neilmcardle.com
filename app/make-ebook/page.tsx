@@ -306,32 +306,41 @@ function MakeEbookPage() {
     sendMessage: sendBookMindMessage,
     quickAction: bookMindQuickAction,
     clearMessages: clearBookMindMessages,
-  } = useBookMind();
+    // Chat session management
+    chatSessions,
+    currentSessionId,
+    createSession: createBookMindSession,
+    loadSession: loadBookMindSession,
+    renameSession: renameBookMindSession,
+    deleteSession: deleteBookMindSession,
+  } = useBookMind({ bookId: currentBookId || 'default' });
 
-  // Build context for Book Mind
+  // Build context for Book Mind - includes ALL chapters for full book knowledge
   const bookMindContext: BookMindContext = {
     title,
     author,
     genre,
     chapterTitle: chapters[selectedChapter]?.title || '',
     chapterContent: chapters[selectedChapter]?.content || '',
+    allChapters: chapters.map(ch => ({ title: ch.title, content: ch.content, type: ch.type || 'content' })),
     selectedText: typeof window !== 'undefined' ? window.getSelection()?.toString() : undefined,
   };
 
   // State for version history panel visibility
   const [showVersionHistory, setShowVersionHistory] = useState(false);
 
-  // Auto-save hook
+  // Auto-save hook - ONLY saves to existing books, never creates new ones
+  // New books are only created when user explicitly saves (Cmd+S or Save button)
   const handleAutoSave = useCallback(() => {
-    if (currentBookId || title || author || chapters.some(ch => ch.content.trim())) {
+    if (currentBookId) {
       saveBookDirectly(false);
     }
-  }, [currentBookId, title, author, chapters]);
+  }, [currentBookId]);
 
   const { isDirty, isSaving, lastSaved, markDirty, markClean } = useAutoSave({
     onSave: handleAutoSave,
     interval: 30000, // 30 seconds
-    enabled: chapters.length > 0 && (!!title || !!author || chapters.some(ch => ch.content.trim())),
+    enabled: !!currentBookId && chapters.length > 0, // Only auto-save if book already exists
   });
 
   // Warn before leaving with unsaved changes
@@ -1040,13 +1049,13 @@ function MakeEbookPage() {
           onQuickActionAction={bookMindQuickAction}
           onClearMessagesAction={clearBookMindMessages}
           context={bookMindContext}
-          onApplyTextAction={(text) => {
-            // Apply AI-generated text to current chapter
-            if (chapters[selectedChapter]) {
-              const currentContent = chapters[selectedChapter].content;
-              handleChapterContentChange(selectedChapter, currentContent + '\n\n' + text);
-            }
-          }}
+          // Chat session management
+          chatSessions={chatSessions}
+          currentSessionId={currentSessionId}
+          onCreateSessionAction={createBookMindSession}
+          onLoadSessionAction={loadBookMindSession}
+          onRenameSessionAction={renameBookMindSession}
+          onDeleteSessionAction={deleteBookMindSession}
         />
 
         {/* Mobile Preview Modal */}

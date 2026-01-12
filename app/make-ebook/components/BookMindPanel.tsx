@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { BookMindMessage, BookMindAction, BookMindContext } from '../hooks/useBookMind';
+import { BookMindMessage, BookMindAction, BookMindContext, ChatSession } from '../hooks/useBookMind';
 
 interface BookMindPanelProps {
   isOpen: boolean;
@@ -13,18 +13,25 @@ interface BookMindPanelProps {
   onQuickActionAction: (action: BookMindAction, context: BookMindContext) => Promise<string | null>;
   onClearMessagesAction: () => void;
   context: BookMindContext;
-  onApplyTextAction?: (text: string) => void;
+  // Chat session management
+  chatSessions: ChatSession[];
+  currentSessionId: string | null;
+  onCreateSessionAction: (name?: string) => string;
+  onLoadSessionAction: (sessionId: string) => void;
+  onRenameSessionAction: (sessionId: string, newName: string) => void;
+  onDeleteSessionAction: (sessionId: string) => void;
 }
 
+// Analysis-only quick actions - NO writing/ghostwriting features
 const QUICK_ACTIONS: { action: BookMindAction; label: string; icon: string; description: string }[] = [
-  { action: 'improve-writing', label: 'Improve', icon: '✨', description: 'Polish and enhance' },
-  { action: 'fix-grammar', label: 'Fix Grammar', icon: '🔤', description: 'Correct errors' },
-  { action: 'expand-paragraph', label: 'Expand', icon: '📝', description: 'Add more detail' },
-  { action: 'summarize', label: 'Summarize', icon: '📋', description: 'Get key points' },
-  { action: 'continue-writing', label: 'Continue', icon: '➡️', description: 'Keep writing' },
-  { action: 'simplify', label: 'Simplify', icon: '🎯', description: 'Make clearer' },
-  { action: 'suggest-title', label: 'Titles', icon: '💡', description: 'Chapter names' },
-  { action: 'find-sources', label: 'Sources', icon: '📚', description: 'Find references' },
+  { action: 'summarize-book', label: 'Summarize Book', icon: '📖', description: 'Full book overview' },
+  { action: 'summarize-chapter', label: 'This Chapter', icon: '📄', description: 'Chapter summary' },
+  { action: 'list-characters', label: 'Characters', icon: '👥', description: 'Who appears where' },
+  { action: 'find-inconsistencies', label: 'Inconsistencies', icon: '🔍', description: 'Find plot holes' },
+  { action: 'analyze-themes', label: 'Themes', icon: '📊', description: 'Theme analysis' },
+  { action: 'check-grammar', label: 'Grammar', icon: '🔤', description: 'Check for errors' },
+  { action: 'timeline-review', label: 'Timeline', icon: '📅', description: 'Event chronology' },
+  { action: 'word-frequency', label: 'Word Use', icon: '📈', description: 'Overused words' },
 ];
 
 export function BookMindPanel({
@@ -37,10 +44,19 @@ export function BookMindPanel({
   onQuickActionAction,
   onClearMessagesAction,
   context,
-  onApplyTextAction
+  chatSessions,
+  currentSessionId,
+  onCreateSessionAction,
+  onLoadSessionAction,
+  onRenameSessionAction,
+  onDeleteSessionAction,
 }: BookMindPanelProps) {
   const [inputValue, setInputValue] = useState('');
   const [showQuickActions, setShowQuickActions] = useState(true);
+  const [showSessions, setShowSessions] = useState(false);
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -56,16 +72,33 @@ export function BookMindPanel({
     }
   }, [isOpen]);
 
+  // Show quick actions when starting fresh
+  useEffect(() => {
+    setShowQuickActions(messages.length === 0);
+  }, [messages.length]);
+
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
     const message = inputValue.trim();
     setInputValue('');
     setShowQuickActions(false);
-    await onSendMessageAction(message, context, 'custom');
+    
+    // Auto-create session if none exists
+    if (!currentSessionId) {
+      onCreateSessionAction();
+    }
+    
+    await onSendMessageAction(message, context, 'ask-question');
   };
 
   const handleQuickAction = async (action: BookMindAction) => {
     setShowQuickActions(false);
+    
+    // Auto-create session if none exists
+    if (!currentSessionId) {
+      onCreateSessionAction();
+    }
+    
     await onQuickActionAction(action, context);
   };
 
@@ -76,19 +109,38 @@ export function BookMindPanel({
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = async (text: string, messageId: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMessageId(messageId);
+      setTimeout(() => setCopiedMessageId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   };
 
-  const extractCodeBlock = (content: string): string | null => {
-    // Extract text between triple backticks or quoted blocks
-    const codeMatch = content.match(/```[\s\S]*?\n([\s\S]*?)```/);
-    if (codeMatch) return codeMatch[1].trim();
+  const handleRenameSubmit = (sessionId: string) => {
+    if (editingName.trim()) {
+      onRenameSessionAction(sessionId, editingName.trim());
+    }
+    setEditingSessionId(null);
+    setEditingName('');
+  };
+
+  const formatTimestamp = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
     
-    const quoteMatch = content.match(/[""]([^""]+)[""]/);
-    if (quoteMatch) return quoteMatch[1];
-    
-    return null;
+    if (diffDays === 0) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays === 1) {
+      return 'Yesterday';
+    } else if (diffDays < 7) {
+      return date.toLocaleDateString([], { weekday: 'short' });
+    } else {
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
   };
 
   if (!isOpen) return null;
@@ -109,15 +161,42 @@ export function BookMindPanel({
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
             </div>
             <div>
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Book Mind</h3>
-              <p className="text-[10px] text-gray-500 dark:text-gray-400">AI Writing Assistant</p>
+              <p className="text-[10px] text-gray-500 dark:text-gray-400">Ask questions about your book</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
+            {/* Chat history toggle */}
+            <button
+              onClick={() => setShowSessions(!showSessions)}
+              className={`p-1.5 rounded-lg transition-colors ${
+                showSessions 
+                  ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400' 
+                  : 'hover:bg-gray-200 dark:hover:bg-[#333] text-gray-500'
+              }`}
+              title="Chat history"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </button>
+            {/* New chat */}
+            <button
+              onClick={() => {
+                onCreateSessionAction();
+                setShowSessions(false);
+              }}
+              className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333] transition-colors"
+              title="New chat"
+            >
+              <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
             {messages.length > 0 && (
               <button
                 onClick={onClearMessagesAction}
@@ -140,17 +219,88 @@ export function BookMindPanel({
           </div>
         </div>
 
-        {/* Context indicator */}
-        {context.selectedText && (
-          <div className="px-4 py-2 bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-800">
-            <div className="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-300">
-              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-              </svg>
-              <span className="truncate">Working with selected text ({context.selectedText.length} chars)</span>
-            </div>
+        {/* Chat Sessions Sidebar */}
+        {showSessions && (
+          <div className="border-b border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#151515] max-h-48 overflow-y-auto">
+            {chatSessions.length === 0 ? (
+              <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">No saved chats</p>
+            ) : (
+              <div className="p-2 space-y-1">
+                {chatSessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className={`group flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${
+                      currentSessionId === session.id
+                        ? 'bg-violet-100 dark:bg-violet-900/30'
+                        : 'hover:bg-gray-100 dark:hover:bg-[#252525]'
+                    }`}
+                    onClick={() => {
+                      onLoadSessionAction(session.id);
+                      setShowSessions(false);
+                    }}
+                  >
+                    {editingSessionId === session.id ? (
+                      <input
+                        type="text"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        onBlur={() => handleRenameSubmit(session.id)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleRenameSubmit(session.id)}
+                        className="flex-1 text-xs bg-white dark:bg-[#2a2a2a] px-2 py-1 rounded border border-violet-300 dark:border-violet-700 outline-none"
+                        autoFocus
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <>
+                        <span className="flex-1 text-xs text-gray-700 dark:text-gray-300 truncate">
+                          {session.name}
+                        </span>
+                        <span className="text-[10px] text-gray-400">{formatTimestamp(session.updatedAt)}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingSessionId(session.id);
+                            setEditingName(session.name);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-gray-200 dark:hover:bg-[#333] rounded"
+                          title="Rename"
+                        >
+                          <svg className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteSessionAction(session.id);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded"
+                          title="Delete"
+                        >
+                          <svg className="w-3 h-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
+
+        {/* Book context indicator */}
+        <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/20 border-b border-blue-100 dark:border-blue-900/30">
+          <div className="flex items-center gap-2 text-xs text-blue-700 dark:text-blue-300">
+            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <span className="truncate">
+              <strong>{context.title || 'Untitled'}</strong> • {context.allChapters?.length || 0} chapters loaded
+            </span>
+          </div>
+        </div>
 
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
@@ -158,15 +308,14 @@ export function BookMindPanel({
           {messages.length === 0 && showQuickActions && (
             <div className="space-y-4">
               <div className="text-center py-4">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/50 dark:to-purple-900/50 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/50 dark:to-purple-900/50 flex items-center justify-center">
+                  <svg className="w-7 h-7 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {context.selectedText 
-                    ? "What would you like to do with the selected text?"
-                    : "How can I help with your writing today?"}
+                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1">Ask About Your Book</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs mx-auto">
+                  I know every word of your manuscript. Ask me about characters, plot, themes, or inconsistencies.
                 </p>
               </div>
 
@@ -181,11 +330,19 @@ export function BookMindPanel({
                   >
                     <span className="text-lg">{icon}</span>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-violet-700 dark:group-hover:text-violet-300 truncate">{label}</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-white group-hover:text-violet-700 dark:group-hover:text-violet-300 truncate">{label}</p>
                       <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{description}</p>
                     </div>
                   </button>
                 ))}
+              </div>
+
+              {/* What I can't do */}
+              <div className="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30">
+                <p className="text-xs text-amber-800 dark:text-amber-200 font-medium mb-1">✍️ Note: I analyze, not write</p>
+                <p className="text-[10px] text-amber-700 dark:text-amber-300">
+                  I'm here to help you understand your own work, not to write it for you. Your voice is what makes your book unique!
+                </p>
               </div>
             </div>
           )}
@@ -197,40 +354,38 @@ export function BookMindPanel({
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
+                className={`group max-w-[85%] rounded-2xl px-4 py-2.5 relative ${
                   message.role === 'user'
-                    ? 'bg-violet-600 text-white rounded-br-md'
-                    : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-900 dark:text-white rounded-bl-md'
+                    ? message.isBlocked 
+                      ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 rounded-br-md'
+                      : 'bg-violet-600 text-white rounded-br-md'
+                    : message.isBlocked
+                      ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-900 dark:text-amber-100 border border-amber-200 dark:border-amber-800/30 rounded-bl-md'
+                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-900 dark:text-white rounded-bl-md'
                 }`}
               >
                 <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                 
-                {/* Action buttons for assistant messages */}
-                {message.role === 'assistant' && !message.content.startsWith('⚠️') && (
-                  <div className="flex items-center gap-1 mt-2 pt-2 border-t border-gray-200 dark:border-[#444]">
-                    <button
-                      onClick={() => copyToClipboard(message.content)}
-                      className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#333] transition-colors"
-                      title="Copy response"
-                    >
-                      <svg className="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
-                    </button>
-                    {onApplyTextAction && extractCodeBlock(message.content) && (
-                      <button
-                        onClick={() => onApplyTextAction(extractCodeBlock(message.content) || '')}
-                        className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-950/50 transition-colors"
-                        title="Apply to editor"
-                      >
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                        Apply
-                      </button>
-                    )}
-                  </div>
-                )}
+                {/* Copy button - shows on hover */}
+                <button
+                  onClick={() => copyToClipboard(message.content, message.id)}
+                  className={`absolute -right-1 -top-1 p-1.5 rounded-full shadow-sm transition-all ${
+                    copiedMessageId === message.id
+                      ? 'bg-green-500 text-white opacity-100'
+                      : 'bg-white dark:bg-[#333] text-gray-500 opacity-0 group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-[#444]'
+                  }`}
+                  title={copiedMessageId === message.id ? 'Copied!' : 'Copy message'}
+                >
+                  {copiedMessageId === message.id ? (
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                </button>
               </div>
             </div>
           ))}
@@ -245,7 +400,7 @@ export function BookMindPanel({
                     <div className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                     <div className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Thinking...</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Reading your book...</span>
                 </div>
               </div>
             </div>
@@ -263,7 +418,7 @@ export function BookMindPanel({
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask Book Mind anything..."
+                placeholder="Ask about your book..."
                 rows={1}
                 className="w-full px-4 py-2.5 pr-10 rounded-xl border border-gray-200 dark:border-[#333] bg-white dark:bg-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                 style={{ minHeight: '42px', maxHeight: '120px' }}
@@ -280,7 +435,7 @@ export function BookMindPanel({
             </button>
           </div>
           <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2 text-center">
-            Book Mind uses AI. Always verify important information.
+            Book Mind reads your manuscript to answer questions. It won't write for you.
           </p>
         </div>
       </div>
@@ -302,14 +457,14 @@ export function BookMindTrigger({
     <button
       onClick={onClickAction}
       className={`group relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm font-medium hover:from-violet-600 hover:to-purple-700 shadow-sm hover:shadow-md transition-all ${className}`}
-      title="Open Book Mind AI"
+      title="Ask questions about your book"
     >
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span>Book Mind</span>
       {hasContext && (
-        <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full border-2 border-white" />
+        <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
       )}
     </button>
   );
