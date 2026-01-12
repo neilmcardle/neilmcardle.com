@@ -615,6 +615,17 @@ export default function RichTextEditor({
         emitChange();
         setFocused(false);
         onFocusStateChange?.(false);
+        
+        // Reset viewport zoom on mobile after editing (fixes iOS zoom issue)
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+          // Reset the initial viewport height reference so it's recalculated next time
+          initialViewportHeight.current = null;
+          
+          // Force scroll to reset any iOS zoom artifacts
+          setTimeout(() => {
+            window.scrollTo(window.scrollX, window.scrollY);
+          }, 100);
+        }
       }
     }, 60);
   };

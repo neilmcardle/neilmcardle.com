@@ -691,7 +691,11 @@ function MakeEbookPage() {
       setCoverFile(mostRecent.coverFile || null);
       
       // Migrate chapters to ensure they have IDs
-      const migratedChapters = ensureChapterIds(mostRecent.chapters || []);
+      // If no chapters exist, create a default one
+      const loadedChapters = mostRecent.chapters && Array.isArray(mostRecent.chapters) && mostRecent.chapters.length > 0 
+        ? mostRecent.chapters 
+        : [{ id: `chapter-${Date.now()}`, title: "", content: "", type: "content" as const }];
+      const migratedChapters = ensureChapterIds(loadedChapters);
       setChapters(migratedChapters);
       
       // Migrate endnote references if they exist
@@ -702,6 +706,7 @@ function MakeEbookPage() {
       
       setEndnotes(mostRecent.endnotes || []);
       setCurrentBookId(mostRecent.id);
+      setSelectedChapter(0);
     }
 
     if (!initialized) setInitialized(true);
@@ -994,7 +999,11 @@ function MakeEbookPage() {
       setCoverFile(loaded.coverFile || null);
       
       // Migrate chapters to ensure they have IDs
-      const migratedChapters = ensureChapterIds(loaded.chapters || []);
+      // If no chapters exist, create a default one to avoid showing landing page
+      const loadedChapters = loaded.chapters && Array.isArray(loaded.chapters) && loaded.chapters.length > 0 
+        ? loaded.chapters 
+        : [{ id: `chapter-${Date.now()}`, title: "", content: "", type: "content" as const }];
+      const migratedChapters = ensureChapterIds(loadedChapters);
       setChapters(migratedChapters);
       
       // Migrate endnote references if they exist
@@ -1005,6 +1014,7 @@ function MakeEbookPage() {
       
       setEndnotes(loaded.endnotes || []);
       setCurrentBookId(loaded.id);
+      setSelectedChapter(0);
       
       // Trigger highlight animation
       setBookJustLoaded(true);
@@ -2666,18 +2676,16 @@ function MakeEbookPage() {
                 />
               ) : (
               <>
-              {/* Compact Chapter Header - Hidden when keyboard is open for more writing space */}
-              <div className={`flex-shrink-0 bg-white dark:bg-[#1a1a1a] border-none pb-1 px-2 transition-all duration-200 ${
-                isMobileKeyboardOpen ? 'hidden' : ''
-              }`}>
+              {/* Compact Chapter Header - Always visible on mobile for title editing */}
+              <div className="flex-shrink-0 bg-white dark:bg-[#1a1a1a] border-none pb-1 px-2 transition-all duration-200">
                 {/* Chapter Title Input - Clean UI */}
                 <div className="mt-0">
                   <div className="flex items-center gap-0 px-1 py-1">
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
                     <input
-                      className="flex-1 bg-transparent text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#a0a0a0] placeholder:font-normal touch-manipulation min-w-0"
-                      style={{ border: 'none', backgroundColor: 'transparent', boxShadow: 'none' }}
+                      className="flex-1 bg-transparent text-[16px] sm:text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#a0a0a0] placeholder:font-normal touch-manipulation min-w-0"
+                      style={{ border: 'none', backgroundColor: 'transparent', boxShadow: 'none', fontSize: 'max(16px, 1.125rem)' }}
                       placeholder="Give your chapter a title..."
                       value={chapters[selectedChapter]?.title ?? ""}
                       onChange={(e) =>

@@ -14,11 +14,14 @@ export interface ParsedBook {
   chapters: ParsedChapter[];
 }
 
-// Common chapter title patterns
+// Common chapter title patterns - more flexible matching
 const CHAPTER_PATTERNS = [
-  /^chapter\s+(\d+|[ivxlcdm]+)[\s:.\-–—]*(.*)?$/i,
-  /^part\s+(\d+|[ivxlcdm]+)[\s:.\-–—]*(.*)?$/i,
-  /^section\s+(\d+|[ivxlcdm]+)[\s:.\-–—]*(.*)?$/i,
+  // Standard chapter formats with more flexible spacing and numbering
+  /^chapter\s*(\d+|[ivxlcdm]+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)[\s:.\-–—]*(.*)?$/i,
+  // Allow "Chapter: Title" format without number
+  /^chapter[\s:.\-–—]+(.+)$/i,
+  /^part\s*(\d+|[ivxlcdm]+|one|two|three|four|five|six|seven|eight|nine|ten)[\s:.\-–—]*(.*)?$/i,
+  /^section\s*(\d+|[ivxlcdm]+)[\s:.\-–—]*(.*)?$/i,
   /^prologue[\s:.\-–—]*(.*)?$/i,
   /^epilogue[\s:.\-–—]*(.*)?$/i,
   /^introduction[\s:.\-–—]*(.*)?$/i,
@@ -32,6 +35,10 @@ const CHAPTER_PATTERNS = [
   /^bibliography[\s:.\-–—]*(.*)?$/i,
   /^about\s+the\s+author[\s:.\-–—]*(.*)?$/i,
   /^notes[\s:.\-–—]*(.*)?$/i,
+  // Match standalone numbers that could be chapter numbers (1, 2, 3, etc.)
+  /^(\d{1,2})[\s:.\-–—]+(.+)$/,
+  // Match roman numerals as standalone chapter indicators
+  /^([ivxlcdm]+)[\s:.\-–—]+(.+)$/i,
 ];
 
 // Front matter titles
@@ -179,16 +186,26 @@ export async function parseTextFile(file: File): Promise<ParsedBook> {
 export async function parseDocxFile(file: File): Promise<ParsedBook> {
   const arrayBuffer = await file.arrayBuffer();
   
-  // Use mammoth to extract text and HTML
-  const result = await mammoth.extractRawText({ arrayBuffer });
-  const text = result.value;
-  
-  // Also get HTML for potential formatting preservation
+  // Use mammoth to extract HTML for better chapter detection
   const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
   const html = htmlResult.value;
   
-  // Split into chapters
-  const chapters = splitIntoChapters(text);
+  // Also get raw text as fallback
+  const textResult = await mammoth.extractRawText({ arrayBuffer });
+  const text = textResult.value;
+  
+  // Try to split by HTML headings first (more reliable for formatted documents)
+  const chaptersFromHtml = splitByHtmlHeadings(html);
+  
+  // If HTML heading approach found chapters, use those
+  // Otherwise fall back to plain text splitting
+  let chapters: ParsedChapter[];
+  if (chaptersFromHtml.length > 1) {
+    chapters = chaptersFromHtml;
+  } else {
+    // Fall back to plain text splitting
+    chapters = splitIntoChapters(text);
+  }
   
   // Try to extract title from first heading or filename
   const titleMatch = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
@@ -203,6 +220,83 @@ export async function parseDocxFile(file: File): Promise<ParsedBook> {
       type: 'content'
     }]
   };
+}
+
+// Split document by HTML headings (h1, h2, h3)
+function splitByHtmlHeadings(html: string): ParsedChapter[] {
+  const chapters: ParsedChapter[] = [];
+  
+  // Match h1, h2, or h3 headings and split content by them
+  // This regex captures the heading level, heading content, and everything until the next heading
+  const headingRegex = /<h([1-3])[^>]*>([\s\S]*?)<\/h\1>/gi;
+  const headings: { level: number; title: string; index: number }[] = [];
+  
+  let match;
+  while ((match = headingRegex.exec(html)) !== null) {
+    const title = match[2].replace(/<[^>]+>/g, '').trim(); // Strip any nested tags
+    if (title) {
+      headings.push({
+        level: parseInt(match[1]),
+        title,
+        index: match.index
+      });
+    }
+  }
+  
+  if (headings.length === 0) {
+    return [];
+  }
+  
+  // Extract content between headings
+  for (let i = 0; i < headings.length; i++) {
+    const heading = headings[i];
+    const nextHeading = headings[i + 1];
+    
+    // Find the end of the current heading tag
+    const headingEndMatch = html.substring(heading.index).match(/<\/h[1-3]>/i);
+    if (!headingEndMatch) continue;
+    
+    const contentStart = heading.index + headingEndMatch.index! + headingEndMatch[0].length;
+    const contentEnd = nextHeading ? nextHeading.index : html.length;
+    
+    let content = html.substring(contentStart, contentEnd).trim();
+    
+    // Clean up the content - remove empty paragraphs at start/end
+    content = content.replace(/^(\s*<p>\s*<\/p>\s*)+/, '');
+    content = content.replace(/(\s*<p>\s*<\/p>\s*)+$/, '');
+    
+    // Check if this looks like a chapter title (use function or check heading level)
+    const looksLikeChapter = isChapterTitle(heading.title) || heading.level <= 2;
+    
+    if (looksLikeChapter || chapters.length === 0) {
+      chapters.push({
+        title: heading.title,
+        content: content,
+        type: determineChapterType(heading.title)
+      });
+    } else {
+      // This might be a subsection - append to previous chapter
+      if (chapters.length > 0) {
+        const lastChapter = chapters[chapters.length - 1];
+        lastChapter.content += `<h${heading.level}>${heading.title}</h${heading.level}>${content}`;
+      }
+    }
+  }
+  
+  // Check if there's content before the first heading (could be front matter)
+  if (headings.length > 0 && headings[0].index > 0) {
+    const beforeFirstHeading = html.substring(0, headings[0].index).trim();
+    const cleanedContent = beforeFirstHeading.replace(/^(\s*<p>\s*<\/p>\s*)+/, '').replace(/(\s*<p>\s*<\/p>\s*)+$/, '');
+    if (cleanedContent && cleanedContent.replace(/<[^>]+>/g, '').trim().length > 50) {
+      chapters.unshift({
+        title: 'Introduction',
+        content: cleanedContent,
+        type: 'frontmatter'
+      });
+    }
+  }
+  
+  return chapters;
 }
 
 export async function parsePdfFile(file: File): Promise<ParsedBook> {
