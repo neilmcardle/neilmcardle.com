@@ -155,18 +155,50 @@ function MakeEbookPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Fetch ebooks from Supabase on login
+  // Fetch ebooks from Supabase on login and merge with local library
   useEffect(() => {
     async function fetchAndSyncSupabaseBooks() {
       if (user && user.id) {
         try {
           const supabaseBooks = await import('@/lib/supabaseEbooks').then(m => m.fetchEbooksFromSupabase(user.id));
-          if (Array.isArray(supabaseBooks)) {
-            setLibraryBooks(supabaseBooks);
-            localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(supabaseBooks));
+          if (Array.isArray(supabaseBooks) && supabaseBooks.length > 0) {
+            // Get existing local books
+            const localBooks = loadBookLibrary();
+            
+            // Create a map of existing books by ID for quick lookup
+            const bookMap = new Map<string, any>();
+            
+            // Add local books first
+            localBooks.forEach((book: any) => {
+              if (book.id) {
+                bookMap.set(book.id, book);
+              }
+            });
+            
+            // Merge Supabase books - update if exists, add if new
+            supabaseBooks.forEach((book: any) => {
+              if (book.id) {
+                const existing = bookMap.get(book.id);
+                if (existing) {
+                  // Keep the more recently updated version
+                  const existingTime = existing.savedAt || existing.updated_at || 0;
+                  const newTime = book.updated_at ? new Date(book.updated_at).getTime() : 0;
+                  if (newTime > existingTime) {
+                    bookMap.set(book.id, { ...book, savedAt: newTime });
+                  }
+                } else {
+                  // New book from Supabase
+                  bookMap.set(book.id, { ...book, savedAt: book.updated_at ? new Date(book.updated_at).getTime() : Date.now() });
+                }
+              }
+            });
+            
+            const mergedBooks = Array.from(bookMap.values());
+            setLibraryBooks(mergedBooks);
+            localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(mergedBooks));
           }
         } catch (err) {
-          // Handle error (optional: log or show notification)
+          console.error('Failed to sync Supabase books:', err);
         }
       }
     }
@@ -679,6 +711,13 @@ function MakeEbookPage() {
   }
 
   function handleSaveBook() {
+    // Don't save if there's no meaningful content
+    const hasContent = title.trim() || author.trim() || chapters.some(ch => ch.content.trim());
+    if (!hasContent) {
+      console.log('No content to save, skipping');
+      return;
+    }
+    
     // If there's already a book ID and it exists in library, show save dialog
     if (currentBookId) {
       const library = loadBookLibrary();
@@ -689,11 +728,18 @@ function MakeEbookPage() {
       }
     }
     
-    // No existing book, save normally
+    // No existing book, save normally (creates new book)
     saveBookDirectly(false);
   }
 
   async function saveBookDirectly(forceNewVersion: boolean) {
+    // SAFETY: Prevent accidental creation of new books
+    // forceNewVersion=false should only be called when editing an existing book
+    // forceNewVersion=true creates a new version intentionally
+    if (!forceNewVersion && !currentBookId) {
+      console.warn('saveBookDirectly called without currentBookId - creating new book');
+    }
+    
     const bookData = {
       id: forceNewVersion ? undefined : currentBookId, // Force new ID if creating new version
       title,
