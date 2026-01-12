@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { uuidv4 } from "../utils/uuid";
 import { Chapter } from "../types";
 
-export function useChapters(initial: Chapter[] = [{ id: uuidv4(), title: "", content: "", type: "content" }]) {
+export function useChapters(initial: Chapter[] = []) {
   const [chapters, setChapters] = useState(initial);
   const [selectedChapter, setSelectedChapter] = useState(0);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);

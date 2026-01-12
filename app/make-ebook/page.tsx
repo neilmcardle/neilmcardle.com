@@ -657,11 +657,14 @@ function MakeEbookPage() {
     // Called from marketing page when user wants to enter the editor
     setShowMarketingPage(false);
     if (libraryBooks.length > 0) {
-      // If they have books, show the library sidebar
+      // If they have books, load the most recent one
+      const mostRecent = libraryBooks.reduce((a, b) => (a.savedAt > b.savedAt ? a : b));
+      handleLoadBook(mostRecent.id);
+      // Also open the library sidebar so they can switch books
       setSidebarView('library');
     } else {
       // Otherwise start a new book
-      handleNewBookConfirm();
+      clearEditorState();
     }
   }
 
@@ -3134,13 +3137,11 @@ function UserDropdownMobile() {
   );
 }
 
-// Wrap `MakeEbookPage` in authentication protection and `Suspense` boundary
-export default function ProtectedMakeEbookPage() {
+// Export page without ProtectedRoute wrapper - the MarketingLandingPage handles auth
+export default function MakeEbookPageWrapper() {
   return (
-    <ProtectedRoute>
-      <Suspense fallback={<div>Loading makeEbook...</div>}>
-        <MakeEbookPage />
-      </Suspense>
-    </ProtectedRoute>
+    <Suspense fallback={<div>Loading makeEbook...</div>}>
+      <MakeEbookPage />
+    </Suspense>
   );
 }
