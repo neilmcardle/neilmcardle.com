@@ -146,7 +146,7 @@ html.dark {
     font-family: var(--font-inter), sans-serif;
   }
   /* Card-like containers */
-  .card, .rounded-xl, .rounded-2xl, .sidebar-card {
+  .card, .sidebar-card {
     border-radius: 1rem !important;   /* Large soft corners */
     background: #fff;
     border: 1px solid #ececec;
@@ -154,8 +154,6 @@ html.dark {
   }
 
   html.dark .card,
-  html.dark .rounded-xl,
-  html.dark .rounded-2xl,
   html.dark .sidebar-card {
     background: #1a1a1a;
     border: 1px solid #333333;

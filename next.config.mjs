@@ -11,6 +11,23 @@ const nextConfig = {
   images: {
     unoptimized: true, // Keep unoptimized for now until external domains are audited
   },
+  // Exclude pdfjs-dist from webpack bundling to avoid CSS issues
+  webpack: (config, { isServer }) => {
+    // Ignore pdfjs-dist CSS imports that cause issues
+    config.resolve.alias.canvas = false;
+    
+    // Handle pdfjs-dist worker issues
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        canvas: false,
+        fs: false,
+        path: false,
+      };
+    }
+    
+    return config;
+  },
   // Allow dev origins only in development
   ...(isDev && {
     experimental: {
@@ -42,10 +59,10 @@ const nextConfig = {
                   value:
                     "default-src 'self'; " +
                     "script-src 'self' 'unsafe-inline'; " +
-                    "style-src 'self' 'unsafe-inline'; " +
+                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
                     "img-src 'self' data: https:; " +
-                    "font-src 'self' data:; " +
-                    "connect-src 'self' https://firebase.googleapis.com https://firestore.googleapis.com https://hhsiuvalashrqtpluxan.supabase.co https://agisftsuzxiwctupgeol.supabase.co; " +
+                    "font-src 'self' data: https://fonts.gstatic.com; " +
+                    "connect-src 'self' https://firebase.googleapis.com https://firestore.googleapis.com https://hhsiuvalashrqtpluxan.supabase.co https://agisftsuzxiwctupgeol.supabase.co https://api.x.ai; " +
                     "frame-ancestors 'none';",
                 },
                 {

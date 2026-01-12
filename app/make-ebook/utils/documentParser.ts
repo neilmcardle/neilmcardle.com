@@ -206,14 +206,22 @@ export async function parseDocxFile(file: File): Promise<ParsedBook> {
 }
 
 export async function parsePdfFile(file: File): Promise<ParsedBook> {
-  // Dynamic import pdfjs-dist to avoid SSR issues
-  const pdfjsLib = await import('pdfjs-dist');
+  // For PDF parsing, we'll extract text using a simpler approach
+  // pdfjs-dist has worker issues with Next.js webpack, so we use the legacy build
+  const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
   
-  // Set up the worker - use CDN for reliability
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  // Disable the worker to avoid webpack issues
+  pdfjsLib.GlobalWorkerOptions.workerSrc = '';
   
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const loadingTask = pdfjsLib.getDocument({ 
+    data: arrayBuffer,
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: true,
+  });
+  
+  const pdf = await loadingTask.promise;
   
   let fullText = '';
   
