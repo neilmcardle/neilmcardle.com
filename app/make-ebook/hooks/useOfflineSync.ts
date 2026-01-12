@@ -112,14 +112,23 @@ export function useOfflineSync(): UseOfflineSyncReturn {
     try {
       const tx = dbRef.current.transaction(STORE_NAME, 'readonly');
       const store = tx.objectStore(STORE_NAME);
-      const index = store.index('needsSync');
-      const request = index.count(IDBKeyRange.only(true));
+      
+      // Use getAll and filter instead of index.count() which has issues with boolean keys
+      const request = store.getAll();
 
       request.onsuccess = () => {
-        setPendingSyncCount(request.result);
+        const books = request.result as OfflineBook[];
+        const pendingCount = books.filter(book => book.needsSync === true).length;
+        setPendingSyncCount(pendingCount);
+      };
+      
+      request.onerror = () => {
+        console.error('Error getting books for sync count');
+        setPendingSyncCount(0);
       };
     } catch (error) {
       console.error('Error counting pending sync:', error);
+      setPendingSyncCount(0);
     }
   }, []);
 

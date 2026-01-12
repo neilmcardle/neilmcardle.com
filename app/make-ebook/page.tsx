@@ -40,8 +40,6 @@ import { VersionHistoryPanel, VersionHistoryButton } from "./components/VersionH
 import { useOfflineSync } from "./hooks/useOfflineSync";
 import { useServiceWorker } from "./hooks/useServiceWorker";
 import { OfflineBanner, OfflineIndicatorCompact } from "./components/OfflineIndicator";
-import { useBookMind, BookMindContext } from "./hooks/useBookMind";
-import { BookMindPanel, BookMindTrigger } from "./components/BookMindPanel";
 import SplitPreviewLayout from "./components/SplitPreviewLayout";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { 
@@ -355,36 +353,6 @@ function MakeEbookPage() {
 
   // Service worker for PWA
   const { isUpdateAvailable, updateServiceWorker } = useServiceWorker();
-
-  // Book Mind AI assistant
-  const {
-    messages: bookMindMessages,
-    isLoading: isBookMindLoading,
-    error: bookMindError,
-    isOpen: isBookMindOpen,
-    setIsOpen: setBookMindOpen,
-    sendMessage: sendBookMindMessage,
-    quickAction: bookMindQuickAction,
-    clearMessages: clearBookMindMessages,
-    // Chat session management
-    chatSessions,
-    currentSessionId,
-    createSession: createBookMindSession,
-    loadSession: loadBookMindSession,
-    renameSession: renameBookMindSession,
-    deleteSession: deleteBookMindSession,
-  } = useBookMind({ bookId: currentBookId || 'default' });
-
-  // Build context for Book Mind - includes ALL chapters for full book knowledge
-  const bookMindContext: BookMindContext = {
-    title,
-    author,
-    genre,
-    chapterTitle: chapters[selectedChapter]?.title || '',
-    chapterContent: chapters[selectedChapter]?.content || '',
-    allChapters: chapters.map(ch => ({ title: ch.title, content: ch.content, type: ch.type || 'content' })),
-    selectedText: typeof window !== 'undefined' ? window.getSelection()?.toString() : undefined,
-  };
 
   // State for version history panel visibility
   const [showVersionHistory, setShowVersionHistory] = useState(false);
@@ -1112,25 +1080,7 @@ function MakeEbookPage() {
           </div>
         )}
 
-        {/* Book Mind AI Panel */}
-        <BookMindPanel
-          isOpen={isBookMindOpen}
-          onCloseAction={() => setBookMindOpen(false)}
-          messages={bookMindMessages}
-          isLoading={isBookMindLoading}
-          error={bookMindError}
-          onSendMessageAction={sendBookMindMessage}
-          onQuickActionAction={bookMindQuickAction}
-          onClearMessagesAction={clearBookMindMessages}
-          context={bookMindContext}
-          // Chat session management
-          chatSessions={chatSessions}
-          currentSessionId={currentSessionId}
-          onCreateSessionAction={createBookMindSession}
-          onLoadSessionAction={loadBookMindSession}
-          onRenameSessionAction={renameBookMindSession}
-          onDeleteSessionAction={deleteBookMindSession}
-        />
+
 
         {/* Mobile Preview Modal */}
         {mobilePreviewOpen && (
@@ -2386,16 +2336,16 @@ function MakeEbookPage() {
                 {chapters.length > 0 && (
                   <div className="flex items-center gap-0.5 flex-shrink-0">
                     {/* Book Mind AI Button */}
-                    <button
-                      onClick={() => setBookMindOpen(true)}
-                      className="p-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 transition-colors"
+                    <Link
+                      href={`/make-ebook/book-mind${currentBookId ? `?book=${currentBookId}` : ''}`}
+                      className="p-1.5 rounded-lg bg-gray-900 dark:bg-white hover:opacity-90 transition-colors"
                       aria-label="Open Book Mind AI"
                       title="Book Mind AI"
                     >
-                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-5 h-5 text-white dark:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
-                    </button>
+                    </Link>
                     {/* Preview Button */}
                     <button
                       onClick={() => setMobilePreviewOpen(true)}
@@ -2640,10 +2590,16 @@ function MakeEbookPage() {
                     )}
                   </div>
                   <div className="flex items-center gap-3">
-                    <BookMindTrigger 
-                      onClickAction={() => setBookMindOpen(true)}
-                      hasContext={!!bookMindContext.selectedText}
-                    />
+                    <Link
+                      href={`/make-ebook/book-mind${currentBookId ? `?book=${currentBookId}` : ''}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:opacity-90 shadow-sm transition-all"
+                      title="Ask questions about your book"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                      <span>Book Mind</span>
+                    </Link>
                     <VersionHistoryButton 
                       versionCount={versions.length} 
                       onClickAction={() => setShowVersionHistory(true)} 
