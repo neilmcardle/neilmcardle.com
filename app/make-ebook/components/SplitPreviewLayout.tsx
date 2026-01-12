@@ -54,10 +54,18 @@ export function SplitPreviewLayout({
           <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-[#2a2a2a]">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
+                  <span className="inline-block">
+                    <img
+                      src="/preview-ereader.svg"
+                      alt="E-reader preview"
+                      className="w-4 h-4 dark:hidden"
+                    />
+                    <img
+                      src="/preview-ereader-dark.svg"
+                      alt="E-reader preview dark"
+                      className="w-4 h-4 hidden dark:inline"
+                    />
+                  </span>
                 Live Preview
               </h3>
               <button

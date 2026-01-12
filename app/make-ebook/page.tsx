@@ -339,8 +339,8 @@ function MakeEbookPage() {
     return () => viewport.removeEventListener('resize', handleResize);
   }, []);
   
-  // Split preview state
-  const [isSplitPreviewEnabled, setIsSplitPreviewEnabled] = useState(false);
+  // Split preview state - enabled by default on desktop so users see the e-reader preview
+  const [isSplitPreviewEnabled, setIsSplitPreviewEnabled] = useState(true);
   
   // Typography preset for EPUB export
   const [typographyPreset, setTypographyPreset] = useState<TypographyPreset>('default');
