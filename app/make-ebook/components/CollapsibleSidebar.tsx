@@ -625,39 +625,53 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                   {coverFile.name}
                 </p>
               )}
-              <div className="mt-2">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const params = new URLSearchParams({
-                                    title: title || '',
-                                    author: author || ''
-                                  }).toString();
-                                  window.open(`https://coverly.figma.site?${params}`, '_blank', 'noopener,noreferrer');
-                                }}
-                                className="flex flex-col items-center w-full gap-2 px-4 py-3 rounded-lg border border-gray-200 dark:border-[#424242] bg-white dark:bg-[#383838] hover:bg-gray-50 dark:hover:bg-[#2f2f2f] shadow transition-all mb-2"
-                                title="Open Coverly: Book Cover Generator (opens in new tab)"
-                              >
-                                <span className="flex items-center justify-center w-full mb-2">
-                                  <img
-                                    src="/coverly-logo.svg"
-                                    alt="Coverly logo"
-                                    className="h-8 block dark:hidden"
-                                    style={{ margin: '0 auto' }}
-                                  />
-                                  <img
-                                    src="/dark-coverly-logo.svg"
-                                    alt="Coverly logo dark"
-                                    className="h-8 hidden dark:block"
-                                    style={{ margin: '0 auto' }}
-                                  />
-                                </span>
-                                <span className="text-xs text-[#4B3A8B] dark:text-[#D1C4F7] text-center leading-tight">Design your own book cover and upload it to MakeEbook</span>
-                                <span className="flex items-center justify-center gap-1 mt-1 text-xs text-[#6C47FF] dark:text-[#B6A7FF] font-medium">
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 3h6v6" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14L21 3" /></svg>
-                                  <span>Opens in new tab</span>
-                                </span>
-                              </button>
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const params = new URLSearchParams({
+                      title: title || '',
+                      author: author || ''
+                    }).toString();
+                    window.open(`https://coverly.figma.site?${params}`, '_blank', 'noopener,noreferrer');
+                  }}
+                  className="group relative w-full overflow-hidden rounded-xl p-[1px] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  title="Create a professional book cover with Coverly"
+                >
+                  {/* Gradient border */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 opacity-80 group-hover:opacity-100 transition-opacity" />
+                  
+                  {/* Inner content */}
+                  <div className="relative flex items-center gap-3 rounded-xl bg-white dark:bg-[#1a1a1a] px-3 py-3">
+                    {/* Example cover thumbnail */}
+                    <div className="flex-shrink-0 w-12 h-16 rounded-md overflow-hidden shadow-md ring-1 ring-black/10 dark:ring-white/10 group-hover:shadow-lg transition-shadow">
+                      <img
+                        src="/coverly-preview.png"
+                        alt="Example cover made with Coverly"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    
+                    {/* Text content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">Need a cover?</p>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white uppercase">
+                          Free
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 leading-tight">Design a professional cover in minutes</p>
+                      
+                      {/* CTA */}
+                      <div className="flex items-center gap-1 mt-1.5 text-xs font-medium text-orange-600 dark:text-orange-400 group-hover:gap-1.5 transition-all">
+                        <span>Open Coverly</span>
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </button>
               </div>
             </div>
           </div>

@@ -37,6 +37,11 @@ import { WordStatsDropdown } from "./components/WordStatsDropdown";
 import { useWordStats } from "./hooks/useWordStats";
 import { useVersionHistory } from "./hooks/useVersionHistory";
 import { VersionHistoryPanel, VersionHistoryButton } from "./components/VersionHistoryPanel";
+import { useOfflineSync } from "./hooks/useOfflineSync";
+import { useServiceWorker } from "./hooks/useServiceWorker";
+import { OfflineBanner, OfflineIndicatorCompact } from "./components/OfflineIndicator";
+import { useBookMind, BookMindContext } from "./hooks/useBookMind";
+import { BookMindPanel, BookMindTrigger } from "./components/BookMindPanel";
 import SplitPreviewLayout from "./components/SplitPreviewLayout";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { 
@@ -277,6 +282,41 @@ function MakeEbookPage() {
     formatTimestamp,
     hasVersions 
   } = useVersionHistory({ bookId: currentBookId });
+
+  // Offline sync hook
+  const {
+    isOnline,
+    isSyncing,
+    pendingSyncCount,
+    lastSyncTime,
+    saveOffline,
+    syncNow,
+  } = useOfflineSync();
+
+  // Service worker for PWA
+  const { isUpdateAvailable, updateServiceWorker } = useServiceWorker();
+
+  // Book Mind AI assistant
+  const {
+    messages: bookMindMessages,
+    isLoading: isBookMindLoading,
+    error: bookMindError,
+    isOpen: isBookMindOpen,
+    setIsOpen: setBookMindOpen,
+    sendMessage: sendBookMindMessage,
+    quickAction: bookMindQuickAction,
+    clearMessages: clearBookMindMessages,
+  } = useBookMind();
+
+  // Build context for Book Mind
+  const bookMindContext: BookMindContext = {
+    title,
+    author,
+    genre,
+    chapterTitle: chapters[selectedChapter]?.title || '',
+    chapterContent: chapters[selectedChapter]?.content || '',
+    selectedText: typeof window !== 'undefined' ? window.getSelection()?.toString() : undefined,
+  };
 
   // State for version history panel visibility
   const [showVersionHistory, setShowVersionHistory] = useState(false);
@@ -648,11 +688,30 @@ function MakeEbookPage() {
       tags,
     });
     
+    // Save to IndexedDB for offline access
+    try {
+      await saveOffline({
+        id,
+        title,
+        author,
+        blurb,
+        publisher,
+        pubDate,
+        isbn,
+        language,
+        genre,
+        tags,
+        chapters,
+      });
+    } catch (err) {
+      console.error('Failed to save offline:', err);
+    }
+    
     setTimeout(() => setSaveFeedback(false), 1300);
 
-    // Save to Supabase (if user is logged in)
+    // Save to Supabase (if user is logged in and online)
     try {
-      if (user && user.id) {
+      if (user && user.id && isOnline) {
         const result = await saveEbookToSupabase(bookData, chapters, user.id);
         console.log('Supabase save result:', result);
         if (!result) {
@@ -871,6 +930,19 @@ function MakeEbookPage() {
       {/* Main Content - Full height without header */}
       <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] text-[#15161a] dark:text-[#e5e5e5]">
         
+        {/* Update Available Banner */}
+        {isUpdateAvailable && (
+          <div className="fixed top-0 left-0 right-0 z-[150] bg-blue-600 text-white text-center py-2 px-4 text-sm flex items-center justify-center gap-3">
+            <span>A new version is available!</span>
+            <button
+              onClick={updateServiceWorker}
+              className="px-3 py-1 bg-white text-blue-600 rounded font-medium text-xs hover:bg-blue-50 transition-colors"
+            >
+              Update Now
+            </button>
+          </div>
+        )}
+        
         {/* New Book Confirmation Dialog */}
         {newBookConfirmOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
@@ -956,6 +1028,26 @@ function MakeEbookPage() {
             </div>
           </div>
         )}
+
+        {/* Book Mind AI Panel */}
+        <BookMindPanel
+          isOpen={isBookMindOpen}
+          onCloseAction={() => setBookMindOpen(false)}
+          messages={bookMindMessages}
+          isLoading={isBookMindLoading}
+          error={bookMindError}
+          onSendMessageAction={sendBookMindMessage}
+          onQuickActionAction={bookMindQuickAction}
+          onClearMessagesAction={clearBookMindMessages}
+          context={bookMindContext}
+          onApplyTextAction={(text) => {
+            // Apply AI-generated text to current chapter
+            if (chapters[selectedChapter]) {
+              const currentContent = chapters[selectedChapter].content;
+              handleChapterContentChange(selectedChapter, currentContent + '\n\n' + text);
+            }
+          }}
+        />
 
         {/* Mobile Preview Modal */}
         {mobilePreviewOpen && (
@@ -1445,7 +1537,7 @@ function MakeEbookPage() {
                               {coverFile.name}
                             </p>
                           )}
-                          <div className="mt-2">
+                          <div className="mt-3">
                             <button
                               type="button"
                               onClick={() => {
@@ -1455,15 +1547,42 @@ function MakeEbookPage() {
                                 }).toString();
                                 window.open(`https://coverly.figma.site?${params}`, '_blank', 'noopener,noreferrer');
                               }}
-                              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md border border-gray-200 dark:border-[#424242] bg-white dark:bg-[#1f1f1f] hover:bg-gray-50 dark:hover:bg-[#272727] transition-colors"
-                              title="Make-ebook cover generator (opens in new tab)"
+                              className="group relative w-full overflow-hidden rounded-xl p-[1px] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                              title="Create a professional book cover with Coverly"
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 3h6v6" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 14L21 3" />
-                              </svg>
-                              <span>Make-ebook cover generator</span>
+                              {/* Gradient border */}
+                              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 opacity-80 group-hover:opacity-100 transition-opacity" />
+                              
+                              {/* Inner content */}
+                              <div className="relative flex items-center gap-3 rounded-xl bg-white dark:bg-[#1a1a1a] px-3 py-3">
+                                {/* Example cover thumbnail */}
+                                <div className="flex-shrink-0 w-12 h-16 rounded-md overflow-hidden shadow-md ring-1 ring-black/10 dark:ring-white/10 group-hover:shadow-lg transition-shadow">
+                                  <img
+                                    src="/coverly-preview.png"
+                                    alt="Example cover made with Coverly"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                
+                                {/* Text content */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Need a cover?</p>
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white uppercase">
+                                      Free
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-600 dark:text-gray-400 leading-tight">Design a professional cover in minutes</p>
+                                  
+                                  {/* CTA */}
+                                  <div className="flex items-center gap-1 mt-1.5 text-xs font-medium text-orange-600 dark:text-orange-400 group-hover:gap-1.5 transition-all">
+                                    <span>Open Coverly</span>
+                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              </div>
                             </button>
                           </div>
                         </div>
@@ -2150,25 +2269,30 @@ function MakeEbookPage() {
           }`}>
             
             {/* Mobile Header - Compact Status Bar */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#424242]">
-              <div className="flex items-center justify-between px-2 py-1.5 gap-1">
-                {/* Left: Menu Button */}
-                <button
-                  onClick={() => setMobileSidebarOpen(true)}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
-                  aria-label="Open menu"
-                >
-                  <img 
-                    src="/hamburger-menu-icon.svg" 
-                    alt="Menu" 
-                    className="w-5 h-5 dark:hidden" 
-                  />
-                  <img 
-                    src="/dark-hamburger-menu-icon.svg" 
-                    alt="Menu" 
-                    className="w-5 h-5 hidden dark:block" 
-                  />
-                </button>
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1a1a1a]">
+              {/* Offline Banner */}
+              <OfflineBanner isOnline={isOnline} />
+              <div className="flex items-center justify-between px-2 py-1.5 gap-1 border-b border-gray-200 dark:border-[#424242]">
+                {/* Left: Menu Button + Offline indicator */}
+                <div className="flex items-center gap-0.5">
+                  <button
+                    onClick={() => setMobileSidebarOpen(true)}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
+                    aria-label="Open menu"
+                  >
+                    <img 
+                      src="/hamburger-menu-icon.svg" 
+                      alt="Menu" 
+                      className="w-5 h-5 dark:hidden" 
+                    />
+                    <img 
+                      src="/dark-hamburger-menu-icon.svg" 
+                      alt="Menu" 
+                      className="w-5 h-5 hidden dark:block" 
+                    />
+                  </button>
+                  <OfflineIndicatorCompact isOnline={isOnline} isSyncing={isSyncing} pendingSyncCount={pendingSyncCount} />
+                </div>
                 {/* Center: Book Title - truncated */}
                 <div className="flex-1 min-w-0 text-center px-1">
                   <div className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5] truncate">
@@ -2178,6 +2302,17 @@ function MakeEbookPage() {
                 {/* Right: Preview + Stats Dropdowns */}
                 {chapters.length > 0 && (
                   <div className="flex items-center gap-0.5 flex-shrink-0">
+                    {/* Book Mind AI Button */}
+                    <button
+                      onClick={() => setBookMindOpen(true)}
+                      className="p-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 transition-colors"
+                      aria-label="Open Book Mind AI"
+                      title="Book Mind AI"
+                    >
+                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </button>
                     {/* Preview Button */}
                     <button
                       onClick={() => setMobilePreviewOpen(true)}
@@ -2388,8 +2523,39 @@ function MakeEbookPage() {
               <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2">
                 {/* Status Bar with Auto-Save and Quality Score */}
                 <div className="flex items-center justify-between px-2 mb-2">
-                  <AutoSaveIndicator isDirty={isDirty} isSaving={isSaving} lastSaved={lastSaved} />
                   <div className="flex items-center gap-3">
+                    <AutoSaveIndicator isDirty={isDirty} isSaving={isSaving} lastSaved={lastSaved} />
+                    {/* Offline indicator for desktop */}
+                    {(!isOnline || pendingSyncCount > 0) && (
+                      <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
+                        isOnline 
+                          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                      }`}>
+                        {isSyncing ? (
+                          <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        ) : (
+                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                        )}
+                        <span>{isSyncing ? 'Syncing...' : isOnline ? `${pendingSyncCount} to sync` : 'Offline'}</span>
+                        {isOnline && pendingSyncCount > 0 && !isSyncing && (
+                          <button onClick={syncNow} className="ml-1 hover:opacity-70" title="Sync now">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <BookMindTrigger 
+                      onClickAction={() => setBookMindOpen(true)}
+                      hasContext={!!bookMindContext.selectedText}
+                    />
                     <VersionHistoryButton 
                       versionCount={versions.length} 
                       onClickAction={() => setShowVersionHistory(true)} 
