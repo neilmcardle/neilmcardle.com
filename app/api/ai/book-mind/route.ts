@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
           'Authorization': `Bearer ${grokKey}`,
         },
         body: JSON.stringify({
-          model: process.env.XAI_MODEL || 'grok-beta',
+          model: process.env.XAI_MODEL || 'grok-3-mini',
           messages: messages,
           max_tokens: 2000,
           temperature: 0.7,
