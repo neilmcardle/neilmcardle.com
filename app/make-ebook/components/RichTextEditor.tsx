@@ -753,7 +753,7 @@ export default function RichTextEditor({
                 key={b.cmd}
                 onMouseDown={e => e.preventDefault()}
                 onClick={() => applyInlineOrAlign(b.cmd)}
-                title={b.title}
+                data-tooltip={b.title}
                 type="button"
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-transform touch-manipulation ${
@@ -777,7 +777,7 @@ export default function RichTextEditor({
                 key={h.level}
                 onMouseDown={e => e.preventDefault()}
                 onClick={() => applyHeading(h.level)}
-                title={h.title}
+                data-tooltip={h.title}
                 type="button"
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-95 transition-transform touch-manipulation ${
@@ -799,7 +799,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => applyInlineOrAlign('justifyLeft')}
-              title="Left Align"
+              data-tooltip="Left Align"
               type="button"
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
@@ -813,7 +813,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => applyInlineOrAlign('justifyCenter')}
-              title="Center Align"
+              data-tooltip="Center Align"
               type="button"
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
@@ -827,7 +827,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => applyInlineOrAlign('justifyRight')}
-              title="Right Align"
+              data-tooltip="Right Align"
               type="button"
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
@@ -848,7 +848,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={handleEndnoteClick}
-              title="Insert Endnote"
+              data-tooltip="Insert Endnote"
               type="button"
               disabled={disabled || !onCreateEndnote}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation disabled:opacity-40"
@@ -858,7 +858,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={handleLinkClick}
-              title="Insert Link"
+              data-tooltip="Insert Link"
               type="button"
               disabled={disabled}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
@@ -868,7 +868,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={handleAnchorClick}
-              title="Insert Anchor (for Index Links)"
+              data-tooltip="Insert Anchor"
               type="button"
               disabled={disabled}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
@@ -884,7 +884,7 @@ export default function RichTextEditor({
           <button
             onMouseDown={e => e.preventDefault()}
             onClick={handleImageButtonClick}
-            title="Insert Image"
+            data-tooltip="Insert Image"
             type="button"
             disabled={disabled}
             className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
@@ -901,7 +901,7 @@ export default function RichTextEditor({
               emitChange();
               refreshStates();
             }}
-            title="Clear Formatting"
+            data-tooltip="Clear Formatting"
             type="button"
             disabled={disabled}
             className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"

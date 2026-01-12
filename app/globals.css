@@ -517,3 +517,36 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Instant CSS tooltips for toolbar buttons - desktop only */
+@media (min-width: 1024px) {
+  [data-tooltip] {
+    position: relative;
+  }
+  [data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background: #1a1a1a;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: 6px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1000;
+    margin-bottom: 6px;
+    transition: opacity 0s;
+  }
+  html.dark [data-tooltip]::after {
+    background: #e5e5e5;
+    color: #1a1a1a;
+  }
+  [data-tooltip]:hover::after {
+    opacity: 1;
+  }
+}
