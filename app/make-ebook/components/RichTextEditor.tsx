@@ -744,269 +744,172 @@ export default function RichTextEditor({
       <div className={`bg-white dark:bg-[#1a1a1a] transition-all duration-200 ${
         isMobileKeyboardOpen ? 'lg:block hidden' : ''
       }`}>
-        <div className="p-2 overflow-x-auto">
-          <div className="flex flex-wrap items-start gap-4">
-              {/* Format section */}
-              <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Format</div>
-                <div className="flex gap-1">
-                  {INLINE.map(b => (
-                    <button
-                      key={b.cmd}
-                      onMouseDown={e => e.preventDefault()}
-                      title={b.title}
-                      type="button"
-                      className={`w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation ${
-                        formats[b.cmd] 
-                ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white' 
-                  : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
-                      } ${b.className || ''}`}
-                      onClick={() => applyInlineOrAlign(b.cmd)}
-                      disabled={disabled}
-                    >
-                      {b.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Headings section */}
-              <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Headings</div>
-                <div className="flex gap-1">
-                  {HEADINGS.map(h => (
-                    <button
-                      key={h.level}
-                      onMouseDown={e => e.preventDefault()}
-                      title={h.title}
-                      type="button"
-                      className={`w-8 h-8 rounded border text-xs font-bold transition-colors touch-manipulation ${
-                        formats[`heading${h.level}`] 
-                          ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white' 
-                            : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
-                      }`}
-                      onClick={() => applyHeading(h.level)}
-                      disabled={disabled}
-                    >
-                      {h.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Align section */}
-              <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Align</div>
-                <div className="flex gap-1">
-                  <button
-                    title="Left Align"
-                    type="button"
-                    className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible ${
-                      formats['justifyLeft']
-                        ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white' 
-                        : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
-                    }`}
-                    onMouseDown={e => e.preventDefault()}
-                    onClick={() => applyInlineOrAlign('justifyLeft')}
-                    disabled={disabled}
-                  >
-                    <img 
-                      alt="Left Align" 
-                      loading="lazy" 
-                      width="12" 
-                      height="12" 
-                      decoding="async" 
-                      data-nimg="1" 
-                      className={`w-3 h-3 ${!formats['justifyLeft'] ? 'dark:invert' : ''}`}
-                      style={{ 
-                        color: 'transparent', 
-                        borderRadius: '0px', 
-                        boxShadow: 'none',
-                        filter: (!formats['justifyLeft'] && theme === 'dark') || (formats['justifyLeft'] && theme === 'light') ? 'invert(1)' : 'none'
-                      }} 
-                      src="/left-align-icon.svg"
-                    />
-                  </button>
-                  <button
-                    title="Centrally Align"
-                    type="button"
-                    className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible ${
-                      formats['justifyCenter']
-                        ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white'
-                        : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
-                    }`}
-                    onMouseDown={e => e.preventDefault()}
-                    onClick={() => applyInlineOrAlign('justifyCenter')}
-                    disabled={disabled}
-                  >
-                    <img 
-                      alt="Centrally Align" 
-                      loading="lazy" 
-                      width="12" 
-                      height="12" 
-                      decoding="async" 
-                      data-nimg="1" 
-                      className={`w-3 h-3 ${!formats['justifyCenter'] ? 'dark:invert' : ''}`}
-                      style={{ 
-                        color: 'transparent', 
-                        borderRadius: '0px', 
-                        boxShadow: 'none',
-                        filter: (!formats['justifyCenter'] && theme === 'dark') || (formats['justifyCenter'] && theme === 'light') ? 'invert(1)' : 'none'
-                      }} 
-                      src="/centrally-align-icon.svg"
-                    />
-                  </button>
-                  <button
-                    title="Right Align"
-                    type="button"
-                    className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible ${
-                      formats['justifyRight']
-                        ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d] border-[#181a1d] dark:border-white'
-                        : 'bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a]'
-                    }`}
-                    onMouseDown={e => e.preventDefault()}
-                    onClick={() => applyInlineOrAlign('justifyRight')}
-                    disabled={disabled}
-                  >
-                    <img 
-                      alt="Right Align" 
-                      loading="lazy" 
-                      width="12" 
-                      height="12" 
-                      decoding="async" 
-                      data-nimg="1" 
-                      className={`w-3 h-3 ${!formats['justifyRight'] ? 'dark:invert' : ''}`}
-                      style={{ 
-                        color: 'transparent', 
-                        borderRadius: '0px', 
-                        boxShadow: 'none',
-                        filter: (!formats['justifyRight'] && theme === 'dark') || (formats['justifyRight'] && theme === 'light') ? 'invert(1)' : 'none'
-                      }} 
-                      src="/right-align-icon.svg"
-                    />
-                  </button>
-                </div>
-              </div>
-              
-              {/* Endnote / Link / Anchor section */}
-              <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Endnote / Link / Anchor</div>
-                <div className="flex gap-1">
-                  <button
-                    onMouseDown={e => e.preventDefault()}
-                    title="Insert Endnote"
-                    type="button"
-                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
-                    onClick={handleEndnoteClick}
-                    disabled={disabled || !onCreateEndnote}
-                  >
-                    <Image
-                      src="/endnote-icon.svg"
-                      alt="Insert Endnote"
-                      width={12}
-                      height={12}
-                      className="w-3 h-3 dark:invert"
-                      style={{ borderRadius: '0', boxShadow: 'none' }}
-                    />
-                  </button>
-                  <button
-                    onMouseDown={e => e.preventDefault()}
-                    title="Insert Link"
-                    type="button"
-                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
-                    onClick={handleLinkClick}
-                    disabled={disabled}
-                  >
-                    <Image
-                      src="/link-icon.svg"
-                      alt="Insert Link"
-                      width={12}
-                      height={12}
-                      className="w-3 h-3 dark:invert"
-                      style={{ borderRadius: '0', boxShadow: 'none' }}
-                    />
-                  </button>
-                  <button
-                    onMouseDown={e => e.preventDefault()}
-                    title="Insert Anchor (for Index Links)"
-                    type="button"
-                    className="w-8 h-8 rounded border transition-colors touch-manipulation bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] flex items-center justify-center overflow-visible"
-                    onClick={handleAnchorClick}
-                    disabled={disabled}
-                  >
-                    <Image
-                      src="/anchor-icon.svg"
-                      alt="Insert Anchor"
-                      width={12}
-                      height={12}
-                      className="w-3 h-3 dark:invert"
-                      style={{ borderRadius: '0', boxShadow: 'none' }}
-                    />
-                  </button>
-                </div>
-              </div>
-              
-              {/* Insert section */}
-              <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Insert</div>
-                <div className="flex gap-1">
-                  <button
-                    onMouseDown={e => e.preventDefault()}
-                    title="Insert Image"
-                    type="button"
-                    className="w-8 h-8 rounded border bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
-                    onClick={handleImageButtonClick}
-                    disabled={disabled}
-                  >
-                    <img 
-                      alt="Insert Image" 
-                      loading="lazy" 
-                      width="12" 
-                      height="12" 
-                      decoding="async" 
-                      data-nimg="1" 
-                      className="w-3 h-3 dark:invert" 
-                      style={{ color: 'transparent', borderRadius: '0px', boxShadow: 'none' }} 
-                      src="/image-icon.svg"
-                    />
-                  </button>
-                </div>
-              </div>
-
-              {/* Clear formatting section */}
-              <div className="flex flex-col gap-1">
-                <div className="text-[9px] font-semibold tracking-wide uppercase text-[#86868B] dark:text-gray-400 select-none px-1">Clear formatting</div>
-                <div className="flex gap-1">
-                  <button
-                    onMouseDown={e => e.preventDefault()}
-                    title="Clear formatting"
-                    type="button"
-                    className="w-8 h-8 rounded border bg-white dark:bg-[#2a2a2a] text-[#6a6c72] dark:text-gray-300 border-[#E8E8E8] dark:border-[#424242] hover:bg-[#F7F7F7] dark:hover:bg-[#3a3a3a] transition-colors touch-manipulation flex items-center justify-center overflow-visible"
-                    onClick={() => {
-                      focusEditor();
-                      document.execCommand('removeFormat');
-                      emitChange();
-                      refreshStates();
-                    }}
-                    disabled={disabled}
-                  >
-                    <img 
-                      alt="Clear formatting" 
-                      loading="lazy" 
-                      width="12" 
-                      height="12" 
-                      decoding="async" 
-                      data-nimg="1" 
-                      className="w-3 h-3 dark:invert" 
-                      style={{ color: 'transparent', borderRadius: '0px', boxShadow: 'none' }} 
-                      src="/clear-erase-icon.svg"
-                    />
-                  </button>
-                </div>
-              </div>
-            </div>
+        {/* Sleek horizontal toolbar */}
+        <div className="flex items-center px-2 py-2 gap-1 overflow-x-auto scrollbar-hide">
+          {/* Format buttons (B, I, U, S) */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            {INLINE.map(b => (
+              <button
+                key={b.cmd}
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => applyInlineOrAlign(b.cmd)}
+                title={b.title}
+                type="button"
+                disabled={disabled}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-transform touch-manipulation ${
+                  formats[b.cmd]
+                    ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
+                    : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+                } ${b.className || ''}`}
+              >
+                {b.label}
+              </button>
+            ))}
           </div>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-gray-300 dark:bg-[#444] flex-shrink-0" />
+
+          {/* Headings (P, H1, H2, H3) */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            {HEADINGS.map(h => (
+              <button
+                key={h.level}
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => applyHeading(h.level)}
+                title={h.title}
+                type="button"
+                disabled={disabled}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-95 transition-transform touch-manipulation ${
+                  formats[`heading${h.level}`]
+                    ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
+                    : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+                }`}
+              >
+                {h.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-gray-300 dark:bg-[#444] flex-shrink-0" />
+
+          {/* Alignment buttons */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => applyInlineOrAlign('justifyLeft')}
+              title="Left Align"
+              type="button"
+              disabled={disabled}
+              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
+                formats['justifyLeft']
+                  ? 'bg-[#181a1d] dark:bg-white'
+                  : 'bg-gray-100 dark:bg-[#2a2a2a]'
+              }`}
+            >
+              <img src="/left-align-icon.svg" alt="Left" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyLeft'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+            </button>
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => applyInlineOrAlign('justifyCenter')}
+              title="Center Align"
+              type="button"
+              disabled={disabled}
+              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
+                formats['justifyCenter']
+                  ? 'bg-[#181a1d] dark:bg-white'
+                  : 'bg-gray-100 dark:bg-[#2a2a2a]'
+              }`}
+            >
+              <img src="/centrally-align-icon.svg" alt="Center" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyCenter'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+            </button>
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => applyInlineOrAlign('justifyRight')}
+              title="Right Align"
+              type="button"
+              disabled={disabled}
+              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
+                formats['justifyRight']
+                  ? 'bg-[#181a1d] dark:bg-white'
+                  : 'bg-gray-100 dark:bg-[#2a2a2a]'
+              }`}
+            >
+              <img src="/right-align-icon.svg" alt="Right" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyRight'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-gray-300 dark:bg-[#444] flex-shrink-0" />
+
+          {/* Endnote, Link, Anchor buttons */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={handleEndnoteClick}
+              title="Insert Endnote"
+              type="button"
+              disabled={disabled || !onCreateEndnote}
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation disabled:opacity-40"
+            >
+              <Image src="/endnote-icon.svg" alt="Endnote" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+            </button>
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={handleLinkClick}
+              title="Insert Link"
+              type="button"
+              disabled={disabled}
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
+            >
+              <Image src="/link-icon.svg" alt="Link" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+            </button>
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={handleAnchorClick}
+              title="Insert Anchor (for Index Links)"
+              type="button"
+              disabled={disabled}
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
+            >
+              <Image src="/anchor-icon.svg" alt="Anchor" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-gray-300 dark:bg-[#444] flex-shrink-0" />
+
+          {/* Insert Image button */}
+          <button
+            onMouseDown={e => e.preventDefault()}
+            onClick={handleImageButtonClick}
+            title="Insert Image"
+            type="button"
+            disabled={disabled}
+            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
+          >
+            <img src="/image-icon.svg" alt="Image" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+          </button>
+
+          {/* Clear formatting button */}
+          <button
+            onMouseDown={e => e.preventDefault()}
+            onClick={() => {
+              focusEditor();
+              document.execCommand('removeFormat');
+              emitChange();
+              refreshStates();
+            }}
+            title="Clear Formatting"
+            type="button"
+            disabled={disabled}
+            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
+          >
+            <img src="/clear-erase-icon.svg" alt="Clear" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+          </button>
         </div>
+      </div>
 
       {/* Compact Floating Toolbar - Appears on mobile when keyboard is open */}
       {showCompactToolbar && (
