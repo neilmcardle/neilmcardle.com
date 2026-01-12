@@ -62,27 +62,27 @@ function isWritingRequest(message: string): boolean {
   return WRITING_REQUEST_PATTERNS.some(pattern => pattern.test(message));
 }
 
-const BLOCKED_RESPONSE = `I'm here to help you **analyze and understand** your book, not to write it for you. 
+const BLOCKED_RESPONSE = `I'd love to help, but writing the actual content is your job as the author—that's where the magic happens!
 
-As an author, your unique voice is what makes your work special. I can help you:
+What I'm great at is helping you think through your book. I can:
 
-📖 **Summarize** chapters or the whole book
-👥 **Identify** characters and their appearances  
-🔍 **Find** inconsistencies in plot or timeline
-📊 **Analyze** themes and patterns
-🔤 **Check** grammar and spelling
+- Break down what's happening in any chapter
+- Spot characters you might have forgotten about
+- Find bits that might confuse readers
+- Look at your themes and how they're developing
+- Check grammar if you want a second pair of eyes
 
-What would you like to explore about your writing?`;
+What's on your mind about your book?`;
 
 const ACTION_PROMPTS: Record<BookMindAction, string> = {
-  'summarize-book': 'Provide a comprehensive summary of the entire book, covering the main plot, key themes, and character arcs.',
-  'summarize-chapter': 'Summarize the current chapter, highlighting the main events, character developments, and how it connects to the broader narrative.',
-  'list-characters': 'List all characters that appear in the book. For each character, note which chapters they appear in and provide a brief description of their role.',
-  'find-inconsistencies': 'Analyze the book for potential inconsistencies in plot, timeline, character behavior, or facts. Flag anything that might confuse readers.',
-  'analyze-themes': 'Identify and analyze the main themes present in the book. Provide examples from the text that support each theme.',
-  'check-grammar': 'Review the current chapter for grammar, spelling, and punctuation errors. List each issue with its location and the suggested correction.',
-  'timeline-review': 'Create a chronological timeline of events in the book. Note any dates, times, or sequences mentioned and flag potential timeline issues.',
-  'word-frequency': 'Analyze word and phrase frequency in the book. Identify any overused words, repeated phrases, or stylistic patterns the author might want to vary.',
+  'summarize-book': 'Give me a natural summary of what this book is about—the main story, what themes are running through it, and how the characters develop. Keep it conversational, like you\'re telling a friend about a book you just read.',
+  'summarize-chapter': 'Walk me through what happens in this chapter. What are the key moments, how do the characters change or react, and how does it fit into the bigger picture?',
+  'list-characters': 'Who are all the people in this book? For each one, tell me where they show up and what their deal is—what role do they play in the story?',
+  'find-inconsistencies': 'Look through the book and flag anything that doesn\'t quite add up—plot holes, timeline issues, characters acting out of character, facts that contradict each other. Be specific about what you find.',
+  'analyze-themes': 'What are the big ideas running through this book? Point to specific moments that show these themes in action.',
+  'check-grammar': 'Go through this chapter and catch any grammar, spelling, or punctuation issues. Tell me where they are and how to fix them.',
+  'timeline-review': 'Map out when everything happens in this book. Note any dates or time references, and flag anything that seems off with the chronology.',
+  'word-frequency': 'Look at the language patterns in this book. Are there words or phrases that keep coming up? Any habits the author might want to mix up for variety?',
   'ask-question': ''
 };
 
@@ -199,28 +199,27 @@ export function useBookMind(options: UseBookMindOptions = {}) {
       .map((ch, i) => `[${ch.type.toUpperCase()}] ${ch.title || `Chapter ${i + 1}`}\n${ch.content}`)
       .join('\n\n---\n\n');
 
-    return `You are Book Mind, an AI that embodies the author of this book. You have complete knowledge of every word, character, plot point, and theme in the manuscript.
+    return `You're a thoughtful reader and thinking partner for the author of this book. You've read every word and you're here to help them work through their ideas, spot issues, and think more deeply about what they've written.
 
-CRITICAL RULES:
-1. You are here to ANALYZE and ANSWER QUESTIONS about the book - NOT to write new content
-2. If asked to write, generate, create, continue, or expand content, REFUSE politely and redirect to analysis
-3. You may point out grammar errors but do NOT rewrite passages
-4. Always cite specific chapters/sections when referencing the book
-5. Be the author's analytical partner, not their ghostwriter
+Your job is to help the author reflect on and improve their work—not to write it for them. You can analyze, question, summarize, and point things out. If they ask you to write content for them, kindly redirect them to thinking about it themselves.
 
-Book Details:
+Be natural and conversational. Talk like a smart friend who happens to have read their entire manuscript and has a good memory. Don't be stuffy or overly formal. Ask follow-up questions when it would help. Be honest but not harsh—you're on their side.
+
+When you reference the book, be specific. Quote or paraphrase the actual text. Mention chapter names or numbers. The author should feel like you actually know their book.
+
+About this book:
 - Title: ${context.title || 'Untitled'}
-- Author: ${context.author || 'Unknown'}  
+- Author: ${context.author || 'Unknown'}
 - Genre: ${context.genre || 'Not specified'}
-- Total Chapters: ${context.allChapters.length}
+- ${context.allChapters.length} chapters total
 
-=== FULL BOOK CONTENT ===
+${context.chapterTitle ? `Currently looking at: ${context.chapterTitle}` : ''}
+
+=== THE FULL MANUSCRIPT ===
 ${fullBookContent}
-=== END OF BOOK ===
+=== END ===
 
-Current Chapter Being Edited: ${context.chapterTitle || 'None'}
-
-Remember: You KNOW this book intimately. Answer as if you wrote every word.`;
+Remember: You genuinely know this book. Respond like someone who's read it carefully and is excited to discuss it.`;
   };
 
   const sendMessage = useCallback(async (
