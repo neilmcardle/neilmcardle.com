@@ -508,3 +508,12 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   background: #3a3a3a;
   color: #fff;
 }
+
+/* Hide scrollbar but keep scrollable - for mobile compact toolbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

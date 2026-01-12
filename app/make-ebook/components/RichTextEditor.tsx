@@ -116,6 +116,7 @@ export default function RichTextEditor({
   // Mobile focus mode - collapses toolbar when keyboard is open
   const [isMobileKeyboardOpen, setIsMobileKeyboardOpen] = useState(false);
   const [showCompactToolbar, setShowCompactToolbar] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const initialViewportHeight = useRef<number | null>(null);
 
   // Detect mobile keyboard open/close using visualViewport API
@@ -1009,8 +1010,69 @@ export default function RichTextEditor({
 
       {/* Compact Floating Toolbar - Appears on mobile when keyboard is open */}
       {showCompactToolbar && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[200] bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-[#333] shadow-lg safe-area-pb">
-          <div className="flex items-center justify-between px-2 py-1.5 gap-1 overflow-x-auto">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[200] bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-[#333] shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+          {/* More menu popover */}
+          {showMoreMenu && (
+            <div className="absolute bottom-full left-0 right-0 bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-[#333] shadow-lg p-3">
+              <div className="flex flex-wrap gap-2">
+                {/* Endnote */}
+                <button
+                  onMouseDown={e => e.preventDefault()}
+                  onClick={() => {
+                    handleEndnoteClick();
+                    setShowMoreMenu(false);
+                  }}
+                  disabled={!onCreateEndnote}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] text-sm font-medium text-gray-700 dark:text-gray-300 active:bg-gray-200 disabled:opacity-40"
+                >
+                  <Image src="/endnote-icon.svg" alt="" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+                  Endnote
+                </button>
+                {/* Anchor */}
+                <button
+                  onMouseDown={e => e.preventDefault()}
+                  onClick={() => {
+                    handleAnchorClick();
+                    setShowMoreMenu(false);
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] text-sm font-medium text-gray-700 dark:text-gray-300 active:bg-gray-200"
+                >
+                  <Image src="/anchor-icon.svg" alt="" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+                  Anchor
+                </button>
+                {/* Insert Image */}
+                <button
+                  onMouseDown={e => e.preventDefault()}
+                  onClick={() => {
+                    handleImageButtonClick();
+                    setShowMoreMenu(false);
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] text-sm font-medium text-gray-700 dark:text-gray-300 active:bg-gray-200"
+                >
+                  <img src="/image-icon.svg" alt="" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+                  Image
+                </button>
+                {/* H3 */}
+                <button
+                  onMouseDown={e => e.preventDefault()}
+                  onClick={() => {
+                    applyHeading(3);
+                    setShowMoreMenu(false);
+                  }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium active:bg-gray-200 ${
+                    formats['heading3']
+                      ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
+                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  H3
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {/* Main toolbar - horizontally scrollable */}
+          <div className="flex items-center px-2 py-1.5 gap-1 overflow-x-auto scrollbar-hide">
             {/* Undo/Redo */}
             <div className="flex items-center gap-0.5 flex-shrink-0">
               <button
@@ -1062,7 +1124,7 @@ export default function RichTextEditor({
             {/* Divider */}
             <div className="w-px h-6 bg-gray-300 dark:bg-[#444] flex-shrink-0" />
 
-            {/* Headings */}
+            {/* Headings P, H1, H2 */}
             <div className="flex items-center gap-0.5 flex-shrink-0">
               {HEADINGS.slice(0, 3).map(h => (
                 <button
@@ -1084,12 +1146,102 @@ export default function RichTextEditor({
             {/* Divider */}
             <div className="w-px h-6 bg-gray-300 dark:bg-[#444] flex-shrink-0" />
 
+            {/* Alignment buttons */}
+            <div className="flex items-center gap-0.5 flex-shrink-0">
+              <button
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => applyInlineOrAlign('justifyLeft')}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform ${
+                  formats['justifyLeft']
+                    ? 'bg-[#181a1d] dark:bg-white'
+                    : 'bg-gray-100 dark:bg-[#2a2a2a]'
+                }`}
+                title="Align Left"
+              >
+                <img src="/left-align-icon.svg" alt="Left" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyLeft'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+              </button>
+              <button
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => applyInlineOrAlign('justifyCenter')}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform ${
+                  formats['justifyCenter']
+                    ? 'bg-[#181a1d] dark:bg-white'
+                    : 'bg-gray-100 dark:bg-[#2a2a2a]'
+                }`}
+                title="Align Center"
+              >
+                <img src="/centrally-align-icon.svg" alt="Center" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyCenter'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+              </button>
+              <button
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => applyInlineOrAlign('justifyRight')}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform ${
+                  formats['justifyRight']
+                    ? 'bg-[#181a1d] dark:bg-white'
+                    : 'bg-gray-100 dark:bg-[#2a2a2a]'
+                }`}
+                title="Align Right"
+              >
+                <img src="/right-align-icon.svg" alt="Right" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyRight'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-6 bg-gray-300 dark:bg-[#444] flex-shrink-0" />
+
+            {/* Link button */}
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => handleLinkClick()}
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a] flex-shrink-0"
+              title="Insert Link"
+            >
+              <Image src="/link-icon.svg" alt="Link" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+            </button>
+
+            {/* Clear formatting */}
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => {
+                focusEditor();
+                document.execCommand('removeFormat');
+                emitChange();
+                refreshStates();
+              }}
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a] flex-shrink-0"
+              title="Clear Formatting"
+            >
+              <img src="/clear-erase-icon.svg" alt="Clear" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+            </button>
+
+            {/* More button */}
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => setShowMoreMenu(!showMoreMenu)}
+              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform flex-shrink-0 ${
+                showMoreMenu
+                  ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
+                  : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+              }`}
+              title="More options"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <circle cx="5" cy="12" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="19" cy="12" r="2" />
+              </svg>
+            </button>
+
+            {/* Divider */}
+            <div className="w-px h-6 bg-gray-300 dark:bg-[#444] flex-shrink-0" />
+
             {/* Done button to dismiss keyboard */}
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => {
                 editorRef.current?.blur();
                 setShowCompactToolbar(false);
+                setShowMoreMenu(false);
               }}
               className="flex-shrink-0 px-3 h-9 rounded-lg bg-violet-600 text-white text-sm font-medium active:bg-violet-700"
             >
