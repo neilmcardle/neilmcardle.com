@@ -203,6 +203,7 @@ function MakeEbookPage() {
     }
     fetchAndSyncSupabaseBooks();
   }, [user]);
+  
   const {
     chapters,
     setChapters,
@@ -225,6 +226,18 @@ function MakeEbookPage() {
     ghostPillContent,
     dragItemIndex,
   } = useChapters();
+  
+  // Track previous user state to detect logout - reset to landing page
+  const prevUserRef = useRef(user);
+  useEffect(() => {
+    // If user was logged in and is now logged out, reset to landing page
+    if (prevUserRef.current && !user) {
+      setChapters([]);
+      setShowMarketingPage(true);
+      setCurrentBookId(undefined);
+    }
+    prevUserRef.current = user;
+  }, [user, setChapters]);
 
   const {
     tags, setTags, tagInput, setTagInput, handleAddTag, handleRemoveTag

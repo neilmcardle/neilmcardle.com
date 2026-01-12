@@ -105,7 +105,7 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
       {/* Auth Modal */}
       <AuthModal
         isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
+        onCloseAction={() => setShowAuthModal(false)}
         defaultMode="signup"
       />
 

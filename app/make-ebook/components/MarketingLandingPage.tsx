@@ -281,13 +281,13 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-gray-900 dark:via-[#0a0a0a] dark:to-gray-900" />
+        {/* Background gradient - paper/sepia inspired */}
+        <div className="absolute inset-0 bg-gradient-to-br from-stone-50 via-white to-neutral-50 dark:from-gray-900 dark:via-[#0a0a0a] dark:to-gray-900" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-40">
           <div className="text-center max-w-4xl mx-auto">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 text-sm font-medium mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-100 dark:bg-stone-800/50 text-stone-700 dark:text-stone-300 text-sm font-medium mb-8 border border-stone-200 dark:border-stone-700">
               <Sparkles className="w-4 h-4" />
               AI-Powered Writing Tools
             </div>
@@ -296,7 +296,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6">
               Write your book.
               <br />
-              <span className="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 bg-clip-text text-transparent">
+              <span className="text-gray-900 dark:text-white">
                 Publish it beautifully.
               </span>
             </h1>
@@ -332,8 +332,8 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
           {/* Hero Image / Product Preview */}
           <div className="mt-16 lg:mt-24 relative">
             <div className="relative mx-auto max-w-5xl">
-              {/* Glow effect */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 blur-3xl rounded-3xl" />
+              {/* Subtle shadow effect */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-gray-200/40 via-stone-200/40 to-gray-200/40 dark:from-gray-700/20 dark:via-gray-600/20 dark:to-gray-700/20 blur-3xl rounded-3xl" />
               
               {/* Screenshot container */}
               <div className="relative bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
@@ -388,8 +388,8 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 key={index}
                 className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
               >
-                <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-6">
-                  <feature.icon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                <div className="w-12 h-12 rounded-xl bg-stone-100 dark:bg-stone-800/50 flex items-center justify-center mb-6 border border-stone-200 dark:border-stone-700">
+                  <feature.icon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
                 <p className="text-gray-600 dark:text-gray-400">{feature.description}</p>
@@ -404,7 +404,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-100 dark:bg-stone-800/50 text-stone-700 dark:text-stone-300 text-sm font-medium mb-6 border border-stone-200 dark:border-stone-700">
                 <Brain className="w-4 h-4" />
                 AI-Powered
               </div>
@@ -438,24 +438,24 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
               </button>
             </div>
             <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 blur-3xl rounded-3xl" />
+              <div className="absolute -inset-4 bg-gradient-to-r from-gray-300/30 via-stone-300/30 to-gray-300/30 dark:from-gray-700/20 dark:via-gray-600/20 dark:to-gray-700/20 blur-3xl rounded-3xl" />
               <div className="relative bg-gray-900 rounded-2xl p-8 shadow-xl border border-gray-800">
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
                       <Brain className="w-4 h-4 text-white" />
                     </div>
                     <div className="flex-1 bg-gray-800 rounded-2xl rounded-tl-none p-4">
-                      <p className="text-gray-300 text-sm">I've analyzed your manuscript. Chapter 7 mentions Sarah having blue eyes, but in Chapter 3 they were described as green. Would you like me to show you the exact passages?</p>
+                      <p className="text-gray-300 text-sm">I&apos;ve analyzed your manuscript. Chapter 7 mentions Sarah having blue eyes, but in Chapter 3 they were described as green. Would you like me to show you the exact passages?</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 justify-end">
-                    <div className="bg-amber-600 rounded-2xl rounded-tr-none p-4 max-w-[80%]">
+                    <div className="bg-gray-600 rounded-2xl rounded-tr-none p-4 max-w-[80%]">
                       <p className="text-white text-sm">Yes, show me the inconsistencies</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
                       <Brain className="w-4 h-4 text-white" />
                     </div>
                     <div className="flex-1 bg-gray-800 rounded-2xl rounded-tl-none p-4">
@@ -492,7 +492,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
               >
                 <div className="flex items-center gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                    <Star key={i} className="w-5 h-5 fill-gray-800 text-gray-800 dark:fill-gray-300 dark:text-gray-300" />
                   ))}
                 </div>
                 <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed">
@@ -501,7 +501,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                     {/* Placeholder avatar */}
-                    <div className="w-full h-full bg-gradient-to-br from-amber-400 to-orange-500" />
+                    <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 dark:from-gray-500 dark:to-gray-700" />
                   </div>
                   <div>
                     <p className="font-semibold">{testimonial.author}</p>
@@ -537,7 +537,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-amber-500 text-white text-sm font-semibold rounded-full">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-full">
                     Most Popular
                   </div>
                 )}
@@ -641,7 +641,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       {/* Auth Modal */}
       <AuthModal
         isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
+        onCloseAction={() => setAuthModalOpen(false)}
         defaultMode={authMode}
       />
     </div>
