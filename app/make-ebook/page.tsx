@@ -256,6 +256,34 @@ function MakeEbookPage() {
   const [bookJustLoaded, setBookJustLoaded] = useState(false);
   const [chapterJustAdded, setChapterJustAdded] = useState<string | null>(null);
   
+  // Mobile keyboard detection for focus mode
+  const [isMobileKeyboardOpen, setIsMobileKeyboardOpen] = useState(false);
+  const initialViewportHeight = useRef<number | null>(null);
+
+  // Detect mobile keyboard open/close
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const isMobile = window.matchMedia('(max-width: 1023px)').matches && 'ontouchstart' in window;
+    if (!isMobile) return;
+
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+
+    if (initialViewportHeight.current === null) {
+      initialViewportHeight.current = viewport.height;
+    }
+
+    const handleResize = () => {
+      if (initialViewportHeight.current === null) return;
+      const heightDiff = initialViewportHeight.current - viewport.height;
+      setIsMobileKeyboardOpen(heightDiff > 150);
+    };
+
+    viewport.addEventListener('resize', handleResize);
+    return () => viewport.removeEventListener('resize', handleResize);
+  }, []);
+  
   // Split preview state
   const [isSplitPreviewEnabled, setIsSplitPreviewEnabled] = useState(false);
   
@@ -2374,8 +2402,10 @@ function MakeEbookPage() {
                 />
               ) : (
               <>
-              {/* Compact Chapter Header */}
-              <div className="flex-shrink-0 bg-white dark:bg-[#1a1a1a] border-none pb-1 px-2">
+              {/* Compact Chapter Header - Hidden when keyboard is open for more writing space */}
+              <div className={`flex-shrink-0 bg-white dark:bg-[#1a1a1a] border-none pb-1 px-2 transition-all duration-200 ${
+                isMobileKeyboardOpen ? 'hidden' : ''
+              }`}>
                 {/* Chapter Title Input - Clean UI */}
                 <div className="mt-0">
                   <div className="flex items-center gap-0 px-1 py-1">
@@ -2396,7 +2426,10 @@ function MakeEbookPage() {
 
               {/* Rich Text Editor - Maximized for Writing */}
               <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
-                <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between px-2">
+                {/* Undo/Redo/Save/Export - Hidden when keyboard is open (compact toolbar takes over) */}
+                <div className={`mt-2 mb-1 flex-shrink-0 flex items-start justify-between px-2 transition-all duration-200 ${
+                  isMobileKeyboardOpen ? 'hidden' : ''
+                }`}>
                   {/* <label className="block text-xs text-[#737373] mb-0">Chapter content</label> */}
                   <div className="flex items-start gap-2">
                     <div className="flex flex-col items-center">

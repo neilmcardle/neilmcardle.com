@@ -112,6 +112,61 @@ export default function RichTextEditor({
   const [focused, setFocused] = useState(false);
   const [formats, setFormats] = useState<FormatState>({});
   const lastExternalValueRef = useRef<string>(value);
+  
+  // Mobile focus mode - collapses toolbar when keyboard is open
+  const [isMobileKeyboardOpen, setIsMobileKeyboardOpen] = useState(false);
+  const [showCompactToolbar, setShowCompactToolbar] = useState(false);
+  const initialViewportHeight = useRef<number | null>(null);
+
+  // Detect mobile keyboard open/close using visualViewport API
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Only apply on mobile (touch devices with small screens)
+    const isMobile = window.matchMedia('(max-width: 1023px)').matches && 'ontouchstart' in window;
+    if (!isMobile) return;
+
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+
+    // Store initial viewport height
+    if (initialViewportHeight.current === null) {
+      initialViewportHeight.current = viewport.height;
+    }
+
+    const handleResize = () => {
+      if (initialViewportHeight.current === null) return;
+      
+      // Keyboard is likely open if viewport shrinks significantly (>150px)
+      const heightDiff = initialViewportHeight.current - viewport.height;
+      const keyboardOpen = heightDiff > 150;
+      
+      setIsMobileKeyboardOpen(keyboardOpen);
+      
+      // Show compact toolbar when keyboard opens AND editor is focused
+      if (keyboardOpen && focused) {
+        setShowCompactToolbar(true);
+        
+        // Auto-scroll to ensure cursor is visible
+        setTimeout(() => {
+          const selection = window.getSelection();
+          if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            if (rect.bottom > viewport.height - 60) {
+              // Cursor is hidden behind keyboard, scroll it into view
+              editorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+        }, 100);
+      } else {
+        setShowCompactToolbar(false);
+      }
+    };
+
+    viewport.addEventListener('resize', handleResize);
+    return () => viewport.removeEventListener('resize', handleResize);
+  }, [focused]);
 
   useLayoutEffect(() => {
     if (editorRef.current) {
@@ -684,8 +739,10 @@ export default function RichTextEditor({
       className={`relative border-none rounded bg-white dark:bg-[#1a1a1a] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
-      {/* Toolbar - Always visible on all devices */}
-      <div className="bg-white dark:bg-[#1a1a1a]">
+      {/* Full Toolbar - Hidden on mobile when keyboard is open */}
+      <div className={`bg-white dark:bg-[#1a1a1a] transition-all duration-200 ${
+        isMobileKeyboardOpen ? 'lg:block hidden' : ''
+      }`}>
         <div className="p-2 overflow-x-auto">
           <div className="flex flex-wrap items-start gap-4">
               {/* Format section */}
@@ -949,6 +1006,98 @@ export default function RichTextEditor({
             </div>
           </div>
         </div>
+
+      {/* Compact Floating Toolbar - Appears on mobile when keyboard is open */}
+      {showCompactToolbar && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[200] bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-[#333] shadow-lg safe-area-pb">
+          <div className="flex items-center justify-between px-2 py-1.5 gap-1 overflow-x-auto">
+            {/* Undo/Redo */}
+            <div className="flex items-center gap-0.5 flex-shrink-0">
+              <button
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => {
+                  focusEditor();
+                  document.execCommand('undo');
+                }}
+                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a]"
+                title="Undo"
+              >
+                <Image src="/undo-icon.svg" alt="Undo" width={16} height={16} className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+              </button>
+              <button
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => {
+                  focusEditor();
+                  document.execCommand('redo');
+                }}
+                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a]"
+                title="Redo"
+              >
+                <Image src="/redo-icon.svg" alt="Redo" width={16} height={16} className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-6 bg-gray-300 dark:bg-[#444] flex-shrink-0" />
+
+            {/* Format buttons */}
+            <div className="flex items-center gap-0.5 flex-shrink-0">
+              {INLINE.map(b => (
+                <button
+                  key={b.cmd}
+                  onMouseDown={e => e.preventDefault()}
+                  onClick={() => applyInlineOrAlign(b.cmd)}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-transform ${
+                    formats[b.cmd]
+                      ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
+                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+                  } ${b.className || ''}`}
+                  title={b.title}
+                >
+                  {b.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-6 bg-gray-300 dark:bg-[#444] flex-shrink-0" />
+
+            {/* Headings */}
+            <div className="flex items-center gap-0.5 flex-shrink-0">
+              {HEADINGS.slice(0, 3).map(h => (
+                <button
+                  key={h.level}
+                  onMouseDown={e => e.preventDefault()}
+                  onClick={() => applyHeading(h.level)}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-95 transition-transform ${
+                    formats[`heading${h.level}`]
+                      ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
+                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+                  }`}
+                  title={h.title}
+                >
+                  {h.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-6 bg-gray-300 dark:bg-[#444] flex-shrink-0" />
+
+            {/* Done button to dismiss keyboard */}
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => {
+                editorRef.current?.blur();
+                setShowCompactToolbar(false);
+              }}
+              className="flex-shrink-0 px-3 h-9 rounded-lg bg-violet-600 text-white text-sm font-medium active:bg-violet-700"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* Editable area */}
       <div className="flex-1 min-w-0 relative flex flex-col min-h-0">
