@@ -92,9 +92,10 @@ const PRICING = [
     description: 'Perfect for getting started',
     features: [
       'Unlimited local books',
-      'EPUB export',
-      'Basic typography',
-      'Chapter management'
+      'EPUB & PDF export',
+      'Professional typography',
+      'Chapter management',
+      'Works offline'
     ],
     cta: 'Start Free',
     highlighted: false
@@ -107,9 +108,9 @@ const PRICING = [
     features: [
       'Everything in Free',
       'Cloud sync across devices',
-      'AI Book Mind assistant',
-      '50 AI generations/month',
-      'Version history',
+      'Book Mind AI assistant',
+      'Analyze manuscripts for inconsistencies',
+      'Summarize chapters & get insights',
       'Priority support'
     ],
     cta: 'Get Started',
@@ -122,9 +123,9 @@ const PRICING = [
     description: 'Pay once, write forever',
     features: [
       'Everything in Pro',
-      'Unlimited AI generations',
-      'All future updates',
-      'Early access to features'
+      'Unlimited Book Mind access',
+      'All future features included',
+      'Early access to new tools'
     ],
     cta: 'Buy Now',
     highlighted: false
