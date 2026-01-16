@@ -347,7 +347,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   </div>
                   <div className="flex-1 flex justify-center">
                     <div className="px-4 py-1 bg-gray-700 rounded-md text-xs text-gray-400">
-                      makeebook.com
+                      makeebook
                     </div>
                   </div>
                 </div>
