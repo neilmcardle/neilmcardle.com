@@ -84,10 +84,6 @@ export default function ProfileCardHomepage() {
                   <img src="/dark-make-ebook-logomark.svg" alt="makeEbook" className="h-5 w-auto hidden dark:block" />
                 </a>
 
-                <a href="https://coverly.figma.site" target="_blank" rel="noopener noreferrer" title="Coverly" className="inline-block opacity-70 hover:opacity-100 transition-opacity">
-                  <img src="/coverly-logo.svg" alt="Coverly" className="h-5 w-auto dark:hidden" />
-                  <img src="/dark-coverly-logo.svg" alt="Coverly" className="h-5 w-auto hidden dark:block" />
-                </a>
               </div>
             </div>
             {/* Social Links */}
