@@ -70,7 +70,7 @@ export default function ProfileCardHomepage() {
               Neil McArdle
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 transition-colors">
-              Currently building:
+              Currently building
             </p>
           </div>
 
@@ -88,9 +88,7 @@ export default function ProfileCardHomepage() {
             </div>
             {/* Social Links */}
             <div className="flex justify-center items-center gap-4 mb-4">
-             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 transition-colors">
-              Connect
-            </p>
+           
              <a
                 href="https://github.com/neilmcardle"
                 target="_blank"
