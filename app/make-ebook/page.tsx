@@ -2261,13 +2261,18 @@ function MakeEbookPage() {
               </div>
 
               {/* Footer - Sticky */}
-              <div className="flex-shrink-0 pt-4 pb-4 px-4 border-t border-gray-200 dark:border-[#424242]">
-                <div className="flex items-center justify-between px-2 py-2">
-                  {/* User Dropdown - reuse from CollapsibleSidebar */}
-                  <UserDropdownMobile />
-                  <ThemeToggle />
+              <footer className="flex-shrink-0 pt-4 pb-4 px-4 border-t border-gray-200 dark:border-[#424242] bg-white dark:bg-[#1a1a1a] text-center">
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="flex space-x-4">
+                    <a href="/terms" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-xs">Terms</a>
+                    <a href="/privacy" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-xs">Privacy</a>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    make-ebook is a product made by <a href="https://neilmcardle.com" className="underline hover:text-gray-900 dark:hover:text-white">neilmcardle.com</a>
+                  </div>
+                  <div className="text-xs text-gray-400">© 2025 Neil McArdle. All rights reserved.</div>
                 </div>
-              </div>
+              </footer>
             </div>
           </div>
         </div>

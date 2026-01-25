@@ -614,7 +614,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 The complete ebook creation tool for authors. Write, edit, and export professional EPUB files.
               </p>
               <p className="text-sm text-gray-500">
-                Made by <a href="https://betterthings.design" className="underline hover:text-gray-700 dark:hover:text-gray-300">BetterThings</a>
+                make-ebook is a <a href="https://neilmcardle.com" className="underline hover:text-gray-700 dark:hover:text-gray-300">neilmcardle.com</a> company.
               </p>
             </div>
             <div>
@@ -634,7 +634,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             </div>
           </div>
           <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} BetterThings. All rights reserved.
+            © {new Date().getFullYear()} Neil McArdle. All rights reserved.
           </div>
         </div>
       </footer>

@@ -63,14 +63,14 @@ export default function ProfileCardHomepage() {
           {/* Name and Tagline - Centered */}
           <div className="text-center px-6 pb-4">
             <h1
-              className="text-2xl font-bold text-gray-800 dark:text-white transition-colors"
+              className="text-4xl font-bold text-gray-800 dark:text-white transition-colors"
               style={{ fontFamily: "Inter, sans-serif" }}
               data-testid="text-title"
             >
               Neil McArdle
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 transition-colors">
-              Designing for millions · Coding side projects
+              Currently building:
             </p>
           </div>
 
@@ -80,15 +80,18 @@ export default function ProfileCardHomepage() {
             <div className="mb-5">
               <div className="flex items-center justify-center gap-6">
                 <a href="https://neilmcardle.com/make-ebook" target="_blank" rel="noopener noreferrer" title="makeEbook" className="inline-block opacity-70 hover:opacity-100 transition-opacity">
-                  <img src="/make-ebook-logomark.svg" alt="makeEbook" className="h-5 w-auto dark:hidden" />
-                  <img src="/dark-make-ebook-logomark.svg" alt="makeEbook" className="h-5 w-auto hidden dark:block" />
+                  <img src="/make-ebook-logomark.svg" alt="makeEbook" className="h-8 w-auto dark:hidden" />
+                  <img src="/dark-make-ebook-logomark.svg" alt="makeEbook" className="h-8 w-auto hidden dark:block" />
                 </a>
 
               </div>
             </div>
             {/* Social Links */}
             <div className="flex justify-center items-center gap-4 mb-4">
-              <a
+             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 transition-colors">
+              Connect
+            </p>
+             <a
                 href="https://github.com/neilmcardle"
                 target="_blank"
                 rel="noopener noreferrer"
