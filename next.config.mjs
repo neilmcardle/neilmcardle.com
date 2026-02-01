@@ -2,20 +2,19 @@
 const isDev = process.env.NODE_ENV === 'development';
 
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: isDev,
-  },
   typescript: {
     ignoreBuildErrors: true, // Temporarily ignore for project setup
   },
   images: {
     unoptimized: true, // Keep unoptimized for now until external domains are audited
   },
-  // Exclude pdfjs-dist from webpack bundling to avoid CSS issues
+  // Next.js 16 uses Turbopack by default - empty config acknowledges this
+  turbopack: {},
+  // Exclude pdfjs-dist from webpack bundling to avoid CSS issues (legacy webpack builds)
   webpack: (config, { isServer }) => {
     // Ignore pdfjs-dist CSS imports that cause issues
     config.resolve.alias.canvas = false;
-    
+
     // Handle pdfjs-dist worker issues
     if (!isServer) {
       config.resolve.fallback = {
@@ -25,7 +24,7 @@ const nextConfig = {
         path: false,
       };
     }
-    
+
     return config;
   },
   // Allow dev origins only in development
