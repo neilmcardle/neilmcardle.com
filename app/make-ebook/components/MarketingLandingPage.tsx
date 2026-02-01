@@ -6,18 +6,13 @@ import Link from 'next/link';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { 
-  BookOpen, 
-  Sparkles, 
-  Download, 
-  Cloud, 
-  Shield, 
-  Zap,
+import {
+  BookOpen,
+  Sparkles,
+  Cloud,
   FileText,
   Palette,
   Languages,
-  Brain,
-  Check,
   ChevronRight,
   Star,
   ArrowRight,
@@ -406,7 +401,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-100 dark:bg-stone-800/50 text-stone-700 dark:text-stone-300 text-sm font-medium mb-6 border border-stone-200 dark:border-stone-700">
-                <Brain className="w-4 h-4" />
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
                 AI-Powered
               </div>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
@@ -423,8 +420,10 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   'Get word usage insights and suggestions'
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg className="w-4 h-4 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
                     </div>
                     <span className="text-gray-700 dark:text-gray-300">{item}</span>
                   </li>
@@ -444,7 +443,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
-                      <Brain className="w-4 h-4 text-white" />
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
                     </div>
                     <div className="flex-1 bg-gray-800 rounded-2xl rounded-tl-none p-4">
                       <p className="text-gray-300 text-sm">I&apos;ve analyzed your manuscript. Chapter 7 mentions Sarah having blue eyes, but in Chapter 3 they were described as green. Would you like me to show you the exact passages?</p>
@@ -457,7 +458,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
-                      <Brain className="w-4 h-4 text-white" />
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
                     </div>
                     <div className="flex-1 bg-gray-800 rounded-2xl rounded-tl-none p-4">
                       <p className="text-gray-300 text-sm mb-2"><strong>Chapter 3, paragraph 12:</strong></p>
@@ -553,7 +556,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <Check className={`w-5 h-5 flex-shrink-0 ${plan.highlighted ? 'text-green-400 dark:text-green-600' : 'text-green-500'}`} />
+                      <svg className={`w-5 h-5 flex-shrink-0 ${plan.highlighted ? 'text-gray-300 dark:text-gray-600' : 'text-gray-600 dark:text-gray-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
                       <span className={plan.highlighted ? 'text-gray-300 dark:text-gray-700' : 'text-gray-700 dark:text-gray-300'}>
                         {feature}
                       </span>
