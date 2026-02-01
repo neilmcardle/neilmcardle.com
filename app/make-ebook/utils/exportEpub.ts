@@ -137,6 +137,7 @@ interface ExportEpubOptions {
   chapters: Chapter[];
   endnoteReferences?: { id: string; number: number; chapterId: string; endnoteId: string }[];
   typographyPreset?: TypographyPreset;
+  returnBlob?: boolean; // If true, return blob instead of downloading
 }
 
 export async function exportEpub({
@@ -153,6 +154,7 @@ export async function exportEpub({
   chapters,
   endnoteReferences,
   typographyPreset = 'default',
+  returnBlob = false,
 }: ExportEpubOptions) {
   const bookId = isbn.trim() ? isbn.trim() : "urn:uuid:" + uuidv4();
   const safeTitle = title.trim() || "Untitled";
@@ -341,17 +343,24 @@ export async function exportEpub({
     if (endnoteReferences) {
       // If this is the endnotes chapter, fix back-links to chapters
       if (ch.title?.toLowerCase() === 'endnotes') {
+        console.log('🔗 Fixing endnote back-links. Total references:', endnoteReferences.length);
         chapterHtml = chapterHtml.replace(
-          /href="#ref(\d+)"/g, 
-          (match, refNumber) => {
+          /href=(["'])#ref(\d+)\1/g,
+          (match, quote, refNumber) => {
             // Find which chapter contains this endnote reference
             const ref = endnoteReferences.find((r: { id: string; number: number; chapterId: string; endnoteId: string }) => r.number === parseInt(refNumber));
             if (ref && ref.chapterId) {
               // Use the actual chapter ID to find the target filename
               const targetFilename = chapterIdToFilename.get(ref.chapterId);
               if (targetFilename) {
-                return `href="${targetFilename}#ref${refNumber}"`;
+                const replacement = `href=${quote}${targetFilename}#ref${refNumber}${quote}`;
+                console.log(`  ✓ Endnote ${refNumber}: ${match} → ${replacement}`);
+                return replacement;
+              } else {
+                console.warn(`  ✗ Endnote ${refNumber}: Could not find filename for chapterId ${ref.chapterId}`);
               }
+            } else {
+              console.warn(`  ✗ Endnote ${refNumber}: No reference found or missing chapterId`);
             }
             return match;
           }
@@ -359,14 +368,14 @@ export async function exportEpub({
       } else {
         // For regular chapters, fix forward-links to endnotes
         chapterHtml = chapterHtml.replace(
-          /href="#end(\d+)"/g, 
-          (match, endnoteNumber) => {
+          /href=(["'])#end(\d+)\1/g,
+          (match, quote, endnoteNumber) => {
             // Find the endnotes chapter filename
             const endnotesChapter = sortedChapters.find(c => c.title?.toLowerCase() === 'endnotes');
             if (endnotesChapter) {
               const endnotesFilename = chapterIdToFilename.get(endnotesChapter.id);
               if (endnotesFilename) {
-                return `href="${endnotesFilename}#end${endnoteNumber}"`;
+                return `href=${quote}${endnotesFilename}#end${endnoteNumber}${quote}`;
               }
             }
             return match;
@@ -552,6 +561,13 @@ export async function exportEpub({
 
   // --- Final ZIP and download trigger ---
   const blob = await zip.generateAsync({ type: "blob" });
+
+  // If returnBlob is true, return the blob instead of downloading
+  if (returnBlob) {
+    return blob;
+  }
+
+  // Otherwise, download the file
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

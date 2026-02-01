@@ -70,7 +70,7 @@ const EPUB_SAFE_CONFIG = {
   ALLOWED_TAGS: [
     'p', 'br', 'strong', 'em', 'u', 's', 'sub', 'sup',
     'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote',
-    'pre', 'code', 'a', 'img', 'hr',
+    'pre', 'code', 'a', 'img', 'hr', 'figure', 'figcaption',
     // MathML tags for EPUB 3 compatibility
     'math', 'mrow', 'mi', 'mn', 'mo', 'mfrac', 'msup', 'msub',
     'msubsup', 'msqrt', 'mroot', 'mtext', 'mspace', 'mtable',
@@ -118,6 +118,16 @@ export default function RichTextEditor({
   const [showCompactToolbar, setShowCompactToolbar] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const initialViewportHeight = useRef<number | null>(null);
+
+  // Endnote modal state
+  const [showEndnoteModal, setShowEndnoteModal] = useState(false);
+  const [endnoteContent, setEndnoteContent] = useState('');
+  const savedCursorPosition = useRef<Range | null>(null);
+
+  // Image caption modal state
+  const [showImageCaptionModal, setShowImageCaptionModal] = useState(false);
+  const [imageCaption, setImageCaption] = useState('');
+  const [pendingImageSrc, setPendingImageSrc] = useState<string | null>(null);
 
   // Detect mobile keyboard open/close using visualViewport API
   useEffect(() => {
@@ -251,46 +261,59 @@ export default function RichTextEditor({
 
   const handleEndnoteClick = () => {
     if (disabled || !onCreateEndnote) return;
-    
+
+    // Save current cursor position
     const selection = window.getSelection();
-    if (!selection || selection.isCollapsed) {
-      alert('Please select some text to turn into an endnote.');
+    if (!selection || selection.rangeCount === 0) {
+      alert('Please click in the editor to position your cursor.');
       return;
     }
-    
-    const selectedText = selection.toString().trim();
-    if (!selectedText) {
-      alert('Please select some text to turn into an endnote.');
-      return;
-    }
-    
-    // Get the range before calling the callback
-    const range = selection.getRangeAt(0);
-    
+
+    const range = selection.getRangeAt(0).cloneRange();
+    savedCursorPosition.current = range;
+
+    // Open modal for user to enter endnote content
+    setEndnoteContent('');
+    setShowEndnoteModal(true);
+  };
+
+  const handleAddEndnote = () => {
+    if (!endnoteContent.trim() || !onCreateEndnote || !savedCursorPosition.current) return;
+
     // Call the callback to create endnote and get the link
-    const endnoteLink = onCreateEndnote(selectedText, chapterId);
-    
+    const endnoteLink = onCreateEndnote(endnoteContent.trim(), chapterId);
+
     if (endnoteLink && endnoteLink.trim()) {
-      // Keep the selected text and add the endnote reference beside it
+      // Insert the endnote marker at the saved cursor position
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = endnoteLink;
       const endnoteElement = tempDiv.firstChild;
-      
+
       if (endnoteElement) {
-        // Move cursor to end of selection and insert the reference
-        range.collapse(false); // Collapse to end of selection
+        const range = savedCursorPosition.current;
         range.insertNode(endnoteElement);
-        
-        // Clear the selection and position cursor after the inserted link
-        selection.removeAllRanges();
-        range.setStartAfter(endnoteElement);
-        range.collapse(true);
-        selection.addRange(range);
-        
+
+        // Position cursor after the inserted marker
+        const selection = window.getSelection();
+        if (selection) {
+          selection.removeAllRanges();
+          range.setStartAfter(endnoteElement);
+          range.collapse(true);
+          selection.addRange(range);
+        }
+
         // Trigger change event
         emitChange();
       }
     }
+
+    // Close modal and reset
+    setShowEndnoteModal(false);
+    setEndnoteContent('');
+    savedCursorPosition.current = null;
+
+    // Refocus editor
+    focusEditor();
   };
 
   const handleLinkClick = () => {
@@ -661,31 +684,80 @@ export default function RichTextEditor({
   };
 
   const insertImageAtCaret = (src: string) => {
+    // Save the image source and open caption modal
+    setPendingImageSrc(src);
+
+    // Save current cursor position
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      savedCursorPosition.current = selection.getRangeAt(0).cloneRange();
+    }
+
+    setImageCaption('');
+    setShowImageCaptionModal(true);
+  };
+
+  const handleAddImageWithCaption = () => {
+    if (!pendingImageSrc) return;
+
     focusEditor();
     if (!editorRef.current) return;
+
+    // Restore cursor position if saved
     const selection = window.getSelection();
     if (!selection) return;
 
-    // Insert image at caret
+    if (savedCursorPosition.current) {
+      selection.removeAllRanges();
+      selection.addRange(savedCursorPosition.current);
+    }
+
+    // Create figure element with image and optional caption
+    const figure = document.createElement('figure');
+    figure.style.margin = '1em 0';
+    figure.style.textAlign = 'center';
+
     const img = document.createElement('img');
-    img.src = src;
-    img.alt = 'Image';
+    img.src = pendingImageSrc;
+    img.alt = imageCaption || 'Image';
     img.style.maxWidth = '100%';
     img.style.display = 'block';
-    img.style.margin = '1em 0';
+    img.style.margin = '0 auto';
 
-    // Insert image node at caret
+    figure.appendChild(img);
+
+    // Add caption if provided
+    if (imageCaption.trim()) {
+      const figcaption = document.createElement('figcaption');
+      figcaption.textContent = imageCaption.trim();
+      figcaption.style.marginTop = '0.5em';
+      figcaption.style.fontSize = '0.9em';
+      figcaption.style.fontStyle = 'italic';
+      figcaption.style.color = '#666';
+      figure.appendChild(figcaption);
+    }
+
+    // Insert figure at caret
     const range = selection.getRangeAt(0);
     range.collapse(false);
-    range.insertNode(img);
+    range.insertNode(figure);
 
-    // Move caret after the image
-    range.setStartAfter(img);
+    // Move caret after the figure
+    range.setStartAfter(figure);
     range.collapse(true);
     selection.removeAllRanges();
     selection.addRange(range);
 
     emitChange();
+
+    // Close modal and reset
+    setShowImageCaptionModal(false);
+    setImageCaption('');
+    setPendingImageSrc(null);
+    savedCursorPosition.current = null;
+
+    // Refocus editor
+    focusEditor();
   };
 
   // Drag-and-drop support
@@ -806,7 +878,7 @@ export default function RichTextEditor({
                 key={b.cmd}
                 onMouseDown={e => e.preventDefault()}
                 onClick={() => applyInlineOrAlign(b.cmd)}
-                data-tooltip={b.title}
+                title={b.title}
                 type="button"
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-transform touch-manipulation ${
@@ -830,7 +902,7 @@ export default function RichTextEditor({
                 key={h.level}
                 onMouseDown={e => e.preventDefault()}
                 onClick={() => applyHeading(h.level)}
-                data-tooltip={h.title}
+                title={h.title}
                 type="button"
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-95 transition-transform touch-manipulation ${
@@ -852,7 +924,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => applyInlineOrAlign('justifyLeft')}
-              data-tooltip="Left Align"
+              title="Left Align"
               type="button"
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
@@ -866,7 +938,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => applyInlineOrAlign('justifyCenter')}
-              data-tooltip="Center Align"
+              title="Center Align"
               type="button"
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
@@ -880,7 +952,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => applyInlineOrAlign('justifyRight')}
-              data-tooltip="Right Align"
+              title="Right Align"
               type="button"
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
@@ -901,7 +973,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={handleEndnoteClick}
-              data-tooltip="Insert Endnote"
+              title="Insert Endnote"
               type="button"
               disabled={disabled || !onCreateEndnote}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation disabled:opacity-40"
@@ -911,7 +983,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={handleLinkClick}
-              data-tooltip="Insert Link"
+              title="Insert Link"
               type="button"
               disabled={disabled}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
@@ -921,7 +993,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={handleAnchorClick}
-              data-tooltip="Insert Anchor"
+              title="Insert Anchor"
               type="button"
               disabled={disabled}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
@@ -937,7 +1009,7 @@ export default function RichTextEditor({
           <button
             onMouseDown={e => e.preventDefault()}
             onClick={handleImageButtonClick}
-            data-tooltip="Insert Image"
+            title="Insert Image"
             type="button"
             disabled={disabled}
             className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
@@ -954,7 +1026,7 @@ export default function RichTextEditor({
               emitChange();
               refreshStates();
             }}
-            data-tooltip="Clear Formatting"
+            title="Remove all formatting (bold, italic, etc.)"
             type="button"
             disabled={disabled}
             className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
@@ -1165,7 +1237,7 @@ export default function RichTextEditor({
                 refreshStates();
               }}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a] flex-shrink-0"
-              title="Clear Formatting"
+              title="Remove all formatting (bold, italic, etc.)"
             >
               <img src="/clear-erase-icon.svg" alt="Clear" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -1419,9 +1491,114 @@ export default function RichTextEditor({
           </button>
         </Section>
       </div>
-      
+
+      {/* Endnote Modal */}
+      {showEndnoteModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50" onClick={() => setShowEndnoteModal(false)}>
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333]">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Endnote</h3>
+            </div>
+            <div className="px-6 py-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Endnote content
+              </label>
+              <textarea
+                value={endnoteContent}
+                onChange={(e) => setEndnoteContent(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault();
+                    handleAddEndnote();
+                  }
+                  if (e.key === 'Escape') {
+                    setShowEndnoteModal(false);
+                  }
+                }}
+                placeholder="Enter your endnote text here..."
+                autoFocus
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[#444] rounded-lg bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
+              />
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                Press Cmd/Ctrl+Enter to add, or Esc to cancel
+              </p>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-[#333] flex justify-end gap-2">
+              <button
+                onClick={() => setShowEndnoteModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddEndnote}
+                disabled={!endnoteContent.trim()}
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:opacity-90 rounded-lg transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Add Endnote
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Caption Modal */}
+      {showImageCaptionModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50" onClick={() => setShowImageCaptionModal(false)}>
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333]">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Image Caption</h3>
+            </div>
+            <div className="px-6 py-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Caption (optional)
+              </label>
+              <input
+                type="text"
+                value={imageCaption}
+                onChange={(e) => setImageCaption(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddImageWithCaption();
+                  }
+                  if (e.key === 'Escape') {
+                    setShowImageCaptionModal(false);
+                    setPendingImageSrc(null);
+                  }
+                }}
+                placeholder="E.g., Figure 1: Market trends in 2024"
+                autoFocus
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[#444] rounded-lg bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              />
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                Press Enter to add image, or Esc to cancel
+              </p>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-[#333] flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowImageCaptionModal(false);
+                  setPendingImageSrc(null);
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddImageWithCaption}
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:opacity-90 rounded-lg transition-opacity"
+              >
+                Add Image
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
-  ); 
+  );
 }
 
 function Section({ label, children }: { label: string; children: React.ReactNode }) {

@@ -43,6 +43,7 @@ import { useServiceWorker } from "./hooks/useServiceWorker";
 import { OfflineBanner, OfflineIndicatorCompact } from "./components/OfflineIndicator";
 import SplitPreviewLayout from "./components/SplitPreviewLayout";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import EPUBReaderModal from "./components/EPUBReaderModal";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -273,6 +274,10 @@ function MakeEbookPage() {
   // Show marketing landing page when no books and user hasn't started editing
   const [showMarketingPage, setShowMarketingPage] = useState(true);
 
+  // EPUB Reader modal state
+  const [showEPUBReader, setShowEPUBReader] = useState(false);
+  const [epubBlob, setEpubBlob] = useState<Blob | null>(null);
+
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mobileChaptersOpen, setMobileChaptersOpen] = useState(false);
@@ -382,18 +387,22 @@ function MakeEbookPage() {
   // State for version history panel visibility
   const [showVersionHistory, setShowVersionHistory] = useState(false);
 
-  // Auto-save hook - ONLY saves to existing books, never creates new ones
-  // New books are only created when user explicitly saves (Cmd+S or Save button)
+  // Auto-save hook - Creates draft book if needed to prevent data loss
   const handleAutoSave = useCallback(() => {
-    if (currentBookId) {
-      saveBookDirectly(false);
-    }
-  }, [currentBookId]);
+    // Auto-save will create a draft book if one doesn't exist
+    // This prevents data loss when users click away before manually saving
+    saveBookDirectly(false);
+  }, [currentBookId, title, author, blurb, publisher, pubDate, isbn, language, genre, tags, chapters, coverUrl, endnoteReferences]);
+
+  // Helper to determine if there's meaningful content to auto-save
+  const hasContent = (title && title.trim() !== '') ||
+                     (author && author.trim() !== '') ||
+                     chapters.length > 0;
 
   const { isDirty, isSaving, lastSaved, markDirty, markClean } = useAutoSave({
     onSave: handleAutoSave,
     interval: 30000, // 30 seconds
-    enabled: !!currentBookId && chapters.length > 0, // Only auto-save if book already exists
+    enabled: hasContent, // Enable auto-save as soon as user enters any data
   });
 
   // Warn before leaving with unsaved changes
@@ -459,47 +468,89 @@ function MakeEbookPage() {
 
   // Update endnotes chapter content whenever endnotes change
   useEffect(() => {
-    updateEndnotesChapterContent();
+    if (endnotes.length > 0 || chapters.some(ch => ch.title.toLowerCase() === 'endnotes')) {
+      updateEndnotesChapterContent();
+    }
   }, [endnotes]);
 
-  // Handle back-navigation from endnotes to references
+  // Handle bidirectional endnote navigation (chapter ↔ endnotes)
   useEffect(() => {
-    function handleEndnoteBackClick(event: Event) {
+    function handleEndnoteClick(event: MouseEvent) {
       const target = event.target as HTMLElement;
-      
-      // Check if the clicked element or its parent has the endnote-back class
-      const backLink = target.closest('.endnote-back') || 
-                      (target.classList?.contains('endnote-back') ? target : null);
-      
-      if (backLink) {
+
+      // Check if click is on a link element or its children
+      const linkElement = target.closest('a');
+      if (!linkElement) return;
+
+      // Check for back-link (endnotes → chapter)
+      if (linkElement.classList.contains('endnote-back')) {
         event.preventDefault();
         event.stopPropagation();
-        
-        const refNumber = backLink.getAttribute('data-back-to-ref');
-        console.log('Back navigation clicked, refNumber:', refNumber);
-        
+
+        const refNumber = linkElement.getAttribute('data-back-to-ref');
+        console.log('📖 Endnote back-link clicked, ref:', refNumber);
+
         if (refNumber) {
-          const refElement = document.getElementById(`ref${refNumber}`);
-          console.log('Found ref element:', refElement);
-          
-          if (refElement) {
-            refElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Add a brief highlight effect
-            refElement.style.backgroundColor = '#ffeb3b';
-            setTimeout(() => {
-              refElement.style.backgroundColor = '';
-            }, 1000);
-          } else {
-            console.warn(`Could not find reference element with ID: ref${refNumber}`);
+          // Find which chapter contains this reference
+          const ref = endnoteReferences.find(r => r.number === parseInt(refNumber));
+          if (ref) {
+            const chapterIndex = chapters.findIndex(ch => ch.id === ref.chapterId);
+            if (chapterIndex >= 0) {
+              console.log(`  → Switching to chapter ${chapterIndex}: ${chapters[chapterIndex].title}`);
+              setSelectedChapter(chapterIndex);
+
+              // Scroll to reference after chapter switches
+              setTimeout(() => {
+                const refElement = document.getElementById(`ref${refNumber}`);
+                if (refElement) {
+                  refElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  // Highlight effect
+                  refElement.style.backgroundColor = '#ffeb3b';
+                  setTimeout(() => {
+                    refElement.style.backgroundColor = '';
+                  }, 1000);
+                }
+              }, 150);
+            }
           }
+        }
+        return;
+      }
+
+      // Check for forward-link (chapter → endnotes)
+      const endnoteRef = linkElement.getAttribute('data-endnote-ref');
+      if (endnoteRef) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        console.log('📝 Endnote reference clicked, note:', endnoteRef);
+
+        // Find the endnotes chapter
+        const endnotesIndex = chapters.findIndex(ch => ch.title.toLowerCase() === 'endnotes');
+        if (endnotesIndex >= 0) {
+          console.log(`  → Switching to Endnotes chapter`);
+          setSelectedChapter(endnotesIndex);
+
+          // Scroll to endnote after chapter switches
+          setTimeout(() => {
+            const endElement = document.getElementById(`end${endnoteRef}`);
+            if (endElement) {
+              endElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // Highlight effect
+              endElement.style.backgroundColor = '#ffeb3b';
+              setTimeout(() => {
+                endElement.style.backgroundColor = '';
+              }, 1000);
+            }
+          }, 150);
         }
       }
     }
 
-    // Use capture phase to catch events before they might be stopped
-    document.addEventListener('click', handleEndnoteBackClick, true);
-    return () => document.removeEventListener('click', handleEndnoteBackClick, true);
-  }, []);
+    // Attach to document with capture phase to intercept before contenteditable
+    document.addEventListener('click', handleEndnoteClick, true);
+    return () => document.removeEventListener('click', handleEndnoteClick, true);
+  }, [chapters, endnoteReferences, setSelectedChapter]);
 
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [markerStyle, setMarkerStyle] = useState({ top: 0, height: 0 });
@@ -744,12 +795,13 @@ function MakeEbookPage() {
     // Ensure all chapters have IDs before export
     const migratedChapters = ensureChapterIds(chapters);
     const migratedEndnoteRefs = migrateEndnoteReferences(endnoteReferences, migratedChapters);
-    
+
     // Update state with migrated data
     setChapters(migratedChapters);
     setEndnoteReferences(migratedEndnoteRefs);
-    
-    await exportEpub({
+
+    // Generate EPUB blob for preview
+    const blob = await exportEpub({
       title,
       author,
       blurb,
@@ -763,8 +815,25 @@ function MakeEbookPage() {
       chapters: migratedChapters,
       endnoteReferences: migratedEndnoteRefs,
       typographyPreset,
-    });
-    
+      returnBlob: true, // Get blob instead of downloading
+    }) as Blob;
+
+    // Save blob and open reader
+    setEpubBlob(blob);
+    setShowEPUBReader(true);
+
+    // Also download the file
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title.replace(/[^a-z0-9]+/gi, "_") || "ebook"}.epub`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+
     // Mark as clean after successful export
     markClean();
   }
@@ -792,11 +861,11 @@ function MakeEbookPage() {
   }
 
   async function saveBookDirectly(forceNewVersion: boolean) {
-    // SAFETY: Prevent accidental creation of new books
-    // forceNewVersion=false should only be called when editing an existing book
-    // forceNewVersion=true creates a new version intentionally
+    // Auto-save can create draft books to prevent data loss
+    // forceNewVersion=false: saves to existing book or creates draft if needed
+    // forceNewVersion=true: creates a new version intentionally
     if (!forceNewVersion && !currentBookId) {
-      console.warn('saveBookDirectly called without currentBookId - creating new book');
+      console.log('Creating draft book via auto-save');
     }
     
     const bookData = {
@@ -892,19 +961,19 @@ function MakeEbookPage() {
   }
 
   // Endnote Management Functions
-  function createEndnote(selectedText: string, sourceChapterId: string) {
+  function createEndnote(endnoteContent: string, sourceChapterId: string) {
     const endnoteId = `endnote-${Date.now()}`;
     const endnoteNumber = nextEndnoteNumber;
-    
+
     // Create the endnote
     const newEndnote: Endnote = {
       id: endnoteId,
       number: endnoteNumber,
-      content: selectedText,
+      content: endnoteContent,
       sourceChapterId,
-      sourceText: selectedText,
+      sourceText: '', // No longer using selected text
     };
-    
+
     // Create the reference
     const newReference: EndnoteReference = {
       id: `ref${endnoteNumber}`,
@@ -912,14 +981,14 @@ function MakeEbookPage() {
       chapterId: sourceChapterId,
       endnoteId,
     };
-    
+
     setEndnotes(prev => [...prev, newEndnote]);
     setEndnoteReferences(prev => [...prev, newReference]);
     setNextEndnoteNumber(prev => prev + 1);
-    
+
     // Create a clickable endnote reference with proper ePub structure
     const endnoteLink = `<a class="note-${endnoteNumber}" href="#end${endnoteNumber}" id="ref${endnoteNumber}" title="note ${endnoteNumber}" data-endnote-ref="${endnoteNumber}" data-endnote-id="${endnoteId}" style="color: #0066cc; text-decoration: none;"><sup>[${endnoteNumber}]</sup></a>`;
-    
+
     return endnoteLink;
   }
   
@@ -987,12 +1056,12 @@ function MakeEbookPage() {
     });
   }
 
-  function handleCreateEndnote(selectedText: string, chapterId?: string) {
-    if (!selectedText.trim()) return '';
-    
+  function handleCreateEndnote(endnoteContent: string, chapterId?: string) {
+    if (!endnoteContent.trim()) return '';
+
     const currentChapterId = chapterId || (selectedChapter >= 0 && chapters[selectedChapter] ? chapters[selectedChapter].id : 'unknown');
-    const endnoteLink = createEndnote(selectedText, currentChapterId);
-    
+    const endnoteLink = createEndnote(endnoteContent, currentChapterId);
+
     return endnoteLink;
   }
 
@@ -1502,19 +1571,22 @@ function MakeEbookPage() {
                         <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
                         <span className="text-xs text-gray-600 dark:text-gray-400">({libraryBooks.length})</span>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-2">
                         {libraryBooks.length > 0 && (
                           <button
                             onClick={() => {
                               setMultiSelectMode(!multiSelectMode);
                               if (multiSelectMode) setSelectedBookIds(new Set());
                             }}
-                            className={`p-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}`}
+                            className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}`}
                             title={multiSelectMode ? "Cancel selection" : "Select multiple"}
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            <svg className={`w-4 h-4 ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path className={multiSelectMode ? '' : 'dark:stroke-white'} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                             </svg>
+                            <span className={`text-[10px] font-medium ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
+                              {multiSelectMode ? 'Cancel' : 'Select'}
+                            </span>
                           </button>
                         )}
                         <button
@@ -1522,22 +1594,24 @@ function MakeEbookPage() {
                             showNewBookConfirmation();
                             setMobileSidebarOpen(false);
                           }}
-                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          className="flex flex-col items-center gap-0.5 px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                           title="New book"
                         >
                           <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                          <span className="text-[10px] font-medium text-[#050505] dark:text-[#e5e5e5]">New</span>
                         </button>
                         <button
                           onClick={() => {
                             showImportDialog();
                             setMobileSidebarOpen(false);
                           }}
-                          className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          className="flex flex-col items-center gap-0.5 px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                           title="Import document"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <path className="dark:stroke-white" strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                            <path className="dark:stroke-white" strokeLinecap="round" strokeLinejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
+                          <span className="text-[10px] font-medium text-[#050505] dark:text-[#e5e5e5]">Import</span>
                         </button>
                       </div>
                     </div>
@@ -1823,7 +1897,7 @@ function MakeEbookPage() {
                               onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
                               disabled={lockedSections.bookInfo}
                               className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
-                              placeholder="Add tag"
+                              placeholder="e.g., fiction, thriller, mystery, romance"
                             />
                             <button
                               onClick={handleAddTag}
@@ -2839,7 +2913,7 @@ function MakeEbookPage() {
                     }
                     className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
                     onCreateEndnote={handleCreateEndnote}
-                    chapterId={`chapter-${selectedChapter}`}
+                    chapterId={chapters[selectedChapter]?.id}
                   />
                 </div>
               </div>
@@ -3064,7 +3138,7 @@ function MakeEbookPage() {
                         }
                         className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
                       onCreateEndnote={handleCreateEndnote}
-                      chapterId={`chapter-${selectedChapter}`}
+                      chapterId={chapters[selectedChapter]?.id}
                     />
                   </div>
                 </div>
@@ -3091,6 +3165,14 @@ function MakeEbookPage() {
 
         {/* Terms/Privacy links moved to mobile editor footer */}
       </div>
+
+      {/* EPUB Reader Modal */}
+      <EPUBReaderModal
+        isOpen={showEPUBReader}
+        onClose={() => setShowEPUBReader(false)}
+        epubBlob={epubBlob}
+        bookTitle={title}
+      />
     </>
   );
 }

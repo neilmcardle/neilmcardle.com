@@ -202,7 +202,7 @@ export default function MetaTabContent({
             <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">Description/Blurb</label>
             <textarea
               className={`w-full px-3 py-2 rounded text-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
-              placeholder="Enter book description..."
+              placeholder="Brief description or back cover blurb (optional)"
               value={blurb}
               onChange={e => setBlurb(e.target.value)}
               rows={2}
@@ -248,14 +248,17 @@ export default function MetaTabContent({
             />
           </div>
           <div>
-            <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">ISBN</label>
+            <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">ISBN (optional)</label>
             <input
               className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.publishingDetails ? "opacity-60 cursor-not-allowed" : ""}`}
-              placeholder="Enter ISBN..."
+              placeholder="978-0-123456-78-9"
               value={isbn}
               onChange={e => setIsbn(e.target.value)}
               disabled={lockedSections.publishingDetails}
             />
+            <p className="mt-1 text-[10px] text-gray-500 dark:text-gray-400">
+              ISBNs must be purchased from official agencies (e.g., £93 from <a href="https://www.nielsenisbnstore.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-gray-300">Nielsen UK</a>). They cannot be invented.
+            </p>
           </div>
           <div>
             <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">Language</label>
@@ -311,7 +314,7 @@ export default function MetaTabContent({
         <div className="flex gap-2">
           <input
             className={`w-full px-3 py-2 rounded text-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
-            placeholder="Add a tag..."
+            placeholder="e.g., fiction, thriller, mystery, romance"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddTag())}

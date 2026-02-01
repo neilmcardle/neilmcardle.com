@@ -69,6 +69,7 @@
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.44.5",
     "embla-carousel-react": "8.5.1",
+    "epubjs": "^0.3.93",
     "file-saver": "^2.0.5",
     "input-otp": "1.4.1",
     "jszip": "^3.10.1",
