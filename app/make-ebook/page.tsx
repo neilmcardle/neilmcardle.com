@@ -1052,44 +1052,48 @@ function MakeEbookPage() {
   }
   
   function updateEndnotesChapterContent() {
-    let endnotesChapterIndex = chapters.findIndex(ch => ch.title.toLowerCase() === 'endnotes');
-    
-    // Generate endnotes content (create shallow copy to avoid mutating state)
-    const endnotesContent = [...endnotes]
-      .sort((a, b) => a.number - b.number)
-      .map(endnote => {
-        const backLink = `<a href="#ref${endnote.number}" id="end${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: none; margin-left: 8px; cursor: pointer; user-select: none; font-weight: bold; font-size: 14px; padding: 2px 6px; border: 1px solid #0066cc; border-radius: 3px; background-color: #f0f8ff; display: inline-block;">[${endnote.number}]</a>`;
-        return `<p>${endnote.number}. ${endnote.content} ${backLink}</p>`;
-      })
-      .join('');
-    
-    const updatedChapters = [...chapters];
-    
-    if (endnotesChapterIndex === -1) {
-      // Only create new endnotes chapter if we have endnotes to show
-      if (endnotes.length === 0) return;
-      
-      const newEndnotesChapter = {
-        id: `endnotes-${Date.now()}`,
-        title: 'Endnotes',
-        content: endnotesContent,
-        type: 'backmatter' as const,
-      };
-      updatedChapters.push(newEndnotesChapter);
-    } else {
-      // Update existing endnotes chapter (or remove if no endnotes)
-      if (endnotes.length === 0) {
-        // Remove the endnotes chapter if there are no endnotes
-        updatedChapters.splice(endnotesChapterIndex, 1);
-      } else {
-        updatedChapters[endnotesChapterIndex] = {
-          ...updatedChapters[endnotesChapterIndex],
+    // Use functional update pattern to always get the latest chapters state
+    // This prevents stale closure issues when the effect runs
+    setChapters(currentChapters => {
+      const endnotesChapterIndex = currentChapters.findIndex(ch => ch.title.toLowerCase() === 'endnotes');
+
+      // Generate endnotes content (create shallow copy to avoid mutating state)
+      const endnotesContent = [...endnotes]
+        .sort((a, b) => a.number - b.number)
+        .map(endnote => {
+          const backLink = `<a href="#ref${endnote.number}" id="end${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: none; margin-left: 8px; cursor: pointer; user-select: none; font-weight: bold; font-size: 14px; padding: 2px 6px; border: 1px solid #0066cc; border-radius: 3px; background-color: #f0f8ff; display: inline-block;">[${endnote.number}]</a>`;
+          return `<p>${endnote.number}. ${endnote.content} ${backLink}</p>`;
+        })
+        .join('');
+
+      const updatedChapters = [...currentChapters];
+
+      if (endnotesChapterIndex === -1) {
+        // Only create new endnotes chapter if we have endnotes to show
+        if (endnotes.length === 0) return currentChapters;
+
+        const newEndnotesChapter = {
+          id: `endnotes-${Date.now()}`,
+          title: 'Endnotes',
           content: endnotesContent,
+          type: 'backmatter' as const,
         };
+        updatedChapters.push(newEndnotesChapter);
+      } else {
+        // Update existing endnotes chapter (or remove if no endnotes)
+        if (endnotes.length === 0) {
+          // Remove the endnotes chapter if there are no endnotes
+          updatedChapters.splice(endnotesChapterIndex, 1);
+        } else {
+          updatedChapters[endnotesChapterIndex] = {
+            ...updatedChapters[endnotesChapterIndex],
+            content: endnotesContent,
+          };
+        }
       }
-    }
-    
-    setChapters(updatedChapters);
+
+      return updatedChapters;
+    });
   }
   
   // Migration function to ensure all chapters have IDs
@@ -2850,6 +2854,7 @@ function MakeEbookPage() {
                       bookStats={bookStats}
                       currentChapterIndex={selectedChapter}
                       wordsThisSession={sessionStats.wordsThisSession}
+                      onSelectChapter={handleSelectChapter}
                     />
                     <QualityDropdown
                       score={qualityScore}
@@ -2864,7 +2869,7 @@ function MakeEbookPage() {
               {/* Floating Unsaved Bar - only shows when dirty */}
               {isDirty && (
                 <div className="flex items-center justify-center gap-2 px-3 py-1 bg-stone-100 dark:bg-stone-800/50 border-t border-stone-200 dark:border-stone-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-stone-500 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                   <span className="text-xs text-stone-600 dark:text-stone-400">Unsaved changes</span>
                 </div>
               )}
@@ -3018,6 +3023,7 @@ function MakeEbookPage() {
                     className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
                     onCreateEndnote={handleCreateEndnote}
                     chapterId={chapters[selectedChapter]?.id}
+                    hasEndnotes={endnotes.length > 0}
                   />
                 </div>
               </div>
@@ -3094,6 +3100,7 @@ function MakeEbookPage() {
                       bookStats={bookStats}
                       currentChapterIndex={selectedChapter}
                       wordsThisSession={sessionStats.wordsThisSession}
+                      onSelectChapter={handleSelectChapter}
                     />
                     <QualityDropdown
                       score={qualityScore}
@@ -3243,6 +3250,7 @@ function MakeEbookPage() {
                         className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
                       onCreateEndnote={handleCreateEndnote}
                       chapterId={chapters[selectedChapter]?.id}
+                      hasEndnotes={endnotes.length > 0}
                     />
                   </div>
                 </div>

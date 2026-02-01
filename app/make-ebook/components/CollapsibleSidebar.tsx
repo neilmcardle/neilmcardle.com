@@ -452,7 +452,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                             handleLoadBook(book.id);
                             setSelectedBookId(null);
                           }}
-                          className="text-xs px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-[#3a3a3a] text-[#050505] dark:text-[#e5e5e5]"
+                          className="px-2 py-1 text-xs rounded bg-black dark:bg-white text-white dark:text-black hover:opacity-80"
                           title="Load book"
                         >
                           Load

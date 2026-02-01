@@ -36,12 +36,14 @@ interface WordStatsDropdownProps {
   bookStats: BookStats;
   currentChapterIndex: number;
   wordsThisSession: number;
+  onSelectChapter?: (index: number) => void;
 }
 
 export function WordStatsDropdown({
   bookStats,
   currentChapterIndex,
   wordsThisSession,
+  onSelectChapter,
 }: WordStatsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -177,6 +179,11 @@ export function WordStatsDropdown({
               key={chapter.id}
               chapter={chapter}
               isActive={index === currentChapterIndex}
+              index={index}
+              onClick={(idx) => {
+                onSelectChapter?.(idx);
+                setIsOpen(false);
+              }}
             />
           ))}
         </div>
@@ -250,18 +257,23 @@ function StatCard({ label, value, icon, highlight }: StatCardProps) {
 interface ChapterRowProps {
   chapter: ChapterStats;
   isActive: boolean;
+  index: number;
+  onClick?: (index: number) => void;
 }
 
-function ChapterRow({ chapter, isActive }: ChapterRowProps) {
+function ChapterRow({ chapter, isActive, index, onClick }: ChapterRowProps) {
   return (
-    <div className={`flex justify-between items-center px-2 py-1.5 rounded ${
-      isActive 
-        ? 'bg-black/5 dark:bg-white/5' 
-        : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-    }`}>
+    <button
+      onClick={() => onClick?.(index)}
+      className={`w-full flex justify-between items-center px-2 py-1.5 rounded text-left ${
+        isActive
+          ? 'bg-black/5 dark:bg-white/5'
+          : 'hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer'
+      }`}
+    >
       <span className={`text-sm truncate pr-2 ${
-        isActive 
-          ? 'font-medium text-gray-900 dark:text-gray-100' 
+        isActive
+          ? 'font-medium text-gray-900 dark:text-gray-100'
           : 'text-gray-700 dark:text-gray-300'
       }`}>
         {chapter.title}
@@ -269,7 +281,7 @@ function ChapterRow({ chapter, isActive }: ChapterRowProps) {
       <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
         {formatWordCount(chapter.wordCount)}
       </span>
-    </div>
+    </button>
   );
 }
 
