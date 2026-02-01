@@ -516,11 +516,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={handleSaveBook}
               disabled={!!saveFeedback}
-              className={`p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-all disabled:opacity-60 ${saveFeedback ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
+              className={`flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-all disabled:opacity-60 ${saveFeedback ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
               title={saveFeedback ? "Saved!" : "Save book"}
             >
               {saveFeedback ? (
@@ -530,13 +530,17 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               ) : (
                 <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
               )}
+              <span className={`text-xs font-medium ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                {saveFeedback ? 'Saved!' : 'Save'}
+              </span>
             </button>
             <button
               onClick={handleExportEPUB}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
               title="Export as EPUB"
             >
               <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Export</span>
             </button>
           </div>
         </div>
