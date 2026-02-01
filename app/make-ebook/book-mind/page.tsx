@@ -470,9 +470,9 @@ function BookMindContent() {
                 <button
                   onClick={handleSend}
                   disabled={!inputValue.trim() || isLoading || !selectedBook}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-80 transition-opacity"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-900 dark:text-white disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-70 transition-opacity"
                 >
-                  <svg className="w-4 h-4 text-white dark:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
                 </button>
