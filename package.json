@@ -76,7 +76,7 @@
     "katex": "^0.16.22",
     "lucide-react": "^0.454.0",
     "mammoth": "^1.11.0",
-    "next": "15.5.9",
+    "next": "^16.1.6",
     "next-themes": "latest",
     "pdfjs-dist": "^5.4.530",
     "pg": "^8.16.3",
