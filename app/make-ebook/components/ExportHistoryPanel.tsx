@@ -91,11 +91,11 @@ export function ExportHistoryPanel({
             Export History
           </h3>
           <span className="text-xs text-gray-500 dark:text-gray-400">
-            {exports.length} saved
+            {exports.length}/5 saved
           </span>
         </div>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          Click to preview or download previous exports
+          Last 5 exports are kept for preview and download
         </p>
       </div>
 
