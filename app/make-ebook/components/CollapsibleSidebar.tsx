@@ -285,12 +285,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     // Then actually close after animation completes
     setTimeout(() => {
       onClose();
-    }, 500); // Match the transition duration
+    }, 200); // Match the transition duration
   };
 
   return (
     <aside 
-  className={`hidden lg:flex flex-col absolute left-16 top-0 w-full lg:max-w-sm bg-white dark:bg-[#2c2c2c] min-w-0 lg:min-w-[300px] lg:max-w-[350px] h-full shadow-sm border-r border-gray-200 dark:border-[#424242] z-40 transition-transform duration-500 ease-in-out ${
+  className={`hidden lg:flex flex-col absolute left-16 top-0 w-full lg:max-w-sm bg-white dark:bg-[#2c2c2c] min-w-0 lg:min-w-[300px] lg:max-w-[350px] h-full shadow-sm border-r border-gray-200 dark:border-[#424242] z-40 transition-transform duration-200 ease-out ${
         isVisible ? 'translate-x-0' : '-translate-x-full'
       }`}
     >

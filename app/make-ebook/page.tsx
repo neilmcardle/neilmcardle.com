@@ -1586,18 +1586,18 @@ function MakeEbookPage() {
         )}
 
         {/* Mobile Sidebar Overlay */}
-        <div className={`fixed top-0 left-0 right-0 bottom-0 z-[100] lg:hidden transition-all duration-300 ease-out ${
+        <div className={`fixed top-0 left-0 right-0 bottom-0 z-[100] lg:hidden transition-[visibility] duration-200 ease-out ${
           mobileSidebarOpen ? 'visible' : 'invisible'
         }`}>
           {/* Backdrop */}
-          <div 
-            className={`absolute inset-0 bg-black/20 transition-opacity duration-300 ease-out ${
+          <div
+            className={`absolute inset-0 bg-black/20 transition-opacity duration-200 ease-out ${
               mobileSidebarOpen ? 'opacity-100' : 'opacity-0'
             }`}
             onClick={() => setMobileSidebarOpen(false)}
           />
           {/* Sidebar Panel */}
-          <div className={`absolute top-0 left-0 h-full w-full bg-white dark:bg-[#1a1a1a] shadow-2xl transform transition-transform duration-300 ease-out ${
+          <div className={`absolute top-0 left-0 h-full w-full bg-white dark:bg-[#1a1a1a] shadow-2xl transform transition-transform duration-200 ease-out ${
             mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
             <div className="flex flex-col h-full">
@@ -2454,18 +2454,18 @@ function MakeEbookPage() {
         </div>
 
         {/* Mobile Chapters Panel */}
-        <div className={`fixed top-0 right-0 bottom-0 z-[100] lg:hidden transition-all duration-300 ease-out ${
+        <div className={`fixed top-0 right-0 bottom-0 z-[100] lg:hidden transition-[visibility] duration-200 ease-out ${
           mobileChaptersOpen ? 'visible' : 'invisible'
         }`} style={{ left: 0 }}>
           {/* Backdrop */}
-          <div 
-            className={`absolute inset-0 bg-black/20 transition-opacity duration-300 ease-out ${
+          <div
+            className={`absolute inset-0 bg-black/20 transition-opacity duration-200 ease-out ${
               mobileChaptersOpen ? 'opacity-100' : 'opacity-0'
             }`}
             onClick={() => setMobileChaptersOpen(false)}
           />
           {/* Chapters Panel */}
-          <div className={`absolute top-0 right-0 h-full w-full bg-white dark:bg-[#1a1a1a] shadow-2xl transform transition-transform duration-300 ease-out ${
+          <div className={`absolute top-0 right-0 h-full w-full bg-white dark:bg-[#1a1a1a] shadow-2xl transform transition-transform duration-200 ease-out ${
             mobileChaptersOpen ? 'translate-x-0' : 'translate-x-full'
           }`}>
             <div className="flex flex-col h-full">
@@ -2785,7 +2785,7 @@ function MakeEbookPage() {
           )}
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className={`flex-1 flex flex-col bg-white dark:bg-[#1a1a1a] rounded shadow-sm px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-x-hidden overflow-y-auto relative transition-all duration-500 ease-in-out ${
+          <main className={`flex-1 flex flex-col bg-white dark:bg-[#1a1a1a] rounded shadow-sm px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-x-hidden overflow-y-auto relative transition-[margin-left] duration-200 ease-out ${
             isPanelOpen ? 'lg:ml-[366px]' : 'lg:ml-0'
           }`}>
             
