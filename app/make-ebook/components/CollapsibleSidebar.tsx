@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { LibraryIcon, PlusIcon, TrashIcon, SaveIcon, DownloadIcon, CloseIcon } from './icons';
+import { ExportHistoryButton } from './ExportHistoryPanel';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import DragIcon from './icons/DragIcon';
 import BinIcon from './icons/BinIcon';
@@ -110,6 +111,10 @@ interface CollapsibleSidebarProps {
   handleSaveBook: () => void;
   handleExportEPUB: () => void;
   saveFeedback: boolean;
+
+  // Export history
+  exportHistoryCount: number;
+  onShowExportHistory: () => void;
   
   // Expanded state
   sidebarLibraryExpanded: boolean;
@@ -252,6 +257,8 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     handleSaveBook,
     handleExportEPUB,
     saveFeedback,
+    exportHistoryCount,
+    onShowExportHistory,
     sidebarLibraryExpanded,
     setSidebarLibraryExpanded,
     sidebarPreviewExpanded,
@@ -542,9 +549,15 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
               <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Export</span>
             </button>
+            {exportHistoryCount > 0 && (
+              <ExportHistoryButton
+                exportCount={exportHistoryCount}
+                onClickAction={onShowExportHistory}
+              />
+            )}
           </div>
         </div>
-        
+
         {sidebarBookDetailsExpanded && (
           <div className="mt-2 space-y-3 pl-2 pr-2">
             {/* Title */}

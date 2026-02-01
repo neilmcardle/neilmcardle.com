@@ -38,6 +38,8 @@ import { WordStatsDropdown } from "./components/WordStatsDropdown";
 import { useWordStats } from "./hooks/useWordStats";
 import { useVersionHistory } from "./hooks/useVersionHistory";
 import { VersionHistoryPanel, VersionHistoryButton } from "./components/VersionHistoryPanel";
+import { useExportHistory } from "./hooks/useExportHistory";
+import { ExportHistoryPanel, ExportHistoryButton } from "./components/ExportHistoryPanel";
 import { useOfflineSync } from "./hooks/useOfflineSync";
 import { useServiceWorker } from "./hooks/useServiceWorker";
 import { OfflineBanner, OfflineIndicatorCompact } from "./components/OfflineIndicator";
@@ -386,6 +388,19 @@ function MakeEbookPage() {
 
   // State for version history panel visibility
   const [showVersionHistory, setShowVersionHistory] = useState(false);
+
+  // Export history hook
+  const {
+    exports: exportHistory,
+    isLoading: exportHistoryLoading,
+    saveExport,
+    getExportBlob,
+    deleteExport,
+    clearHistory: clearExportHistory,
+  } = useExportHistory({ bookId: currentBookId, maxExports: 5 });
+
+  // State for export history panel visibility
+  const [showExportHistory, setShowExportHistory] = useState(false);
 
   // Auto-save hook - Creates draft book if needed to prevent data loss
   const handleAutoSave = useCallback(() => {
@@ -800,6 +815,12 @@ function MakeEbookPage() {
     setChapters(migratedChapters);
     setEndnoteReferences(migratedEndnoteRefs);
 
+    // Calculate word count for export record
+    const totalWords = migratedChapters.reduce((sum, ch) => {
+      const text = ch.content.replace(/<[^>]+>/g, ' ');
+      return sum + text.trim().split(/\s+/).filter(w => w.length > 0).length;
+    }, 0);
+
     // Generate EPUB blob for preview
     const blob = await exportEpub({
       title,
@@ -817,6 +838,15 @@ function MakeEbookPage() {
       typographyPreset,
       returnBlob: true, // Get blob instead of downloading
     }) as Blob;
+
+    // Save to export history
+    await saveExport({
+      title,
+      author,
+      wordCount: totalWords,
+      chapterCount: migratedChapters.length,
+      blob,
+    });
 
     // Save blob and open reader
     setEpubBlob(blob);
@@ -836,6 +866,35 @@ function MakeEbookPage() {
 
     // Mark as clean after successful export
     markClean();
+  }
+
+  // Handle preview from export history
+  async function handlePreviewExport(exportId: string) {
+    const blob = await getExportBlob(exportId);
+    if (blob) {
+      setEpubBlob(blob);
+      setShowEPUBReader(true);
+      setShowExportHistory(false);
+    }
+  }
+
+  // Handle download from export history
+  async function handleDownloadExport(exportId: string) {
+    const blob = await getExportBlob(exportId);
+    const exportMeta = exportHistory.find(e => e.id === exportId);
+
+    if (blob && exportMeta) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${exportMeta.title.replace(/[^a-z0-9]+/gi, "_") || "ebook"}.epub`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    }
   }
 
   function handleSaveBook() {
@@ -1388,7 +1447,34 @@ function MakeEbookPage() {
           </div>
         )}
 
-
+        {/* Export History Panel */}
+        {showExportHistory && (
+          <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#333]">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Export History</h2>
+                <button
+                  onClick={() => setShowExportHistory(false)}
+                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                >
+                  <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <ExportHistoryPanel
+                  exports={exportHistory}
+                  isLoading={exportHistoryLoading}
+                  onPreviewAction={handlePreviewExport}
+                  onDownloadAction={handleDownloadExport}
+                  onDeleteAction={deleteExport}
+                  onClearAllAction={clearExportHistory}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Mobile Preview Modal */}
         {mobilePreviewOpen && (
@@ -1784,9 +1870,15 @@ function MakeEbookPage() {
                           <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
                           <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Export</span>
                         </button>
+                        {exportHistory.length > 0 && (
+                          <ExportHistoryButton
+                            exportCount={exportHistory.length}
+                            onClickAction={() => setShowExportHistory(true)}
+                          />
+                        )}
                       </div>
                     </div>
-                    
+
                     {sidebarBookDetailsExpanded && (
                       <div className="mt-2 space-y-3 pl-2 pr-2">
                         {/* Title */}
@@ -2679,6 +2771,8 @@ function MakeEbookPage() {
             handleSaveBook={handleSaveBook}
             handleExportEPUB={handleExportEPUB}
             saveFeedback={saveFeedback}
+            exportHistoryCount={exportHistory.length}
+            onShowExportHistory={() => setShowExportHistory(true)}
             sidebarLibraryExpanded={sidebarLibraryExpanded}
             setSidebarLibraryExpanded={setSidebarLibraryExpanded}
             sidebarPreviewExpanded={sidebarPreviewExpanded}
