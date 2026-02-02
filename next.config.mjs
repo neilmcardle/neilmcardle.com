@@ -27,12 +27,6 @@ const nextConfig = {
 
     return config;
   },
-  // Allow dev origins only in development
-  ...(isDev && {
-    experimental: {
-      allowedDevOrigins: ['*', '*.replit.dev', 'localhost', '127.0.0.1'],
-    },
-  }),
   async headers() {
     return [
       // Development - disable all caching
