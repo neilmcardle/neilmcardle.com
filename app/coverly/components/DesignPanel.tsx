@@ -114,15 +114,40 @@ export function DesignPanel({
     setIsGenerating(true);
 
     try {
+      // Capture the canvas sketch if there are shapes
+      let sketchData: string | null = null;
+      if (editor) {
+        const shapes = editor.getCurrentPageShapes();
+        // Filter out just the frame, look for actual drawings
+        const drawingShapes = shapes.filter(s => s.type !== "frame");
+        if (drawingShapes.length > 0) {
+          try {
+            const result = await editor.toImage(drawingShapes.map(s => s.id), {
+              format: "png",
+              background: true,
+            });
+            // Convert blob to base64
+            const reader = new FileReader();
+            sketchData = await new Promise((resolve) => {
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.readAsDataURL(result.blob);
+            });
+          } catch (e) {
+            console.log("Could not capture sketch:", e);
+          }
+        }
+      }
+
       const response = await fetch("/api/generate-typography", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          prompt: description || "professional book cover design",
+          prompt: description || "professional illustration",
           title: titleText,
           subtitle: subtitleText,
           author: authorText,
           provider,
+          sketch: sketchData, // Include the sketch if captured
         }),
       });
 

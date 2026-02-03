@@ -92,7 +92,7 @@ async function generateWithOpenAI(prompt: string): Promise<string | null> {
       model: "dall-e-3",
       prompt,
       n: 1,
-      size: "1024x1792", // Portrait for book covers
+      size: "1024x1792", // Portrait orientation
       quality: "hd",
       style: "vivid",
     });
@@ -113,7 +113,7 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
     // Grok doesn't support size parameter
     const response = await client.images.generate({
       model: "grok-2-image",
-      prompt: `${prompt}\n\nCRITICAL: No text or letters in the image. Flat 2D illustration only, portrait orientation. No books or book shapes.`,
+      prompt: `${prompt}\n\nCRITICAL: No text, letters, words, or typography. No books or reading materials. Flat 2D illustration only, portrait orientation.`,
       n: 1,
     });
 
@@ -142,24 +142,23 @@ function buildTypographyPrompt(
   author?: string
 ): string {
   const parts = [
-    `Create a stunning ILLUSTRATION for a poster or print.`,
+    `Create a stunning digital ILLUSTRATION suitable for a poster or wall art.`,
     ``,
     `This is a flat 2D digital artwork - a single rectangular image.`,
     `Portrait orientation (taller than wide, approximately 2:3 ratio).`,
     ``,
     `ARTWORK CONCEPT:`,
-    `The illustration should evoke the mood and themes of: "${title}"`,
-    basePrompt ? `Style direction: ${basePrompt}` : null,
+    basePrompt ? `Scene/Style: ${basePrompt}` : `Create an evocative illustration inspired by the theme: "${title}"`,
     ``,
-    `IMPORTANT RULES:`,
-    `- Create ONLY the background artwork/illustration`,
-    `- DO NOT include ANY text, letters, words, titles, or typography`,
-    `- DO NOT render any book, book shape, or book mockup`,
-    `- Leave space at the top and bottom for text to be added later`,
-    `- This is a flat rectangular digital illustration`,
-    `- Make it visually striking and suitable as a background for text overlay`,
+    `CRITICAL RULES - MUST FOLLOW:`,
+    `- Create ONLY a background illustration/scene`,
+    `- DO NOT include ANY text, letters, words, numbers, titles, logos, or typography of any kind`,
+    `- DO NOT include any books, pages, documents, or reading materials in the scene`,
+    `- DO NOT include any signs, labels, or written content`,
+    `- Leave clear space at the top third and bottom third for text to be overlaid later`,
+    `- Focus purely on the visual scene/illustration`,
     ``,
-    `OUTPUT: A beautiful flat illustration with NO TEXT, ready for typography to be added on top.`,
+    `OUTPUT: A beautiful illustration with absolutely NO TEXT and NO BOOKS, designed as a background for text overlay.`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -198,12 +197,14 @@ export async function POST(request: NextRequest) {
       subtitle,
       author,
       provider = "auto",
+      sketch,
     } = body as {
       prompt: string;
       title: string;
       subtitle?: string;
       author?: string;
       provider?: AIProvider;
+      sketch?: string; // Base64 encoded image data
     };
 
     if (!title?.trim()) {
@@ -227,8 +228,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // If a sketch is provided, analyze it with GPT-4 Vision to enhance the prompt
+    let enhancedPrompt = prompt;
+    if (sketch && hasOpenAI) {
+      try {
+        const client = getOpenAIClient();
+        if (client) {
+          const visionResponse = await client.chat.completions.create({
+            model: "gpt-4o",
+            messages: [
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: `Analyze this sketch and describe the composition, layout, and key visual elements in detail. Focus on:
+- Position of main elements (top, center, bottom, left, right)
+- Shapes and objects depicted
+- The general scene or concept being illustrated
+- Any spatial relationships between elements
+
+Provide a concise description (2-3 sentences) that could be used to recreate this composition. Do NOT mention any text, words, or letters you might see.`,
+                  },
+                  {
+                    type: "image_url",
+                    image_url: { url: sketch },
+                  },
+                ],
+              },
+            ],
+            max_tokens: 200,
+          });
+
+          const sketchDescription = visionResponse.choices[0]?.message?.content;
+          if (sketchDescription) {
+            enhancedPrompt = `${prompt}\n\nCOMPOSITION REFERENCE (follow this layout): ${sketchDescription}`;
+          }
+        }
+      } catch (e) {
+        console.error("Vision analysis failed:", e);
+        // Continue without sketch analysis
+      }
+    }
+
     // Build the optimized typography prompt
-    const fullPrompt = buildTypographyPrompt(prompt, title, subtitle, author);
+    const fullPrompt = buildTypographyPrompt(enhancedPrompt, title, subtitle, author);
 
     let imageUrl: string | null = null;
     let usedProvider: string = "";
