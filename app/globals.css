@@ -270,7 +270,7 @@ html.paper button.bg-black:not(.no-paper-override):not([data-no-paper-override] 
   }
 
   /* Pill-shaped main buttons */
-  .btn-pill, .rounded-full {
+  .btn-pill {
     border-radius: 9999px !important;
     padding-left: 1.5rem;
     padding-right: 1.5rem;

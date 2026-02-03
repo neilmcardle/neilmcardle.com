@@ -500,7 +500,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
               >
                 <div className="flex items-center gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-gray-300 text-gray-300" />
+                    <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
                 <p className="text-gray-300 mb-6 text-lg leading-relaxed">
@@ -544,7 +544,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gray-900 text-white text-sm font-semibold rounded-full">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-green-600 text-white text-sm font-semibold rounded-full shadow-lg">
                     Most Popular
                   </div>
                 )}
