@@ -106,16 +106,15 @@ export function SplitPreviewLayout({
               }}
             >
               {/* Screen */}
-              <div 
-                className={`w-full rounded-lg overflow-hidden transition-colors ${
-                  previewTheme === 'light' ? 'bg-white' :
-                  previewTheme === 'sepia' ? 'bg-[#f4ecd8]' :
-                  'bg-[#1a1a1a]'
-                }`}
-                style={{ 
-                  width: device.width, 
+              <div
+                className="w-full rounded-lg overflow-hidden transition-colors"
+                style={{
+                  width: device.width,
                   height: device.height,
                   maxWidth: '100%',
+                  backgroundColor: previewTheme === 'light' ? '#ffffff' :
+                                   previewTheme === 'sepia' ? '#f4ecd8' :
+                                   '#1a1a1a',
                 }}
               >
                 {/* Chapter content preview */}
@@ -159,14 +158,15 @@ export function SplitPreviewLayout({
                   key={theme}
                   onClick={() => setPreviewTheme(theme)}
                   className={`w-6 h-6 rounded-full border-2 transition-all ${
-                    previewTheme === theme 
-                      ? 'scale-110 border-blue-500 shadow-md' 
+                    previewTheme === theme
+                      ? 'scale-110 border-blue-500 shadow-md'
                       : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
-                  } ${
-                    theme === 'light' ? 'bg-white' :
-                    theme === 'sepia' ? 'bg-[#f4ecd8]' :
-                    'bg-[#1a1a1a]'
                   }`}
+                  style={{
+                    backgroundColor: theme === 'light' ? '#ffffff' :
+                                     theme === 'sepia' ? '#f4ecd8' :
+                                     '#1a1a1a',
+                  }}
                   aria-label={`${theme} theme`}
                   title={theme.charAt(0).toUpperCase() + theme.slice(1)}
                 />

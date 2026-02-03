@@ -152,7 +152,7 @@ function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
 
 function MakeEbookPage() {
   // Auth context for Supabase user
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   // Next/navigation helpers
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -1287,7 +1287,7 @@ function MakeEbookPage() {
   return (
     <>
       {/* Main Content - Full height without header */}
-      <div className="bg-[#FFFFFF] dark:bg-[#1a1a1a] text-[#15161a] dark:text-[#e5e5e5]">
+      <div className="bg-white dark:bg-[#1a1a1a] text-[#15161a] dark:text-[#e5e5e5]">
         
         {/* Update Available Banner */}
         {isUpdateAvailable && (
@@ -2441,8 +2441,46 @@ function MakeEbookPage() {
               </div>
 
               {/* Footer - Sticky */}
-              <footer className="flex-shrink-0 pt-4 pb-4 px-4 border-t border-gray-200 dark:border-[#424242] bg-white dark:bg-[#1a1a1a] text-center">
-                <div className="flex flex-col items-center space-y-2">
+              <footer className="flex-shrink-0 pt-4 pb-4 px-4 md:px-6 border-t border-gray-200 dark:border-[#424242] bg-white dark:bg-[#1a1a1a]">
+                {/* User Account & Theme Row */}
+                <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-[#424242]">
+                  {/* User Account */}
+                  {user ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                          {user.email?.charAt(0).toUpperCase() || 'U'}
+                        </span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs text-gray-900 dark:text-gray-100 truncate max-w-[140px]">{user.email}</span>
+                        <button
+                          onClick={async () => {
+                            await signOut();
+                            setMobileSidebarOpen(false);
+                          }}
+                          className="text-sm text-red-600 dark:text-red-400 hover:underline text-left py-1"
+                        >
+                          Log out
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      href="/login"
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                      onClick={() => setMobileSidebarOpen(false)}
+                    >
+                      Log in
+                    </Link>
+                  )}
+
+                  {/* Theme Toggle */}
+                  <ThemeToggle />
+                </div>
+
+                {/* Links */}
+                <div className="flex flex-col items-center space-y-2 text-center">
                   <div className="flex space-x-4">
                     <a href="/terms" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-xs">Terms</a>
                     <a href="/privacy" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-xs">Privacy</a>
@@ -2881,7 +2919,7 @@ function MakeEbookPage() {
             </div>
 
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
-            <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pt-14 pb-0">
+            <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pt-[52px] pb-0">
               {chapters.length === 0 ? (
                 // Landing Page - Mobile version
                 <LandingPage
@@ -3330,7 +3368,7 @@ function UserDropdownMobile() {
           />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56 z-[150]">
+      <DropdownMenuContent align="start" className="w-56 z-[150] [&>*]:ml-2" style={{ marginLeft: '8px' }}>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">Account</p>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { Loader2, Mail, CheckCircle, AlertCircle, X, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
@@ -39,6 +39,13 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
   const [showVerificationMessage, setShowVerificationMessage] = useState(false)
   const [showResetMessage, setShowResetMessage] = useState(false)
   const { signIn, signUp, resetPassword, authError, clearError } = useAuth()
+
+  // Sync mode with defaultMode when modal opens or defaultMode changes
+  useEffect(() => {
+    if (isOpen) {
+      setMode(defaultMode)
+    }
+  }, [isOpen, defaultMode])
 
   const resetForm = () => {
     setEmail('')

@@ -74,50 +74,50 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
   }, []);
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-8 py-16 min-h-0">
-      {/* Logo */}
-      <div className="mb-12">
+    <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-8 py-4 sm:py-16 min-h-0 overflow-y-auto">
+      {/* Logo - dark on light/paper, light on dark */}
+      <div className="mb-6 sm:mb-12 flex-shrink-0">
         <Image
           src="/make-ebook-logo.svg"
           alt="makeEbook"
           width={80}
           height={80}
-          className="w-20 h-20 dark:invert opacity-40"
+          className="w-14 h-14 sm:w-20 sm:h-20 opacity-70 dark:invert dark:opacity-50"
           priority
         />
       </div>
 
       {/* Quote */}
-      <div className="max-w-3xl mb-16 text-center animate-in fade-in duration-1000">
-        <p className="text-2xl md:text-3xl lg:text-4xl font-serif italic text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
+      <div className="max-w-3xl mb-8 sm:mb-16 text-center animate-in fade-in duration-1000 flex-shrink-0">
+        <p className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-serif italic text-gray-700 dark:text-gray-300 leading-relaxed mb-4 sm:mb-6">
           "{quote.text}"
         </p>
-  <p className="text-lg md:text-xl text-gray-500 dark:text-gray-200 font-light">
+        <p className="text-sm sm:text-lg md:text-xl text-gray-500 dark:text-gray-200 font-light">
           — {quote.author}
         </p>
       </div>
 
       {/* Tagline */}
-  <h2 className="text-xl md:text-2xl text-gray-600 dark:text-gray-200 mb-12 font-light">
+      <h2 className="text-base sm:text-xl md:text-2xl text-gray-600 dark:text-gray-200 mb-6 sm:mb-12 font-light text-center flex-shrink-0">
         What would you like to create today?
       </h2>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-8 w-full sm:w-auto px-4 sm:px-0 flex-shrink-0">
         {/* Start New Book Button */}
         <button
           type="button"
           onClick={onNewBook}
-          className="px-8 py-3.5 text-sm font-semibold uppercase tracking-wide bg-[#1a1a1a] dark:bg-white text-white dark:text-[#1a1a1a] rounded-full hover:bg-[#2a2a2a] dark:hover:bg-gray-100 transition-all shadow-lg"
+          className="px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold uppercase tracking-wide bg-[#1a1a1a] dark:bg-white text-white dark:text-[#1a1a1a] rounded-full hover:bg-[#2a2a2a] dark:hover:bg-gray-100 transition-all shadow-lg w-full sm:w-auto"
         >
           Start New Book
         </button>
-        
+
         {/* Browse Library Button */}
         <button
           type="button"
           onClick={onOpenLibrary}
-          className="px-8 py-3.5 text-sm font-semibold uppercase tracking-wide border-2 border-[#d1d5db] dark:border-[#525252] text-[#1a1a1a] dark:text-white rounded-full hover:border-[#9ca3af] dark:hover:border-[#737373] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-all flex items-center justify-center gap-3"
+          className="px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold uppercase tracking-wide border-2 border-[#d1d5db] dark:border-[#525252] text-[#1a1a1a] dark:text-white rounded-full hover:border-[#9ca3af] dark:hover:border-[#737373] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-all flex items-center justify-center gap-3 w-full sm:w-auto"
         >
           Browse Library
           {libraryCount > 0 && (
@@ -127,8 +127,6 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
           )}
         </button>
       </div>
-
-      {/* Helper text */}
     </div>
   );
 }

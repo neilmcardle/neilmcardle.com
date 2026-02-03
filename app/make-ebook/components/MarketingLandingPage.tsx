@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import {
   BookOpen,
   Sparkles,
@@ -146,9 +145,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-100" data-no-paper-override>
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
+      <nav className="sticky top-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-lg border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -158,37 +157,36 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 alt="MakeEbook"
                 width={32}
                 height={32}
-                className="w-8 h-8 dark:invert"
+                className="w-8 h-8 invert"
               />
-              <span className="font-semibold text-lg">makeEbook</span>
+              <span className="font-semibold text-lg text-white">makeEbook</span>
             </div>
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-8">
-              <button 
+              <button
                 onClick={() => scrollToSection(featuresRef)}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="text-sm text-gray-400 hover:text-white transition-colors"
               >
                 Features
               </button>
-              <button 
+              <button
                 onClick={() => scrollToSection(pricingRef)}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="text-sm text-gray-400 hover:text-white transition-colors"
               >
                 Pricing
               </button>
-              <ThemeToggle />
               {user ? (
                 <div className="flex items-center gap-4">
                   <button
                     onClick={onStartWritingAction}
-                    className="text-sm font-medium text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                    className="text-sm font-medium text-white hover:text-gray-300 transition-colors"
                   >
                     My Books {libraryCount > 0 && `(${libraryCount})`}
                   </button>
                   <button
                     onClick={() => signOut()}
-                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    className="text-sm text-gray-400 hover:text-white transition-colors"
                   >
                     Sign Out
                   </button>
@@ -197,13 +195,13 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => handleOpenAuth('signin')}
-                    className="text-sm font-medium text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                    className="text-sm font-medium text-white hover:text-gray-300 transition-colors"
                   >
                     Sign In
                   </button>
                   <button
                     onClick={() => handleOpenAuth('signup')}
-                    className="px-4 py-2 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                    className="px-4 py-2 text-sm font-medium bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
                   >
                     Get Started
                   </button>
@@ -213,7 +211,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden p-2"
+              className="md:hidden p-2 text-white"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -223,32 +221,32 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+          <div className="md:hidden border-t border-gray-800 bg-[#0a0a0a]">
             <div className="px-4 py-4 space-y-4">
-              <button 
+              <button
                 onClick={() => scrollToSection(featuresRef)}
-                className="block w-full text-left text-gray-600 dark:text-gray-400"
+                className="block w-full text-left text-gray-400"
               >
                 Features
               </button>
-              <button 
+              <button
                 onClick={() => scrollToSection(pricingRef)}
-                className="block w-full text-left text-gray-600 dark:text-gray-400"
+                className="block w-full text-left text-gray-400"
               >
                 Pricing
               </button>
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+              <div className="pt-4 border-t border-gray-800">
                 {user ? (
                   <>
                     <button
                       onClick={() => { onStartWritingAction(); setMobileMenuOpen(false); }}
-                      className="block w-full text-left font-medium mb-2"
+                      className="block w-full text-left font-medium mb-2 text-white"
                     >
                       My Books {libraryCount > 0 && `(${libraryCount})`}
                     </button>
                     <button
                       onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                      className="block w-full text-left text-gray-600 dark:text-gray-400"
+                      className="block w-full text-left text-gray-400"
                     >
                       Sign Out
                     </button>
@@ -257,13 +255,13 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   <>
                     <button
                       onClick={() => { handleOpenAuth('signin'); setMobileMenuOpen(false); }}
-                      className="block w-full text-left font-medium mb-2"
+                      className="block w-full text-left font-medium mb-2 text-white"
                     >
                       Sign In
                     </button>
                     <button
                       onClick={() => { handleOpenAuth('signup'); setMobileMenuOpen(false); }}
-                      className="block w-full text-left text-gray-900 dark:text-white"
+                      className="block w-full text-left text-white"
                     >
                       Get Started
                     </button>
@@ -277,28 +275,28 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        {/* Background gradient - paper/sepia inspired */}
-        <div className="absolute inset-0 bg-gradient-to-br from-stone-50 via-white to-neutral-50 dark:from-gray-900 dark:via-[#0a0a0a] dark:to-gray-900" />
-        
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-[#0a0a0a] to-gray-900" />
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-40">
           <div className="text-center max-w-4xl mx-auto">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-100 dark:bg-stone-800/50 text-stone-700 dark:text-stone-300 text-sm font-medium mb-8 border border-stone-200 dark:border-stone-700">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-800/50 text-stone-300 text-sm font-medium mb-8 border border-stone-700">
               <Sparkles className="w-4 h-4" />
               AI-Powered Writing Tools
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6 text-white text-balance">
               Write your book.
               <br />
-              <span className="text-gray-900 dark:text-white">
+              <span className="text-white">
                 Publish it beautifully.
               </span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">
+            <p className="text-xl sm:text-2xl text-gray-400 mb-10 max-w-2xl mx-auto">
               The complete ebook creation tool for authors. Write, edit, and export professional EPUB files in minutes.
             </p>
 
@@ -306,21 +304,21 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
               <button
                 onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                className="group w-full sm:w-auto px-8 py-4 text-lg font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
+                className="group w-full sm:w-auto px-8 py-4 text-lg font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
               >
                 {user ? 'Open Editor' : 'Start Writing Free'}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
                 onClick={() => scrollToSection(pricingRef)}
-                className="w-full sm:w-auto px-8 py-4 text-lg font-semibold border-2 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded-full hover:border-gray-400 dark:hover:border-gray-600 transition-colors"
+                className="w-full sm:w-auto px-8 py-4 text-lg font-semibold border-2 border-gray-700 text-white rounded-full hover:border-gray-600 transition-colors"
               >
                 View Pricing
               </button>
             </div>
 
             {/* Trust indicators */}
-            <p className="text-sm text-gray-500 dark:text-gray-500">
+            <p className="text-sm text-gray-500">
               No credit card required • Free to start • Export unlimited EPUBs
             </p>
           </div>
@@ -329,7 +327,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
           <div className="mt-16 lg:mt-24 relative">
             <div className="relative mx-auto max-w-5xl">
               {/* Subtle shadow effect */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-gray-200/40 via-stone-200/40 to-gray-200/40 dark:from-gray-700/20 dark:via-gray-600/20 dark:to-gray-700/20 blur-3xl rounded-3xl" />
+              <div className="absolute -inset-4 bg-gradient-to-r from-gray-700/20 via-gray-600/20 to-gray-700/20 blur-3xl rounded-3xl" />
               
               {/* Screenshot container */}
               <div className="relative bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
@@ -340,25 +338,30 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                     <div className="w-3 h-3 rounded-full bg-yellow-500" />
                     <div className="w-3 h-3 rounded-full bg-green-500" />
                   </div>
-                  <div className="flex-1 flex justify-center">
-                    <div className="px-4 py-1 bg-gray-700 rounded-md text-xs text-gray-400">
-                      makeebook
-                    </div>
-                  </div>
                 </div>
                 
-                {/* App preview */}
-                <div className="aspect-[16/10] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
-                  <div className="text-center p-8">
-                    <Image
-                      src="/make-ebook-logo.svg"
-                      alt="MakeEbook Editor"
-                      width={120}
-                      height={120}
-                      className="w-24 h-24 mx-auto mb-6 invert opacity-30"
-                    />
-                    <p className="text-gray-500 text-lg">Editor preview coming soon</p>
-                  </div>
+                {/* App preview - Desktop */}
+                <div className="relative w-full hidden sm:block">
+                  <Image
+                    src="/make-ebook-editor-preview.png"
+                    alt="MakeEbook Editor Interface"
+                    width={1920}
+                    height={1200}
+                    className="w-full h-auto"
+                    priority
+                  />
+                </div>
+                
+                {/* App preview - Mobile */}
+                <div className="relative w-full block sm:hidden">
+                  <Image
+                    src="/make-ebook-editor-preview-mobile.png"
+                    alt="MakeEbook Editor Interface"
+                    width={390}
+                    height={844}
+                    className="w-full h-auto"
+                    priority
+                  />
                 </div>
               </div>
             </div>
@@ -367,13 +370,13 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       </section>
 
       {/* Features Section */}
-      <section ref={featuresRef} className="py-24 lg:py-32 bg-gray-50 dark:bg-gray-900/50">
+      <section ref={featuresRef} className="py-24 lg:py-32 bg-gray-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white text-balance">
               Everything you need to write your book
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-xl text-gray-400">
               Powerful features, simple interface. Focus on your story, not the tools.
             </p>
           </div>
@@ -382,13 +385,20 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             {FEATURES.map((feature, index) => (
               <div
                 key={index}
-                className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
+                className="relative rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-700/50 overflow-hidden"
               >
-                <div className="w-12 h-12 rounded-xl bg-stone-100 dark:bg-stone-800/50 flex items-center justify-center mb-6 border border-stone-200 dark:border-stone-700">
-                  <feature.icon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                {/* Gradient background - always dark */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#1e2836] via-[#253040] to-[#1a2230] rounded-2xl" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(55,65,81,0.3)_0%,_transparent_70%)]" />
+
+                {/* Content */}
+                <div className="relative z-10">
+                  <div className="w-12 h-12 rounded-xl bg-gray-800/80 flex items-center justify-center mb-6 border border-gray-600/50">
+                    <feature.icon className="w-6 h-6 text-gray-300" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3 text-white">{feature.title}</h3>
+                  <p className="text-gray-400">{feature.description}</p>
                 </div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-gray-600 dark:text-gray-400">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -400,16 +410,16 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-100 dark:bg-stone-800/50 text-stone-700 dark:text-stone-300 text-sm font-medium mb-6 border border-stone-200 dark:border-stone-700">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-800/50 text-stone-300 text-sm font-medium mb-6 border border-stone-700">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
                 AI-Powered
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
                 Meet Book Mind, your AI writing companion
               </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
+              <p className="text-xl text-gray-400 mb-8">
                 Analyze your entire book, find inconsistencies, summarize chapters, and get intelligent suggestions. Like having a thoughtful editor always by your side.
               </p>
               <ul className="space-y-4 mb-8">
@@ -420,23 +430,23 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   'Get word usage insights and suggestions'
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-gray-700 dark:text-gray-300 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <svg className="w-5 h-5 text-gray-300 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
-                    <span className="text-gray-700 dark:text-gray-300">{item}</span>
+                    <span className="text-gray-300">{item}</span>
                   </li>
                 ))}
               </ul>
               <button
                 onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                className="inline-flex items-center gap-2 px-6 py-3 font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
               >
                 Try Book Mind
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
             <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-gray-300/30 via-stone-300/30 to-gray-300/30 dark:from-gray-700/20 dark:via-gray-600/20 dark:to-gray-700/20 blur-3xl rounded-3xl" />
+              <div className="absolute -inset-4 bg-gradient-to-r from-gray-700/20 via-gray-600/20 to-gray-700/20 blur-3xl rounded-3xl" />
               <div className="relative bg-gray-900 rounded-2xl p-8 shadow-xl border border-gray-800">
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
@@ -471,13 +481,13 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-24 lg:py-32 bg-gray-50 dark:bg-gray-900/50">
+      <section className="py-24 lg:py-32 bg-gray-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
               Loved by authors
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-xl text-gray-400">
               Join thousands of writers who trust MakeEbook for their publishing needs.
             </p>
           </div>
@@ -486,23 +496,23 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             {TESTIMONIALS.map((testimonial, index) => (
               <div
                 key={index}
-                className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700"
+                className="bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-700"
               >
                 <div className="flex items-center gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-gray-800 text-gray-800 dark:fill-gray-300 dark:text-gray-300" />
+                    <Star key={i} className="w-5 h-5 fill-gray-300 text-gray-300" />
                   ))}
                 </div>
-                <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg leading-relaxed">
+                <p className="text-gray-300 mb-6 text-lg leading-relaxed">
                   "{testimonial.quote}"
                 </p>
                 <div className="flex items-center gap-3">
-                  <svg className="w-10 h-10 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="w-10 h-10 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <div>
-                    <p className="font-semibold">{testimonial.author}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</p>
+                    <p className="font-semibold text-white">{testimonial.author}</p>
+                    <p className="text-sm text-gray-400">{testimonial.role}</p>
                   </div>
                 </div>
               </div>
@@ -515,10 +525,10 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       <section ref={pricingRef} className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
               Simple, transparent pricing
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-xl text-gray-400">
               Choose the plan that works for you. Upgrade or downgrade anytime.
             </p>
           </div>
@@ -529,30 +539,30 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 key={index}
                 className={`relative rounded-2xl p-8 ${
                   plan.highlighted
-                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-xl scale-105'
-                    : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
+                    ? 'bg-white text-gray-900 shadow-xl scale-105'
+                    : 'bg-gray-800 border border-gray-700 text-white'
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-full">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gray-900 text-white text-sm font-semibold rounded-full">
                     Most Popular
                   </div>
                 )}
                 <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
                 <div className="mb-4">
                   <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className={plan.highlighted ? 'text-gray-400 dark:text-gray-600' : 'text-gray-500'}>{plan.period}</span>
+                  <span className={plan.highlighted ? 'text-gray-600' : 'text-gray-500'}>{plan.period}</span>
                 </div>
-                <p className={`mb-6 ${plan.highlighted ? 'text-gray-400 dark:text-gray-600' : 'text-gray-600 dark:text-gray-400'}`}>
+                <p className={`mb-6 ${plan.highlighted ? 'text-gray-600' : 'text-gray-400'}`}>
                   {plan.description}
                 </p>
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <svg className={`w-5 h-5 flex-shrink-0 ${plan.highlighted ? 'text-gray-300 dark:text-gray-600' : 'text-gray-600 dark:text-gray-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <svg className={`w-5 h-5 flex-shrink-0 ${plan.highlighted ? 'text-gray-600' : 'text-gray-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className={plan.highlighted ? 'text-gray-300 dark:text-gray-700' : 'text-gray-700 dark:text-gray-300'}>
+                      <span className={plan.highlighted ? 'text-gray-700' : 'text-gray-300'}>
                         {feature}
                       </span>
                     </li>
@@ -562,8 +572,8 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
                   className={`w-full py-3 rounded-full font-semibold transition-colors ${
                     plan.highlighted
-                      ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
-                      : 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
+                      ? 'bg-gray-900 text-white hover:bg-gray-800'
+                      : 'bg-white text-gray-900 hover:bg-gray-100'
                   }`}
                 >
                   {plan.cta}
@@ -575,17 +585,17 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 lg:py-32 bg-gray-900 dark:bg-white">
+      <section className="py-24 lg:py-32 bg-gray-900">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white dark:text-gray-900 mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 text-balance">
             Ready to write your book?
           </h2>
-          <p className="text-xl text-gray-400 dark:text-gray-600 mb-10">
+          <p className="text-xl text-gray-400 mb-10">
             Start creating in seconds. No credit card required.
           </p>
           <button
             onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-            className="group px-8 py-4 text-lg font-semibold bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all inline-flex items-center gap-2"
+            className="group px-8 py-4 text-lg font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all inline-flex items-center gap-2"
           >
             Start Writing Now
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -594,7 +604,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-gray-200 dark:border-gray-800">
+      <footer className="py-12 border-t border-gray-800 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
@@ -604,34 +614,34 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   alt="MakeEbook"
                   width={32}
                   height={32}
-                  className="w-8 h-8 dark:invert"
+                  className="w-8 h-8 invert"
                 />
-                <span className="font-semibold text-lg">makeEbook</span>
+                <span className="font-semibold text-lg text-white">makeEbook</span>
               </div>
-              <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-sm">
+              <p className="text-gray-400 mb-4 max-w-sm">
                 The complete ebook creation tool for authors. Write, edit, and export professional EPUB files.
               </p>
               <p className="text-sm text-gray-500">
-                make-ebook is a <a href="https://neilmcardle.com" className="underline hover:text-gray-700 dark:hover:text-gray-300">neilmcardle.com</a> company.
+                make-ebook is a <a href="https://neilmcardle.com" className="underline hover:text-gray-300">neilmcardle.com</a> company.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-600 dark:text-gray-400">
-                <li><button onClick={() => scrollToSection(featuresRef)} className="hover:text-gray-900 dark:hover:text-white">Features</button></li>
-                <li><button onClick={() => scrollToSection(pricingRef)} className="hover:text-gray-900 dark:hover:text-white">Pricing</button></li>
-                <li><Link href="/make-ebook/book-mind" className="hover:text-gray-900 dark:hover:text-white">Book Mind</Link></li>
+              <h4 className="font-semibold mb-4 text-white">Product</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><button onClick={() => scrollToSection(featuresRef)} className="hover:text-white">Features</button></li>
+                <li><button onClick={() => scrollToSection(pricingRef)} className="hover:text-white">Pricing</button></li>
+                <li><Link href="/make-ebook/book-mind" className="hover:text-white">Book Mind</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-gray-600 dark:text-gray-400">
-                <li><Link href="/terms" className="hover:text-gray-900 dark:hover:text-white">Terms & Conditions</Link></li>
-                <li><Link href="/privacy" className="hover:text-gray-900 dark:hover:text-white">Privacy Policy</Link></li>
+              <h4 className="font-semibold mb-4 text-white">Legal</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link href="/terms" className="hover:text-white">Terms & Conditions</Link></li>
+                <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
               </ul>
             </div>
           </div>
-          <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-sm text-gray-500">
+          <div className="mt-12 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
             © {new Date().getFullYear()} Neil McArdle. All rights reserved.
           </div>
         </div>

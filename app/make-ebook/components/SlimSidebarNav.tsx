@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { LibraryIcon, MetadataIcon } from './icons';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { LibraryIcon } from './icons';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { 
@@ -139,18 +138,50 @@ function UserDropdownSlim() {
 function ThemeToggleButton() {
   const { theme, toggleTheme } = useTheme();
 
+  // Determine next theme for tooltip
+  const getNextTheme = () => {
+    if (theme === 'light') return 'dark';
+    if (theme === 'dark') return 'paper';
+    return 'light';
+  };
+
+  const renderIcon = () => {
+    if (theme === 'light') {
+      return <img src="/moon-icon.svg" alt="Dark mode" className="w-6 h-6" />;
+    }
+    if (theme === 'dark') {
+      // Paper icon for dark -> paper transition
+      return (
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-6 h-6 text-white"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+        </svg>
+      );
+    }
+    // Paper mode - show sun
+    return <img src="/sun-icon.svg" alt="Light mode" className="w-6 h-6" />;
+  };
+
   return (
-    <Tooltip text="Toggle Theme">
+    <Tooltip text={`Switch to ${getNextTheme()} mode`}>
       <button
         onClick={toggleTheme}
-  className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-        aria-label="Toggle theme"
+        className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+        aria-label={`Switch to ${getNextTheme()} mode`}
       >
-        {theme === 'light' ? (
-          <img src="/moon-icon.svg" alt="Dark mode" className="w-6 h-6 dark:invert" />
-        ) : (
-          <img src="/sun-icon.svg" alt="Light mode" className="w-6 h-6 dark:invert" />
-        )}
+        {renderIcon()}
       </button>
     </Tooltip>
   );
