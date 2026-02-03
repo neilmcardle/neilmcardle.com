@@ -1,0 +1,109 @@
+/* Book Cover Designer - TLDraw Custom Styles */
+
+.tldraw-container {
+  --tl-font-draw: 'Shantell Sans', sans-serif;
+  --tl-font-sans: 'Inter', system-ui, sans-serif;
+  --tl-font-serif: 'Georgia', serif;
+  --tl-font-mono: 'IBM Plex Mono', monospace;
+}
+
+/* Override TLDraw container to fit our layout */
+.tldraw-container .tl-container {
+  border-radius: 0;
+}
+
+/* Custom theme adjustments for dark mode */
+.dark .tldraw-container {
+  --color-background: #0a0a0a;
+  --color-muted-1: #1a1a1a;
+}
+
+/* Ensure TLDraw fills its container */
+.tldraw-container > div {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* Custom selection colors for book cover elements */
+.tldraw-container .tl-selection__fg {
+  stroke: #3b82f6;
+}
+
+/* Book cover frame styling */
+.tldraw-container [data-shape-type="frame"] {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Panel transitions */
+.book-cover-panel {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Loading overlay animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+  }
+}
+
+.generating-overlay {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Template preview hover effects */
+.template-preview {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.template-preview:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* AI generation button gradient animation */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.ai-generate-btn {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* Color picker swatch styling */
+.color-swatch {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Recent generations grid */
+.generations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.generation-thumbnail {
+  aspect-ratio: 2/3;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.generation-thumbnail:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
