@@ -113,7 +113,7 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
     // Grok doesn't support size parameter
     const response = await client.images.generate({
       model: "grok-2-image",
-      prompt: `${prompt}\n\nCRITICAL: No text, letters, words, or typography. No books or reading materials. Flat 2D illustration only, portrait orientation.`,
+      prompt: prompt,
       n: 1,
     });
 
@@ -134,36 +134,20 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
   }
 }
 
-// Build optimized prompt - generates artwork only, no text
+// Build prompt - uses user's prompt directly, adds minimal context
 function buildTypographyPrompt(
   basePrompt: string,
   title: string,
   subtitle?: string,
   author?: string
 ): string {
-  const parts = [
-    `Create a stunning digital ILLUSTRATION suitable for a poster or wall art.`,
-    ``,
-    `This is a flat 2D digital artwork - a single rectangular image.`,
-    `Portrait orientation (taller than wide, approximately 2:3 ratio).`,
-    ``,
-    `ARTWORK CONCEPT:`,
-    basePrompt ? `Scene/Style: ${basePrompt}` : `Create an evocative illustration inspired by the theme: "${title}"`,
-    ``,
-    `CRITICAL RULES - MUST FOLLOW:`,
-    `- Create ONLY a background illustration/scene`,
-    `- DO NOT include ANY text, letters, words, numbers, titles, logos, or typography of any kind`,
-    `- DO NOT include any books, pages, documents, or reading materials in the scene`,
-    `- DO NOT include any signs, labels, or written content`,
-    `- Leave clear space at the top third and bottom third for text to be overlaid later`,
-    `- Focus purely on the visual scene/illustration`,
-    ``,
-    `OUTPUT: A beautiful illustration with absolutely NO TEXT and NO BOOKS, designed as a background for text overlay.`,
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  return parts;
+  // If user provided a description, use it directly
+  if (basePrompt && basePrompt.trim()) {
+    return basePrompt.trim();
+  }
+  
+  // Fallback: generate based on title if no prompt provided
+  return `Create a visually striking illustration inspired by the theme: "${title}"${subtitle ? `, with the subtitle "${subtitle}"` : ""}. Portrait orientation.`;
 }
 
 export async function GET() {
