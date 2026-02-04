@@ -85,7 +85,7 @@ export function ExportHistoryPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-[#333]">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             Export History
@@ -108,7 +108,7 @@ export function ExportHistoryPanel({
           return (
             <div
               key={exp.id}
-              className={`border-b border-gray-100 dark:border-[#2a2a2a] ${
+              className={`border-b border-gray-100 dark:border-gray-800 ${
                 isExpanded ? 'bg-gray-50 dark:bg-[#1f1f1f]' : ''
               }`}
             >
@@ -170,7 +170,7 @@ export function ExportHistoryPanel({
                     </button>
                     <button
                       onClick={() => onDownloadAction(exp.id)}
-                      className="flex-1 py-2 px-3 rounded-lg border border-gray-200 dark:border-[#333] text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-center gap-1.5 text-gray-700 dark:text-gray-300"
+                      className="flex-1 py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-800 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-center gap-1.5 text-gray-700 dark:text-gray-300"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -179,7 +179,7 @@ export function ExportHistoryPanel({
                     </button>
                     <button
                       onClick={() => onDeleteAction(exp.id)}
-                      className="p-2 rounded-lg border border-gray-200 dark:border-[#333] text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
+                      className="p-2 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
                       title="Delete this export"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -196,7 +196,7 @@ export function ExportHistoryPanel({
 
       {/* Footer with Clear All */}
       {exports.length > 1 && (
-        <div className="p-3 border-t border-gray-200 dark:border-[#333]">
+        <div className="p-3 border-t border-gray-200 dark:border-gray-800">
           {confirmClear ? (
             <div className="flex items-center gap-2">
               <span className="text-xs text-red-600 dark:text-red-400 flex-1">
@@ -213,7 +213,7 @@ export function ExportHistoryPanel({
               </button>
               <button
                 onClick={() => setConfirmClear(false)}
-                className="px-3 py-1.5 rounded text-xs font-medium border border-gray-200 dark:border-[#333] hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="px-3 py-1.5 rounded text-xs font-medium border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 Cancel
               </button>
@@ -242,7 +242,7 @@ export function ExportHistoryButton({ exportCount, onClickAction }: ExportHistor
   return (
     <button
       onClick={onClickAction}
-      className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+      className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
       title="View export history"
     >
       <svg className="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

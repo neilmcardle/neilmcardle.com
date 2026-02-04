@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // This API route generates book covers using AI
-// Supports both OpenAI DALL-E and Grok (xAI) for image generation
+// Supports OpenAI DALL-E, Grok (xAI), and Google Gemini (Imagen 3) for image generation
 
-type AIProvider = "openai" | "grok" | "auto";
+type AIProvider = "openai" | "grok" | "gemini" | "auto";
 
 interface GenerateCoverRequest {
   prompt: string;
@@ -100,6 +100,59 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
   }
 }
 
+// Generate image using Google Gemini (Imagen 3)
+async function generateWithGemini(prompt: string): Promise<string | null> {
+  const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+  
+  if (!apiKey || apiKey === "your-gemini-api-key-here") {
+    console.log("Gemini API key not configured");
+    return null;
+  }
+
+  try {
+    // Using Gemini's Imagen 3 model for image generation
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          instances: [
+            {
+              prompt: `${prompt}\n\nIMPORTANT: Create a FLAT 2D book cover design. NOT a 3D book mockup or perspective view. Generate a flat rectangular image in portrait orientation suitable for a book cover.`,
+            },
+          ],
+          parameters: {
+            sampleCount: 1,
+            aspectRatio: "9:16", // Portrait for book covers
+            personGeneration: "allow_adult",
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("Gemini API error:", error);
+      return null;
+    }
+
+    const data = await response.json();
+    
+    // Gemini returns base64 encoded images
+    if (data.predictions?.[0]?.bytesBase64Encoded) {
+      return `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Gemini generation error:", error);
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body: GenerateCoverRequest = await request.json();
@@ -131,8 +184,11 @@ export async function POST(request: NextRequest) {
     } else if (provider === "grok") {
       imageUrl = await generateWithGrok(fullPrompt);
       usedProvider = "grok";
+    } else if (provider === "gemini") {
+      imageUrl = await generateWithGemini(fullPrompt);
+      usedProvider = "gemini";
     } else {
-      // Auto mode: try OpenAI first, then Grok
+      // Auto mode: try OpenAI first, then Grok, then Gemini
       imageUrl = await generateWithOpenAI(fullPrompt);
       if (imageUrl) {
         usedProvider = "openai";
@@ -140,6 +196,11 @@ export async function POST(request: NextRequest) {
         imageUrl = await generateWithGrok(fullPrompt);
         if (imageUrl) {
           usedProvider = "grok";
+        } else {
+          imageUrl = await generateWithGemini(fullPrompt);
+          if (imageUrl) {
+            usedProvider = "gemini";
+          }
         }
       }
     }
@@ -161,7 +222,7 @@ export async function POST(request: NextRequest) {
       imageUrl: placeholderUrl,
       provider: "placeholder",
       success: false,
-      message: "No AI API keys configured. Add OPENAI_API_KEY or XAI_API_KEY to .env.local",
+      message: "No AI API keys configured. Add OPENAI_API_KEY, XAI_API_KEY, or GOOGLE_GEMINI_API_KEY to .env.local",
     });
 
   } catch (error) {
@@ -177,12 +238,14 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   const openaiConfigured = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "your-openai-api-key-here";
   const grokConfigured = !!process.env.XAI_API_KEY;
+  const geminiConfigured = process.env.GOOGLE_GEMINI_API_KEY && process.env.GOOGLE_GEMINI_API_KEY !== "your-gemini-api-key-here";
 
   return NextResponse.json({
     status: "ok",
     providers: {
       openai: openaiConfigured ? "configured" : "not configured",
       grok: grokConfigured ? "configured" : "not configured",
+      gemini: geminiConfigured ? "configured" : "not configured",
     },
     message: "POST to this endpoint with { prompt, title?, author?, provider? }",
   });

@@ -48,29 +48,17 @@ export function SplitPreviewLayout({
       <div className={`hidden lg:block transition-all duration-300 ease-in-out overflow-hidden ${
         isPreviewEnabled ? 'w-[420px] opacity-100' : 'w-0 opacity-0'
       }`}>
-        <div className="h-full flex flex-col bg-gray-50 dark:bg-[#0f0f0f] rounded-lg border border-gray-200 dark:border-[#2a2a2a]">
+        <div className="h-full flex flex-col bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-200 dark:border-gray-800">
           
           {/* Preview Header */}
-          <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-[#2a2a2a]">
+          <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                  <span className="inline-block">
-                    <img
-                      src="/preview-ereader.svg"
-                      alt="E-reader preview"
-                      className="w-4 h-4 dark:hidden"
-                    />
-                    <img
-                      src="/preview-ereader-dark.svg"
-                      alt="E-reader preview dark"
-                      className="w-4 h-4 hidden dark:inline"
-                    />
-                  </span>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                 Live Preview
               </h3>
               <button
                 onClick={onTogglePreviewAction}
-                className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-800 rounded transition-colors"
                 aria-label="Close preview"
               >
                 <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +118,7 @@ export function SplitPreviewLayout({
 
           {/* Chapter Navigation */}
           {chapters.length > 1 && (
-            <div className="flex-shrink-0 px-3 pb-2 border-t border-gray-200 dark:border-[#2a2a2a]">
+            <div className="flex-shrink-0 px-3 pb-2 border-t border-gray-200 dark:border-gray-800">
               <div className="flex gap-1 overflow-x-auto py-2 scrollbar-thin">
                 {chapters.map((ch, i) => (
                   <button
@@ -150,7 +138,7 @@ export function SplitPreviewLayout({
           )}
 
           {/* Theme Controls */}
-          <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-[#2a2a2a]">
+          <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-center gap-3">
               <span className="text-xs text-gray-500 dark:text-gray-400">Theme:</span>
               {(['light', 'sepia', 'dark'] as const).map((theme) => (

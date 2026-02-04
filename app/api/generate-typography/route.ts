@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-type AIProvider = "auto" | "openai" | "grok";
+type AIProvider = "auto" | "openai" | "grok" | "gemini";
 
 // ============================================
 // RATE LIMITING - Protect against API abuse
@@ -76,9 +76,11 @@ function getGrokClient() {
 
 // Check if providers are configured
 function getProviderStatus() {
+  const geminiKey = process.env.GOOGLE_GEMINI_API_KEY;
   return {
     openai: process.env.OPENAI_API_KEY ? "configured" : "not configured",
     grok: process.env.XAI_API_KEY ? "configured" : "not configured",
+    gemini: geminiKey && geminiKey !== "your-gemini-api-key-here" ? "configured" : "not configured",
   };
 }
 
@@ -130,6 +132,149 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
     return null;
   } catch (error) {
     console.error("Grok generation error:", error);
+    return null;
+  }
+}
+
+// Generate with Google Gemini (Imagen 3)
+async function generateWithGemini(prompt: string): Promise<string | null> {
+  const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+  
+  if (!apiKey || apiKey === "your-gemini-api-key-here") {
+    return null;
+  }
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          instances: [
+            {
+              prompt: `${prompt}\n\nIMPORTANT: Create a FLAT 2D book cover design. NOT a 3D book mockup or perspective view. Generate a flat rectangular image in portrait orientation suitable for a book cover.`,
+            },
+          ],
+          parameters: {
+            sampleCount: 1,
+            aspectRatio: "9:16",
+            personGeneration: "allow_adult",
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("Gemini API error:", error);
+      return null;
+    }
+
+    const data = await response.json();
+    
+    if (data.predictions?.[0]?.bytesBase64Encoded) {
+      return `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Gemini generation error:", error);
+    return null;
+  }
+}
+
+// Analyze sketch using Gemini Vision (gemini-2.0-flash)
+async function analyzeSketchWithGemini(sketchBase64: string): Promise<string | null> {
+  const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+  
+  if (!apiKey || apiKey === "your-gemini-api-key-here") {
+    console.log("Gemini API key not configured for vision");
+    return null;
+  }
+
+  try {
+    // Extract the base64 data without the data URL prefix
+    const base64Data = sketchBase64.replace(/^data:image\/\w+;base64,/, "");
+    console.log("Sending sketch to Gemini Vision, base64 length:", base64Data.length);
+    
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `Describe this sketch in detail for an image generation AI. Include:\n- All text/words visible (transcribe exactly as written)\n- The position of elements (top, center, bottom, left, right)\n- Shapes, objects, and drawings\n- The overall scene or concept\n- Layout and composition\n\nBe specific and descriptive. Output only the description, nothing else.`,
+                },
+                {
+                  inline_data: {
+                    mime_type: "image/png",
+                    data: base64Data,
+                  },
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            maxOutputTokens: 300,
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("Gemini Vision API error:", error);
+      return null;
+    }
+
+    const data = await response.json();
+    const result = data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+    console.log("Gemini Vision response:", result);
+    return result;
+  } catch (error) {
+    console.error("Gemini vision analysis error:", error);
+    return null;
+  }
+}
+
+// Analyze sketch using OpenAI GPT-4o Vision
+async function analyzeSketchWithOpenAI(sketchBase64: string): Promise<string | null> {
+  const client = getOpenAIClient();
+  if (!client) return null;
+
+  try {
+    const visionResponse = await client.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `Describe this sketch in detail for an image generation AI. Include:\n- All text/words visible (transcribe exactly as written)\n- The position of elements (top, center, bottom, left, right)\n- Shapes, objects, and drawings\n- The overall scene or concept\n- Layout and composition\n\nBe specific and descriptive. Output only the description, nothing else.`,
+            },
+            {
+              type: "image_url",
+              image_url: { url: sketchBase64 },
+            },
+          ],
+        },
+      ],
+      max_tokens: 300,
+    });
+
+    return visionResponse.choices[0]?.message?.content || null;
+  } catch (error) {
+    console.error("OpenAI vision analysis error:", error);
     return null;
   }
 }
@@ -201,57 +346,54 @@ export async function POST(request: NextRequest) {
     const status = getProviderStatus();
     const hasOpenAI = status.openai === "configured";
     const hasGrok = status.grok === "configured";
+    const hasGemini = status.gemini === "configured";
 
-    if (!hasOpenAI && !hasGrok) {
+    if (!hasOpenAI && !hasGrok && !hasGemini) {
       return NextResponse.json(
         {
           success: false,
-          message: "No AI providers configured. Please add OPENAI_API_KEY or XAI_API_KEY to your environment.",
+          message: "No AI providers configured. Please add OPENAI_API_KEY, XAI_API_KEY, or GOOGLE_GEMINI_API_KEY to your environment.",
         },
         { status: 500 }
       );
     }
 
-    // If a sketch is provided, analyze it with GPT-4 Vision to enhance the prompt
-    let enhancedPrompt = prompt;
-    if (sketch && hasOpenAI) {
-      try {
-        const client = getOpenAIClient();
-        if (client) {
-          const visionResponse = await client.chat.completions.create({
-            model: "gpt-4o",
-            messages: [
-              {
-                role: "user",
-                content: [
-                  {
-                    type: "text",
-                    text: `Analyze this sketch and describe the composition, layout, and key visual elements in detail. Focus on:
-- Position of main elements (top, center, bottom, left, right)
-- Shapes and objects depicted
-- The general scene or concept being illustrated
-- Any spatial relationships between elements
-
-Provide a concise description (2-3 sentences) that could be used to recreate this composition. Do NOT mention any text, words, or letters you might see.`,
-                  },
-                  {
-                    type: "image_url",
-                    image_url: { url: sketch },
-                  },
-                ],
-              },
-            ],
-            max_tokens: 200,
-          });
-
-          const sketchDescription = visionResponse.choices[0]?.message?.content;
-          if (sketchDescription) {
-            enhancedPrompt = `${prompt}\n\nCOMPOSITION REFERENCE (follow this layout): ${sketchDescription}`;
-          }
+    // If a sketch is provided, analyze it with vision AI
+    let enhancedPrompt = prompt || "";
+    let sketchAnalyzed = false;
+    
+    if (sketch) {
+      console.log("Sketch received, attempting vision analysis...");
+      let sketchDescription: string | null = null;
+      
+      // Try Gemini vision first if configured, otherwise fall back to OpenAI
+      if (hasGemini) {
+        console.log("Trying Gemini vision...");
+        sketchDescription = await analyzeSketchWithGemini(sketch);
+        if (sketchDescription) {
+          console.log("Gemini vision result:", sketchDescription);
         }
-      } catch (e) {
-        console.error("Vision analysis failed:", e);
-        // Continue without sketch analysis
+      }
+      
+      if (!sketchDescription && hasOpenAI) {
+        console.log("Trying OpenAI vision...");
+        sketchDescription = await analyzeSketchWithOpenAI(sketch);
+        if (sketchDescription) {
+          console.log("OpenAI vision result:", sketchDescription);
+        }
+      }
+      
+      if (sketchDescription) {
+        sketchAnalyzed = true;
+        // Use sketch description as the primary prompt
+        if (enhancedPrompt.trim()) {
+          enhancedPrompt = `${enhancedPrompt}\n\nBased on this sketch: ${sketchDescription}`;
+        } else {
+          enhancedPrompt = sketchDescription;
+        }
+        console.log("Final enhanced prompt:", enhancedPrompt);
+      } else {
+        console.log("No sketch description obtained from vision AI");
       }
     }
 
@@ -262,25 +404,52 @@ Provide a concise description (2-3 sentences) that could be used to recreate thi
     let usedProvider: string = "";
 
     // Try providers based on selection
-    if (provider === "openai" || (provider === "auto" && hasOpenAI)) {
+    if (provider === "gemini" || (provider === "auto" && hasGemini)) {
+      imageUrl = await generateWithGemini(fullPrompt);
+      if (imageUrl) usedProvider = "gemini";
+    }
+
+    // Try OpenAI if Gemini didn't work or wasn't selected
+    if (!imageUrl && (provider === "openai" || (provider === "auto" && hasOpenAI))) {
       imageUrl = await generateWithOpenAI(fullPrompt);
       if (imageUrl) usedProvider = "openai";
     }
 
-    // Try Grok if OpenAI didn't work or wasn't selected
+    // Try Grok if neither worked or wasn't selected
     if (!imageUrl && (provider === "grok" || (provider === "auto" && hasGrok))) {
       imageUrl = await generateWithGrok(fullPrompt);
       if (imageUrl) usedProvider = "grok";
     }
 
-    // Fallback to the other provider if first choice failed
+    // Fallback to other providers if first choice failed
     if (!imageUrl && provider !== "auto") {
-      if (provider === "openai" && hasGrok) {
-        imageUrl = await generateWithGrok(fullPrompt);
-        if (imageUrl) usedProvider = "grok (fallback)";
-      } else if (provider === "grok" && hasOpenAI) {
-        imageUrl = await generateWithOpenAI(fullPrompt);
-        if (imageUrl) usedProvider = "openai (fallback)";
+      if (provider === "gemini") {
+        if (hasOpenAI) {
+          imageUrl = await generateWithOpenAI(fullPrompt);
+          if (imageUrl) usedProvider = "openai (fallback)";
+        }
+        if (!imageUrl && hasGrok) {
+          imageUrl = await generateWithGrok(fullPrompt);
+          if (imageUrl) usedProvider = "grok (fallback)";
+        }
+      } else if (provider === "openai") {
+        if (hasGemini) {
+          imageUrl = await generateWithGemini(fullPrompt);
+          if (imageUrl) usedProvider = "gemini (fallback)";
+        }
+        if (!imageUrl && hasGrok) {
+          imageUrl = await generateWithGrok(fullPrompt);
+          if (imageUrl) usedProvider = "grok (fallback)";
+        }
+      } else if (provider === "grok") {
+        if (hasGemini) {
+          imageUrl = await generateWithGemini(fullPrompt);
+          if (imageUrl) usedProvider = "gemini (fallback)";
+        }
+        if (!imageUrl && hasOpenAI) {
+          imageUrl = await generateWithOpenAI(fullPrompt);
+          if (imageUrl) usedProvider = "openai (fallback)";
+        }
       }
     }
 

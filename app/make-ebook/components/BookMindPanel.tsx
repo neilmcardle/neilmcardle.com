@@ -154,10 +154,10 @@ export function BookMindPanel({
       />
       
       {/* Panel */}
-      <div className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-[#1a1a1a] shadow-2xl flex flex-col lg:relative lg:max-w-none lg:shadow-none lg:border-l lg:border-gray-200 lg:dark:border-[#333]">
+      <div className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-[#0a0a0a] shadow-2xl flex flex-col lg:relative lg:max-w-none lg:shadow-none lg:border-l lg:border-gray-200 lg:dark:border-gray-800">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#333] bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -221,7 +221,7 @@ export function BookMindPanel({
 
         {/* Chat Sessions Sidebar */}
         {showSessions && (
-          <div className="border-b border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#151515] max-h-48 overflow-y-auto">
+          <div className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#151515] max-h-48 overflow-y-auto">
             {chatSessions.length === 0 ? (
               <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">No saved chats</p>
             ) : (
@@ -246,7 +246,7 @@ export function BookMindPanel({
                         onChange={(e) => setEditingName(e.target.value)}
                         onBlur={() => handleRenameSubmit(session.id)}
                         onKeyDown={(e) => e.key === 'Enter' && handleRenameSubmit(session.id)}
-                        className="flex-1 text-xs bg-white dark:bg-[#2a2a2a] px-2 py-1 rounded border border-violet-300 dark:border-violet-700 outline-none"
+                        className="flex-1 text-xs bg-white dark:bg-[#1a1a1a] px-2 py-1 rounded border border-violet-300 dark:border-violet-700 outline-none"
                         autoFocus
                         onClick={(e) => e.stopPropagation()}
                       />
@@ -326,7 +326,7 @@ export function BookMindPanel({
                     key={action}
                     onClick={() => handleQuickAction(action)}
                     disabled={isLoading}
-                    className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-[#333] hover:border-violet-300 dark:hover:border-violet-700 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-all text-left group disabled:opacity-50"
+                    className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-violet-300 dark:hover:border-violet-700 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-all text-left group disabled:opacity-50"
                   >
                     <span className="text-lg">{icon}</span>
                     <div className="min-w-0">
@@ -361,7 +361,7 @@ export function BookMindPanel({
                       : 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 rounded-br-md'
                     : message.isBlocked
                       ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700/50 rounded-bl-md'
-                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-900 dark:text-white rounded-bl-md'
+                      : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white rounded-bl-md'
                 }`}
               >
                 <div className="text-sm whitespace-pre-wrap">{message.content}</div>
@@ -403,7 +403,7 @@ export function BookMindPanel({
         </div>
 
         {/* Input area */}
-        <div className="border-t border-gray-200 dark:border-[#333] p-3 bg-gray-50 dark:bg-[#1f1f1f]">
+        <div className="border-t border-gray-200 dark:border-gray-800 p-3 bg-gray-50 dark:bg-[#1f1f1f]">
           <div className="flex items-end gap-2">
             <div className="flex-1 relative">
               <textarea
@@ -413,7 +413,7 @@ export function BookMindPanel({
                 onKeyDown={handleKeyDown}
                 placeholder="Ask about your book..."
                 rows={1}
-                className="w-full px-4 py-2.5 pr-10 rounded-xl border border-gray-200 dark:border-[#333] bg-white dark:bg-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2.5 pr-10 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                 style={{ minHeight: '42px', maxHeight: '120px' }}
               />
             </div>

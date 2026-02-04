@@ -80,7 +80,7 @@ function UserDropdownSlim() {
   if (loading) {
     return (
       <Tooltip text="Loading...">
-        <div className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg bg-gray-50 dark:bg-[#2a2a2a] animate-pulse" />
+        <div className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg bg-gray-50 dark:bg-[#1a1a1a] animate-pulse" />
       </Tooltip>
     );
   }
@@ -89,7 +89,7 @@ function UserDropdownSlim() {
     return (
       <Tooltip text="Sign In">
         <button 
-          className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]" 
+          className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]" 
           aria-label="User menu"
         >
           <img
@@ -107,7 +107,7 @@ function UserDropdownSlim() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button 
-            className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]" 
+            className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]" 
             aria-label="User menu"
           >
             <img
@@ -178,7 +178,7 @@ function ThemeToggleButton() {
     <Tooltip text={`Switch to ${getNextTheme()} mode`}>
       <button
         onClick={toggleTheme}
-        className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+        className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
         aria-label={`Switch to ${getNextTheme()} mode`}
       >
         {renderIcon()}
@@ -200,7 +200,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
   };
 
   return (
-  <aside className="hidden lg:flex flex-col w-16 bg-white dark:bg-[#1a1a1a] h-screen items-center relative overflow-x-hidden z-50">
+  <aside className="hidden lg:flex flex-col w-16 bg-white dark:bg-[#0a0a0a] h-screen items-center relative overflow-x-hidden z-50">
       {/* Logo at top */}
       <div className="flex-shrink-0 pt-6 pb-6">
         <Tooltip text="makeEBook">
@@ -229,8 +229,8 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             onClick={() => handleViewClick('library')}
             className={`relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors ${
               activeView === 'library' && isPanelOpen
-                ? 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-900 dark:text-white'
-                : 'text-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white'
+                : 'text-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
             }`}
             aria-label="Library"
           >
@@ -249,8 +249,8 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             onClick={() => handleViewClick('book')}
             className={`relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors ${
               activeView === 'book' && isPanelOpen
-                ? 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-900 dark:text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
             }`}
             aria-label="Book"
           >
@@ -264,8 +264,8 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             onClick={() => handleViewClick('chapters')}
             className={`relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors ${
               activeView === 'chapters' && isPanelOpen
-                ? 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-900 dark:text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
             }`}
             aria-label="Chapters"
           >
@@ -284,8 +284,8 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             onClick={() => handleViewClick('preview')}
             className={`relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors ${
               activeView === 'preview' && isPanelOpen
-                ? 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-900 dark:text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
             }`}
             aria-label="Preview"
           >

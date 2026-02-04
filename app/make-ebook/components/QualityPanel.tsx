@@ -75,24 +75,16 @@ export function QualityIssuesList({ issues, onNavigateAction }: QualityIssuesLis
   }, {} as Record<string, QualityIssue[]>);
 
   if (issues.length === 0) {
-    return (
-      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-        <svg className="w-12 h-12 mx-auto mb-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <p className="font-medium">No issues found!</p>
-        <p className="text-sm">Your eBook is ready for publishing.</p>
-      </div>
-    );
+    return null;
   }
 
   return (
     <div className="space-y-4">
       {grouped.error && grouped.error.length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2 flex items-center gap-2">
+          <h4 className="text-xs font-semibold text-red-600 dark:text-red-400 mb-2 flex items-center gap-2 uppercase tracking-wide">
             <span className="w-2 h-2 rounded-full bg-red-500" />
-            Errors ({grouped.error.length})
+            Must Fix ({grouped.error.length})
           </h4>
           <div className="space-y-2">
             {grouped.error.map((issue) => (
@@ -104,9 +96,9 @@ export function QualityIssuesList({ issues, onNavigateAction }: QualityIssuesLis
       
       {grouped.warning && grouped.warning.length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-yellow-600 dark:text-yellow-400 mb-2 flex items-center gap-2">
+          <h4 className="text-xs font-semibold text-yellow-600 dark:text-yellow-400 mb-2 flex items-center gap-2 uppercase tracking-wide">
             <span className="w-2 h-2 rounded-full bg-yellow-500" />
-            Warnings ({grouped.warning.length})
+            Should Fix ({grouped.warning.length})
           </h4>
           <div className="space-y-2">
             {grouped.warning.map((issue) => (
@@ -118,9 +110,9 @@ export function QualityIssuesList({ issues, onNavigateAction }: QualityIssuesLis
       
       {grouped.suggestion && grouped.suggestion.length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2 flex items-center gap-2">
+          <h4 className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2 flex items-center gap-2 uppercase tracking-wide">
             <span className="w-2 h-2 rounded-full bg-blue-500" />
-            Suggestions ({grouped.suggestion.length})
+            Consider ({grouped.suggestion.length})
           </h4>
           <div className="space-y-2">
             {grouped.suggestion.map((issue) => (
@@ -139,27 +131,37 @@ interface IssueCardProps {
 }
 
 function IssueCard({ issue, onNavigateAction }: IssueCardProps) {
+  const canNavigate = !!issue.chapterId;
+  
   return (
     <button
       onClick={() => issue.chapterId && onNavigateAction(issue.chapterId)}
-      disabled={!issue.chapterId}
-      className="w-full text-left p-3 rounded-lg bg-gray-50 dark:bg-[#2a2a2a] hover:bg-gray-100 dark:hover:bg-[#333] transition-colors disabled:cursor-default"
+      disabled={!canNavigate}
+      className={`w-full text-left p-3 rounded-lg bg-gray-50 dark:bg-[#1a1a1a] transition-colors ${
+        canNavigate 
+          ? 'hover:bg-gray-100 dark:hover:bg-[#333] cursor-pointer' 
+          : 'cursor-default'
+      }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            {issue.message}
-          </div>
-          {issue.chapterTitle && (
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              in "{issue.chapterTitle}"
-            </div>
-          )}
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          {issue.message}
         </div>
-        {issue.autoFixable && (
-          <span className="flex-shrink-0 text-xs px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
-            Auto-fix
-          </span>
+        {issue.hint && (
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-start gap-1.5">
+            <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            <span>{issue.hint}</span>
+          </div>
+        )}
+        {issue.chapterTitle && canNavigate && (
+          <div className="text-xs text-blue-600 dark:text-blue-400 mt-1.5 flex items-center gap-1 font-medium">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+            <span>Go to "{issue.chapterTitle}"</span>
+          </div>
         )}
       </div>
     </button>
@@ -169,50 +171,45 @@ function IssueCard({ issue, onNavigateAction }: IssueCardProps) {
 interface QualityPanelProps {
   issues: QualityIssue[];
   score: number;
-  autoFixableCount: number;
   onNavigateToChapterAction: (chapterId: string) => void;
-  onAutoFixAllAction: () => void;
 }
 
 export function QualityPanel({
   issues,
   score,
-  autoFixableCount,
   onNavigateToChapterAction,
-  onAutoFixAllAction,
 }: QualityPanelProps) {
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-          eBook Quality
+          eBook Quality Check
         </h3>
         <QualityScoreBadge score={score} compact />
       </div>
       
-      <p className="text-xs text-gray-600 dark:text-gray-400">
-        Catch formatting issues before readers do. A high-quality eBook leads to 
-        better reviews and fewer returns.
-      </p>
-      
-      {autoFixableCount > 0 && (
-        <button
-          onClick={onAutoFixAllAction}
-          className="w-full py-2 px-4 rounded-lg bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+      {issues.length === 0 ? (
+        <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+          <svg className="w-10 h-10 mx-auto mb-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          Auto-Fix {autoFixableCount} Typography Issues
-        </button>
+          <p className="font-medium text-sm">No issues found!</p>
+          <p className="text-xs mt-1">Your eBook is ready for export.</p>
+        </div>
+      ) : (
+        <>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            Click an issue to jump to that chapter and fix it.
+          </p>
+          
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+            <QualityIssuesList 
+              issues={issues} 
+              onNavigateAction={onNavigateToChapterAction}
+            />
+          </div>
+        </>
       )}
-      
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-        <QualityIssuesList 
-          issues={issues} 
-          onNavigateAction={onNavigateToChapterAction}
-        />
-      </div>
     </div>
   );
 }
@@ -221,17 +218,13 @@ export function QualityPanel({
 interface QualityDropdownProps {
   score: number;
   issues: QualityIssue[];
-  autoFixableCount: number;
   onNavigateToChapterAction: (chapterId: string) => void;
-  onAutoFixAllAction: () => void;
 }
 
 export function QualityDropdown({
   score,
   issues,
-  autoFixableCount,
   onNavigateToChapterAction,
-  onAutoFixAllAction,
 }: QualityDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -288,7 +281,7 @@ export function QualityDropdown({
   const dropdownContent = isOpen && mounted ? createPortal(
     <div 
       ref={dropdownRef}
-      className="fixed max-h-96 overflow-y-auto bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl border border-gray-200 dark:border-[#333] z-[9999]"
+      className="fixed max-h-96 overflow-y-auto bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-[9999]"
       style={{ 
         top: position.top, 
         left: position.left,
@@ -299,13 +292,8 @@ export function QualityDropdown({
       <QualityPanel
         issues={issues}
         score={score}
-        autoFixableCount={autoFixableCount}
         onNavigateToChapterAction={(chapterId) => {
           onNavigateToChapterAction(chapterId);
-          setIsOpen(false);
-        }}
-        onAutoFixAllAction={() => {
-          onAutoFixAllAction();
           setIsOpen(false);
         }}
       />

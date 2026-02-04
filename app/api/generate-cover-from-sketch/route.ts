@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // This API route transforms canvas sketches into book covers using AI
-// Supports both OpenAI and Grok for image generation
+// Supports OpenAI, Grok, and Gemini for image generation
 
-type AIProvider = "openai" | "grok" | "auto";
+type AIProvider = "openai" | "grok" | "gemini" | "auto";
 
 interface GenerateFromSketchRequest {
   sketch: string; // SVG or base64 image data
@@ -97,6 +97,59 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
   }
 }
 
+// Generate image using Google Gemini (Imagen 3)
+async function generateWithGemini(prompt: string): Promise<string | null> {
+  const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+  
+  if (!apiKey || apiKey === "your-gemini-api-key-here") {
+    console.log("Gemini API key not configured");
+    return null;
+  }
+
+  try {
+    // Using Gemini's Imagen 3 model for image generation
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          instances: [
+            {
+              prompt: `${prompt}\n\nIMPORTANT: Create a FLAT 2D book cover design. NOT a 3D book mockup or perspective view. Generate a flat rectangular image in portrait orientation suitable for a book cover.`,
+            },
+          ],
+          parameters: {
+            sampleCount: 1,
+            aspectRatio: "9:16", // Portrait for book covers
+            personGeneration: "allow_adult",
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("Gemini API error:", error);
+      return null;
+    }
+
+    const data = await response.json();
+    
+    // Gemini returns base64 encoded images
+    if (data.predictions?.[0]?.bytesBase64Encoded) {
+      return `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Gemini generation error:", error);
+    return null;
+  }
+}
+
 // Analyze sketch to create a description (basic implementation)
 function analyzeSketch(svgContent: string): string {
   // Extract basic info from SVG to enhance the prompt
@@ -155,15 +208,23 @@ export async function POST(request: NextRequest) {
     } else if (provider === "grok") {
       imageUrl = await generateWithGrok(fullPrompt);
       usedProvider = "grok";
+    } else if (provider === "gemini") {
+      imageUrl = await generateWithGemini(fullPrompt);
+      usedProvider = "gemini";
     } else {
-      // Auto mode: try OpenAI first, then Grok
-      imageUrl = await generateWithOpenAI(fullPrompt);
+      // Auto mode: try Gemini first (best for sketch-to-image), then OpenAI, then Grok
+      imageUrl = await generateWithGemini(fullPrompt);
       if (imageUrl) {
-        usedProvider = "openai";
+        usedProvider = "gemini";
       } else {
-        imageUrl = await generateWithGrok(fullPrompt);
+        imageUrl = await generateWithOpenAI(fullPrompt);
         if (imageUrl) {
-          usedProvider = "grok";
+          usedProvider = "openai";
+        } else {
+          imageUrl = await generateWithGrok(fullPrompt);
+          if (imageUrl) {
+            usedProvider = "grok";
+          }
         }
       }
     }
@@ -185,7 +246,7 @@ export async function POST(request: NextRequest) {
       imageUrl: placeholderUrl,
       provider: "placeholder",
       success: false,
-      message: "No AI API keys configured. Add OPENAI_API_KEY or XAI_API_KEY to .env.local",
+      message: "No AI API keys configured. Add OPENAI_API_KEY, XAI_API_KEY, or GOOGLE_GEMINI_API_KEY to .env.local",
     });
 
   } catch (error) {

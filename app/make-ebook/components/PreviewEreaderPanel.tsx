@@ -60,7 +60,7 @@ export default function PreviewEreaderPanel({
           <select
             value={fontFamily}
             onChange={(e) => setFontFamily(e.target.value)}
-            className="px-2 py-1 text-sm rounded bg-gray-50 dark:bg-[#161616] border border-gray-200 dark:border-[#2a2a2a]"
+            className="px-2 py-1 text-sm rounded bg-gray-50 dark:bg-[#161616] border border-gray-200 dark:border-gray-800"
             aria-label="Select preview font"
           >
             <option value="serif">Serif</option>
@@ -91,8 +91,8 @@ export default function PreviewEreaderPanel({
       </div>
 
       <div className="px-3 py-2 border-t border-gray-100 dark:border-[#262626] flex items-center gap-2">
-        <button onClick={prev} className="flex-1 px-3 py-2 rounded border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#141414] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]">◀ Chapter</button>
-        <button onClick={next} className="flex-1 px-3 py-2 rounded border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#141414] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]">Chapter ▶</button>
+        <button onClick={prev} className="flex-1 px-3 py-2 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#141414] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]">◀ Chapter</button>
+        <button onClick={next} className="flex-1 px-3 py-2 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#141414] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]">Chapter ▶</button>
       </div>
     </aside>
   );

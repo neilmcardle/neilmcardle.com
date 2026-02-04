@@ -117,7 +117,7 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
         <button
           type="button"
           onClick={onOpenLibrary}
-          className="px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold uppercase tracking-wide border-2 border-[#d1d5db] dark:border-[#525252] text-[#1a1a1a] dark:text-white rounded-full hover:border-[#9ca3af] dark:hover:border-[#737373] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-all flex items-center justify-center gap-3 w-full sm:w-auto"
+          className="px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold uppercase tracking-wide border-2 border-[#d1d5db] dark:border-[#525252] text-[#1a1a1a] dark:text-white rounded-full hover:border-[#9ca3af] dark:hover:border-[#737373] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-all flex items-center justify-center gap-3 w-full sm:w-auto"
         >
           Browse Library
           {libraryCount > 0 && (

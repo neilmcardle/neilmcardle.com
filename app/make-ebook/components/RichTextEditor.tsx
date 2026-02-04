@@ -864,11 +864,11 @@ export default function RichTextEditor({
 
   return (
     <div
-      className={`relative border-none rounded bg-white dark:bg-[#1a1a1a] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
+      className={`relative border-none rounded bg-white dark:bg-[#0a0a0a] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
       {/* Full Toolbar - Hidden on mobile when keyboard is open */}
-      <div className={`bg-white dark:bg-[#1a1a1a] transition-all duration-200 overflow-visible ${
+      <div className={`bg-white dark:bg-[#0a0a0a] transition-all duration-200 overflow-visible ${
         isMobileKeyboardOpen ? 'lg:block hidden' : ''
       }`}>
         {/* Sleek horizontal toolbar */}
@@ -886,7 +886,7 @@ export default function RichTextEditor({
                 className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-transform touch-manipulation ${
                   formats[b.cmd]
                     ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
-                    : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+                    : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300'
                 } ${b.className || ''}`}
               >
                 {b.label}
@@ -910,7 +910,7 @@ export default function RichTextEditor({
                 className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-95 transition-transform touch-manipulation ${
                   formats[`heading${h.level}`]
                     ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
-                    : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+                    : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300'
                 }`}
               >
                 {h.label}
@@ -932,7 +932,7 @@ export default function RichTextEditor({
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
                 formats['justifyLeft']
                   ? 'bg-[#181a1d] dark:bg-white'
-                  : 'bg-gray-100 dark:bg-[#2a2a2a]'
+                  : 'bg-gray-100 dark:bg-[#1a1a1a]'
               }`}
             >
               <img src="/left-align-icon.svg" alt="Left" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyLeft'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
@@ -946,7 +946,7 @@ export default function RichTextEditor({
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
                 formats['justifyCenter']
                   ? 'bg-[#181a1d] dark:bg-white'
-                  : 'bg-gray-100 dark:bg-[#2a2a2a]'
+                  : 'bg-gray-100 dark:bg-[#1a1a1a]'
               }`}
             >
               <img src="/centrally-align-icon.svg" alt="Center" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyCenter'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
@@ -960,7 +960,7 @@ export default function RichTextEditor({
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
                 formats['justifyRight']
                   ? 'bg-[#181a1d] dark:bg-white'
-                  : 'bg-gray-100 dark:bg-[#2a2a2a]'
+                  : 'bg-gray-100 dark:bg-[#1a1a1a]'
               }`}
             >
               <img src="/right-align-icon.svg" alt="Right" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyRight'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
@@ -978,7 +978,7 @@ export default function RichTextEditor({
               title="Insert Endnote"
               type="button"
               disabled={disabled || !onCreateEndnote}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation disabled:opacity-40"
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation disabled:opacity-40"
             >
               <Image src="/endnote-icon.svg" alt="Endnote" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -988,7 +988,7 @@ export default function RichTextEditor({
               title="Insert Link"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
             >
               <Image src="/link-icon.svg" alt="Link" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -998,7 +998,7 @@ export default function RichTextEditor({
               title="Insert Anchor"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
             >
               <Image src="/anchor-icon.svg" alt="Anchor" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -1014,7 +1014,7 @@ export default function RichTextEditor({
             title="Insert Image"
             type="button"
             disabled={disabled}
-            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
+            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
           >
             <img src="/image-icon.svg" alt="Image" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
           </button>
@@ -1031,7 +1031,7 @@ export default function RichTextEditor({
             title="Remove all formatting (bold, italic, etc.)"
             type="button"
             disabled={disabled}
-            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
+            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
           >
             <img src="/clear-erase-icon.svg" alt="Clear" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
           </button>
@@ -1040,10 +1040,10 @@ export default function RichTextEditor({
 
       {/* Compact Floating Toolbar - Appears on mobile when keyboard is open */}
       {showCompactToolbar && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[200] bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-[#333] shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[200] bg-white dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-gray-800 shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
           {/* More menu popover */}
           {showMoreMenu && (
-            <div className="absolute bottom-full left-0 right-0 bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-[#333] shadow-lg p-3">
+            <div className="absolute bottom-full left-0 right-0 bg-white dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-gray-800 shadow-lg p-3">
               <div className="flex flex-wrap gap-2">
                 {/* Endnote */}
                 <button
@@ -1053,7 +1053,7 @@ export default function RichTextEditor({
                     setShowMoreMenu(false);
                   }}
                   disabled={!onCreateEndnote}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] text-sm font-medium text-gray-700 dark:text-gray-300 active:bg-gray-200 disabled:opacity-40"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] text-sm font-medium text-gray-700 dark:text-gray-300 active:bg-gray-200 disabled:opacity-40"
                 >
                   <Image src="/endnote-icon.svg" alt="" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
                   Endnote
@@ -1065,7 +1065,7 @@ export default function RichTextEditor({
                     handleAnchorClick();
                     setShowMoreMenu(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] text-sm font-medium text-gray-700 dark:text-gray-300 active:bg-gray-200"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] text-sm font-medium text-gray-700 dark:text-gray-300 active:bg-gray-200"
                 >
                   <Image src="/anchor-icon.svg" alt="" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
                   Anchor
@@ -1077,7 +1077,7 @@ export default function RichTextEditor({
                     handleImageButtonClick();
                     setShowMoreMenu(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] text-sm font-medium text-gray-700 dark:text-gray-300 active:bg-gray-200"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] text-sm font-medium text-gray-700 dark:text-gray-300 active:bg-gray-200"
                 >
                   <img src="/image-icon.svg" alt="" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
                   Image
@@ -1092,7 +1092,7 @@ export default function RichTextEditor({
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium active:bg-gray-200 ${
                     formats['heading3']
                       ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
-                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+                      : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300'
                   }`}
                 >
                   H3
@@ -1111,7 +1111,7 @@ export default function RichTextEditor({
                   focusEditor();
                   document.execCommand('undo');
                 }}
-                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a]"
+                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a]"
                 title="Undo"
               >
                 <Image src="/undo-icon.svg" alt="Undo" width={16} height={16} className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
@@ -1122,7 +1122,7 @@ export default function RichTextEditor({
                   focusEditor();
                   document.execCommand('redo');
                 }}
-                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a]"
+                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a]"
                 title="Redo"
               >
                 <Image src="/redo-icon.svg" alt="Redo" width={16} height={16} className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
@@ -1142,7 +1142,7 @@ export default function RichTextEditor({
                   className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-transform ${
                     formats[b.cmd]
                       ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
-                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+                      : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300'
                   } ${b.className || ''}`}
                   title={b.title}
                 >
@@ -1164,7 +1164,7 @@ export default function RichTextEditor({
                   className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-95 transition-transform ${
                     formats[`heading${h.level}`]
                       ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
-                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+                      : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300'
                   }`}
                   title={h.title}
                 >
@@ -1184,7 +1184,7 @@ export default function RichTextEditor({
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform ${
                   formats['justifyLeft']
                     ? 'bg-[#181a1d] dark:bg-white'
-                    : 'bg-gray-100 dark:bg-[#2a2a2a]'
+                    : 'bg-gray-100 dark:bg-[#1a1a1a]'
                 }`}
                 title="Align Left"
               >
@@ -1196,7 +1196,7 @@ export default function RichTextEditor({
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform ${
                   formats['justifyCenter']
                     ? 'bg-[#181a1d] dark:bg-white'
-                    : 'bg-gray-100 dark:bg-[#2a2a2a]'
+                    : 'bg-gray-100 dark:bg-[#1a1a1a]'
                 }`}
                 title="Align Center"
               >
@@ -1208,7 +1208,7 @@ export default function RichTextEditor({
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform ${
                   formats['justifyRight']
                     ? 'bg-[#181a1d] dark:bg-white'
-                    : 'bg-gray-100 dark:bg-[#2a2a2a]'
+                    : 'bg-gray-100 dark:bg-[#1a1a1a]'
                 }`}
                 title="Align Right"
               >
@@ -1223,7 +1223,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => handleLinkClick()}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a] flex-shrink-0"
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a] flex-shrink-0"
               title="Insert Link"
             >
               <Image src="/link-icon.svg" alt="Link" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
@@ -1238,7 +1238,7 @@ export default function RichTextEditor({
                 emitChange();
                 refreshStates();
               }}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a] flex-shrink-0"
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a] flex-shrink-0"
               title="Remove all formatting (bold, italic, etc.)"
             >
               <img src="/clear-erase-icon.svg" alt="Clear" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
@@ -1251,7 +1251,7 @@ export default function RichTextEditor({
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform flex-shrink-0 ${
                 showMoreMenu
                   ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
-                  : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300'
+                  : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300'
               }`}
               title="More options"
             >
@@ -1497,8 +1497,8 @@ export default function RichTextEditor({
       {/* Endnote Modal */}
       {showEndnoteModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50" onClick={() => setShowEndnoteModal(false)}>
-          <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333]">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-lg shadow-xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Endnote</h3>
             </div>
             <div className="px-6 py-4">
@@ -1531,10 +1531,10 @@ export default function RichTextEditor({
                 </p>
               )}
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 dark:border-[#333] flex justify-end gap-2">
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
               <button
                 onClick={() => setShowEndnoteModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
               >
                 Cancel
               </button>
@@ -1553,8 +1553,8 @@ export default function RichTextEditor({
       {/* Image Caption Modal */}
       {showImageCaptionModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50" onClick={() => setShowImageCaptionModal(false)}>
-          <div className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333]">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-lg shadow-xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Image Caption</h3>
             </div>
             <div className="px-6 py-4">
@@ -1583,13 +1583,13 @@ export default function RichTextEditor({
                 Press Enter to add image, or Esc to cancel
               </p>
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 dark:border-[#333] flex justify-end gap-2">
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
               <button
                 onClick={() => {
                   setShowImageCaptionModal(false);
                   setPendingImageSrc(null);
                 }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
               >
                 Cancel
               </button>

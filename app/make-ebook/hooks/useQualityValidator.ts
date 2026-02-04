@@ -6,6 +6,7 @@ export interface QualityIssue {
   severity: 'error' | 'warning' | 'suggestion';
   type: 'metadata' | 'content' | 'typography' | 'formatting' | 'structure' | 'performance';
   message: string;
+  hint?: string; // Guidance on how to fix the issue
   chapterId: string;
   chapterTitle: string;
   autoFixable?: boolean;
@@ -36,7 +37,8 @@ export function useQualityValidator({
         id: 'no-title',
         severity: 'error',
         type: 'metadata',
-        message: 'Book has no title - required for all eBook stores',
+        message: 'Book has no title',
+        hint: 'Open the Book panel and add a title',
         chapterId: '',
         chapterTitle: 'Metadata',
       });
@@ -47,7 +49,8 @@ export function useQualityValidator({
         id: 'no-author',
         severity: 'error',
         type: 'metadata',
-        message: 'Book has no author - required for all eBook stores',
+        message: 'Book has no author',
+        hint: 'Open the Book panel and add an author name',
         chapterId: '',
         chapterTitle: 'Metadata',
       });
@@ -58,7 +61,8 @@ export function useQualityValidator({
         id: 'no-cover',
         severity: 'warning',
         type: 'metadata',
-        message: 'No cover image - books without covers have 50% lower sales',
+        message: 'No cover image',
+        hint: 'Open the Book panel and upload a cover image',
         chapterId: '',
         chapterTitle: 'Metadata',
       });
@@ -72,7 +76,8 @@ export function useQualityValidator({
         id: 'no-content-chapters',
         severity: 'error',
         type: 'structure',
-        message: 'Book has no content chapters - add at least one chapter',
+        message: 'Book has no content chapters',
+        hint: 'Add at least one chapter with content',
         chapterId: '',
         chapterTitle: 'Structure',
       });
@@ -92,6 +97,7 @@ export function useQualityValidator({
           severity: 'warning',
           type: 'content',
           message: 'Chapter is empty',
+          hint: 'Add some content or delete this chapter',
           chapterId: chapter.id,
           chapterTitle: chapterLabel,
         });
@@ -105,7 +111,8 @@ export function useQualityValidator({
           id: `short-${chapter.id}`,
           severity: 'suggestion',
           type: 'content',
-          message: `Chapter only has ${wordCount} words - consider expanding or merging`,
+          message: `Chapter only has ${wordCount} words`,
+          hint: 'Consider expanding the content or merging with another chapter',
           chapterId: chapter.id,
           chapterTitle: chapterLabel,
         });
@@ -118,6 +125,7 @@ export function useQualityValidator({
           severity: 'suggestion',
           type: 'structure',
           message: 'Chapter has no title',
+          hint: 'Click the chapter name in the sidebar to add a title',
           chapterId: chapter.id,
           chapterTitle: chapterLabel,
         });
@@ -131,10 +139,10 @@ export function useQualityValidator({
           id: `double-space-${chapter.id}`,
           severity: 'suggestion',
           type: 'typography',
-          message: 'Contains double spaces - these render inconsistently on e-readers',
+          message: 'Contains double spaces',
+          hint: 'Search for two spaces and replace with one',
           chapterId: chapter.id,
           chapterTitle: chapterLabel,
-          autoFixable: true,
         });
       }
 
@@ -144,10 +152,10 @@ export function useQualityValidator({
           id: `straight-quotes-${chapter.id}`,
           severity: 'suggestion',
           type: 'typography',
-          message: 'Contains straight quotes - curly quotes ("") look more professional',
+          message: 'Contains straight quotes',
+          hint: 'Replace " with curly quotes "" for a polished look',
           chapterId: chapter.id,
           chapterTitle: chapterLabel,
-          autoFixable: true,
         });
       }
 
@@ -157,10 +165,10 @@ export function useQualityValidator({
           id: `double-hyphen-${chapter.id}`,
           severity: 'suggestion',
           type: 'typography',
-          message: 'Contains double hyphens -- use em-dashes (—) instead',
+          message: 'Contains double hyphens (--)',
+          hint: 'Replace -- with an em-dash (—) for proper typography',
           chapterId: chapter.id,
           chapterTitle: chapterLabel,
-          autoFixable: true,
         });
       }
 
@@ -170,10 +178,10 @@ export function useQualityValidator({
           id: `three-dots-${chapter.id}`,
           severity: 'suggestion',
           type: 'typography',
-          message: 'Contains three dots ... use ellipsis character (…) instead',
+          message: 'Contains three dots (...)',
+          hint: 'Replace ... with the ellipsis character (…)',
           chapterId: chapter.id,
           chapterTitle: chapterLabel,
-          autoFixable: true,
         });
       }
 
@@ -185,10 +193,10 @@ export function useQualityValidator({
           id: `excess-breaks-${chapter.id}`,
           severity: 'warning',
           type: 'formatting',
-          message: 'Multiple blank lines - use scene breaks (***) instead',
+          message: 'Too many blank lines in a row',
+          hint: 'Delete extra blank lines or use *** for scene breaks',
           chapterId: chapter.id,
           chapterTitle: chapterLabel,
-          autoFixable: true,
         });
       }
 
@@ -198,7 +206,8 @@ export function useQualityValidator({
           id: `inline-styles-${chapter.id}`,
           severity: 'warning',
           type: 'formatting',
-          message: 'Contains inline styles - may not render consistently across devices',
+          message: 'Contains inline styles',
+          hint: 'Paste as plain text or use the editor formatting buttons instead',
           chapterId: chapter.id,
           chapterTitle: chapterLabel,
         });
@@ -216,7 +225,8 @@ export function useQualityValidator({
               id: `large-image-${chapter.id}-${i}`,
               severity: 'warning',
               type: 'performance',
-              message: 'Contains a large embedded image - may slow down e-readers',
+              message: 'Contains a very large image',
+              hint: 'Consider compressing the image before adding it',
               chapterId: chapter.id,
               chapterTitle: chapterLabel,
             });

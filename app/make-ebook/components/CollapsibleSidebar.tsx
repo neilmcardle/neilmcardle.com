@@ -290,7 +290,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
 
   return (
     <aside 
-  className={`hidden lg:flex flex-col absolute left-16 top-0 w-full lg:max-w-sm bg-white dark:bg-[#2c2c2c] min-w-0 lg:min-w-[300px] lg:max-w-[350px] h-full shadow-sm border-r border-gray-200 dark:border-[#424242] z-40 transition-transform duration-200 ease-out ${
+  className={`hidden lg:flex flex-col absolute left-16 top-0 w-full lg:max-w-sm bg-white dark:bg-[#0a0a0a] min-w-0 lg:min-w-[300px] lg:max-w-[350px] h-full shadow-sm border-r border-gray-200 dark:border-gray-800 z-40 transition-transform duration-200 ease-out ${
         isVisible ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
@@ -299,7 +299,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
       <div className="flex justify-end px-4 pt-4 pb-2">
         <button
           onClick={handleClose}
-          className="p-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
+          className="p-2 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
           title="Close panel"
           aria-label="Close panel"
         >
@@ -321,12 +321,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         
         {/* Library Section */}
         {activeView === 'library' && (
-  <div className="border-b border-gray-200 dark:border-[#424242] pb-2">
+  <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSidebarLibraryExpanded(!sidebarLibraryExpanded)}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+              className="p-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title={sidebarLibraryExpanded ? "Collapse library" : "Expand library"}
             >
               {sidebarLibraryExpanded ? (
@@ -348,7 +348,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                     // Clear selection when exiting multi-select mode
                   }
                 }}
-                className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}`}
+                className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'}`}
                 title={multiSelectMode ? "Cancel selection" : "Select multiple"}
               >
                 <svg className={`w-4 h-4 ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,7 +361,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             )}
             <button
               onClick={showNewBookConfirmation}
-              className="flex flex-col items-center gap-0.5 px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+              className="flex flex-col items-center gap-0.5 px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title="New book"
             >
               <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
@@ -369,7 +369,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             </button>
             <button
               onClick={showImportDialog}
-              className="flex flex-col items-center gap-0.5 px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+              className="flex flex-col items-center gap-0.5 px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title="Import document"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -383,7 +383,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         {sidebarLibraryExpanded && (
           <>
             {multiSelectMode && libraryBooks.length > 0 && (
-              <div className="flex items-center justify-between mt-2 px-2 py-1.5 bg-gray-50 dark:bg-[#2a2a2a] rounded-md">
+              <div className="flex items-center justify-between mt-2 px-2 py-1.5 bg-gray-50 dark:bg-[#1a1a1a] rounded-md">
                 <button
                   onClick={toggleSelectAll}
                   className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
@@ -416,8 +416,8 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                     key={book.id}
                     className={`group flex items-center justify-between py-2 px-2 rounded transition-colors ${
                       isSelected || isChecked
-                        ? 'bg-gray-100 dark:bg-[#2a2a2a]'
-                        : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                        ? 'bg-gray-100 dark:bg-[#1a1a1a]'
+                        : 'hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
                     }`}
                   >
                     {multiSelectMode && (
@@ -459,7 +459,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                         </button>
                         <button
                           onClick={() => handleExportLibraryBook(book.id)}
-                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#3a3a3a]"
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"
                           title="Export as EPUB"
                         >
                           <img
@@ -475,7 +475,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                         </button>
                         <button
                           onClick={() => handleDeleteBook(book.id)}
-                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#3a3a3a] opacity-100 hover:opacity-70 transition-opacity"
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#2a2a2a] opacity-100 hover:opacity-70 transition-opacity"
                           title="Delete"
                         >
                           <img 
@@ -499,12 +499,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
 
       {/* Book Details Section */}
       {activeView === 'book' && (
-  <div className="border-b border-gray-200 dark:border-[#424242] pb-2">
+  <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <button
               onClick={() => setSidebarBookDetailsExpanded(!sidebarBookDetailsExpanded)}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors flex-shrink-0"
+              className="p-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors flex-shrink-0"
               title={sidebarBookDetailsExpanded ? "Collapse details" : "Expand details"}
             >
               {sidebarBookDetailsExpanded ? (
@@ -527,7 +527,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             <button
               onClick={handleSaveBook}
               disabled={!!saveFeedback}
-              className={`flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-all disabled:opacity-60 ${saveFeedback ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
+              className={`flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-all disabled:opacity-60 ${saveFeedback ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
               title={saveFeedback ? "Saved!" : "Save book"}
             >
               {saveFeedback ? (
@@ -543,7 +543,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             </button>
             <button
               onClick={handleExportEPUB}
-              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title="Export as EPUB"
             >
               <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
@@ -568,7 +568,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="Book title"
               />
             </div>
@@ -581,7 +581,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="Author name"
               />
             </div>
@@ -593,7 +593,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={blurb}
                 onChange={(e) => setBlurb(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] resize-none placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] resize-none placeholder-[#C0C0C0]"
                 placeholder="Brief description or back cover blurb (optional)"
                 rows={3}
               />
@@ -607,7 +607,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={publisher}
                 onChange={(e) => setPublisher(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="Publisher name"
               />
             </div>
@@ -620,7 +620,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={pubDate}
                 onChange={(e) => setPubDate(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
               />
             </div>
             
@@ -631,7 +631,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
               >
                 {LANGUAGES.map((lang) => (
                   <option key={lang} value={lang}>
@@ -649,7 +649,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="e.g. Fiction, Mystery"
               />
             </div>
@@ -662,7 +662,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={isbn}
                 onChange={(e) => setIsbn(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="978-0-123456-78-9"
               />
               <p className="mt-1 text-[10px] text-gray-500 dark:text-gray-400">
@@ -680,13 +680,13 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
                   disabled={lockedSections.bookInfo}
-                  className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#383838] border border-gray-200 dark:border-[#424242] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                  className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                   placeholder="e.g., fiction, thriller, mystery, romance"
                 />
                 <button
                   onClick={handleAddTag}
                   disabled={lockedSections.bookInfo}
-                  className="px-3 py-2 rounded bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  className="px-3 py-2 rounded bg-gray-100 dark:bg-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                 >
                   <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
                 </button>
@@ -696,7 +696,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                   {tags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-gray-100 dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5]"
+                      className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-gray-100 dark:bg-[#1a1a1a] text-[#050505] dark:text-[#e5e5e5]"
                     >
                       {tag}
                       <button
@@ -743,7 +743,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 opacity-80 group-hover:opacity-100 transition-opacity" />
                   
                   {/* Inner content */}
-                  <div className="relative flex items-center gap-3 rounded-xl bg-white dark:bg-[#1a1a1a] px-3 py-3">
+                  <div className="relative flex items-center gap-3 rounded-xl bg-white dark:bg-[#0a0a0a] px-3 py-3">
                     {/* Example cover thumbnail */}
                     <div className="flex-shrink-0 w-12 h-16 rounded-md overflow-hidden shadow-md ring-1 ring-black/10 dark:ring-white/10 group-hover:shadow-lg transition-shadow">
                       <img
@@ -782,12 +782,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
 
       {/* Chapters Section */}
       {activeView === 'chapters' && (
-  <div className="border-b border-gray-200 dark:border-[#424242] pb-2">
+  <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSidebarChaptersExpanded(!sidebarChaptersExpanded)}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+              className="p-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title={sidebarChaptersExpanded ? "Collapse chapters" : "Expand chapters"}
             >
               {sidebarChaptersExpanded ? (
@@ -804,14 +804,14 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             <div className="relative">
               <button
                 onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
-                className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                className="p-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
                 title="Add chapter"
               >
                 <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
               </button>
               
               {chapterTypeDropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 w-56 bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 py-2 max-h-96 overflow-y-auto">
+                <div className="absolute right-0 top-full mt-1 w-56 bg-white dark:bg-[#0a0a0a] rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 py-2 max-h-96 overflow-y-auto">
                   <div className="space-y-3 px-2">
                     {/* Front Matter */}
                     <div>
@@ -825,7 +825,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                           handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
                           setChapterTypeDropdownOpen(false);
                         }}
-                        className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                        className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#1a1a1a] text-sm text-[#050505] dark:text-[#e5e5e5]"
                       >
                         {template.title}
                       </button>
@@ -844,7 +844,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                             handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
                             setChapterTypeDropdownOpen(false);
                           }}
-                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#1a1a1a] text-sm text-[#050505] dark:text-[#e5e5e5]"
                         >
                           {template.title}
                         </button>
@@ -863,7 +863,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                           handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
                           setChapterTypeDropdownOpen(false);
                         }}
-                        className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                        className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#1a1a1a] text-sm text-[#050505] dark:text-[#e5e5e5]"
                       >
                         {template.title}
                       </button>
@@ -910,8 +910,8 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                     dragOverIndex === i
                       ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
                       : isSelected
-                        ? 'bg-gray-100 dark:bg-[#2a2a2a] border border-transparent'
-                        : 'border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                        ? 'bg-gray-100 dark:bg-[#1a1a1a] border border-transparent'
+                        : 'border border-transparent hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
                   }`}
                   style={{
                     opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
@@ -937,7 +937,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                   </div>
                   {chapters.length > 1 && (
                     <button
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#2a2a2a] rounded"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveChapter(i);
@@ -960,12 +960,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
 
       {/* Preview Section */}
       {activeView === 'preview' && (
-  <div className="border-b border-gray-200 dark:border-[#424242] pb-2">
+  <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSidebarPreviewExpanded(!sidebarPreviewExpanded)}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+              className="p-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title={sidebarPreviewExpanded ? "Collapse preview" : "Expand preview"}
             >
               {sidebarPreviewExpanded ? (
@@ -983,7 +983,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           <div className="mt-2 px-2">
             {/* Cover Preview */}
             <div className="mb-4 flex justify-center">
-              <div className="w-32 h-48 bg-gray-100 dark:bg-[#1e1e1e] rounded border border-gray-200 dark:border-[#424242] flex items-center justify-center overflow-hidden">
+              <div className="w-32 h-48 bg-gray-100 dark:bg-[#1e1e1e] rounded border border-gray-200 dark:border-gray-800 flex items-center justify-center overflow-hidden">
                 {coverUrl ? (
                   <img
                     src={coverUrl}
@@ -1040,7 +1040,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                     {tags.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-block px-2 py-0.5 text-xs rounded bg-gray-100 dark:bg-[#2a2a2a] text-[#050505] dark:text-[#e5e5e5]"
+                        className="inline-block px-2 py-0.5 text-xs rounded bg-gray-100 dark:bg-[#1a1a1a] text-[#050505] dark:text-[#e5e5e5]"
                       >
                         {tag}
                       </span>
@@ -1051,7 +1051,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             </div>
             
             {/* Stats */}
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#424242] space-y-2">
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800 space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">Chapters</span>
                 <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{chapters.length}</span>

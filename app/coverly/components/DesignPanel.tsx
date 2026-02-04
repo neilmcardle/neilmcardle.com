@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Editor, AssetRecordType, createShapeId } from "tldraw";
-import { Download } from "lucide-react";
+import { Download, Wand2 } from "lucide-react";
+import { InpaintModal } from "./InpaintModal";
 
-type AIProvider = "openai" | "grok";
+type AIProvider = "openai" | "grok" | "gemini";
 
 // OpenAI Logo SVG Component
 function OpenAILogo({ className }: { className?: string }) {
@@ -27,6 +28,7 @@ interface DesignPanelProps {
 interface ProviderStatus {
   openai: "configured" | "not configured";
   grok: "configured" | "not configured";
+  gemini: "configured" | "not configured";
 }
 
 export function DesignPanel({ 
@@ -52,6 +54,32 @@ export function DesignPanel({
   
   // Export
   const [isExporting, setIsExporting] = useState(false);
+
+  // Inpainting (edit existing image)
+  const [showInpaintModal, setShowInpaintModal] = useState(false);
+  const [currentImageForEdit, setCurrentImageForEdit] = useState<string | null>(null);
+  const [isInpainting, setIsInpainting] = useState(false);
+
+  // Check if there's an existing image on canvas
+  const [hasExistingImage, setHasExistingImage] = useState(false);
+
+  // Monitor canvas for existing images
+  useEffect(() => {
+    if (!editor) return;
+    
+    const checkForImages = () => {
+      const shapes = editor.getCurrentPageShapes();
+      const imageShapes = shapes.filter(s => s.type === "image");
+      setHasExistingImage(imageShapes.length > 0);
+    };
+    
+    // Check initially
+    checkForImages();
+    
+    // Subscribe to changes
+    const unsubscribe = editor.store.listen(checkForImages, { source: "all" });
+    return () => unsubscribe();
+  }, [editor]);
 
   // Load persisted data from localStorage on mount
   useEffect(() => {
@@ -95,7 +123,9 @@ export function DesignPanel({
         if (data.providers) {
           setProviderStatus(data.providers);
           // Auto-select first available provider
-          if (data.providers.openai === "configured") {
+          if (data.providers.gemini === "configured") {
+            setProvider("gemini");
+          } else if (data.providers.openai === "configured") {
             setProvider("openai");
           } else if (data.providers.grok === "configured") {
             setProvider("grok");
@@ -106,8 +136,16 @@ export function DesignPanel({
   }, []);
 
   const handleGenerate = async () => {
-    if (!titleText.trim() && !description.trim()) {
-      alert("Please enter a title or description");
+    // Check if there's content on the canvas
+    let hasCanvasContent = false;
+    if (editor) {
+      const shapes = editor.getCurrentPageShapes();
+      const drawingShapes = shapes.filter(s => s.type !== "frame");
+      hasCanvasContent = drawingShapes.length > 0;
+    }
+
+    if (!titleText.trim() && !description.trim() && !hasCanvasContent) {
+      alert("Please enter a title, description, or draw something on the canvas");
       return;
     }
 
@@ -142,8 +180,8 @@ export function DesignPanel({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          prompt: description || "professional illustration",
-          title: titleText,
+          prompt: description || "", // Don't default to anything - let sketch drive it
+          title: titleText || "Untitled", // API requires title, provide fallback
           subtitle: subtitleText,
           author: authorText,
           provider,
@@ -185,41 +223,133 @@ export function DesignPanel({
     }
   };
 
+  // Get current image from canvas for editing
+  const getCurrentCanvasImage = useCallback(async (): Promise<string | null> => {
+    if (!editor) return null;
+    
+    const shapes = editor.getCurrentPageShapes();
+    const imageShapes = shapes.filter(s => s.type === "image");
+    
+    if (imageShapes.length === 0) return null;
+    
+    // Get the most recent image (usually the generated cover)
+    const imageShape = imageShapes[imageShapes.length - 1];
+    
+    try {
+      // Export the image shape
+      const result = await editor.toImage([imageShape.id], {
+        format: "png",
+        background: true,
+      });
+      
+      const reader = new FileReader();
+      return new Promise((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(result.blob);
+      });
+    } catch (e) {
+      console.error("Could not capture canvas image:", e);
+      return null;
+    }
+  }, [editor]);
+
+  // Open the inpaint modal
+  const handleOpenInpaintModal = async () => {
+    const image = await getCurrentCanvasImage();
+    if (image) {
+      setCurrentImageForEdit(image);
+      setShowInpaintModal(true);
+    } else {
+      alert("No image found on canvas to edit");
+    }
+  };
+
+  // Handle inpainting with mask
+  const handleInpaint = async (mask: string, prompt: string) => {
+    if (!currentImageForEdit) return;
+    
+    setIsInpainting(true);
+    
+    try {
+      const response = await fetch("/api/inpaint-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          image: currentImageForEdit,
+          mask,
+          prompt,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to edit image");
+      }
+
+      const data = await response.json();
+      
+      if (data.imageUrl) {
+        // Add edited image to history and canvas
+        setGeneratedImages(prev => [data.imageUrl, ...prev].slice(0, 6));
+        onImageGenerated(data.imageUrl);
+        setShowInpaintModal(false);
+        setCurrentImageForEdit(null);
+      }
+    } catch (error) {
+      console.error("Inpainting error:", error);
+      alert(error instanceof Error ? error.message : "Failed to edit image. Please try again.");
+    } finally {
+      setIsInpainting(false);
+    }
+  };
+
   return (
-    <div className="p-4 space-y-5 overflow-y-auto h-full bg-white dark:bg-neutral-950">
+    <div className="p-4 space-y-5 overflow-y-auto h-full bg-white">
       {/* AI Engine Selection */}
       <div className="space-y-3">
-        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">AI Engine</span>
-        <div className="grid grid-cols-2 gap-3">
+        <span className="text-xs font-medium text-neutral-500 uppercase tracking-wide">AI Engine</span>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            onClick={() => setProvider("gemini")}
+            disabled={providerStatus?.gemini !== "configured"}
+            className={`flex flex-col items-center gap-2 px-2 py-3 rounded-lg border-2 transition-all ${
+              provider === "gemini"
+                ? "border-neutral-900 bg-neutral-100"
+                : "border-neutral-200 hover:border-neutral-400"
+            } ${providerStatus?.gemini !== "configured" ? "opacity-40 cursor-not-allowed" : ""}`}
+          >
+            <Image src="/gmi-logomark.svg" alt="Gemini" width={28} height={28} className="w-7 h-7" />
+            <span className="text-xs font-medium text-neutral-700">Gemini</span>
+          </button>
           <button
             onClick={() => setProvider("openai")}
             disabled={providerStatus?.openai !== "configured"}
-            className={`flex flex-col items-center gap-2 px-3 py-4 rounded-lg border-2 transition-all ${
+            className={`flex flex-col items-center gap-2 px-2 py-3 rounded-lg border-2 transition-all ${
               provider === "openai"
-                ? "border-neutral-900 dark:border-white bg-neutral-100 dark:bg-neutral-800"
-                : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-500"
+                ? "border-neutral-900 bg-neutral-100"
+                : "border-neutral-200 hover:border-neutral-400"
             } ${providerStatus?.openai !== "configured" ? "opacity-40 cursor-not-allowed" : ""}`}
           >
-            <OpenAILogo className="w-8 h-8 text-neutral-900 dark:text-white" />
-            <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">DALL·E 3</span>
+            <OpenAILogo className="w-7 h-7 text-neutral-900" />
+            <span className="text-xs font-medium text-neutral-700">DALL·E</span>
           </button>
           <button
             onClick={() => setProvider("grok")}
             disabled={providerStatus?.grok !== "configured"}
-            className={`flex flex-col items-center gap-2 px-3 py-4 rounded-lg border-2 transition-all ${
+            className={`flex flex-col items-center gap-2 px-2 py-3 rounded-lg border-2 transition-all ${
               provider === "grok"
-                ? "border-neutral-900 dark:border-white bg-neutral-100 dark:bg-neutral-800"
-                : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-500"
+                ? "border-neutral-900 bg-neutral-100"
+                : "border-neutral-200 hover:border-neutral-400"
             } ${providerStatus?.grok !== "configured" ? "opacity-40 cursor-not-allowed" : ""}`}
           >
-            <Image src="/gk-logo.svg" alt="Grok" width={32} height={32} className="w-8 h-8" />
-            <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">Grok</span>
+            <Image src="/gk-logo.svg" alt="Grok" width={28} height={28} className="w-7 h-7" />
+            <span className="text-xs font-medium text-neutral-700">Grok</span>
           </button>
         </div>
       </div>
 
       {/* Divider */}
-      <div className="border-t border-neutral-200 dark:border-neutral-800" />
+      <div className="border-t border-neutral-200" />
 
       {/* Text Inputs */}
       <div className="space-y-3">
@@ -228,103 +358,104 @@ export function DesignPanel({
           placeholder="Book Title"
           value={titleText}
           onChange={(e) => setTitleText(e.target.value)}
-          className="w-full px-3 py-2.5 text-sm font-medium border border-neutral-300 dark:border-neutral-700 rounded-lg 
-                     bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white
-                     focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white placeholder:text-neutral-400"
+          className="w-full px-3 py-2.5 text-sm font-medium border border-neutral-300 rounded-lg 
+                     bg-white text-neutral-900
+                     focus:outline-none focus:ring-2 focus:ring-neutral-900 placeholder:text-neutral-400"
         />
         <input
           type="text"
           placeholder="Subtitle (optional)"
           value={subtitleText}
           onChange={(e) => setSubtitleText(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-neutral-300 dark:border-neutral-700 rounded-lg 
-                     bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white
-                     focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white placeholder:text-neutral-400"
+          className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg 
+                     bg-white text-neutral-900
+                     focus:outline-none focus:ring-2 focus:ring-neutral-900 placeholder:text-neutral-400"
         />
         <input
           type="text"
           placeholder="Author Name (optional)"
           value={authorText}
           onChange={(e) => setAuthorText(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-neutral-300 dark:border-neutral-700 rounded-lg 
-                     bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white
-                     focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white placeholder:text-neutral-400"
+          className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg 
+                     bg-white text-neutral-900
+                     focus:outline-none focus:ring-2 focus:ring-neutral-900 placeholder:text-neutral-400"
         />
         <textarea
           placeholder="Describe the artwork style (e.g., 'space landscape with planets', 'dark forest with fog'). AI generates the background, you add text in the canvas."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-          className="w-full px-3 py-2 text-sm border border-neutral-300 dark:border-neutral-700 rounded-lg 
-                     bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white
-                     focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white resize-none placeholder:text-neutral-400"
+          rows={4}
+          className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg 
+                     bg-white text-neutral-900
+                     focus:outline-none focus:ring-2 focus:ring-neutral-900 resize-y min-h-[100px] max-h-[300px] placeholder:text-neutral-400"
         />
       </div>
 
       {/* Generate Button */}
       <button
         onClick={handleGenerate}
-        disabled={isGenerating || (!titleText.trim() && !description.trim())}
+        disabled={isGenerating}
         className="w-full flex items-center justify-center gap-2 px-4 py-3 
-                   bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-semibold 
-                   rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100
+                   bg-neutral-900 text-white font-semibold 
+                   rounded-lg hover:bg-neutral-800
                    disabled:opacity-50 disabled:cursor-not-allowed transition-all"
       >
-        <Image src="/coverly-logomark.svg" alt="" width={20} height={20} className="w-5 h-5 invert dark:invert-0" />
+        <Image src="/coverly-logomark.svg" alt="" width={20} height={20} className="w-5 h-5 invert" />
         {isGenerating ? "Generating..." : "Generate Artwork"}
       </button>
 
+      {/* Edit Image Button - appears when there's an image on canvas */}
+      {hasExistingImage && (
+        <button
+          onClick={handleOpenInpaintModal}
+          disabled={isInpainting}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 
+                     bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold 
+                     rounded-lg hover:from-violet-700 hover:to-fuchsia-700
+                     disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        >
+          <Wand2 className="w-5 h-5" />
+          {isInpainting ? "Editing..." : "Edit with AI"}
+        </button>
+      )}
+
       {/* Last Used Provider */}
       {lastUsedProvider && (
-        <p className="text-xs text-center text-neutral-500 dark:text-neutral-400">
-          Generated with {lastUsedProvider === "openai" ? "DALL·E 3" : "Grok"}
+        <p className="text-xs text-center text-neutral-500">
+          Generated with {lastUsedProvider === "openai" ? "DALL·E 3" : lastUsedProvider === "gemini" ? "Gemini" : "Grok"}
         </p>
       )}
 
-      {/* Generated Images */}
-      {generatedImages.length > 0 && (
-        <div className="space-y-3 pt-2 border-t border-neutral-200 dark:border-neutral-800">
-          <h3 className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
-            Generated ({generatedImages.length})
-          </h3>
-          <div className="grid grid-cols-2 gap-2">
-            {generatedImages.map((url, index) => (
-              <button
-                key={index}
-                onClick={() => onImageGenerated(url)}
-                className="aspect-[2/3] rounded-lg overflow-hidden border-2 border-neutral-200 
-                           dark:border-neutral-700 hover:border-neutral-900 dark:hover:border-white 
-                           transition-all"
-              >
-                <img
-                  src={url}
-                  alt={`Generated cover ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Divider */}
-      <div className="border-t border-neutral-200 dark:border-neutral-800" />
+      <div className="border-t border-neutral-200" />
 
       {/* Export Section */}
       <div className="space-y-3">
-        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">Export</span>
+        <span className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Export</span>
         <button
           onClick={handleDownload}
           disabled={isExporting}
           className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium
-                     border border-neutral-300 dark:border-neutral-700 rounded-lg
-                     text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800
+                     border border-neutral-300 rounded-lg
+                     text-neutral-700 hover:bg-neutral-100
                      disabled:opacity-50 transition-colors"
         >
           <Download className="w-4 h-4" />
           Download
         </button>
       </div>
+
+      {/* Inpaint Modal */}
+      <InpaintModal
+        isOpen={showInpaintModal}
+        onClose={() => {
+          setShowInpaintModal(false);
+          setCurrentImageForEdit(null);
+        }}
+        imageUrl={currentImageForEdit || ""}
+        onInpaint={handleInpaint}
+        isProcessing={isInpainting}
+      />
     </div>
   );
 }

@@ -65,7 +65,7 @@ export function VersionHistoryPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-[#333]">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             Version History
@@ -89,7 +89,7 @@ export function VersionHistoryPanel({
           return (
             <div
               key={version.id}
-              className={`border-b border-gray-100 dark:border-[#2a2a2a] ${
+              className={`border-b border-gray-100 dark:border-gray-800 ${
                 isExpanded ? 'bg-gray-50 dark:bg-[#1f1f1f]' : ''
               }`}
             >
@@ -140,7 +140,7 @@ export function VersionHistoryPanel({
                   )}
 
                   {/* Chapter Preview */}
-                  <div className="bg-white dark:bg-[#1a1a1a] rounded-lg border border-gray-200 dark:border-[#333] p-2 mb-3">
+                  <div className="bg-white dark:bg-[#0a0a0a] rounded-lg border border-gray-200 dark:border-gray-800 p-2 mb-3">
                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Chapters:</div>
                     <div className="space-y-1 max-h-24 overflow-y-auto">
                       {version.chapters.slice(0, 5).map((ch, i) => (
@@ -172,7 +172,7 @@ export function VersionHistoryPanel({
                     </button>
                     <button
                       onClick={() => onDeleteAction(version.id)}
-                      className="p-2 rounded-lg border border-gray-200 dark:border-[#333] text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
+                      className="p-2 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
                       title="Delete this version"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -189,7 +189,7 @@ export function VersionHistoryPanel({
 
       {/* Footer with Clear All */}
       {versions.length > 1 && (
-        <div className="p-3 border-t border-gray-200 dark:border-[#333]">
+        <div className="p-3 border-t border-gray-200 dark:border-gray-800">
           {confirmClear ? (
             <div className="flex items-center gap-2">
               <span className="text-xs text-red-600 dark:text-red-400 flex-1">
@@ -206,7 +206,7 @@ export function VersionHistoryPanel({
               </button>
               <button
                 onClick={() => setConfirmClear(false)}
-                className="px-3 py-1.5 rounded text-xs font-medium border border-gray-200 dark:border-[#333] hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="px-3 py-1.5 rounded text-xs font-medium border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 Cancel
               </button>

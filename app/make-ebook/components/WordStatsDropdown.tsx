@@ -102,7 +102,7 @@ export function WordStatsDropdown({
   const dropdownContent = isOpen && mounted ? createPortal(
     <div 
       ref={dropdownRef}
-      className="fixed bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl border border-gray-200 dark:border-[#333] z-[9999] overflow-hidden"
+      className="fixed bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-[9999] overflow-hidden"
       style={{ 
         top: position.top, 
         left: position.left,
@@ -111,7 +111,7 @@ export function WordStatsDropdown({
       }}
     >
       {/* Header Stats */}
-      <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-[#333]">
+      <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-800">
         <div className="grid grid-cols-2 gap-2 sm:gap-3">
           <StatCard
             label="Total Words"
@@ -155,7 +155,7 @@ export function WordStatsDropdown({
 
       {/* Current Chapter */}
       {currentChapter && (
-        <div className="p-3 border-b border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#0f0f0f]">
+        <div className="p-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#0f0f0f]">
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Current Chapter</div>
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate pr-2">
@@ -190,7 +190,7 @@ export function WordStatsDropdown({
       </div>
 
       {/* Footer */}
-      <div className="p-3 border-t border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#0f0f0f]">
+      <div className="p-3 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#0f0f0f]">
         <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
           Avg. {formatWordCount(bookStats.averageWordsPerChapter)} words/chapter
         </div>

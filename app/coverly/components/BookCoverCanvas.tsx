@@ -11,7 +11,7 @@ import {
 } from "tldraw";
 import "tldraw/tldraw.css";
 import { DesignPanel } from "./DesignPanel";
-import { PanelLeftClose } from "lucide-react";
+import { PanelLeftClose, RotateCcw } from "lucide-react";
 
 const STORAGE_KEY = "coverly-canvas";
 
@@ -123,6 +123,35 @@ export default function BookCoverCanvas() {
     reader.readAsDataURL(blob);
   }, [handleExportCover, coverSize]);
 
+  // Reset canvas to default state
+  const handleResetCanvas = useCallback(() => {
+    if (!editor) return;
+    
+    // Clear all shapes
+    const allShapes = editor.getCurrentPageShapes();
+    if (allShapes.length > 0) {
+      editor.deleteShapes(allShapes.map(s => s.id));
+    }
+    
+    // Recreate the default frame
+    const preset = BOOK_COVER_PRESETS[coverSize];
+    const frameId = createShapeId("book-cover-frame");
+    editor.createShape({
+      id: frameId,
+      type: "frame",
+      x: 100,
+      y: 100,
+      props: {
+        w: preset.width / 4,
+        h: preset.height / 4,
+        name: preset.name,
+      },
+    });
+    
+    // Zoom to fit
+    editor.zoomToFit();
+  }, [editor, coverSize]);
+
   // Add AI-generated image to canvas
   const handleAddAIImage = useCallback(async (imageUrl: string) => {
     if (!editor) return;
@@ -176,7 +205,7 @@ export default function BookCoverCanvas() {
     <div className="flex h-full w-full relative">
       {/* Collapsible Side Panel - slimline when closed */}
       <div 
-        className={`flex-shrink-0 border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 flex flex-col overflow-hidden transition-all duration-300 ${
+        className={`flex-shrink-0 border-r border-neutral-200 bg-white flex flex-col overflow-hidden transition-all duration-300 ${
           isPanelOpen ? "w-80" : "w-12"
         }`}
         style={{ zIndex: 1000 }}
@@ -184,15 +213,24 @@ export default function BookCoverCanvas() {
         {isPanelOpen ? (
           <>
             {/* Panel Header with Collapse Button */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 bg-white">
               <Image src="/coverly-logo.svg" alt="Coverly" width={100} height={24} className="h-6 w-auto" />
-              <button
-                onClick={() => setIsPanelOpen(false)}
-                className="p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 dark:text-neutral-400 transition-colors"
-                title="Collapse panel"
-              >
-                <PanelLeftClose className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleResetCanvas}
+                  className="p-1.5 rounded-md hover:bg-neutral-100 text-neutral-500 transition-colors"
+                  title="Reset canvas"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setIsPanelOpen(false)}
+                  className="p-1.5 rounded-md hover:bg-neutral-100 text-neutral-500 transition-colors"
+                  title="Collapse panel"
+                >
+                  <PanelLeftClose className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Single Panel Content */}
@@ -211,7 +249,7 @@ export default function BookCoverCanvas() {
           <div className="flex flex-col items-center py-3 h-full">
             <button
               onClick={() => setIsPanelOpen(true)}
-              className="p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+              className="p-2 rounded-md hover:bg-neutral-100 transition-colors"
               title="Open panel"
             >
               <Image src="/coverly-logomark.svg" alt="Open panel" width={20} height={20} className="w-5 h-5" />
@@ -227,16 +265,16 @@ export default function BookCoverCanvas() {
           persistenceKey={STORAGE_KEY}
           onMount={handleMount}
           components={components}
-          inferDarkMode
+          forceMobile={false}
         />
       </div>
 
       {/* Loading Overlay */}
       {isGenerating && (
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center" style={{ zIndex: 10001 }}>
-          <div className="bg-white dark:bg-neutral-900 rounded-lg p-6 shadow-xl">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-neutral-900 dark:border-white mx-auto mb-4" />
-            <p className="text-neutral-700 dark:text-neutral-300">Generating cover...</p>
+          <div className="bg-white rounded-lg p-6 shadow-xl">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-neutral-900 mx-auto mb-4" />
+            <p className="text-neutral-700">Generating cover...</p>
           </div>
         </div>
       )}
