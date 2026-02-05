@@ -36,6 +36,7 @@ import SlimSidebarNav from "./components/SlimSidebarNav";
 import AutoSaveIndicator from "./components/AutoSaveIndicator";
 import { QualityDropdown } from "./components/QualityPanel";
 import { WordStatsDropdown } from "./components/WordStatsDropdown";
+import ChapterNavDropdown from "./components/ChapterNavDropdown";
 import SubscriptionBadge, { SubscriptionBadgeCompact } from "./components/SubscriptionBadge";
 import ManageBillingButton from "./components/ManageBillingButton";
 import { useWordStats } from "./hooks/useWordStats";
@@ -2881,6 +2882,14 @@ function MakeEbookPage() {
                 {/* Right: Preview + Stats Dropdowns */}
                 {chapters.length > 0 && (
                   <div className="flex items-center gap-0.5 flex-shrink-0">
+                    {/* Chapter Nav Dropdown - Mobile */}
+                    <div className="lg:hidden">
+                      <ChapterNavDropdown
+                        chapters={chapters}
+                        selectedChapter={selectedChapter}
+                        onChapterSelect={setSelectedChapter}
+                      />
+                    </div>
                     {/* Book Mind AI Button */}
                     <Link
                       href={`/make-ebook/book-mind${currentBookId ? `?book=${currentBookId}` : ''}`}
@@ -3128,6 +3137,11 @@ function MakeEbookPage() {
                     )}
                   </div>
                   <div className="flex items-center gap-3">
+                    <ChapterNavDropdown
+                      chapters={chapters}
+                      selectedChapter={selectedChapter}
+                      onChapterSelect={setSelectedChapter}
+                    />
                     <Link
                       href={`/make-ebook/book-mind${currentBookId ? `?book=${currentBookId}` : ''}`}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:opacity-90 shadow-sm transition-all"
