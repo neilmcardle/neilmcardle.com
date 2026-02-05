@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useSubscription } from '@/lib/hooks/useSubscription';
 import { Sparkles, Cloud, BookOpen, Clock, X } from 'lucide-react';
 
@@ -14,6 +15,12 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
   const { isGrandfathered, isLoading } = useSubscription();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -60,9 +67,9 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
     return null;
   }
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  const modalContent = (
     <div className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white dark:bg-[#0a0a0a] rounded-lg shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-800">
         {/* Header */}
@@ -154,4 +161,6 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
