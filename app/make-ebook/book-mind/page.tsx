@@ -182,8 +182,8 @@ function BookMindContent() {
     return (
       <>
         <div className="flex h-screen bg-white dark:bg-[#0a0a0a]">
-          <div className="flex-1 flex items-center justify-center p-8">
-            <div className="max-w-2xl text-center space-y-8">
+          <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
+            <div className="max-w-2xl text-center space-y-8 py-8">
               {/* Icon */}
               <div className="flex justify-center mb-6">
                 <div className="w-20 h-20 rounded-full bg-gray-50 dark:bg-[#111] border-2 border-gray-200 dark:border-gray-800 flex items-center justify-center">
