@@ -36,6 +36,24 @@ function checkRateLimit(ip: string): { allowed: boolean; message?: string } {
   return { allowed: true };
 }
 
+// Helper: Fetch an image URL and convert to base64 data URL (avoids CORS issues)
+async function fetchImageAsBase64(imageUrl: string): Promise<string | null> {
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      console.error("Failed to fetch image:", response.status);
+      return null;
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString("base64");
+    const contentType = response.headers.get("content-type") || "image/png";
+    return `data:${contentType};base64,${base64}`;
+  } catch (error) {
+    console.error("Error fetching image as base64:", error);
+    return null;
+  }
+}
+
 // Convert base64 to File for OpenAI API
 async function base64ToFile(base64: string, filename: string): Promise<File> {
   const res = await fetch(base64);
@@ -118,11 +136,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch and convert to base64 to avoid CORS issues in browser
+    const base64Image = await fetchImageAsBase64(imageUrl);
+    if (!base64Image) {
+      return NextResponse.json(
+        { success: false, message: "Failed to process generated image" },
+        { status: 500 }
+      );
+    }
+
     console.log("Inpainting successful!");
 
     return NextResponse.json({
       success: true,
-      imageUrl,
+      imageUrl: base64Image,
     });
   } catch (error: unknown) {
     console.error("Inpainting API error:", error);

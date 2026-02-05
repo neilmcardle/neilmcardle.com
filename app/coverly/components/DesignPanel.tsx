@@ -156,26 +156,36 @@ export function DesignPanel({
       let sketchData: string | null = null;
       if (editor) {
         const shapes = editor.getCurrentPageShapes();
+        console.log("[Coverly] All shapes on canvas:", shapes.map(s => ({ id: s.id, type: s.type })));
         // Filter out just the frame, look for actual drawings
         const drawingShapes = shapes.filter(s => s.type !== "frame");
+        console.log("[Coverly] Drawing shapes (excluding frame):", drawingShapes.length);
         if (drawingShapes.length > 0) {
           try {
+            console.log("[Coverly] Capturing sketch image...");
             const result = await editor.toImage(drawingShapes.map(s => s.id), {
               format: "png",
               background: true,
             });
+            console.log("[Coverly] toImage result blob size:", result.blob.size);
             // Convert blob to base64
             const reader = new FileReader();
             sketchData = await new Promise((resolve) => {
               reader.onloadend = () => resolve(reader.result as string);
               reader.readAsDataURL(result.blob);
             });
+            console.log("[Coverly] Sketch base64 length:", sketchData?.length || 0);
           } catch (e) {
-            console.log("Could not capture sketch:", e);
+            console.log("[Coverly] Could not capture sketch:", e);
           }
+        } else {
+          console.log("[Coverly] No drawing shapes found to capture");
         }
+      } else {
+        console.log("[Coverly] Editor is null - cannot capture canvas");
       }
 
+      console.log("[Coverly] Sending to API with sketch:", sketchData ? "YES" : "NO");
       const response = await fetch("/api/generate-typography", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -401,7 +411,7 @@ export function DesignPanel({
                    disabled:opacity-50 disabled:cursor-not-allowed transition-all"
       >
         <Image src="/coverly-logomark.svg" alt="" width={20} height={20} className="w-5 h-5 invert" />
-        {isGenerating ? "Generating..." : "Generate Artwork"}
+        {isGenerating ? "Generating..." : "Generate artwork"}
       </button>
 
       {/* Edit Image Button - appears when there's an image on canvas */}
@@ -410,12 +420,12 @@ export function DesignPanel({
           onClick={handleOpenInpaintModal}
           disabled={isInpainting}
           className="w-full flex items-center justify-center gap-2 px-4 py-3 
-                     bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold 
-                     rounded-lg hover:from-violet-700 hover:to-fuchsia-700
+                     bg-white text-neutral-900 font-semibold border border-neutral-900
+                     rounded-lg hover:bg-neutral-100
                      disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
-          <Wand2 className="w-5 h-5" />
-          {isInpainting ? "Editing..." : "Edit with AI"}
+          <Image src="/pencil-icon.svg" alt="" width={20} height={20} className="w-5 h-5" />
+          {isInpainting ? "Editing..." : "Edit image"}
         </button>
       )}
 
@@ -452,7 +462,7 @@ export function DesignPanel({
           setShowInpaintModal(false);
           setCurrentImageForEdit(null);
         }}
-        imageUrl={currentImageForEdit || ""}
+        originalImage={currentImageForEdit || ""}
         onInpaint={handleInpaint}
         isProcessing={isInpainting}
       />

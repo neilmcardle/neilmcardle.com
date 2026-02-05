@@ -127,8 +127,18 @@ export default function BookCoverCanvas() {
   const handleResetCanvas = useCallback(() => {
     if (!editor) return;
     
-    // Clear all shapes
+    // Check if there's content to lose
     const allShapes = editor.getCurrentPageShapes();
+    const hasContent = allShapes.some(s => s.type !== "frame");
+    
+    if (hasContent) {
+      const confirmed = window.confirm(
+        "Are you sure you want to reset the canvas? All your work will be lost."
+      );
+      if (!confirmed) return;
+    }
+    
+    // Clear all shapes
     if (allShapes.length > 0) {
       editor.deleteShapes(allShapes.map(s => s.id));
     }

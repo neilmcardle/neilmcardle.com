@@ -84,6 +84,24 @@ function getProviderStatus() {
   };
 }
 
+// Helper: Fetch an image URL and convert to base64 data URL (avoids CORS issues)
+async function fetchImageAsBase64(imageUrl: string): Promise<string | null> {
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      console.error("Failed to fetch image:", response.status);
+      return null;
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString("base64");
+    const contentType = response.headers.get("content-type") || "image/png";
+    return `data:${contentType};base64,${base64}`;
+  } catch (error) {
+    console.error("Error fetching image as base64:", error);
+    return null;
+  }
+}
+
 // Generate with OpenAI DALL-E
 async function generateWithOpenAI(prompt: string): Promise<string | null> {
   const client = getOpenAIClient();
@@ -99,7 +117,11 @@ async function generateWithOpenAI(prompt: string): Promise<string | null> {
       style: "vivid",
     });
 
-    return response.data[0]?.url || null;
+    const imageUrl = response.data[0]?.url;
+    if (!imageUrl) return null;
+    
+    // Fetch and convert to base64 to avoid CORS issues in browser
+    return await fetchImageAsBase64(imageUrl);
   } catch (error) {
     console.error("OpenAI generation error:", error);
     return null;
@@ -123,10 +145,12 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
     const imageData = response.data[0];
     if (!imageData) return null;
     
-    if ("url" in imageData) {
-      return imageData.url as string;
-    } else if ("b64_json" in imageData) {
+    if ("b64_json" in imageData) {
+      // Already base64, return as data URL
       return `data:image/png;base64,${imageData.b64_json}`;
+    } else if ("url" in imageData) {
+      // Fetch and convert to base64 to avoid CORS issues
+      return await fetchImageAsBase64(imageData.url as string);
     }
     
     return null;
@@ -385,11 +409,11 @@ export async function POST(request: NextRequest) {
       
       if (sketchDescription) {
         sketchAnalyzed = true;
-        // Use sketch description as the primary prompt
+        // Use sketch description as the primary prompt with emphasis on matching the sketch
         if (enhancedPrompt.trim()) {
-          enhancedPrompt = `${enhancedPrompt}\n\nBased on this sketch: ${sketchDescription}`;
+          enhancedPrompt = `${enhancedPrompt}\n\nIMPORTANT: Faithfully reproduce this sketch layout: ${sketchDescription}. Keep the same composition, elements, and arrangement as drawn.`;
         } else {
-          enhancedPrompt = sketchDescription;
+          enhancedPrompt = `Create an illustration that FAITHFULLY matches this sketch: ${sketchDescription}. Keep the exact same elements, positions, and composition as described. Do not add unrelated objects.`;
         }
         console.log("Final enhanced prompt:", enhancedPrompt);
       } else {
