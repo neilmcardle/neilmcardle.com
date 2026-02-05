@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from '@supabase/ssr'
+import { CookieOptions } from '@supabase/ssr'
+import { getUserSubscriptionTier } from '@/lib/db/users'
 
-export const runtime = "edge";
+export const runtime = "nodejs"; // Changed from edge to support database queries
 
 // Book Mind AI API endpoint
 // Supports OpenAI, Anthropic, Grok/xAI, or other providers via environment variables
+// GATED: Pro subscription required
 
 interface Message {
   role: 'system' | 'user' | 'assistant';
@@ -30,6 +34,55 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // ===== SUBSCRIPTION CHECK: Book Mind AI is Pro-only =====
+    const response = NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return req.cookies.get(name)?.value
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            response.cookies.set({ name, value, ...options })
+          },
+          remove(name: string, options: CookieOptions) {
+            response.cookies.set({ name, value: '', ...options })
+          },
+        },
+      }
+    )
+
+    // Get authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Authentication required. Please sign in to use Book Mind AI.' },
+        { status: 401 }
+      )
+    }
+
+    // Check subscription tier
+    const tier = await getUserSubscriptionTier(user.id)
+
+    if (tier !== 'pro') {
+      console.log(`Book Mind AI access denied for free user: ${user.id}`)
+      return NextResponse.json(
+        {
+          error: 'Book Mind AI is a Pro feature. Upgrade to access AI-powered book analysis.',
+          requiresUpgrade: true,
+          feature: 'book_mind_ai'
+        },
+        { status: 403 }
+      )
+    }
+
+    console.log(`Book Mind AI access granted for Pro user: ${user.id}`)
+    // ===== END SUBSCRIPTION CHECK =====
 
     // Check for API key - support multiple providers
     const grokKey = process.env.XAI_API_KEY || process.env.GROK_API_KEY;

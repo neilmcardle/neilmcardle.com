@@ -3,6 +3,7 @@ import { saveEbookToSupabase } from '@/lib/supabaseEbooks';
 import React, { Suspense, useState, useRef, useLayoutEffect, useEffect, useCallback } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useFeatureAccess } from "@/lib/hooks/useSubscription";
 import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -35,6 +36,8 @@ import SlimSidebarNav from "./components/SlimSidebarNav";
 import AutoSaveIndicator from "./components/AutoSaveIndicator";
 import { QualityDropdown } from "./components/QualityPanel";
 import { WordStatsDropdown } from "./components/WordStatsDropdown";
+import SubscriptionBadge, { SubscriptionBadgeCompact } from "./components/SubscriptionBadge";
+import ManageBillingButton from "./components/ManageBillingButton";
 import { useWordStats } from "./hooks/useWordStats";
 import { useVersionHistory } from "./hooks/useVersionHistory";
 import { VersionHistoryPanel, VersionHistoryButton } from "./components/VersionHistoryPanel";
@@ -46,7 +49,8 @@ import { OfflineBanner, OfflineIndicatorCompact } from "./components/OfflineIndi
 import SplitPreviewLayout from "./components/SplitPreviewLayout";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import EPUBReaderModal from "./components/EPUBReaderModal";
-import { 
+import UpgradeModal from "./components/UpgradeModal";
+import {
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
@@ -153,6 +157,11 @@ function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
 function MakeEbookPage() {
   // Auth context for Supabase user
   const { user, signOut } = useAuth();
+
+  // Check if user has Pro access for Cloud Sync
+  const hasCloudSync = useFeatureAccess('cloud_sync');
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
   // Next/navigation helpers
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -983,9 +992,16 @@ function MakeEbookPage() {
     
     setTimeout(() => setSaveFeedback(false), 1300);
 
-    // Save to Supabase (if user is logged in and online)
+    // Save to Supabase (if user is logged in, has Pro access, and is online)
     try {
       if (user && user.id && isOnline) {
+        // Check if user has Cloud Sync access (Pro feature)
+        if (!hasCloudSync) {
+          console.log('Cloud Sync is a Pro feature - book saved locally only');
+          // Don't interrupt the user - they already saved locally successfully
+          return;
+        }
+
         const result = await saveEbookToSupabase(bookData, chapters, user.id);
         console.log('Supabase save result:', result);
         if (!result) {
@@ -3084,7 +3100,7 @@ function MakeEbookPage() {
                 {/* Status Bar with Auto-Save and Quality Score */}
                 <div className="flex items-center justify-between px-2 mb-2">
                   <div className="flex items-center gap-3">
-                    <AutoSaveIndicator isDirty={isDirty} isSaving={isSaving} lastSaved={lastSaved} />
+                    <AutoSaveIndicator isDirty={isDirty} isSaving={isSaving} lastSaved={lastSaved} hasCloudSync={hasCloudSync} />
                     {/* Offline indicator for desktop */}
                     {(!isOnline || pendingSyncCount > 0) && (
                       <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
@@ -3329,6 +3345,13 @@ function MakeEbookPage() {
         epubBlob={epubBlob}
         bookTitle={title}
       />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="Cloud Sync"
+      />
     </>
   );
 }
@@ -3382,7 +3405,14 @@ function UserDropdownMobile() {
               {user.email}
             </p>
           </div>
+          <div className="mt-3">
+            <SubscriptionBadge showUpgradeButton={true} />
+          </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <div className="px-2 py-1.5">
+          <ManageBillingButton variant="ghost" size="sm" className="w-full justify-start" />
+        </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleLogout}

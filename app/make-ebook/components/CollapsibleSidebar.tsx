@@ -9,7 +9,9 @@ import DragIcon from './icons/DragIcon';
 import BinIcon from './icons/BinIcon';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { 
+import SubscriptionBadge from './SubscriptionBadge';
+import ManageBillingButton from './ManageBillingButton';
+import {
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
@@ -1123,11 +1125,18 @@ function UserDropdown() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" sideOffset={8} forceMount>
-        <DropdownMenuLabel className="font-normal pt-2">
-          <div className="flex flex-col space-y-1">
-            <p className="pt-2 pl-2 text-sm font-medium leading-none">{user?.email || 'user@email.com'}</p>
+        <DropdownMenuLabel className="font-normal pt-2 pb-2">
+          <div className="flex flex-col space-y-3">
+            <p className="pl-2 text-sm font-medium leading-none">{user?.email || 'user@email.com'}</p>
+            <div className="pl-2 flex items-center">
+              <SubscriptionBadge showUpgradeButton={true} />
+            </div>
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <div className="px-2 py-1.5">
+          <ManageBillingButton variant="ghost" size="sm" className="w-full justify-start" />
+        </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} disabled={loggingOut} className="pr-2">
           <LogOut className="mr-2 h-4 w-4" />

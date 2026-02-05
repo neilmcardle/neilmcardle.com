@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useBookMind, BookMindContext, BookMindAction, ChatSession } from '../hooks/useBookMind';
+import { useFeatureAccess } from '@/lib/hooks/useSubscription';
+import { Sparkles } from 'lucide-react';
 
 const BOOK_LIBRARY_KEY = "makeebook_library";
 
@@ -28,7 +30,11 @@ function BookMindContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const bookIdParam = searchParams?.get('book') || null;
-  
+
+  // Check if user has access to Book Mind AI
+  const hasBookMindAccess = useFeatureAccess('book_mind_ai');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
   const [selectedBookId, setSelectedBookId] = useState<string | null>(bookIdParam);
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -140,6 +146,113 @@ function BookMindContent() {
     groups[dateKey].push(session);
     return groups;
   }, {});
+
+  // Handle upgrade - redirect to Stripe checkout
+  const handleUpgrade = async () => {
+    setCheckoutLoading(true);
+
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to start checkout');
+      }
+
+      const { url } = await response.json();
+
+      if (url) {
+        // Redirect to Stripe Checkout
+        window.location.href = url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('Failed to start checkout. Please try again.');
+      setCheckoutLoading(false);
+    }
+  };
+
+  // Show locked state for free users
+  if (!hasBookMindAccess) {
+    return (
+      <>
+        <div className="flex h-screen bg-white dark:bg-[#0a0a0a]">
+          <div className="flex-1 flex items-center justify-center p-8">
+            <div className="max-w-2xl text-center space-y-8">
+              {/* Icon */}
+              <div className="flex justify-center mb-6">
+                <div className="w-20 h-20 rounded-full bg-gray-50 dark:bg-[#111] border-2 border-gray-200 dark:border-gray-800 flex items-center justify-center">
+                  <Sparkles className="w-10 h-10 text-gray-900 dark:text-white" />
+                </div>
+              </div>
+
+              {/* Title */}
+              <div>
+                <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
+                  Book Mind AI
+                </h1>
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  AI-powered analysis and insights for your writing
+                </p>
+              </div>
+
+              {/* Features List */}
+              <div className="grid gap-3 text-left max-w-md mx-auto">
+                {[
+                  'Summarize your entire book or individual chapters',
+                  'List and analyze all characters',
+                  'Find plot holes and inconsistencies',
+                  'Analyze themes and literary elements',
+                  'Review timeline and chronology',
+                  'Check word usage and overused phrases'
+                ].map((feature, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-800">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <div className="w-5 h-5 rounded-full bg-[#1a1a1a] dark:bg-white flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white dark:text-[#1a1a1a]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{feature}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Upgrade CTA */}
+              <div className="pt-6">
+                <button
+                  onClick={handleUpgrade}
+                  disabled={checkoutLoading}
+                  className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1a1a1a] dark:bg-white text-white dark:text-[#1a1a1a] font-semibold rounded-full transition-all hover:bg-[#2a2a2a] dark:hover:bg-gray-100 shadow-lg uppercase tracking-wide text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {checkoutLoading ? 'Redirecting to checkout...' : 'Upgrade to Pro - $9/month'}
+                </button>
+                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                  Book Mind AI is a Pro feature
+                </p>
+              </div>
+
+              {/* Back Link */}
+              <div className="pt-4">
+                <Link
+                  href="/make-ebook"
+                  className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+                >
+                  ← Back to make-ebook
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-white dark:bg-[#0a0a0a]">

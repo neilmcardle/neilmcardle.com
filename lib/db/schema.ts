@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, json, uuid, integer } from 'drizzle-orm/pg-core'
+import { pgTable, text, timestamp, json, uuid, integer, boolean } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -7,6 +7,10 @@ export const users = pgTable('users', {
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),
   subscriptionStatus: text('subscription_status').$type<'active' | 'canceled' | 'past_due' | 'incomplete'>(),
+  subscriptionTier: text('subscription_tier').$type<'free' | 'pro'>().default('free').notNull(),
+  isGrandfathered: boolean('is_grandfathered').default(false).notNull(),
+  subscriptionCurrentPeriodEnd: timestamp('subscription_current_period_end'),
+  stripePriceId: text('stripe_price_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })

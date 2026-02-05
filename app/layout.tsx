@@ -5,6 +5,7 @@ import "../styles/immersive.css";
 import "../styles/vendor/draft-js.css";
 import "../styles/vendor/google-fonts.css";
 import { AuthProvider } from "@/lib/hooks/useAuth";
+import { SubscriptionProvider } from "@/lib/hooks/useSubscription";
 import { ThemeProvider } from "@/lib/contexts/ThemeContext";
 import { Toaster } from "@/components/ui/toaster";
 import ClientFooterWrapper from "@/components/ClientFooterWrapper"; // NEW
@@ -22,11 +23,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans" style={{ fontFamily: 'var(--font-inter)' }}>
         <ThemeProvider>
           <AuthProvider>
-            <div className="min-h-screen flex flex-col">
-              <main className="flex-1">{children}</main>
-              <ClientFooterWrapper /> {/* Use the client-side wrapper */}
-            </div>
-            <Toaster />
+            <SubscriptionProvider>
+              <div className="min-h-screen flex flex-col">
+                <main className="flex-1">{children}</main>
+                <ClientFooterWrapper /> {/* Use the client-side wrapper */}
+              </div>
+              <Toaster />
+            </SubscriptionProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

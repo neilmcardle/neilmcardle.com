@@ -1,15 +1,17 @@
 'use client';
 
 import React from 'react';
+import { Cloud } from 'lucide-react';
 
 interface AutoSaveIndicatorProps {
   isDirty: boolean;
   isSaving: boolean;
   lastSaved: Date | null;
   compact?: boolean;
+  hasCloudSync?: boolean; // Whether user has Pro cloud sync
 }
 
-export function AutoSaveIndicator({ isDirty, isSaving, lastSaved, compact = false }: AutoSaveIndicatorProps) {
+export function AutoSaveIndicator({ isDirty, isSaving, lastSaved, compact = false, hasCloudSync = false }: AutoSaveIndicatorProps) {
   const formatLastSaved = (date: Date) => {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -62,21 +64,32 @@ export function AutoSaveIndicator({ isDirty, isSaving, lastSaved, compact = fals
   }
 
   if (lastSaved) {
+    const saveText = hasCloudSync ? 'Saved to cloud' : 'Saved locally';
+    const titleText = `${saveText} ${formatLastSaved(lastSaved)}`;
+
     if (compact) {
       return (
-        <div className="flex items-center justify-center w-6 h-6" title={`Saved ${formatLastSaved(lastSaved)}`}>
-          <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+        <div className="flex items-center justify-center w-6 h-6" title={titleText}>
+          {hasCloudSync ? (
+            <Cloud className="w-4 h-4 text-green-500" />
+          ) : (
+            <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
         </div>
       );
     }
     return (
       <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-        <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
-        <span>Saved {formatLastSaved(lastSaved)}</span>
+        {hasCloudSync ? (
+          <Cloud className="w-3 h-3 text-green-500" />
+        ) : (
+          <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        )}
+        <span>{saveText} {formatLastSaved(lastSaved)}</span>
       </div>
     );
   }

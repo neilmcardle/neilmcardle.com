@@ -32,4 +32,4 @@ next-env.d.ts
 make-ebook/firebase.ts
 
 # firebase
-make-ebook/components/AuthProvider.tsx
+make-ebook/components/AuthProvider.tsx.DS_Store
