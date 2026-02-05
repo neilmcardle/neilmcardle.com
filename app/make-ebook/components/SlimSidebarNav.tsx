@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { LibraryIcon } from './icons';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useTheme } from '@/lib/contexts/ThemeContext';
+import { useSubscription } from '@/lib/hooks/useSubscription';
 import SubscriptionBadge from './SubscriptionBadge';
 import ManageBillingButton from './ManageBillingButton';
 import {
@@ -66,6 +67,7 @@ function Tooltip({ children, text }: { children: React.ReactNode; text: string }
 // User Dropdown Component
 function UserDropdownSlim() {
   const { user, signOut, loading } = useAuth();
+  const { tier, isGrandfathered, stripeCustomerId } = useSubscription();
   const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -78,6 +80,9 @@ function UserDropdownSlim() {
       setLoggingOut(false);
     }
   };
+
+  // Show billing button only for Pro users with Stripe customer ID (non-grandfathered)
+  const showBillingButton = tier === 'pro' && !isGrandfathered && stripeCustomerId;
 
   if (loading) {
     return (
@@ -129,10 +134,14 @@ function UserDropdownSlim() {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <div className="px-2 py-1.5">
-            <ManageBillingButton variant="ghost" size="sm" className="w-full justify-start" />
-          </div>
-          <DropdownMenuSeparator />
+          {showBillingButton && (
+            <>
+              <div className="px-2 py-1.5">
+                <ManageBillingButton variant="ghost" size="sm" className="w-full justify-start" />
+              </div>
+              <DropdownMenuSeparator />
+            </>
+          )}
           <DropdownMenuItem onClick={handleLogout} disabled={loggingOut} className="pr-2">
             <LogOut className="mr-2 h-4 w-4" />
             <span>{loggingOut ? "Logging out..." : "Log out"}</span>
