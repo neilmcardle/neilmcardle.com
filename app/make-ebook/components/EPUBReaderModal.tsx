@@ -28,21 +28,12 @@ export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }
 
     const initializeEpub = async () => {
       try {
-        console.log('EPUB blob size:', epubBlob.size, 'type:', epubBlob.type);
-
-        // Convert blob to ArrayBuffer which epubjs handles better
         const arrayBuffer = await epubBlob.arrayBuffer();
-        console.log('EPUB ArrayBuffer created, size:', arrayBuffer.byteLength);
-
-        // Initialize ePub.js with ArrayBuffer
         const book = ePub(arrayBuffer);
         bookRef.current = book;
 
-        // Wait for book to be ready
         await book.ready;
-        console.log('EPUB book is ready');
 
-        // Render the book
         const rendition = book.renderTo(viewerRef.current!, {
           width: '100%',
           height: '100%',
@@ -50,9 +41,7 @@ export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }
         });
         renditionRef.current = rendition;
 
-        // Display the first page
         await rendition.display();
-        console.log('EPUB rendition displayed successfully');
         setIsReady(true);
 
         // Track location changes
@@ -105,15 +94,15 @@ export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[10000] bg-black/90 flex items-center justify-center">
+    <div className="fixed inset-0 z-[10000] bg-black/70 dark:bg-black/85 flex items-center justify-center">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 h-16 bg-gray-900/80 backdrop-blur-sm border-b border-gray-700 flex items-center justify-between px-6 z-10">
-        <h2 className="text-lg font-semibold text-white">
+      <div className="absolute top-0 left-0 right-0 h-16 bg-[#f0eee6]/95 dark:bg-[#0a0a0a]/90 backdrop-blur-sm border-b border-[#e4e4de] dark:border-[#333] flex items-center justify-between px-6 z-10">
+        <h2 className="text-lg font-semibold text-[#141413] dark:text-white">
           {bookTitle || 'EPUB Preview'}
         </h2>
         <button
           onClick={onClose}
-          className="px-4 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-lg transition-colors"
+          className="px-4 py-2 text-sm font-medium text-[#141413] dark:text-white hover:bg-[#e9e8e4] dark:hover:bg-white/10 rounded-lg transition-colors"
         >
           Close
         </button>
@@ -123,27 +112,27 @@ export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }
       <div className="w-full h-full pt-16 pb-20">
         <div
           ref={viewerRef}
-          className="w-full h-full bg-white"
+          className="w-full h-full bg-[#faf9f5] dark:bg-white"
           style={{ maxWidth: '800px', margin: '0 auto' }}
         />
       </div>
 
       {/* Navigation Controls */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gray-900/80 backdrop-blur-sm border-t border-gray-700 flex items-center justify-center gap-4 z-10">
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f0eee6]/95 dark:bg-[#0a0a0a]/90 backdrop-blur-sm border-t border-[#e4e4de] dark:border-[#333] flex items-center justify-center gap-4 z-10">
         <button
           onClick={handlePrevPage}
           disabled={!isReady || !canGoPrev}
-          className="px-6 py-3 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-6 py-3 bg-[#141413] dark:bg-white text-[#faf9f5] dark:text-gray-900 rounded-lg font-medium hover:bg-[#141413]/80 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           ← Previous
         </button>
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-[#141413]/60 dark:text-gray-400">
           {isReady ? 'Use arrow keys to navigate' : 'Loading...'}
         </div>
         <button
           onClick={handleNextPage}
           disabled={!isReady || !canGoNext}
-          className="px-6 py-3 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-6 py-3 bg-[#141413] dark:bg-white text-[#faf9f5] dark:text-gray-900 rounded-lg font-medium hover:bg-[#141413]/80 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           Next →
         </button>

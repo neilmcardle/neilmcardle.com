@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark' | 'paper';
+type Theme = 'light' | 'dark' | 'system';
 
 interface ThemeContextType {
   theme: Theme;
@@ -12,45 +12,72 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+function getSystemPreference(): 'light' | 'dark' {
+  if (typeof window === 'undefined') return 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyThemeClass(resolved: 'light' | 'dark') {
+  const html = document.documentElement;
+  html.classList.remove('dark');
+  if (resolved === 'dark') {
+    html.classList.add('dark');
+  }
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
+
+  // Apply theme to DOM
+  const applyTheme = (newTheme: Theme) => {
+    if (newTheme === 'system') {
+      applyThemeClass(getSystemPreference());
+    } else {
+      applyThemeClass(newTheme);
+    }
+  };
 
   // Load theme preference from localStorage on mount
   useEffect(() => {
     setMounted(true);
 
-    // Check localStorage for saved preference
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    const savedTheme = localStorage.getItem('theme');
 
-    // Use saved preference if available, otherwise default to paper
-    if (savedTheme && ['light', 'dark', 'paper'].includes(savedTheme)) {
-      setThemeState(savedTheme);
-      applyTheme(savedTheme);
-    } else {
-      // Default to paper mode
-      setThemeState('paper');
-      applyTheme('paper');
+    // Migrate legacy 'paper' theme to 'light'
+    let resolved: Theme = 'light';
+    if (savedTheme === 'paper' || savedTheme === 'light') {
+      resolved = 'light';
+    } else if (savedTheme === 'dark') {
+      resolved = 'dark';
+    } else if (savedTheme === 'system') {
+      resolved = 'system';
     }
+
+    // Update storage if migrated
+    if (savedTheme === 'paper') {
+      localStorage.setItem('theme', 'light');
+    }
+
+    setThemeState(resolved);
+    applyTheme(resolved);
   }, []);
 
-  const applyTheme = (newTheme: Theme) => {
-    const html = document.documentElement;
-    // Remove all theme classes first
-    html.classList.remove('dark', 'paper');
-    // Add the appropriate class
-    if (newTheme === 'dark') {
-      html.classList.add('dark');
-    } else if (newTheme === 'paper') {
-      html.classList.add('paper');
-    }
-    // 'light' has no class (default)
-  };
+  // Listen for system theme changes when in 'system' mode
+  useEffect(() => {
+    if (theme !== 'system') return;
+
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e: MediaQueryListEvent) => {
+      applyThemeClass(e.matches ? 'dark' : 'light');
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [theme]);
 
   const toggleTheme = () => {
     setThemeState(prevTheme => {
-      // Cycle: light → dark → paper → light
-      const themeOrder: Theme[] = ['light', 'dark', 'paper'];
+      const themeOrder: Theme[] = ['light', 'dark', 'system'];
       const currentIndex = themeOrder.indexOf(prevTheme);
       const newTheme = themeOrder[(currentIndex + 1) % themeOrder.length];
       localStorage.setItem('theme', newTheme);
@@ -80,7 +107,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    // Return default values instead of throwing during SSR/build
     return { theme: 'light' as Theme, toggleTheme: () => {}, setTheme: () => {} };
   }
   return context;

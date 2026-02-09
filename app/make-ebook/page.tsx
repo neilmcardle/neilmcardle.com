@@ -26,9 +26,11 @@ import { useCover } from "./hooks/useCover";
 import { useLockedSections } from "./hooks/useLockedSections";
 import { useAutoSave, useUnsavedChangesWarning } from "./hooks/useAutoSave";
 import { useEditorShortcuts } from "./hooks/useKeyboardShortcuts";
+import { useBookState } from "./hooks/useBookState";
 import { useQualityValidator } from "./hooks/useQualityValidator";
 import { autoFixAllChapters } from "./utils/typographyFixer";
 import { exportEpub } from "./utils/exportEpub";
+import { exportPdf } from "./utils/exportPdf";
 import { TypographyPreset } from "./utils/typographyPresets";
 import RichTextEditor from "./components/RichTextEditor";
 import CollapsibleSidebar from "./components/CollapsibleSidebar";
@@ -44,13 +46,13 @@ import { useVersionHistory } from "./hooks/useVersionHistory";
 import { VersionHistoryPanel, VersionHistoryButton } from "./components/VersionHistoryPanel";
 import { useExportHistory } from "./hooks/useExportHistory";
 import { ExportHistoryPanel, ExportHistoryButton } from "./components/ExportHistoryPanel";
-import { useOfflineSync } from "./hooks/useOfflineSync";
-import { useServiceWorker } from "./hooks/useServiceWorker";
-import { OfflineBanner, OfflineIndicatorCompact } from "./components/OfflineIndicator";
 import SplitPreviewLayout from "./components/SplitPreviewLayout";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import EPUBReaderModal from "./components/EPUBReaderModal";
 import UpgradeModal from "./components/UpgradeModal";
+import ConfirmDialog from "./components/ConfirmDialog";
+import FindReplacePanel from "./components/FindReplacePanel";
+import { useFindReplace } from "./hooks/useFindReplace";
 import {
   DropdownMenu, 
   DropdownMenuContent, 
@@ -60,50 +62,9 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { LogOut } from "lucide-react";
-
-// Local ebook library loader
-function loadBookLibrary(): any[] {
-  if (typeof window === "undefined") return [];
-  const str = localStorage.getItem(BOOK_LIBRARY_KEY);
-  if (str) {
-    try {
-      return JSON.parse(str);
-    } catch (e) {}
-  }
-  return [];
-
-}
+import { loadBookLibrary, saveBookToLibrary, loadBookById, removeBookFromLibrary, normalizeBookFromSupabase, saveLibraryToStorage } from "./utils/bookLibrary";
 
 const HEADER_HEIGHT = 64; // px (adjust if your header is taller/shorter)
-const BOOK_LIBRARY_KEY = "makeebook_library";
-
-function saveBookToLibrary(book: any) {
-  if (typeof window === "undefined") return;
-  let library = loadBookLibrary();
-  if (!library) library = [];
-  const id = book.id || "book-" + Date.now();
-  const bookToSave = {
-    ...book,
-    id,
-    savedAt: Date.now(),
-  };
-  const idx = library.findIndex((b: any) => b.id === id);
-  if (idx >= 0) library[idx] = bookToSave;
-  else library.push(bookToSave);
-  localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
-  return id;
-}
-
-function loadBookById(id: string) {
-  const library = loadBookLibrary();
-  return library.find((b) => b.id === id);
-}
-
-function removeBookFromLibrary(id: string) {
-  let library = loadBookLibrary();
-  library = library.filter((b) => b.id !== id);
-  localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
-}
 
 function plainText(html: string) {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -174,40 +135,22 @@ function MakeEbookPage() {
         try {
           const supabaseBooks = await import('@/lib/supabaseEbooks').then(m => m.fetchEbooksFromSupabase(user.id));
           if (Array.isArray(supabaseBooks) && supabaseBooks.length > 0) {
-            // Get existing local books
             const localBooks = loadBookLibrary();
-            
-            // Create a map of existing books by ID for quick lookup
-            const bookMap = new Map<string, any>();
-            
-            // Add local books first
-            localBooks.forEach((book: any) => {
-              if (book.id) {
-                bookMap.set(book.id, book);
+            const bookMap = new Map(localBooks.map(b => [b.id, b]));
+
+            // Merge Supabase books — normalize snake_case to camelCase
+            for (const raw of supabaseBooks) {
+              if (!raw.id) continue;
+              const normalized = normalizeBookFromSupabase(raw);
+              const existing = bookMap.get(raw.id);
+              if (!existing || normalized.savedAt > existing.savedAt) {
+                bookMap.set(raw.id, normalized);
               }
-            });
-            
-            // Merge Supabase books - update if exists, add if new
-            supabaseBooks.forEach((book: any) => {
-              if (book.id) {
-                const existing = bookMap.get(book.id);
-                if (existing) {
-                  // Keep the more recently updated version
-                  const existingTime = existing.savedAt || existing.updated_at || 0;
-                  const newTime = book.updated_at ? new Date(book.updated_at).getTime() : 0;
-                  if (newTime > existingTime) {
-                    bookMap.set(book.id, { ...book, savedAt: newTime });
-                  }
-                } else {
-                  // New book from Supabase
-                  bookMap.set(book.id, { ...book, savedAt: book.updated_at ? new Date(book.updated_at).getTime() : Date.now() });
-                }
-              }
-            });
-            
+            }
+
             const mergedBooks = Array.from(bookMap.values());
             setLibraryBooks(mergedBooks);
-            localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(mergedBooks));
+            saveLibraryToStorage(mergedBooks);
           }
         } catch (err) {
           console.error('Failed to sync Supabase books:', err);
@@ -226,7 +169,7 @@ function MakeEbookPage() {
     handleSelectChapter,
     handleChapterTitleChange,
     handleChapterContentChange,
-    handleRemoveChapter,
+    handleRemoveChapter: handleRemoveChapterRaw,
     handleDragStart,
     handleDragEnter,
     handleDragEnd,
@@ -239,7 +182,27 @@ function MakeEbookPage() {
     ghostPillContent,
     dragItemIndex,
   } = useChapters();
-  
+
+  // Find & Replace across all chapters
+  const findReplace = useFindReplace(chapters, handleChapterContentChange, handleSelectChapter);
+
+  // Wrap handleRemoveChapter to use the custom confirm dialog
+  const handleRemoveChapter = useCallback((idx: number) => {
+    handleRemoveChapterRaw(idx, (message, onConfirm) => {
+      setDialogState({
+        open: true,
+        title: 'Delete Chapter',
+        message,
+        variant: 'destructive',
+        confirmLabel: 'Delete',
+        onConfirm: () => {
+          setDialogState(prev => ({ ...prev, open: false }));
+          onConfirm();
+        },
+      });
+    });
+  }, [handleRemoveChapterRaw]);
+
   // Track previous user state to detect login/logout
   const prevUserRef = useRef(user);
   useEffect(() => {
@@ -271,18 +234,20 @@ function MakeEbookPage() {
   
   // Derived state: panel is open when sidebarView is not null
   const isPanelOpen = sidebarView !== null;
+  // Book metadata state (consolidated hook)
+  const {
+    title, setTitle, author, setAuthor, blurb, setBlurb,
+    publisher, setPublisher, pubDate, setPubDate, isbn, setIsbn,
+    language, setLanguage, genre, setGenre,
+    resetMetadata, loadMetadata,
+    currentBookId, setCurrentBookId,
+    endnotes, setEndnotes, endnoteReferences, setEndnoteReferences,
+    nextEndnoteNumber, setNextEndnoteNumber,
+  } = useBookState();
+
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [blurb, setBlurb] = useState("");
-  const [publisher, setPublisher] = useState("");
-  const [pubDate, setPubDate] = useState(today);
-  const [isbn, setIsbn] = useState("");
-  const [language, setLanguage] = useState(LANGUAGES[0]);
-  const [genre, setGenre] = useState("");
-  const [currentBookId, setCurrentBookId] = useState<string | undefined>(undefined);
   const [initialized, setInitialized] = useState(false);
-  
+
   // Show marketing landing page when no books and user hasn't started editing
   const [showMarketingPage, setShowMarketingPage] = useState(true);
 
@@ -300,9 +265,16 @@ function MakeEbookPage() {
   const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
   const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [endnotes, setEndnotes] = useState<Endnote[]>([]);
-  const [endnoteReferences, setEndnoteReferences] = useState<EndnoteReference[]>([]);
-  const [nextEndnoteNumber, setNextEndnoteNumber] = useState(1);
+
+  // Generic dialog state for replacing alert()/confirm()
+  const [dialogState, setDialogState] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    variant: 'confirm' | 'alert' | 'destructive';
+    confirmLabel?: string;
+    onConfirm: () => void;
+  }>({ open: false, title: '', message: '', variant: 'alert', onConfirm: () => {} });
   
   // Collapsible sidebar sections state
   const [sidebarLibraryExpanded, setSidebarLibraryExpanded] = useState(true);
@@ -383,19 +355,6 @@ function MakeEbookPage() {
     hasVersions 
   } = useVersionHistory({ bookId: currentBookId });
 
-  // Offline sync hook
-  const {
-    isOnline,
-    isSyncing,
-    pendingSyncCount,
-    lastSyncTime,
-    saveOffline,
-    syncNow,
-  } = useOfflineSync();
-
-  // Service worker for PWA
-  const { isUpdateAvailable, updateServiceWorker } = useServiceWorker();
-
   // State for version history panel visibility
   const [showVersionHistory, setShowVersionHistory] = useState(false);
 
@@ -447,6 +406,9 @@ function MakeEbookPage() {
     onNewChapter: () => {
       handleAddChapter('content', '');
     },
+    onFindReplace: () => {
+      findReplace.isOpen ? findReplace.close() : findReplace.open();
+    },
     enabled: chapters.length > 0,
   });
 
@@ -462,9 +424,21 @@ function MakeEbookPage() {
     const { fixedChapters, totalChanges } = autoFixAllChapters(chapters);
     if (totalChanges > 0) {
       setChapters(fixedChapters as Chapter[]);
-      alert(`Fixed ${totalChanges} typography issue${totalChanges === 1 ? '' : 's'} across all chapters.`);
+      setDialogState({
+        open: true,
+        title: 'Typography Fixed',
+        message: `Fixed ${totalChanges} typography issue${totalChanges === 1 ? '' : 's'} across all chapters.`,
+        variant: 'alert',
+        onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
+      });
     } else {
-      alert('No typography issues found to fix.');
+      setDialogState({
+        open: true,
+        title: 'No Issues Found',
+        message: 'No typography issues found to fix.',
+        variant: 'alert',
+        onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
+      });
     }
   }, [chapters, setChapters]);
 
@@ -478,17 +452,25 @@ function MakeEbookPage() {
 
   // Restore a version from history
   const handleRestoreVersion = useCallback((restoredChapters: Chapter[], metadata: { blurb?: string; publisher?: string; pubDate?: string; genre?: string; tags?: string[] }) => {
-    if (confirm('Restore this version? Your current work will be replaced.')) {
-      setChapters(restoredChapters);
-      if (metadata.blurb) setBlurb(metadata.blurb);
-      if (metadata.publisher) setPublisher(metadata.publisher);
-      if (metadata.pubDate) setPubDate(metadata.pubDate);
-      if (metadata.genre) setGenre(metadata.genre);
-      if (metadata.tags) setTags(metadata.tags);
-      setSelectedChapter(0);
-      setShowVersionHistory(false);
-      markDirty();
-    }
+    setDialogState({
+      open: true,
+      title: 'Restore Version',
+      message: 'Restore this version? Your current work will be replaced.',
+      variant: 'destructive',
+      confirmLabel: 'Restore',
+      onConfirm: () => {
+        setDialogState(prev => ({ ...prev, open: false }));
+        setChapters(restoredChapters);
+        if (metadata.blurb) setBlurb(metadata.blurb);
+        if (metadata.publisher) setPublisher(metadata.publisher);
+        if (metadata.pubDate) setPubDate(metadata.pubDate);
+        if (metadata.genre) setGenre(metadata.genre);
+        if (metadata.tags) setTags(metadata.tags);
+        setSelectedChapter(0);
+        setShowVersionHistory(false);
+        markDirty();
+      },
+    });
   }, [setChapters, setBlurb, setPublisher, setPubDate, setGenre, setTags, setSelectedChapter, markDirty]);
 
   // Update endnotes chapter content whenever endnotes change
@@ -513,7 +495,6 @@ function MakeEbookPage() {
         event.stopPropagation();
 
         const refNumber = linkElement.getAttribute('data-back-to-ref');
-        console.log('📖 Endnote back-link clicked, ref:', refNumber);
 
         if (refNumber) {
           // Find which chapter contains this reference
@@ -521,7 +502,6 @@ function MakeEbookPage() {
           if (ref) {
             const chapterIndex = chapters.findIndex(ch => ch.id === ref.chapterId);
             if (chapterIndex >= 0) {
-              console.log(`  → Switching to chapter ${chapterIndex}: ${chapters[chapterIndex].title}`);
               setSelectedChapter(chapterIndex);
 
               // Scroll to reference after chapter switches
@@ -548,12 +528,9 @@ function MakeEbookPage() {
         event.preventDefault();
         event.stopPropagation();
 
-        console.log('📝 Endnote reference clicked, note:', endnoteRef);
-
         // Find the endnotes chapter
         const endnotesIndex = chapters.findIndex(ch => ch.title.toLowerCase() === 'endnotes');
         if (endnotesIndex >= 0) {
-          console.log(`  → Switching to Endnotes chapter`);
           setSelectedChapter(endnotesIndex);
 
           // Scroll to endnote after chapter switches
@@ -639,22 +616,13 @@ function MakeEbookPage() {
       }));
       
       // Set the editor state
+      resetMetadata();
       setTitle(parsed.title);
       setAuthor(parsed.author);
       setChapters(newChapters);
       setSelectedChapter(0);
-      setCurrentBookId(undefined);
-      setBlurb("");
-      setPublisher("");
-      setPubDate(today);
-      setIsbn("");
-      setLanguage(LANGUAGES[0]);
-      setGenre("");
       setTags([]);
       setCoverFile(null);
-      setEndnotes([]);
-      setEndnoteReferences([]);
-      setNextEndnoteNumber(1);
       
       // Open Book panel for user to complete details
       setSidebarView('book');
@@ -683,15 +651,7 @@ function MakeEbookPage() {
   }
 
   function clearEditorState() {
-    // Clear all editor data for new book
-    setTitle("");
-    setAuthor("");
-    setBlurb("");
-    setPublisher("");
-    setPubDate(today);
-    setIsbn("");
-    setLanguage(LANGUAGES[0]);
-    setGenre("");
+    resetMetadata();
     setTags([]);
     setCoverFile(null);
     setChapters([
@@ -702,12 +662,7 @@ function MakeEbookPage() {
         type: "content",
       },
     ]);
-    setEndnotes([]);
-    setEndnoteReferences([]);
-    setNextEndnoteNumber(1);
-    setCurrentBookId(undefined);
     setSelectedChapter(0);
-    // Open Book panel to enter details
     setSidebarView('book');
   }
 
@@ -878,6 +833,17 @@ function MakeEbookPage() {
     markClean();
   }
 
+  function handleExportPDF() {
+    const migratedChapters = ensureChapterIds(chapters);
+    exportPdf({
+      title,
+      author,
+      publisher,
+      chapters: migratedChapters,
+      typographyPreset,
+    });
+  }
+
   // Handle preview from export history
   async function handlePreviewExport(exportId: string) {
     const blob = await getExportBlob(exportId);
@@ -910,10 +876,7 @@ function MakeEbookPage() {
   function handleSaveBook() {
     // Don't save if there's no meaningful content
     const hasContent = title.trim() || author.trim() || chapters.some(ch => ch.content.trim());
-    if (!hasContent) {
-      console.log('No content to save, skipping');
-      return;
-    }
+    if (!hasContent) return;
     
     // If there's already a book ID and it exists in library, show save dialog
     if (currentBookId) {
@@ -933,28 +896,22 @@ function MakeEbookPage() {
     // Auto-save can create draft books to prevent data loss
     // forceNewVersion=false: saves to existing book or creates draft if needed
     // forceNewVersion=true: creates a new version intentionally
-    if (!forceNewVersion && !currentBookId) {
-      console.log('Creating draft book via auto-save');
-    }
     
     const bookData = {
-      id: forceNewVersion ? undefined : currentBookId, // Force new ID if creating new version
+      id: forceNewVersion ? undefined : currentBookId,
       title,
       author,
       blurb,
       publisher,
-      pubDate, // Keep camelCase for localStorage
-      pub_date: pubDate, // Use snake_case for Supabase
+      pubDate,
       isbn,
       language,
       genre,
       tags,
-      chapters, // Include chapters in the save data
-      coverFile: coverUrl, // Include cover file
-      cover_image_url: coverUrl,
+      chapters,
+      coverFile: coverUrl,
       endnotes,
-      endnoteReferences, // Keep camelCase for localStorage
-      endnote_references: endnoteReferences,
+      endnoteReferences,
     };
 
     const id = saveBookToLibrary(bookData);
@@ -972,45 +929,20 @@ function MakeEbookPage() {
       tags,
     });
     
-    // Save to IndexedDB for offline access
-    try {
-      await saveOffline({
-        id,
-        title,
-        author,
-        blurb,
-        publisher,
-        pubDate,
-        isbn,
-        language,
-        genre,
-        tags,
-        chapters,
-      });
-    } catch (err) {
-      console.error('Failed to save offline:', err);
-    }
-    
     setTimeout(() => setSaveFeedback(false), 1300);
 
-    // Save to Supabase (if user is logged in, has Pro access, and is online)
+    // Save to Supabase (if user is logged in and has Pro access)
     try {
-      if (user && user.id && isOnline) {
+      if (user && user.id) {
         // Check if user has Cloud Sync access (Pro feature)
         if (!hasCloudSync) {
-          console.log('Cloud Sync is a Pro feature - book saved locally only');
-          // Don't interrupt the user - they already saved locally successfully
           return;
         }
 
-        const result = await saveEbookToSupabase(bookData, chapters, user.id);
-        console.log('Supabase save result:', result);
-        if (!result) {
-          console.warn('No data returned from Supabase. Check RLS policies and table columns.');
-        }
+        await saveEbookToSupabase(bookData, chapters, user.id);
       }
     } catch (err) {
-      console.error('Failed to save to Supabase:', err, JSON.stringify(err));
+      // Supabase save failed silently — local save already succeeded
     }
   }
 
@@ -1148,15 +1080,8 @@ function MakeEbookPage() {
   function handleLoadBook(id: string) {
     const loaded = loadBookById(id);
     if (loaded) {
-      setShowMarketingPage(false); // Dismiss marketing page when loading a book
-      setTitle(loaded.title || "");
-      setAuthor(loaded.author || "");
-      setBlurb(loaded.blurb || "");
-      setPublisher(loaded.publisher || "");
-      setPubDate(loaded.pubDate || today);
-      setIsbn(loaded.isbn || "");
-      setLanguage(loaded.language || LANGUAGES[0]);
-      setGenre(loaded.genre || "");
+      setShowMarketingPage(false);
+      loadMetadata({ ...loaded, id: loaded.id });
       setTags(loaded.tags || []);
       setCoverFile(loaded.coverFile || null);
       
@@ -1184,42 +1109,19 @@ function MakeEbookPage() {
     }
   }
 
-  async function handleDeleteBook(id: string) {
-    if (confirm('Are you sure you want to delete this eBook? This action cannot be undone.')) {
-      // Find the book to get its title for fallback lookup
-      const bookToDelete = libraryBooks.find(b => b.id === id);
-      
-      // Delete from local storage
-      removeBookFromLibrary(id);
-      setLibraryBooks(loadBookLibrary());
-      
-      // Also delete from Supabase if user is logged in
-      if (user && user.id) {
-        try {
-          const { deleteEbookFromSupabase } = await import('@/lib/supabaseEbooks');
-          await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
-        } catch (err) {
-          console.error('Failed to delete from Supabase:', err);
-        }
-      }
-      
-      if (currentBookId === id) {
-        // Clear editor state directly without saving (to avoid recreating the deleted book)
-        clearEditorState();
-      }
-    }
-  }
-
-  async function handleDeleteSelectedBooks() {
-    const count = selectedBookIds.size;
-    if (count === 0) return;
-    
-    if (confirm(`Are you sure you want to delete ${count} book${count > 1 ? 's' : ''}? This action cannot be undone.`)) {
-      // Delete each book from local storage and Supabase
-      for (const id of selectedBookIds) {
+  function handleDeleteBook(id: string) {
+    setDialogState({
+      open: true,
+      title: 'Delete Book',
+      message: 'Are you sure you want to delete this eBook? This action cannot be undone.',
+      variant: 'destructive',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        setDialogState(prev => ({ ...prev, open: false }));
         const bookToDelete = libraryBooks.find(b => b.id === id);
         removeBookFromLibrary(id);
-        
+        setLibraryBooks(loadBookLibrary());
+
         if (user && user.id) {
           try {
             const { deleteEbookFromSupabase } = await import('@/lib/supabaseEbooks');
@@ -1228,16 +1130,49 @@ function MakeEbookPage() {
             console.error('Failed to delete from Supabase:', err);
           }
         }
-        
+
         if (currentBookId === id) {
           clearEditorState();
         }
-      }
-      
-      setLibraryBooks(loadBookLibrary());
-      setSelectedBookIds(new Set());
-      setMultiSelectMode(false);
-    }
+      },
+    });
+  }
+
+  function handleDeleteSelectedBooks() {
+    const count = selectedBookIds.size;
+    if (count === 0) return;
+
+    setDialogState({
+      open: true,
+      title: 'Delete Books',
+      message: `Are you sure you want to delete ${count} book${count > 1 ? 's' : ''}? This action cannot be undone.`,
+      variant: 'destructive',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        setDialogState(prev => ({ ...prev, open: false }));
+        for (const id of selectedBookIds) {
+          const bookToDelete = libraryBooks.find(b => b.id === id);
+          removeBookFromLibrary(id);
+
+          if (user && user.id) {
+            try {
+              const { deleteEbookFromSupabase } = await import('@/lib/supabaseEbooks');
+              await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
+            } catch (err) {
+              console.error('Failed to delete from Supabase:', err);
+            }
+          }
+
+          if (currentBookId === id) {
+            clearEditorState();
+          }
+        }
+
+        setLibraryBooks(loadBookLibrary());
+        setSelectedBookIds(new Set());
+        setMultiSelectMode(false);
+      },
+    });
   }
 
   function toggleBookSelection(id: string) {
@@ -1305,19 +1240,6 @@ function MakeEbookPage() {
     <>
       {/* Main Content - Full height without header */}
       <div className="bg-white dark:bg-[#0a0a0a] text-[#15161a] dark:text-[#e5e5e5]">
-        
-        {/* Update Available Banner */}
-        {isUpdateAvailable && (
-          <div className="fixed top-0 left-0 right-0 z-[150] bg-blue-600 text-white text-center py-2 px-4 text-sm flex items-center justify-center gap-3">
-            <span>A new version is available!</span>
-            <button
-              onClick={updateServiceWorker}
-              className="px-3 py-1 bg-white text-blue-600 rounded font-medium text-xs hover:bg-blue-50 transition-colors"
-            >
-              Update Now
-            </button>
-          </div>
-        )}
         
         {/* New Book Confirmation Dialog */}
         {newBookConfirmOpen && (
@@ -1499,19 +1421,19 @@ function MakeEbookPage() {
 
         {/* Mobile Preview Modal */}
         {mobilePreviewOpen && (
-          <div className="fixed inset-0 z-[130] bg-gray-900/95 flex flex-col lg:hidden overflow-hidden">
+          <div className="fixed inset-0 z-[130] bg-[#141413]/90 dark:bg-black/90 flex flex-col lg:hidden overflow-hidden">
             {/* Header - Sticky */}
-            <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700">
+            <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-[#f0eee6] dark:bg-[#0a0a0a] border-b border-[#e4e4de] dark:border-[#333]">
               <div className="flex items-center gap-3">
-                <h2 className="text-sm font-medium text-white">Preview</h2>
+                <h2 className="text-sm font-medium text-[#141413] dark:text-white">Preview</h2>
                 {/* Device Toggle */}
-                <div className="flex bg-gray-700 rounded-lg p-0.5">
+                <div className="flex bg-[#e9e8e4] dark:bg-[#1a1a1a] rounded-lg p-0.5">
                   <button
                     onClick={() => setMobilePreviewDevice('phone')}
                     className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                      mobilePreviewDevice === 'phone' 
-                        ? 'bg-gray-600 text-white' 
-                        : 'text-gray-400 hover:text-white'
+                      mobilePreviewDevice === 'phone'
+                        ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
+                        : 'text-[#141413]/60 dark:text-gray-400 hover:text-[#141413] dark:hover:text-white'
                     }`}
                   >
                     Phone
@@ -1519,9 +1441,9 @@ function MakeEbookPage() {
                   <button
                     onClick={() => setMobilePreviewDevice('tablet')}
                     className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                      mobilePreviewDevice === 'tablet' 
-                        ? 'bg-gray-600 text-white' 
-                        : 'text-gray-400 hover:text-white'
+                      mobilePreviewDevice === 'tablet'
+                        ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
+                        : 'text-[#141413]/60 dark:text-gray-400 hover:text-[#141413] dark:hover:text-white'
                     }`}
                   >
                     Tablet
@@ -1530,9 +1452,9 @@ function MakeEbookPage() {
               </div>
               <button
                 onClick={() => setMobilePreviewOpen(false)}
-                className="p-1.5 hover:bg-gray-700 rounded transition-colors"
+                className="p-1.5 hover:bg-[#e9e8e4] dark:hover:bg-white/10 rounded transition-colors"
               >
-                <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5 text-[#141413]/50 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -1582,22 +1504,22 @@ function MakeEbookPage() {
               </div>
             </div>
             {/* Chapter Navigation - Sticky bottom */}
-            <div className="flex-shrink-0 px-4 py-3 bg-gray-800 border-t border-gray-700">
+            <div className="flex-shrink-0 px-4 py-3 bg-[#f0eee6] dark:bg-[#0a0a0a] border-t border-[#e4e4de] dark:border-[#333]">
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => setSelectedChapter(Math.max(0, selectedChapter - 1))}
                   disabled={selectedChapter === 0}
-                  className="px-3 py-1.5 text-xs font-medium text-gray-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-medium text-[#141413] dark:text-gray-300 hover:text-[#141413]/70 dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   ← Previous
                 </button>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-[#141413]/50 dark:text-gray-400">
                   Chapter {selectedChapter + 1} of {chapters.length}
                 </span>
                 <button
                   onClick={() => setSelectedChapter(Math.min(chapters.length - 1, selectedChapter + 1))}
                   disabled={selectedChapter === chapters.length - 1}
-                  className="px-3 py-1.5 text-xs font-medium text-gray-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-medium text-[#141413] dark:text-gray-300 hover:text-[#141413]/70 dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Next →
                 </button>
@@ -1678,14 +1600,14 @@ function MakeEbookPage() {
                         <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
                         <span className="text-xs text-gray-600 dark:text-gray-400">({libraryBooks.length})</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         {libraryBooks.length > 0 && (
                           <button
                             onClick={() => {
                               setMultiSelectMode(!multiSelectMode);
                               if (multiSelectMode) setSelectedBookIds(new Set());
                             }}
-                            className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}`}
+                            className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}`}
                             title={multiSelectMode ? "Cancel selection" : "Select multiple"}
                           >
                             <svg className={`w-4 h-4 ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1701,7 +1623,7 @@ function MakeEbookPage() {
                             showNewBookConfirmation();
                             setMobileSidebarOpen(false);
                           }}
-                          className="flex flex-col items-center gap-0.5 px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                           title="New book"
                         >
                           <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
@@ -1712,7 +1634,7 @@ function MakeEbookPage() {
                             showImportDialog();
                             setMobileSidebarOpen(false);
                           }}
-                          className="flex flex-col items-center gap-0.5 px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                           title="Import document"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -1889,7 +1811,15 @@ function MakeEbookPage() {
                           title="Export as EPUB"
                         >
                           <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Export</span>
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">EPUB</span>
+                        </button>
+                        <button
+                          onClick={handleExportPDF}
+                          className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                          title="Export as PDF"
+                        >
+                          <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">PDF</span>
                         </button>
                         {exportHistory.length > 0 && (
                           <ExportHistoryButton
@@ -2460,40 +2390,48 @@ function MakeEbookPage() {
               {/* Footer - Sticky */}
               <footer className="flex-shrink-0 pt-4 pb-4 px-4 md:px-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a]">
                 {/* User Account & Theme Row */}
-                <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
                   {/* User Account */}
                   {user ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                          {user.email?.charAt(0).toUpperCase() || 'U'}
-                        </span>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                            {user.email?.charAt(0).toUpperCase() || 'U'}
+                          </span>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate min-w-0">{user.email}</span>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs text-gray-900 dark:text-gray-100 truncate max-w-[140px]">{user.email}</span>
+                      <div className="flex items-center gap-2 pl-[42px]">
+                        <SubscriptionBadge showUpgradeButton={true} />
+                        <span className="text-gray-300 dark:text-gray-600">|</span>
+                        <ManageBillingButton variant="ghost" size="sm" className="h-auto p-0 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" />
+                      </div>
+                      <div className="flex items-center justify-between pl-[42px]">
+                        <div className="-ml-5"><ThemeToggle /></div>
                         <button
                           onClick={async () => {
                             await signOut();
                             setMobileSidebarOpen(false);
                           }}
-                          className="text-sm text-red-600 dark:text-red-400 hover:underline text-left py-1"
+                          className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                         >
                           Log out
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <Link
-                      href="/login"
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-                      onClick={() => setMobileSidebarOpen(false)}
-                    >
-                      Log in
-                    </Link>
+                    <div className="flex items-center justify-between">
+                      <Link
+                        href="/login"
+                        className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                        onClick={() => setMobileSidebarOpen(false)}
+                      >
+                        Log in
+                      </Link>
+                      <ThemeToggle />
+                    </div>
                   )}
-
-                  {/* Theme Toggle */}
-                  <ThemeToggle />
                 </div>
 
                 {/* Links */}
@@ -2829,6 +2767,7 @@ function MakeEbookPage() {
             readingTime={readingTime}
             handleSaveBook={handleSaveBook}
             handleExportEPUB={handleExportEPUB}
+            handleExportPDF={handleExportPDF}
             saveFeedback={saveFeedback}
             exportHistoryCount={exportHistory.length}
             onShowExportHistory={() => setShowExportHistory(true)}
@@ -2850,34 +2789,25 @@ function MakeEbookPage() {
             
             {/* Mobile Header - Compact Status Bar */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#0a0a0a]">
-              {/* Offline Banner */}
-              <OfflineBanner isOnline={isOnline} />
               <div className="flex items-center justify-between px-2 py-1.5 gap-1 border-b border-gray-200 dark:border-gray-700">
-                {/* Left: Menu Button + Offline indicator */}
+                {/* Left: Menu Button */}
                 <div className="flex items-center gap-0.5">
                   <button
                     onClick={() => setMobileSidebarOpen(true)}
                     className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
                     aria-label="Open menu"
                   >
-                    <img 
-                      src="/hamburger-menu-icon.svg" 
-                      alt="Menu" 
-                      className="w-5 h-5 dark:hidden" 
+                    <img
+                      src="/hamburger-menu-icon.svg"
+                      alt="Menu"
+                      className="w-5 h-5 dark:hidden"
                     />
-                    <img 
-                      src="/dark-hamburger-menu-icon.svg" 
-                      alt="Menu" 
-                      className="w-5 h-5 hidden dark:block" 
+                    <img
+                      src="/dark-hamburger-menu-icon.svg"
+                      alt="Menu"
+                      className="w-5 h-5 hidden dark:block"
                     />
                   </button>
-                  <OfflineIndicatorCompact isOnline={isOnline} isSyncing={isSyncing} pendingSyncCount={pendingSyncCount} />
-                </div>
-                {/* Center: Book Title - truncated */}
-                <div className="flex-1 min-w-0 text-center px-1">
-                  <div className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5] truncate">
-                    {title || 'Untitled Book'}
-                  </div>
                 </div>
                 {/* Right: Preview + Stats Dropdowns */}
                 {chapters.length > 0 && (
@@ -2968,7 +2898,7 @@ function MakeEbookPage() {
 
               {/* Rich Text Editor - Maximized for Writing */}
               <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
-                {/* Undo/Redo/Save/Export - Hidden when keyboard is open (compact toolbar takes over) */}
+                {/* Undo/Redo - Hidden when keyboard is open (compact toolbar takes over) */}
                 <div className={`mt-2 mb-1 flex-shrink-0 flex items-start justify-between px-2 transition-all duration-200 ${
                   isMobileKeyboardOpen ? 'hidden' : ''
                 }`}>
@@ -3026,42 +2956,6 @@ function MakeEbookPage() {
                       </button>
                       <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Redo</span>
                     </div>
-                    {/* On mobile, right-align Save/Export, remove duplicate Save. On desktop, add Save/Export beside Undo/Redo. */}
-                    <div className="flex-1 flex justify-end gap-2 lg:justify-start">
-                      <div className="flex flex-col items-center">
-                        <button
-                          onClick={handleSaveBook}
-                          disabled={!!saveFeedback}
-                          title={saveFeedback ? "Saved!" : "Save book"}
-                          className="hover:opacity-70 transition-opacity disabled:opacity-60"
-                        >
-                          <div className="bg-white dark:bg-[#1a1a1a] rounded-full p-2">
-                            {saveFeedback ? (
-                              <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                            ) : (
-                              <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                            )}
-                          </div>
-                        </button>
-                        <span className={`text-xs font-medium mt-1 transition-colors ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
-                          {saveFeedback ? 'Saved!' : 'Save'}
-                        </span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <button
-                          onClick={handleExportEPUB}
-                          title="Export book as EPUB"
-                          className="hover:opacity-70 transition-opacity"
-                        >
-                          <div className="bg-white dark:bg-[#1a1a1a] rounded-full p-2">
-                            <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                          </div>
-                        </button>
-                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Export</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
                 <div className="flex-1 min-h-0" style={{ minHeight: '400px' }}>
@@ -3110,31 +3004,6 @@ function MakeEbookPage() {
                 <div className="flex items-center justify-between px-2 mb-2">
                   <div className="flex items-center gap-3">
                     <AutoSaveIndicator isDirty={isDirty} isSaving={isSaving} lastSaved={lastSaved} hasCloudSync={hasCloudSync} />
-                    {/* Offline indicator for desktop */}
-                    {(!isOnline || pendingSyncCount > 0) && (
-                      <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
-                        isOnline 
-                          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                      }`}>
-                        {isSyncing ? (
-                          <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                        ) : (
-                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                        )}
-                        <span>{isSyncing ? 'Syncing...' : isOnline ? `${pendingSyncCount} to sync` : 'Offline'}</span>
-                        {isOnline && pendingSyncCount > 0 && !isSyncing && (
-                          <button onClick={syncNow} className="ml-1 hover:opacity-70" title="Sync now">
-                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                          </button>
-                        )}
-                      </div>
-                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     <ChapterNavDropdown
@@ -3249,41 +3118,6 @@ function MakeEbookPage() {
                         </button>
                         <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Redo</span>
                       </div>
-                      {/* Save Book Button */}
-                      <div className="flex flex-col items-center">
-                        <button
-                          onClick={handleSaveBook}
-                          disabled={!!saveFeedback}
-                          title={saveFeedback ? "Saved!" : "Save book"}
-                          className="hover:opacity-70 transition-opacity disabled:opacity-60"
-                        >
-                          <div className="bg-white dark:bg-[#1a1a1a] rounded-full p-2">
-                            {saveFeedback ? (
-                              <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                            ) : (
-                              <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                            )}
-                          </div>
-                        </button>
-                        <span className={`text-xs font-medium mt-1 transition-colors ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
-                          {saveFeedback ? 'Saved!' : 'Save'}
-                        </span>
-                      </div>
-                      {/* Export Book Button */}
-                      <div className="flex flex-col items-center">
-                        <button
-                          onClick={handleExportEPUB}
-                          title="Export book as EPUB"
-                          className="hover:opacity-70 transition-opacity"
-                        >
-                          <div className="bg-white dark:bg-[#1a1a1a] rounded-full p-2">
-                            <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                          </div>
-                        </button>
-                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Export</span>
-                      </div>
                     </div>
                   </div>
                   <div className="flex-1 min-h-0">
@@ -3365,6 +3199,34 @@ function MakeEbookPage() {
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
         feature="Cloud Sync"
+      />
+
+      {/* Generic Confirm/Alert Dialog */}
+      <ConfirmDialog
+        open={dialogState.open}
+        title={dialogState.title}
+        message={dialogState.message}
+        variant={dialogState.variant}
+        confirmLabel={dialogState.confirmLabel}
+        onConfirm={dialogState.onConfirm}
+        onCancel={() => setDialogState(prev => ({ ...prev, open: false }))}
+      />
+
+      {/* Find & Replace Panel */}
+      <FindReplacePanel
+        isOpen={findReplace.isOpen}
+        onClose={findReplace.close}
+        searchTerm={findReplace.searchTerm}
+        onSearchChange={findReplace.setSearchTerm}
+        replaceTerm={findReplace.replaceTerm}
+        onReplaceChange={findReplace.setReplaceTerm}
+        caseSensitive={findReplace.caseSensitive}
+        onCaseSensitiveChange={findReplace.setCaseSensitive}
+        matches={findReplace.matches}
+        totalMatches={findReplace.totalMatches}
+        onReplaceInChapter={findReplace.replaceInChapter}
+        onReplaceAll={findReplace.replaceAll}
+        onGoToMatch={findReplace.goToMatch}
       />
     </>
   );

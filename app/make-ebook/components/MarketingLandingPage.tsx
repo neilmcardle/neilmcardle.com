@@ -145,7 +145,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-100" data-no-paper-override>
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-100">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-lg border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { LibraryIcon, PlusIcon, TrashIcon, SaveIcon, DownloadIcon, CloseIcon } from './icons';
 import { ExportHistoryButton } from './ExportHistoryPanel';
-import { ChevronDown, ChevronRight } from 'lucide-react';
 import DragIcon from './icons/DragIcon';
 import BinIcon from './icons/BinIcon';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -112,6 +111,7 @@ interface CollapsibleSidebarProps {
   // Actions
   handleSaveBook: () => void;
   handleExportEPUB: () => void;
+  handleExportPDF: () => void;
   saveFeedback: boolean;
 
   // Export history
@@ -258,6 +258,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     readingTime,
     handleSaveBook,
     handleExportEPUB,
+    handleExportPDF,
     saveFeedback,
     exportHistoryCount,
     onShowExportHistory,
@@ -326,22 +327,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSidebarLibraryExpanded(!sidebarLibraryExpanded)}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
-              title={sidebarLibraryExpanded ? "Collapse library" : "Expand library"}
-            >
-              {sidebarLibraryExpanded ? (
-                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              )}
-            </button>
             <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
             <span className="text-xs text-gray-600 dark:text-gray-400">({libraryBooks.length})</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {libraryBooks.length > 0 && (
               <button
                 onClick={() => {
@@ -350,7 +340,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                     // Clear selection when exiting multi-select mode
                   }
                 }}
-                className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'}`}
+                className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'}`}
                 title={multiSelectMode ? "Cancel selection" : "Select multiple"}
               >
                 <svg className={`w-4 h-4 ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -363,7 +353,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             )}
             <button
               onClick={showNewBookConfirmation}
-              className="flex flex-col items-center gap-0.5 px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
+              className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title="New book"
             >
               <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
@@ -371,7 +361,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             </button>
             <button
               onClick={showImportDialog}
-              className="flex flex-col items-center gap-0.5 px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
+              className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title="Import document"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -382,9 +372,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           </div>
         </div>
         
-        {sidebarLibraryExpanded && (
-          <>
-            {multiSelectMode && libraryBooks.length > 0 && (
+        {multiSelectMode && libraryBooks.length > 0 && (
               <div className="flex items-center justify-between mt-2 px-2 py-1.5 bg-gray-50 dark:bg-[#1a1a1a] rounded-md">
                 <button
                   onClick={toggleSelectAll}
@@ -494,8 +482,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               })
             )}
             </div>
-          </>
-        )}
       </div>
         )}
 
@@ -504,17 +490,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <button
-              onClick={() => setSidebarBookDetailsExpanded(!sidebarBookDetailsExpanded)}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors flex-shrink-0"
-              title={sidebarBookDetailsExpanded ? "Collapse details" : "Expand details"}
-            >
-              {sidebarBookDetailsExpanded ? (
-                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              )}
-            </button>
             <img src="/preview-icon.svg" alt="Details" className="w-5 h-5 dark:invert flex-shrink-0" />
             <div className="flex flex-col gap-0.5 flex-1 min-w-0">
               <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Book</span>
@@ -525,11 +500,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={handleSaveBook}
               disabled={!!saveFeedback}
-              className={`flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-all disabled:opacity-60 ${saveFeedback ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
+              className={`flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-all disabled:opacity-60 ${saveFeedback ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
               title={saveFeedback ? "Saved!" : "Save book"}
             >
               {saveFeedback ? (
@@ -539,17 +514,25 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               ) : (
                 <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
               )}
-              <span className={`text-xs font-medium ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}`}>
+              <span className={`text-[10px] font-medium ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}`}>
                 {saveFeedback ? 'Saved!' : 'Save'}
               </span>
             </button>
             <button
               onClick={handleExportEPUB}
-              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
+              className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title="Export as EPUB"
             >
               <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Export</span>
+              <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">EPUB</span>
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
+              title="Export as PDF"
+            >
+              <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+              <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">PDF</span>
             </button>
             {exportHistoryCount > 0 && (
               <ExportHistoryButton
@@ -560,8 +543,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           </div>
         </div>
 
-        {sidebarBookDetailsExpanded && (
-          <div className="mt-2 space-y-3 pl-2 pr-2">
+        <div className="mt-2 space-y-3 pl-2 pr-2">
             {/* Title */}
             <div>
               <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Title</label>
@@ -778,7 +760,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               </div>
             </div>
           </div>
-        )}
       </div>
         )}
 
@@ -787,17 +768,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSidebarChaptersExpanded(!sidebarChaptersExpanded)}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
-              title={sidebarChaptersExpanded ? "Collapse chapters" : "Expand chapters"}
-            >
-              {sidebarChaptersExpanded ? (
-                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              )}
-            </button>
             <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Chapters</span>
             <span className="text-xs text-gray-500 dark:text-gray-400">({chapters.length})</span>
@@ -876,8 +846,8 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             )}
           </div>
         </div>
-      </div>        {sidebarChaptersExpanded && (
-          <div className="mt-1 space-y-1 pl-2">
+      </div>
+        <div className="mt-1 space-y-1 pl-2">
             <p className="text-[10px] text-gray-600 dark:text-gray-400 px-2 mb-1">Drag to reorder</p>
             {chapters.map((ch, i) => {
               const isSelected = selectedChapter === i;
@@ -956,7 +926,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               );
             })}
           </div>
-        )}
       </div>
         )}
 
@@ -965,24 +934,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSidebarPreviewExpanded(!sidebarPreviewExpanded)}
-              className="p-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
-              title={sidebarPreviewExpanded ? "Collapse preview" : "Expand preview"}
-            >
-              {sidebarPreviewExpanded ? (
-                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              )}
-            </button>
             <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert" />
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Preview</span>
           </div>
         </div>
-        
-        {sidebarPreviewExpanded && (
-          <div className="mt-2 px-2">
+        <div className="mt-2 px-2">
             {/* Cover Preview */}
             <div className="mb-4 flex justify-center">
               <div className="w-32 h-48 bg-gray-100 dark:bg-[#1e1e1e] rounded border border-gray-200 dark:border-gray-800 flex items-center justify-center overflow-hidden">
@@ -1074,8 +1030,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
         )}
       </div>
     </aside>

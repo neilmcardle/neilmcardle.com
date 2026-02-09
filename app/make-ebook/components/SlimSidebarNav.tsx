@@ -159,7 +159,7 @@ function ThemeToggleButton() {
   // Determine next theme for tooltip
   const getNextTheme = () => {
     if (theme === 'light') return 'dark';
-    if (theme === 'dark') return 'paper';
+    if (theme === 'dark') return 'system';
     return 'light';
   };
 
@@ -168,7 +168,7 @@ function ThemeToggleButton() {
       return <img src="/moon-icon.svg" alt="Dark mode" className="w-6 h-6" />;
     }
     if (theme === 'dark') {
-      // Paper icon for dark -> paper transition
+      // Monitor icon for dark -> system transition
       return (
         <svg
           width="24"
@@ -181,14 +181,13 @@ function ThemeToggleButton() {
           strokeLinejoin="round"
           className="w-6 h-6 text-white"
         >
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-          <line x1="16" y1="13" x2="8" y2="13" />
-          <line x1="16" y1="17" x2="8" y2="17" />
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+          <line x1="8" y1="21" x2="16" y2="21" />
+          <line x1="12" y1="17" x2="12" y2="21" />
         </svg>
       );
     }
-    // Paper mode - show sun
+    // System mode - show sun
     return <img src="/sun-icon.svg" alt="Light mode" className="w-6 h-6" />;
   };
 

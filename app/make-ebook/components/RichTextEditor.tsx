@@ -14,9 +14,7 @@ import React, {
 import Link from 'next/link';
 import Image from 'next/image';
 import DOMPurify from 'dompurify';
-import katex from 'katex';
 import { useTheme } from '../../../lib/contexts/ThemeContext';
-import "../../../styles/vendor/katex.css";
 
 interface RichTextEditorProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -71,20 +69,10 @@ const EPUB_SAFE_CONFIG = {
   ALLOWED_TAGS: [
     'p', 'br', 'strong', 'em', 'u', 's', 'sub', 'sup',
     'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote',
-    'pre', 'code', 'a', 'img', 'hr', 'figure', 'figcaption',
-    // MathML tags for EPUB 3 compatibility
-    'math', 'mrow', 'mi', 'mn', 'mo', 'mfrac', 'msup', 'msub',
-    'msubsup', 'msqrt', 'mroot', 'mtext', 'mspace', 'mtable',
-    'mtr', 'mtd', 'mover', 'munder', 'munderover', 'mfenced',
-    'menclose', 'mstyle', 'mpadded', 'mphantom', 'mglyph'
+    'pre', 'code', 'a', 'img', 'hr', 'figure', 'figcaption'
   ],
   ALLOWED_ATTR: [
-    'href', 'src', 'alt', 'title', 'class', 'id',
-    // MathML attributes
-    'xmlns', 'display', 'mathvariant', 'mathsize', 'mathcolor',
-    'mathbackground', 'fence', 'separator', 'stretchy', 'symmetric',
-    'maxsize', 'minsize', 'largeop', 'movablelimits', 'accent',
-    'form', 'lspace', 'rspace'
+    'href', 'src', 'alt', 'title', 'class', 'id'
   ],
   ALLOW_DATA_ATTR: false,
   FORBID_TAGS: ['script', 'style', 'object', 'embed', 'iframe', 'form', 'input'],
@@ -125,6 +113,15 @@ export default function RichTextEditor({
   const [showEndnoteModal, setShowEndnoteModal] = useState(false);
   const [endnoteContent, setEndnoteContent] = useState('');
   const savedCursorPosition = useRef<Range | null>(null);
+
+  // Inline toast for non-blocking feedback (replaces alert())
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = useCallback((msg: string) => {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3000);
+  }, []);
 
   // Image caption modal state
   const [showImageCaptionModal, setShowImageCaptionModal] = useState(false);
@@ -267,7 +264,7 @@ export default function RichTextEditor({
     // Save current cursor position
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) {
-      alert('Please click in the editor to position your cursor.');
+      showToast('Please click in the editor to position your cursor.');
       return;
     }
 
@@ -323,7 +320,7 @@ export default function RichTextEditor({
     
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) {
-      alert('Please select some text to turn into a link.');
+      showToast('Please select some text to turn into a link.');
       return;
     }
     
@@ -352,26 +349,8 @@ export default function RichTextEditor({
         emitChange();
         refreshStates();
         
-        alert(`Anchor created! You can now link to this location using: #${cleanId}\n\nFor example, in your index: <a href="#${cleanId}">Link text</a>`);
+        showToast(`Anchor created! Link to it with: #${cleanId}`);
       }
-    }
-  };
-
-  // Convert LaTeX math to MathML for EPUB compatibility
-  const convertMathToMathML = (latex: string, displayMode: boolean = false): string => {
-    try {
-      const mathmlString = katex.renderToString(latex, {
-        output: 'mathml',
-        displayMode,
-        throwOnError: false,
-        errorColor: '#cc0000',
-        strict: false
-      });
-      return mathmlString;
-    } catch (error) {
-      console.warn('Error converting LaTeX to MathML:', error);
-      // Fallback: wrap in a span with error styling
-      return `<span style="color: #cc0000; font-style: italic;">Math Error: ${latex}</span>`;
     }
   };
 
@@ -430,12 +409,7 @@ export default function RichTextEditor({
         return placeholder;
       });
 
-      // Handle math code fences FIRST (```math...```) before general code fences
-      cleaned = cleaned.replace(/```math\s*\n([\s\S]*?)\n```/gi, (match, latex) => {
-        return convertMathToMathML(latex.trim(), true);
-      });
-
-      // Then detect other code fences (```...```)
+      // Detect code fences (```...```)
       cleaned = cleaned.replace(/```(\w*)\s*\n([\s\S]*?)\n```/g, (match, language, code) => {
         const placeholder = `__SECURE_CODE_BLOCK_${Date.now()}_${codeBlockCounter++}__`;
         // HTML-escape the code content to preserve angle brackets and special chars
@@ -483,22 +457,6 @@ export default function RichTextEditor({
       
       // Convert standalone newlines inside content to spaces, but not between tags
       cleaned = cleaned.replace(/>(\s*)\n(\s*)</g, '>$1 $2<');
-
-      // Detect and convert LaTeX math expressions
-      // Block math: $$...$$
-      cleaned = cleaned.replace(/\$\$([^$]+)\$\$/g, (match, latex) => {
-        return convertMathToMathML(latex.trim(), true);
-      });
-      
-      // Inline math: $...$
-      cleaned = cleaned.replace(/\$([^$]+)\$/g, (match, latex) => {
-        return convertMathToMathML(latex.trim(), false);
-      });
-      
-      // Detect math code blocks: ```math...```
-      cleaned = cleaned.replace(/```math\s*([\s\S]*?)```/gi, (match, latex) => {
-        return convertMathToMathML(latex.trim(), true);
-      });
 
       // Detect and wrap code blocks (indented text or monospace fonts)
       cleaned = cleaned.replace(
@@ -867,6 +825,13 @@ export default function RichTextEditor({
       className={`relative border-none rounded bg-white dark:bg-[#0a0a0a] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
+      {/* Inline toast notification */}
+      {toast && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
+          {toast}
+        </div>
+      )}
+
       {/* Full Toolbar - Hidden on mobile when keyboard is open */}
       <div className={`bg-white dark:bg-[#0a0a0a] transition-all duration-200 overflow-visible ${
         isMobileKeyboardOpen ? 'lg:block hidden' : ''

@@ -71,12 +71,12 @@ function MyEbooksContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[#faf9f5] dark:bg-[#0a0a0a]">
         <Header />
         <div className="pt-20 flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your eBooks...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#141413] dark:border-white mx-auto mb-4"></div>
+            <p className="text-[#141413]/60 dark:text-gray-400">Loading your eBooks...</p>
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@ function MyEbooksContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#faf9f5] dark:bg-[#0a0a0a]">
       <Header />
       
       <main className="pt-20 pb-12">
@@ -93,8 +93,8 @@ function MyEbooksContent() {
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">My eBooks</h1>
-                <p className="text-gray-600">
+                <h1 className="text-3xl font-bold text-[#141413] dark:text-white mb-2">My eBooks</h1>
+                <p className="text-[#141413]/60 dark:text-gray-400">
                   {books.length === 0 
                     ? "You haven't created any eBooks yet." 
                     : `${books.length} ${books.length === 1 ? 'eBook' : 'eBooks'} saved locally`
@@ -102,7 +102,7 @@ function MyEbooksContent() {
                 </p>
               </div>
               <Link href="/make-ebook">
-                <Button className="bg-gray-900 hover:bg-gray-800 text-white">
+                <Button className="bg-[#141413] hover:bg-[#141413]/80 text-[#faf9f5]">
                   <Plus className="w-4 h-4 mr-2" />
                   Create New eBook
                 </Button>
@@ -113,13 +113,13 @@ function MyEbooksContent() {
           {/* Books Grid */}
           {books.length === 0 ? (
             <div className="text-center py-16">
-              <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">No eBooks yet</h2>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              <BookOpen className="w-16 h-16 text-[#dedddd] dark:text-gray-600 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold text-[#141413] dark:text-white mb-2">No eBooks yet</h2>
+              <p className="text-[#141413]/60 dark:text-gray-400 mb-6 max-w-md mx-auto">
                 Get started by creating your first eBook. Share your stories, knowledge, or ideas with the world.
               </p>
               <Link href="/make-ebook">
-                <Button className="bg-gray-900 hover:bg-gray-800 text-white">
+                <Button className="bg-[#141413] hover:bg-[#141413]/80 text-[#faf9f5]">
                   <Plus className="w-4 h-4 mr-2" />
                   Create Your First eBook
                 </Button>
@@ -141,17 +141,17 @@ function MyEbooksContent() {
                     <CardContent>
                       <div className="space-y-4">
                         {book.description && (
-                          <p className="text-sm text-gray-600 line-clamp-3">
+                          <p className="text-sm text-[#141413]/60 dark:text-gray-400 line-clamp-3">
                             {book.description}
                           </p>
                         )}
                         
-                        <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center justify-between text-xs text-[#141413]/50 dark:text-gray-500">
                           <span>{book.chapters.length} chapters</span>
                           <span>{getWordCount(book).toLocaleString()} words</span>
                         </div>
                         
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-[#141413]/50 dark:text-gray-500">
                           Saved {formatDate(book.savedAt)}
                         </div>
                       </div>

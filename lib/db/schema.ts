@@ -11,6 +11,8 @@ export const users = pgTable('users', {
   isGrandfathered: boolean('is_grandfathered').default(false).notNull(),
   subscriptionCurrentPeriodEnd: timestamp('subscription_current_period_end'),
   stripePriceId: text('stripe_price_id'),
+  hasLifetimeAccess: boolean('has_lifetime_access').default(false).notNull(),
+  lifetimePaymentId: text('lifetime_payment_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })

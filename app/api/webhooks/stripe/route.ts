@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { getUserByStripeCustomerId, updateUserSubscription } from '@/lib/db/users'
+import { getUserByStripeCustomerId, updateUserSubscription, grantLifetimeAccess } from '@/lib/db/users'
 
 // Disable body parsing - we need the raw body for signature verification
 export const runtime = 'nodejs'
@@ -72,6 +72,10 @@ export async function POST(req: NextRequest) {
         await handleSubscriptionCanceled(event.data.object as Stripe.Subscription)
         break
 
+      case 'checkout.session.completed':
+        await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session)
+        break
+
       case 'invoice.payment_succeeded':
         await handlePaymentSucceeded(event.data.object as Stripe.Invoice)
         break
@@ -120,12 +124,23 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   // Determine subscription tier based on status
   const tier: 'free' | 'pro' = subscription.status === 'active' ? 'pro' : 'free'
 
+  // Safely convert current_period_end to a valid date
+  let subscriptionCurrentPeriodEnd: Date | undefined
+  if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
+    const periodEndMs = subscription.current_period_end * 1000
+    const dateObj = new Date(periodEndMs)
+    // Validate the date is actually valid
+    if (!isNaN(dateObj.getTime())) {
+      subscriptionCurrentPeriodEnd = dateObj
+    }
+  }
+
   // Update user subscription in database
   const { error: updateError } = await updateUserSubscription(user.id, {
     stripeSubscriptionId: subscription.id,
     subscriptionStatus: subscription.status as 'active' | 'canceled' | 'past_due' | 'incomplete',
     subscriptionTier: tier,
-    subscriptionCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+    subscriptionCurrentPeriodEnd,
     stripePriceId: subscription.items.data[0]?.price.id,
   })
 
@@ -222,7 +237,41 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   }
 
   console.log(`⚠️ Payment failed for user ${user.id} - marked as past_due`)
+}
 
+/**
+ * Handle checkout session completion
+ * Handles both subscription and lifetime purchase completions
+ */
+async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  const customerId = session.customer as string
+  const purchaseType = session.metadata?.purchase_type
+
+  console.log(`Handling checkout session completion for customer: ${customerId}, type: ${purchaseType}`)
+
+  const { user, error } = await getUserByStripeCustomerId(customerId)
+
+  if (error || !user) {
+    console.error(`User not found for Stripe customer: ${customerId}`)
+    return
+  }
+
+  // Handle lifetime purchase
+  if (purchaseType === 'lifetime' && session.payment_status === 'paid') {
+    const paymentIntentId = session.payment_intent as string
+
+    const { error: updateError } = await grantLifetimeAccess(user.id, paymentIntentId)
+
+    if (updateError) {
+      console.error(`Failed to grant lifetime access to user ${user.id}:`, updateError)
+      return
+    }
+
+    console.log(`✅ Lifetime access granted to user ${user.id}`)
+    return
+  }
+
+  console.log(`Session type not recognized: ${purchaseType}`)
   // TODO: Send email notification to user about failed payment
   // TODO: Implement in Phase 3 or later
 }

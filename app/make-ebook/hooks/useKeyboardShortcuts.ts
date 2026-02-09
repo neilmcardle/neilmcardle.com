@@ -38,8 +38,8 @@ export function useKeyboardShortcuts({
       const altMatch = shortcut.alt ? e.altKey : !e.altKey;
 
       if (keyMatch && modifierMatch && shiftMatch && altMatch) {
-        // Allow save shortcut even in input fields
-        if (isInputField && !['s', 'e'].includes(shortcut.key.toLowerCase())) {
+        // Allow save, export, and find-replace shortcuts even in input fields
+        if (isInputField && !['s', 'e', 'h'].includes(shortcut.key.toLowerCase())) {
           continue;
         }
         
@@ -63,12 +63,14 @@ export function useEditorShortcuts({
   onExport,
   onPreview,
   onNewChapter,
+  onFindReplace,
   enabled = true,
 }: {
   onSave: () => void;
   onExport: () => void;
   onPreview: () => void;
   onNewChapter?: () => void;
+  onFindReplace?: () => void;
   enabled?: boolean;
 }) {
   const shortcuts: KeyboardShortcut[] = [
@@ -100,6 +102,15 @@ export function useEditorShortcuts({
       shift: true,
       action: onNewChapter,
       description: 'New chapter',
+    });
+  }
+
+  if (onFindReplace) {
+    shortcuts.push({
+      key: 'h',
+      meta: true,
+      action: onFindReplace,
+      description: 'Find & Replace',
     });
   }
 

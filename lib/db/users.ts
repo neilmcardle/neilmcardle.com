@@ -58,7 +58,7 @@ export async function updateUser(id: string, updates: Partial<NewUser>) {
 
 /**
  * Get the subscription tier for a user
- * Returns 'pro' for grandfathered users and active Pro subscribers
+ * Returns 'pro' for grandfathered users, lifetime access users, and active Pro subscribers
  * Returns 'free' for all other cases
  */
 export async function getUserSubscriptionTier(userId: string): Promise<'free' | 'pro'> {
@@ -67,6 +67,7 @@ export async function getUserSubscriptionTier(userId: string): Promise<'free' | 
       .select({
         subscriptionTier: users.subscriptionTier,
         isGrandfathered: users.isGrandfathered,
+        hasLifetimeAccess: users.hasLifetimeAccess,
         subscriptionStatus: users.subscriptionStatus,
         subscriptionCurrentPeriodEnd: users.subscriptionCurrentPeriodEnd,
       })
@@ -78,6 +79,9 @@ export async function getUserSubscriptionTier(userId: string): Promise<'free' | 
 
     // Grandfathered users always get Pro (lifetime access)
     if (user.isGrandfathered) return 'pro'
+
+    // Lifetime access users get Pro
+    if (user.hasLifetimeAccess) return 'pro'
 
     // Check if subscription is active and valid
     if (user.subscriptionStatus === 'active' && user.subscriptionTier === 'pro') {
@@ -147,4 +151,19 @@ export async function getUserByStripeCustomerId(stripeCustomerId: string) {
 export async function userHasProAccess(userId: string): Promise<boolean> {
   const tier = await getUserSubscriptionTier(userId)
   return tier === 'pro'
+}
+
+/**
+ * Grant lifetime access to a user
+ * Used by Stripe webhook handlers to process lifetime purchases
+ */
+export async function grantLifetimeAccess(
+  userId: string,
+  paymentId: string
+) {
+  return updateUser(userId, {
+    hasLifetimeAccess: true,
+    lifetimePaymentId: paymentId,
+    subscriptionTier: 'pro',
+  })
 }

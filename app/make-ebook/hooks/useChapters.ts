@@ -126,19 +126,25 @@ export function useChapters(initial: Chapter[] = []) {
   function handleChapterContentChange(idx: number, value: string) {
     setChapters((chs) => chs.map((ch, i) => (i === idx ? { ...ch, content: value } : ch)));
   }
-  function handleRemoveChapter(idx: number) {
+  function removeChapterDirectly(idx: number) {
+    setChapters((chs) => chs.filter((_, i) => i !== idx));
+    setSelectedChapter((prev) => {
+      if (prev > idx) return prev - 1;
+      if (prev === idx) return 0;
+      return prev;
+    });
+  }
+
+  function handleRemoveChapter(idx: number, onRequestConfirm?: (message: string, onConfirm: () => void) => void) {
     if (chapters.length <= 1) return;
-    
+
     const chapterTitle = chapters[idx]?.title?.trim() || `Chapter ${idx + 1}`;
-    const confirmMessage = `Are you sure you want to delete "${chapterTitle}"? This action cannot be undone.`;
-    
-    if (confirm(confirmMessage)) {
-      setChapters((chs) => chs.filter((_, i) => i !== idx));
-      setSelectedChapter((prev) => {
-        if (prev > idx) return prev - 1;
-        if (prev === idx) return 0;
-        return prev;
-      });
+    const message = `Are you sure you want to delete "${chapterTitle}"? This action cannot be undone.`;
+
+    if (onRequestConfirm) {
+      onRequestConfirm(message, () => removeChapterDirectly(idx));
+    } else {
+      removeChapterDirectly(idx);
     }
   }
   function handleDragStart(index: number) { 

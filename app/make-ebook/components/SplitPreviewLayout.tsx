@@ -48,25 +48,25 @@ export function SplitPreviewLayout({
       <div className={`hidden lg:block transition-all duration-300 ease-in-out overflow-hidden ${
         isPreviewEnabled ? 'w-[420px] opacity-100' : 'w-0 opacity-0'
       }`}>
-        <div className="h-full flex flex-col bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-200 dark:border-gray-800">
-          
+        <div className="h-full flex flex-col bg-[#f0eee6] dark:bg-[#0a0a0a] rounded-lg border border-[#e4e4de] dark:border-gray-800">
+
           {/* Preview Header */}
-          <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex-shrink-0 p-3 border-b border-[#e4e4de] dark:border-gray-800">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-sm font-semibold text-[#141413] dark:text-white">
                 Live Preview
               </h3>
               <button
                 onClick={onTogglePreviewAction}
-                className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-800 rounded transition-colors"
+                className="p-1.5 hover:bg-[#e9e8e4] dark:hover:bg-gray-800 rounded transition-colors"
                 aria-label="Close preview"
               >
-                <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-[#141413]/50 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            
+
             {/* Device Selector */}
             <div className="flex gap-1">
               {(Object.entries(deviceDimensions) as [DeviceType, typeof deviceDimensions.kindle][]).map(([key, val]) => (
@@ -75,8 +75,8 @@ export function SplitPreviewLayout({
                   onClick={() => setPreviewDevice(key)}
                   className={`px-2 py-1 text-xs rounded transition-colors ${
                     previewDevice === key
-                      ? 'bg-black text-white dark:bg-white dark:text-black'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                      ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
+                      : 'bg-[#e9e8e4] dark:bg-gray-700 text-[#141413]/70 dark:text-gray-300 hover:bg-[#e4e4de] dark:hover:bg-gray-600'
                   }`}
                 >
                   {val.name}
@@ -87,9 +87,9 @@ export function SplitPreviewLayout({
 
           {/* E-Reader Frame */}
           <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
-            <div 
+            <div
               className="relative bg-[#2a2a2a] rounded-2xl p-2 shadow-2xl max-w-full"
-              style={{ 
+              style={{
                 width: device.width + 16,
               }}
             >
@@ -100,7 +100,7 @@ export function SplitPreviewLayout({
                   width: device.width,
                   height: device.height,
                   maxWidth: '100%',
-                  backgroundColor: previewTheme === 'light' ? '#ffffff' :
+                  backgroundColor: previewTheme === 'light' ? '#faf9f5' :
                                    previewTheme === 'sepia' ? '#f4ecd8' :
                                    '#1a1a1a',
                 }}
@@ -118,7 +118,7 @@ export function SplitPreviewLayout({
 
           {/* Chapter Navigation */}
           {chapters.length > 1 && (
-            <div className="flex-shrink-0 px-3 pb-2 border-t border-gray-200 dark:border-gray-800">
+            <div className="flex-shrink-0 px-3 pb-2 border-t border-[#e4e4de] dark:border-gray-800">
               <div className="flex gap-1 overflow-x-auto py-2 scrollbar-thin">
                 {chapters.map((ch, i) => (
                   <button
@@ -126,8 +126,8 @@ export function SplitPreviewLayout({
                     onClick={() => onChapterSelectAction?.(i)}
                     className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
                       i === selectedChapter
-                        ? 'bg-black text-white dark:bg-white dark:text-black'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
+                        : 'bg-[#e9e8e4] dark:bg-gray-800 text-[#141413]/70 dark:text-gray-300 hover:bg-[#e4e4de] dark:hover:bg-gray-700'
                     }`}
                   >
                     {ch.title || `Ch ${i + 1}`}
@@ -138,20 +138,20 @@ export function SplitPreviewLayout({
           )}
 
           {/* Theme Controls */}
-          <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-gray-800">
+          <div className="flex-shrink-0 p-3 border-t border-[#e4e4de] dark:border-gray-800">
             <div className="flex items-center justify-center gap-3">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Theme:</span>
+              <span className="text-xs text-[#141413]/50 dark:text-gray-400">Theme:</span>
               {(['light', 'sepia', 'dark'] as const).map((theme) => (
                 <button
                   key={theme}
                   onClick={() => setPreviewTheme(theme)}
                   className={`w-6 h-6 rounded-full border-2 transition-all ${
                     previewTheme === theme
-                      ? 'scale-110 border-blue-500 shadow-md'
-                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+                      ? 'scale-110 border-[#141413] dark:border-white shadow-md'
+                      : 'border-[#dedddd] dark:border-gray-600 hover:border-[#141413]/40'
                   }`}
                   style={{
-                    backgroundColor: theme === 'light' ? '#ffffff' :
+                    backgroundColor: theme === 'light' ? '#faf9f5' :
                                      theme === 'sepia' ? '#f4ecd8' :
                                      '#1a1a1a',
                   }}
@@ -175,7 +175,7 @@ function EReaderContent({
   chapter?: Chapter; 
   theme: ThemeType;
 }) {
-  const textColor = theme === 'dark' ? '#e5e5e5' : '#1a1a1a';
+  const textColor = theme === 'dark' ? '#e5e5e5' : '#141413';
   const linkColor = theme === 'dark' ? '#93c5fd' : '#2563eb';
   
   if (!chapter) {

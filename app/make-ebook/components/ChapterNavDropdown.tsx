@@ -43,9 +43,6 @@ export default function ChapterNavDropdown({
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors"
           title="Navigate chapters"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
           <span className="max-w-[150px] truncate">{currentTitle}</span>
           <ChevronDown className="w-3.5 h-3.5" />
         </button>

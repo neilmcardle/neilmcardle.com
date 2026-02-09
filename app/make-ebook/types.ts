@@ -59,3 +59,24 @@ export interface BookData {
   endnotes?: Endnote[];
   endnoteReferences?: EndnoteReference[];
 }
+
+export interface BookMetadata {
+  title: string;
+  author: string;
+  blurb: string;
+  publisher: string;
+  pubDate: string;
+  isbn: string;
+  language: string;
+  genre: string;
+}
+
+export interface BookRecord extends BookMetadata {
+  id: string;
+  chapters: Chapter[];
+  tags: string[];
+  coverFile: string | null;
+  endnotes: Endnote[];
+  endnoteReferences: EndnoteReference[];
+  savedAt: number;
+}

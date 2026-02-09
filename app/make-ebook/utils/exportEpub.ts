@@ -343,24 +343,15 @@ export async function exportEpub({
     if (endnoteReferences) {
       // If this is the endnotes chapter, fix back-links to chapters
       if (ch.title?.toLowerCase() === 'endnotes') {
-        console.log('🔗 Fixing endnote back-links. Total references:', endnoteReferences.length);
         chapterHtml = chapterHtml.replace(
           /href=(["'])#ref(\d+)\1/g,
           (match, quote, refNumber) => {
-            // Find which chapter contains this endnote reference
             const ref = endnoteReferences.find((r: { id: string; number: number; chapterId: string; endnoteId: string }) => r.number === parseInt(refNumber));
             if (ref && ref.chapterId) {
-              // Use the actual chapter ID to find the target filename
               const targetFilename = chapterIdToFilename.get(ref.chapterId);
               if (targetFilename) {
-                const replacement = `href=${quote}${targetFilename}#ref${refNumber}${quote}`;
-                console.log(`  ✓ Endnote ${refNumber}: ${match} → ${replacement}`);
-                return replacement;
-              } else {
-                console.warn(`  ✗ Endnote ${refNumber}: Could not find filename for chapterId ${ref.chapterId}`);
+                return `href=${quote}${targetFilename}#ref${refNumber}${quote}`;
               }
-            } else {
-              console.warn(`  ✗ Endnote ${refNumber}: No reference found or missing chapterId`);
             }
             return match;
           }
