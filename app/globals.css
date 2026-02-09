@@ -61,39 +61,39 @@ html.dark {
 
 @layer base {
   :root {
-    --background: 48 33% 97%;       /* #faf9f5 */
-    --foreground: 60 3% 8%;         /* #141413 */
-    --card: 48 25% 92%;             /* #f0eee6 */
-    --card-foreground: 60 3% 8%;
-    --popover: 48 25% 92%;          /* #f0eee6 */
-    --popover-foreground: 60 3% 8%;
-    --primary: 60 3% 8%;            /* #141413 */
-    --primary-foreground: 48 33% 97%;
-    --secondary: 48 10% 90%;        /* #e9e8e4 */
-    --secondary-foreground: 60 3% 8%;
-    --muted: 48 10% 90%;            /* #e9e8e4 */
-    --muted-foreground: 60 3% 35%;
-    --accent: 50 21% 89%;           /* #e8e6dc */
-    --accent-foreground: 60 3% 8%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 60 10% 88%;           /* #e4e4de */
-    --input: 0 1% 87%;              /* #dedddd */
-    --ring: 60 3% 8%;
+    --border: 0 0% 92.5%; /* made lighter for fainter dividers */
+    --input: 0 0% 92.5%;
+    --ring: 0 0% 3.9%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 1rem;
-    --sidebar-background: 48 25% 92%;   /* #f0eee6 */
-    --sidebar-foreground: 60 3% 25%;
-    --sidebar-primary: 60 3% 8%;
-    --sidebar-primary-foreground: 48 33% 97%;
-    --sidebar-accent: 48 10% 90%;       /* #e9e8e4 */
-    --sidebar-accent-foreground: 60 3% 8%;
-    --sidebar-border: 60 10% 88%;       /* #e4e4de */
-    --sidebar-ring: 60 3% 8%;
+    --radius: 1rem; /* increased for larger corner radii */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 94%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -129,6 +129,40 @@ html.dark {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+  .paper {
+    --background: 43 44% 90%; /* #f3ecda */
+    --foreground: 36 27% 13%;
+    --card: 43 47% 93%;
+    --card-foreground: 36 27% 13%;
+    --popover: 43 47% 93%;
+    --popover-foreground: 36 27% 13%;
+    --primary: 36 27% 13%;
+    --primary-foreground: 43 47% 95%;
+    --secondary: 43 30% 85%;
+    --secondary-foreground: 36 27% 13%;
+    --muted: 43 30% 85%;
+    --muted-foreground: 36 15% 40%;
+    --accent: 43 30% 85%;
+    --accent-foreground: 36 27% 13%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 43 25% 80%;
+    --input: 43 25% 80%;
+    --ring: 36 27% 13%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --sidebar-background: 43 47% 92%;
+    --sidebar-foreground: 36 20% 30%;
+    --sidebar-primary: 36 27% 13%;
+    --sidebar-primary-foreground: 43 47% 95%;
+    --sidebar-accent: 43 35% 88%;
+    --sidebar-accent-foreground: 36 27% 13%;
+    --sidebar-border: 43 25% 82%;
+    --sidebar-ring: 36 27% 13%;
+  }
 }
 
 /* Make borders much lighter for subtle divider lines */
@@ -147,9 +181,9 @@ html.dark {
   }
   /* Card-like containers */
   .card, .sidebar-card {
-    border-radius: 1rem !important;
-    background: #f0eee6;
-    border: 1px solid #e4e4de;
+    border-radius: 1rem !important;   /* Large soft corners */
+    background: #fff;
+    border: 1px solid #ececec;
     box-shadow: 0 1px 6px 0 rgba(60,60,60,0.03);
   }
 
@@ -158,6 +192,13 @@ html.dark {
     background: #1a1a1a;
     border: 1px solid #333333;
     box-shadow: 0 1px 6px 0 rgba(0,0,0,0.2);
+  }
+
+  html.paper .card,
+  html.paper .sidebar-card {
+    background: #f9f4e6 !important;
+    border: 1px solid #d9d0b8 !important;
+    box-shadow: 0 1px 6px 0 rgba(100,80,40,0.06);
   }
 
   /* Pill-shaped main buttons */
@@ -181,12 +222,12 @@ html.dark {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(200, 198, 190, 0.5);
+  background: rgba(236, 236, 236, 0.5);
   border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(180, 178, 170, 0.7);
+  background: rgba(224, 224, 224, 0.7);
 }
 
 /* Dark mode scrollbar */
@@ -199,13 +240,23 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   background: rgba(85, 85, 85, 0.7);
 }
 
+/* Paper mode scrollbar */
+html.paper ::-webkit-scrollbar-thumb {
+  background: rgba(180, 160, 120, 0.4);
+  border-radius: 8px;
+}
+
+html.paper ::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 140, 100, 0.6);
+}
+
 /* Spacing helpers for cards/sections */
 .section {
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.25rem;
   border-radius: 1rem;
-  background: #f0eee6;
-  border: 1px solid #e4e4de;
+  background: #fff;
+  border: 1px solid #ececec;
 }
 
 html[data-theme='dark'] .section {
@@ -218,11 +269,16 @@ html.dark .section {
   border: 1px solid #333333;
 }
 
+html.paper .section {
+  background: #f9f4e6 !important;
+  border: 1px solid #d9d0b8 !important;
+}
+
 /* Tag pills */
 .tag-pill {
   border-radius: 9999px;
-  background: #e9e8e4;
-  border: 1px solid #e4e4de;
+  background: #f4f4f5;
+  border: 1px solid #ececec;
   color: #86868B;
   font-size: 0.85rem;
   padding: 0.25rem 0.75rem;
@@ -247,14 +303,14 @@ html.dark .tag-pill {
 /* Search bar */
 .input-search {
   border-radius: 9999px;
-  border: 1px solid #e4e4de;
-  background: #faf9f5;
+  border: 1px solid #ececec;
+  background: #fafbfc;
   padding: 0.75rem 1rem;
   font-size: 1rem;
   transition: border 0.15s;
 }
 .input-search:focus {
-  border: 1.5px solid #dedddd;
+  border: 1.5px solid #d4d4d4;
   outline: none;
 }
 
@@ -281,15 +337,15 @@ html.dark .input-search:focus {
 /* General input/textarea style */
 input, select, textarea {
   border-radius: 0.875rem;
-  border: 1px solid #e4e4de;
-  background: #faf9f5;
-  color: #141413;
+  border: 1px solid #ececec;
+  background: #fafbfc;
+  color: #15161a;
   padding: 0.7rem 1rem;
   font-size: 1rem;
   transition: border 0.15s;
 }
 input:focus, select:focus, textarea:focus {
-  border: 1.5px solid #dedddd;
+  border: 1.5px solid #d4d4d4;
   outline: none;
 }
 
@@ -305,6 +361,26 @@ html.dark input:focus,
 html.dark select:focus,
 html.dark textarea:focus {
   border: 1.5px solid #666666;
+}
+
+html.paper input,
+html.paper select,
+html.paper textarea {
+  border: 1px solid #d9d0b8 !important;
+  background: #f9f4e6 !important;
+  color: #2c2416 !important;
+}
+
+html.paper input:focus,
+html.paper select:focus,
+html.paper textarea:focus {
+  border: 1.5px solid #c4b896 !important;
+}
+
+html.paper input::placeholder,
+html.paper textarea::placeholder {
+  color: #9a8b6e !important;
+  opacity: 1;
 }
 
 html[data-theme='dark'] input,
@@ -324,7 +400,7 @@ html[data-theme='dark'] textarea:focus {
 /* Remove outline on buttons for softer look */
 button:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #e4e4de;
+  box-shadow: 0 0 0 2px #e6e6e6;
 }
 
 html.dark button:focus {
@@ -389,7 +465,7 @@ html[data-theme='dark'] .shadow-card {
 
 /* Persona-specific backgrounds */
 .bg-cream {
-  background-color: #f0eee6;
+  background-color: #f9f3e5;
 }
 
 html.dark .bg-cream {
@@ -544,6 +620,11 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
     background: #e5e5e5;
     color: #1a1a1a;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  html.paper [data-tooltip]::after {
+    background: #3d3426;
+    color: #f9f4e6;
+    box-shadow: 0 2px 8px rgba(50,40,20,0.2);
   }
   [data-tooltip]:hover::after {
     opacity: 1;
