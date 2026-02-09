@@ -53,6 +53,8 @@ import UpgradeModal from "./components/UpgradeModal";
 import ConfirmDialog from "./components/ConfirmDialog";
 import FindReplacePanel from "./components/FindReplacePanel";
 import { useFindReplace } from "./hooks/useFindReplace";
+import { useOnboarding } from "./hooks/useOnboarding";
+import OnboardingTour from "./components/OnboardingTour";
 import {
   DropdownMenu, 
   DropdownMenuContent, 
@@ -330,7 +332,25 @@ function MakeEbookPage() {
   
   // Split preview state - enabled by default on desktop so users see the e-reader preview
   const [isSplitPreviewEnabled, setIsSplitPreviewEnabled] = useState(true);
-  
+
+  // Onboarding tour
+  const onboarding = useOnboarding({
+    stepCallbacks: {
+      'book-details': () => setSidebarView('book'),
+      'chapters': () => setSidebarView('chapters'),
+      'editor': () => setSidebarView(null),
+      'preview': () => {
+        setSidebarView(null);
+        setIsSplitPreviewEnabled(true);
+      },
+      'export': () => setSidebarView('book'),
+      'auto-save': () => setSidebarView(null),
+      'mobile-menu': () => {},
+      'mobile-editor': () => setMobileSidebarOpen(false),
+      'mobile-preview': () => setMobileSidebarOpen(false),
+    },
+  });
+
   // Typography preset for EPUB export
   const [typographyPreset, setTypographyPreset] = useState<TypographyPreset>('default');
 
@@ -664,6 +684,11 @@ function MakeEbookPage() {
     ]);
     setSelectedChapter(0);
     setSidebarView('book');
+
+    // Trigger onboarding tour for first-time users
+    if (!onboarding.isOnboardingComplete) {
+      setTimeout(() => onboarding.startTour(), 800);
+    }
   }
 
   function handleNewBookConfirm() {
@@ -691,6 +716,7 @@ function MakeEbookPage() {
     
     // No existing book, save and then clear
     saveBookDirectly(false);
+    saveVersionSnapshot();
     clearEditorState();
     setNewBookConfirmOpen(false);
   }
@@ -890,6 +916,18 @@ function MakeEbookPage() {
     
     // No existing book, save normally (creates new book)
     saveBookDirectly(false);
+    saveVersionSnapshot();
+  }
+
+  // Save a version snapshot (only called on manual saves, not auto-save)
+  function saveVersionSnapshot() {
+    saveVersion(title, author, chapters, {
+      blurb,
+      publisher,
+      pubDate,
+      genre,
+      tags,
+    });
   }
 
   async function saveBookDirectly(forceNewVersion: boolean) {
@@ -919,16 +957,7 @@ function MakeEbookPage() {
     setLibraryBooks(loadBookLibrary());
     setSaveFeedback(true);
     markClean(); // Mark as saved for auto-save indicator
-    
-    // Save version to history
-    saveVersion(title, author, chapters, {
-      blurb,
-      publisher,
-      pubDate,
-      genre,
-      tags,
-    });
-    
+
     setTimeout(() => setSaveFeedback(false), 1300);
 
     // Save to Supabase (if user is logged in and has Pro access)
@@ -949,7 +978,8 @@ function MakeEbookPage() {
   function handleOverwriteBook() {
     setSaveDialogOpen(false);
     saveBookDirectly(false);
-    
+    saveVersionSnapshot();
+
     // If this was triggered from new book flow, clear editor after save
     if (newBookConfirmOpen) {
       clearEditorState();
@@ -960,7 +990,8 @@ function MakeEbookPage() {
   function handleSaveAsNewVersion() {
     setSaveDialogOpen(false);
     saveBookDirectly(true);
-    
+    saveVersionSnapshot();
+
     // If this was triggered from new book flow, clear editor after save
     if (newBookConfirmOpen) {
       clearEditorState();
@@ -2436,6 +2467,23 @@ function MakeEbookPage() {
 
                 {/* Links */}
                 <div className="flex flex-col items-center space-y-2 text-center">
+                  <button
+                    onClick={() => {
+                      setMobileSidebarOpen(false);
+                      onboarding.resetOnboarding();
+                      if (chapters.length === 0) {
+                        clearEditorState();
+                      } else {
+                        setTimeout(() => onboarding.startTour(), 400);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors mb-1"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                    <span>Take the tour</span>
+                  </button>
                   <div className="flex space-x-4">
                     <a href="/terms" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-xs">Terms</a>
                     <a href="/privacy" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-xs">Privacy</a>
@@ -2701,8 +2749,18 @@ function MakeEbookPage() {
             chaptersCount={chapters.length}
             isPanelOpen={isPanelOpen}
             onLogoClick={handleGoToHome}
+            onStartTour={() => {
+              onboarding.resetOnboarding();
+              if (chapters.length === 0) {
+                // clearEditorState creates a chapter + auto-triggers tour since isOnboardingComplete is now false
+                clearEditorState();
+              } else {
+                setTimeout(() => onboarding.startTour(), 100);
+              }
+            }}
+            bookMindHref={`/make-ebook/book-mind${currentBookId ? `?book=${currentBookId}` : ''}`}
           />
-          
+
           {/* Desktop Sidebar - Hidden on Mobile, shows/hides based on isPanelOpen */}
           {isPanelOpen && (
             <CollapsibleSidebar
@@ -2779,11 +2837,19 @@ function MakeEbookPage() {
             setSidebarChaptersExpanded={setSidebarChaptersExpanded}
             sidebarBookDetailsExpanded={sidebarBookDetailsExpanded}
             setSidebarBookDetailsExpanded={setSidebarBookDetailsExpanded}
+            onStartTour={() => {
+              onboarding.resetOnboarding();
+              if (chapters.length === 0) {
+                clearEditorState();
+              } else {
+                setTimeout(() => onboarding.startTour(), 100);
+              }
+            }}
           />
           )}
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className={`flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] rounded shadow-sm px-2 lg:px-8 py-8 lg:py-0 lg:pb-8 min-w-0 overflow-x-hidden overflow-y-auto relative transition-[margin-left] duration-200 ease-out ${
+          <main className={`flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] px-2 lg:pl-8 lg:pr-0 py-8 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative transition-[margin-left] duration-200 ease-out ${
             isPanelOpen ? 'lg:ml-[366px]' : 'lg:ml-0'
           }`}>
             
@@ -2793,6 +2859,7 @@ function MakeEbookPage() {
                 {/* Left: Menu Button */}
                 <div className="flex items-center gap-0.5">
                   <button
+                    data-tour="mobile-menu"
                     onClick={() => setMobileSidebarOpen(true)}
                     className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
                     aria-label="Open menu"
@@ -2818,6 +2885,7 @@ function MakeEbookPage() {
                         chapters={chapters}
                         selectedChapter={selectedChapter}
                         onChapterSelect={setSelectedChapter}
+                        bookTitle={title}
                       />
                     </div>
                     {/* Book Mind AI Button */}
@@ -2833,6 +2901,7 @@ function MakeEbookPage() {
                     </Link>
                     {/* Preview Button */}
                     <button
+                      data-tour="mobile-preview"
                       onClick={() => setMobilePreviewOpen(true)}
                       className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                       aria-label="Preview book"
@@ -2866,7 +2935,7 @@ function MakeEbookPage() {
             </div>
 
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
-            <div className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pt-[52px] pb-0">
+            <div data-tour="mobile-editor" className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pt-[52px] pb-0">
               {chapters.length === 0 ? (
                 // Landing Page - Mobile version
                 <LandingPage
@@ -2963,7 +3032,6 @@ function MakeEbookPage() {
                     value={chapters[selectedChapter]?.content || ""}
                     onChange={(html) => handleChapterContentChange(selectedChapter, html)}
                     minHeight={300}
-                    showWordCount
                     placeholder={
                       selectedChapter === 0
                         ? "Write your first chapter here..."
@@ -2981,7 +3049,7 @@ function MakeEbookPage() {
             </div>
 
             {/* DESKTOP layout */}
-            <div className="hidden lg:flex flex-col gap-3 flex-1 min-h-0 overflow-y-auto">
+            <div className="hidden lg:flex flex-col flex-1 min-h-0 overflow-hidden">
               {chapters.length === 0 ? (
                 // Landing Page - Show when no book is loaded
                 <LandingPage
@@ -3002,7 +3070,7 @@ function MakeEbookPage() {
               <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2">
                 {/* Status Bar with Auto-Save and Quality Score */}
                 <div className="flex items-center justify-between px-2 mb-2">
-                  <div className="flex items-center gap-3">
+                  <div data-tour="auto-save" className="flex items-center gap-3">
                     <AutoSaveIndicator isDirty={isDirty} isSaving={isSaving} lastSaved={lastSaved} hasCloudSync={hasCloudSync} />
                   </div>
                   <div className="flex items-center gap-3">
@@ -3010,17 +3078,8 @@ function MakeEbookPage() {
                       chapters={chapters}
                       selectedChapter={selectedChapter}
                       onChapterSelect={setSelectedChapter}
+                      bookTitle={title}
                     />
-                    <Link
-                      href={`/make-ebook/book-mind${currentBookId ? `?book=${currentBookId}` : ''}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:opacity-90 shadow-sm transition-all"
-                      title="Ask questions about your book"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
-                      <span>Book Mind</span>
-                    </Link>
                     <VersionHistoryButton 
                       versionCount={versions.length} 
                       onClickAction={() => setShowVersionHistory(true)} 
@@ -3033,15 +3092,15 @@ function MakeEbookPage() {
                     <button
                       onClick={() => setIsSplitPreviewEnabled(prev => !prev)}
                       className={`p-1.5 rounded transition-colors ${
-                        isSplitPreviewEnabled 
-                          ? 'bg-black text-white dark:bg-white dark:text-black' 
+                        isSplitPreviewEnabled
+                          ? 'bg-black text-white dark:bg-white dark:text-black'
                           : 'hover:bg-gray-100 dark:hover:bg-gray-800'
                       }`}
                       title={isSplitPreviewEnabled ? "Hide preview (⌘P)" : "Show preview (⌘P)"}
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 3v18" />
                       </svg>
                     </button>
                   </div>
@@ -3063,7 +3122,7 @@ function MakeEbookPage() {
                   </div>
                 </div>
                 {/* Rich Text Editor - Maximum Space */}
-                <div className="w-full max-w-full flex-1 min-h-0 flex flex-col">
+                <div data-tour="editor" className="w-full max-w-full flex-1 min-h-0 flex flex-col">
                   <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between px-2">
                     <div className="flex items-start gap-2">
                       <div className="flex flex-col items-center">
@@ -3127,7 +3186,6 @@ function MakeEbookPage() {
                         handleChapterContentChange(selectedChapter, html)
                       }
                       minHeight={400}
-                      showWordCount
                         placeholder={
                           selectedChapter === 0
                             ? "Write your first chapter here..."
@@ -3140,7 +3198,7 @@ function MakeEbookPage() {
                     />
                   </div>
                   {/* Word Stats Footer */}
-                  <div className="flex items-center justify-center py-2 border-t border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-[#0a0a0a]/50">
+                  <div className="flex-shrink-0 flex items-center justify-center py-2 border-t border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-[#0a0a0a]/50">
                     <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
                       {/* Chapter stats */}
                       <span className="flex items-center gap-1.5">
@@ -3210,6 +3268,17 @@ function MakeEbookPage() {
         confirmLabel={dialogState.confirmLabel}
         onConfirm={dialogState.onConfirm}
         onCancel={() => setDialogState(prev => ({ ...prev, open: false }))}
+      />
+
+      {/* Onboarding Tour */}
+      <OnboardingTour
+        isTourActive={onboarding.isTourActive}
+        currentStep={onboarding.currentStep}
+        totalSteps={onboarding.totalSteps}
+        stepData={onboarding.currentStepData}
+        onNext={onboarding.nextStep}
+        onPrev={onboarding.prevStep}
+        onSkip={onboarding.skipTour}
       />
 
       {/* Find & Replace Panel */}

@@ -22,19 +22,20 @@ interface ChapterNavDropdownProps {
   chapters: Chapter[];
   selectedChapter: number;
   onChapterSelect: (index: number) => void;
+  bookTitle?: string;
 }
 
 export default function ChapterNavDropdown({
   chapters,
   selectedChapter,
   onChapterSelect,
+  bookTitle,
 }: ChapterNavDropdownProps) {
   if (chapters.length === 0) {
     return null;
   }
 
-  const currentChapter = chapters[selectedChapter];
-  const currentTitle = currentChapter?.title || `Chapter ${selectedChapter + 1}`;
+  const displayTitle = bookTitle?.trim() || 'Untitled Book';
 
   return (
     <DropdownMenu>
@@ -43,7 +44,7 @@ export default function ChapterNavDropdown({
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors"
           title="Navigate chapters"
         >
-          <span className="max-w-[150px] truncate">{currentTitle}</span>
+          <span className="max-w-[150px] truncate">{displayTitle}</span>
           <ChevronDown className="w-3.5 h-3.5" />
         </button>
       </DropdownMenuTrigger>

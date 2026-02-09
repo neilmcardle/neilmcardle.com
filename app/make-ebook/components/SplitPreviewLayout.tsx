@@ -38,17 +38,15 @@ export function SplitPreviewLayout({
   return (
     <div className="flex h-full w-full">
       {/* Editor Panel */}
-      <div className={`flex-1 min-w-0 transition-all duration-300 ${
-        isPreviewEnabled ? 'lg:pr-4' : ''
-      }`}>
+      <div className="flex-1 min-w-0 flex flex-col transition-all duration-300">
         {children}
       </div>
 
-      {/* Preview Panel - Slides in from right */}
-      <div className={`hidden lg:block transition-all duration-300 ease-in-out overflow-hidden ${
+      {/* Preview Panel - Slides in from right, full height, flush right */}
+      <div data-tour="preview" className={`hidden lg:block transition-all duration-300 ease-in-out overflow-hidden ${
         isPreviewEnabled ? 'w-[420px] opacity-100' : 'w-0 opacity-0'
       }`}>
-        <div className="h-full flex flex-col bg-[#f0eee6] dark:bg-[#0a0a0a] rounded-lg border border-[#e4e4de] dark:border-gray-800">
+        <div className="h-full flex flex-col bg-[#f0eee6] dark:bg-[#0a0a0a] border-l border-[#e4e4de] dark:border-gray-800">
 
           {/* Preview Header */}
           <div className="flex-shrink-0 p-3 border-b border-[#e4e4de] dark:border-gray-800">
@@ -88,9 +86,10 @@ export function SplitPreviewLayout({
           {/* E-Reader Frame */}
           <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
             <div
-              className="relative bg-[#2a2a2a] rounded-2xl p-2 shadow-2xl max-w-full"
+              className="relative bg-[#2a2a2a] p-2 shadow-2xl max-w-full"
               style={{
                 width: device.width + 16,
+                borderRadius: 24,
               }}
             >
               {/* Screen */}

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { LibraryIcon } from './icons';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useTheme } from '@/lib/contexts/ThemeContext';
@@ -25,6 +26,8 @@ interface SlimSidebarNavProps {
   chaptersCount: number;
   isPanelOpen: boolean;
   onLogoClick?: () => void;
+  onStartTour?: () => void;
+  bookMindHref?: string;
 }
 
 // Tooltip Component
@@ -156,55 +159,25 @@ function UserDropdownSlim() {
 function ThemeToggleButton() {
   const { theme, toggleTheme } = useTheme();
 
-  // Determine next theme for tooltip
-  const getNextTheme = () => {
-    if (theme === 'light') return 'dark';
-    if (theme === 'dark') return 'system';
-    return 'light';
-  };
-
-  const renderIcon = () => {
-    if (theme === 'light') {
-      return <img src="/moon-icon.svg" alt="Dark mode" className="w-6 h-6" />;
-    }
-    if (theme === 'dark') {
-      // Monitor icon for dark -> system transition
-      return (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="w-6 h-6 text-white"
-        >
-          <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-          <line x1="8" y1="21" x2="16" y2="21" />
-          <line x1="12" y1="17" x2="12" y2="21" />
-        </svg>
-      );
-    }
-    // System mode - show sun
-    return <img src="/sun-icon.svg" alt="Light mode" className="w-6 h-6" />;
-  };
+  const nextTheme = theme === 'light' ? 'dark' : 'light';
 
   return (
-    <Tooltip text={`Switch to ${getNextTheme()} mode`}>
+    <Tooltip text={`Switch to ${nextTheme} mode`}>
       <button
         onClick={toggleTheme}
         className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
-        aria-label={`Switch to ${getNextTheme()} mode`}
+        aria-label={`Switch to ${nextTheme} mode`}
       >
-        {renderIcon()}
+        {theme === 'light'
+          ? <img src="/moon-icon.svg" alt="Dark mode" className="w-6 h-6" />
+          : <img src="/sun-icon.svg" alt="Light mode" className="w-6 h-6 dark:invert" />
+        }
       </button>
     </Tooltip>
   );
 }
 
-export default function SlimSidebarNav({ activeView, onViewChange, libraryCount, chaptersCount, isPanelOpen, onLogoClick }: SlimSidebarNavProps) {
+export default function SlimSidebarNav({ activeView, onViewChange, libraryCount, chaptersCount, isPanelOpen, onLogoClick, onStartTour, bookMindHref }: SlimSidebarNavProps) {
   
   const handleViewClick = (view: 'library' | 'book' | 'chapters' | 'preview') => {
     // If clicking the same view and panel is open, close it
@@ -263,6 +236,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
         {/* Book Details */}
         <Tooltip text="Book">
           <button
+            data-tour="book-details"
             onClick={() => handleViewClick('book')}
             className={`relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors ${
               activeView === 'book' && isPanelOpen
@@ -278,6 +252,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
         {/* Chapters */}
         <Tooltip text="Chapters">
           <button
+            data-tour="chapters"
             onClick={() => handleViewClick('chapters')}
             className={`relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors ${
               activeView === 'chapters' && isPanelOpen
@@ -315,6 +290,38 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
 
       {/* Bottom section - Theme Toggle and User */}
       <div className="flex-shrink-0 flex flex-col gap-2 w-full px-2 pb-6">
+        {/* Book Mind */}
+        {bookMindHref && (
+          <Tooltip text="Book Mind">
+            <Link
+              href={bookMindHref}
+              className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors hover:opacity-80"
+              aria-label="Book Mind"
+            >
+              <div className="w-9 h-9 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center">
+                <svg className="w-5 h-5 text-white dark:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+            </Link>
+          </Tooltip>
+        )}
+
+        {/* Take the Tour */}
+        {onStartTour && (
+          <Tooltip text="Take the tour">
+            <button
+              onClick={onStartTour}
+              className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
+              aria-label="Take the tour"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </button>
+          </Tooltip>
+        )}
+
         {/* Theme Toggle */}
         <ThemeToggleButton />
         

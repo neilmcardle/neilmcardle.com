@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { LibraryIcon, PlusIcon, TrashIcon, SaveIcon, DownloadIcon, CloseIcon } from './icons';
 import { ExportHistoryButton } from './ExportHistoryPanel';
+import EmptyStateHint from './EmptyStateHint';
 import DragIcon from './icons/DragIcon';
 import BinIcon from './icons/BinIcon';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -127,6 +128,7 @@ interface CollapsibleSidebarProps {
   setSidebarChaptersExpanded: (value: boolean) => void;
   sidebarBookDetailsExpanded: boolean;
   setSidebarBookDetailsExpanded: (value: boolean) => void;
+  onStartTour?: () => void;
 }
 
 const CHAPTER_TEMPLATES = {
@@ -270,6 +272,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     setSidebarChaptersExpanded,
     sidebarBookDetailsExpanded,
     setSidebarBookDetailsExpanded,
+    onStartTour,
   } = props;
 
   const [isVisible, setIsVisible] = React.useState(false);
@@ -394,9 +397,16 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             )}
             <div className={`mt-2 space-y-1 pl-2 ${libraryBooks.length > 4 ? 'max-h-[400px] overflow-y-auto pr-1' : ''}`}>
             {libraryBooks.length === 0 ? (
-              <div className="text-xs text-gray-600 dark:text-gray-400 py-4 px-2 text-center">
-                No saved books yet
-              </div>
+              <EmptyStateHint
+                compact
+                icon={
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                }
+                title="No saved books yet"
+                description="Your books will appear here once saved. Click Save to preserve your current work."
+              />
             ) : (
               libraryBooks.map((book) => {
                 const isSelected = selectedBookId === book.id;
@@ -487,7 +497,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
 
       {/* Book Details Section */}
       {activeView === 'book' && (
-  <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
+  <div data-tour="book-details" className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <img src="/preview-icon.svg" alt="Details" className="w-5 h-5 dark:invert flex-shrink-0" />
@@ -500,7 +510,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div data-tour="export" className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={handleSaveBook}
               disabled={!!saveFeedback}
@@ -759,13 +769,26 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 </button>
               </div>
             </div>
+          {onStartTour && (
+            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-800">
+              <button
+                onClick={onStartTour}
+                className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <span>Take the tour</span>
+              </button>
+            </div>
+          )}
           </div>
       </div>
         )}
 
       {/* Chapters Section */}
       {activeView === 'chapters' && (
-  <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
+  <div data-tour="chapters" className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
             <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
@@ -848,6 +871,19 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         </div>
       </div>
         <div className="mt-1 space-y-1 pl-2">
+            {chapters.length === 0 ? (
+              <EmptyStateHint
+                compact
+                icon={
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                  </svg>
+                }
+                title="No chapters yet"
+                description="Click the + button above to add your first chapter."
+              />
+            ) : (
+            <>
             <p className="text-[10px] text-gray-600 dark:text-gray-400 px-2 mb-1">Drag to reorder</p>
             {chapters.map((ch, i) => {
               const isSelected = selectedChapter === i;
@@ -925,6 +961,8 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 </div>
               );
             })}
+            </>
+            )}
           </div>
       </div>
         )}

@@ -64,7 +64,7 @@ export function useVersionHistory({ bookId, maxVersions = 20 }: UseVersionHistor
     setIsLoading(false);
   }, [storageKey]);
 
-  // Save a new version
+  // Save a new version (skips if content is identical to the most recent version)
   const saveVersion = useCallback((
     title: string,
     author: string,
@@ -74,6 +74,21 @@ export function useVersionHistory({ bookId, maxVersions = 20 }: UseVersionHistor
     if (!storageKey) return null;
 
     const totalWords = chapters.reduce((sum, ch) => sum + countWords(ch.content), 0);
+
+    // Skip if content is identical to the most recent version
+    const latestVersion = versions[0];
+    if (latestVersion) {
+      const chaptersJson = JSON.stringify(chapters.map(ch => ({ title: ch.title, content: ch.content, type: ch.type })));
+      const latestChaptersJson = JSON.stringify(latestVersion.chapters.map(ch => ({ title: ch.title, content: ch.content, type: ch.type })));
+      if (
+        latestVersion.title === (title || 'Untitled') &&
+        latestVersion.author === (author || 'Unknown') &&
+        chaptersJson === latestChaptersJson &&
+        JSON.stringify(latestVersion.metadata) === JSON.stringify(metadata)
+      ) {
+        return null; // No changes, skip version creation
+      }
+    }
 
     const newVersion: BookVersion = {
       id: `v-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -101,7 +116,7 @@ export function useVersionHistory({ bookId, maxVersions = 20 }: UseVersionHistor
     });
 
     return newVersion;
-  }, [storageKey, maxVersions]);
+  }, [storageKey, maxVersions, versions]);
 
   // Delete a specific version
   const deleteVersion = useCallback((versionId: string) => {
