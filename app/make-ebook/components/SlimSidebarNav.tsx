@@ -8,7 +8,6 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { useSubscription } from '@/lib/hooks/useSubscription';
 import SubscriptionBadge from './SubscriptionBadge';
-import ManageBillingButton from './ManageBillingButton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { LogOut } from 'lucide-react';
+import { LogOut, CreditCard } from 'lucide-react';
 
 interface SlimSidebarNavProps {
   activeView: 'library' | 'book' | 'chapters' | 'preview' | null;
@@ -68,7 +67,7 @@ function Tooltip({ children, text }: { children: React.ReactNode; text: string }
 }
 
 // User Dropdown Component
-function UserDropdownSlim() {
+function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
   const { user, signOut, loading } = useAuth();
   const { tier, isGrandfathered, stripeCustomerId } = useSubscription();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -81,6 +80,20 @@ function UserDropdownSlim() {
       console.error('Logout error:', error);
     } finally {
       setLoggingOut(false);
+    }
+  };
+
+  const handleOpenBilling = async () => {
+    try {
+      const response = await fetch('/api/customer-portal', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to open billing portal');
+      const { url } = await response.json();
+      if (url) window.location.href = url;
+    } catch (err) {
+      console.error('Portal error:', err);
     }
   };
 
@@ -105,7 +118,7 @@ function UserDropdownSlim() {
           <img
             src="/user-icon.svg"
             alt="user icon"
-            className="w-6 h-6 dark:invert"
+            className="w-5 h-5 dark:invert"
           />
         </button>
       </Tooltip>
@@ -116,35 +129,61 @@ function UserDropdownSlim() {
     <Tooltip text={user.email || 'User'}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button 
-            className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]" 
+          <button
+            className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
             aria-label="User menu"
           >
             <img
               src="/user-icon.svg"
               alt="user icon"
-              className="w-6 h-6 dark:invert"
+              className="w-5 h-5 dark:invert"
             />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" sideOffset={8} forceMount>
           <DropdownMenuLabel className="font-normal pt-2 pb-2">
-            <div className="flex flex-col space-y-3">
-              <p className="pl-2 text-sm font-medium leading-none">{user?.email || 'user@email.com'}</p>
-              <div className="pl-2 flex items-center">
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center">
                 <SubscriptionBadge showUpgradeButton={true} />
               </div>
+              <p className="text-sm font-medium leading-none truncate">{user?.email || 'user@email.com'}</p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           {showBillingButton && (
             <>
-              <div className="px-2 py-1.5">
-                <ManageBillingButton variant="ghost" size="sm" className="w-full justify-start" />
-              </div>
+              <DropdownMenuItem onClick={handleOpenBilling}>
+                <CreditCard className="mr-2 h-4 w-4" />
+                <span>Manage Billing</span>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
           )}
+          {onStartTour && (
+            <DropdownMenuItem onClick={onStartTour}>
+              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Take the tour</span>
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem asChild>
+            <a href="/terms">
+              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Terms</span>
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <a href="/privacy">
+              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Privacy</span>
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout} disabled={loggingOut} className="pr-2">
             <LogOut className="mr-2 h-4 w-4" />
             <span>{loggingOut ? "Logging out..." : "Log out"}</span>
@@ -169,8 +208,8 @@ function ThemeToggleButton() {
         aria-label={`Switch to ${nextTheme} mode`}
       >
         {theme === 'light'
-          ? <img src="/moon-icon.svg" alt="Dark mode" className="w-6 h-6" />
-          : <img src="/sun-icon.svg" alt="Light mode" className="w-6 h-6 dark:invert" />
+          ? <img src="/moon-icon.svg" alt="Dark mode" className="w-5 h-5" />
+          : <img src="/sun-icon.svg" alt="Light mode" className="w-5 h-5 dark:invert" />
         }
       </button>
     </Tooltip>
@@ -224,7 +263,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             }`}
             aria-label="Library"
           >
-            <LibraryIcon className="w-6 h-6 dark:[&_path]:stroke-white" />
+            <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
             {libraryCount > 0 && (
               <span className="text-[10px] font-medium mt-0.5 text-gray-600 dark:text-gray-400">
                 ({libraryCount})
@@ -245,7 +284,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             }`}
             aria-label="Book"
           >
-            <img src="/preview-icon.svg" alt="Book" className="w-6 h-6 dark:invert" />
+            <img src="/preview-icon.svg" alt="Book" className="w-5 h-5 dark:invert" />
           </button>
         </Tooltip>
 
@@ -261,7 +300,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             }`}
             aria-label="Chapters"
           >
-            <img src="/chapters-icon.svg" alt="Chapters" className="w-6 h-6 dark:invert" />
+            <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
             {chaptersCount > 0 && (
               <span className="text-[10px] font-medium mt-0.5 text-gray-600 dark:text-gray-400">
                 ({chaptersCount})
@@ -282,7 +321,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             }`}
             aria-label="Preview"
           >
-            <img src="/summary-icon.svg" alt="Preview" className="w-6 h-6 dark:invert" />
+            <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert" />
           </button>
         </Tooltip>
 
@@ -308,26 +347,11 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           </Tooltip>
         )}
 
-        {/* Help / Take the Tour */}
-        {onStartTour && (
-          <Tooltip text="Take the tour">
-            <button
-              onClick={onStartTour}
-              className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
-              aria-label="Take the tour"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
-          </Tooltip>
-        )}
-
         {/* Theme Toggle */}
         <ThemeToggleButton />
-        
+
         {/* User Dropdown */}
-        <UserDropdownSlim />
+        <UserDropdownSlim onStartTour={onStartTour} />
       </div>
     </aside>
   );

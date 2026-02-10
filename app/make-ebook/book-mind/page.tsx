@@ -275,14 +275,24 @@ function BookMindContent() {
         ${showSidebar ? 'lg:w-64' : 'lg:w-0 lg:overflow-hidden'}
       `}>
         <div className="flex flex-col h-full w-64">
-          {/* Logo & Back */}
+          {/* Collapse Sidebar */}
           <div className="p-4 border-b border-gray-200 dark:border-[#222]">
-            <Link href={selectedBookId ? `/make-ebook?load=${selectedBookId}` : '/make-ebook'} className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              <span className="text-sm">Back to Editor</span>
-            </Link>
+            <button
+              onClick={() => setShowSidebar(false)}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
+              title="Collapse sidebar"
+            >
+              <img
+                src="/close-sidebar-icon.svg"
+                alt="Collapse"
+                className="w-5 h-5 dark:hidden"
+              />
+              <img
+                src="/dark-close-sidebar-icon.svg"
+                alt="Collapse"
+                className="w-5 h-5 hidden dark:block"
+              />
+            </button>
           </div>
 
           {/* New Chat Button */}
@@ -397,17 +407,14 @@ function BookMindContent() {
             </div>
           </div>
 
-          {/* Collapse button */}
+          {/* Back to Editor */}
           <div className="p-3 border-t border-gray-200 dark:border-[#222]">
-            <button
-              onClick={() => setShowSidebar(false)}
-              className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-            >
+            <Link href={selectedBookId ? `/make-ebook?load=${selectedBookId}` : '/make-ebook'} className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              <span>Collapse</span>
-            </button>
+              <span>Back to Editor</span>
+            </Link>
           </div>
         </div>
       </div>

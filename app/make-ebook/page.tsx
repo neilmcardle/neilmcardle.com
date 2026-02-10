@@ -285,6 +285,14 @@ function MakeEbookPage() {
   const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] = useState(false);
   const [showEreaderPreview, setShowEreaderPreview] = useState(false);
   
+  // Mobile accordion: only one section open at a time
+  const expandMobileSection = (section: 'library' | 'book' | 'chapters' | 'preview') => {
+    setSidebarLibraryExpanded(section === 'library' ? !sidebarLibraryExpanded : false);
+    setSidebarBookDetailsExpanded(section === 'book' ? !sidebarBookDetailsExpanded : false);
+    setSidebarChaptersExpanded(section === 'chapters' ? !sidebarChaptersExpanded : false);
+    setSidebarPreviewExpanded(section === 'preview' ? !sidebarPreviewExpanded : false);
+  };
+
   // Multi-select for library books
   const [selectedBookIds, setSelectedBookIds] = useState<Set<string>>(new Set());
   const [multiSelectMode, setMultiSelectMode] = useState(false);
@@ -1617,7 +1625,7 @@ function MakeEbookPage() {
                     <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => setSidebarLibraryExpanded(!sidebarLibraryExpanded)}
+                          onClick={() => expandMobileSection('library')}
                           className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                           title={sidebarLibraryExpanded ? "Collapse" : "Expand"}
                         >
@@ -1794,7 +1802,7 @@ function MakeEbookPage() {
                     <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <button
-                          onClick={() => setSidebarBookDetailsExpanded(!sidebarBookDetailsExpanded)}
+                          onClick={() => expandMobileSection('book')}
                           className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors flex-shrink-0"
                           title={sidebarBookDetailsExpanded ? "Collapse details" : "Expand details"}
                         >
@@ -1814,55 +1822,52 @@ function MakeEbookPage() {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <button
-                          onClick={() => {
-                            handleSaveBook();
-                          }}
-                          disabled={!!saveFeedback}
-                          className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors disabled:opacity-60"
-                          title={saveFeedback ? "Saved!" : "Save book"}
-                        >
-                          {saveFeedback ? (
-                            <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                          ) : (
-                            <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                          )}
-                          <span className={`text-xs font-medium ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}`}>
-                            {saveFeedback ? 'Saved!' : 'Save'}
-                          </span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            handleExportEPUB();
-                          }}
-                          className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-                          title="Export as EPUB"
-                        >
-                          <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">EPUB</span>
-                        </button>
-                        <button
-                          onClick={handleExportPDF}
-                          className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-                          title="Export as PDF"
-                        >
-                          <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">PDF</span>
-                        </button>
-                        {exportHistory.length > 0 && (
-                          <ExportHistoryButton
-                            exportCount={exportHistory.length}
-                            onClickAction={() => setShowExportHistory(true)}
-                          />
-                        )}
-                      </div>
                     </div>
 
                     {sidebarBookDetailsExpanded && (
                       <div className="mt-2 space-y-3 pl-2 pr-2">
+                        {/* Action buttons row */}
+                        <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
+                          <button
+                            onClick={() => handleSaveBook()}
+                            disabled={!!saveFeedback}
+                            className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors disabled:opacity-60"
+                            title={saveFeedback ? "Saved!" : "Save book"}
+                          >
+                            {saveFeedback ? (
+                              <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            ) : (
+                              <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                            )}
+                            <span className={`text-xs font-medium ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                              {saveFeedback ? 'Saved!' : 'Save'}
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => handleExportEPUB()}
+                            className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                            title="Export as EPUB"
+                          >
+                            <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">EPUB</span>
+                          </button>
+                          <button
+                            onClick={handleExportPDF}
+                            className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                            title="Export as PDF"
+                          >
+                            <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">PDF</span>
+                          </button>
+                          {exportHistory.length > 0 && (
+                            <ExportHistoryButton
+                              exportCount={exportHistory.length}
+                              onClickAction={() => setShowExportHistory(true)}
+                            />
+                          )}
+                        </div>
                         {/* Title */}
                         <div>
                           <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Title</label>
@@ -2084,7 +2089,7 @@ function MakeEbookPage() {
                     <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <button
-                          onClick={() => setSidebarChaptersExpanded(!sidebarChaptersExpanded)}
+                          onClick={() => expandMobileSection('chapters')}
                           className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors flex-shrink-0"
                           title={sidebarChaptersExpanded ? "Collapse chapters" : "Expand chapters"}
                         >
@@ -2304,7 +2309,7 @@ function MakeEbookPage() {
                     <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <button
-                          onClick={() => setSidebarPreviewExpanded(!sidebarPreviewExpanded)}
+                          onClick={() => expandMobileSection('preview')}
                           className="p-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors flex-shrink-0"
                           title={sidebarPreviewExpanded ? "Collapse preview" : "Expand preview"}
                         >
@@ -2418,55 +2423,45 @@ function MakeEbookPage() {
                 </div>
               </div>
 
-              {/* Footer - Sticky */}
-              <footer className="flex-shrink-0 pt-4 pb-4 px-4 md:px-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a]">
-                {/* User Account & Theme Row */}
-                <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                  {/* User Account */}
-                  {user ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                            {user.email?.charAt(0).toUpperCase() || 'U'}
-                          </span>
-                        </div>
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate min-w-0">{user.email}</span>
-                      </div>
-                      <div className="flex items-center gap-2 pl-[42px]">
-                        <SubscriptionBadge showUpgradeButton={true} />
-                        <span className="text-gray-300 dark:text-gray-600">|</span>
-                        <ManageBillingButton variant="ghost" size="sm" className="h-auto p-0 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" />
-                      </div>
-                      <div className="flex items-center justify-between pl-[42px]">
-                        <div className="-ml-5"><ThemeToggle /></div>
-                        <button
-                          onClick={async () => {
-                            await signOut();
-                            setMobileSidebarOpen(false);
-                          }}
-                          className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                        >
-                          Log out
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <Link
-                        href="/login"
-                        className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-                        onClick={() => setMobileSidebarOpen(false)}
-                      >
-                        Log in
-                      </Link>
+              {/* Footer - Compact */}
+              <footer className="flex-shrink-0 pt-3 pb-3 px-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] space-y-2.5">
+                {/* User Account Row */}
+                {user ? (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <SubscriptionBadge showUpgradeButton={false} />
+                      <span className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate min-w-0 flex-1">{user.email}</span>
                       <ThemeToggle />
                     </div>
-                  )}
-                </div>
+                    <div className="flex items-center justify-between">
+                      <ManageBillingButton variant="ghost" size="sm" className="h-auto p-0 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" />
+                      <button
+                        onClick={async () => {
+                          await signOut();
+                          setMobileSidebarOpen(false);
+                        }}
+                        className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                      >
+                        Log out
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <Link
+                      href="/login"
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                      onClick={() => setMobileSidebarOpen(false)}
+                    >
+                      Log in
+                    </Link>
+                    <ThemeToggle />
+                  </div>
+                )}
 
-                {/* Links */}
-                <div className="flex flex-col items-center space-y-2 text-center">
+                {/* Links Row — extra spacing from account section */}
+                <div className="pt-2" />
+                <div className="flex items-center justify-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                   <button
                     onClick={() => {
                       setMobileSidebarOpen(false);
@@ -2477,22 +2472,21 @@ function MakeEbookPage() {
                         setTimeout(() => onboarding.startTour(), 400);
                       }
                     }}
-                    className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors mb-1"
+                    className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                   >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>Take the tour</span>
+                    <span>Tour</span>
                   </button>
-                  <div className="flex space-x-4">
-                    <a href="/terms" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-xs">Terms</a>
-                    <a href="/privacy" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-xs">Privacy</a>
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    make-ebook is a product made by <a href="https://neilmcardle.com" className="underline hover:text-gray-900 dark:hover:text-white">neilmcardle.com</a>
-                  </div>
-                  <div className="text-xs text-gray-400">© 2025 Neil McArdle. All rights reserved.</div>
+                  <span className="text-gray-300 dark:text-gray-600">·</span>
+                  <a href="/terms" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms</a>
+                  <span className="text-gray-300 dark:text-gray-600">·</span>
+                  <a href="/privacy" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy</a>
                 </div>
+
+                {/* Copyright */}
+                <div className="text-center text-[10px] text-gray-400 dark:text-gray-500">© 2025 Neil McArdle</div>
               </footer>
             </div>
           </div>
@@ -2848,7 +2842,7 @@ function MakeEbookPage() {
           />
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className="flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] px-2 lg:pl-8 lg:pr-0 py-8 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative">
+          <main className={`flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] px-2 ${chapters.length > 0 ? 'lg:pl-8' : 'lg:pl-0'} lg:pr-0 py-8 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}>
             
             {/* Mobile Header - Compact Status Bar */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#0a0a0a]">

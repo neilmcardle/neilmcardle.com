@@ -31,8 +31,8 @@ export default function SubscriptionBadge({
   // Pro Badge (for active Pro subscribers)
   if (tier === 'pro' && !isGrandfathered) {
     return (
-      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1a1a1a] dark:bg-white border border-gray-200 dark:border-gray-800 ${className}`}>
-        <span className="text-xs font-semibold text-white dark:text-[#1a1a1a] uppercase tracking-wide">Pro</span>
+      <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#1a1a1a] dark:bg-white border border-gray-200 dark:border-gray-800 ${className}`}>
+        <span className="text-[10px] font-semibold text-white dark:text-[#1a1a1a] uppercase tracking-wide">Pro</span>
       </div>
     );
   }
@@ -40,8 +40,8 @@ export default function SubscriptionBadge({
   // Grandfathered Badge (lifetime Pro access)
   if (isGrandfathered) {
     return (
-      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1a1a1a] dark:bg-white border border-gray-200 dark:border-gray-800 ${className}`}>
-        <span className="text-xs font-semibold text-white dark:text-[#1a1a1a] uppercase tracking-wide">Pro (Lifetime)</span>
+      <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#1a1a1a] dark:bg-white border border-gray-200 dark:border-gray-800 ${className}`}>
+        <span className="text-[10px] font-semibold text-white dark:text-[#1a1a1a] uppercase tracking-wide">Pro (Lifetime)</span>
       </div>
     );
   }

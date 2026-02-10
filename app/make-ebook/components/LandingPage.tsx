@@ -13,7 +13,7 @@ const LITERARY_QUOTES = [
     author: "Stephen King"
   },
   {
-    text: "It is written: ‘Man shall not live on bread alone, but on every word that comes from the mouth of God.'",
+    text: "It is written: 'Man shall not live on bread alone, but on every word that comes from the mouth of God.'",
     author: "Matthew quoting Jesus, quoting Moses, quoting God"
   },
   {
@@ -68,64 +68,66 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
   const [quote, setQuote] = useState(LITERARY_QUOTES[0]);
 
   useEffect(() => {
-    // Select a random quote on mount
     const randomIndex = Math.floor(Math.random() * LITERARY_QUOTES.length);
     setQuote(LITERARY_QUOTES[randomIndex]);
   }, []);
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-8 py-4 sm:py-16 min-h-0 overflow-y-auto">
-      {/* Logo - dark on light/paper, light on dark */}
-      <div className="mb-6 sm:mb-12 flex-shrink-0">
-        <Image
-          src="/make-ebook-logo.svg"
-          alt="makeEbook"
-          width={80}
-          height={80}
-          className="w-14 h-14 sm:w-20 sm:h-20 opacity-70 dark:invert dark:opacity-50"
-          priority
-        />
-      </div>
+    <div className="flex-1 relative overflow-hidden">
+      {/* Background gradient — matches marketing hero */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-[#0a0a0a] to-gray-900" />
 
-      {/* Quote */}
-      <div className="max-w-3xl mb-8 sm:mb-16 text-center animate-in fade-in duration-1000 flex-shrink-0">
-        <p className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-serif italic text-gray-700 dark:text-gray-300 leading-relaxed mb-4 sm:mb-6">
-          "{quote.text}"
-        </p>
-        <p className="text-sm sm:text-lg md:text-xl text-gray-500 dark:text-gray-200 font-light">
-          — {quote.author}
-        </p>
-      </div>
+      <div className="relative flex flex-col items-center justify-center h-full px-4 sm:px-8 py-8 sm:py-16 min-h-0 overflow-y-auto">
+        {/* Logo */}
+        <div className="mb-8 sm:mb-12 flex-shrink-0">
+          <Image
+            src="/make-ebook-logo.svg"
+            alt="makeEbook"
+            width={96}
+            height={96}
+            className="w-16 h-16 sm:w-24 sm:h-24 invert opacity-80"
+            priority
+          />
+        </div>
 
-      {/* Tagline */}
-      <h2 className="text-base sm:text-xl md:text-2xl text-gray-600 dark:text-gray-200 mb-6 sm:mb-12 font-light text-center flex-shrink-0">
-        What would you like to create today?
-      </h2>
+        {/* Quote */}
+        <div className="max-w-3xl mb-8 sm:mb-16 text-center animate-in fade-in duration-1000 flex-shrink-0">
+          <p className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-serif italic text-gray-300 leading-relaxed mb-4 sm:mb-6">
+            &ldquo;{quote.text}&rdquo;
+          </p>
+          <p className="text-sm sm:text-lg md:text-xl text-gray-500 font-light">
+            — {quote.author}
+          </p>
+        </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-8 w-full sm:w-auto px-4 sm:px-0 flex-shrink-0">
-        {/* Start New Book Button */}
-        <button
-          type="button"
-          onClick={onNewBook}
-          className="px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold uppercase tracking-wide bg-[#1a1a1a] dark:bg-white text-white dark:text-[#1a1a1a] rounded-full hover:bg-[#2a2a2a] dark:hover:bg-gray-100 transition-all shadow-lg w-full sm:w-auto"
-        >
-          Start New Book
-        </button>
+        {/* Tagline */}
+        <h2 className="text-base sm:text-xl md:text-2xl text-gray-400 mb-8 sm:mb-12 font-light text-center flex-shrink-0">
+          What would you like to create today?
+        </h2>
 
-        {/* Browse Library Button */}
-        <button
-          type="button"
-          onClick={onOpenLibrary}
-          className="px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold uppercase tracking-wide border-2 border-[#d1d5db] dark:border-[#525252] text-[#1a1a1a] dark:text-white rounded-full hover:border-[#9ca3af] dark:hover:border-[#737373] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-all flex items-center justify-center gap-3 w-full sm:w-auto"
-        >
-          Browse Library
-          {libraryCount > 0 && (
-            <span className="px-2.5 py-0.5 bg-[#e5e7eb] dark:bg-[#404040] text-[#374151] dark:text-[#d1d5db] rounded-full text-xs font-semibold">
-              {libraryCount}
-            </span>
-          )}
-        </button>
+        {/* Action Buttons — matches marketing hero CTA style */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4 sm:mb-8 w-full sm:w-auto px-4 sm:px-0 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onNewBook}
+            className="w-full sm:w-auto px-8 py-4 text-lg font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all"
+          >
+            Start New Book
+          </button>
+
+          <button
+            type="button"
+            onClick={onOpenLibrary}
+            className="w-full sm:w-auto px-8 py-4 text-lg font-semibold border-2 border-gray-700 text-white rounded-full hover:border-gray-600 transition-colors flex items-center justify-center gap-3"
+          >
+            Browse Library
+            {libraryCount > 0 && (
+              <span className="px-2.5 py-0.5 bg-gray-700 text-gray-300 rounded-full text-xs font-semibold">
+                {libraryCount}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
