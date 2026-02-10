@@ -18,7 +18,7 @@ export function AutoSaveIndicator({ isDirty, isSaving, lastSaved, compact = fals
     const diffSecs = Math.floor(diffMs / 1000);
     const diffMins = Math.floor(diffSecs / 60);
     
-    if (diffSecs < 10) return 'Just now';
+    if (diffSecs < 10) return 'just now';
     if (diffSecs < 60) return `${diffSecs}s ago`;
     if (diffMins < 60) return `${diffMins}m ago`;
     

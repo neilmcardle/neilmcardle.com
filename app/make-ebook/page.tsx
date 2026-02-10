@@ -2761,9 +2761,9 @@ function MakeEbookPage() {
             bookMindHref={`/make-ebook/book-mind${currentBookId ? `?book=${currentBookId}` : ''}`}
           />
 
-          {/* Desktop Sidebar - Hidden on Mobile, shows/hides based on isPanelOpen */}
-          {isPanelOpen && (
+          {/* Desktop Sidebar - Hidden on Mobile, animates open/closed */}
             <CollapsibleSidebar
+            isPanelOpen={isPanelOpen}
             activeView={sidebarView}
             onClose={() => setSidebarView(null)}
             libraryBooks={libraryBooks}
@@ -2846,12 +2846,9 @@ function MakeEbookPage() {
               }
             }}
           />
-          )}
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className={`flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] px-2 lg:pl-8 lg:pr-0 py-8 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative transition-[margin-left] duration-200 ease-out ${
-            isPanelOpen ? 'lg:ml-[366px]' : 'lg:ml-0'
-          }`}>
+          <main className="flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] px-2 lg:pl-8 lg:pr-0 py-8 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative">
             
             {/* Mobile Header - Compact Status Bar */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#0a0a0a]">

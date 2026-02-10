@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { LibraryIcon, PlusIcon, TrashIcon, SaveIcon, DownloadIcon, CloseIcon } from './icons';
 import { ExportHistoryButton } from './ExportHistoryPanel';
@@ -37,6 +37,8 @@ interface Book {
 }
 
 interface CollapsibleSidebarProps {
+  // Panel visibility (always rendered, animated via CSS)
+  isPanelOpen: boolean;
   // Active view from slim sidebar
   activeView: 'library' | 'book' | 'chapters' | 'preview' | null;
   // Close handler
@@ -199,6 +201,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
   
   const {
+    isPanelOpen,
     activeView,
     onClose,
     libraryBooks,
@@ -275,31 +278,17 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     onStartTour,
   } = props;
 
-  const [isVisible, setIsVisible] = React.useState(false);
-
-  useEffect(() => {
-    // Small delay to trigger animation after mount
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 10);
-    return () => clearTimeout(timer);
-  }, []);
-
   const handleClose = () => {
-    // Animate out first
-    setIsVisible(false);
-    // Then actually close after animation completes
-    setTimeout(() => {
-      onClose();
-    }, 200); // Match the transition duration
+    onClose();
   };
 
   return (
-    <aside 
-  className={`hidden lg:flex flex-col absolute left-16 top-0 w-full lg:max-w-sm bg-white dark:bg-[#0a0a0a] min-w-0 lg:min-w-[300px] lg:max-w-[350px] h-full shadow-sm border-r border-gray-200 dark:border-gray-800 z-40 transition-transform duration-200 ease-out ${
-        isVisible ? 'translate-x-0' : '-translate-x-full'
+    <aside
+      className={`hidden lg:block h-full z-40 transition-all duration-300 ease-in-out overflow-hidden ${
+        isPanelOpen ? 'w-[350px] min-w-[300px] opacity-100' : 'w-0 min-w-0 opacity-0'
       }`}
     >
+      <div className="flex flex-col h-full w-[350px] min-w-[350px] bg-white dark:bg-[#0a0a0a] border-r border-gray-200 dark:border-gray-800">
 
       {/* Close Button Row */}
       <div className="flex justify-end px-4 pt-4 pb-2">
@@ -776,7 +765,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Take the tour</span>
               </button>
@@ -1070,6 +1059,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           </div>
         </div>
         )}
+      </div>
       </div>
     </aside>
   );

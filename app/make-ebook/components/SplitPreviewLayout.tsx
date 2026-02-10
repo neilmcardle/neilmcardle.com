@@ -139,7 +139,6 @@ export function SplitPreviewLayout({
           {/* Theme Controls */}
           <div className="flex-shrink-0 p-3 border-t border-[#e4e4de] dark:border-gray-800">
             <div className="flex items-center justify-center gap-3">
-              <span className="text-xs text-[#141413]/50 dark:text-gray-400">Theme:</span>
               {(['light', 'sepia', 'dark'] as const).map((theme) => (
                 <button
                   key={theme}
