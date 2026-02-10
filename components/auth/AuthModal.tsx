@@ -82,9 +82,12 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
 
     try {
       if (mode === 'signup') {
-        const { error, needsVerification } = await signUp(email.trim(), password)
-        
-        if (!error) {
+        const { error, needsVerification, userExists } = await signUp(email.trim(), password)
+
+        if (userExists) {
+          // Switch to sign-in mode so user can log in with their existing account
+          setMode('signin')
+        } else if (!error) {
           if (needsVerification) {
             setShowVerificationMessage(true)
           } else {

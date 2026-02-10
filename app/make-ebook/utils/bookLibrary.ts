@@ -8,7 +8,8 @@ export function loadBookLibrary(): BookRecord[] {
   if (str) {
     try {
       return JSON.parse(str);
-    } catch {
+    } catch (e) {
+      console.error('Failed to parse book library from localStorage:', e);
       return [];
     }
   }
@@ -39,6 +40,7 @@ export function saveBookToLibrary(book: Partial<BookRecord>): string {
   const idx = library.findIndex((b) => b.id === id);
   if (idx >= 0) library[idx] = bookToSave;
   else library.push(bookToSave);
+  // Throws on quota exceeded — caller should catch and notify user
   localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
   return id;
 }
@@ -51,7 +53,11 @@ export function loadBookById(id: string): BookRecord | undefined {
 export function removeBookFromLibrary(id: string) {
   let library = loadBookLibrary();
   library = library.filter((b) => b.id !== id);
-  localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
+  try {
+    localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
+  } catch (e) {
+    console.error('Failed to save library after removing book:', e);
+  }
 }
 
 /**
@@ -99,5 +105,9 @@ function normalizeEndnoteReferences(raw: unknown): EndnoteReference[] {
 }
 
 export function saveLibraryToStorage(books: BookRecord[]) {
-  localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(books));
+  try {
+    localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(books));
+  } catch (e) {
+    console.error('Failed to save library to localStorage:', e);
+  }
 }

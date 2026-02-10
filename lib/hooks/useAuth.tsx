@@ -102,7 +102,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAuthError(error.message)
         return { error }
       }
-      
+
+      // Detect existing user — Supabase returns empty identities array for duplicate signups
+      if (data.user?.identities?.length === 0) {
+        const msg = 'An account with this email already exists.'
+        setAuthError(msg)
+        return { error: { name: 'UserExists', message: msg } as AuthError, userExists: true }
+      }
+
       // Check if user needs email verification
       const needsVerification = data.user && !data.user.email_confirmed_at ? true : undefined
       return { error: null, needsVerification }

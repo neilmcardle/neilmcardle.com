@@ -118,6 +118,152 @@ function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
   );
 }
 
+// Mobile Live Preview — mirrors desktop SplitPreviewLayout
+type MobilePreviewTheme = 'light' | 'sepia' | 'dark';
+type MobilePreviewDevice = 'kindle' | 'ipad' | 'phone';
+
+const mobileDeviceDimensions = {
+  kindle: { width: 260, height: 380, name: 'Kindle' },
+  ipad: { width: 300, height: 400, name: 'iPad' },
+  phone: { width: 220, height: 380, name: 'Phone' },
+};
+
+function MobilePreviewModal({
+  chapters,
+  selectedChapter,
+  onChapterSelect,
+  onClose,
+}: {
+  chapters: Chapter[];
+  selectedChapter: number;
+  onChapterSelect: (i: number) => void;
+  onClose: () => void;
+}) {
+  const [device, setDevice] = React.useState<MobilePreviewDevice>('kindle');
+  const [theme, setTheme] = React.useState<MobilePreviewTheme>('light');
+  const dim = mobileDeviceDimensions[device];
+  const chapter = chapters[selectedChapter];
+
+  const textColor = theme === 'dark' ? '#e5e5e5' : '#141413';
+  const screenBg = theme === 'light' ? '#faf9f5' : theme === 'sepia' ? '#f4ecd8' : '#1a1a1a';
+
+  return (
+    <div className="fixed inset-0 z-[130] flex flex-col lg:hidden overflow-hidden bg-[#f0eee6] dark:bg-[#0a0a0a]">
+      {/* Header */}
+      <div className="flex-shrink-0 p-3 border-b border-[#e4e4de] dark:border-gray-800">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-semibold text-[#141413] dark:text-white">Live Preview</h3>
+          <button
+            onClick={onClose}
+            className="p-1.5 hover:bg-[#e9e8e4] dark:hover:bg-gray-800 rounded transition-colors"
+            aria-label="Close preview"
+          >
+            <svg className="w-4 h-4 text-[#141413]/50 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        {/* Device Selector */}
+        <div className="flex gap-1">
+          {(Object.entries(mobileDeviceDimensions) as [MobilePreviewDevice, typeof mobileDeviceDimensions.kindle][]).map(([key, val]) => (
+            <button
+              key={key}
+              onClick={() => setDevice(key)}
+              className={`px-2 py-1 text-xs rounded transition-colors ${
+                device === key
+                  ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
+                  : 'bg-[#e9e8e4] dark:bg-gray-700 text-[#141413]/70 dark:text-gray-300 hover:bg-[#e4e4de] dark:hover:bg-gray-600'
+              }`}
+            >
+              {val.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* E-Reader Frame */}
+      <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
+        <div
+          className="relative bg-[#2a2a2a] p-2 shadow-2xl"
+          style={{ width: dim.width + 16, borderRadius: 24 }}
+        >
+          <div
+            className="w-full rounded-lg overflow-hidden transition-colors"
+            style={{ width: dim.width, height: dim.height, maxWidth: '100%', backgroundColor: screenBg }}
+          >
+            <div className="h-full overflow-y-auto">
+              {chapter ? (
+                <article
+                  className="p-5"
+                  style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: textColor, lineHeight: 1.8, fontSize: '13px' }}
+                >
+                  {chapter.title && (
+                    <h1 className="text-base font-bold mb-3 text-center" style={{ color: textColor }}>
+                      {chapter.title}
+                    </h1>
+                  )}
+                  <div
+                    dangerouslySetInnerHTML={{ __html: chapter.content || '<p style="color: #999; font-style: italic;">No content yet...</p>' }}
+                    style={{ textAlign: 'justify' }}
+                    className="[&_p]:mb-3 [&_p]:text-indent-4"
+                  />
+                </article>
+              ) : (
+                <div className="h-full flex items-center justify-center p-6">
+                  <p className="text-gray-400 text-sm">No chapter selected</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Chapter Navigation Tabs */}
+      {chapters.length > 1 && (
+        <div className="flex-shrink-0 px-3 pb-2 border-t border-[#e4e4de] dark:border-gray-800">
+          <div className="flex gap-1 overflow-x-auto py-2 scrollbar-thin">
+            {chapters.map((ch, i) => (
+              <button
+                key={ch.id}
+                onClick={() => onChapterSelect(i)}
+                className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
+                  i === selectedChapter
+                    ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
+                    : 'bg-[#e9e8e4] dark:bg-gray-800 text-[#141413]/70 dark:text-gray-300 hover:bg-[#e4e4de] dark:hover:bg-gray-700'
+                }`}
+              >
+                {ch.title || `Ch ${i + 1}`}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Theme Dots */}
+      <div className="flex-shrink-0 p-3 border-t border-[#e4e4de] dark:border-gray-800">
+        <div className="flex items-center justify-center gap-3">
+          {(['light', 'sepia', 'dark'] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTheme(t)}
+              className={`w-6 h-6 rounded-full border-2 transition-all ${
+                theme === t
+                  ? 'scale-110 border-[#141413] dark:border-white shadow-md'
+                  : 'border-[#dedddd] dark:border-gray-600 hover:border-[#141413]/40'
+              }`}
+              style={{
+                backgroundColor: t === 'light' ? '#faf9f5' : t === 'sepia' ? '#f4ecd8' : '#1a1a1a',
+              }}
+              aria-label={`${t} theme`}
+              title={t.charAt(0).toUpperCase() + t.slice(1)}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MakeEbookPage() {
   // Auth context for Supabase user
   const { user, signOut } = useAuth();
@@ -151,8 +297,10 @@ function MakeEbookPage() {
             }
 
             const mergedBooks = Array.from(bookMap.values());
+            isLoadingBookRef.current = true;
             setLibraryBooks(mergedBooks);
             saveLibraryToStorage(mergedBooks);
+            setTimeout(() => { isLoadingBookRef.current = false; }, 0);
           }
         } catch (err) {
           console.error('Failed to sync Supabase books:', err);
@@ -249,6 +397,8 @@ function MakeEbookPage() {
 
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const isLoadingBookRef = useRef(false);
+  const isSavingRef = useRef(false);
 
   // Show marketing landing page when no books and user hasn't started editing
   const [showMarketingPage, setShowMarketingPage] = useState(true);
@@ -261,7 +411,6 @@ function MakeEbookPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mobileChaptersOpen, setMobileChaptersOpen] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
-  const [mobilePreviewDevice, setMobilePreviewDevice] = useState<'phone' | 'tablet'>('phone');
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
@@ -440,9 +589,9 @@ function MakeEbookPage() {
     enabled: chapters.length > 0,
   });
 
-  // Mark dirty on content changes
+  // Mark dirty on content changes (skip when loading a book from library/Supabase)
   useEffect(() => {
-    if (initialized && chapters.length > 0) {
+    if (initialized && chapters.length > 0 && !isLoadingBookRef.current) {
       markDirty();
     }
   }, [chapters, title, author, blurb, publisher, pubDate, genre, tags, coverFile]);
@@ -939,47 +1088,72 @@ function MakeEbookPage() {
   }
 
   async function saveBookDirectly(forceNewVersion: boolean) {
-    // Auto-save can create draft books to prevent data loss
-    // forceNewVersion=false: saves to existing book or creates draft if needed
-    // forceNewVersion=true: creates a new version intentionally
-    
-    const bookData = {
-      id: forceNewVersion ? undefined : currentBookId,
-      title,
-      author,
-      blurb,
-      publisher,
-      pubDate,
-      isbn,
-      language,
-      genre,
-      tags,
-      chapters,
-      coverFile: coverUrl,
-      endnotes,
-      endnoteReferences,
-    };
+    // Prevent concurrent saves
+    if (isSavingRef.current) return;
+    isSavingRef.current = true;
 
-    const id = saveBookToLibrary(bookData);
-    setCurrentBookId(id);
-    setLibraryBooks(loadBookLibrary());
-    setSaveFeedback(true);
-    markClean(); // Mark as saved for auto-save indicator
-
-    setTimeout(() => setSaveFeedback(false), 1300);
-
-    // Save to Supabase (if user is logged in and has Pro access)
     try {
-      if (user && user.id) {
-        // Check if user has Cloud Sync access (Pro feature)
-        if (!hasCloudSync) {
-          return;
-        }
+      const bookData = {
+        id: forceNewVersion ? undefined : currentBookId,
+        title,
+        author,
+        blurb,
+        publisher,
+        pubDate,
+        isbn,
+        language,
+        genre,
+        tags,
+        chapters,
+        coverFile: coverUrl,
+        endnotes,
+        endnoteReferences,
+      };
 
-        await saveEbookToSupabase(bookData, chapters, user.id);
+      // Save to localStorage with quota error handling
+      let id: string;
+      try {
+        id = saveBookToLibrary(bookData);
+      } catch (storageErr) {
+        console.error('localStorage save failed:', storageErr);
+        setDialogState({
+          open: true,
+          title: 'Storage Full',
+          message: 'Your browser storage is full. Try deleting old books from your library to free up space.',
+          variant: 'alert',
+        });
+        return;
       }
-    } catch (err) {
-      // Supabase save failed silently — local save already succeeded
+
+      setCurrentBookId(id);
+      setLibraryBooks(loadBookLibrary());
+      setSaveFeedback(true);
+      markClean();
+      setTimeout(() => setSaveFeedback(false), 1300);
+
+      // Save to Supabase (if user is logged in and has Pro access)
+      if (user && user.id && hasCloudSync) {
+        try {
+          const supabaseData = await saveEbookToSupabase(bookData, chapters, user.id);
+          // If Supabase assigned a UUID different from local ID, update local to match
+          if (supabaseData?.id && supabaseData.id !== id) {
+            removeBookFromLibrary(id);
+            saveBookToLibrary({ ...bookData, id: supabaseData.id });
+            setCurrentBookId(supabaseData.id);
+            setLibraryBooks(loadBookLibrary());
+          }
+        } catch (err) {
+          console.error('Supabase sync failed:', err);
+          setDialogState({
+            open: true,
+            title: 'Cloud Sync Failed',
+            message: 'Your book was saved locally, but cloud sync failed. Your changes will sync next time.',
+            variant: 'alert',
+          });
+        }
+      }
+    } finally {
+      isSavingRef.current = false;
     }
   }
 
@@ -1119,32 +1293,40 @@ function MakeEbookPage() {
   function handleLoadBook(id: string) {
     const loaded = loadBookById(id);
     if (loaded) {
+      isLoadingBookRef.current = true;
       setShowMarketingPage(false);
       loadMetadata({ ...loaded, id: loaded.id });
       setTags(loaded.tags || []);
       setCoverFile(loaded.coverFile || null);
-      
+
       // Migrate chapters to ensure they have IDs
       // If no chapters exist, create a default one to avoid showing landing page
-      const loadedChapters = loaded.chapters && Array.isArray(loaded.chapters) && loaded.chapters.length > 0 
-        ? loaded.chapters 
+      const loadedChapters = loaded.chapters && Array.isArray(loaded.chapters) && loaded.chapters.length > 0
+        ? loaded.chapters
         : [{ id: `chapter-${Date.now()}`, title: "", content: "", type: "content" as const }];
       const migratedChapters = ensureChapterIds(loadedChapters);
       setChapters(migratedChapters);
-      
+
       // Migrate endnote references if they exist
       if (loaded.endnoteReferences) {
         const migratedEndnoteRefs = migrateEndnoteReferences(loaded.endnoteReferences, migratedChapters);
         setEndnoteReferences(migratedEndnoteRefs);
       }
-      
+
       setEndnotes(loaded.endnotes || []);
       setCurrentBookId(loaded.id);
       setSelectedChapter(0);
-      
+
+      // Close sidebars so user sees their book
+      setMobileSidebarOpen(false);
+      setSidebarView(null);
+
       // Trigger highlight animation
       setBookJustLoaded(true);
       setTimeout(() => setBookJustLoaded(false), 1000);
+
+      // Reset guard after React batches state updates
+      setTimeout(() => { isLoadingBookRef.current = false; }, 0);
     }
   }
 
@@ -1158,17 +1340,27 @@ function MakeEbookPage() {
       onConfirm: async () => {
         setDialogState(prev => ({ ...prev, open: false }));
         const bookToDelete = libraryBooks.find(b => b.id === id);
-        removeBookFromLibrary(id);
-        setLibraryBooks(loadBookLibrary());
 
-        if (user && user.id) {
+        // Delete from Supabase first (if applicable)
+        if (user && user.id && hasCloudSync) {
           try {
             const { deleteEbookFromSupabase } = await import('@/lib/supabaseEbooks');
             await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
           } catch (err) {
             console.error('Failed to delete from Supabase:', err);
+            setDialogState({
+              open: true,
+              title: 'Delete Failed',
+              message: 'Could not delete from cloud. The book was kept to prevent data loss. Please try again.',
+              variant: 'alert',
+            });
+            return; // Don't delete locally if cloud delete failed
           }
         }
+
+        // Cloud delete succeeded (or not applicable) — now delete locally
+        removeBookFromLibrary(id);
+        setLibraryBooks(loadBookLibrary());
 
         if (currentBookId === id) {
           clearEditorState();
@@ -1189,18 +1381,24 @@ function MakeEbookPage() {
       confirmLabel: 'Delete',
       onConfirm: async () => {
         setDialogState(prev => ({ ...prev, open: false }));
+        let cloudFailed = false;
+
         for (const id of selectedBookIds) {
           const bookToDelete = libraryBooks.find(b => b.id === id);
-          removeBookFromLibrary(id);
 
-          if (user && user.id) {
+          // Delete from Supabase first (if applicable)
+          if (user && user.id && hasCloudSync) {
             try {
               const { deleteEbookFromSupabase } = await import('@/lib/supabaseEbooks');
               await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
             } catch (err) {
               console.error('Failed to delete from Supabase:', err);
+              cloudFailed = true;
+              continue; // Skip local delete for this book
             }
           }
+
+          removeBookFromLibrary(id);
 
           if (currentBookId === id) {
             clearEditorState();
@@ -1210,6 +1408,15 @@ function MakeEbookPage() {
         setLibraryBooks(loadBookLibrary());
         setSelectedBookIds(new Set());
         setMultiSelectMode(false);
+
+        if (cloudFailed) {
+          setDialogState({
+            open: true,
+            title: 'Some Deletes Failed',
+            message: 'Some books could not be deleted from the cloud. They were kept locally to prevent data loss.',
+            variant: 'alert',
+          });
+        }
       },
     });
   }
@@ -1458,113 +1665,14 @@ function MakeEbookPage() {
           </div>
         )}
 
-        {/* Mobile Preview Modal */}
+        {/* Mobile Preview Modal — mirrors desktop SplitPreviewLayout */}
         {mobilePreviewOpen && (
-          <div className="fixed inset-0 z-[130] bg-[#141413]/90 dark:bg-black/90 flex flex-col lg:hidden overflow-hidden">
-            {/* Header - Sticky */}
-            <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-[#f0eee6] dark:bg-[#0a0a0a] border-b border-[#e4e4de] dark:border-[#333]">
-              <div className="flex items-center gap-3">
-                <h2 className="text-sm font-medium text-[#141413] dark:text-white">Preview</h2>
-                {/* Device Toggle */}
-                <div className="flex bg-[#e9e8e4] dark:bg-[#1a1a1a] rounded-lg p-0.5">
-                  <button
-                    onClick={() => setMobilePreviewDevice('phone')}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                      mobilePreviewDevice === 'phone'
-                        ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
-                        : 'text-[#141413]/60 dark:text-gray-400 hover:text-[#141413] dark:hover:text-white'
-                    }`}
-                  >
-                    Phone
-                  </button>
-                  <button
-                    onClick={() => setMobilePreviewDevice('tablet')}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                      mobilePreviewDevice === 'tablet'
-                        ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
-                        : 'text-[#141413]/60 dark:text-gray-400 hover:text-[#141413] dark:hover:text-white'
-                    }`}
-                  >
-                    Tablet
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={() => setMobilePreviewOpen(false)}
-                className="p-1.5 hover:bg-[#e9e8e4] dark:hover:bg-white/10 rounded transition-colors"
-              >
-                <svg className="w-5 h-5 text-[#141413]/50 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            {/* Preview Content - Scrollable middle area */}
-            <div className="flex-1 min-h-0 overflow-auto flex items-start justify-center p-4 pt-6">
-              <div 
-                className={`bg-[#FAF9F6] rounded-2xl shadow-2xl overflow-hidden flex-shrink-0 ${
-                  mobilePreviewDevice === 'phone' ? 'w-[280px]' : 'w-[340px]'
-                }`}
-                style={{ 
-                  height: mobilePreviewDevice === 'phone' ? '500px' : '480px',
-                  maxHeight: 'calc(100vh - 120px)'
-                }}
-              >
-                {/* eReader Screen - Reflowable content */}
-                <div className="h-full overflow-auto bg-[#FAF9F6] px-5 py-6">
-                  {chapters[selectedChapter] && (
-                    <div className="font-serif">
-                      {/* Book Title - small grey header */}
-                      <p className="text-[10px] uppercase tracking-[0.15em] text-gray-400 text-center mb-4">
-                        {title || 'Untitled Book'}
-                      </p>
-                      {/* Chapter Title */}
-                      <h1 className="text-xl font-medium text-gray-900 leading-tight text-center mb-8">
-                        {chapters[selectedChapter].title || 'Untitled'}
-                      </h1>
-                      {/* Chapter Content */}
-                      <div 
-                        className="text-[15px] text-gray-800 leading-[1.8] prose prose-sm max-w-none text-left
-                          prose-p:my-4 prose-p:indent-6 first:prose-p:indent-0
-                          prose-headings:font-serif prose-headings:font-medium
-                          prose-h1:text-lg prose-h2:text-base prose-h3:text-sm
-                          prose-blockquote:border-l-2 prose-blockquote:border-gray-300 prose-blockquote:italic"
-                        dangerouslySetInnerHTML={{ 
-                          __html: chapters[selectedChapter].content || '<p class="text-gray-400 italic">Start writing to see your content here...</p>' 
-                        }}
-                      />
-                    </div>
-                  )}
-                  {!chapters[selectedChapter] && (
-                    <div className="flex items-center justify-center h-full text-gray-400 text-sm italic">
-                      No chapter selected
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            {/* Chapter Navigation - Sticky bottom */}
-            <div className="flex-shrink-0 px-4 py-3 bg-[#f0eee6] dark:bg-[#0a0a0a] border-t border-[#e4e4de] dark:border-[#333]">
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={() => setSelectedChapter(Math.max(0, selectedChapter - 1))}
-                  disabled={selectedChapter === 0}
-                  className="px-3 py-1.5 text-xs font-medium text-[#141413] dark:text-gray-300 hover:text-[#141413]/70 dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  ← Previous
-                </button>
-                <span className="text-xs text-[#141413]/50 dark:text-gray-400">
-                  Chapter {selectedChapter + 1} of {chapters.length}
-                </span>
-                <button
-                  onClick={() => setSelectedChapter(Math.min(chapters.length - 1, selectedChapter + 1))}
-                  disabled={selectedChapter === chapters.length - 1}
-                  className="px-3 py-1.5 text-xs font-medium text-[#141413] dark:text-gray-300 hover:text-[#141413]/70 dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  Next →
-                </button>
-              </div>
-            </div>
-          </div>
+          <MobilePreviewModal
+            chapters={chapters}
+            selectedChapter={selectedChapter}
+            onChapterSelect={setSelectedChapter}
+            onClose={() => setMobilePreviewOpen(false)}
+          />
         )}
 
         {/* Mobile Sidebar Overlay */}
@@ -2408,6 +2516,24 @@ function MakeEbookPage() {
                     )}
                   </div>
 
+                  {/* Book Mind */}
+                  {currentBookId && (
+                    <div className="pt-2">
+                      <Link
+                        href={`/make-ebook/book-mind?book=${currentBookId}`}
+                        onClick={() => setMobileSidebarOpen(false)}
+                        className="flex items-center gap-2.5 py-2 px-1 rounded-lg hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-white dark:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                        </div>
+                        <span className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5]">Book Mind</span>
+                      </Link>
+                    </div>
+                  )}
+
                 </div>
               </div>
 
@@ -2865,17 +2991,12 @@ function MakeEbookPage() {
                         bookTitle={title}
                       />
                     </div>
-                    {/* Book Mind AI Button */}
-                    <Link
-                      href={`/make-ebook/book-mind${currentBookId ? `?book=${currentBookId}` : ''}`}
-                      className="p-1.5 rounded-lg bg-gray-900 dark:bg-white hover:opacity-90 transition-colors"
-                      aria-label="Open Book Mind AI"
-                      title="Book Mind AI"
-                    >
-                      <svg className="w-5 h-5 text-white dark:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                      </svg>
-                    </Link>
+                    {/* Quality Check */}
+                    <QualityDropdown
+                      score={qualityScore}
+                      issues={qualityIssues}
+                      onNavigateToChapterAction={handleNavigateToChapterFromIssue}
+                    />
                     {/* Preview Button */}
                     <button
                       data-tour="mobile-preview"
@@ -2884,16 +3005,8 @@ function MakeEbookPage() {
                       aria-label="Preview book"
                       title="Preview"
                     >
-                      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
+                      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 3v18" /></svg>
                     </button>
-                    <QualityDropdown
-                      score={qualityScore}
-                      issues={qualityIssues}
-                      onNavigateToChapterAction={handleNavigateToChapterFromIssue}
-                    />
                   </div>
                 )}
               </div>

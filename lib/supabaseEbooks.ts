@@ -36,8 +36,10 @@ export async function saveEbookToSupabase(ebook: EbookInput, chapters: ChapterIn
 	if (!supabase) throw new Error('Supabase client not initialized');
 
 	// Transform camelCase app fields to snake_case Supabase columns
+	// Generate a stable UUID for non-UUID local IDs
+	const supabaseId = isUuid(ebook.id) ? ebook.id! : uuidv4();
 	const supabaseEbook = {
-		id: isUuid(ebook.id) ? ebook.id : uuidv4(),
+		id: supabaseId,
 		user_id: userId,
 		title: ebook.title,
 		author: ebook.author,
