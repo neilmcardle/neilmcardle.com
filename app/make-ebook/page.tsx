@@ -2944,13 +2944,6 @@ function MakeEbookPage() {
             setSidebarChaptersExpanded={setSidebarChaptersExpanded}
             sidebarBookDetailsExpanded={sidebarBookDetailsExpanded}
             setSidebarBookDetailsExpanded={setSidebarBookDetailsExpanded}
-            onStartTour={() => {
-              onboarding.resetOnboarding();
-              if (chapters.length === 0) {
-                clearEditorState();
-              }
-              setTimeout(() => onboarding.startTour(), chapters.length === 0 ? 800 : 100);
-            }}
           />
 
           {/* Main Editor Panel - Mobile Optimised */}
@@ -3160,8 +3153,17 @@ function MakeEbookPage() {
               <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2">
                 {/* Status Bar with Auto-Save and Quality Score */}
                 <div className="flex items-center justify-between px-2 mb-2">
-                  <div data-tour="auto-save" className="flex items-center gap-3">
+                  <div data-tour="auto-save" className="flex items-center gap-2">
                     <AutoSaveIndicator isDirty={isDirty} isSaving={isSaving} lastSaved={lastSaved} hasCloudSync={hasCloudSync} />
+                    {isDirty && !isSaving && (
+                      <button
+                        onClick={() => { saveBookDirectly(false); markClean(); }}
+                        className="px-2 py-0.5 text-xs rounded bg-[#e9e8e4] dark:bg-[#1a1a1a] text-[#141413]/70 dark:text-gray-400 hover:bg-[#e4e4de] dark:hover:bg-[#262626] transition-colors"
+                        title="Save now (⌘S)"
+                      >
+                        Save
+                      </button>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     <ChapterNavDropdown
