@@ -1780,7 +1780,7 @@ function MakeEbookPage() {
                                       className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
                                       title="Delete"
                                     >
-                                      <TrashIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                                      <TrashIcon className="w-4 h-4 dark:invert" />
                                     </button>
                                   </div>
                                 )}
