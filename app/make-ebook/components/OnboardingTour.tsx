@@ -236,34 +236,69 @@ export default function OnboardingTour({
         className={`fixed z-[201] w-[300px] max-w-[calc(100vw-32px)] bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl border border-blue-400/60 p-4 transition-all duration-150 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         style={tooltipStyle}
       >
-        {/* Arrow */}
+        {/* Arrow — border layer (blue outline) */}
         <div
           className="absolute w-0 h-0"
           style={{
             ...arrowStyle,
             ...(arrowDirection === 'top' && {
-              top: -6,
+              top: -7,
+              borderLeft: '7px solid transparent',
+              borderRight: '7px solid transparent',
+              borderBottom: '7px solid rgb(96 165 250 / 0.6)',
+              transform: 'translateX(-7px)',
+            }),
+            ...(arrowDirection === 'bottom' && {
+              bottom: -7,
+              borderLeft: '7px solid transparent',
+              borderRight: '7px solid transparent',
+              borderTop: '7px solid rgb(96 165 250 / 0.6)',
+              transform: 'translateX(-7px)',
+            }),
+            ...(arrowDirection === 'left' && {
+              left: -7,
+              borderTop: '7px solid transparent',
+              borderBottom: '7px solid transparent',
+              borderRight: '7px solid rgb(96 165 250 / 0.6)',
+              transform: 'translateY(-7px)',
+            }),
+            ...(arrowDirection === 'right' && {
+              right: -7,
+              borderTop: '7px solid transparent',
+              borderBottom: '7px solid transparent',
+              borderLeft: '7px solid rgb(96 165 250 / 0.6)',
+              transform: 'translateY(-7px)',
+            }),
+          }}
+        />
+        {/* Arrow — fill layer (background color) */}
+        <div
+          className="absolute w-0 h-0"
+          style={{
+            ...arrowStyle,
+            ...(arrowDirection === 'top' && {
+              top: -5,
               borderLeft: '6px solid transparent',
               borderRight: '6px solid transparent',
               borderBottom: '6px solid var(--arrow-color, white)',
               transform: 'translateX(-6px)',
             }),
             ...(arrowDirection === 'bottom' && {
-              bottom: -6,
+              bottom: -5,
               borderLeft: '6px solid transparent',
               borderRight: '6px solid transparent',
               borderTop: '6px solid var(--arrow-color, white)',
               transform: 'translateX(-6px)',
             }),
             ...(arrowDirection === 'left' && {
-              left: -6,
+              left: -5,
               borderTop: '6px solid transparent',
               borderBottom: '6px solid transparent',
               borderRight: '6px solid var(--arrow-color, white)',
               transform: 'translateY(-6px)',
             }),
             ...(arrowDirection === 'right' && {
-              right: -6,
+              right: -5,
               borderTop: '6px solid transparent',
               borderBottom: '6px solid transparent',
               borderLeft: '6px solid var(--arrow-color, white)',
