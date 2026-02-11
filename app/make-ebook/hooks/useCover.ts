@@ -1,19 +1,31 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
-export function useCover(initialFile: File | null = null) {
-  const [coverFile, setCoverFile] = useState<File | null>(initialFile);
+/**
+ * Manages cover image state. Stores covers as base64 data URLs
+ * so they persist in localStorage and Supabase across reloads.
+ */
+export function useCover(initialUrl: string | null = null) {
+  const [coverUrl, setCoverUrl] = useState<string | null>(initialUrl);
 
-  function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files?.[0]) setCoverFile(e.target.files[0]);
-  }
+  const handleCoverChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  // For previewing the cover image
-  const coverUrl = coverFile instanceof File ? URL.createObjectURL(coverFile) : null;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCoverUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
+  const clearCover = useCallback(() => {
+    setCoverUrl(null);
+  }, []);
 
   return {
-    coverFile,
-    setCoverFile,
-    handleCoverChange,
     coverUrl,
+    setCoverUrl,
+    handleCoverChange,
+    clearCover,
   };
 }

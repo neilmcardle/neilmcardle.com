@@ -101,7 +101,7 @@ interface CollapsibleSidebarProps {
   handleRemoveTag: (tag: string) => void;
   tagInput: string;
   setTagInput: (value: string) => void;
-  coverFile: File | null;
+  coverFile: string | null;
   handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   lockedSections: { bookInfo: boolean; publishing: boolean; tags: boolean; cover: boolean };
   
@@ -703,9 +703,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 className="w-full text-sm text-[#C0C0C0] file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed"
               />
               {coverFile && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {coverFile.name}
-                </p>
+                <p className="text-xs text-green-600 dark:text-green-400 mt-1">Cover uploaded</p>
               )}
               <div className="mt-3">
                 <button

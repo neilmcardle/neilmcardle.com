@@ -285,22 +285,56 @@ function MakeEbookPage() {
           if (Array.isArray(supabaseBooks) && supabaseBooks.length > 0) {
             const localBooks = loadBookLibrary();
             const bookMap = new Map(localBooks.map(b => [b.id, b]));
+            const conflicts: { local: import('./types').BookRecord; cloud: import('./types').BookRecord }[] = [];
 
-            // Merge Supabase books — normalize snake_case to camelCase
             for (const raw of supabaseBooks) {
               if (!raw.id) continue;
               const normalized = normalizeBookFromSupabase(raw);
               const existing = bookMap.get(raw.id);
-              if (!existing || normalized.savedAt > existing.savedAt) {
+
+              if (!existing) {
+                // Cloud-only book — add it
                 bookMap.set(raw.id, normalized);
+              } else {
+                // Book exists both locally and in cloud
+                const timeDiff = Math.abs(normalized.savedAt - existing.savedAt);
+                if (timeDiff < 5000) {
+                  // Timestamps within 5 seconds — same save, no conflict
+                  continue;
+                }
+                // Check if content actually differs
+                const contentSame =
+                  existing.title === normalized.title &&
+                  existing.author === normalized.author &&
+                  existing.chapters.length === normalized.chapters.length &&
+                  existing.chapters.every((ch, i) =>
+                    ch.title === normalized.chapters[i]?.title &&
+                    ch.content === normalized.chapters[i]?.content
+                  );
+                if (contentSame) {
+                  // Content identical, take the newer timestamp
+                  if (normalized.savedAt > existing.savedAt) {
+                    bookMap.set(raw.id, normalized);
+                  }
+                } else {
+                  // Real conflict — content differs
+                  conflicts.push({ local: existing, cloud: normalized });
+                }
               }
             }
 
-            const mergedBooks = Array.from(bookMap.values());
-            isLoadingBookRef.current = true;
-            setLibraryBooks(mergedBooks);
-            saveLibraryToStorage(mergedBooks);
-            setTimeout(() => { isLoadingBookRef.current = false; }, 0);
+            if (conflicts.length > 0) {
+              // Store the merged map (without conflicts) and show conflict dialog
+              setSyncMergedMap(bookMap);
+              setSyncConflicts(conflicts);
+            } else {
+              // No conflicts — save immediately
+              const mergedBooks = Array.from(bookMap.values());
+              isLoadingBookRef.current = true;
+              setLibraryBooks(mergedBooks);
+              saveLibraryToStorage(mergedBooks);
+              setTimeout(() => { isLoadingBookRef.current = false; }, 0);
+            }
           }
         } catch (err) {
           console.error('Failed to sync Supabase books:', err);
@@ -374,7 +408,7 @@ function MakeEbookPage() {
   } = useTags();
 
   // Cover state and helpers
-  const { coverFile, setCoverFile, handleCoverChange, coverUrl } = useCover(null);
+  const { coverUrl, setCoverUrl, handleCoverChange, clearCover } = useCover(null);
 
   // Locked sections state
   const { lockedSections, setLockedSections, toggleSection } = useLockedSections();
@@ -426,6 +460,13 @@ function MakeEbookPage() {
     confirmLabel?: string;
     onConfirm: () => void;
   }>({ open: false, title: '', message: '', variant: 'alert', onConfirm: () => {} });
+
+  // Sync conflict resolution state
+  const [syncConflicts, setSyncConflicts] = useState<{
+    local: import('./types').BookRecord;
+    cloud: import('./types').BookRecord;
+  }[]>([]);
+  const [syncMergedMap, setSyncMergedMap] = useState<Map<string, import('./types').BookRecord> | null>(null);
   
   // Collapsible sidebar sections state
   const [sidebarLibraryExpanded, setSidebarLibraryExpanded] = useState(true);
@@ -516,7 +557,7 @@ function MakeEbookPage() {
     chapters,
     title,
     author,
-    coverFile,
+    coverFile: coverUrl,
   });
 
   // Word stats hook
@@ -594,7 +635,7 @@ function MakeEbookPage() {
     if (initialized && chapters.length > 0 && !isLoadingBookRef.current) {
       markDirty();
     }
-  }, [chapters, title, author, blurb, publisher, pubDate, genre, tags, coverFile]);
+  }, [chapters, title, author, blurb, publisher, pubDate, genre, tags, coverUrl]);
 
   // Auto-fix typography handler
   const handleAutoFixTypography = useCallback(() => {
@@ -799,7 +840,7 @@ function MakeEbookPage() {
       setChapters(newChapters);
       setSelectedChapter(0);
       setTags([]);
-      setCoverFile(null);
+      clearCover();
       
       // Open Book panel for user to complete details
       setSidebarView('book');
@@ -830,7 +871,7 @@ function MakeEbookPage() {
   function clearEditorState() {
     resetMetadata();
     setTags([]);
-    setCoverFile(null);
+    clearCover();
     setChapters([
       {
         id: `chapter-${Date.now()}`,
@@ -980,7 +1021,7 @@ function MakeEbookPage() {
       language,
       genre,
       tags,
-      coverFile,
+      coverFile: coverUrl,
       chapters: migratedChapters,
       endnoteReferences: migratedEndnoteRefs,
       typographyPreset,
@@ -1121,6 +1162,7 @@ function MakeEbookPage() {
           title: 'Storage Full',
           message: 'Your browser storage is full. Try deleting old books from your library to free up space.',
           variant: 'alert',
+          onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
         });
         return;
       }
@@ -1149,6 +1191,7 @@ function MakeEbookPage() {
             title: 'Cloud Sync Failed',
             message: 'Your book was saved locally, but cloud sync failed. Your changes will sync next time.',
             variant: 'alert',
+            onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
           });
         }
       }
@@ -1297,7 +1340,7 @@ function MakeEbookPage() {
       setShowMarketingPage(false);
       loadMetadata({ ...loaded, id: loaded.id });
       setTags(loaded.tags || []);
-      setCoverFile(loaded.coverFile || null);
+      setCoverUrl(loaded.coverFile || null);
 
       // Migrate chapters to ensure they have IDs
       // If no chapters exist, create a default one to avoid showing landing page
@@ -1415,6 +1458,7 @@ function MakeEbookPage() {
             title: 'Some Deletes Failed',
             message: 'Some books could not be deleted from the cloud. They were kept locally to prevent data loss.',
             variant: 'alert',
+            onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
           });
         }
       },
@@ -1459,10 +1503,44 @@ function MakeEbookPage() {
       language: book.language,
       genre: book.genre,
       tags: book.tags,
-      coverFile: null, // Library books don't store the actual File object
+      coverFile: book.coverFile || null,
       chapters: migratedChapters,
       endnoteReferences: migratedEndnoteRefs,
     });
+  }
+
+  // Resolve a sync conflict — called once per conflict from the dialog
+  function handleResolveSyncConflict(choice: 'local' | 'cloud' | 'both') {
+    if (!syncMergedMap || syncConflicts.length === 0) return;
+
+    const conflict = syncConflicts[0];
+    const map = new Map(syncMergedMap);
+
+    if (choice === 'local') {
+      map.set(conflict.local.id, conflict.local);
+    } else if (choice === 'cloud') {
+      map.set(conflict.cloud.id, conflict.cloud);
+    } else {
+      // Keep both — local stays as-is, cloud gets a new ID as a copy
+      map.set(conflict.local.id, conflict.local);
+      const copyId = 'book-' + Date.now();
+      map.set(copyId, { ...conflict.cloud, id: copyId, title: conflict.cloud.title + ' (cloud)' });
+    }
+
+    const remaining = syncConflicts.slice(1);
+    if (remaining.length > 0) {
+      setSyncMergedMap(map);
+      setSyncConflicts(remaining);
+    } else {
+      // All conflicts resolved — save final merged library
+      const mergedBooks = Array.from(map.values());
+      isLoadingBookRef.current = true;
+      setLibraryBooks(mergedBooks);
+      saveLibraryToStorage(mergedBooks);
+      setTimeout(() => { isLoadingBookRef.current = false; }, 0);
+      setSyncConflicts([]);
+      setSyncMergedMap(null);
+    }
   }
 
   const totalWords = chapters.reduce(
@@ -2129,10 +2207,8 @@ function MakeEbookPage() {
                             disabled={lockedSections.bookInfo}
                             className="w-full text-sm text-gray-600 dark:text-gray-400 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed"
                           />
-                          {coverFile && (
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                              {coverFile.name}
-                            </p>
+                          {coverUrl && (
+                            <p className="text-xs text-green-600 dark:text-green-400 mt-1">Cover uploaded</p>
                           )}
                           <div className="mt-3">
                             <button
@@ -2923,7 +2999,7 @@ function MakeEbookPage() {
             handleRemoveTag={handleRemoveTag}
             tagInput={tagInput}
             setTagInput={setTagInput}
-            coverFile={coverFile}
+            coverFile={coverUrl}
             handleCoverChange={handleCoverChange}
             lockedSections={lockedSections}
             coverUrl={coverUrl}
@@ -3008,6 +3084,15 @@ function MakeEbookPage() {
                 <div className="flex items-center justify-center gap-2 px-3 py-1 bg-stone-100 dark:bg-stone-800/50 border-t border-stone-200 dark:border-stone-700">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                   <span className="text-xs text-stone-600 dark:text-stone-400">Unsaved changes</span>
+                  {!isSaving && (
+                    <button
+                      onClick={() => { saveBookDirectly(false); markClean(); }}
+                      className="flex items-center gap-1 px-2 py-0.5 hover:bg-stone-200 dark:hover:bg-stone-700 rounded transition-colors"
+                    >
+                      <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Save</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -3158,10 +3243,11 @@ function MakeEbookPage() {
                     {isDirty && !isSaving && (
                       <button
                         onClick={() => { saveBookDirectly(false); markClean(); }}
-                        className="px-2 py-0.5 text-xs rounded bg-[#e9e8e4] dark:bg-[#1a1a1a] text-[#141413]/70 dark:text-gray-400 hover:bg-[#e4e4de] dark:hover:bg-[#262626] transition-colors"
+                        className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                         title="Save now (⌘S)"
                       >
-                        Save
+                        <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Save</span>
                       </button>
                     )}
                   </div>
@@ -3361,6 +3447,51 @@ function MakeEbookPage() {
         onConfirm={dialogState.onConfirm}
         onCancel={() => setDialogState(prev => ({ ...prev, open: false }))}
       />
+
+      {/* Sync Conflict Resolution Dialog */}
+      {syncConflicts.length > 0 && syncConflicts[0] && (
+        <div className="fixed inset-0 z-[150] bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl p-6 max-w-md w-full animate-in fade-in zoom-in-95 duration-150">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">Sync Conflict</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              &ldquo;{syncConflicts[0].local.title || 'Untitled'}&rdquo; was edited on this device and another.
+              {syncConflicts.length > 1 && ` (${syncConflicts.length} conflicts)`}
+            </p>
+            <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-[#1a1a1a]">
+                <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">This device</p>
+                <p className="text-gray-500 dark:text-gray-400">{syncConflicts[0].local.chapters.length} chapters</p>
+                <p className="text-gray-500 dark:text-gray-400">Saved {new Date(syncConflicts[0].local.savedAt).toLocaleDateString()}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-[#1a1a1a]">
+                <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Cloud</p>
+                <p className="text-gray-500 dark:text-gray-400">{syncConflicts[0].cloud.chapters.length} chapters</p>
+                <p className="text-gray-500 dark:text-gray-400">Saved {new Date(syncConflicts[0].cloud.savedAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => handleResolveSyncConflict('cloud')}
+                className="w-full px-4 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              >
+                Keep cloud version
+              </button>
+              <button
+                onClick={() => handleResolveSyncConflict('local')}
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
+                Keep this device&apos;s version
+              </button>
+              <button
+                onClick={() => handleResolveSyncConflict('both')}
+                className="w-full px-4 py-2 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+              >
+                Keep both (creates a copy)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Onboarding Tour */}
       <OnboardingTour

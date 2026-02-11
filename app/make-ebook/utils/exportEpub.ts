@@ -3,12 +3,48 @@ import { uuidv4 } from "./uuid";
 import { today } from "./constants";
 import { generateEpubCSS, TypographyPreset } from "./typographyPresets";
 
+/** Map of common HTML named entities to numeric equivalents for valid XHTML */
+const HTML_ENTITIES: Record<string, string> = {
+  '&nbsp;': '&#160;', '&ndash;': '&#8211;', '&mdash;': '&#8212;',
+  '&lsquo;': '&#8216;', '&rsquo;': '&#8217;', '&ldquo;': '&#8220;', '&rdquo;': '&#8221;',
+  '&bull;': '&#8226;', '&hellip;': '&#8230;', '&trade;': '&#8482;',
+  '&copy;': '&#169;', '&reg;': '&#174;', '&deg;': '&#176;',
+  '&laquo;': '&#171;', '&raquo;': '&#187;', '&cent;': '&#162;',
+  '&pound;': '&#163;', '&euro;': '&#8364;', '&times;': '&#215;',
+  '&divide;': '&#247;', '&frac12;': '&#189;', '&frac14;': '&#188;',
+  '&frac34;': '&#190;', '&iquest;': '&#191;', '&iexcl;': '&#161;',
+  '&sect;': '&#167;', '&para;': '&#182;', '&dagger;': '&#8224;',
+  '&Dagger;': '&#8225;', '&permil;': '&#8240;', '&prime;': '&#8242;',
+  '&Prime;': '&#8243;', '&larr;': '&#8592;', '&rarr;': '&#8594;',
+  '&uarr;': '&#8593;', '&darr;': '&#8595;', '&harr;': '&#8596;',
+  '&eacute;': '&#233;', '&egrave;': '&#232;', '&agrave;': '&#224;',
+  '&aacute;': '&#225;', '&uuml;': '&#252;', '&ouml;': '&#246;',
+  '&iuml;': '&#239;', '&ccedil;': '&#231;', '&ntilde;': '&#241;',
+  '&Eacute;': '&#201;', '&Egrave;': '&#200;',
+};
+
 /** Converts HTML to valid XHTML for EPUB */
 function toXhtml(html: string): string {
-  return html
+  let result = html
     .replace(/<br\s*>/gi, "<br />")
     .replace(/<img([^>]*?)(?<!\/)>/gi, "<img$1 />")
     .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "");
+
+  // Replace known HTML named entities with numeric equivalents
+  for (const [entity, numeric] of Object.entries(HTML_ENTITIES)) {
+    result = result.replaceAll(entity, numeric);
+  }
+
+  // Catch any remaining unknown named entities and convert to numeric
+  // (XML only allows &amp; &lt; &gt; &quot; &apos;)
+  result = result.replace(/&([a-zA-Z][a-zA-Z0-9]*);/g, (match, name) => {
+    if (['amp', 'lt', 'gt', 'quot', 'apos'].includes(name)) return match;
+    // Try to decode via a temporary element trick at build time isn't possible,
+    // so replace unknown entities with a space to prevent XML parse errors
+    return ' ';
+  });
+
+  return result;
 }
 
 /** Comprehensive EPUB content normalization with strict validation */
@@ -133,7 +169,7 @@ interface ExportEpubOptions {
   language: string;
   genre: string;
   tags: string[];
-  coverFile: File | null;
+  coverFile: string | null;
   chapters: Chapter[];
   endnoteReferences?: { id: string; number: number; chapterId: string; endnoteId: string }[];
   typographyPreset?: TypographyPreset;
@@ -190,8 +226,12 @@ export async function exportEpub({
   let coverHref = "";
   let coverItem = "";
   let coverMeta = "";
-  if (coverFile instanceof File) {
-    const ext = coverFile.type === "image/png" ? "png" : "jpg";
+  if (coverFile) {
+    // Parse data URL: "data:image/png;base64,..." or "data:image/jpeg;base64,..."
+    const mimeMatch = coverFile.match(/^data:(image\/\w+);base64,/);
+    const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
+    const ext = mimeType === "image/png" ? "png" : "jpg";
+    const base64Data = coverFile.replace(/^data:image\/\w+;base64,/, "");
     coverHref = `cover.${ext}`;
     zip.file(
       "OEBPS/cover.xhtml",
@@ -203,9 +243,8 @@ export async function exportEpub({
         </body>
       </html>`
     );
-    const coverData = await coverFile.arrayBuffer();
-    zip.file(`OEBPS/${coverHref}`, coverData, { binary: true });
-    coverItem = `<item id="cover-image" href="${coverHref}" media-type="${coverFile.type}" />
+    zip.file(`OEBPS/${coverHref}`, base64Data, { base64: true });
+    coverItem = `<item id="cover-image" href="${coverHref}" media-type="${mimeType}" />
                  <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>`;
     coverMeta = `<meta name="cover" content="cover-image"/>`;
   }
@@ -405,7 +444,7 @@ export async function exportEpub({
       <nav epub:type="toc" id="toc">
         <h2>Table of Contents</h2>
         <ol>
-          ${coverFile instanceof File ? `<li><a href="cover.xhtml">Cover</a></li>` : ""}
+          ${coverFile ? `<li><a href="cover.xhtml">Cover</a></li>` : ""}
           <li><a href="${tocPageFilename}">Table of Contents</a></li>
           <li><a href="${publisherPageFilename}">Publisher Page</a></li>
           ${(() => {
@@ -462,7 +501,7 @@ export async function exportEpub({
 
   // Spine for reading order: cover → TOC → publisher → chapters
   const spineItems = [
-    coverFile instanceof File ? `<itemref idref="cover" linear="yes"/>` : "",
+    coverFile ? `<itemref idref="cover" linear="yes"/>` : "",
     `<itemref idref="toc"/>`,
     `<itemref idref="publisher"/>`,
     ...chapterHrefs.map((_, i) => `<itemref idref="chapter${i + 1}"/>`)
@@ -514,7 +553,7 @@ export async function exportEpub({
       </head>
       <docTitle><text>${safeTitle}</text></docTitle>
       <navMap>
-        ${coverFile instanceof File ? `<navPoint id="navPoint-0" playOrder="0">
+        ${coverFile ? `<navPoint id="navPoint-0" playOrder="0">
           <navLabel><text>Cover</text></navLabel>
           <content src="cover.xhtml"/>
         </navPoint>` : ""}

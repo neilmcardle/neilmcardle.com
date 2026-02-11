@@ -90,7 +90,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     }
 
     fetchSubscription()
-  }, [user, isAuthenticated])
+  }, [user?.id, isAuthenticated])
 
   return (
     <SubscriptionContext.Provider value={data}>

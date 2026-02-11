@@ -16,7 +16,7 @@ interface QualityValidatorProps {
   chapters: Chapter[];
   title: string;
   author: string;
-  coverFile: File | null;
+  coverFile: string | null;
 }
 
 export function useQualityValidator({ 
