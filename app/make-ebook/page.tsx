@@ -381,11 +381,16 @@ function MakeEbookPage() {
         confirmLabel: 'Delete',
         onConfirm: () => {
           setDialogState(prev => ({ ...prev, open: false }));
+          const deletedChapterId = chapters[idx]?.id;
           onConfirm();
+          // Clean up orphaned endnote references pointing to the deleted chapter
+          if (deletedChapterId) {
+            setEndnoteReferences(prev => prev.filter(ref => ref.chapterId !== deletedChapterId));
+          }
         },
       });
     });
-  }, [handleRemoveChapterRaw]);
+  }, [handleRemoveChapterRaw, chapters]);
 
   // Track previous user state to detect login/logout
   const prevUserRef = useRef(user);
@@ -1373,6 +1378,24 @@ function MakeEbookPage() {
     }
   }
 
+  // Remove export history entries from IndexedDB for a given book
+  function cleanupExportHistory(bookId: string) {
+    try {
+      const req = indexedDB.open('makeEbookExports', 1);
+      req.onsuccess = () => {
+        const db = req.result;
+        const tx = db.transaction('exports', 'readwrite');
+        const store = tx.objectStore('exports');
+        const idx = store.index('bookId');
+        const cursor = idx.openCursor(IDBKeyRange.only(bookId));
+        cursor.onsuccess = () => {
+          const c = cursor.result;
+          if (c) { c.delete(); c.continue(); }
+        };
+      };
+    } catch (e) { /* non-critical */ }
+  }
+
   function handleDeleteBook(id: string) {
     setDialogState({
       open: true,
@@ -1405,6 +1428,11 @@ function MakeEbookPage() {
         // Cloud delete succeeded (or not applicable) — now delete locally
         removeBookFromLibrary(id);
         setLibraryBooks(loadBookLibrary());
+
+        // Clean up version history (localStorage) for the deleted book
+        try { localStorage.removeItem(`makeebook-versions-${id}`); } catch (e) { /* non-critical */ }
+        // Clean up export history (IndexedDB) for the deleted book
+        cleanupExportHistory(id);
 
         if (currentBookId === id) {
           clearEditorState();
@@ -1443,6 +1471,10 @@ function MakeEbookPage() {
           }
 
           removeBookFromLibrary(id);
+
+          // Clean up version history (localStorage) and export history (IndexedDB)
+          try { localStorage.removeItem(`makeebook-versions-${id}`); } catch (e) { /* non-critical */ }
+          cleanupExportHistory(id);
 
           if (currentBookId === id) {
             clearEditorState();
