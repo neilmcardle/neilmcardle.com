@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "makeEbook - Create Beautiful eBooks",
     description: "The complete ebook creation tool for authors. Write, edit, and export professional EPUB files in minutes.",
-    url: "https://neilmcardle.com/make-ebook",
+    url: "https://makeebook.ink",
     siteName: "makeEbook",
     type: "website",
     images: [

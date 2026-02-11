@@ -1,7 +1,7 @@
-const CACHE_NAME = 'makeebook-v2';
+const CACHE_NAME = 'makeebook-v3';
 const STATIC_ASSETS = [
-  '/make-ebook',
-  '/make-ebook/manifest.json',
+  '/',
+  '/makeebook-manifest.json',
   '/hamburger-menu-icon.svg',
   '/dark-hamburger-menu-icon.svg',
   '/chapter-title-icon.svg',
@@ -67,7 +67,7 @@ self.addEventListener('fetch', (event) => {
               return cachedResponse;
             }
             // If not in cache, return the offline page (make-ebook)
-            return caches.match('/make-ebook');
+            return caches.match('/');
           });
         })
     );

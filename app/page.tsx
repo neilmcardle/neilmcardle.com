@@ -79,7 +79,7 @@ export default function ProfileCardHomepage() {
             {/* Products Section */}
             <div className="mb-5">
               <div className="flex items-center justify-center gap-6">
-                <a href="https://neilmcardle.com/make-ebook" target="_blank" rel="noopener noreferrer" title="makeEbook" className="inline-block opacity-70 hover:opacity-100 transition-opacity">
+                <a href="https://makeebook.ink" target="_blank" rel="noopener noreferrer" title="makeEbook" className="inline-block opacity-70 hover:opacity-100 transition-opacity">
                   <img src="/make-ebook-logomark.svg" alt="makeEbook" className="h-8 w-auto dark:hidden" />
                   <img src="/dark-make-ebook-logomark.svg" alt="makeEbook" className="h-8 w-auto hidden dark:block" />
                 </a>
