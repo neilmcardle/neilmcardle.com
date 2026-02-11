@@ -9,7 +9,7 @@ import { SubscriptionProvider } from "@/lib/hooks/useSubscription";
 import { ThemeProvider } from "@/lib/contexts/ThemeContext";
 import { Toaster } from "@/components/ui/toaster";
 import ClientFooterWrapper from "@/components/ClientFooterWrapper";
-import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Neil McArdle - Digital Product Designer",
