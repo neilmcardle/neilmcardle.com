@@ -105,8 +105,12 @@ export async function deleteEbookFromSupabase(ebookId: string, userId?: string, 
 
 	let targetEbookId = ebookId;
 
-	// If the ID isn't a valid UUID and we have user info, try to find the book by other means
-	if (!isUuid(ebookId) && userId && bookTitle) {
+	// If the ID isn't a valid UUID, try to find the book in Supabase by title
+	if (!isUuid(ebookId)) {
+		if (!userId || !bookTitle) {
+			// Local-only book with no way to look up in Supabase — nothing to delete
+			return true;
+		}
 		const { data: foundBooks } = await supabase
 			.from('ebooks')
 			.select('id')
@@ -114,9 +118,11 @@ export async function deleteEbookFromSupabase(ebookId: string, userId?: string, 
 			.eq('title', bookTitle)
 			.limit(1);
 
-		if (foundBooks && foundBooks.length > 0) {
-			targetEbookId = foundBooks[0].id;
+		if (!foundBooks || foundBooks.length === 0) {
+			// Book doesn't exist in Supabase — nothing to delete
+			return true;
 		}
+		targetEbookId = foundBooks[0].id;
 	}
 
 	// Delete all chapters for this ebook
