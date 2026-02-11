@@ -699,7 +699,11 @@ function MakeEbookPage() {
   // Update endnotes chapter content whenever endnotes change
   useEffect(() => {
     if (endnotes.length > 0 || chapters.some(ch => ch.title.toLowerCase() === 'endnotes')) {
-      updateEndnotesChapterContent();
+      updateEndnotesChapterContent(endnotes);
+    }
+    // Reset numbering when all endnotes are deleted
+    if (endnotes.length === 0) {
+      setNextEndnoteNumber(1);
     }
   }, [endnotes]);
 
@@ -1260,19 +1264,83 @@ function MakeEbookPage() {
 
     return endnoteLink;
   }
-  
-  function updateEndnotesChapterContent() {
-    // Use functional update pattern to always get the latest chapters state
-    // This prevents stale closure issues when the effect runs
+
+  // Two-way endnote sync: detect deletions from either direction
+  // Direction 1: user backspaces an endnote reference [1] in a chapter → remove the endnote
+  // Direction 2: user backspaces an endnote entry in the Endnotes chapter → remove the reference from the source chapter
+  useEffect(() => {
+    if (endnotes.length === 0 && endnoteReferences.length === 0) return;
+
+    // --- Direction 1: check for orphaned references (marker deleted from chapter text) ---
+    const allChapterHtml = chapters
+      .filter(ch => ch.title.toLowerCase() !== 'endnotes')
+      .map(ch => ch.content)
+      .join('');
+
+    const survivingRefIds = new Set<string>();
+    const refMatches = allChapterHtml.matchAll(/data-endnote-id="([^"]+)"/g);
+    for (const m of refMatches) {
+      survivingRefIds.add(m[1]);
+    }
+
+    const orphanedFromChapters = endnoteReferences.filter(r => !survivingRefIds.has(r.endnoteId));
+
+    // --- Direction 2: check for endnote entries deleted from the Endnotes chapter ---
+    const endnotesChapter = chapters.find(ch => ch.title.toLowerCase() === 'endnotes');
+    let orphanedFromEndnotesChapter: string[] = [];
+
+    if (endnotesChapter && endnotes.length > 0) {
+      const survivingEntryIds = new Set<string>();
+      const entryMatches = endnotesChapter.content.matchAll(/data-endnote-entry-id="([^"]+)"/g);
+      for (const m of entryMatches) {
+        survivingEntryIds.add(m[1]);
+      }
+
+      // Endnotes in our array but missing from the chapter HTML = user deleted them
+      orphanedFromEndnotesChapter = endnotes
+        .filter(e => !survivingEntryIds.has(e.id))
+        .map(e => e.id);
+    }
+
+    // Combine both sets of orphaned endnote IDs
+    const allOrphanedIds = new Set([
+      ...orphanedFromChapters.map(r => r.endnoteId),
+      ...orphanedFromEndnotesChapter,
+    ]);
+
+    if (allOrphanedIds.size === 0) return;
+
+    // Remove references from source chapter HTML (for endnotes deleted from the Endnotes chapter)
+    if (orphanedFromEndnotesChapter.length > 0) {
+      setChapters(prev => prev.map(ch => {
+        if (ch.title.toLowerCase() === 'endnotes') return ch;
+        let content = ch.content;
+        for (const id of orphanedFromEndnotesChapter) {
+          content = content.replace(
+            new RegExp(`<a[^>]*data-endnote-id="${id}"[^>]*>.*?</a>`, 'gi'),
+            ''
+          );
+        }
+        return content !== ch.content ? { ...ch, content } : ch;
+      }));
+    }
+
+    // Clean up endnotes and references arrays
+    setEndnotes(prev => prev.filter(e => !allOrphanedIds.has(e.id)));
+    setEndnoteReferences(prev => prev.filter(r => !allOrphanedIds.has(r.endnoteId)));
+  }, [chapters]);
+
+  function updateEndnotesChapterContent(currentEndnotes: Endnote[]) {
+    // Accept endnotes as parameter to avoid stale closure issues
     setChapters(currentChapters => {
       const endnotesChapterIndex = currentChapters.findIndex(ch => ch.title.toLowerCase() === 'endnotes');
 
       // Generate endnotes content (create shallow copy to avoid mutating state)
-      const endnotesContent = [...endnotes]
+      const endnotesContent = [...currentEndnotes]
         .sort((a, b) => a.number - b.number)
         .map(endnote => {
           const backLink = `<a href="#ref${endnote.number}" id="end${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: none; margin-left: 8px; cursor: pointer; user-select: none; font-weight: bold; font-size: 14px; padding: 2px 6px; border: 1px solid #0066cc; border-radius: 3px; background-color: #f0f8ff; display: inline-block;">[${endnote.number}]</a>`;
-          return `<p>${endnote.number}. ${endnote.content} ${backLink}</p>`;
+          return `<p data-endnote-entry-id="${endnote.id}">${endnote.number}. ${endnote.content} ${backLink}</p>`;
         })
         .join('');
 
@@ -1280,7 +1348,7 @@ function MakeEbookPage() {
 
       if (endnotesChapterIndex === -1) {
         // Only create new endnotes chapter if we have endnotes to show
-        if (endnotes.length === 0) return currentChapters;
+        if (currentEndnotes.length === 0) return currentChapters;
 
         const newEndnotesChapter = {
           id: `endnotes-${Date.now()}`,
@@ -1291,7 +1359,7 @@ function MakeEbookPage() {
         updatedChapters.push(newEndnotesChapter);
       } else {
         // Update existing endnotes chapter (or remove if no endnotes)
-        if (endnotes.length === 0) {
+        if (currentEndnotes.length === 0) {
           // Remove the endnotes chapter if there are no endnotes
           updatedChapters.splice(endnotesChapterIndex, 1);
         } else {
@@ -1361,7 +1429,11 @@ function MakeEbookPage() {
         setEndnoteReferences(migratedEndnoteRefs);
       }
 
-      setEndnotes(loaded.endnotes || []);
+      const loadedEndnotes = loaded.endnotes || [];
+      setEndnotes(loadedEndnotes);
+      // Restore nextEndnoteNumber so new endnotes don't collide with existing ones
+      const maxNumber = loadedEndnotes.reduce((max: number, e: Endnote) => Math.max(max, e.number), 0);
+      setNextEndnoteNumber(maxNumber + 1);
       setCurrentBookId(loaded.id);
       setSelectedChapter(0);
 
