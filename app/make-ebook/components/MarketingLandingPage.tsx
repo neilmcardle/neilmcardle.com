@@ -59,21 +59,9 @@ const FEATURES = [
 
 const TESTIMONIALS = [
   {
-    quote: "Finally, a tool that lets me focus on writing instead of fighting with formatting. The EPUB exports are flawless.",
-    author: "Sarah Mitchell",
-    role: "Self-Published Author",
-    avatar: "/neil-avatar.png"
-  },
-  {
-    quote: "The AI assistant helped me break through writer's block on my third novel. It's like having a thoughtful editor always available.",
-    author: "James Chen",
-    role: "Fiction Writer",
-    avatar: "/neil-avatar.png"
-  },
-  {
-    quote: "I've tried every ebook tool out there. MakeEbook is the only one that feels designed by someone who actually writes books.",
-    author: "Elena Rodriguez",
-    role: "Non-Fiction Author",
+    quote: "I found the app really impressive, very easy to use and a beautiful design.",
+    author: "Jon",
+    role: "Early Access User",
     avatar: "/neil-avatar.png"
   }
 ];
@@ -481,42 +469,41 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-24 lg:py-32 bg-gray-900/50">
+      <section className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
               Loved by authors
             </h2>
             <p className="text-xl text-gray-400">
-              Join thousands of writers who trust MakeEbook for their publishing needs.
+              Hear from writers who use MakeEbook.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((testimonial, index) => (
-              <div
-                key={index}
-                className="bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-700"
-              >
-                <div className="flex items-center gap-1 mb-4">
+          <div className="flex justify-center">
+            <div className="relative max-w-lg w-full rounded-2xl overflow-hidden p-10">
+              {/* Navy gradient background matching 404 style */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#1e2836] via-[#253040] to-[#1a2230]" />
+              <div className="relative">
+                <div className="flex items-center gap-1 mb-6">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <p className="text-gray-300 mb-6 text-lg leading-relaxed">
-                  "{testimonial.quote}"
+                <p className="text-gray-200 mb-8 text-xl italic leading-relaxed">
+                  &ldquo;{TESTIMONIALS[0].quote}&rdquo;
                 </p>
                 <div className="flex items-center gap-3">
-                  <svg className="w-10 h-10 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="w-10 h-10 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <div>
-                    <p className="font-semibold text-white">{testimonial.author}</p>
-                    <p className="text-sm text-gray-400">{testimonial.role}</p>
+                    <p className="font-semibold text-white">{TESTIMONIALS[0].author}</p>
+                    <p className="text-sm text-gray-400">{TESTIMONIALS[0].role}</p>
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>

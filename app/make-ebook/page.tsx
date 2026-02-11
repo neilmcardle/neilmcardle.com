@@ -696,15 +696,26 @@ function MakeEbookPage() {
     });
   }, [setChapters, setBlurb, setPublisher, setPubDate, setGenre, setTags, setSelectedChapter, markDirty]);
 
+  // Track previous endnotes count to detect when all are removed
+  const prevEndnotesCountRef = useRef(0);
+
   // Update endnotes chapter content whenever endnotes change
   useEffect(() => {
     if (endnotes.length > 0 || chapters.some(ch => ch.title.toLowerCase() === 'endnotes')) {
       updateEndnotesChapterContent(endnotes);
     }
-    // Reset numbering when all endnotes are deleted
-    if (endnotes.length === 0) {
+    // Reset numbering and notify user when all endnotes are deleted
+    if (endnotes.length === 0 && prevEndnotesCountRef.current > 0) {
       setNextEndnoteNumber(1);
+      setDialogState({
+        open: true,
+        title: 'Endnotes Removed',
+        message: 'All endnotes have been deleted. The Endnotes chapter has been removed from your book.',
+        variant: 'alert',
+        onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
+      });
     }
+    prevEndnotesCountRef.current = endnotes.length;
   }, [endnotes]);
 
   // Handle bidirectional endnote navigation (chapter ↔ endnotes)
