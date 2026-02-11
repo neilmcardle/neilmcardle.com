@@ -1,4 +1,4 @@
-const CACHE_NAME = 'makeebook-v1';
+const CACHE_NAME = 'makeebook-v2';
 const STATIC_ASSETS = [
   '/make-ebook',
   '/make-ebook/manifest.json',
