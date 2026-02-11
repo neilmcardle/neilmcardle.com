@@ -1396,6 +1396,7 @@ function MakeEbookPage() {
               title: 'Delete Failed',
               message: 'Could not delete from cloud. The book was kept to prevent data loss. Please try again.',
               variant: 'alert',
+              onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
             });
             return; // Don't delete locally if cloud delete failed
           }
