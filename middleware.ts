@@ -36,7 +36,8 @@ export function middleware(request: NextRequest) {
 
   // Handle neilmcardle.com — redirect /make-ebook to makeebook.ink
   // Skip static files (e.g. /make-ebook-logomark.svg) — only redirect route paths
-  if (pathname.startsWith('/make-ebook') && !pathname.includes('.')) {
+  // Skip localhost so local dev works without redirecting
+  if (pathname.startsWith('/make-ebook') && !pathname.includes('.') && !hostname.includes('localhost')) {
     const newPath = pathname.replace('/make-ebook', '') || '/';
     const search = request.nextUrl.search;
     return NextResponse.redirect(
