@@ -623,8 +623,8 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             <div>
               <h4 className="font-semibold mb-4 text-white">Legal</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/terms" className="hover:text-white">Terms & Conditions</Link></li>
-                <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
+                <li><a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="hover:text-white">Terms & Conditions</a></li>
+                <li><a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-white">Privacy Policy</a></li>
               </ul>
             </div>
           </div>

@@ -2785,13 +2785,13 @@ function MakeEbookPage() {
                     <span>Tour</span>
                   </button>
                   <span className="text-gray-300 dark:text-gray-600">·</span>
-                  <a href="/terms" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms</a>
+                  <a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms</a>
                   <span className="text-gray-300 dark:text-gray-600">·</span>
-                  <a href="/privacy" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy</a>
+                  <a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy</a>
                 </div>
 
                 {/* Copyright */}
-                <div className="text-center text-[10px] text-gray-400 dark:text-gray-500">© 2025 Neil McArdle</div>
+                <div className="text-center text-[10px] text-gray-400 dark:text-gray-500">© 2026 Neil McArdle</div>
               </footer>
             </div>
           </div>

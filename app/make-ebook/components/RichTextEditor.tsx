@@ -1327,11 +1327,11 @@ export default function RichTextEditor({
           <div className="px-4 pb-2 text-[11px] text-[#86868B] dark:text-gray-400 flex justify-between items-center select-none">
             {/* Terms/Privacy links - only on mobile */}
             <div className="lg:hidden flex items-center space-x-2">
-              <Link href="/terms" className="hover:underline" target="_blank">
+              <a href="https://neilmcardle.com/terms" className="hover:underline" target="_blank" rel="noopener noreferrer">
                 Terms
-              </Link>
+              </a>
               <span className="text-gray-300">|</span>
-              <Link href="/privacy" className="hover:underline" target="_blank">
+              <a href="https://neilmcardle.com/privacy" className="hover:underline" target="_blank" rel="noopener noreferrer">
                 Privacy
               </Link>
             </div>
