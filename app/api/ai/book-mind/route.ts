@@ -4,6 +4,7 @@ import { CookieOptions } from '@supabase/ssr'
 import { getUserSubscriptionTier } from '@/lib/db/users'
 
 export const runtime = "nodejs"; // Changed from edge to support database queries
+export const maxDuration = 60; // Allow up to 60s for AI API responses
 
 // Book Mind AI API endpoint
 // Supports OpenAI, Anthropic, Grok/xAI, or other providers via environment variables
