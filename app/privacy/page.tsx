@@ -73,7 +73,7 @@ export default function PrivacyPage() {
                 We share your personal data only in the following circumstances:
               </p>
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li><strong>Service Providers:</strong> Supabase (database hosting), Replit (application hosting)</li>
+                <li><strong>Service Providers:</strong> Supabase (database hosting), Vercel (application hosting)</li>
                 <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
                 <li><strong>With Your Consent:</strong> Any other sharing only with your explicit permission</li>
               </ul>
@@ -116,7 +116,7 @@ export default function PrivacyPage() {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">8. International Transfers</h2>
               <p className="text-gray-700 mb-4">
-                Your data may be processed outside the UK through our service providers (Supabase, Replit). 
+                Your data may be processed outside the UK through our service providers (Supabase, Vercel). 
                 We ensure appropriate safeguards are in place through:
               </p>
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
