@@ -12,15 +12,18 @@ export default function PrivacyPage() {
           <div className="prose prose-gray max-w-none">
             <h1 className="text-4xl font-bold text-gray-900 mb-8">Privacy Policy</h1>
             
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-600 mb-4">
               <strong>Last updated:</strong> {new Date().toLocaleDateString('en-GB')}
+            </p>
+            <p className="text-gray-500 text-sm mb-8">
+              <a href="https://makeebook.ink" className="text-blue-600 hover:underline">makeEbook</a> is a product by Neil McArdle, operated under <a href="https://neilmcardle.com" className="text-blue-600 hover:underline">neilmcardle.com</a>.
             </p>
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Controller Information</h2>
               <p className="text-gray-700 mb-4">
-                The data controller for makeEbook is Neil McArdle, operating as an individual under UK GDPR. 
-                For any privacy-related inquiries, please contact us through 
+                The data controller for <a href="https://makeebook.ink" className="text-blue-600 hover:underline">makeEbook</a> is Neil McArdle, operating as an individual under UK GDPR.
+                For any privacy-related inquiries, please contact us through
                 <a href="https://neilmcardle.com" className="text-blue-600 hover:underline"> neilmcardle.com</a>.
               </p>
             </section>

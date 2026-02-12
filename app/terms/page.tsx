@@ -12,15 +12,18 @@ export default function TermsPage() {
           <div className="prose prose-gray max-w-none">
             <h1 className="text-4xl font-bold text-gray-900 mb-8">Terms of Service</h1>
             
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-600 mb-4">
               <strong>Last updated:</strong> {new Date().toLocaleDateString('en-GB')}
+            </p>
+            <p className="text-gray-500 text-sm mb-8">
+              <a href="https://makeebook.ink" className="text-blue-600 hover:underline">makeEbook</a> is a product by Neil McArdle, operated under <a href="https://neilmcardle.com" className="text-blue-600 hover:underline">neilmcardle.com</a>.
             </p>
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Agreement to Terms</h2>
               <p className="text-gray-700 mb-4">
-                By accessing and using makeEbook ("the Service"), you agree to be bound by these Terms of Service 
-                and all applicable laws and regulations. If you do not agree with any of these terms, you are 
+                By accessing and using makeEbook at <a href="https://makeebook.ink" className="text-blue-600 hover:underline">makeebook.ink</a> ("the Service"), you agree to be bound by these Terms of Service
+                and all applicable laws and regulations. If you do not agree with any of these terms, you are
                 prohibited from using the Service.
               </p>
             </section>
