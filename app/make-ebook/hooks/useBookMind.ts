@@ -155,14 +155,20 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     return id;
   }, [chatSessions, bookId, saveSessions]);
 
-  // Load a chat session
+  // Load a chat session — read from localStorage to avoid stale closure
   const loadSession = useCallback((sessionId: string) => {
-    const session = chatSessions.find(s => s.id === sessionId);
-    if (session) {
-      setCurrentSessionId(sessionId);
-      setMessages(session.messages);
+    try {
+      const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+      const allSessions: ChatSession[] = stored ? JSON.parse(stored) : [];
+      const session = allSessions.find(s => s.id === sessionId);
+      if (session) {
+        setCurrentSessionId(sessionId);
+        setMessages(session.messages);
+      }
+    } catch (e) {
+      console.error('Failed to load session:', e);
     }
-  }, [chatSessions]);
+  }, []);
 
   // Rename a chat session
   const renameSession = useCallback((sessionId: string, newName: string) => {
@@ -182,16 +188,27 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     }
   }, [chatSessions, currentSessionId, saveSessions]);
 
-  // Update current session with new messages
+  // Update current session with new messages — read from localStorage to avoid stale closure
   const updateCurrentSession = useCallback((newMessages: BookMindMessage[]) => {
     if (!currentSessionId) return;
-    const updated = chatSessions.map(s => 
-      s.id === currentSessionId 
-        ? { ...s, messages: newMessages, updatedAt: Date.now() }
-        : s
-    );
-    saveSessions(updated);
-  }, [chatSessions, currentSessionId, saveSessions]);
+    try {
+      const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+      const allSessions: ChatSession[] = stored ? JSON.parse(stored) : [];
+      const updated = allSessions.map(s =>
+        s.id === currentSessionId
+          ? { ...s, messages: newMessages, updatedAt: Date.now() }
+          : s
+      );
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated));
+      // Update React state with current book's sessions
+      const bookSessions = bookId
+        ? updated.filter(s => s.bookId === bookId)
+        : updated;
+      setChatSessions(bookSessions);
+    } catch (e) {
+      console.error('Failed to update session:', e);
+    }
+  }, [currentSessionId, bookId]);
 
   const buildSystemPrompt = (context: BookMindContext): string => {
     // Build full book content for context
