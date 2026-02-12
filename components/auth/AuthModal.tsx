@@ -355,9 +355,9 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
           <div className="px-8 pb-6 pt-2 border-t border-gray-200 dark:border-gray-800">
             <p className="text-xs text-center text-gray-500 dark:text-gray-400">
               By creating an account, you agree to our{' '}
-              <a href="/terms" className="underline hover:text-gray-700 dark:hover:text-gray-300">Terms</a>
+              <a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-gray-300">Terms</a>
               {' '}and{' '}
-              <a href="/privacy" className="underline hover:text-gray-700 dark:hover:text-gray-300">Privacy Policy</a>
+              <a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-gray-300">Privacy Policy</a>
             </p>
           </div>
         )}
