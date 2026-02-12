@@ -5,7 +5,8 @@ import Footer from "./Footer";
 
 export default function ClientFooterWrapper() {
   const pathname = usePathname();
-  // Don't show footer on certain full-screen pages
-  if (pathname.startsWith("/make-ebook") || pathname.startsWith("/coverly")) return null;
+  const isMakeEbookDomain = typeof window !== "undefined" && window.location.hostname.includes("makeebook.ink");
+  // Don't show footer on make-ebook or coverly pages
+  if (isMakeEbookDomain || pathname.startsWith("/make-ebook") || pathname.startsWith("/coverly")) return null;
   return <Footer />;
 }

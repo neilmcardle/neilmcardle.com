@@ -18,7 +18,7 @@ export default function Footer() {
           </div>
           <div className="text-center">
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              © 2025 Neil McArdle. All rights reserved.
+              © 2026 Neil McArdle. All rights reserved.
             </p>
           </div>
         </div>
