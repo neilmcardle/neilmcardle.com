@@ -28,7 +28,7 @@ const FEATURES = [
   {
     icon: BookOpen,
     title: 'Professional EPUB Export',
-    description: 'Export publication-ready ePub files that work on Kindle, Apple Books, Kobo, and all major e-readers.'
+    description: 'Export publication-ready EPUB files for Amazon KDP, Apple Books, Kobo, and all major publishing platforms.'
   },
   {
     icon: Sparkles,
