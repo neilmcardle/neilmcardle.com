@@ -1333,7 +1333,7 @@ export default function RichTextEditor({
               <span className="text-gray-300">|</span>
               <a href="https://neilmcardle.com/privacy" className="hover:underline" target="_blank" rel="noopener noreferrer">
                 Privacy
-              </Link>
+              </a>
             </div>
             {/* Spacer for desktop when links are hidden */}
             <div className="hidden lg:block"></div>

@@ -20,15 +20,15 @@ export default function NotFound() {
         </div>
 
         {/* 404 */}
-        <p className="text-[10rem] sm:text-[12rem] font-bold leading-none text-white/[0.03] select-none -mb-8">
+        <p className="text-[10rem] sm:text-[12rem] font-bold leading-none text-white/[0.06] select-none -mb-8">
           404
         </p>
 
         {/* Quote */}
-        <p className="text-xl sm:text-2xl italic text-gray-400 text-center max-w-lg mb-3">
+        <p className="text-xl sm:text-2xl italic text-gray-300 text-center max-w-lg mb-3">
           &ldquo;Not all those who wander are lost.&rdquo;
         </p>
-        <p className="text-sm text-gray-600 mb-12">
+        <p className="text-sm text-gray-500 mb-12">
           &mdash; J.R.R. Tolkien
         </p>
 
