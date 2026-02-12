@@ -77,7 +77,7 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
       {/* Background gradient — matches marketing hero */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-[#0a0a0a] to-gray-900" />
 
-      <div className="relative flex flex-col items-center justify-center h-full px-4 sm:px-8 py-8 sm:py-16 min-h-0 overflow-y-auto">
+      <div className="relative flex flex-col items-center justify-center h-full px-0 sm:px-8 py-8 sm:py-16 min-h-0 overflow-y-auto">
         {/* Logo */}
         <div className="mb-8 sm:mb-12 flex-shrink-0">
           <Image

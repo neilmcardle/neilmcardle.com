@@ -3139,9 +3139,10 @@ function MakeEbookPage() {
           />
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className={`flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] px-2 ${chapters.length > 0 ? 'lg:pl-8' : 'lg:pl-0'} lg:pr-0 py-8 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}>
+          <main className={`flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] ${chapters.length === 0 ? 'px-0 py-0' : 'px-2 py-8'} ${chapters.length > 0 ? 'lg:pl-8' : 'lg:pl-0'} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}>
             
-            {/* Mobile Header - Compact Status Bar */}
+            {/* Mobile Header - Compact Status Bar - Hidden when no chapters (landing page) */}
+            {chapters.length > 0 && (
             <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#0a0a0a]">
               <div className="flex items-center justify-between px-2 py-1.5 gap-1 border-b border-gray-200 dark:border-gray-700">
                 {/* Left: Menu Button */}
@@ -3212,6 +3213,7 @@ function MakeEbookPage() {
                 </div>
               )}
             </div>
+            )}
 
             {/* Desktop Header with Title and Toolbar */}
             <div className="hidden lg:block">
@@ -3219,7 +3221,7 @@ function MakeEbookPage() {
             </div>
 
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
-            <div data-tour="mobile-editor" className="lg:hidden flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pt-[52px] pb-0">
+            <div data-tour="mobile-editor" className={`lg:hidden flex flex-col ${chapters.length === 0 ? '' : 'gap-2 pt-[52px]'} flex-1 min-h-0 overflow-y-auto pb-0`}>
               {chapters.length === 0 ? (
                 // Landing Page - Mobile version
                 <LandingPage

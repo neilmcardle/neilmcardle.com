@@ -7,6 +7,13 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
   const { pathname } = request.nextUrl;
 
+  // Redirect www.makeebook.ink to makeebook.ink (SSL cert only covers apex domain)
+  if (hostname === `www.${MAKEEBOOK_DOMAIN}`) {
+    const url = request.nextUrl.clone();
+    url.host = MAKEEBOOK_DOMAIN;
+    return NextResponse.redirect(url, 301);
+  }
+
   // Handle makeebook.ink domain
   if (hostname.includes(MAKEEBOOK_DOMAIN)) {
     // API and auth routes pass through unchanged
