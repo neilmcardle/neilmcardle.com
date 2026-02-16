@@ -34,30 +34,42 @@ export default function ManageBillingButton({
   }
 
   const handleOpenPortal = async () => {
+    console.log('🔵 handleOpenPortal called - button clicked');
     setPortalLoading(true);
     setError(null);
 
     try {
+      console.log('🔵 Making POST request to /api/customer-portal');
       const response = await fetch('/api/customer-portal', {
         method: 'POST',
         credentials: 'include',
       });
 
+      console.log('🔵 Response received:', {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText
+      });
+
       if (!response.ok) {
         const data = await response.json();
+        console.error('❌ API error response:', data);
         throw new Error(data.error || 'Failed to open billing portal');
       }
 
       const { url } = await response.json();
+      console.log('🔵 Portal URL received:', url);
 
       if (url) {
+        console.log('🔵 Redirecting to:', url);
         // Redirect to Stripe Customer Portal
         window.location.href = url;
       } else {
+        console.error('❌ No URL in response');
         throw new Error('No portal URL returned');
       }
     } catch (err) {
-      console.error('Portal error:', err);
+      console.error('❌ Portal error:', err);
       setError(err instanceof Error ? err.message : 'Failed to open billing portal');
       setPortalLoading(false);
     }
@@ -110,29 +122,41 @@ export function ManageBillingLink({ className = '' }: { className?: string }) {
   }
 
   const handleOpenPortal = async () => {
+    console.log('🔵 ManageBillingLink handleOpenPortal called');
     setPortalLoading(true);
     setError(null);
 
     try {
+      console.log('🔵 Making POST request to /api/customer-portal');
       const response = await fetch('/api/customer-portal', {
         method: 'POST',
         credentials: 'include',
       });
 
+      console.log('🔵 Response received:', {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText
+      });
+
       if (!response.ok) {
         const data = await response.json();
+        console.error('❌ API error response:', data);
         throw new Error(data.error || 'Failed to open billing portal');
       }
 
       const { url } = await response.json();
+      console.log('🔵 Portal URL received:', url);
 
       if (url) {
+        console.log('🔵 Redirecting to:', url);
         window.location.href = url;
       } else {
+        console.error('❌ No URL in response');
         throw new Error('No portal URL returned');
       }
     } catch (err) {
-      console.error('Portal error:', err);
+      console.error('❌ Portal error:', err);
       setError(err instanceof Error ? err.message : 'Failed to open billing portal');
       setPortalLoading(false);
     }
