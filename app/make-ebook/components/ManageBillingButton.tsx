@@ -19,9 +19,17 @@ export default function ManageBillingButton({
   const [portalLoading, setPortalLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Debug logging
+  console.log('ManageBillingButton:', { tier, isGrandfathered, stripeCustomerId, isLoading });
+
   // Don't show button for Free users or grandfathered users
   // Grandfathered users have lifetime access and shouldn't be able to cancel
   if (tier !== 'pro' || isGrandfathered || !stripeCustomerId) {
+    console.log('ManageBillingButton not showing because:', {
+      isPro: tier === 'pro',
+      isGrandfathered,
+      hasStripeId: !!stripeCustomerId
+    });
     return null;
   }
 
