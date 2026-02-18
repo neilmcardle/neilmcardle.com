@@ -122,6 +122,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<'pro' | 'lifetime' | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const { user, signOut } = useAuth();
   const featuresRef = useRef<HTMLElement>(null);
   const pricingRef = useRef<HTMLElement>(null);
@@ -133,14 +134,16 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
   const handleCheckout = async (type: 'pro' | 'lifetime') => {
     setCheckoutLoading(type);
+    setCheckoutError(null);
     try {
       const endpoint = type === 'lifetime' ? '/api/checkout-lifetime' : '/api/checkout';
       const response = await fetch(endpoint, { method: 'POST', credentials: 'include' });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to start checkout');
       if (data.url) window.location.href = data.url;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Checkout error:', err);
+      setCheckoutError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setCheckoutLoading(null);
     }
@@ -537,6 +540,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             <p className="text-xl text-gray-400">
               Choose the plan that works for you. Upgrade or downgrade anytime.
             </p>
+            {checkoutError && (
+              <p className="mt-4 text-sm text-red-400">{checkoutError}</p>
+            )}
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
