@@ -80,7 +80,8 @@ const PRICING = [
       'Works offline'
     ],
     cta: 'Start Free',
-    highlighted: false
+    highlighted: false,
+    checkoutType: null as null | 'pro' | 'lifetime',
   },
   {
     name: 'Pro',
@@ -96,7 +97,8 @@ const PRICING = [
       'Priority support'
     ],
     cta: 'Get Started',
-    highlighted: true
+    highlighted: true,
+    checkoutType: 'pro' as null | 'pro' | 'lifetime',
   },
   {
     name: 'Lifetime',
@@ -110,7 +112,8 @@ const PRICING = [
       'Early access to new tools'
     ],
     cta: 'Buy Now',
-    highlighted: false
+    highlighted: false,
+    checkoutType: 'lifetime' as null | 'pro' | 'lifetime',
   }
 ];
 
@@ -118,13 +121,44 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<'pro' | 'lifetime' | null>(null);
+  const [pendingCheckout, setPendingCheckout] = useState<'pro' | 'lifetime' | null>(null);
   const { user, signOut } = useAuth();
   const featuresRef = useRef<HTMLElement>(null);
   const pricingRef = useRef<HTMLElement>(null);
 
+  // Auto-trigger checkout after login if user clicked a paid plan before signing in
+  useEffect(() => {
+    if (user && pendingCheckout) {
+      const type = pendingCheckout;
+      setPendingCheckout(null);
+      handleCheckout(type);
+    }
+  }, [user, pendingCheckout]);
+
   const handleOpenAuth = (mode: 'signin' | 'signup') => {
     setAuthMode(mode);
     setAuthModalOpen(true);
+  };
+
+  const handleCheckout = async (type: 'pro' | 'lifetime') => {
+    if (!user) {
+      setPendingCheckout(type);
+      handleOpenAuth('signup');
+      return;
+    }
+    setCheckoutLoading(type);
+    try {
+      const endpoint = type === 'lifetime' ? '/api/checkout-lifetime' : '/api/checkout';
+      const response = await fetch(endpoint, { method: 'POST', credentials: 'include' });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to start checkout');
+      if (data.url) window.location.href = data.url;
+    } catch (err) {
+      console.error('Checkout error:', err);
+    } finally {
+      setCheckoutLoading(null);
+    }
   };
 
   const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
@@ -556,14 +590,21 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   ))}
                 </ul>
                 <button
-                  onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                  className={`w-full py-3 rounded-full font-semibold transition-colors ${
+                  onClick={() => {
+                    if (plan.checkoutType) {
+                      handleCheckout(plan.checkoutType);
+                    } else {
+                      user ? onStartWritingAction() : handleOpenAuth('signup');
+                    }
+                  }}
+                  disabled={!!plan.checkoutType && checkoutLoading === plan.checkoutType}
+                  className={`w-full py-3 rounded-full font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
                     plan.highlighted
                       ? 'bg-gray-900 text-white hover:bg-gray-800'
                       : 'bg-white text-gray-900 hover:bg-gray-100'
                   }`}
                 >
-                  {plan.cta}
+                  {plan.checkoutType && checkoutLoading === plan.checkoutType ? 'Redirecting…' : plan.cta}
                 </button>
               </div>
             ))}
@@ -637,8 +678,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       {/* Auth Modal */}
       <AuthModal
         isOpen={authModalOpen}
-        onCloseAction={() => setAuthModalOpen(false)}
+        onCloseAction={() => { setAuthModalOpen(false); setPendingCheckout(null); }}
         defaultMode={authMode}
+        checkoutContext={pendingCheckout}
       />
     </div>
   );

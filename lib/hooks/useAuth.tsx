@@ -23,7 +23,7 @@ interface AuthContextType {
   user: User | null
   loading: boolean
   isAuthenticated: boolean
-  signUp: (email: string, password: string) => Promise<{ error: AuthError | null, needsVerification?: boolean }>
+  signUp: (email: string, password: string) => Promise<{ error: AuthError | null, needsVerification?: boolean, userExists?: boolean }>
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: AuthError | null, resetSent?: boolean }>

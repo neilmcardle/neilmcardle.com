@@ -29,9 +29,10 @@ interface AuthModalProps {
   isOpen: boolean
   onCloseAction: () => void
   defaultMode?: 'signin' | 'signup' | 'reset'
+  checkoutContext?: 'pro' | 'lifetime' | null
 }
 
-export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: AuthModalProps) {
+export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup', checkoutContext }: AuthModalProps) {
   const [mode, setMode] = useState<'signin' | 'signup' | 'reset'>(defaultMode)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -229,13 +230,23 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
           
           {/* Subtitle */}
           <p className="text-gray-600 dark:text-gray-400">
-            {mode === 'signin' 
-              ? 'Sign in to continue writing' 
+            {mode === 'signin'
+              ? 'Sign in to continue writing'
               : mode === 'reset'
               ? 'Enter your email to receive a reset link'
               : 'Start creating beautiful ebooks today'
             }
           </p>
+
+          {/* Checkout context banner */}
+          {checkoutContext && mode !== 'reset' && (
+            <p className="mt-4 text-sm text-green-600 dark:text-green-400 text-center">
+              {checkoutContext === 'lifetime'
+                ? "You're one step away from Lifetime access. Create an account to complete your purchase."
+                : "You're one step away from Pro. Create an account to complete your subscription."
+              }
+            </p>
+          )}
         </div>
         
         {/* Form */}
