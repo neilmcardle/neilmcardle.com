@@ -7,136 +7,106 @@ import { getUserById, updateUser } from '@/lib/db/users'
 /**
  * Checkout Session Endpoint
  *
- * Creates a Stripe Checkout Session for subscribing to Pro tier
- * Redirects user to Stripe-hosted checkout page
- *
- * Advantages over Payment Intents:
- * - Better UX with hosted checkout page
- * - Handles 3D Secure automatically
- * - Includes tax calculation if configured
- * - Built-in success/cancel URLs
+ * Creates a Stripe Checkout Session for subscribing to Pro tier.
+ * Works for both authenticated and unauthenticated users:
+ * - Authenticated: uses existing Stripe customer, checks for duplicate subscription
+ * - Unauthenticated: Stripe collects email during checkout; webhook creates account after payment
  */
 export async function POST(req: NextRequest) {
   try {
-    // Check Stripe configuration and initialize inside handler
     if (!process.env.STRIPE_SECRET_KEY) {
-      return NextResponse.json(
-        { error: 'Stripe is not configured' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Stripe is not configured' }, { status: 500 })
     }
 
     if (!process.env.STRIPE_PRO_PRICE_ID) {
-      return NextResponse.json(
-        { error: 'Stripe Pro price not configured' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Stripe Pro price not configured' }, { status: 500 })
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2025-08-27.basil',
     })
 
-    const response = NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    // Try to get authenticated user (optional — unauthenticated checkout is allowed)
+    let supabaseUserId: string | null = null
+    let existingCustomerId: string | null = null
 
-    // Get authenticated user
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return req.cookies.get(name)?.value
+    try {
+      const tempResponse = new NextResponse()
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            get(name: string) {
+              return req.cookies.get(name)?.value
+            },
+            set(name: string, value: string, options: CookieOptions) {
+              tempResponse.cookies.set({ name, value, ...options })
+            },
+            remove(name: string, options: CookieOptions) {
+              tempResponse.cookies.set({ name, value: '', ...options })
+            },
           },
-          set(name: string, value: string, options: CookieOptions) {
-            response.cookies.set({ name, value, ...options })
-          },
-          remove(name: string, options: CookieOptions) {
-            response.cookies.set({ name, value: '', ...options })
-          },
-        },
+        }
+      )
+
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (user) {
+        supabaseUserId = user.id
+        const { user: dbUser } = await getUserById(user.id)
+
+        if (dbUser) {
+          // Already subscribed — prevent duplicate
+          if (dbUser.subscriptionTier === 'pro' && dbUser.subscriptionStatus === 'active') {
+            return NextResponse.json({ error: 'Already subscribed to Pro' }, { status: 400 })
+          }
+
+          existingCustomerId = dbUser.stripeCustomerId ?? null
+
+          // Create Stripe customer if this user doesn't have one yet
+          if (!existingCustomerId) {
+            const customer = await stripe.customers.create({
+              email: user.email!,
+              metadata: { supabase_user_id: user.id },
+            })
+            existingCustomerId = customer.id
+            await updateUser(user.id, { stripeCustomerId: existingCustomerId })
+          }
+        }
       }
-    )
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401, headers: response.headers }
-      )
+    } catch {
+      // User not authenticated — proceed with unauthenticated checkout
     }
 
-    // Get user from database
-    const { user: dbUser, error: dbError } = await getUserById(user.id)
-
-    if (dbError || !dbUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404, headers: response.headers }
-      )
-    }
-
-    // Check if user is already Pro
-    if (dbUser.subscriptionTier === 'pro' && dbUser.subscriptionStatus === 'active') {
-      return NextResponse.json(
-        { error: 'Already subscribed to Pro' },
-        { status: 400, headers: response.headers }
-      )
-    }
-
-    // Create or get Stripe customer
-    let customerId = dbUser.stripeCustomerId
-
-    if (!customerId) {
-      console.log(`Creating Stripe customer for user ${user.id}`)
-      const customer = await stripe.customers.create({
-        email: user.email!,
-        metadata: {
-          supabase_user_id: user.id,
-        },
-      })
-      customerId = customer.id
-
-      // Update user with customer ID
-      await updateUser(user.id, {
-        stripeCustomerId: customerId,
-      })
-    }
-
-    // Build app URL for redirects
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-    // Create Checkout Session
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: 'subscription',
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price: process.env.STRIPE_PRO_PRICE_ID,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: process.env.STRIPE_PRO_PRICE_ID, quantity: 1 }],
       success_url: `${appUrl}/make-ebook?checkout=success`,
       cancel_url: `${appUrl}/make-ebook?checkout=canceled`,
-      allow_promotion_codes: true, // Allow users to apply promo codes
+      allow_promotion_codes: true,
       billing_address_collection: 'auto',
       metadata: {
-        supabase_user_id: user.id,
+        purchase_type: 'pro',
+        ...(supabaseUserId ? { supabase_user_id: supabaseUserId } : {}),
       },
-    })
+    }
 
-    console.log(`✅ Checkout session created for user ${user.id}: ${session.id}`)
+    if (existingCustomerId) {
+      sessionParams.customer = existingCustomerId
+    }
 
-    return NextResponse.json(
-      { url: session.url },
-      { status: 200, headers: response.headers }
-    )
+    const session = await stripe.checkout.sessions.create(sessionParams)
+
+    console.log(`✅ Pro checkout session created: ${session.id}`)
+
+    return NextResponse.json({ url: session.url }, { status: 200 })
   } catch (error: any) {
     console.error('Error creating checkout session:', error)
 
-    // Handle specific Stripe errors
     if (error.type === 'StripeCardError') {
       return NextResponse.json(
         { error: 'Your card was declined. Please try a different payment method.' },

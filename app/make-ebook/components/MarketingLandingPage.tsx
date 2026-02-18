@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -122,19 +122,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<'pro' | 'lifetime' | null>(null);
-  const [pendingCheckout, setPendingCheckout] = useState<'pro' | 'lifetime' | null>(null);
   const { user, signOut } = useAuth();
   const featuresRef = useRef<HTMLElement>(null);
   const pricingRef = useRef<HTMLElement>(null);
-
-  // Auto-trigger checkout after login if user clicked a paid plan before signing in
-  useEffect(() => {
-    if (user && pendingCheckout) {
-      const type = pendingCheckout;
-      setPendingCheckout(null);
-      handleCheckout(type);
-    }
-  }, [user, pendingCheckout]);
 
   const handleOpenAuth = (mode: 'signin' | 'signup') => {
     setAuthMode(mode);
@@ -142,11 +132,6 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   };
 
   const handleCheckout = async (type: 'pro' | 'lifetime') => {
-    if (!user) {
-      setPendingCheckout(type);
-      handleOpenAuth('signup');
-      return;
-    }
     setCheckoutLoading(type);
     try {
       const endpoint = type === 'lifetime' ? '/api/checkout-lifetime' : '/api/checkout';
@@ -678,9 +663,8 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       {/* Auth Modal */}
       <AuthModal
         isOpen={authModalOpen}
-        onCloseAction={() => { setAuthModalOpen(false); setPendingCheckout(null); }}
+        onCloseAction={() => setAuthModalOpen(false)}
         defaultMode={authMode}
-        checkoutContext={pendingCheckout}
       />
     </div>
   );

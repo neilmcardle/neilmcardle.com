@@ -126,6 +126,24 @@ export async function updateUserSubscription(
 }
 
 /**
+ * Find user by email address
+ */
+export async function getUserByEmail(email: string) {
+  try {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1)
+
+    return { user: user || null, error: null }
+  } catch (error) {
+    console.error('Error fetching user by email:', error)
+    return { user: null, error }
+  }
+}
+
+/**
  * Find user by Stripe customer ID
  * Used by webhook handlers to identify which user the subscription belongs to
  */
