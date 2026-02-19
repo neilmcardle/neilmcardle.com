@@ -63,7 +63,7 @@ function getTodayKey(): string {
   return new Date().toISOString().split('T')[0];
 }
 
-export function useWordStats(chapters: Chapter[]) {
+export function useWordStats(chapters: Chapter[], userId?: string) {
   const [sessionStats, setSessionStats] = useState<SessionStats>({
     wordsWrittenToday: 0,
     sessionStartWords: 0,
@@ -107,7 +107,7 @@ export function useWordStats(chapters: Chapter[]) {
     initializedRef.current = true;
 
     const todayKey = getTodayKey();
-    const storageKey = `makeebook-words-${todayKey}`;
+    const storageKey = `${userId ? userId + '_' : ''}makeebook-words-${todayKey}`;
     
     // Load today's word count from localStorage
     const storedData = localStorage.getItem(storageKey);
@@ -127,7 +127,7 @@ export function useWordStats(chapters: Chapter[]) {
 
     const wordsThisSession = Math.max(0, bookStats.totalWords - sessionStats.sessionStartWords);
     const todayKey = getTodayKey();
-    const storageKey = `makeebook-words-${todayKey}`;
+    const storageKey = `${userId ? userId + '_' : ''}makeebook-words-${todayKey}`;
     
     // Update localStorage with today's total
     const newTodayTotal = sessionStats.wordsWrittenToday + wordsThisSession;

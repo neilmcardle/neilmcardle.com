@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 
-const STORAGE_KEY = 'makeebook_onboarding_complete';
+const STORAGE_KEY_BASE = 'makeebook_onboarding_complete';
 
 export interface OnboardingStep {
   id: string;
@@ -83,10 +83,12 @@ const MOBILE_STEPS: OnboardingStep[] = [
 
 interface UseOnboardingOptions {
   stepCallbacks?: Record<string, () => void>;
+  userId?: string;
 }
 
 export function useOnboarding(options: UseOnboardingOptions = {}) {
-  const { stepCallbacks } = options;
+  const { stepCallbacks, userId } = options;
+  const STORAGE_KEY = `${userId ? userId + '_' : ''}${STORAGE_KEY_BASE}`;
 
   const [isTourActive, setIsTourActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);

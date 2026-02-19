@@ -43,6 +43,7 @@ export interface ChatSession {
 
 interface UseBookMindOptions {
   bookId?: string;
+  userId?: string;
 }
 
 // Patterns that suggest user wants AI to write content
@@ -89,7 +90,8 @@ const ACTION_PROMPTS: Record<BookMindAction, string> = {
 const CHAT_STORAGE_KEY = 'bookmind_chats';
 
 export function useBookMind(options: UseBookMindOptions = {}) {
-  const { bookId } = options;
+  const { bookId, userId } = options;
+  const chatStorageKey = `${userId ? userId + '_' : ''}${CHAT_STORAGE_KEY}`;
   
   const [messages, setMessages] = useState<BookMindMessage[]>([]);
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
@@ -105,7 +107,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+      const stored = localStorage.getItem(chatStorageKey);
       if (stored) {
         const allSessions: ChatSession[] = JSON.parse(stored);
         // Filter to current book's sessions
@@ -124,13 +126,13 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     if (typeof window === 'undefined') return;
     try {
       // Merge with other books' sessions
-      const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+      const stored = localStorage.getItem(chatStorageKey);
       const allSessions: ChatSession[] = stored ? JSON.parse(stored) : [];
       const otherBookSessions = bookId 
         ? allSessions.filter(s => s.bookId !== bookId)
         : [];
       const merged = [...otherBookSessions, ...sessions];
-      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(merged));
+      localStorage.setItem(chatStorageKey, JSON.stringify(merged));
       setChatSessions(sessions);
     } catch (e) {
       console.error('Failed to save chat sessions:', e);
@@ -158,7 +160,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   // Load a chat session — read from localStorage to avoid stale closure
   const loadSession = useCallback((sessionId: string) => {
     try {
-      const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+      const stored = localStorage.getItem(chatStorageKey);
       const allSessions: ChatSession[] = stored ? JSON.parse(stored) : [];
       const session = allSessions.find(s => s.id === sessionId);
       if (session) {
@@ -192,14 +194,14 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   const updateCurrentSession = useCallback((newMessages: BookMindMessage[]) => {
     if (!currentSessionId) return;
     try {
-      const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+      const stored = localStorage.getItem(chatStorageKey);
       const allSessions: ChatSession[] = stored ? JSON.parse(stored) : [];
       const updated = allSessions.map(s =>
         s.id === currentSessionId
           ? { ...s, messages: newMessages, updatedAt: Date.now() }
           : s
       );
-      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updated));
+      localStorage.setItem(chatStorageKey, JSON.stringify(updated));
       // Update React state with current book's sessions
       const bookSessions = bookId
         ? updated.filter(s => s.bookId === bookId)

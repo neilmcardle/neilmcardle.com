@@ -1,10 +1,12 @@
 import { BookRecord, Chapter, Endnote, EndnoteReference } from '../types';
 
-const BOOK_LIBRARY_KEY = "makeebook_library";
+function libraryKey(userId: string) {
+  return `makeebook_library_${userId}`;
+}
 
-export function loadBookLibrary(): BookRecord[] {
+export function loadBookLibrary(userId: string): BookRecord[] {
   if (typeof window === "undefined") return [];
-  const str = localStorage.getItem(BOOK_LIBRARY_KEY);
+  const str = localStorage.getItem(libraryKey(userId));
   if (str) {
     try {
       return JSON.parse(str);
@@ -16,9 +18,9 @@ export function loadBookLibrary(): BookRecord[] {
   return [];
 }
 
-export function saveBookToLibrary(book: Partial<BookRecord>): string {
+export function saveBookToLibrary(userId: string, book: Partial<BookRecord>): string {
   if (typeof window === "undefined") return "";
-  let library = loadBookLibrary();
+  let library = loadBookLibrary(userId);
   const id = book.id || "book-" + Date.now();
   const bookToSave: BookRecord = {
     id,
@@ -41,20 +43,20 @@ export function saveBookToLibrary(book: Partial<BookRecord>): string {
   if (idx >= 0) library[idx] = bookToSave;
   else library.push(bookToSave);
   // Throws on quota exceeded — caller should catch and notify user
-  localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
+  localStorage.setItem(libraryKey(userId), JSON.stringify(library));
   return id;
 }
 
-export function loadBookById(id: string): BookRecord | undefined {
-  const library = loadBookLibrary();
+export function loadBookById(userId: string, id: string): BookRecord | undefined {
+  const library = loadBookLibrary(userId);
   return library.find((b) => b.id === id);
 }
 
-export function removeBookFromLibrary(id: string) {
-  let library = loadBookLibrary();
+export function removeBookFromLibrary(userId: string, id: string) {
+  let library = loadBookLibrary(userId);
   library = library.filter((b) => b.id !== id);
   try {
-    localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(library));
+    localStorage.setItem(libraryKey(userId), JSON.stringify(library));
   } catch (e) {
     console.error('Failed to save library after removing book:', e);
   }
@@ -104,9 +106,9 @@ function normalizeEndnoteReferences(raw: unknown): EndnoteReference[] {
   }));
 }
 
-export function saveLibraryToStorage(books: BookRecord[]) {
+export function saveLibraryToStorage(userId: string, books: BookRecord[]) {
   try {
-    localStorage.setItem(BOOK_LIBRARY_KEY, JSON.stringify(books));
+    localStorage.setItem(libraryKey(userId), JSON.stringify(books));
   } catch (e) {
     console.error('Failed to save library to localStorage:', e);
   }

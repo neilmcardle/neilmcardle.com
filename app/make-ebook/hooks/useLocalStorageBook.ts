@@ -3,17 +3,19 @@ import type { BookData } from "../types";
 
 const LOCAL_STORAGE_KEY = "makeebook-data";
 
-export function useLocalStorageBook(initial: BookData) {
+export function useLocalStorageBook(initial: BookData, userId?: string) {
+  const storageKey = `${userId ? userId + '_' : ''}${LOCAL_STORAGE_KEY}`;
+
   const [data, setData] = useState<BookData>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const saved = localStorage.getItem(storageKey);
       if (saved) return JSON.parse(saved);
     }
     return initial;
   });
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(storageKey, JSON.stringify(data));
   }, [data]);
 
   return [data, setData] as const;

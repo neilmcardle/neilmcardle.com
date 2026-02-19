@@ -295,7 +295,7 @@ function MakeEbookPage() {
         try {
           const supabaseBooks = await import('@/lib/supabaseEbooks').then(m => m.fetchEbooksFromSupabase(user.id));
           if (Array.isArray(supabaseBooks) && supabaseBooks.length > 0) {
-            const localBooks = loadBookLibrary();
+            const localBooks = loadBookLibrary(user.id);
             const bookMap = new Map(localBooks.map(b => [b.id, b]));
             const conflicts: { local: import('./types').BookRecord; cloud: import('./types').BookRecord }[] = [];
 
@@ -344,7 +344,7 @@ function MakeEbookPage() {
               const mergedBooks = Array.from(bookMap.values());
               isLoadingBookRef.current = true;
               setLibraryBooks(mergedBooks);
-              saveLibraryToStorage(mergedBooks);
+              saveLibraryToStorage(user.id, mergedBooks);
               setTimeout(() => { isLoadingBookRef.current = false; }, 0);
             }
           }
@@ -550,6 +550,7 @@ function MakeEbookPage() {
 
   // Onboarding tour
   const onboarding = useOnboarding({
+    userId: user?.id,
     stepCallbacks: {
       'book-details': () => setSidebarView('book'),
       'chapters': () => setSidebarView('chapters'),
@@ -578,7 +579,7 @@ function MakeEbookPage() {
   });
 
   // Word stats hook
-  const { bookStats, sessionStats } = useWordStats(chapters);
+  const { bookStats, sessionStats } = useWordStats(chapters, user?.id);
 
   // Version history hook
   const { 
@@ -588,7 +589,7 @@ function MakeEbookPage() {
     clearHistory, 
     formatTimestamp,
     hasVersions 
-  } = useVersionHistory({ bookId: currentBookId });
+  } = useVersionHistory({ bookId: currentBookId, userId: user?.id });
 
   // State for version history panel visibility
   const [showVersionHistory, setShowVersionHistory] = useState(false);
@@ -988,7 +989,7 @@ function MakeEbookPage() {
   }
 
   useEffect(() => {
-    const books = loadBookLibrary();
+    const books = loadBookLibrary(user?.id ?? '');
     setLibraryBooks(books);
 
   const loadBookId = searchParams ? searchParams.get('load') : null;
@@ -1141,14 +1142,14 @@ function MakeEbookPage() {
     
     // If there's already a book ID and it exists in library, show save dialog
     if (currentBookId) {
-      const library = loadBookLibrary();
+      const library = loadBookLibrary(user?.id ?? '');
       const existingBook = library.find((b: any) => b.id === currentBookId);
       if (existingBook) {
         setSaveDialogOpen(true);
         return;
       }
     }
-    
+
     // No existing book, save normally (creates new book)
     saveBookDirectly(false);
     saveVersionSnapshot();
@@ -1191,7 +1192,7 @@ function MakeEbookPage() {
       // Save to localStorage with quota error handling
       let id: string;
       try {
-        id = saveBookToLibrary(bookData);
+        id = saveBookToLibrary(user?.id ?? '', bookData);
       } catch (storageErr) {
         console.error('localStorage save failed:', storageErr);
         setDialogState({
@@ -1205,7 +1206,7 @@ function MakeEbookPage() {
       }
 
       setCurrentBookId(id);
-      setLibraryBooks(loadBookLibrary());
+      setLibraryBooks(loadBookLibrary(user?.id ?? ''));
       setSaveFeedback(true);
       markClean();
       setTimeout(() => setSaveFeedback(false), 1300);
@@ -1216,10 +1217,10 @@ function MakeEbookPage() {
           const supabaseData = await saveEbookToSupabase(bookData, chapters, user.id);
           // If Supabase assigned a UUID different from local ID, update local to match
           if (supabaseData?.id && supabaseData.id !== id) {
-            removeBookFromLibrary(id);
-            saveBookToLibrary({ ...bookData, id: supabaseData.id });
+            removeBookFromLibrary(user.id, id);
+            saveBookToLibrary(user.id, { ...bookData, id: supabaseData.id });
             setCurrentBookId(supabaseData.id);
-            setLibraryBooks(loadBookLibrary());
+            setLibraryBooks(loadBookLibrary(user.id));
           }
         } catch (err) {
           console.error('Supabase sync failed:', err);
@@ -1435,7 +1436,7 @@ function MakeEbookPage() {
   }
 
   function handleLoadBook(id: string) {
-    const loaded = loadBookById(id);
+    const loaded = loadBookById(user?.id ?? '', id);
     if (loaded) {
       isLoadingBookRef.current = true;
       setShowMarketingPage(false);
@@ -1526,8 +1527,8 @@ function MakeEbookPage() {
         }
 
         // Cloud delete succeeded (or not applicable) — now delete locally
-        removeBookFromLibrary(id);
-        setLibraryBooks(loadBookLibrary());
+        removeBookFromLibrary(user?.id ?? '', id);
+        setLibraryBooks(loadBookLibrary(user?.id ?? ''));
 
         // Clean up version history (localStorage) for the deleted book
         try { localStorage.removeItem(`makeebook-versions-${id}`); } catch (e) { /* non-critical */ }
@@ -1570,7 +1571,7 @@ function MakeEbookPage() {
             }
           }
 
-          removeBookFromLibrary(id);
+          removeBookFromLibrary(user?.id ?? '', id);
 
           // Clean up version history (localStorage) and export history (IndexedDB)
           try { localStorage.removeItem(`makeebook-versions-${id}`); } catch (e) { /* non-critical */ }
@@ -1581,7 +1582,7 @@ function MakeEbookPage() {
           }
         }
 
-        setLibraryBooks(loadBookLibrary());
+        setLibraryBooks(loadBookLibrary(user?.id ?? ''));
         setSelectedBookIds(new Set());
         setMultiSelectMode(false);
 
@@ -1669,7 +1670,7 @@ function MakeEbookPage() {
       const mergedBooks = Array.from(map.values());
       isLoadingBookRef.current = true;
       setLibraryBooks(mergedBooks);
-      saveLibraryToStorage(mergedBooks);
+      saveLibraryToStorage(user?.id ?? '', mergedBooks);
       setTimeout(() => { isLoadingBookRef.current = false; }, 0);
       setSyncConflicts([]);
       setSyncMergedMap(null);

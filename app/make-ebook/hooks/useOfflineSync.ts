@@ -63,7 +63,8 @@ function openDB(): Promise<IDBDatabase> {
   });
 }
 
-export function useOfflineSync(): UseOfflineSyncReturn {
+export function useOfflineSync(userId?: string): UseOfflineSyncReturn {
+  const syncTimeKey = `${userId ? userId + '_' : ''}makeEbook_lastSyncTime`;
   const [isOnline, setIsOnline] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [pendingSyncCount, setPendingSyncCount] = useState(0);
@@ -93,7 +94,7 @@ export function useOfflineSync(): UseOfflineSyncReturn {
     }).catch(console.error);
 
     // Load last sync time from localStorage
-    const savedSyncTime = localStorage.getItem('makeEbook_lastSyncTime');
+    const savedSyncTime = localStorage.getItem(syncTimeKey);
     if (savedSyncTime) {
       setLastSyncTime(new Date(parseInt(savedSyncTime)));
     }
@@ -242,7 +243,7 @@ export function useOfflineSync(): UseOfflineSyncReturn {
         // Update last sync time
         const now = new Date();
         setLastSyncTime(now);
-        localStorage.setItem('makeEbook_lastSyncTime', now.getTime().toString());
+        localStorage.setItem(syncTimeKey, now.getTime().toString());
         
         updatePendingSyncCount();
         setIsSyncing(false);

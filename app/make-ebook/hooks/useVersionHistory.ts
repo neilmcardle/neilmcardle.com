@@ -22,6 +22,7 @@ export interface BookVersion {
 
 interface UseVersionHistoryOptions {
   bookId: string | null | undefined;
+  userId?: string;
   maxVersions?: number;
 }
 
@@ -34,12 +35,12 @@ function countWords(html: string): number {
   return text.trim().split(/\s+/).filter(w => w.length > 0).length;
 }
 
-export function useVersionHistory({ bookId, maxVersions = 20 }: UseVersionHistoryOptions) {
+export function useVersionHistory({ bookId, userId, maxVersions = 20 }: UseVersionHistoryOptions) {
   const [versions, setVersions] = useState<BookVersion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Storage key based on book ID
-  const storageKey = bookId ? `${STORAGE_KEY_PREFIX}${bookId}` : null;
+  // Storage key based on user ID + book ID
+  const storageKey = bookId ? `${userId ? userId + '_' : ''}${STORAGE_KEY_PREFIX}${bookId}` : null;
 
   // Load versions from localStorage
   useEffect(() => {

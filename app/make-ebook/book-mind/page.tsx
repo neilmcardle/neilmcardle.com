@@ -6,15 +6,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useBookMind, BookMindContext, BookMindAction, ChatSession } from '../hooks/useBookMind';
 import { useFeatureAccess } from '@/lib/hooks/useSubscription';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { loadBookLibrary } from '../utils/bookLibrary';
 import { Sparkles } from 'lucide-react';
-
-const BOOK_LIBRARY_KEY = "makeebook_library";
-
-function loadBookLibrary() {
-  if (typeof window === "undefined") return [];
-  const raw = localStorage.getItem(BOOK_LIBRARY_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
 
 // Lightbulb icon matching the landing page mockup
 const LightbulbIcon = () => (
@@ -37,6 +31,7 @@ function BookMindContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const bookIdParam = searchParams?.get('book') || null;
+  const { user } = useAuth();
 
   // Check if user has access to Book Mind AI
   const hasBookMindAccess = useFeatureAccess('book_mind_ai');
@@ -54,7 +49,7 @@ function BookMindContent() {
 
   // Load library on mount
   useEffect(() => {
-    const books = loadBookLibrary();
+    const books = loadBookLibrary(user?.id ?? '');
     setLibraryBooks(books);
 
     // If no book selected but there are books, select the most recent
@@ -79,7 +74,7 @@ function BookMindContent() {
     loadSession,
     renameSession,
     deleteSession,
-  } = useBookMind({ bookId: selectedBookId || 'default' });
+  } = useBookMind({ bookId: selectedBookId || 'default', userId: user?.id });
 
   // Build context from selected book
   const context: BookMindContext = {
