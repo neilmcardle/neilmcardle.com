@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -18,6 +18,52 @@ import {
   Menu,
   X
 } from 'lucide-react';
+
+function FadeIn({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(28px)',
+        transition: `opacity 0.65s ease ${delay}ms, transform 0.65s ease ${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+const HOW_IT_WORKS = [
+  {
+    step: '01',
+    title: 'Write your book',
+    description: 'Use the distraction-free editor to write chapter by chapter. Drag and drop to reorganise anytime.',
+  },
+  {
+    step: '02',
+    title: 'Polish with AI',
+    description: 'Book Mind reads your entire manuscript — catching inconsistencies, summarising chapters, and surfacing insights.',
+  },
+  {
+    step: '03',
+    title: 'Export everywhere',
+    description: 'Download a publication-ready EPUB in one click. Ready for Amazon KDP, Apple Books, Kobo, and more.',
+  },
+];
 
 interface MarketingLandingPageProps {
   onStartWritingAction: () => void;
@@ -126,6 +172,26 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const { user, signOut } = useAuth();
   const featuresRef = useRef<HTMLElement>(null);
   const pricingRef = useRef<HTMLElement>(null);
+  const chatRef = useRef<HTMLDivElement>(null);
+  const [chatStep, setChatStep] = useState(0);
+
+  useEffect(() => {
+    const el = chatRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => setChatStep(1), 400);
+          setTimeout(() => setChatStep(2), 1400);
+          setTimeout(() => setChatStep(3), 2600);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const handleOpenAuth = (mode: 'signin' | 'signup') => {
     setAuthMode(mode);
@@ -298,32 +364,26 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
             {/* Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6 text-white text-balance">
-              Write your book.
+              Write your eBook,
               <br />
               <span className="text-white">
-                Publish it beautifully.
+                and finish it like a pro.
               </span>
             </h1>
 
             {/* Subheadline */}
             <p className="text-xl sm:text-2xl text-gray-400 mb-10 max-w-2xl mx-auto">
-              The complete ebook creation tool for authors. Write, edit, and export professional EPUB files in minutes.
+              Create and download a professional eBook file in your browser, ready for Kindle, Kobo, Apple and more.
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            <div className="flex items-center justify-center mb-8">
               <button
                 onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                className="group w-full sm:w-auto px-8 py-4 text-lg font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
+                className="group px-8 py-4 text-lg font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
               >
-                {user ? 'Open Editor' : 'Start Writing Free'}
+                Try for free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button
-                onClick={() => scrollToSection(pricingRef)}
-                className="w-full sm:w-auto px-8 py-4 text-lg font-semibold border-2 border-gray-700 text-white rounded-full hover:border-gray-600 transition-colors"
-              >
-                View Pricing
               </button>
             </div>
 
@@ -379,22 +439,56 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         </div>
       </section>
 
+      {/* How It Works Section */}
+      <section className="py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn>
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
+                Three steps to published
+              </h2>
+              <p className="text-xl text-gray-400">
+                No formatting headaches. No technical setup. Just write.
+              </p>
+            </div>
+          </FadeIn>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {HOW_IT_WORKS.map((item, index) => (
+              <FadeIn key={index} delay={index * 120}>
+                <div className="relative">
+                  <div className="text-6xl font-bold text-gray-800 mb-4 leading-none">{item.step}</div>
+                  <h3 className="text-xl font-semibold text-white mb-3">{item.title}</h3>
+                  <p className="text-gray-400 leading-relaxed">{item.description}</p>
+                  {index < HOW_IT_WORKS.length - 1 && (
+                    <div className="hidden md:block absolute top-8 -right-4 text-gray-700">
+                      <ChevronRight className="w-6 h-6" />
+                    </div>
+                  )}
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section ref={featuresRef} className="py-24 lg:py-32 bg-gray-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white text-balance">
-              Everything you need to write your book
-            </h2>
-            <p className="text-xl text-gray-400">
-              Powerful features, simple interface. Focus on your story, not the tools.
-            </p>
-          </div>
+          <FadeIn>
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white text-balance">
+                Everything you need to write your book
+              </h2>
+              <p className="text-xl text-gray-400">
+                Powerful features, simple interface. Focus on your story, not the tools.
+              </p>
+            </div>
+          </FadeIn>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {FEATURES.map((feature, index) => (
+              <FadeIn key={index} delay={index * 80}>
               <div
-                key={index}
                 className="relative rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-700/50 overflow-hidden"
               >
                 {/* Gradient background - always dark */}
@@ -410,6 +504,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   <p className="text-gray-400">{feature.description}</p>
                 </div>
               </div>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -419,79 +514,95 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       <section className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-800/50 text-stone-300 text-sm font-medium mb-6 border border-stone-700">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                AI-Powered
+            <FadeIn>
+              <div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-800/50 text-stone-300 text-sm font-medium mb-6 border border-stone-700">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  AI-Powered
+                </div>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
+                  Meet Book Mind, your AI writing companion
+                </h2>
+                <p className="text-xl text-gray-400 mb-8">
+                  Analyze your entire book, find inconsistencies, summarize chapters, and get intelligent suggestions. Like having a thoughtful editor always by your side.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  {[
+                    'Summarize your entire book or individual chapters',
+                    'Find plot holes and character inconsistencies',
+                    'Analyze themes and writing patterns',
+                    'Get word usage insights and suggestions'
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <svg className="w-5 h-5 text-gray-300 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
+                  className="inline-flex items-center gap-2 px-6 py-3 font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  Try Book Mind
+                  <ChevronRight className="w-5 h-5" />
+                </button>
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
-                Meet Book Mind, your AI writing companion
-              </h2>
-              <p className="text-xl text-gray-400 mb-8">
-                Analyze your entire book, find inconsistencies, summarize chapters, and get intelligent suggestions. Like having a thoughtful editor always by your side.
-              </p>
-              <ul className="space-y-4 mb-8">
-                {[
-                  'Summarize your entire book or individual chapters',
-                  'Find plot holes and character inconsistencies',
-                  'Analyze themes and writing patterns',
-                  'Get word usage insights and suggestions'
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-gray-300 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span className="text-gray-300">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                className="inline-flex items-center gap-2 px-6 py-3 font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                Try Book Mind
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-gray-700/20 via-gray-600/20 to-gray-700/20 blur-3xl rounded-3xl" />
-              <div className="relative bg-gray-900 rounded-2xl p-8 shadow-xl border border-gray-800">
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <svg className="w-6 h-6 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                    <div className="flex-1 bg-gray-800 rounded-2xl rounded-tl-none p-4">
-                      <p className="text-gray-300 text-sm">I&apos;ve analyzed your manuscript. Chapter 7 mentions Sarah having blue eyes, but in Chapter 3 they were described as green. Would you like me to show you the exact passages?</p>
+            </FadeIn>
+            <FadeIn delay={150}>
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-gray-700/20 via-gray-600/20 to-gray-700/20 blur-3xl rounded-3xl" />
+                <div ref={chatRef} className="relative bg-gray-900 rounded-2xl p-8 shadow-xl border border-gray-800 min-h-[260px]">
+                  <div className="space-y-4">
+                    {/* Message 1 */}
+                    <div
+                      className="flex items-start gap-3"
+                      style={{ opacity: chatStep >= 1 ? 1 : 0, transform: chatStep >= 1 ? 'translateY(0)' : 'translateY(12px)', transition: 'opacity 0.5s ease, transform 0.5s ease' }}
+                    >
+                      <svg className="w-6 h-6 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                      <div className="flex-1 bg-gray-800 rounded-2xl rounded-tl-none p-4">
+                        <p className="text-gray-300 text-sm">I&apos;ve analyzed your manuscript. Chapter 7 mentions Sarah having blue eyes, but in Chapter 3 they were described as green. Would you like me to show you the exact passages?</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-3 justify-end">
-                    <div className="bg-gray-600 rounded-2xl rounded-tr-none p-4 max-w-[80%]">
-                      <p className="text-white text-sm">Yes, show me the inconsistencies</p>
+                    {/* Message 2 */}
+                    <div
+                      className="flex items-start gap-3 justify-end"
+                      style={{ opacity: chatStep >= 2 ? 1 : 0, transform: chatStep >= 2 ? 'translateY(0)' : 'translateY(12px)', transition: 'opacity 0.5s ease, transform 0.5s ease' }}
+                    >
+                      <div className="bg-gray-600 rounded-2xl rounded-tr-none p-4 max-w-[80%]">
+                        <p className="text-white text-sm">Yes, show me the inconsistencies</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <svg className="w-6 h-6 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                    <div className="flex-1 bg-gray-800 rounded-2xl rounded-tl-none p-4">
-                      <p className="text-gray-300 text-sm mb-2"><strong>Chapter 3, paragraph 12:</strong></p>
-                      <p className="text-gray-400 text-sm italic">"Her green eyes sparkled in the morning light..."</p>
-                      <p className="text-gray-300 text-sm mt-3 mb-2"><strong>Chapter 7, paragraph 5:</strong></p>
-                      <p className="text-gray-400 text-sm italic">"Sarah's blue eyes narrowed..."</p>
+                    {/* Message 3 */}
+                    <div
+                      className="flex items-start gap-3"
+                      style={{ opacity: chatStep >= 3 ? 1 : 0, transform: chatStep >= 3 ? 'translateY(0)' : 'translateY(12px)', transition: 'opacity 0.5s ease, transform 0.5s ease' }}
+                    >
+                      <svg className="w-6 h-6 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                      <div className="flex-1 bg-gray-800 rounded-2xl rounded-tl-none p-4">
+                        <p className="text-gray-300 text-sm mb-2"><strong>Chapter 3, paragraph 12:</strong></p>
+                        <p className="text-gray-400 text-sm italic">&ldquo;Her green eyes sparkled in the morning light...&rdquo;</p>
+                        <p className="text-gray-300 text-sm mt-3 mb-2"><strong>Chapter 7, paragraph 5:</strong></p>
+                        <p className="text-gray-400 text-sm italic">&ldquo;Sarah&apos;s blue eyes narrowed...&rdquo;</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </FadeIn>
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-24 lg:py-32">
+      {/* Testimonials Section — hidden until more reviews collected */}
+      {false && <section className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
@@ -528,22 +639,24 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             </div>
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* Pricing Section */}
       <section ref={pricingRef} className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
-              Simple, transparent pricing
-            </h2>
-            <p className="text-xl text-gray-400">
-              Choose the plan that works for you. Upgrade or downgrade anytime.
-            </p>
-            {checkoutError && (
-              <p className="mt-4 text-sm text-red-400">{checkoutError}</p>
-            )}
-          </div>
+          <FadeIn>
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
+                Simple, transparent pricing
+              </h2>
+              <p className="text-xl text-gray-400">
+                Choose the plan that works for you. Upgrade or downgrade anytime.
+              </p>
+              {checkoutError && (
+                <p className="mt-4 text-sm text-red-400">{checkoutError}</p>
+              )}
+            </div>
+          </FadeIn>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {PRICING.map((plan, index) => (
@@ -605,21 +718,23 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
       {/* CTA Section */}
       <section className="py-24 lg:py-32 bg-gray-900">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 text-balance">
-            Ready to write your book?
-          </h2>
-          <p className="text-xl text-gray-400 mb-10">
-            Start creating in seconds. No credit card required.
-          </p>
-          <button
-            onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-            className="group px-8 py-4 text-lg font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all inline-flex items-center gap-2"
-          >
-            Start Writing Now
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
+        <FadeIn>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 text-balance">
+              Ready to write your book?
+            </h2>
+            <p className="text-xl text-gray-400 mb-10">
+              Start creating in seconds. No credit card required.
+            </p>
+            <button
+              onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
+              className="group px-8 py-4 text-lg font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all inline-flex items-center gap-2"
+            >
+              Try for free
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </FadeIn>
       </section>
 
       {/* Footer */}
