@@ -3,6 +3,7 @@ export type Chapter = {
   title: string;
   content: string;
   type: 'frontmatter' | 'content' | 'backmatter';
+  locked?: boolean;
 };
 
 export type Endnote = {

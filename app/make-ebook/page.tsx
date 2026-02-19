@@ -68,6 +68,18 @@ import { loadBookLibrary, saveBookToLibrary, loadBookById, removeBookFromLibrary
 
 const HEADER_HEIGHT = 64; // px (adjust if your header is taller/shorter)
 
+function formatRelativeTime(ms: number): string {
+  const diff = Math.abs(Date.now() - ms);
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days === 1) return 'yesterday';
+  return new Date(ms).toLocaleDateString();
+}
+
 function plainText(html: string) {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -672,6 +684,11 @@ function MakeEbookPage() {
       setSelectedChapter(chapterIndex);
     }
   }, [chapters, setSelectedChapter]);
+
+  // Toggle chapter locked state
+  const handleToggleChapterLock = useCallback((index: number) => {
+    setChapters(prev => prev.map((ch, i) => i === index ? { ...ch, locked: !ch.locked } : ch));
+  }, [setChapters]);
 
   // Restore a version from history
   const handleRestoreVersion = useCallback((restoredChapters: Chapter[], metadata: { blurb?: string; publisher?: string; pubDate?: string; genre?: string; tags?: string[] }) => {
@@ -2412,7 +2429,7 @@ function MakeEbookPage() {
                             </button>
 
                             {chapterTypeDropdownOpen && (
-                              <div className="absolute left-0 top-full mt-1 w-56 bg-white dark:bg-[#0a0a0a] rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 py-2 max-h-96 overflow-y-auto">
+                              <div ref={dropdownRef} className="absolute left-0 top-full mt-1 w-56 bg-white dark:bg-[#0a0a0a] rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 py-2 max-h-96 overflow-y-auto">
                                 <div className="space-y-3 px-2">
                                   {/* Front Matter */}
                                   <div>
@@ -2571,20 +2588,39 @@ function MakeEbookPage() {
                                     className="w-4 h-4 hidden dark:block"
                                   />
                                 </button>
-                                {/* Delete button */}
-                                {chapters.length > 1 && (
+                                {/* Lock button */}
+                                <button
+                                  className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? 'opacity-100 text-gray-600 dark:text-gray-300' : 'opacity-0 group-hover:opacity-100 text-gray-400 dark:text-gray-500'}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleToggleChapterLock(i);
+                                  }}
+                                  aria-label={ch.locked ? 'Unlock chapter' : 'Lock chapter'}
+                                  title={ch.locked ? 'Unlock chapter' : 'Mark complete and lock'}
+                                >
+                                  {ch.locked ? (
+                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                      <path d="M7 11V7a5 5 0 0 1 10 0"/>
+                                    </svg>
+                                  )}
+                                </button>
+                                {/* Delete button — hidden when locked */}
+                                {chapters.length > 1 && !ch.locked && (
                                   <button
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded text-gray-700 dark:text-gray-300"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded text-gray-600 dark:text-gray-400"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleRemoveChapter(i);
                                     }}
                                     aria-label="Delete chapter"
                                   >
-                                    <BinIcon
-                                      className="w-4 h-4"
-                                      stroke={isSelected ? "currentColor" : "#666666"}
-                                    />
+                                    <BinIcon className="w-4 h-4" />
                                   </button>
                                 )}
                               </div>
@@ -2906,20 +2942,39 @@ function MakeEbookPage() {
                             {title}
                           </span>
                         </div>
-                        {chapters.length > 1 && (
+                        {/* Lock button */}
+                        <button
+                          className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? 'opacity-100 text-gray-600 dark:text-gray-300' : 'opacity-0 group-hover:opacity-100 text-gray-400 dark:text-gray-500'}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleChapterLock(i);
+                          }}
+                          aria-label={ch.locked ? 'Unlock chapter' : 'Lock chapter'}
+                          title={ch.locked ? 'Unlock chapter' : 'Mark complete and lock'}
+                        >
+                          {ch.locked ? (
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                              <path d="M7 11V7a5 5 0 0 1 10 0"/>
+                            </svg>
+                          )}
+                        </button>
+                        {/* Delete button — hidden when locked */}
+                        {chapters.length > 1 && !ch.locked && (
                           <button
-                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded text-gray-600 dark:text-gray-400"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleRemoveChapter(i);
                             }}
                             aria-label="Delete Chapter"
                           >
-                            <BinIcon 
-                              key={`mobile-panel-bin-${i}-${isSelected}`}
-                              className="w-4 h-4"
-                              stroke={isSelected ? "#050505" : "#666666"}
-                            />
+                            <BinIcon className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -2937,7 +2992,7 @@ function MakeEbookPage() {
                       <span className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5]">Add Chapter</span>
                     </button>
                     {chapterTypeDropdownOpen && (
-                      <div className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#0a0a0a] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
+                      <div ref={dropdownRef} className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#0a0a0a] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-3">
                           <div className="space-y-4">
                             <div>
@@ -3084,6 +3139,7 @@ function MakeEbookPage() {
             handleSelectChapter={handleSelectChapter}
             handleAddChapter={handleAddChapter}
             handleRemoveChapter={handleRemoveChapter}
+            handleToggleChapterLock={handleToggleChapterLock}
             handleDragStart={handleDragStart}
             handleDragEnter={handleDragEnter}
             handleDragEnd={handleDragEnd}
@@ -3314,6 +3370,12 @@ function MakeEbookPage() {
                   </div>
                 </div>
                 <div className="flex-1 min-h-0" style={{ minHeight: '400px' }}>
+                  {chapters[selectedChapter]?.locked && (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+                      <LockIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>This chapter is locked. Click the lock icon in the chapter list to edit.</span>
+                    </div>
+                  )}
                   <RichTextEditor
                     value={chapters[selectedChapter]?.content || ""}
                     onChange={(html) => handleChapterContentChange(selectedChapter, html)}
@@ -3327,6 +3389,7 @@ function MakeEbookPage() {
                     onCreateEndnote={handleCreateEndnote}
                     chapterId={chapters[selectedChapter]?.id}
                     hasEndnotes={endnotes.length > 0}
+                    disabled={!!chapters[selectedChapter]?.locked}
                   />
                 </div>
               </div>
@@ -3476,21 +3539,28 @@ function MakeEbookPage() {
                     </div>
                   </div>
                   <div className="flex-1 min-h-0">
+                    {chapters[selectedChapter]?.locked && (
+                      <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+                        <LockIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>This chapter is locked. Click the lock icon in the chapter list to edit.</span>
+                      </div>
+                    )}
                     <RichTextEditor
                       value={chapters[selectedChapter]?.content || ""}
                       onChange={(html) =>
                         handleChapterContentChange(selectedChapter, html)
                       }
                       minHeight={400}
-                        placeholder={
-                          selectedChapter === 0
-                            ? "Write your first chapter here..."
-                            : "Now add some content to your chapter..."
-                        }
-                        className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
+                      placeholder={
+                        selectedChapter === 0
+                          ? "Write your first chapter here..."
+                          : "Now add some content to your chapter..."
+                      }
+                      className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
                       onCreateEndnote={handleCreateEndnote}
                       chapterId={chapters[selectedChapter]?.id}
                       hasEndnotes={endnotes.length > 0}
+                      disabled={!!chapters[selectedChapter]?.locked}
                     />
                   </div>
                   {/* Word Stats Footer */}
@@ -3579,12 +3649,12 @@ function MakeEbookPage() {
               <div className="p-3 rounded-lg bg-gray-50 dark:bg-[#1a1a1a]">
                 <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">This device</p>
                 <p className="text-gray-500 dark:text-gray-400">{syncConflicts[0].local.chapters.length} chapters</p>
-                <p className="text-gray-500 dark:text-gray-400">Saved {new Date(syncConflicts[0].local.savedAt).toLocaleDateString()}</p>
+                <p className="text-gray-500 dark:text-gray-400">Saved {formatRelativeTime(syncConflicts[0].local.savedAt)}</p>
               </div>
               <div className="p-3 rounded-lg bg-gray-50 dark:bg-[#1a1a1a]">
                 <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Cloud</p>
                 <p className="text-gray-500 dark:text-gray-400">{syncConflicts[0].cloud.chapters.length} chapters</p>
-                <p className="text-gray-500 dark:text-gray-400">Saved {new Date(syncConflicts[0].cloud.savedAt).toLocaleDateString()}</p>
+                <p className="text-gray-500 dark:text-gray-400">Saved {formatRelativeTime(syncConflicts[0].cloud.savedAt)}</p>
               </div>
             </div>
             <div className="flex flex-col gap-2">

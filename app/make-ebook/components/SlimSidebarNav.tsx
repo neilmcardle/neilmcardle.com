@@ -111,15 +111,13 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
   if (!user) {
     return (
       <Tooltip text="Sign In">
-        <button 
-          className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]" 
+        <button
+          className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
           aria-label="User menu"
         >
-          <img
-            src="/user-icon.svg"
-            alt="user icon"
-            className="w-5 h-5 dark:invert"
-          />
+          <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
+            <img src="/user-icon.svg" alt="user icon" className="w-5 h-5 dark:invert" />
+          </div>
         </button>
       </Tooltip>
     );
@@ -130,14 +128,12 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
+            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
             aria-label="User menu"
           >
-            <img
-              src="/user-icon.svg"
-              alt="user icon"
-              className="w-5 h-5 dark:invert"
-            />
+            <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
+              <img src="/user-icon.svg" alt="user icon" className="w-5 h-5 dark:invert" />
+            </div>
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" sideOffset={8} forceMount>
@@ -204,13 +200,15 @@ function ThemeToggleButton() {
     <Tooltip text={`Switch to ${nextTheme} mode`}>
       <button
         onClick={toggleTheme}
-        className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors text-[#C0C0C0] placeholder-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
+        className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
         aria-label={`Switch to ${nextTheme} mode`}
       >
-        {theme === 'light'
-          ? <img src="/moon-icon.svg" alt="Dark mode" className="w-5 h-5" />
-          : <img src="/sun-icon.svg" alt="Light mode" className="w-5 h-5 dark:invert" />
-        }
+        <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
+          {theme === 'light'
+            ? <img src="/moon-icon.svg" alt="Dark mode" className="w-5 h-5" />
+            : <img src="/sun-icon.svg" alt="Light mode" className="w-5 h-5 dark:invert" />
+          }
+        </div>
       </button>
     </Tooltip>
   );
@@ -256,19 +254,15 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
         <Tooltip text="Library">
           <button
             onClick={() => handleViewClick('library')}
-            className={`relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors ${
-              activeView === 'library' && isPanelOpen
-                ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white'
-                : 'text-[#C0C0C0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
-            }`}
+            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
             aria-label="Library"
           >
-            <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-            {libraryCount > 0 && (
-              <span className="text-[10px] font-medium mt-0.5 text-gray-600 dark:text-gray-400">
-                ({libraryCount})
-              </span>
-            )}
+            <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
+              <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+            </div>
+            <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'library' && isPanelOpen ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
+              Library{libraryCount > 0 ? ` (${libraryCount})` : ''}
+            </span>
           </button>
         </Tooltip>
 
@@ -277,14 +271,15 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           <button
             data-tour="book-details"
             onClick={() => handleViewClick('book')}
-            className={`relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors ${
-              activeView === 'book' && isPanelOpen
-                ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
-            }`}
+            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
             aria-label="Book"
           >
-            <img src="/preview-icon.svg" alt="Book" className="w-5 h-5 dark:invert" />
+            <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
+              <img src="/preview-icon.svg" alt="Book" className="w-5 h-5 dark:invert" />
+            </div>
+            <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'book' && isPanelOpen ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
+              Book
+            </span>
           </button>
         </Tooltip>
 
@@ -293,19 +288,15 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           <button
             data-tour="chapters"
             onClick={() => handleViewClick('chapters')}
-            className={`relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors ${
-              activeView === 'chapters' && isPanelOpen
-                ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
-            }`}
+            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
             aria-label="Chapters"
           >
-            <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
-            {chaptersCount > 0 && (
-              <span className="text-[10px] font-medium mt-0.5 text-gray-600 dark:text-gray-400">
-                ({chaptersCount})
-              </span>
-            )}
+            <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
+              <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
+            </div>
+            <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'chapters' && isPanelOpen ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
+              Chapters{chaptersCount > 0 ? ` (${chaptersCount})` : ''}
+            </span>
           </button>
         </Tooltip>
 
@@ -314,14 +305,15 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           <button
             data-tour="preview"
             onClick={() => handleViewClick('preview')}
-            className={`relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors ${
-              activeView === 'preview' && isPanelOpen
-                ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
-            }`}
+            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
             aria-label="Preview"
           >
-            <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert" />
+            <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
+              <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert" />
+            </div>
+            <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'preview' && isPanelOpen ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
+              Preview
+            </span>
           </button>
         </Tooltip>
 
@@ -335,14 +327,15 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           <Tooltip text="Book Mind">
             <Link
               href={bookMindHref}
-              className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg transition-colors hover:opacity-80"
+              className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
               aria-label="Book Mind"
             >
-              <div className="w-9 h-9 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center">
-                <svg className="w-5 h-5 text-white dark:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
+                <svg className="w-6 h-6 text-gray-700 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
+              <span className="text-[10px] font-medium -mt-2 text-gray-500 dark:text-gray-400 transition-opacity group-hover:opacity-60 text-center">Book Mind</span>
             </Link>
           </Tooltip>
         )}

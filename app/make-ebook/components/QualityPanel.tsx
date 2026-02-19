@@ -11,16 +11,14 @@ interface QualityScoreBadgeProps {
 
 export function QualityScoreBadge({ score, compact = false }: QualityScoreBadgeProps) {
   const getColor = () => {
-    if (score >= 90) return 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20';
-    if (score >= 70) return 'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/20';
-    return 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20';
+    return 'text-gray-700 bg-gray-100 dark:text-gray-300 dark:bg-gray-800';
   };
 
   const getLabel = () => {
     if (score >= 90) return 'Excellent';
     if (score >= 70) return 'Good';
     if (score >= 50) return 'Needs Work';
-    return 'Poor';
+    return 'Needs Attention';
   };
 
   const getIcon = () => {
@@ -82,8 +80,8 @@ export function QualityIssuesList({ issues, onNavigateAction }: QualityIssuesLis
     <div className="space-y-4">
       {grouped.error && grouped.error.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-red-600 dark:text-red-400 mb-2 flex items-center gap-2 uppercase tracking-wide">
-            <span className="w-2 h-2 rounded-full bg-red-500" />
+          <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2 uppercase tracking-wide">
+            <span className="w-2 h-2 rounded-full bg-gray-900 dark:bg-gray-100" />
             Must Fix ({grouped.error.length})
           </h4>
           <div className="space-y-2">
@@ -93,11 +91,11 @@ export function QualityIssuesList({ issues, onNavigateAction }: QualityIssuesLis
           </div>
         </div>
       )}
-      
+
       {grouped.warning && grouped.warning.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-yellow-600 dark:text-yellow-400 mb-2 flex items-center gap-2 uppercase tracking-wide">
-            <span className="w-2 h-2 rounded-full bg-yellow-500" />
+          <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2 uppercase tracking-wide">
+            <span className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-500" />
             Should Fix ({grouped.warning.length})
           </h4>
           <div className="space-y-2">
@@ -107,12 +105,12 @@ export function QualityIssuesList({ issues, onNavigateAction }: QualityIssuesLis
           </div>
         </div>
       )}
-      
+
       {grouped.suggestion && grouped.suggestion.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2 flex items-center gap-2 uppercase tracking-wide">
-            <span className="w-2 h-2 rounded-full bg-blue-500" />
-            Consider ({grouped.suggestion.length})
+          <h4 className="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-2 uppercase tracking-wide">
+            <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600" />
+            Worth Considering ({grouped.suggestion.length})
           </h4>
           <div className="space-y-2">
             {grouped.suggestion.map((issue) => (
@@ -156,11 +154,11 @@ function IssueCard({ issue, onNavigateAction }: IssueCardProps) {
           </div>
         )}
         {issue.chapterTitle && canNavigate && (
-          <div className="text-xs text-blue-600 dark:text-blue-400 mt-1.5 flex items-center gap-1 font-medium">
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 flex items-center gap-1 font-medium underline underline-offset-2">
+            <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
-            <span>Go to "{issue.chapterTitle}"</span>
+            <span>Jump to "{issue.chapterTitle}"</span>
           </div>
         )}
       </div>
@@ -190,11 +188,11 @@ export function QualityPanel({
       
       {issues.length === 0 ? (
         <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-          <svg className="w-10 h-10 mx-auto mb-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-10 h-10 mx-auto mb-2 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <p className="font-medium text-sm">No issues found!</p>
-          <p className="text-xs mt-1">Your eBook is ready for export.</p>
+          <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">All clear</p>
+          <p className="text-xs mt-1">Your eBook looks great. Ready to export.</p>
         </div>
       ) : (
         <>

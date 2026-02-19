@@ -26,6 +26,7 @@ interface Chapter {
   type: 'frontmatter' | 'content' | 'backmatter';
   title: string;
   content: string;
+  locked?: boolean;
 }
 
 interface Book {
@@ -68,6 +69,7 @@ interface CollapsibleSidebarProps {
   handleSelectChapter: (index: number) => void;
   handleAddChapter: (type: 'frontmatter' | 'content' | 'backmatter', title?: string) => void;
   handleRemoveChapter: (index: number) => void;
+  handleToggleChapterLock?: (index: number) => void;
   handleDragStart: (index: number) => void;
   handleDragEnter: (index: number) => void;
   handleDragEnd: () => void;
@@ -222,6 +224,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     handleSelectChapter,
     handleAddChapter,
     handleRemoveChapter,
+    handleToggleChapterLock,
     handleDragStart,
     handleDragEnter,
     handleDragEnd,
@@ -915,19 +918,41 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                       {chapterTitle}
                     </span>
                   </div>
-                  {chapters.length > 1 && (
+                  {/* Lock button */}
+                  {handleToggleChapterLock && (
                     <button
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#2a2a2a] rounded"
+                      className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#2a2a2a] rounded ${ch.locked ? 'opacity-100 text-gray-600 dark:text-gray-300' : 'opacity-0 group-hover:opacity-100 text-gray-400 dark:text-gray-500'}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleChapterLock(i);
+                      }}
+                      aria-label={ch.locked ? 'Unlock chapter' : 'Lock chapter'}
+                      title={ch.locked ? 'Unlock chapter' : 'Mark complete and lock'}
+                    >
+                      {ch.locked ? (
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                          <path d="M7 11V7a5 5 0 0 1 10 0"/>
+                        </svg>
+                      )}
+                    </button>
+                  )}
+                  {/* Delete button — hidden when locked */}
+                  {chapters.length > 1 && !ch.locked && (
+                    <button
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#2a2a2a] rounded text-gray-600 dark:text-gray-400"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveChapter(i);
                       }}
                       aria-label="Delete chapter"
                     >
-                      <BinIcon
-                        className="w-4 h-4"
-                        stroke={isSelected ? "#050505" : "#666666"}
-                      />
+                      <BinIcon className="w-4 h-4" />
                     </button>
                   )}
                 </div>
