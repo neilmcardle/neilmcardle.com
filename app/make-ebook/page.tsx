@@ -3451,17 +3451,19 @@ function MakeEbookPage() {
                     />
                     <button
                       onClick={() => setIsSplitPreviewEnabled(prev => !prev)}
-                      className={`p-1.5 rounded transition-colors ${
-                        isSplitPreviewEnabled
-                          ? 'bg-black text-white dark:bg-white dark:text-black'
-                          : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                      }`}
+                      className="p-2 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
                       title={isSplitPreviewEnabled ? "Hide preview (⌘P)" : "Show preview (⌘P)"}
                     >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 3v18" />
-                      </svg>
+                      <img
+                        src="/close-sidebar-icon.svg"
+                        alt="Toggle preview"
+                        className={`w-5 h-5 dark:hidden${isSplitPreviewEnabled ? ' scale-x-[-1]' : ''}`}
+                      />
+                      <img
+                        src="/dark-close-sidebar-icon.svg"
+                        alt="Toggle preview"
+                        className={`w-5 h-5 hidden dark:block${isSplitPreviewEnabled ? ' scale-x-[-1]' : ''}`}
+                      />
                     </button>
                   </div>
                 </div>

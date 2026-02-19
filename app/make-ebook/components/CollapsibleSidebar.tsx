@@ -292,7 +292,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
       <div className="flex flex-col h-full w-[350px] min-w-[350px] bg-white dark:bg-[#0a0a0a] border-r border-gray-200 dark:border-gray-800">
 
       {/* Close Button Row */}
-      <div className="flex justify-end px-4 pt-4 pb-2">
+      <div className="flex justify-end px-4 pt-2 pb-2">
         <button
           onClick={handleClose}
           className="p-2 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
