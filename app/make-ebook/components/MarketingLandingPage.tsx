@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from 'react';
+import MuxPlayer from '@mux/mux-player-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -364,7 +365,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
             {/* Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6 text-white text-balance">
-              Write your eBook,
+              Write your first eBook,
               <br />
               <span className="text-white">
                 and finish it like a pro.
@@ -393,46 +394,20 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             </p>
           </div>
 
-          {/* Hero Image / Product Preview */}
+          {/* Hero Video / Product Preview */}
           <div className="mt-16 lg:mt-24 relative">
             <div className="relative mx-auto max-w-5xl">
-              {/* Subtle shadow effect */}
+              {/* Glow effect */}
               <div className="absolute -inset-4 bg-gradient-to-r from-gray-700/20 via-gray-600/20 to-gray-700/20 blur-3xl rounded-3xl" />
-              
-              {/* Screenshot container */}
-              <div className="relative bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
-                {/* Browser chrome */}
-                <div className="flex items-center gap-2 px-4 py-3 bg-gray-800 border-b border-gray-700">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                  </div>
-                </div>
-                
-                {/* App preview - Desktop */}
-                <div className="relative w-full hidden sm:block">
-                  <Image
-                    src="/make-ebook-editor-preview.png"
-                    alt="MakeEbook Editor Interface"
-                    width={1920}
-                    height={1200}
-                    className="w-full h-auto"
-                    priority
-                  />
-                </div>
-                
-                {/* App preview - Mobile */}
-                <div className="relative w-full block sm:hidden">
-                  <Image
-                    src="/make-ebook-editor-preview-mobile.png"
-                    alt="MakeEbook Editor Interface"
-                    width={390}
-                    height={844}
-                    className="w-full h-auto"
-                    priority
-                  />
-                </div>
+
+              {/* Video container */}
+              <div className="relative rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
+                <MuxPlayer
+                  playbackId="MsFzJTzHanW3aB7bGesbMq21aB13vj9I9nVV4Lrp4Bg"
+                  metadata={{ video_title: 'makeEbook Product Demo' }}
+                  style={{ aspectRatio: '16/9', width: '100%' }}
+                  accentColor="#ffffff"
+                />
               </div>
             </div>
           </div>
