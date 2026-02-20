@@ -55,7 +55,8 @@ const nextConfig = {
                     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
                     "img-src 'self' data: blob: https:; " +
                     "font-src 'self' data: https://fonts.gstatic.com; " +
-                    "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://firebase.googleapis.com https://firestore.googleapis.com https://hhsiuvalashrqtpluxan.supabase.co https://agisftsuzxiwctupgeol.supabase.co https://api.x.ai; " +
+                    "media-src 'self' https://stream.mux.com; " +
+                    "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://firebase.googleapis.com https://firestore.googleapis.com https://hhsiuvalashrqtpluxan.supabase.co https://agisftsuzxiwctupgeol.supabase.co https://api.x.ai https://stream.mux.com https://inferred.litix.io; " +
                     "frame-ancestors 'none';",
                 },
                 {
