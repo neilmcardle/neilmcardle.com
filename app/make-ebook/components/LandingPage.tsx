@@ -106,27 +106,31 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
         </h2>
 
         {/* Action Buttons — matches marketing hero CTA style */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4 sm:mb-8 w-full sm:w-auto px-4 sm:px-0 flex-shrink-0">
-          <button
-            type="button"
-            onClick={onNewBook}
-            className="w-full sm:w-auto px-8 py-4 text-lg font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all"
-          >
-            Start New Book
-          </button>
-
-          <button
-            type="button"
-            onClick={onOpenLibrary}
-            className="w-full sm:w-auto px-8 py-4 text-lg font-semibold border-2 border-gray-700 text-white rounded-full hover:border-gray-600 transition-colors flex items-center justify-center gap-3"
-          >
-            Browse Library
-            {libraryCount > 0 && (
-              <span className="px-2.5 py-0.5 bg-gray-700 text-gray-300 rounded-full text-xs font-semibold">
-                {libraryCount}
-              </span>
-            )}
-          </button>
+        <div className="flex items-center justify-center mb-4 sm:mb-8 w-full sm:w-auto px-4 sm:px-0 flex-shrink-0">
+          {libraryCount === 0 ? (
+            <div className="me-cta-shine w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={onNewBook}
+                className="w-full px-8 py-4 text-lg font-semibold bg-[#0a0a0a] text-white rounded-full hover:bg-gray-900 transition-colors"
+              >
+                Start New Book
+              </button>
+            </div>
+          ) : (
+            <div className="me-cta-shine w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={onOpenLibrary}
+                className="w-full px-8 py-4 text-lg font-semibold bg-[#0a0a0a] text-white rounded-full hover:bg-gray-900 transition-colors flex items-center justify-center gap-3"
+              >
+                Browse Library
+                <span className="px-2.5 py-0.5 bg-gray-700 text-gray-300 rounded-full text-xs font-semibold">
+                  {libraryCount}
+                </span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

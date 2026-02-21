@@ -399,13 +399,15 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
             {/* CTA Buttons */}
             <div className="flex items-center justify-center mb-8">
-              <button
-                onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                className="group px-8 py-4 text-lg font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
-              >
-                Try for free
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              <div className="me-cta-shine">
+                <button
+                  onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
+                  className="group px-8 py-4 text-lg font-semibold bg-[#0a0a0a] text-white rounded-full hover:bg-gray-900 transition-colors flex items-center justify-center gap-2"
+                >
+                  Try for free
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
             </div>
 
             {/* Trust indicators */}
@@ -533,13 +535,15 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                     </li>
                   ))}
                 </ul>
-                <button
-                  onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                  className="inline-flex items-center gap-2 px-6 py-3 font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  Try it free
-                  <ChevronRight className="w-5 h-5" />
-                </button>
+                <div className="me-cta-shine">
+                  <button
+                    onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
+                    className="inline-flex items-center gap-2 px-6 py-3 font-semibold bg-[#0a0a0a] text-white rounded-full hover:bg-gray-900 transition-colors"
+                  >
+                    Try it free
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </FadeIn>
           </div>
@@ -618,13 +622,15 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                     </li>
                   ))}
                 </ul>
-                <button
-                  onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                  className="inline-flex items-center gap-2 px-6 py-3 font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  Try Book Mind
-                  <ChevronRight className="w-5 h-5" />
-                </button>
+                <div className="me-cta-shine">
+                  <button
+                    onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
+                    className="inline-flex items-center gap-2 px-6 py-3 font-semibold bg-[#0a0a0a] text-white rounded-full hover:bg-gray-900 transition-colors"
+                  >
+                    Try Book Mind
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </FadeIn>
             <FadeIn delay={150}>
@@ -801,13 +807,15 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             <p className="text-xl text-gray-400 mb-10">
               Start creating in seconds. No credit card required.
             </p>
-            <button
-              onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-              className="group px-8 py-4 text-lg font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-all inline-flex items-center gap-2"
-            >
-              Try for free
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+            <div className="me-cta-shine">
+              <button
+                onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
+                className="group px-8 py-4 text-lg font-semibold bg-[#0a0a0a] text-white rounded-full hover:bg-gray-900 transition-colors inline-flex items-center gap-2"
+              >
+                Try for free
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
           </div>
         </FadeIn>
       </section>

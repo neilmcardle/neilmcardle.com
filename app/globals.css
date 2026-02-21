@@ -426,6 +426,38 @@ html[data-theme='dark'] .shadow-card {
   box-shadow: 0 2px 12px 0 rgba(0,0,0,0.3);
 }
 
+/* ============================================
+   makeEbook — Animated traveling-light CTA border
+   ============================================ */
+
+@property --me-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes me-spin {
+  to { --me-angle: 360deg; }
+}
+
+/* Wrapper div: the animated border itself */
+.me-cta-shine {
+  display: inline-flex;
+  border-radius: 9999px;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--me-angle),
+    rgba(40, 45, 55, 0.9)    0%,
+    rgba(40, 45, 55, 0.9)    20%,
+    rgba(180, 185, 210, 0.5) 37%,
+    rgba(255, 255, 255, 1)   50%,
+    rgba(180, 185, 210, 0.5) 63%,
+    rgba(40, 45, 55, 0.9)    80%,
+    rgba(40, 45, 55, 0.9)    100%
+  );
+  animation: me-spin 4s linear infinite;
+}
+
 /* Custom 3D rotation for the glossy button */
 .transform.rotate3d-x-25 {
   transform: rotate3d(1, 0, 0, 25deg);
