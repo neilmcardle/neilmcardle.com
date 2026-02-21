@@ -17,7 +17,8 @@ import {
   Star,
   ArrowRight,
   Menu,
-  X
+  X,
+  Eye
 } from 'lucide-react';
 
 function FadeIn({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -170,6 +171,8 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<'pro' | 'lifetime' | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const [videoVisible, setVideoVisible] = useState(false);
   const { user, signOut } = useAuth();
   const featuresRef = useRef<HTMLElement>(null);
   const pricingRef = useRef<HTMLElement>(null);
@@ -215,6 +218,23 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       setCheckoutLoading(null);
     }
   };
+
+  const openVideo = () => {
+    setVideoOpen(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => setVideoVisible(true)));
+  };
+
+  const closeVideo = () => {
+    setVideoVisible(false);
+    setTimeout(() => setVideoOpen(false), 300);
+  };
+
+  useEffect(() => {
+    if (!videoOpen) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') closeVideo(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [videoOpen]);
 
   const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
@@ -394,20 +414,39 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             </p>
           </div>
 
-          {/* Hero Video / Product Preview */}
+          {/* Hero Product Preview — click to watch demo */}
           <div className="mt-16 lg:mt-24 relative">
             <div className="relative mx-auto max-w-5xl">
               {/* Glow effect */}
               <div className="absolute -inset-4 bg-gradient-to-r from-gray-700/20 via-gray-600/20 to-gray-700/20 blur-3xl rounded-3xl" />
 
-              {/* Video container */}
-              <div className="relative rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
-                <MuxPlayer
-                  playbackId="MsFzJTzHanW3aB7bGesbMq21aB13vj9I9nVV4Lrp4Bg"
-                  metadata={{ video_title: 'makeEbook Product Demo' }}
-                  style={{ aspectRatio: '16/9', width: '100%' }}
-                  accentColor="#ffffff"
+              {/* Laptop image with play button overlay */}
+              <div
+                className="relative cursor-pointer group"
+                onClick={openVideo}
+              >
+                <Image
+                  src="/makeebook-laptop.png"
+                  alt="makeEbook app on laptop — click to watch demo"
+                  width={1920}
+                  height={1200}
+                  className="w-full h-auto"
+                  style={{
+                    maskImage: 'radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%)',
+                    WebkitMaskImage: 'radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%)',
+                  }}
+                  priority
                 />
+                {/* Hover scrim */}
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-300" />
+                {/* Play button */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                    <svg className="w-8 h-8 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -442,6 +481,67 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 </div>
               </FadeIn>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Live Previewer Section */}
+      <section className="py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Image side */}
+            <FadeIn>
+              <div className="relative flex justify-center lg:justify-start">
+                <div className="absolute -inset-8 bg-gradient-to-r from-gray-700/20 via-gray-600/10 to-gray-700/20 blur-3xl rounded-3xl" />
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10" style={{ maxHeight: '580px' }}>
+                  <Image
+                    src="/Live Previewer.png"
+                    alt="Live Preview panel showing ebook on Kindle, iPad, and Phone"
+                    width={1084}
+                    height={1768}
+                    className="h-full w-auto object-contain object-top"
+                    style={{ maxHeight: '580px' }}
+                  />
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Text side */}
+            <FadeIn delay={150}>
+              <div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-stone-800/50 text-stone-300 text-sm font-medium mb-6 border border-stone-700">
+                  <Eye className="w-4 h-4" />
+                  Live Preview
+                </div>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
+                  See exactly how your book will look
+                </h2>
+                <p className="text-xl text-gray-400 mb-8">
+                  Preview your ebook on Kindle, iPad, and phone — live, as you write. No guessing, no surprises when you publish.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  {[
+                    'Switch between Kindle, iPad, and Phone instantly',
+                    'Typography and layout rendered in real time',
+                    'Catch formatting issues before you export',
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <svg className="w-5 h-5 text-gray-300 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
+                  className="inline-flex items-center gap-2 px-6 py-3 font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  Try it free
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </FadeIn>
           </div>
         </div>
       </section>
@@ -755,6 +855,44 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
           </div>
         </div>
       </footer>
+
+      {/* Video lightbox */}
+      {videoOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8"
+          style={{
+            backgroundColor: `rgba(0,0,0,${videoVisible ? 0.85 : 0})`,
+            backdropFilter: videoVisible ? 'blur(8px)' : 'none',
+            transition: 'background-color 0.3s ease, backdrop-filter 0.3s ease',
+          }}
+          onClick={closeVideo}
+        >
+          <button
+            className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors p-2"
+            onClick={closeVideo}
+            aria-label="Close video"
+          >
+            <X size={28} />
+          </button>
+          <div
+            className="relative w-full max-w-5xl rounded-2xl overflow-hidden shadow-2xl border border-gray-700"
+            style={{
+              transform: videoVisible ? 'scale(1)' : 'scale(0.92)',
+              opacity: videoVisible ? 1 : 0,
+              transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <MuxPlayer
+              playbackId="MsFzJTzHanW3aB7bGesbMq21aB13vj9I9nVV4Lrp4Bg"
+              metadata={{ video_title: 'makeEbook Product Demo' }}
+              style={{ aspectRatio: '16/9', width: '100%' }}
+              accentColor="#ffffff"
+              autoPlay
+            />
+          </div>
+        </div>
+      )}
 
       {/* Auth Modal */}
       <AuthModal
