@@ -652,20 +652,22 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {FEATURES.map((feature, index) => (
               <FadeIn key={index} delay={index * 80}>
-              <div
-                className="relative rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-700/50 overflow-hidden"
-              >
-                {/* Gradient background - always dark */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1e2836] via-[#253040] to-[#1a2230] rounded-2xl" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(55,65,81,0.3)_0%,_transparent_70%)]" />
+              <div className="group relative rounded-2xl">
+                {/* Animated border — fades in on hover */}
+                <div className="me-card-border absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <div className="relative rounded-2xl p-8 shadow-lg transition-shadow border border-gray-700/50 overflow-hidden">
+                  {/* Gradient background - always dark */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#1e2836] via-[#253040] to-[#1a2230] rounded-2xl" />
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(55,65,81,0.3)_0%,_transparent_70%)]" />
 
-                {/* Content */}
-                <div className="relative z-10">
-                  <div className="w-12 h-12 rounded-xl bg-gray-800/80 flex items-center justify-center mb-6 border border-gray-600/50">
-                    <feature.icon className="w-6 h-6 text-gray-300" />
+                  {/* Content */}
+                  <div className="relative z-10">
+                    <div className="w-12 h-12 rounded-xl bg-gray-800/80 flex items-center justify-center mb-6 border border-gray-600/50">
+                      <feature.icon className="w-6 h-6 text-gray-300" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3 text-white">{feature.title}</h3>
+                    <p className="text-gray-400">{feature.description}</p>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-white">{feature.title}</h3>
-                  <p className="text-gray-400">{feature.description}</p>
                 </div>
               </div>
               </FadeIn>
@@ -817,56 +819,54 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {PRICING.map((plan, index) => (
-              <div
-                key={index}
-                className={`relative rounded-2xl p-8 ${
-                  plan.highlighted
-                    ? 'bg-white text-gray-900 shadow-xl sm:scale-105'
-                    : 'bg-gray-800 border border-gray-700 text-white'
-                }`}
-              >
+              <div key={index} className="group relative rounded-2xl">
+                {/* Animated border — always on for Pro, hover for others */}
+                <div className={`me-card-border absolute -inset-[1px] rounded-2xl pointer-events-none transition-opacity duration-500 ${
+                  plan.highlighted ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`} />
+
                 {plan.highlighted && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-green-600 text-white text-sm font-semibold rounded-full shadow-lg">
-                    Most Popular
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-stone-800 text-stone-300 border border-stone-700 whitespace-nowrap">
+                      Most Popular
+                    </span>
                   </div>
                 )}
-                <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
-                <div className="mb-4">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className={plan.highlighted ? 'text-gray-600' : 'text-gray-500'}>{plan.period}</span>
+                <div className={`relative rounded-2xl p-8 h-full flex flex-col ${
+                  plan.highlighted
+                    ? 'bg-gray-950 border border-gray-700/30'
+                    : 'bg-gray-900 border border-gray-700'
+                }`}>
+                  <h3 className="text-xl font-semibold mb-2 text-white">{plan.name}</h3>
+                  <div className="mb-4">
+                    <span className="text-4xl font-bold text-white">{plan.price}</span>
+                    <span className="text-gray-500">{plan.period}</span>
+                  </div>
+                  <p className="text-gray-400 mb-6">{plan.description}</p>
+                  <ul className="space-y-3 mb-8 flex-1">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <svg className="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-gray-300">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => {
+                      if (plan.checkoutType) {
+                        handleCheckout(plan.checkoutType);
+                      } else {
+                        user ? onStartWritingAction() : handleOpenAuth('signup');
+                      }
+                    }}
+                    disabled={!!plan.checkoutType && checkoutLoading === plan.checkoutType}
+                    className="w-full py-3 rounded-full font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed bg-white text-gray-900 hover:bg-gray-100"
+                  >
+                    {plan.checkoutType && checkoutLoading === plan.checkoutType ? 'Redirecting…' : plan.cta}
+                  </button>
                 </div>
-                <p className={`mb-6 ${plan.highlighted ? 'text-gray-600' : 'text-gray-400'}`}>
-                  {plan.description}
-                </p>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <svg className={`w-5 h-5 flex-shrink-0 ${plan.highlighted ? 'text-gray-600' : 'text-gray-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className={plan.highlighted ? 'text-gray-700' : 'text-gray-300'}>
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => {
-                    if (plan.checkoutType) {
-                      handleCheckout(plan.checkoutType);
-                    } else {
-                      user ? onStartWritingAction() : handleOpenAuth('signup');
-                    }
-                  }}
-                  disabled={!!plan.checkoutType && checkoutLoading === plan.checkoutType}
-                  className={`w-full py-3 rounded-full font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
-                    plan.highlighted
-                      ? 'bg-gray-900 text-white hover:bg-gray-800'
-                      : 'bg-white text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  {plan.checkoutType && checkoutLoading === plan.checkoutType ? 'Redirecting…' : plan.cta}
-                </button>
               </div>
             ))}
           </div>

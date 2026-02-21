@@ -458,6 +458,21 @@ html[data-theme='dark'] .shadow-card {
   animation: me-spin 4s linear infinite;
 }
 
+/* Animated border for feature cards — activate via group-hover opacity */
+.me-card-border {
+  background: conic-gradient(
+    from var(--me-angle),
+    rgba(30, 35, 45, 1)      0%,
+    rgba(30, 35, 45, 1)      20%,
+    rgba(180, 185, 210, 0.5) 37%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(180, 185, 210, 0.5) 63%,
+    rgba(30, 35, 45, 1)      80%,
+    rgba(30, 35, 45, 1)      100%
+  );
+  animation: me-spin 4s linear infinite;
+}
+
 /* Custom 3D rotation for the glossy button */
 .transform.rotate3d-x-25 {
   transform: rotate3d(1, 0, 0, 25deg);
