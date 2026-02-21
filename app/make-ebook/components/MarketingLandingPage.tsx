@@ -242,7 +242,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-100">
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-100 overflow-x-hidden">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-lg border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -745,7 +745,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 key={index}
                 className={`relative rounded-2xl p-8 ${
                   plan.highlighted
-                    ? 'bg-white text-gray-900 shadow-xl scale-105'
+                    ? 'bg-white text-gray-900 shadow-xl sm:scale-105'
                     : 'bg-gray-800 border border-gray-700 text-white'
                 }`}
               >
