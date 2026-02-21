@@ -127,7 +127,7 @@ const PRICING = [
       'Chapter management',
       'Works offline'
     ],
-    cta: 'Start Free',
+    cta: 'Sign Up',
     highlighted: false,
     checkoutType: null as null | 'pro' | 'lifetime',
   },
@@ -144,7 +144,7 @@ const PRICING = [
       'Summarize chapters & get insights',
       'Priority support'
     ],
-    cta: 'Get Started',
+    cta: 'Get Pro',
     highlighted: true,
     checkoutType: 'pro' as null | 'pro' | 'lifetime',
   },
@@ -159,7 +159,7 @@ const PRICING = [
       'All future features included',
       'Early access to new tools'
     ],
-    cta: 'Buy Now',
+    cta: 'Get Lifetime',
     highlighted: false,
     checkoutType: 'lifetime' as null | 'pro' | 'lifetime',
   }
