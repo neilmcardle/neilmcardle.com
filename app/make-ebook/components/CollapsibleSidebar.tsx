@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { LibraryIcon, PlusIcon, TrashIcon, SaveIcon, DownloadIcon, CloseIcon } from './icons';
 import { ExportHistoryButton } from './ExportHistoryPanel';
@@ -283,13 +283,63 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     onClose();
   };
 
+  // ── Resizable width ──────────────────────────────────────────────
+  const [width, setWidth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('me-left-panel-width');
+      return saved ? Math.min(Math.max(parseInt(saved, 10), 220), 560) : 350;
+    }
+    return 350;
+  });
+  const sidebarRef = useRef<HTMLElement>(null);
+  const innerRef   = useRef<HTMLDivElement>(null);
+  const isResizing = useRef(false);
+  const startX     = useRef(0);
+  const startWidth = useRef(350);
+
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizing.current = true;
+    startX.current     = e.clientX;
+    startWidth.current = width;
+    if (sidebarRef.current) sidebarRef.current.style.transition = 'none';
+    document.body.style.cursor     = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!isResizing.current) return;
+      const next = Math.min(Math.max(startWidth.current + e.clientX - startX.current, 220), 560);
+      if (sidebarRef.current) sidebarRef.current.style.width = `${next}px`;
+      if (innerRef.current)   { innerRef.current.style.width = `${next}px`; innerRef.current.style.minWidth = `${next}px`; }
+    };
+    const onUp = () => {
+      if (!isResizing.current) return;
+      isResizing.current = false;
+      document.body.style.cursor = document.body.style.userSelect = '';
+      if (sidebarRef.current) {
+        sidebarRef.current.style.transition = '';
+        const final = Math.min(Math.max(Math.round(parseFloat(sidebarRef.current.style.width) || startWidth.current), 220), 560);
+        setWidth(final);
+        try { localStorage.setItem('me-left-panel-width', String(final)); } catch {}
+      }
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup',   onUp);
+    return () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+  }, []);
+  // ────────────────────────────────────────────────────────────────
+
   return (
     <aside
-      className={`hidden lg:block h-full z-40 transition-all duration-300 ease-in-out overflow-hidden ${
-        isPanelOpen ? 'w-[350px] min-w-[300px] opacity-100' : 'w-0 min-w-0 opacity-0'
+      ref={sidebarRef}
+      className={`hidden lg:block h-full z-40 transition-all duration-300 ease-in-out overflow-hidden relative ${
+        isPanelOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
+      style={{ width: isPanelOpen ? width : 0 }}
     >
-      <div className="flex flex-col h-full w-[350px] min-w-[350px] bg-white dark:bg-[#0a0a0a] border-r border-gray-200 dark:border-gray-800">
+      <div ref={innerRef} className="flex flex-col h-full bg-white dark:bg-[#0a0a0a] border-r border-gray-200 dark:border-gray-800" style={{ width, minWidth: width }}>
 
       {/* Close Button Row */}
       <div className="flex justify-end px-4 pt-2 pb-2">
@@ -1069,6 +1119,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         )}
       </div>
       </div>
+
+      {/* Resize handle — right edge of left panel */}
+      <div
+        className="absolute right-0 top-0 h-full w-1 cursor-col-resize z-50 hidden lg:block hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+        onMouseDown={handleResizeStart}
+      />
     </aside>
   );
 }

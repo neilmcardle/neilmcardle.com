@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Chapter } from '../types';
 
 interface SplitPreviewLayoutProps {
@@ -33,6 +33,53 @@ export function SplitPreviewLayout({
   const [previewDevice, setPreviewDevice] = useState<DeviceType>('kindle');
   const [previewTheme, setPreviewTheme] = useState<ThemeType>('light');
 
+  // ── Resizable width ──────────────────────────────────────────────
+  const [panelWidth, setPanelWidth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('me-right-panel-width');
+      return saved ? Math.min(Math.max(parseInt(saved, 10), 280), 600) : 420;
+    }
+    return 420;
+  });
+  const panelRef   = useRef<HTMLDivElement>(null);
+  const isResizing = useRef(false);
+  const startX     = useRef(0);
+  const startWidth = useRef(420);
+
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizing.current = true;
+    startX.current     = e.clientX;
+    startWidth.current = panelWidth;
+    if (panelRef.current) panelRef.current.style.transition = 'none';
+    document.body.style.cursor     = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!isResizing.current) return;
+      // dragging left increases width (panel is on the right)
+      const next = Math.min(Math.max(startWidth.current - (e.clientX - startX.current), 280), 600);
+      if (panelRef.current) panelRef.current.style.width = `${next}px`;
+    };
+    const onUp = () => {
+      if (!isResizing.current) return;
+      isResizing.current = false;
+      document.body.style.cursor = document.body.style.userSelect = '';
+      if (panelRef.current) {
+        panelRef.current.style.transition = '';
+        const final = Math.min(Math.max(Math.round(parseFloat(panelRef.current.style.width) || startWidth.current), 280), 600);
+        setPanelWidth(final);
+        try { localStorage.setItem('me-right-panel-width', String(final)); } catch {}
+      }
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup',   onUp);
+    return () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+  }, []);
+  // ────────────────────────────────────────────────────────────────
+
   const device = deviceDimensions[previewDevice];
 
   return (
@@ -43,10 +90,21 @@ export function SplitPreviewLayout({
       </div>
 
       {/* Preview Panel - Slides in from right, full height, flush right */}
-      <div data-tour="preview" className={`hidden lg:block transition-all duration-300 ease-in-out overflow-hidden ${
-        isPreviewEnabled ? 'w-[420px] opacity-100' : 'w-0 opacity-0'
-      }`}>
-        <div className="h-full flex flex-col bg-gray-50 dark:bg-[#0a0a0a] border-l border-gray-200 dark:border-gray-800">
+      <div
+        ref={panelRef}
+        data-tour="preview"
+        className={`hidden lg:block transition-all duration-300 ease-in-out overflow-hidden relative ${
+          isPreviewEnabled ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        style={{ width: isPreviewEnabled ? panelWidth : 0 }}
+      >
+        <div className="h-full flex flex-col bg-gray-50 dark:bg-[#0a0a0a] border-l border-gray-200 dark:border-gray-800 relative">
+
+          {/* Resize handle — left edge of right panel */}
+          <div
+            className="absolute left-0 top-0 h-full w-1 cursor-col-resize z-50 hidden lg:block hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            onMouseDown={handleResizeStart}
+          />
 
           {/* Preview Header */}
           <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-gray-800">
