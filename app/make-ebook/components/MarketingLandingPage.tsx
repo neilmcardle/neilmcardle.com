@@ -622,15 +622,6 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                     </li>
                   ))}
                 </ul>
-                <div className="me-cta-shine">
-                  <button
-                    onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                    className="inline-flex items-center gap-2 px-6 py-3 font-semibold bg-[#0a0a0a] text-white rounded-full hover:bg-gray-900 transition-colors"
-                  >
-                    Try Book Mind
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </div>
               </div>
             </FadeIn>
             <FadeIn delay={150}>
