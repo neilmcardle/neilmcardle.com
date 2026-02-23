@@ -1,105 +1,148 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { BookMindMessage, BookMindAction, BookMindContext, ChatSession } from '../hooks/useBookMind';
+import Link from 'next/link';
+import { ExternalLink } from 'lucide-react';
+import {
+  useBookMind,
+  BookMindContext,
+  BookMindAction,
+  BookMindMessage,
+  ChatSession,
+} from '../hooks/useBookMind';
 
 interface BookMindPanelProps {
-  isOpen: boolean;
-  onCloseAction: () => void;
-  messages: BookMindMessage[];
-  isLoading: boolean;
-  error: string | null;
-  onSendMessageAction: (message: string, context: BookMindContext, action?: BookMindAction) => Promise<string | null>;
-  onQuickActionAction: (action: BookMindAction, context: BookMindContext) => Promise<string | null>;
-  onClearMessagesAction: () => void;
-  context: BookMindContext;
-  // Chat session management
-  chatSessions: ChatSession[];
-  currentSessionId: string | null;
-  onCreateSessionAction: (name?: string) => string;
-  onLoadSessionAction: (sessionId: string) => void;
-  onRenameSessionAction: (sessionId: string, newName: string) => void;
-  onDeleteSessionAction: (sessionId: string) => void;
+  bookId?: string;
+  userId?: string;
+  title?: string;
+  author?: string;
+  genre?: string;
+  chapters?: { title: string; content: string; type: string }[];
+  selectedChapterIndex?: number;
+  onClose: () => void;
 }
 
-// Analysis-only quick actions - NO writing/ghostwriting features
-const QUICK_ACTIONS: { action: BookMindAction; label: string; icon: string; description: string }[] = [
-  { action: 'summarize-book', label: 'Summarize Book', icon: '📖', description: 'Full book overview' },
-  { action: 'summarize-chapter', label: 'This Chapter', icon: '📄', description: 'Chapter summary' },
-  { action: 'list-characters', label: 'Characters', icon: '👥', description: 'Who appears where' },
-  { action: 'find-inconsistencies', label: 'Inconsistencies', icon: '🔍', description: 'Find plot holes' },
-  { action: 'analyze-themes', label: 'Themes', icon: '📊', description: 'Theme analysis' },
-  { action: 'check-grammar', label: 'Grammar', icon: '🔤', description: 'Check for errors' },
-  { action: 'timeline-review', label: 'Timeline', icon: '📅', description: 'Event chronology' },
-  { action: 'word-frequency', label: 'Word Use', icon: '📈', description: 'Overused words' },
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+function ThinkingDots() {
+  return (
+    <span className="inline-flex items-center gap-1 py-1">
+      {[0, 150, 300].map((delay) => (
+        <span
+          key={delay}
+          className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce"
+          style={{ animationDelay: `${delay}ms` }}
+        />
+      ))}
+    </span>
+  );
+}
+
+function formatMessage(text: string): string {
+  const paragraphs = text.split(/\n{2,}/);
+  return paragraphs
+    .map((p) => {
+      const withBold = p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      const withBreaks = withBold.replace(/\n/g, '<br />');
+      return `<p>${withBreaks}</p>`;
+    })
+    .join('');
+}
+
+function formatTimestamp(ts: number): string {
+  const date = new Date(ts);
+  const now = new Date();
+  const diffDays = Math.floor((now.getTime() - date.getTime()) / 86400000);
+  if (diffDays === 0) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return date.toLocaleDateString([], { weekday: 'short' });
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+// ── Quick actions ────────────────────────────────────────────────────────────
+
+const QUICK_ACTIONS: { action: BookMindAction; label: string; description: string }[] = [
+  { action: 'summarize-book',       label: 'Summarize Book',  description: 'Full overview' },
+  { action: 'summarize-chapter',    label: 'This Chapter',    description: 'Chapter summary' },
+  { action: 'list-characters',      label: 'Characters',      description: 'Who appears where' },
+  { action: 'find-inconsistencies', label: 'Inconsistencies', description: 'Plot holes & gaps' },
+  { action: 'analyze-themes',       label: 'Themes',          description: 'Big ideas' },
+  { action: 'check-grammar',        label: 'Grammar',         description: 'Errors & fixes' },
+  { action: 'timeline-review',      label: 'Timeline',        description: 'Chronology' },
+  { action: 'word-frequency',       label: 'Word Use',        description: 'Repeated words' },
 ];
 
-export function BookMindPanel({
-  isOpen,
-  onCloseAction,
-  messages,
-  isLoading,
-  error,
-  onSendMessageAction,
-  onQuickActionAction,
-  onClearMessagesAction,
-  context,
-  chatSessions,
-  currentSessionId,
-  onCreateSessionAction,
-  onLoadSessionAction,
-  onRenameSessionAction,
-  onDeleteSessionAction,
+// ── Component ────────────────────────────────────────────────────────────────
+
+export default function BookMindPanel({
+  bookId,
+  userId,
+  title,
+  author,
+  genre,
+  chapters = [],
+  selectedChapterIndex = 0,
+  onClose,
 }: BookMindPanelProps) {
-  const [inputValue, setInputValue] = useState('');
-  const [showQuickActions, setShowQuickActions] = useState(true);
+  const {
+    messages,
+    isLoading,
+    error,
+    sendMessage,
+    quickAction,
+    clearMessages,
+    chatSessions,
+    currentSessionId,
+    createSession,
+    loadSession,
+    renameSession,
+    deleteSession,
+  } = useBookMind({ bookId, userId });
+
+  const [input, setInput] = useState('');
   const [showSessions, setShowSessions] = useState(false);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
-  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive
+  const showQuickActions = messages.length === 0;
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Focus input when panel opens
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [isOpen]);
+    setTimeout(() => inputRef.current?.focus(), 100);
+  }, []);
 
-  // Show quick actions when starting fresh
-  useEffect(() => {
-    setShowQuickActions(messages.length === 0);
-  }, [messages.length]);
+  const currentChapter = chapters[selectedChapterIndex] ?? { title: '', content: '', type: 'chapter' };
+  const context: BookMindContext = {
+    title: title ?? '',
+    author: author ?? '',
+    genre: genre ?? '',
+    chapterTitle: currentChapter.title,
+    chapterContent: currentChapter.content,
+    allChapters: chapters,
+  };
+
+  const ensureSession = () => {
+    if (!currentSessionId) createSession();
+  };
 
   const handleSend = async () => {
-    if (!inputValue.trim() || isLoading) return;
-    const message = inputValue.trim();
-    setInputValue('');
-    setShowQuickActions(false);
-    
-    // Auto-create session if none exists
-    if (!currentSessionId) {
-      onCreateSessionAction();
-    }
-    
-    await onSendMessageAction(message, context, 'ask-question');
+    if (!input.trim() || isLoading) return;
+    const msg = input.trim();
+    setInput('');
+    ensureSession();
+    await sendMessage(msg, context, 'ask-question');
   };
 
   const handleQuickAction = async (action: BookMindAction) => {
-    setShowQuickActions(false);
-    
-    // Auto-create session if none exists
-    if (!currentSessionId) {
-      onCreateSessionAction();
-    }
-    
-    await onQuickActionAction(action, context);
+    ensureSession();
+    await quickAction(action, context);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -109,274 +152,214 @@ export function BookMindPanel({
     }
   };
 
-  const copyToClipboard = async (text: string, messageId: string) => {
+  const copyToClipboard = async (text: string, id: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      setCopiedMessageId(messageId);
-      setTimeout(() => setCopiedMessageId(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {/* silent */}
   };
 
   const handleRenameSubmit = (sessionId: string) => {
-    if (editingName.trim()) {
-      onRenameSessionAction(sessionId, editingName.trim());
-    }
+    if (editingName.trim()) renameSession(sessionId, editingName.trim());
     setEditingSessionId(null);
     setEditingName('');
   };
 
-  const formatTimestamp = (timestamp: number) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (diffDays === 1) {
-      return 'Yesterday';
-    } else if (diffDays < 7) {
-      return date.toLocaleDateString([], { weekday: 'short' });
-    } else {
-      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-    }
-  };
-
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[200] lg:relative lg:inset-auto">
-      {/* Backdrop for mobile */}
-      <div 
-        className="absolute inset-0 bg-black/40 lg:hidden"
-        onClick={onCloseAction}
-      />
-      
-      {/* Panel */}
-      <div className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-[#0a0a0a] shadow-2xl flex flex-col lg:relative lg:max-w-none lg:shadow-none lg:border-l lg:border-gray-200 lg:dark:border-gray-800">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Book Mind</h3>
-              <p className="text-[10px] text-gray-500 dark:text-gray-400">Ask questions about your book</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            {/* Chat history toggle */}
-            <button
-              onClick={() => setShowSessions(!showSessions)}
-              className={`p-1.5 rounded-lg transition-colors ${
-                showSessions 
-                  ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400' 
-                  : 'hover:bg-gray-200 dark:hover:bg-[#333] text-gray-500'
-              }`}
-              title="Chat history"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-            </button>
-            {/* New chat */}
-            <button
-              onClick={() => {
-                onCreateSessionAction();
-                setShowSessions(false);
-              }}
-              className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333] transition-colors"
-              title="New chat"
-            >
-              <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-            {messages.length > 0 && (
-              <button
-                onClick={onClearMessagesAction}
-                className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333] transition-colors"
-                title="Clear conversation"
-              >
-                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            )}
-            <button
-              onClick={onCloseAction}
-              className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-[#333] transition-colors"
-            >
-              <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
+    <div className="flex flex-col h-full bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white w-full">
 
-        {/* Chat Sessions Sidebar */}
-        {showSessions && (
-          <div className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#151515] max-h-48 overflow-y-auto">
-            {chatSessions.length === 0 ? (
-              <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">No saved chats</p>
-            ) : (
-              <div className="p-2 space-y-1">
-                {chatSessions.map((session) => (
-                  <div
-                    key={session.id}
-                    className={`group flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${
-                      currentSessionId === session.id
-                        ? 'bg-violet-100 dark:bg-violet-900/30'
-                        : 'hover:bg-gray-100 dark:hover:bg-[#252525]'
-                    }`}
-                    onClick={() => {
-                      onLoadSessionAction(session.id);
-                      setShowSessions(false);
-                    }}
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800/60 backdrop-blur-md bg-white/80 dark:bg-[#0a0a0a]/80 flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <svg className="w-5 h-5 text-gray-400 dark:text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span className="text-sm font-medium text-gray-900 dark:text-white">Book Mind</span>
+          {title && (
+            <span className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[120px]">{title}</span>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          {/* Chat history */}
+          <button
+            onClick={() => setShowSessions(v => !v)}
+            className={`p-1.5 rounded-lg transition-colors ${
+              showSessions
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                : 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
+            title="Chat history"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+            </svg>
+          </button>
+          {/* New chat */}
+          <button
+            onClick={() => { createSession(); setShowSessions(false); }}
+            className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            title="New chat"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+          {/* Open full page */}
+          {bookId && (
+            <Link
+              href={`/make-ebook/book-mind?bookId=${bookId}`}
+              className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              title="Open Book Mind"
+              target="_blank"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </Link>
+          )}
+          {/* Close panel */}
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            title="Close panel"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Chat sessions drawer */}
+      {showSessions && (
+        <div className="border-b border-gray-200 dark:border-gray-800/60 bg-gray-50 dark:bg-[#111] max-h-48 overflow-y-auto flex-shrink-0">
+          {chatSessions.length === 0 ? (
+            <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-4">No saved chats yet</p>
+          ) : (
+            <div className="p-2 space-y-0.5">
+              {chatSessions.map((session: ChatSession) => (
+                <div
+                  key={session.id}
+                  className={`group flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${
+                    currentSessionId === session.id
+                      ? 'bg-gray-200 dark:bg-gray-700'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                  onClick={() => { loadSession(session.id); setShowSessions(false); }}
+                >
+                  {editingSessionId === session.id ? (
+                    <input
+                      type="text"
+                      value={editingName}
+                      onChange={e => setEditingName(e.target.value)}
+                      onBlur={() => handleRenameSubmit(session.id)}
+                      onKeyDown={e => e.key === 'Enter' && handleRenameSubmit(session.id)}
+                      className="flex-1 text-xs bg-white dark:bg-gray-900 px-2 py-1 rounded border border-gray-300 dark:border-gray-600 outline-none text-gray-900 dark:text-white"
+                      autoFocus
+                      onClick={e => e.stopPropagation()}
+                    />
+                  ) : (
+                    <>
+                      <span className="flex-1 text-xs text-gray-700 dark:text-gray-300 truncate">{session.name}</span>
+                      <span className="text-[10px] text-gray-400 dark:text-gray-600">{formatTimestamp(session.updatedAt)}</span>
+                      <button
+                        onClick={e => { e.stopPropagation(); setEditingSessionId(session.id); setEditingName(session.name); }}
+                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                        title="Rename"
+                      >
+                        <svg className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={e => { e.stopPropagation(); deleteSession(session.id); }}
+                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-100 dark:hover:bg-red-900/40 rounded"
+                        title="Delete"
+                      >
+                        <svg className="w-3 h-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0">
+        {showQuickActions && (
+          <div className="space-y-4">
+            {/* Welcome */}
+            <div className="text-center py-4">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <svg className="w-6 h-6 text-gray-400 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1">Book Mind</h4>
+              <p className="text-xs text-gray-500 max-w-[200px] mx-auto leading-relaxed">
+                {chapters.length > 0
+                  ? `I have full context of your ${chapters.length}-chapter manuscript.`
+                  : 'Open a book to get started.'}
+              </p>
+            </div>
+
+            {/* Quick actions */}
+            {chapters.length > 0 && (
+              <div className="grid grid-cols-2 gap-1.5">
+                {QUICK_ACTIONS.map(({ action, label, description }) => (
+                  <button
+                    key={action}
+                    onClick={() => handleQuickAction(action)}
+                    disabled={isLoading}
+                    className="flex flex-col gap-0.5 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-all text-left disabled:opacity-40"
                   >
-                    {editingSessionId === session.id ? (
-                      <input
-                        type="text"
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                        onBlur={() => handleRenameSubmit(session.id)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleRenameSubmit(session.id)}
-                        className="flex-1 text-xs bg-white dark:bg-[#1a1a1a] px-2 py-1 rounded border border-violet-300 dark:border-violet-700 outline-none"
-                        autoFocus
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    ) : (
-                      <>
-                        <span className="flex-1 text-xs text-gray-700 dark:text-gray-300 truncate">
-                          {session.name}
-                        </span>
-                        <span className="text-[10px] text-gray-400">{formatTimestamp(session.updatedAt)}</span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingSessionId(session.id);
-                            setEditingName(session.name);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-gray-200 dark:hover:bg-[#333] rounded"
-                          title="Rename"
-                        >
-                          <svg className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDeleteSessionAction(session.id);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded"
-                          title="Delete"
-                        >
-                          <svg className="w-3 h-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </>
-                    )}
-                  </div>
+                    <span className="text-xs font-medium text-gray-900 dark:text-white">{label}</span>
+                    <span className="text-[10px] text-gray-500">{description}</span>
+                  </button>
                 ))}
               </div>
             )}
           </div>
         )}
 
-        {/* Book context indicator */}
-        <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/20 border-b border-blue-100 dark:border-blue-900/30">
-          <div className="flex items-center gap-2 text-xs text-blue-700 dark:text-blue-300">
-            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            <span className="truncate">
-              <strong>{context.title || 'Untitled'}</strong> • {context.allChapters?.length || 0} chapters loaded
-            </span>
-          </div>
-        </div>
-
-        {/* Messages area */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-          {/* Welcome message when empty */}
-          {messages.length === 0 && showQuickActions && (
-            <div className="space-y-4">
-              <div className="text-center py-4">
-                <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/50 dark:to-purple-900/50 flex items-center justify-center">
-                  <svg className="w-7 h-7 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1">Ask About Your Book</h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs mx-auto">
-                  I know every word of your manuscript. Ask me about characters, plot, themes, or inconsistencies.
-                </p>
-              </div>
-
-              {/* Quick actions grid */}
-              <div className="grid grid-cols-2 gap-2">
-                {QUICK_ACTIONS.map(({ action, label, icon, description }) => (
-                  <button
-                    key={action}
-                    onClick={() => handleQuickAction(action)}
-                    disabled={isLoading}
-                    className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-violet-300 dark:hover:border-violet-700 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-all text-left group disabled:opacity-50"
-                  >
-                    <span className="text-lg">{icon}</span>
-                    <div className="min-w-0">
-                      <p className="text-xs font-medium text-gray-900 dark:text-white group-hover:text-violet-700 dark:group-hover:text-violet-300 truncate">{label}</p>
-                      <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{description}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {/* What I can't do */}
-              <div className="mt-4 p-3 rounded-lg bg-stone-100 dark:bg-stone-800/30 border border-stone-200 dark:border-stone-700/50">
-                <p className="text-xs text-stone-700 dark:text-stone-300 font-medium mb-1">✍️ Note: I analyze, not write</p>
-                <p className="text-[10px] text-stone-600 dark:text-stone-400">
-                  I'm here to help you understand your own work, not to write it for you. Your voice is what makes your book unique!
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Message list */}
-          {messages.map((message) => (
+        {/* Message list */}
+        {messages.map((message: BookMindMessage) => (
+          <div
+            key={message.id}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
             <div
-              key={message.id}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`group relative max-w-[88%] rounded-2xl px-4 py-3 ${
+                message.role === 'user'
+                  ? 'bg-gray-900 dark:bg-gray-700 text-white rounded-br-md'
+                  : 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 rounded-bl-md'
+              }`}
             >
-              <div
-                className={`group max-w-[85%] rounded-2xl px-4 py-2.5 relative ${
-                  message.role === 'user'
-                    ? message.isBlocked 
-                      ? 'bg-stone-200 dark:bg-stone-700/50 text-stone-800 dark:text-stone-200 rounded-br-md'
-                      : 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 rounded-br-md'
-                    : message.isBlocked
-                      ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700/50 rounded-bl-md'
-                      : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white rounded-bl-md'
-                }`}
-              >
-                <div className="text-sm whitespace-pre-wrap">{message.content}</div>
-                
-                {/* Copy button - shows on hover */}
+              {message.content ? (
+                <div
+                  className="text-sm leading-relaxed [&>p+p]:mt-3 [&>p]:m-0"
+                  dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
+                />
+              ) : (
+                <ThinkingDots />
+              )}
+
+              {/* Copy button */}
+              {message.content && (
                 <button
                   onClick={() => copyToClipboard(message.content, message.id)}
-                  className={`absolute -right-1 -top-1 p-1.5 rounded-full shadow-sm transition-all ${
-                    copiedMessageId === message.id
-                      ? 'bg-green-500 text-white opacity-100'
-                      : 'bg-white dark:bg-[#333] text-gray-500 opacity-0 group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-[#444]'
+                  className={`absolute -right-1 -top-1 p-1.5 rounded-full shadow-sm border transition-all ${
+                    copiedId === message.id
+                      ? 'bg-green-500 border-green-500 text-white opacity-100'
+                      : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-transparent text-gray-400 opacity-0 group-hover:opacity-100 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
-                  title={copiedMessageId === message.id ? 'Copied!' : 'Copy message'}
+                  title={copiedId === message.id ? 'Copied!' : 'Copy'}
                 >
-                  {copiedMessageId === message.id ? (
+                  {copiedId === message.id ? (
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -386,79 +369,62 @@ export function BookMindPanel({
                     </svg>
                   )}
                 </button>
-              </div>
+              )}
             </div>
-          ))}
-
-          {/* Loading indicator */}
-          {isLoading && (
-            <div className="flex justify-start">
-              <span className="text-sm text-transparent bg-clip-text bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400 dark:from-gray-500 dark:via-gray-300 dark:to-gray-500 bg-[length:200%_100%] animate-shimmer">
-                Thinking...
-              </span>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input area */}
-        <div className="border-t border-gray-200 dark:border-gray-800 p-3 bg-gray-50 dark:bg-[#1f1f1f]">
-          <div className="flex items-end gap-2">
-            <div className="flex-1 relative">
-              <textarea
-                ref={inputRef}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask about your book..."
-                rows={1}
-                className="w-full px-4 py-2.5 pr-10 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
-                style={{ minHeight: '42px', maxHeight: '120px' }}
-              />
-            </div>
-            <button
-              onClick={handleSend}
-              disabled={!inputValue.trim() || isLoading}
-              className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white flex items-center justify-center hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </button>
           </div>
-          <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2 text-center">
-            Book Mind reads your manuscript to answer questions. It won't write for you.
-          </p>
+        ))}
+
+        {/* Thinking indicator */}
+        {isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'user' && (
+          <div className="flex justify-start">
+            <div className="bg-gray-100 dark:bg-gray-900 rounded-2xl rounded-bl-md px-4 py-3">
+              <ThinkingDots />
+            </div>
+          </div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 rounded-xl px-3 py-2">
+            {error}
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div className="flex-shrink-0 px-3 pb-3 pt-2 border-t border-gray-200 dark:border-gray-800/60">
+        <div className="flex items-end gap-2 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 focus-within:border-gray-300 dark:focus-within:border-gray-700 px-3 py-2 transition-colors">
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={chapters.length > 0 ? 'Ask about your book…' : 'Open a book first…'}
+            disabled={chapters.length === 0}
+            rows={1}
+            className="flex-1 bg-transparent text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 outline-none resize-none min-h-[24px] max-h-[120px] leading-6 disabled:opacity-40"
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || isLoading || chapters.length === 0}
+            className="flex-shrink-0 w-8 h-8 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-gray-700 dark:hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all mb-0.5"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
         </div>
+        {messages.length > 0 && (
+          <button
+            onClick={clearMessages}
+            className="mt-1.5 text-[10px] text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 transition-colors w-full text-center"
+          >
+            Clear conversation
+          </button>
+        )}
       </div>
     </div>
-  );
-}
-
-// Compact trigger button for the editor
-export function BookMindTrigger({ 
-  onClickAction, 
-  hasContext = false,
-  className = '' 
-}: { 
-  onClickAction: () => void; 
-  hasContext?: boolean;
-  className?: string;
-}) {
-  return (
-    <button
-      onClick={onClickAction}
-      className={`group relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm font-medium hover:from-violet-600 hover:to-purple-700 shadow-sm hover:shadow-md transition-all ${className}`}
-      title="Ask questions about your book"
-    >
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>Book Mind</span>
-      {hasContext && (
-        <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
-      )}
-    </button>
   );
 }

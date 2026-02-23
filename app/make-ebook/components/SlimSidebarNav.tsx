@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { LibraryIcon } from './icons';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useTheme } from '@/lib/contexts/ThemeContext';
@@ -26,7 +25,8 @@ interface SlimSidebarNavProps {
   isPanelOpen: boolean;
   onLogoClick?: () => void;
   onStartTour?: () => void;
-  bookMindHref?: string;
+  onBookMindToggle?: () => void;
+  isBookMindOpen?: boolean;
 }
 
 // Tooltip Component
@@ -214,7 +214,7 @@ function ThemeToggleButton() {
   );
 }
 
-export default function SlimSidebarNav({ activeView, onViewChange, libraryCount, chaptersCount, isPanelOpen, onLogoClick, onStartTour, bookMindHref }: SlimSidebarNavProps) {
+export default function SlimSidebarNav({ activeView, onViewChange, libraryCount, chaptersCount, isPanelOpen, onLogoClick, onStartTour, onBookMindToggle, isBookMindOpen }: SlimSidebarNavProps) {
   
   const handleViewClick = (view: 'library' | 'book' | 'chapters' | 'preview') => {
     // If clicking the same view and panel is open, close it
@@ -323,20 +323,20 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
       {/* Bottom section - Theme Toggle and User */}
       <div className="flex-shrink-0 flex flex-col gap-2 w-full px-2 pb-6">
         {/* Book Mind */}
-        {bookMindHref && (
+        {onBookMindToggle && (
           <Tooltip text="Book Mind">
-            <Link
-              href={bookMindHref}
+            <button
+              onClick={onBookMindToggle}
               className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
               aria-label="Book Mind"
             >
               <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-                <svg className="w-6 h-6 text-gray-700 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className={`w-6 h-6 ${isBookMindOpen ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-white'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <span className="text-[10px] font-medium -mt-2 text-gray-500 dark:text-gray-400 transition-opacity group-hover:opacity-60 text-center">Book Mind</span>
-            </Link>
+              <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 text-center ${isBookMindOpen ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>Book Mind</span>
+            </button>
           </Tooltip>
         )}
 

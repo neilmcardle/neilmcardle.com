@@ -30,6 +30,10 @@ import { TypographyPreset } from "./utils/typographyPresets";
 import RichTextEditor from "./components/RichTextEditor";
 import CollapsibleSidebar from "./components/CollapsibleSidebar";
 import SlimSidebarNav from "./components/SlimSidebarNav";
+import BookMindPanel from "./components/BookMindPanel";
+import LivePreviewPanel from "./components/LivePreviewPanel";
+import LayoutSwitcher, { RightPanelMode } from "./components/LayoutSwitcher";
+import ResizableRightPanel from "./components/ResizableRightPanel";
 import AutoSaveIndicator from "./components/AutoSaveIndicator";
 import { QualityDropdown } from "./components/QualityPanel";
 import { WordStatsDropdown } from "./components/WordStatsDropdown";
@@ -159,6 +163,9 @@ function MakeEbookPage() {
   
   // Derived state: panel is open when sidebarView is not null
   const isPanelOpen = sidebarView !== null;
+
+  // Right panel layout mode
+  const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>('none');
   // Book metadata state (consolidated hook)
   const {
     title, setTitle, author, setAuthor, blurb, setBlurb,
@@ -260,8 +267,8 @@ function MakeEbookPage() {
     return () => viewport.removeEventListener('resize', handleResize);
   }, []);
   
-  // Split preview state - enabled by default on desktop so users see the e-reader preview
-  const [isSplitPreviewEnabled, setIsSplitPreviewEnabled] = useState(true);
+  // Split preview state (inside main) — off by default; right panel LayoutSwitcher is preferred
+  const [isSplitPreviewEnabled, setIsSplitPreviewEnabled] = useState(false);
 
   // Onboarding tour
   const onboarding = useOnboarding({
@@ -2084,7 +2091,13 @@ function MakeEbookPage() {
               // so clearEditorState's internal check sees stale isOnboardingComplete
               setTimeout(() => onboarding.startTour(), chapters.length === 0 ? 800 : 100);
             }}
-            bookMindHref={`/make-ebook/book-mind${currentBookId ? `?book=${currentBookId}` : ''}`}
+            onBookMindToggle={() => setRightPanelMode(prev =>
+              prev === 'none' ? 'book-mind' :
+              prev === 'book-mind' ? 'none' :
+              prev === 'live-preview' ? 'both' :
+              'live-preview'
+            )}
+            isBookMindOpen={rightPanelMode === 'book-mind' || rightPanelMode === 'both'}
           />}
 
           {/* Desktop Sidebar - Hidden on Mobile, animates open/closed */}
@@ -2423,22 +2436,16 @@ function MakeEbookPage() {
                       onNavigateToChapterAction={handleNavigateToChapterFromIssue}
                     />
                     <FocusModeButton onClick={focus.toggleFocusMode} />
-                    <button
-                      onClick={() => setIsSplitPreviewEnabled(prev => !prev)}
-                      className="p-2 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
-                      title={isSplitPreviewEnabled ? "Hide preview (⌘P)" : "Show preview (⌘P)"}
-                    >
-                      <img
-                        src="/close-sidebar-icon.svg"
-                        alt="Toggle preview"
-                        className={`w-5 h-5 dark:hidden${isSplitPreviewEnabled ? ' scale-x-[-1]' : ''}`}
-                      />
-                      <img
-                        src="/dark-close-sidebar-icon.svg"
-                        alt="Toggle preview"
-                        className={`w-5 h-5 hidden dark:block${isSplitPreviewEnabled ? ' scale-x-[-1]' : ''}`}
-                      />
-                    </button>
+                    <LayoutSwitcher
+                      mode={rightPanelMode}
+                      onChange={(m) => {
+                        setRightPanelMode(m);
+                        // Close split preview when a right panel with live preview is shown
+                        if (m === 'live-preview' || m === 'both') {
+                          setIsSplitPreviewEnabled(false);
+                        }
+                      }}
+                    />
                   </div>
                 </div>
                 {/* Compact Chapter Title Header - Clean UI */}
@@ -2584,6 +2591,38 @@ function MakeEbookPage() {
               )}
             </div>
           </main>
+
+          {/* Right Panel — controlled by LayoutSwitcher */}
+          {rightPanelMode !== 'none' && !(focus.active && focus.settings.hideChrome) && (
+            <ResizableRightPanel>
+              {/* Book Mind */}
+              {(rightPanelMode === 'book-mind' || rightPanelMode === 'both') && (
+                <div className={rightPanelMode === 'both' ? 'flex-1 min-h-0 overflow-hidden' : 'h-full'}>
+                  <BookMindPanel
+                    bookId={currentBookId}
+                    userId={user?.id}
+                    title={title}
+                    author={author}
+                    genre={genre}
+                    chapters={chapters.map(c => ({ title: c.title, content: c.content, type: c.type }))}
+                    selectedChapterIndex={selectedChapter}
+                    onClose={() => setRightPanelMode(rightPanelMode === 'both' ? 'live-preview' : 'none')}
+                  />
+                </div>
+              )}
+              {/* Live Preview Panel */}
+              {(rightPanelMode === 'live-preview' || rightPanelMode === 'both') && (
+                <div className={`${rightPanelMode === 'both' ? 'flex-1 min-h-0 border-t border-gray-200 dark:border-gray-800' : 'h-full'} overflow-hidden`}>
+                  <LivePreviewPanel
+                    chapters={chapters}
+                    selectedChapter={selectedChapter}
+                    onChapterSelect={setSelectedChapter}
+                    onClose={() => setRightPanelMode(rightPanelMode === 'both' ? 'book-mind' : 'none')}
+                  />
+                </div>
+              )}
+            </ResizableRightPanel>
+          )}
         </div>
         {showEreaderPreview && (
           <PreviewEreaderPanel

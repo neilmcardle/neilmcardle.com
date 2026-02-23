@@ -3,11 +3,11 @@ import { createServerClient } from '@supabase/ssr'
 import { CookieOptions } from '@supabase/ssr'
 import { getUserSubscriptionTier } from '@/lib/db/users'
 
-export const runtime = "nodejs"; // Changed from edge to support database queries
-export const maxDuration = 60; // Allow up to 60s for AI API responses
+export const runtime = "nodejs";
+export const maxDuration = 60;
 
-// Book Mind AI API endpoint
-// Supports OpenAI, Anthropic, Grok/xAI, or other providers via environment variables
+// Book Mind AI API endpoint — streaming SSE
+// Supports OpenAI, Anthropic, Grok/xAI via environment variables
 // GATED: Pro subscription required
 
 interface Message {
@@ -24,196 +24,210 @@ interface BookMindRequest {
   };
 }
 
+const encoder = new TextEncoder();
+
+function sseChunk(content: string): Uint8Array {
+  return encoder.encode(`data: ${JSON.stringify({ content })}\n\n`);
+}
+
+function sseDone(): Uint8Array {
+  return encoder.encode('data: [DONE]\n\n');
+}
+
+async function streamOpenAICompatible(
+  url: string,
+  apiKey: string,
+  model: string,
+  messages: Message[],
+  controller: ReadableStreamDefaultController
+) {
+  const upstream = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({ model, messages, max_tokens: 700, temperature: 0.7, stream: true }),
+  });
+
+  if (!upstream.ok || !upstream.body) {
+    const error = await upstream.json().catch(() => ({}));
+    throw new Error(error.error?.message || 'API request failed');
+  }
+
+  const reader = upstream.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const data = line.slice(6).trim();
+      if (data === '[DONE]') return;
+      try {
+        const parsed = JSON.parse(data);
+        const content = parsed.choices?.[0]?.delta?.content;
+        if (content) controller.enqueue(sseChunk(content));
+      } catch { /* skip malformed chunks */ }
+    }
+  }
+}
+
+async function streamAnthropic(
+  apiKey: string,
+  model: string,
+  messages: Message[],
+  controller: ReadableStreamDefaultController
+) {
+  const systemMessage = messages.find(m => m.role === 'system')?.content ?? '';
+  const userMessages = messages.filter(m => m.role !== 'system');
+
+  const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 700,
+      stream: true,
+      system: systemMessage,
+      messages: userMessages.map(m => ({
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: m.content,
+      })),
+    }),
+  });
+
+  if (!upstream.ok || !upstream.body) {
+    const error = await upstream.json().catch(() => ({}));
+    throw new Error(error.error?.message ?? 'Anthropic API request failed');
+  }
+
+  const reader = upstream.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const data = line.slice(6).trim();
+      try {
+        const parsed = JSON.parse(data);
+        if (parsed.type === 'content_block_delta' && parsed.delta?.type === 'text_delta') {
+          const content = parsed.delta.text;
+          if (content) controller.enqueue(sseChunk(content));
+        }
+      } catch { /* skip malformed chunks */ }
+    }
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body: BookMindRequest = await req.json();
     const { messages } = body;
 
     if (!messages || messages.length === 0) {
-      return NextResponse.json(
-        { error: "No messages provided" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "No messages provided" }, { status: 400 });
     }
 
     // ===== SUBSCRIPTION CHECK: Book Mind AI is Pro-only =====
-    const response = NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get(name: string) {
-            return req.cookies.get(name)?.value
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            response.cookies.set({ name, value, ...options })
-          },
-          remove(name: string, options: CookieOptions) {
-            response.cookies.set({ name, value: '', ...options })
-          },
+          get(name: string) { return req.cookies.get(name)?.value },
+          set(_name: string, _value: string, _options: CookieOptions) { /* handled by middleware */ },
+          remove(_name: string, _options: CookieOptions) { /* handled by middleware */ },
         },
       }
-    )
+    );
 
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
         { error: 'Authentication required. Please sign in to use Book Mind AI.' },
         { status: 401 }
-      )
+      );
     }
 
-    // Check subscription tier
-    const tier = await getUserSubscriptionTier(user.id)
+    const tier = await getUserSubscriptionTier(user.id);
 
     if (tier !== 'pro') {
-      console.log(`Book Mind AI access denied for free user: ${user.id}`)
       return NextResponse.json(
-        {
-          error: 'Book Mind AI is a Pro feature. Upgrade to access AI-powered book analysis.',
-          requiresUpgrade: true,
-          feature: 'book_mind_ai'
-        },
+        { error: 'Book Mind AI is a Pro feature. Upgrade to access AI-powered book analysis.', requiresUpgrade: true, feature: 'book_mind_ai' },
         { status: 403 }
-      )
+      );
     }
-
-    console.log(`Book Mind AI access granted for Pro user: ${user.id}`)
     // ===== END SUBSCRIPTION CHECK =====
 
-    // Check for API key - support multiple providers
     const grokKey = process.env.XAI_API_KEY || process.env.GROK_API_KEY;
     const openaiKey = process.env.OPENAI_API_KEY;
     const anthropicKey = process.env.ANTHROPIC_API_KEY;
 
-    // Grok/xAI (uses OpenAI-compatible API)
-    if (grokKey) {
-      const response = await fetch('https://api.x.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${grokKey}`,
-        },
-        body: JSON.stringify({
-          model: process.env.XAI_MODEL || 'grok-3-mini',
-          messages: messages,
-          max_tokens: 2000,
-          temperature: 0.7,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        console.error('Grok API error:', error);
-        return NextResponse.json(
-          { error: error.error?.message || 'Grok API request failed' },
-          { status: response.status }
-        );
-      }
-
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content || '';
-
-      return NextResponse.json({
-        content,
-        model: data.model,
-        usage: data.usage,
-      });
+    if (!grokKey && !openaiKey && !anthropicKey) {
+      return NextResponse.json(
+        { error: 'Book Mind AI is not configured. Please add an API key to your environment variables.' },
+        { status: 503 }
+      );
     }
 
-    if (openaiKey) {
-      // Use OpenAI
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openaiKey}`,
-        },
-        body: JSON.stringify({
-          model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-          messages: messages,
-          max_tokens: 2000,
-          temperature: 0.7,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        console.error('OpenAI API error:', error);
-        return NextResponse.json(
-          { error: error.error?.message || 'OpenAI API request failed' },
-          { status: response.status }
-        );
-      }
-
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content || '';
-
-      return NextResponse.json({
-        content,
-        model: data.model,
-        usage: data.usage,
-      });
-    }
-
-    if (anthropicKey) {
-      // Use Anthropic Claude
-      const systemMessage = messages.find(m => m.role === 'system')?.content || '';
-      const userMessages = messages.filter(m => m.role !== 'system');
-
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': anthropicKey,
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify({
-          model: process.env.ANTHROPIC_MODEL || 'claude-3-haiku-20240307',
-          max_tokens: 2000,
-          system: systemMessage,
-          messages: userMessages.map(m => ({
-            role: m.role === 'assistant' ? 'assistant' : 'user',
-            content: m.content,
-          })),
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        console.error('Anthropic API error:', error);
-        return NextResponse.json(
-          { error: error.error?.message || 'Anthropic API request failed' },
-          { status: response.status }
-        );
-      }
-
-      const data = await response.json();
-      const content = data.content?.[0]?.text || '';
-
-      return NextResponse.json({
-        content,
-        model: data.model,
-        usage: data.usage,
-      });
-    }
-
-    // No API key configured - return helpful message
-    return NextResponse.json(
-      { 
-        error: "Book Mind AI is not configured. Please add an API key to your environment variables.",
-        setup: {
-          grok: "Add XAI_API_KEY to .env.local",
-          openai: "Add OPENAI_API_KEY to .env.local",
-          anthropic: "Add ANTHROPIC_API_KEY to .env.local"
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          if (grokKey) {
+            await streamOpenAICompatible(
+              'https://api.x.ai/v1/chat/completions',
+              grokKey,
+              process.env.XAI_MODEL || 'grok-3-mini',
+              messages,
+              controller
+            );
+          } else if (openaiKey) {
+            await streamOpenAICompatible(
+              'https://api.openai.com/v1/chat/completions',
+              openaiKey,
+              process.env.OPENAI_MODEL || 'gpt-4o-mini',
+              messages,
+              controller
+            );
+          } else if (anthropicKey) {
+            await streamAnthropic(
+              anthropicKey,
+              process.env.ANTHROPIC_MODEL || 'claude-3-haiku-20240307',
+              messages,
+              controller
+            );
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : 'Stream error';
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: msg })}\n\n`));
+        } finally {
+          controller.enqueue(sseDone());
+          controller.close();
         }
+      }
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
       },
-      { status: 503 }
-    );
+    });
 
   } catch (error) {
     console.error('Book Mind API error:', error);

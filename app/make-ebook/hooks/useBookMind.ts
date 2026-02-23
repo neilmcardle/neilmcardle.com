@@ -19,7 +19,6 @@ export interface BookMindMessage {
   content: string;
   timestamp: number;
   action?: BookMindAction;
-  isBlocked?: boolean; // For blocked writing requests
 }
 
 export interface BookMindContext {
@@ -46,34 +45,6 @@ interface UseBookMindOptions {
   userId?: string;
 }
 
-// Patterns that suggest user wants AI to write content
-const WRITING_REQUEST_PATTERNS = [
-  /\b(write|create|generate|compose|draft|author)\b.*\b(chapter|paragraph|scene|dialogue|story|content|text|section|passage)\b/i,
-  /\b(continue|expand|extend|add to|flesh out|develop)\b.*\b(this|the|my)\b/i,
-  /\bcontinue (writing|the story|from here|this)\b/i,
-  /\bwrite (me |the next|a new|more)\b/i,
-  /\b(help me write|write this for me|finish this)\b/i,
-  /\bgenerate (new |more |creative )?content\b/i,
-  /\b(rewrite|rephrase) (this|the|my)\b/i,
-  /\bmake (this|it) (better|longer|more)\b/i,
-];
-
-// Check if a message is requesting AI to write content
-function isWritingRequest(message: string): boolean {
-  return WRITING_REQUEST_PATTERNS.some(pattern => pattern.test(message));
-}
-
-const BLOCKED_RESPONSE = `I'd love to help, but writing the actual content is your job as the author—that's where the magic happens!
-
-What I'm great at is helping you think through your book. I can:
-
-- Break down what's happening in any chapter
-- Spot characters you might have forgotten about
-- Find bits that might confuse readers
-- Look at your themes and how they're developing
-- Check grammar if you want a second pair of eyes
-
-What's on your mind about your book?`;
 
 const ACTION_PROMPTS: Record<BookMindAction, string> = {
   'summarize-book': 'Give me a natural summary of what this book is about—the main story, what themes are running through it, and how the characters develop. Keep it conversational, like you\'re telling a friend about a book you just read.',
@@ -218,27 +189,25 @@ export function useBookMind(options: UseBookMindOptions = {}) {
       .map((ch, i) => `[${ch.type.toUpperCase()}] ${ch.title || `Chapter ${i + 1}`}\n${ch.content}`)
       .join('\n\n---\n\n');
 
-    return `You're a thoughtful reader and thinking partner for the author of this book. You've read every word and you're here to help them work through their ideas, spot issues, and think more deeply about what they've written.
+    return `You have full context of this author's manuscript — every chapter, every character, every scene. You're their most useful collaborator because you know their book inside out.
 
-Your job is to help the author reflect on and improve their work—not to write it for them. You can analyze, question, summarize, and point things out. If they ask you to write content for them, kindly redirect them to thinking about it themselves.
+Help with whatever they need: analysis, feedback, summaries, tables, spotting issues, writing suggestions, drafting passages, continuing scenes — anything. You know this book, so make that count.
 
-Be natural and conversational. Talk like a smart friend who happens to have read their entire manuscript and has a good memory. Don't be stuffy or overly formal. Ask follow-up questions when it would help. Be honest but not harsh—you're on their side.
+Be direct and conversational. Talk like a sharp friend who's read the whole thing and has good instincts. No preamble, no filler. Match your response length to what's actually needed — short questions get short answers. Use short paragraphs, not walls of text.
 
-When you reference the book, be specific. Quote or paraphrase the actual text. Mention chapter names or numbers. The author should feel like you actually know their book.
+When you reference the book, be specific. Quote the actual text. Name the chapters. The author should feel like you genuinely know their work.
 
 About this book:
 - Title: ${context.title || 'Untitled'}
 - Author: ${context.author || 'Unknown'}
 - Genre: ${context.genre || 'Not specified'}
-- ${context.allChapters.length} chapters total
+- ${context.allChapters.length} chapters
 
-${context.chapterTitle ? `Currently looking at: ${context.chapterTitle}` : ''}
+${context.chapterTitle ? `Currently open: ${context.chapterTitle}` : ''}
 
-=== THE FULL MANUSCRIPT ===
+=== FULL MANUSCRIPT ===
 ${fullBookContent}
-=== END ===
-
-Remember: You genuinely know this book. Respond like someone who's read it carefully and is excited to discuss it.`;
+=== END ===`;
   };
 
   const sendMessage = useCallback(async (
@@ -246,32 +215,6 @@ Remember: You genuinely know this book. Respond like someone who's read it caref
     context: BookMindContext,
     action?: BookMindAction
   ): Promise<string | null> => {
-    // Check for writing requests first
-    if (action === 'ask-question' && isWritingRequest(userMessage)) {
-      const userMsgId = generateId();
-      const userMsg: BookMindMessage = {
-        id: userMsgId,
-        role: 'user',
-        content: userMessage,
-        timestamp: Date.now(),
-        action,
-        isBlocked: true
-      };
-
-      const blockedMsg: BookMindMessage = {
-        id: generateId(),
-        role: 'assistant',
-        content: BLOCKED_RESPONSE,
-        timestamp: Date.now(),
-        isBlocked: true
-      };
-
-      const newMessages = [...messages, userMsg, blockedMsg];
-      setMessages(newMessages);
-      updateCurrentSession(newMessages);
-      return BLOCKED_RESPONSE;
-    }
-
     setIsLoading(true);
     setError(null);
 
@@ -299,18 +242,14 @@ Remember: You genuinely know this book. Respond like someone who's read it caref
 
       const response = await fetch('/api/ai/book-mind', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [
             { role: 'system', content: buildSystemPrompt(context) },
             ...updatedMessages.slice(-10).map(m => ({ role: m.role, content: m.content })),
             { role: 'user', content: prompt }
           ],
-          context: {
-            action
-          }
+          context: { action }
         }),
       });
 
@@ -319,37 +258,68 @@ Remember: You genuinely know this book. Respond like someone who's read it caref
         throw new Error(errorData.error || `Request failed with status ${response.status}`);
       }
 
-      const data = await response.json();
-      const assistantContent = data.content || data.message || 'I apologize, I couldn\'t generate a response.';
-
+      // ── Streaming ───────────────────────────────────────────────────────────
+      const assistantMsgId = generateId();
       const assistantMsg: BookMindMessage = {
-        id: generateId(),
+        id: assistantMsgId,
         role: 'assistant',
-        content: assistantContent,
+        content: '',
         timestamp: Date.now(),
-        action
+        action,
       };
 
-      const finalMessages = [...updatedMessages, assistantMsg];
-      setMessages(finalMessages);
-      updateCurrentSession(finalMessages);
+      // Show placeholder bubble immediately; hide "Thinking..." spinner
+      setMessages([...updatedMessages, assistantMsg]);
       setIsLoading(false);
-      return assistantContent;
+
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullContent = '';
+
+      outer: while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') break outer;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.error) throw new Error(parsed.error);
+            if (parsed.content) {
+              fullContent += parsed.content;
+              setMessages(prev =>
+                prev.map(m => m.id === assistantMsgId ? { ...m, content: fullContent } : m)
+              );
+            }
+          } catch (e) {
+            if (e instanceof Error && e.message !== 'Unexpected token') throw e;
+          }
+        }
+      }
+
+      const finalMessages = [...updatedMessages, { ...assistantMsg, content: fullContent }];
+      updateCurrentSession(finalMessages);
+      return fullContent;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
       setError(errorMessage);
       setIsLoading(false);
-      
+
       const errorMsg: BookMindMessage = {
         id: generateId(),
         role: 'assistant',
         content: `⚠️ ${errorMessage}`,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       const finalMessages = [...updatedMessages, errorMsg];
       setMessages(finalMessages);
       updateCurrentSession(finalMessages);
-      
       return null;
     }
   }, [messages, updateCurrentSession]);
