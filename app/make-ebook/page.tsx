@@ -1,7 +1,5 @@
 "use client";
-import { saveEbookToSupabase } from '@/lib/supabaseEbooks';
 import React, { Suspense, useState, useRef, useLayoutEffect, useEffect, useCallback } from "react";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useFeatureAccess } from "@/lib/hooks/useSubscription";
 import { BookToolbar } from "@/components/BookToolbar";
@@ -12,7 +10,6 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import LandingPage from "./components/LandingPage";
 import MarketingLandingPage from "./components/MarketingLandingPage";
-import DragIcon from "./components/icons/DragIcon";
 import BinIcon from "./components/icons/BinIcon";
 import { LANGUAGES, today } from "./utils/constants";
 import { CHAPTER_TEMPLATES, Chapter, Endnote, EndnoteReference } from "./types";
@@ -29,8 +26,6 @@ import { useEditorShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useBookState } from "./hooks/useBookState";
 import { useQualityValidator } from "./hooks/useQualityValidator";
 import { autoFixAllChapters } from "./utils/typographyFixer";
-import { exportEpub } from "./utils/exportEpub";
-import { exportPdf } from "./utils/exportPdf";
 import { TypographyPreset } from "./utils/typographyPresets";
 import RichTextEditor from "./components/RichTextEditor";
 import CollapsibleSidebar from "./components/CollapsibleSidebar";
@@ -55,226 +50,23 @@ import FindReplacePanel from "./components/FindReplacePanel";
 import { useFindReplace } from "./hooks/useFindReplace";
 import { useOnboarding } from "./hooks/useOnboarding";
 import OnboardingTour from "./components/OnboardingTour";
-import {
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { LogOut } from "lucide-react";
-import { loadBookLibrary, saveBookToLibrary, loadBookById, removeBookFromLibrary, normalizeBookFromSupabase, saveLibraryToStorage } from "./utils/bookLibrary";
-
-const HEADER_HEIGHT = 64; // px (adjust if your header is taller/shorter)
-
-function formatRelativeTime(ms: number): string {
-  const diff = Math.abs(Date.now() - ms);
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days === 1) return 'yesterday';
-  return new Date(ms).toLocaleDateString();
-}
-
-function plainText(html: string) {
-  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-}
-
-function getContentChapterNumber(chapters: any[], currentIndex: number) {
-  // Count only content chapters up to and including the current index
-  let contentChapterCount = 0;
-  for (let i = 0; i <= currentIndex; i++) {
-    if (chapters[i]?.type === 'content') {
-      contentChapterCount++;
-    }
-  }
-  return contentChapterCount;
-}
-
-function ChapterCapsuleMarker({ markerStyle }: { markerStyle: { top: number; height: number } }) {
-  return (
-    <span
-      className="absolute"
-      style={{
-        left: -18,
-        top: (markerStyle.top ?? 0) + 12,
-        width: 4,
-        height: 24,
-        backgroundColor: "#717274",
-        borderRadius: 9999,
-        transition: "top 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        zIndex: 1,
-        display: "block",
-      }}
-      aria-hidden="true"
-    />
-  );
-}
-
-function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
-  return (
-    <span
-      className="relative w-4 h-5 shrink-0 flex items-center justify-center opacity-70 group-hover:opacity-100 transition"
-      aria-hidden="true"
-    >
-      <DragIcon 
-        className={`w-4 h-4 transition ${
-          isSelected ? "brightness-0 invert" : "brightness-0"
-        }`}
-      />
-    </span>
-  );
-}
-
-// Mobile Live Preview — mirrors desktop SplitPreviewLayout
-type MobilePreviewTheme = 'light' | 'sepia' | 'dark';
-type MobilePreviewDevice = 'kindle' | 'ipad' | 'phone';
-
-const mobileDeviceDimensions = {
-  kindle: { width: 260, height: 380, name: 'Kindle' },
-  ipad: { width: 300, height: 400, name: 'iPad' },
-  phone: { width: 220, height: 380, name: 'Phone' },
-};
-
-function MobilePreviewModal({
-  chapters,
-  selectedChapter,
-  onChapterSelect,
-  onClose,
-}: {
-  chapters: Chapter[];
-  selectedChapter: number;
-  onChapterSelect: (i: number) => void;
-  onClose: () => void;
-}) {
-  const [device, setDevice] = React.useState<MobilePreviewDevice>('kindle');
-  const [theme, setTheme] = React.useState<MobilePreviewTheme>('light');
-  const dim = mobileDeviceDimensions[device];
-  const chapter = chapters[selectedChapter];
-
-  const textColor = theme === 'dark' ? '#e5e5e5' : '#141413';
-  const screenBg = theme === 'light' ? '#faf9f5' : theme === 'sepia' ? '#f4ecd8' : '#1a1a1a';
-
-  return (
-    <div className="fixed inset-0 z-[130] flex flex-col lg:hidden overflow-hidden bg-[#f0eee6] dark:bg-[#0a0a0a]">
-      {/* Header */}
-      <div className="flex-shrink-0 p-3 border-b border-[#e4e4de] dark:border-gray-800">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-[#141413] dark:text-white">Live Preview</h3>
-          <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-[#e9e8e4] dark:hover:bg-gray-800 rounded transition-colors"
-            aria-label="Close preview"
-          >
-            <svg className="w-4 h-4 text-[#141413]/50 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        {/* Device Selector */}
-        <div className="flex gap-1">
-          {(Object.entries(mobileDeviceDimensions) as [MobilePreviewDevice, typeof mobileDeviceDimensions.kindle][]).map(([key, val]) => (
-            <button
-              key={key}
-              onClick={() => setDevice(key)}
-              className={`px-2 py-1 text-xs rounded transition-colors ${
-                device === key
-                  ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
-                  : 'bg-[#e9e8e4] dark:bg-gray-700 text-[#141413]/70 dark:text-gray-300 hover:bg-[#e4e4de] dark:hover:bg-gray-600'
-              }`}
-            >
-              {val.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* E-Reader Frame */}
-      <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
-        <div
-          className="relative bg-[#2a2a2a] p-2 shadow-2xl"
-          style={{ width: dim.width + 16, borderRadius: 24 }}
-        >
-          <div
-            className="w-full rounded-lg overflow-hidden transition-colors"
-            style={{ width: dim.width, height: dim.height, maxWidth: '100%', backgroundColor: screenBg }}
-          >
-            <div className="h-full overflow-y-auto">
-              {chapter ? (
-                <article
-                  className="p-5"
-                  style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: textColor, lineHeight: 1.8, fontSize: '13px' }}
-                >
-                  {chapter.title && (
-                    <h1 className="text-base font-bold mb-3 text-center" style={{ color: textColor }}>
-                      {chapter.title}
-                    </h1>
-                  )}
-                  <div
-                    dangerouslySetInnerHTML={{ __html: chapter.content || '<p style="color: #999; font-style: italic;">No content yet...</p>' }}
-                    style={{ textAlign: 'justify' }}
-                    className="[&_p]:mb-3 [&_p]:text-indent-4"
-                  />
-                </article>
-              ) : (
-                <div className="h-full flex items-center justify-center p-6">
-                  <p className="text-gray-400 text-sm">No chapter selected</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Chapter Navigation Tabs */}
-      {chapters.length > 1 && (
-        <div className="flex-shrink-0 px-3 pb-2 border-t border-[#e4e4de] dark:border-gray-800">
-          <div className="flex gap-1 overflow-x-auto py-2 scrollbar-thin">
-            {chapters.map((ch, i) => (
-              <button
-                key={ch.id}
-                onClick={() => onChapterSelect(i)}
-                className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
-                  i === selectedChapter
-                    ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
-                    : 'bg-[#e9e8e4] dark:bg-gray-800 text-[#141413]/70 dark:text-gray-300 hover:bg-[#e4e4de] dark:hover:bg-gray-700'
-                }`}
-              >
-                {ch.title || `Ch ${i + 1}`}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Theme Dots */}
-      <div className="flex-shrink-0 p-3 border-t border-[#e4e4de] dark:border-gray-800">
-        <div className="flex items-center justify-center gap-3">
-          {(['light', 'sepia', 'dark'] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTheme(t)}
-              className={`w-6 h-6 rounded-full border-2 transition-all ${
-                theme === t
-                  ? 'scale-110 border-[#141413] dark:border-white shadow-md'
-                  : 'border-[#dedddd] dark:border-gray-600 hover:border-[#141413]/40'
-              }`}
-              style={{
-                backgroundColor: t === 'light' ? '#faf9f5' : t === 'sepia' ? '#f4ecd8' : '#1a1a1a',
-              }}
-              aria-label={`${t} theme`}
-              title={t.charAt(0).toUpperCase() + t.slice(1)}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+import { loadBookLibrary, saveBookToLibrary } from "./utils/bookLibrary";
+// Extracted utilities & components
+import { formatRelativeTime, plainText, getContentChapterNumber } from "./utils/pageUtils";
+import { ChapterCapsuleMarker } from "./components/ChapterCapsuleMarker";
+import { HandleDragIcon } from "./components/HandleDragIcon";
+import { MobilePreviewModal, mobileDeviceDimensions } from "./components/MobilePreviewModal";
+import { UserDropdownMobile } from "./components/UserDropdownMobile";
+// Extracted hooks
+import { useEndnotes } from "./hooks/useEndnotes";
+import { useSaveBook } from "./hooks/useSaveBook";
+import { useDocumentImport } from "./hooks/useDocumentImport";
+import { useLibrary } from "./hooks/useLibrary";
+import { useCloudSync } from "./hooks/useCloudSync";
+import { useFocusMode } from "./hooks/useFocusMode";
+import { useTypewriterMode, useParagraphFocus } from "./hooks/useFocusEffects";
+import { FocusModePanel, FocusModeButton } from "./components/FocusModePanel";
+import { AmbientPlayer } from "./components/AmbientPlayer";
 
 function MakeEbookPage() {
   // Auth context for Supabase user
@@ -288,74 +80,6 @@ function MakeEbookPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Fetch ebooks from Supabase on login and merge with local library
-  useEffect(() => {
-    async function fetchAndSyncSupabaseBooks() {
-      if (user && user.id) {
-        try {
-          const supabaseBooks = await import('@/lib/supabaseEbooks').then(m => m.fetchEbooksFromSupabase(user.id));
-          if (Array.isArray(supabaseBooks) && supabaseBooks.length > 0) {
-            const localBooks = loadBookLibrary(user.id);
-            const bookMap = new Map(localBooks.map(b => [b.id, b]));
-            const conflicts: { local: import('./types').BookRecord; cloud: import('./types').BookRecord }[] = [];
-
-            for (const raw of supabaseBooks) {
-              if (!raw.id) continue;
-              const normalized = normalizeBookFromSupabase(raw);
-              const existing = bookMap.get(raw.id);
-
-              if (!existing) {
-                // Cloud-only book — add it
-                bookMap.set(raw.id, normalized);
-              } else {
-                // Book exists both locally and in cloud
-                const timeDiff = Math.abs(normalized.savedAt - existing.savedAt);
-                if (timeDiff < 5000) {
-                  // Timestamps within 5 seconds — same save, no conflict
-                  continue;
-                }
-                // Check if content actually differs
-                const contentSame =
-                  existing.title === normalized.title &&
-                  existing.author === normalized.author &&
-                  existing.chapters.length === normalized.chapters.length &&
-                  existing.chapters.every((ch, i) =>
-                    ch.title === normalized.chapters[i]?.title &&
-                    ch.content === normalized.chapters[i]?.content
-                  );
-                if (contentSame) {
-                  // Content identical, take the newer timestamp
-                  if (normalized.savedAt > existing.savedAt) {
-                    bookMap.set(raw.id, normalized);
-                  }
-                } else {
-                  // Real conflict — content differs
-                  conflicts.push({ local: existing, cloud: normalized });
-                }
-              }
-            }
-
-            if (conflicts.length > 0) {
-              // Store the merged map (without conflicts) and show conflict dialog
-              setSyncMergedMap(bookMap);
-              setSyncConflicts(conflicts);
-            } else {
-              // No conflicts — save immediately
-              const mergedBooks = Array.from(bookMap.values());
-              isLoadingBookRef.current = true;
-              setLibraryBooks(mergedBooks);
-              saveLibraryToStorage(user.id, mergedBooks);
-              setTimeout(() => { isLoadingBookRef.current = false; }, 0);
-            }
-          }
-        } catch (err) {
-          console.error('Failed to sync Supabase books:', err);
-        }
-      }
-    }
-    fetchAndSyncSupabaseBooks();
-  }, [user]);
-  
   const {
     chapters,
     setChapters,
@@ -449,7 +173,9 @@ function MakeEbookPage() {
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const isLoadingBookRef = useRef(false);
-  const isSavingRef = useRef(false);
+  // clearEditorState and markClean are defined after hooks that need them; refs break the forward-reference
+  const clearEditorStateFnRef = useRef<() => void>(() => {});
+  const markCleanFnRef = useRef<() => void>(() => {});
 
   // Show marketing landing page when no books and user hasn't started editing
   const [showMarketingPage, setShowMarketingPage] = useState(true);
@@ -478,13 +204,6 @@ function MakeEbookPage() {
     onConfirm: () => void;
   }>({ open: false, title: '', message: '', variant: 'alert', onConfirm: () => {} });
 
-  // Sync conflict resolution state
-  const [syncConflicts, setSyncConflicts] = useState<{
-    local: import('./types').BookRecord;
-    cloud: import('./types').BookRecord;
-  }[]>([]);
-  const [syncMergedMap, setSyncMergedMap] = useState<Map<string, import('./types').BookRecord> | null>(null);
-  
   // Collapsible sidebar sections state
   const [sidebarLibraryExpanded, setSidebarLibraryExpanded] = useState(true);
   const [sidebarPreviewExpanded, setSidebarPreviewExpanded] = useState(false);
@@ -499,10 +218,6 @@ function MakeEbookPage() {
     setSidebarChaptersExpanded(section === 'chapters' ? !sidebarChaptersExpanded : false);
     setSidebarPreviewExpanded(section === 'preview' ? !sidebarPreviewExpanded : false);
   };
-
-  // Multi-select for library books
-  const [selectedBookIds, setSelectedBookIds] = useState<Set<string>>(new Set());
-  const [multiSelectMode, setMultiSelectMode] = useState(false);
 
   // When a sidebar view is opened, ensure its panel is expanded by default
   useEffect(() => {
@@ -607,11 +322,68 @@ function MakeEbookPage() {
   // State for export history panel visibility
   const [showExportHistory, setShowExportHistory] = useState(false);
 
+  // ── Extracted hooks ────────────────────────────────────────────────────────
+  const cloudSync = useCloudSync({ user, isLoadingBookRef, setLibraryBooks });
+
+  const endnotesHook = useEndnotes({
+    chapters, setChapters,
+    endnotes, setEndnotes,
+    endnoteReferences, setEndnoteReferences,
+    nextEndnoteNumber, setNextEndnoteNumber,
+    selectedChapter, setSelectedChapter,
+    setDialogState,
+  });
+
+  const docImport = useDocumentImport({
+    resetMetadata, setTitle, setAuthor,
+    setChapters, setSelectedChapter, setTags,
+    clearCover, setSidebarView,
+  });
+
+  const library = useLibrary({
+    libraryBooks, setLibraryBooks,
+    user, hasCloudSync, currentBookId, isLoadingBookRef,
+    setShowMarketingPage, loadMetadata,
+    setTags, setCoverUrl, setChapters, setEndnoteReferences,
+    setEndnotes, setNextEndnoteNumber, setCurrentBookId,
+    setSelectedChapter, setMobileSidebarOpen, setSidebarView,
+    setBookJustLoaded, setDialogState,
+    clearEditorState: () => clearEditorStateFnRef.current(),
+  });
+
+  const saveBook = useSaveBook({
+    title, author, blurb, publisher, pubDate, isbn, language, genre, tags,
+    chapters, setChapters, setEndnoteReferences,
+    coverUrl, endnotes, endnoteReferences,
+    currentBookId, setCurrentBookId,
+    user, hasCloudSync,
+    saveVersion, saveExport, exportHistory, getExportBlob, typographyPreset,
+    setDialogState, setLibraryBooks, setSaveFeedback,
+    setSaveDialogOpen, newBookConfirmOpen, setNewBookConfirmOpen,
+    setEpubBlob, setShowEPUBReader, setShowExportHistory,
+    markClean: () => markCleanFnRef.current(),
+    clearEditorState: () => clearEditorStateFnRef.current(),
+  });
+  // Focus mode
+  const focus = useFocusMode();
+  useTypewriterMode(focus.active && focus.settings.typewriterMode);
+  useParagraphFocus(focus.active && focus.settings.paragraphFocus);
+
+  // Close sidebar and live preview when focus mode activates with hideChrome on
+  useEffect(() => {
+    if (focus.active && focus.settings.hideChrome) {
+      setSidebarView(null);
+      setIsSplitPreviewEnabled(false);
+    }
+  }, [focus.active, focus.settings.hideChrome]);
+  // ──────────────────────────────────────────────────────────────────────────
+
   // Auto-save hook - Creates draft book if needed to prevent data loss
   const handleAutoSave = useCallback(() => {
     // Auto-save will create a draft book if one doesn't exist
     // This prevents data loss when users click away before manually saving
-    saveBookDirectly(false);
+    saveBook.saveBookDirectly(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentBookId, title, author, blurb, publisher, pubDate, isbn, language, genre, tags, chapters, coverUrl, endnoteReferences]);
 
   // Helper to determine if there's meaningful content to auto-save
@@ -624,6 +396,8 @@ function MakeEbookPage() {
     interval: 30000, // 30 seconds
     enabled: hasContent, // Enable auto-save as soon as user enters any data
   });
+  // Wire up the ref so useSaveBook gets the real markClean
+  markCleanFnRef.current = markClean;
 
   // Warn before leaving with unsaved changes
   useUnsavedChangesWarning(isDirty);
@@ -631,10 +405,10 @@ function MakeEbookPage() {
   // Keyboard shortcuts
   useEditorShortcuts({
     onSave: () => {
-      handleSaveBook();
+      saveBook.handleSaveBook();
     },
     onExport: () => {
-      handleExportEPUB();
+      saveBook.handleExportEPUB();
     },
     onPreview: () => {
       setIsSplitPreviewEnabled(prev => !prev);
@@ -714,102 +488,6 @@ function MakeEbookPage() {
     });
   }, [setChapters, setBlurb, setPublisher, setPubDate, setGenre, setTags, setSelectedChapter, markDirty]);
 
-  // Track previous endnotes count to detect when all are removed
-  const prevEndnotesCountRef = useRef(0);
-
-  // Update endnotes chapter content whenever endnotes change
-  useEffect(() => {
-    if (endnotes.length > 0 || chapters.some(ch => ch.title.toLowerCase() === 'endnotes')) {
-      updateEndnotesChapterContent(endnotes);
-    }
-    // Reset numbering and notify user when all endnotes are deleted
-    if (endnotes.length === 0 && prevEndnotesCountRef.current > 0) {
-      setNextEndnoteNumber(1);
-      setDialogState({
-        open: true,
-        title: 'Endnotes Removed',
-        message: 'All endnotes have been deleted. The Endnotes chapter has been removed from your book.',
-        variant: 'alert',
-        onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
-      });
-    }
-    prevEndnotesCountRef.current = endnotes.length;
-  }, [endnotes]);
-
-  // Handle bidirectional endnote navigation (chapter ↔ endnotes)
-  useEffect(() => {
-    function handleEndnoteClick(event: MouseEvent) {
-      const target = event.target as HTMLElement;
-
-      // Check if click is on a link element or its children
-      const linkElement = target.closest('a');
-      if (!linkElement) return;
-
-      // Check for back-link (endnotes → chapter)
-      if (linkElement.classList.contains('endnote-back')) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const refNumber = linkElement.getAttribute('data-back-to-ref');
-
-        if (refNumber) {
-          // Find which chapter contains this reference
-          const ref = endnoteReferences.find(r => r.number === parseInt(refNumber));
-          if (ref) {
-            const chapterIndex = chapters.findIndex(ch => ch.id === ref.chapterId);
-            if (chapterIndex >= 0) {
-              setSelectedChapter(chapterIndex);
-
-              // Scroll to reference after chapter switches
-              setTimeout(() => {
-                const refElement = document.getElementById(`ref${refNumber}`);
-                if (refElement) {
-                  refElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  // Highlight effect
-                  refElement.style.backgroundColor = '#ffeb3b';
-                  setTimeout(() => {
-                    refElement.style.backgroundColor = '';
-                  }, 1000);
-                }
-              }, 150);
-            }
-          }
-        }
-        return;
-      }
-
-      // Check for forward-link (chapter → endnotes)
-      const endnoteRef = linkElement.getAttribute('data-endnote-ref');
-      if (endnoteRef) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        // Find the endnotes chapter
-        const endnotesIndex = chapters.findIndex(ch => ch.title.toLowerCase() === 'endnotes');
-        if (endnotesIndex >= 0) {
-          setSelectedChapter(endnotesIndex);
-
-          // Scroll to endnote after chapter switches
-          setTimeout(() => {
-            const endElement = document.getElementById(`end${endnoteRef}`);
-            if (endElement) {
-              endElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              // Highlight effect
-              endElement.style.backgroundColor = '#ffeb3b';
-              setTimeout(() => {
-                endElement.style.backgroundColor = '';
-              }, 1000);
-            }
-          }, 150);
-        }
-      }
-    }
-
-    // Attach to document with capture phase to intercept before contenteditable
-    document.addEventListener('click', handleEndnoteClick, true);
-    return () => document.removeEventListener('click', handleEndnoteClick, true);
-  }, [chapters, endnoteReferences, setSelectedChapter]);
-
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [markerStyle, setMarkerStyle] = useState({ top: 0, height: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -841,71 +519,6 @@ function MakeEbookPage() {
     setNewBookConfirmOpen(true);
   }
 
-  // Document import state
-  const [importDialogOpen, setImportDialogOpen] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const [importError, setImportError] = useState<string | null>(null);
-  const importFileInputRef = useRef<HTMLInputElement>(null);
-
-  async function handleImportDocument(file: File) {
-    setImporting(true);
-    setImportError(null);
-    
-    try {
-      const { parseDocument, getSupportedFormats } = await import('./utils/documentParser');
-      
-      const extension = file.name.split('.').pop()?.toLowerCase();
-      const supported = getSupportedFormats().map(f => f.replace('.', ''));
-      
-      if (!extension || !supported.includes(extension)) {
-        throw new Error(`Unsupported format. Supported: ${getSupportedFormats().join(', ')}`);
-      }
-      
-      const parsed = await parseDocument(file);
-      
-      // Create a new book with the imported content
-      const newChapters = parsed.chapters.map((ch, idx) => ({
-        id: `chapter-${Date.now()}-${idx}`,
-        title: ch.title,
-        content: ch.content,
-        type: ch.type,
-      }));
-      
-      // Set the editor state
-      resetMetadata();
-      setTitle(parsed.title);
-      setAuthor(parsed.author);
-      setChapters(newChapters);
-      setSelectedChapter(0);
-      setTags([]);
-      clearCover();
-      
-      // Open Book panel for user to complete details
-      setSidebarView('book');
-      setImportDialogOpen(false);
-      
-    } catch (err) {
-      console.error('Import error:', err);
-      setImportError(err instanceof Error ? err.message : 'Failed to import document');
-    } finally {
-      setImporting(false);
-    }
-  }
-
-  function handleImportFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleImportDocument(file);
-    }
-    // Reset input so same file can be selected again
-    e.target.value = '';
-  }
-
-  function showImportDialog() {
-    setImportError(null);
-    setImportDialogOpen(true);
-  }
-
   function clearEditorState() {
     resetMetadata();
     setTags([]);
@@ -926,6 +539,8 @@ function MakeEbookPage() {
       setTimeout(() => onboarding.startTour(), 800);
     }
   }
+  // Wire up the ref so hooks that received () => clearEditorStateFnRef.current() get the real fn
+  clearEditorStateFnRef.current = clearEditorState;
 
   function handleNewBookConfirm() {
     // Save current book before starting new one
@@ -951,8 +566,8 @@ function MakeEbookPage() {
     }
     
     // No existing book, save and then clear
-    saveBookDirectly(false);
-    saveVersionSnapshot();
+    saveBook.saveBookDirectly(false);
+    saveBook.saveVersionSnapshot();
     clearEditorState();
     setNewBookConfirmOpen(false);
   }
@@ -969,7 +584,7 @@ function MakeEbookPage() {
     if (libraryBooks.length > 0) {
       // If they have books, load the most recent one
       const mostRecent = libraryBooks.reduce((a, b) => (a.savedAt > b.savedAt ? a : b));
-      handleLoadBook(mostRecent.id);
+      library.handleLoadBook(mostRecent.id);
       // Also open the library sidebar so they can switch books
       setSidebarView('library');
     } else {
@@ -997,7 +612,7 @@ function MakeEbookPage() {
       const bookToLoad = books.find(book => book.id === loadBookId);
       if (bookToLoad) {
         setShowMarketingPage(false); // Dismiss marketing page when loading a book
-        handleLoadBook(loadBookId);
+        library.handleLoadBook(loadBookId);
         router.replace('/make-ebook', { scroll: false });
         setInitialized(true);
         return;
@@ -1032,650 +647,6 @@ function MakeEbookPage() {
       return () => container.removeEventListener('scroll', handleScroll);
     }
   }, [mobileSidebarOpen, tab]); // Re-check when tab changes as content changes
-
-  async function handleExportEPUB() {
-    // Ensure all chapters have IDs before export
-    const migratedChapters = ensureChapterIds(chapters);
-    const migratedEndnoteRefs = migrateEndnoteReferences(endnoteReferences, migratedChapters);
-
-    // Update state with migrated data
-    setChapters(migratedChapters);
-    setEndnoteReferences(migratedEndnoteRefs);
-
-    // Calculate word count for export record
-    const totalWords = migratedChapters.reduce((sum, ch) => {
-      const text = ch.content.replace(/<[^>]+>/g, ' ');
-      return sum + text.trim().split(/\s+/).filter(w => w.length > 0).length;
-    }, 0);
-
-    // Generate EPUB blob for preview
-    const blob = await exportEpub({
-      title,
-      author,
-      blurb,
-      publisher,
-      pubDate,
-      isbn,
-      language,
-      genre,
-      tags,
-      coverFile: coverUrl,
-      chapters: migratedChapters,
-      endnoteReferences: migratedEndnoteRefs,
-      typographyPreset,
-      returnBlob: true, // Get blob instead of downloading
-    }) as Blob;
-
-    // Save to export history
-    await saveExport({
-      title,
-      author,
-      wordCount: totalWords,
-      chapterCount: migratedChapters.length,
-      blob,
-    });
-
-    // Save blob and open reader
-    setEpubBlob(blob);
-    setShowEPUBReader(true);
-
-    // Also download the file
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${title.replace(/[^a-z0-9]+/gi, "_") || "ebook"}.epub`;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 100);
-
-    // Mark as clean after successful export
-    markClean();
-  }
-
-  function handleExportPDF() {
-    const migratedChapters = ensureChapterIds(chapters);
-    exportPdf({
-      title,
-      author,
-      publisher,
-      chapters: migratedChapters,
-      typographyPreset,
-    });
-  }
-
-  // Handle preview from export history
-  async function handlePreviewExport(exportId: string) {
-    const blob = await getExportBlob(exportId);
-    if (blob) {
-      setEpubBlob(blob);
-      setShowEPUBReader(true);
-      setShowExportHistory(false);
-    }
-  }
-
-  // Handle download from export history
-  async function handleDownloadExport(exportId: string) {
-    const blob = await getExportBlob(exportId);
-    const exportMeta = exportHistory.find(e => e.id === exportId);
-
-    if (blob && exportMeta) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${exportMeta.title.replace(/[^a-z0-9]+/gi, "_") || "ebook"}.epub`;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 100);
-    }
-  }
-
-  function handleSaveBook() {
-    // Don't save if there's no meaningful content
-    const hasContent = title.trim() || author.trim() || chapters.some(ch => ch.content.trim());
-    if (!hasContent) return;
-    
-    // If there's already a book ID and it exists in library, show save dialog
-    if (currentBookId) {
-      const library = loadBookLibrary(user?.id ?? '');
-      const existingBook = library.find((b: any) => b.id === currentBookId);
-      if (existingBook) {
-        setSaveDialogOpen(true);
-        return;
-      }
-    }
-
-    // No existing book, save normally (creates new book)
-    saveBookDirectly(false);
-    saveVersionSnapshot();
-  }
-
-  // Save a version snapshot (only called on manual saves, not auto-save)
-  function saveVersionSnapshot() {
-    saveVersion(title, author, chapters, {
-      blurb,
-      publisher,
-      pubDate,
-      genre,
-      tags,
-    });
-  }
-
-  async function saveBookDirectly(forceNewVersion: boolean) {
-    // Prevent concurrent saves
-    if (isSavingRef.current) return;
-    isSavingRef.current = true;
-
-    try {
-      const bookData = {
-        id: forceNewVersion ? undefined : currentBookId,
-        title,
-        author,
-        blurb,
-        publisher,
-        pubDate,
-        isbn,
-        language,
-        genre,
-        tags,
-        chapters,
-        coverFile: coverUrl,
-        endnotes,
-        endnoteReferences,
-      };
-
-      // Save to localStorage with quota error handling
-      let id: string;
-      try {
-        id = saveBookToLibrary(user?.id ?? '', bookData);
-      } catch (storageErr) {
-        console.error('localStorage save failed:', storageErr);
-        setDialogState({
-          open: true,
-          title: 'Storage Full',
-          message: 'Your browser storage is full. Try deleting old books from your library to free up space.',
-          variant: 'alert',
-          onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
-        });
-        return;
-      }
-
-      setCurrentBookId(id);
-      setLibraryBooks(loadBookLibrary(user?.id ?? ''));
-      setSaveFeedback(true);
-      markClean();
-      setTimeout(() => setSaveFeedback(false), 1300);
-
-      // Save to Supabase (if user is logged in and has Pro access)
-      if (user && user.id && hasCloudSync) {
-        try {
-          const supabaseData = await saveEbookToSupabase(bookData, chapters, user.id);
-          // If Supabase assigned a UUID different from local ID, update local to match
-          if (supabaseData?.id && supabaseData.id !== id) {
-            removeBookFromLibrary(user.id, id);
-            saveBookToLibrary(user.id, { ...bookData, id: supabaseData.id });
-            setCurrentBookId(supabaseData.id);
-            setLibraryBooks(loadBookLibrary(user.id));
-          }
-        } catch (err) {
-          console.error('Supabase sync failed:', err);
-          setDialogState({
-            open: true,
-            title: 'Cloud Sync Failed',
-            message: 'Your book was saved locally, but cloud sync failed. Your changes will sync next time.',
-            variant: 'alert',
-            onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
-          });
-        }
-      }
-    } finally {
-      isSavingRef.current = false;
-    }
-  }
-
-  function handleOverwriteBook() {
-    setSaveDialogOpen(false);
-    saveBookDirectly(false);
-    saveVersionSnapshot();
-
-    // If this was triggered from new book flow, clear editor after save
-    if (newBookConfirmOpen) {
-      clearEditorState();
-      setNewBookConfirmOpen(false);
-    }
-  }
-
-  function handleSaveAsNewVersion() {
-    setSaveDialogOpen(false);
-    saveBookDirectly(true);
-    saveVersionSnapshot();
-
-    // If this was triggered from new book flow, clear editor after save
-    if (newBookConfirmOpen) {
-      clearEditorState();
-      setNewBookConfirmOpen(false);
-    }
-  }
-
-  // Endnote Management Functions
-  function createEndnote(endnoteContent: string, sourceChapterId: string) {
-    const endnoteId = `endnote-${Date.now()}`;
-    const endnoteNumber = nextEndnoteNumber;
-
-    // Create the endnote
-    const newEndnote: Endnote = {
-      id: endnoteId,
-      number: endnoteNumber,
-      content: endnoteContent,
-      sourceChapterId,
-      sourceText: '', // No longer using selected text
-    };
-
-    // Create the reference
-    const newReference: EndnoteReference = {
-      id: `ref${endnoteNumber}`,
-      number: endnoteNumber,
-      chapterId: sourceChapterId,
-      endnoteId,
-    };
-
-    setEndnotes(prev => [...prev, newEndnote]);
-    setEndnoteReferences(prev => [...prev, newReference]);
-    setNextEndnoteNumber(prev => prev + 1);
-
-    // Create a clickable endnote reference with proper ePub structure
-    const endnoteLink = `<a class="note-${endnoteNumber}" href="#end${endnoteNumber}" id="ref${endnoteNumber}" title="note ${endnoteNumber}" data-endnote-ref="${endnoteNumber}" data-endnote-id="${endnoteId}" style="color: #0066cc; text-decoration: none;"><sup>[${endnoteNumber}]</sup></a>`;
-
-    return endnoteLink;
-  }
-
-  // Two-way endnote sync: detect deletions from either direction
-  // Direction 1: user backspaces an endnote reference [1] in a chapter → remove the endnote
-  // Direction 2: user backspaces an endnote entry in the Endnotes chapter → remove the reference from the source chapter
-  useEffect(() => {
-    if (endnotes.length === 0 && endnoteReferences.length === 0) return;
-
-    // --- Direction 1: check for orphaned references (marker deleted from chapter text) ---
-    const allChapterHtml = chapters
-      .filter(ch => ch.title.toLowerCase() !== 'endnotes')
-      .map(ch => ch.content)
-      .join('');
-
-    const survivingRefIds = new Set<string>();
-    const refMatches = allChapterHtml.matchAll(/data-endnote-id="([^"]+)"/g);
-    for (const m of refMatches) {
-      survivingRefIds.add(m[1]);
-    }
-
-    const orphanedFromChapters = endnoteReferences.filter(r => !survivingRefIds.has(r.endnoteId));
-
-    // --- Direction 2: check for endnote entries deleted from the Endnotes chapter ---
-    const endnotesChapter = chapters.find(ch => ch.title.toLowerCase() === 'endnotes');
-    let orphanedFromEndnotesChapter: string[] = [];
-
-    if (endnotesChapter && endnotes.length > 0) {
-      const survivingEntryIds = new Set<string>();
-      const entryMatches = endnotesChapter.content.matchAll(/data-endnote-entry-id="([^"]+)"/g);
-      for (const m of entryMatches) {
-        survivingEntryIds.add(m[1]);
-      }
-
-      // Endnotes in our array but missing from the chapter HTML = user deleted them
-      orphanedFromEndnotesChapter = endnotes
-        .filter(e => !survivingEntryIds.has(e.id))
-        .map(e => e.id);
-    }
-
-    // Combine both sets of orphaned endnote IDs
-    const allOrphanedIds = new Set([
-      ...orphanedFromChapters.map(r => r.endnoteId),
-      ...orphanedFromEndnotesChapter,
-    ]);
-
-    if (allOrphanedIds.size === 0) return;
-
-    // Remove references from source chapter HTML (for endnotes deleted from the Endnotes chapter)
-    if (orphanedFromEndnotesChapter.length > 0) {
-      setChapters(prev => prev.map(ch => {
-        if (ch.title.toLowerCase() === 'endnotes') return ch;
-        let content = ch.content;
-        for (const id of orphanedFromEndnotesChapter) {
-          content = content.replace(
-            new RegExp(`<a[^>]*data-endnote-id="${id}"[^>]*>.*?</a>`, 'gi'),
-            ''
-          );
-        }
-        return content !== ch.content ? { ...ch, content } : ch;
-      }));
-    }
-
-    // Clean up endnotes and references arrays
-    setEndnotes(prev => prev.filter(e => !allOrphanedIds.has(e.id)));
-    setEndnoteReferences(prev => prev.filter(r => !allOrphanedIds.has(r.endnoteId)));
-  }, [chapters]);
-
-  function updateEndnotesChapterContent(currentEndnotes: Endnote[]) {
-    // Accept endnotes as parameter to avoid stale closure issues
-    setChapters(currentChapters => {
-      const endnotesChapterIndex = currentChapters.findIndex(ch => ch.title.toLowerCase() === 'endnotes');
-
-      // Generate endnotes content (create shallow copy to avoid mutating state)
-      const endnotesContent = [...currentEndnotes]
-        .sort((a, b) => a.number - b.number)
-        .map(endnote => {
-          const backLink = `<a href="#ref${endnote.number}" id="end${endnote.number}" data-back-to-ref="${endnote.number}" class="endnote-back" style="color: #0066cc; text-decoration: none; margin-left: 8px; cursor: pointer; user-select: none; font-weight: bold; font-size: 14px; padding: 2px 6px; border: 1px solid #0066cc; border-radius: 3px; background-color: #f0f8ff; display: inline-block;">[${endnote.number}]</a>`;
-          return `<p data-endnote-entry-id="${endnote.id}">${endnote.number}. ${endnote.content} ${backLink}</p>`;
-        })
-        .join('');
-
-      const updatedChapters = [...currentChapters];
-
-      if (endnotesChapterIndex === -1) {
-        // Only create new endnotes chapter if we have endnotes to show
-        if (currentEndnotes.length === 0) return currentChapters;
-
-        const newEndnotesChapter = {
-          id: `endnotes-${Date.now()}`,
-          title: 'Endnotes',
-          content: endnotesContent,
-          type: 'backmatter' as const,
-        };
-        updatedChapters.push(newEndnotesChapter);
-      } else {
-        // Update existing endnotes chapter (or remove if no endnotes)
-        if (currentEndnotes.length === 0) {
-          // Remove the endnotes chapter if there are no endnotes
-          updatedChapters.splice(endnotesChapterIndex, 1);
-        } else {
-          updatedChapters[endnotesChapterIndex] = {
-            ...updatedChapters[endnotesChapterIndex],
-            content: endnotesContent,
-          };
-        }
-      }
-
-      return updatedChapters;
-    });
-  }
-  
-  // Migration function to ensure all chapters have IDs
-  function ensureChapterIds(chapters: Chapter[]): Chapter[] {
-    return chapters.map(chapter => ({
-      ...chapter,
-      id: chapter.id || `chapter-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    }));
-  }
-
-  // Migration function to update endnote references with unknown chapter IDs
-  function migrateEndnoteReferences(endnoteRefs: EndnoteReference[], chapters: Chapter[]): EndnoteReference[] {
-    return endnoteRefs.map(ref => {
-      if (ref.chapterId === 'unknown' || !ref.chapterId) {
-        // Try to find the chapter by context - for now, assign to first content chapter
-        const firstContentChapter = chapters.find(ch => ch.type === 'content');
-        return {
-          ...ref,
-          chapterId: firstContentChapter?.id || chapters[0]?.id || 'fallback-chapter'
-        };
-      }
-      return ref;
-    });
-  }
-
-  function handleCreateEndnote(endnoteContent: string, chapterId?: string) {
-    if (!endnoteContent.trim()) return '';
-
-    const currentChapterId = chapterId || (selectedChapter >= 0 && chapters[selectedChapter] ? chapters[selectedChapter].id : 'unknown');
-    const endnoteLink = createEndnote(endnoteContent, currentChapterId);
-
-    return endnoteLink;
-  }
-
-  function handleLoadBook(id: string) {
-    const loaded = loadBookById(user?.id ?? '', id);
-    if (loaded) {
-      isLoadingBookRef.current = true;
-      setShowMarketingPage(false);
-      loadMetadata({ ...loaded, id: loaded.id });
-      setTags(loaded.tags || []);
-      setCoverUrl(loaded.coverFile || null);
-
-      // Migrate chapters to ensure they have IDs
-      // If no chapters exist, create a default one to avoid showing landing page
-      const loadedChapters = loaded.chapters && Array.isArray(loaded.chapters) && loaded.chapters.length > 0
-        ? loaded.chapters
-        : [{ id: `chapter-${Date.now()}`, title: "", content: "", type: "content" as const }];
-      const migratedChapters = ensureChapterIds(loadedChapters);
-      setChapters(migratedChapters);
-
-      // Migrate endnote references if they exist
-      if (loaded.endnoteReferences) {
-        const migratedEndnoteRefs = migrateEndnoteReferences(loaded.endnoteReferences, migratedChapters);
-        setEndnoteReferences(migratedEndnoteRefs);
-      }
-
-      const loadedEndnotes = loaded.endnotes || [];
-      setEndnotes(loadedEndnotes);
-      // Restore nextEndnoteNumber so new endnotes don't collide with existing ones
-      const maxNumber = loadedEndnotes.reduce((max: number, e: Endnote) => Math.max(max, e.number), 0);
-      setNextEndnoteNumber(maxNumber + 1);
-      setCurrentBookId(loaded.id);
-      setSelectedChapter(0);
-
-      // Close sidebars so user sees their book
-      setMobileSidebarOpen(false);
-      setSidebarView(null);
-
-      // Trigger highlight animation
-      setBookJustLoaded(true);
-      setTimeout(() => setBookJustLoaded(false), 1000);
-
-      // Reset guard after React batches state updates
-      setTimeout(() => { isLoadingBookRef.current = false; }, 0);
-    }
-  }
-
-  // Remove export history entries from IndexedDB for a given book
-  function cleanupExportHistory(bookId: string) {
-    try {
-      const req = indexedDB.open('makeEbookExports', 1);
-      req.onsuccess = () => {
-        const db = req.result;
-        const tx = db.transaction('exports', 'readwrite');
-        const store = tx.objectStore('exports');
-        const idx = store.index('bookId');
-        const cursor = idx.openCursor(IDBKeyRange.only(bookId));
-        cursor.onsuccess = () => {
-          const c = cursor.result;
-          if (c) { c.delete(); c.continue(); }
-        };
-      };
-    } catch (e) { /* non-critical */ }
-  }
-
-  function handleDeleteBook(id: string) {
-    setDialogState({
-      open: true,
-      title: 'Delete Book',
-      message: 'Are you sure you want to delete this eBook? This action cannot be undone.',
-      variant: 'destructive',
-      confirmLabel: 'Delete',
-      onConfirm: async () => {
-        setDialogState(prev => ({ ...prev, open: false }));
-        const bookToDelete = libraryBooks.find(b => b.id === id);
-
-        // Delete from Supabase first (if applicable)
-        if (user && user.id && hasCloudSync) {
-          try {
-            const { deleteEbookFromSupabase } = await import('@/lib/supabaseEbooks');
-            await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
-          } catch (err) {
-            console.error('Failed to delete from Supabase:', err);
-            setDialogState({
-              open: true,
-              title: 'Delete Failed',
-              message: 'Could not delete from cloud. The book was kept to prevent data loss. Please try again.',
-              variant: 'alert',
-              onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
-            });
-            return; // Don't delete locally if cloud delete failed
-          }
-        }
-
-        // Cloud delete succeeded (or not applicable) — now delete locally
-        removeBookFromLibrary(user?.id ?? '', id);
-        setLibraryBooks(loadBookLibrary(user?.id ?? ''));
-
-        // Clean up version history (localStorage) for the deleted book
-        try { localStorage.removeItem(`makeebook-versions-${id}`); } catch (e) { /* non-critical */ }
-        // Clean up export history (IndexedDB) for the deleted book
-        cleanupExportHistory(id);
-
-        if (currentBookId === id) {
-          clearEditorState();
-        }
-      },
-    });
-  }
-
-  function handleDeleteSelectedBooks() {
-    const count = selectedBookIds.size;
-    if (count === 0) return;
-
-    setDialogState({
-      open: true,
-      title: 'Delete Books',
-      message: `Are you sure you want to delete ${count} book${count > 1 ? 's' : ''}? This action cannot be undone.`,
-      variant: 'destructive',
-      confirmLabel: 'Delete',
-      onConfirm: async () => {
-        setDialogState(prev => ({ ...prev, open: false }));
-        let cloudFailed = false;
-
-        for (const id of selectedBookIds) {
-          const bookToDelete = libraryBooks.find(b => b.id === id);
-
-          // Delete from Supabase first (if applicable)
-          if (user && user.id && hasCloudSync) {
-            try {
-              const { deleteEbookFromSupabase } = await import('@/lib/supabaseEbooks');
-              await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
-            } catch (err) {
-              console.error('Failed to delete from Supabase:', err);
-              cloudFailed = true;
-              continue; // Skip local delete for this book
-            }
-          }
-
-          removeBookFromLibrary(user?.id ?? '', id);
-
-          // Clean up version history (localStorage) and export history (IndexedDB)
-          try { localStorage.removeItem(`makeebook-versions-${id}`); } catch (e) { /* non-critical */ }
-          cleanupExportHistory(id);
-
-          if (currentBookId === id) {
-            clearEditorState();
-          }
-        }
-
-        setLibraryBooks(loadBookLibrary(user?.id ?? ''));
-        setSelectedBookIds(new Set());
-        setMultiSelectMode(false);
-
-        if (cloudFailed) {
-          setDialogState({
-            open: true,
-            title: 'Some Deletes Failed',
-            message: 'Some books could not be deleted from the cloud. They were kept locally to prevent data loss.',
-            variant: 'alert',
-            onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
-          });
-        }
-      },
-    });
-  }
-
-  function toggleBookSelection(id: string) {
-    setSelectedBookIds(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  }
-
-  function toggleSelectAll() {
-    if (selectedBookIds.size === libraryBooks.length) {
-      setSelectedBookIds(new Set());
-    } else {
-      setSelectedBookIds(new Set(libraryBooks.map(b => b.id)));
-    }
-  }
-
-  async function handleExportLibraryBook(id: string) {
-    const book = libraryBooks.find(b => b.id === id);
-    if (!book) return;
-    
-    // Ensure all chapters have IDs before export
-    const migratedChapters = ensureChapterIds(book.chapters);
-    const migratedEndnoteRefs = migrateEndnoteReferences(book.endnoteReferences || [], migratedChapters);
-    
-    await exportEpub({
-      title: book.title,
-      author: book.author,
-      blurb: book.blurb,
-      publisher: book.publisher,
-      pubDate: book.pubDate,
-      isbn: book.isbn,
-      language: book.language,
-      genre: book.genre,
-      tags: book.tags,
-      coverFile: book.coverFile || null,
-      chapters: migratedChapters,
-      endnoteReferences: migratedEndnoteRefs,
-    });
-  }
-
-  // Resolve a sync conflict — called once per conflict from the dialog
-  function handleResolveSyncConflict(choice: 'local' | 'cloud' | 'both') {
-    if (!syncMergedMap || syncConflicts.length === 0) return;
-
-    const conflict = syncConflicts[0];
-    const map = new Map(syncMergedMap);
-
-    if (choice === 'local') {
-      map.set(conflict.local.id, conflict.local);
-    } else if (choice === 'cloud') {
-      map.set(conflict.cloud.id, conflict.cloud);
-    } else {
-      // Keep both — local stays as-is, cloud gets a new ID as a copy
-      map.set(conflict.local.id, conflict.local);
-      const copyId = 'book-' + Date.now();
-      map.set(copyId, { ...conflict.cloud, id: copyId, title: conflict.cloud.title + ' (cloud)' });
-    }
-
-    const remaining = syncConflicts.slice(1);
-    if (remaining.length > 0) {
-      setSyncMergedMap(map);
-      setSyncConflicts(remaining);
-    } else {
-      // All conflicts resolved — save final merged library
-      const mergedBooks = Array.from(map.values());
-      isLoadingBookRef.current = true;
-      setLibraryBooks(mergedBooks);
-      saveLibraryToStorage(user?.id ?? '', mergedBooks);
-      setTimeout(() => { isLoadingBookRef.current = false; }, 0);
-      setSyncConflicts([]);
-      setSyncMergedMap(null);
-    }
-  }
 
   const totalWords = chapters.reduce(
     (sum, ch) => sum + (plainText(ch.content).split(/\s+/).filter(Boolean).length || 0),
@@ -1741,13 +712,13 @@ function MakeEbookPage() {
                   Cancel
                 </button>
                 <button
-                  onClick={handleOverwriteBook}
+                  onClick={saveBook.handleOverwriteBook}
                   className="flex-1 px-4 py-2 rounded bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
                 >
                   Overwrite
                 </button>
                 <button
-                  onClick={handleSaveAsNewVersion}
+                  onClick={saveBook.handleSaveAsNewVersion}
                   className="flex-1 px-4 py-2 rounded bg-[#181a1d] dark:bg-[#1a1a1a] text-white text-sm font-medium hover:bg-[#23252a] dark:hover:bg-[#3a3a3a] transition-colors"
                 >
                   Save as New
@@ -1758,13 +729,13 @@ function MakeEbookPage() {
         )}
 
         {/* Import Document Dialog */}
-        {importDialogOpen && (
+        {docImport.importDialogOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl p-6 max-w-md w-full">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Import Document</h2>
                 <button
-                  onClick={() => setImportDialogOpen(false)}
+                  onClick={() => docImport.setImportDialogOpen(false)}
                   className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
                 >
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1772,42 +743,42 @@ function MakeEbookPage() {
                   </svg>
                 </button>
               </div>
-              
+
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 Upload a document to automatically parse chapters and create a new book.
               </p>
-              
+
               <div className="mb-4 p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-center">
                 <input
-                  ref={importFileInputRef}
+                  ref={docImport.importFileInputRef}
                   type="file"
                   accept=".txt,.doc,.docx,.pdf"
-                  onChange={handleImportFileSelect}
+                  onChange={docImport.handleImportFileSelect}
                   className="hidden"
                 />
-                
+
                 <div className="mb-3">
                   <svg className="w-10 h-10 mx-auto text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                
+
                 <button
-                  onClick={() => importFileInputRef.current?.click()}
-                  disabled={importing}
+                  onClick={() => docImport.importFileInputRef.current?.click()}
+                  disabled={docImport.importing}
                   className="px-4 py-2 rounded-lg bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-50"
                 >
-                  {importing ? 'Importing...' : 'Choose File'}
+                  {docImport.importing ? 'Importing...' : 'Choose File'}
                 </button>
-                
+
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                   Supported: .txt, .doc, .docx, .pdf
                 </p>
               </div>
-              
-              {importError && (
+
+              {docImport.importError && (
                 <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-4">
-                  <p className="text-sm text-red-600 dark:text-red-400">{importError}</p>
+                  <p className="text-sm text-red-600 dark:text-red-400">{docImport.importError}</p>
                 </div>
               )}
               
@@ -1867,8 +838,8 @@ function MakeEbookPage() {
                 <ExportHistoryPanel
                   exports={exportHistory}
                   isLoading={exportHistoryLoading}
-                  onPreviewAction={handlePreviewExport}
-                  onDownloadAction={handleDownloadExport}
+                  onPreviewAction={saveBook.handlePreviewExport}
+                  onDownloadAction={saveBook.handleDownloadExport}
                   onDeleteAction={deleteExport}
                   onClearAllAction={clearExportHistory}
                 />
@@ -1965,17 +936,17 @@ function MakeEbookPage() {
                           {libraryBooks.length > 0 && (
                             <button
                               onClick={() => {
-                                setMultiSelectMode(!multiSelectMode);
-                                if (multiSelectMode) setSelectedBookIds(new Set());
+                                library.setMultiSelectMode(!library.multiSelectMode);
+                                if (library.multiSelectMode) library.setSelectedBookIds(new Set());
                               }}
-                              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}`}
-                              title={multiSelectMode ? "Cancel selection" : "Select multiple"}
+                              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${library.multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}`}
+                              title={library.multiSelectMode ? "Cancel selection" : "Select multiple"}
                             >
-                              <svg className={`w-4 h-4 ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path className={multiSelectMode ? '' : 'dark:stroke-white'} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                              <svg className={`w-4 h-4 ${library.multiSelectMode ? 'text-blue-600 dark:text-blue-400' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path className={library.multiSelectMode ? '' : 'dark:stroke-white'} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                               </svg>
-                              <span className={`text-[10px] font-medium ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
-                                {multiSelectMode ? 'Cancel' : 'Select'}
+                              <span className={`text-[10px] font-medium ${library.multiSelectMode ? 'text-blue-600 dark:text-blue-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
+                                {library.multiSelectMode ? 'Cancel' : 'Select'}
                               </span>
                             </button>
                           )}
@@ -1992,7 +963,7 @@ function MakeEbookPage() {
                           </button>
                           <button
                             onClick={() => {
-                              showImportDialog();
+                              docImport.showImportDialog();
                               setMobileSidebarOpen(false);
                             }}
                             className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
@@ -2004,20 +975,20 @@ function MakeEbookPage() {
                             <span className="text-[10px] font-medium text-[#050505] dark:text-[#e5e5e5]">Import</span>
                           </button>
                         </div>
-                        {multiSelectMode && libraryBooks.length > 0 && (
+                        {library.multiSelectMode && libraryBooks.length > 0 && (
                           <div className="flex items-center justify-between mt-2 px-2 py-1.5 bg-gray-50 dark:bg-[#1a1a1a] rounded-md">
                             <button
-                              onClick={toggleSelectAll}
+                              onClick={library.toggleSelectAll}
                               className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
                             >
-                              {selectedBookIds.size === libraryBooks.length ? 'Deselect All' : 'Select All'}
+                              {library.selectedBookIds.size === libraryBooks.length ? 'Deselect All' : 'Select All'}
                             </button>
                             <span className="text-xs text-gray-600 dark:text-gray-400">
-                              {selectedBookIds.size} selected
+                              {library.selectedBookIds.size} selected
                             </span>
                             <button
-                              onClick={handleDeleteSelectedBooks}
-                              disabled={selectedBookIds.size === 0}
+                              onClick={library.handleDeleteSelectedBooks}
+                              disabled={library.selectedBookIds.size === 0}
                               className="text-xs text-red-600 dark:text-red-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               Delete Selected
@@ -2032,7 +1003,7 @@ function MakeEbookPage() {
                         ) : (
                           libraryBooks.map((book) => {
                             const isSelected = selectedBookId === book.id;
-                            const isChecked = selectedBookIds.has(book.id);
+                            const isChecked = library.selectedBookIds.has(book.id);
                             return (
                               <div
                                 key={book.id}
@@ -2042,18 +1013,18 @@ function MakeEbookPage() {
                                     : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
                                 }`}
                               >
-                                {multiSelectMode && (
+                                {library.multiSelectMode && (
                                   <label className="flex items-center mr-2 cursor-pointer">
                                     <input
                                       type="checkbox"
                                       checked={isChecked}
-                                      onChange={() => toggleBookSelection(book.id)}
+                                      onChange={() => library.toggleBookSelection(book.id)}
                                       className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:focus:ring-blue-400 cursor-pointer"
                                     />
                                   </label>
                                 )}
                                 <button
-                                  onClick={() => multiSelectMode ? toggleBookSelection(book.id) : setSelectedBookId(isSelected ? null : book.id)}
+                                  onClick={() => library.multiSelectMode ? library.toggleBookSelection(book.id) : setSelectedBookId(isSelected ? null : book.id)}
                                   className="flex-1 text-left"
                                 >
                                   <div className={`text-sm font-medium truncate ${
@@ -2067,11 +1038,11 @@ function MakeEbookPage() {
                                     {book.author || 'Unknown'}
                                   </div>
                                 </button>
-                                {!multiSelectMode && isSelected && (
+                                {!library.multiSelectMode && isSelected && (
                                   <div className="flex items-center gap-1">
                                     <button
                                       onClick={() => {
-                                        handleLoadBook(book.id);
+                                        library.handleLoadBook(book.id);
                                         setSelectedBookId(null);
                                       }}
                                       className="px-2 py-1 text-xs rounded bg-black dark:bg-white text-white dark:text-black hover:opacity-80"
@@ -2080,7 +1051,7 @@ function MakeEbookPage() {
                                       Load
                                     </button>
                                     <button
-                                      onClick={() => handleExportLibraryBook(book.id)}
+                                      onClick={() => library.handleExportLibraryBook(book.id)}
                                       className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
                                       title="Export as EPUB"
                                     >
@@ -2096,7 +1067,7 @@ function MakeEbookPage() {
                                       />
                                     </button>
                                     <button
-                                      onClick={() => handleDeleteBook(book.id)}
+                                      onClick={() => library.handleDeleteBook(book.id)}
                                       className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
                                       title="Delete"
                                     >
@@ -2144,7 +1115,7 @@ function MakeEbookPage() {
                         {/* Action buttons row */}
                         <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
                           <button
-                            onClick={() => handleSaveBook()}
+                            onClick={() => saveBook.handleSaveBook()}
                             disabled={!!saveFeedback}
                             className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors disabled:opacity-60"
                             title={saveFeedback ? "Saved!" : "Save book"}
@@ -2161,7 +1132,7 @@ function MakeEbookPage() {
                             </span>
                           </button>
                           <button
-                            onClick={() => handleExportEPUB()}
+                            onClick={() => saveBook.handleExportEPUB()}
                             className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                             title="Export as EPUB"
                           >
@@ -2169,7 +1140,7 @@ function MakeEbookPage() {
                             <span className="text-xs font-medium text-gray-700 dark:text-gray-300">EPUB</span>
                           </button>
                           <button
-                            onClick={handleExportPDF}
+                            onClick={saveBook.handleExportPDF}
                             className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                             title="Export as PDF"
                           >
@@ -3096,8 +2067,8 @@ function MakeEbookPage() {
 
         {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
-          {/* Slim Sidebar Navigation - Desktop Only */}
-          <SlimSidebarNav
+          {/* Slim Sidebar Navigation - Desktop Only, hidden in focus mode */}
+          {!(focus.active && focus.settings.hideChrome) && <SlimSidebarNav
             activeView={sidebarView}
             onViewChange={setSidebarView}
             libraryCount={libraryBooks.length}
@@ -3114,27 +2085,28 @@ function MakeEbookPage() {
               setTimeout(() => onboarding.startTour(), chapters.length === 0 ? 800 : 100);
             }}
             bookMindHref={`/make-ebook/book-mind${currentBookId ? `?book=${currentBookId}` : ''}`}
-          />
+          />}
 
           {/* Desktop Sidebar - Hidden on Mobile, animates open/closed */}
-            <CollapsibleSidebar
+          {/* Conditionally hidden in focus mode when hideChrome is on */}
+          {!(focus.active && focus.settings.hideChrome) && <CollapsibleSidebar
             isPanelOpen={isPanelOpen}
             activeView={sidebarView}
             onClose={() => setSidebarView(null)}
             libraryBooks={libraryBooks}
             selectedBookId={selectedBookId}
             setSelectedBookId={setSelectedBookId}
-            handleLoadBook={handleLoadBook}
-            handleDeleteBook={handleDeleteBook}
-            handleExportLibraryBook={handleExportLibraryBook}
+            handleLoadBook={library.handleLoadBook}
+            handleDeleteBook={library.handleDeleteBook}
+            handleExportLibraryBook={library.handleExportLibraryBook}
             showNewBookConfirmation={showNewBookConfirmation}
-            showImportDialog={showImportDialog}
-            multiSelectMode={multiSelectMode}
-            setMultiSelectMode={setMultiSelectMode}
-            selectedBookIds={selectedBookIds}
-            toggleBookSelection={toggleBookSelection}
-            toggleSelectAll={toggleSelectAll}
-            handleDeleteSelectedBooks={handleDeleteSelectedBooks}
+            showImportDialog={docImport.showImportDialog}
+            multiSelectMode={library.multiSelectMode}
+            setMultiSelectMode={library.setMultiSelectMode}
+            selectedBookIds={library.selectedBookIds}
+            toggleBookSelection={library.toggleBookSelection}
+            toggleSelectAll={library.toggleSelectAll}
+            handleDeleteSelectedBooks={library.handleDeleteSelectedBooks}
             chapters={chapters}
             selectedChapter={selectedChapter}
             handleSelectChapter={handleSelectChapter}
@@ -3179,9 +2151,9 @@ function MakeEbookPage() {
             totalWords={totalWords}
             pageCount={pageCount}
             readingTime={readingTime}
-            handleSaveBook={handleSaveBook}
-            handleExportEPUB={handleExportEPUB}
-            handleExportPDF={handleExportPDF}
+            handleSaveBook={saveBook.handleSaveBook}
+            handleExportEPUB={saveBook.handleExportEPUB}
+            handleExportPDF={saveBook.handleExportPDF}
             saveFeedback={saveFeedback}
             exportHistoryCount={exportHistory.length}
             onShowExportHistory={() => setShowExportHistory(true)}
@@ -3193,10 +2165,10 @@ function MakeEbookPage() {
             setSidebarChaptersExpanded={setSidebarChaptersExpanded}
             sidebarBookDetailsExpanded={sidebarBookDetailsExpanded}
             setSidebarBookDetailsExpanded={setSidebarBookDetailsExpanded}
-          />
+          />}
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main className={`flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] ${chapters.length === 0 ? 'px-0 py-0' : 'px-2 py-8'} ${chapters.length > 0 ? 'lg:pl-8' : 'lg:pl-0'} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}>
+          <main data-editor-scroll className={`flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] ${chapters.length === 0 ? 'px-0 py-0' : 'px-2 py-8'} ${chapters.length > 0 ? 'lg:pl-8' : 'lg:pl-0'} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}>
             
             {/* Mobile Header - Compact Status Bar - Hidden when no chapters (landing page) */}
             {chapters.length > 0 && (
@@ -3260,7 +2232,7 @@ function MakeEbookPage() {
                   <span className="text-xs text-stone-600 dark:text-stone-400">Unsaved changes</span>
                   {!isSaving && (
                     <button
-                      onClick={() => { saveBookDirectly(false); markClean(); }}
+                      onClick={() => { saveBook.saveBookDirectly(false); markClean(); }}
                       className="flex items-center gap-1 px-2 py-0.5 hover:bg-stone-200 dark:hover:bg-stone-700 rounded transition-colors"
                     >
                       <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
@@ -3387,10 +2359,11 @@ function MakeEbookPage() {
                         : "Now add some content to your chapter..."
                     }
                     className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
-                    onCreateEndnote={handleCreateEndnote}
+                    onCreateEndnote={endnotesHook.handleCreateEndnote}
                     chapterId={chapters[selectedChapter]?.id}
                     hasEndnotes={endnotes.length > 0}
                     disabled={!!chapters[selectedChapter]?.locked}
+                    hideToolbar={focus.active && focus.settings.hideToolbar}
                   />
                 </div>
               </div>
@@ -3419,12 +2392,12 @@ function MakeEbookPage() {
               {/* Editor Area - Prioritized for Writing */}
               <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2">
                 {/* Status Bar with Auto-Save and Quality Score */}
-                <div className="flex items-center justify-between px-2 mb-2">
+                <div className={`flex items-center justify-between px-2 mb-2 transition-opacity duration-300 ${focus.active && focus.settings.hideChrome ? 'focus-hide-chrome' : ''}`}>
                   <div data-tour="auto-save" className="flex items-center gap-2">
                     <AutoSaveIndicator isDirty={isDirty} isSaving={isSaving} lastSaved={lastSaved} hasCloudSync={hasCloudSync} />
                     {isDirty && !isSaving && (
                       <button
-                        onClick={() => { saveBookDirectly(false); markClean(); }}
+                        onClick={() => { saveBook.saveBookDirectly(false); markClean(); }}
                         className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                         title="Save now (⌘S)"
                       >
@@ -3449,6 +2422,7 @@ function MakeEbookPage() {
                       issues={qualityIssues}
                       onNavigateToChapterAction={handleNavigateToChapterFromIssue}
                     />
+                    <FocusModeButton onClick={focus.toggleFocusMode} />
                     <button
                       onClick={() => setIsSplitPreviewEnabled(prev => !prev)}
                       className="p-2 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
@@ -3484,7 +2458,16 @@ function MakeEbookPage() {
                   </div>
                 </div>
                 {/* Rich Text Editor - Maximum Space */}
-                <div data-tour="editor" className="w-full max-w-full flex-1 min-h-0 flex flex-col">
+                <div
+                  data-tour="editor"
+                  className={[
+                    "w-full flex-1 min-h-0 flex flex-col transition-all duration-300",
+                    focus.active && focus.settings.columnWidth === "narrow" ? "focus-col-narrow" : "",
+                    focus.active && focus.settings.columnWidth === "normal" ? "focus-col-normal" : "",
+                    focus.active && focus.settings.paragraphFocus ? "paragraph-focus" : "",
+                    focus.active && focus.settings.typewriterMode ? "typewriter-mode" : "",
+                  ].filter(Boolean).join(" ")}
+                >
                   <div className="mt-2 mb-1 flex-shrink-0 flex items-start justify-between px-2">
                     <div className="flex items-start gap-2">
                       <div className="flex flex-col items-center">
@@ -3560,10 +2543,11 @@ function MakeEbookPage() {
                           : "Now add some content to your chapter..."
                       }
                       className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
-                      onCreateEndnote={handleCreateEndnote}
+                      onCreateEndnote={endnotesHook.handleCreateEndnote}
                       chapterId={chapters[selectedChapter]?.id}
                       hasEndnotes={endnotes.length > 0}
                       disabled={!!chapters[selectedChapter]?.locked}
+                      hideToolbar={focus.active && focus.settings.hideToolbar}
                     />
                   </div>
                   {/* Word Stats Footer */}
@@ -3640,41 +2624,41 @@ function MakeEbookPage() {
       />
 
       {/* Sync Conflict Resolution Dialog */}
-      {syncConflicts.length > 0 && syncConflicts[0] && (
+      {cloudSync.syncConflicts.length > 0 && cloudSync.syncConflicts[0] && (
         <div className="fixed inset-0 z-[150] bg-black/30 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl p-6 max-w-md w-full animate-in fade-in zoom-in-95 duration-150">
             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">Sync Conflict</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              &ldquo;{syncConflicts[0].local.title || 'Untitled'}&rdquo; was edited on this device and another.
-              {syncConflicts.length > 1 && ` (${syncConflicts.length} conflicts)`}
+              &ldquo;{cloudSync.syncConflicts[0].local.title || 'Untitled'}&rdquo; was edited on this device and another.
+              {cloudSync.syncConflicts.length > 1 && ` (${cloudSync.syncConflicts.length} conflicts)`}
             </p>
             <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
               <div className="p-3 rounded-lg bg-gray-50 dark:bg-[#1a1a1a]">
                 <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">This device</p>
-                <p className="text-gray-500 dark:text-gray-400">{syncConflicts[0].local.chapters.length} chapters</p>
-                <p className="text-gray-500 dark:text-gray-400">Saved {formatRelativeTime(syncConflicts[0].local.savedAt)}</p>
+                <p className="text-gray-500 dark:text-gray-400">{cloudSync.syncConflicts[0].local.chapters.length} chapters</p>
+                <p className="text-gray-500 dark:text-gray-400">Saved {formatRelativeTime(cloudSync.syncConflicts[0].local.savedAt)}</p>
               </div>
               <div className="p-3 rounded-lg bg-gray-50 dark:bg-[#1a1a1a]">
                 <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Cloud</p>
-                <p className="text-gray-500 dark:text-gray-400">{syncConflicts[0].cloud.chapters.length} chapters</p>
-                <p className="text-gray-500 dark:text-gray-400">Saved {formatRelativeTime(syncConflicts[0].cloud.savedAt)}</p>
+                <p className="text-gray-500 dark:text-gray-400">{cloudSync.syncConflicts[0].cloud.chapters.length} chapters</p>
+                <p className="text-gray-500 dark:text-gray-400">Saved {formatRelativeTime(cloudSync.syncConflicts[0].cloud.savedAt)}</p>
               </div>
             </div>
             <div className="flex flex-col gap-2">
               <button
-                onClick={() => handleResolveSyncConflict('cloud')}
+                onClick={() => cloudSync.handleResolveSyncConflict('cloud')}
                 className="w-full px-4 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
               >
                 Keep cloud version
               </button>
               <button
-                onClick={() => handleResolveSyncConflict('local')}
+                onClick={() => cloudSync.handleResolveSyncConflict('local')}
                 className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 Keep this device&apos;s version
               </button>
               <button
-                onClick={() => handleResolveSyncConflict('both')}
+                onClick={() => cloudSync.handleResolveSyncConflict('both')}
                 className="w-full px-4 py-2 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
               >
                 Keep both (creates a copy)
@@ -3693,6 +2677,22 @@ function MakeEbookPage() {
         onNext={onboarding.nextStep}
         onPrev={onboarding.prevStep}
         onSkip={onboarding.skipTour}
+      />
+
+      {/* Focus Mode Panel — floating, always on top when focus is active */}
+      {focus.active && (
+        <FocusModePanel
+          settings={focus.settings}
+          onChangeSetting={focus.setSetting}
+          onExit={focus.exitFocusMode}
+        />
+      )}
+
+      {/* Ambient audio — renders nothing to the DOM, just manages audio */}
+      <AmbientPlayer
+        sound={focus.settings.ambientSound}
+        volume={focus.settings.ambientVolume}
+        active={focus.active && focus.settings.ambientSound !== "none"}
       />
 
       {/* Find & Replace Panel */}
@@ -3715,77 +2715,6 @@ function MakeEbookPage() {
   );
 }
 // User Dropdown Component for Mobile
-function UserDropdownMobile() {
-  const { user, signOut, loading } = useAuth();
-  const [loggingOut, setLoggingOut] = useState(false);
-
-  const handleLogout = async () => {
-    setLoggingOut(true);
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setLoggingOut(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button 
-          className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition px-0" 
-          aria-label="User menu"
-        >
-          <img
-            src="/user-icon.svg"
-            alt="user icon"
-            width={24}
-            height={24}
-            className="dark:invert"
-          />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56 z-[150] [&>*]:ml-2" style={{ marginLeft: '8px' }}>
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Account</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
-            </p>
-          </div>
-          <div className="mt-3">
-            <SubscriptionBadge showUpgradeButton={true} />
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <div className="px-2 py-1.5">
-          <ManageBillingButton variant="ghost" size="sm" className="w-full justify-start" />
-        </div>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={handleLogout}
-          disabled={loggingOut}
-          className="cursor-pointer"
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>{loggingOut ? 'Logging out...' : 'Log out'}</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
 // Export page without ProtectedRoute wrapper - the MarketingLandingPage handles auth
 export default function MakeEbookPageWrapper() {
   return (

@@ -30,6 +30,7 @@ interface RichTextEditorProps
   onCreateEndnote?: (selectedText: string, chapterId?: string) => string;
   chapterId?: string;
   hasEndnotes?: boolean;
+  hideToolbar?: boolean;
 }
 
 type FormatState = Record<string, boolean>;
@@ -94,6 +95,7 @@ export default function RichTextEditor({
   onCreateEndnote,
   chapterId,
   hasEndnotes = false,
+  hideToolbar = false,
   ...rest
 }: RichTextEditorProps) {
   const { theme } = useTheme();
@@ -833,7 +835,7 @@ export default function RichTextEditor({
       )}
 
       {/* Full Toolbar - Hidden on mobile when keyboard is open */}
-      <div className={`bg-white dark:bg-[#0a0a0a] transition-all duration-200 overflow-visible ${
+      {!hideToolbar && <div className={`bg-white dark:bg-[#0a0a0a] transition-all duration-200 overflow-visible ${
         isMobileKeyboardOpen ? 'lg:block hidden' : ''
       }`}>
         {/* Sleek horizontal toolbar */}
@@ -1001,10 +1003,10 @@ export default function RichTextEditor({
             <img src="/clear-erase-icon.svg" alt="Clear" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
           </button>
         </div>
-      </div>
+      </div>}
 
       {/* Compact Floating Toolbar - Appears on mobile when keyboard is open */}
-      {showCompactToolbar && (
+      {!hideToolbar && showCompactToolbar && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[200] bg-white dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-gray-800 shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
           {/* More menu popover */}
           {showMoreMenu && (

@@ -683,4 +683,48 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
       left: 8px !important;
     }
   }
+
+}
+
+/* ── Focus mode ─────────────────────────────────────────────────────────────── */
+
+/* Typewriter mode: large bottom padding so the cursor always has room to scroll
+   to the 42% mark regardless of document length */
+.typewriter-mode [contenteditable] {
+  padding-bottom: 50vh !important;
+}
+
+/* Paragraph dimming: dims all direct children of the contenteditable,
+   then brightens whichever one has the cursor (data-para-focused).
+   Using > (direct child) handles p, div, h1, blockquote, ul/ol equally. */
+.paragraph-focus [contenteditable] > * {
+  opacity: 0.18;
+  transition: opacity 0.35s ease;
+}
+
+.paragraph-focus [contenteditable] > [data-para-focused] {
+  opacity: 1 !important;
+  transition: opacity 0.2s ease;
+}
+
+/* Column widths */
+.focus-col-narrow {
+  max-width: 600px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.focus-col-normal {
+  max-width: 800px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+/* focus-col-full = default layout, no class needed */
+
+/* Hide chrome (sidebar / status bar) */
+.focus-hide-chrome {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
 }
