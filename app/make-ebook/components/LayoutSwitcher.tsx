@@ -14,7 +14,7 @@ const LAYOUTS: { mode: Exclude<RightPanelMode, 'none'>; title: string; icon: Rea
     mode: 'book-mind',
     title: 'Book Mind',
     icon: (
-      <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="w-5 h-4">
+      <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" className="w-5 h-4">
         <rect x="1" y="1" width="18" height="12" rx="1.5" />
         <path d="M5 1v12" />
         <path d="M13 1v12" />
@@ -28,7 +28,7 @@ const LAYOUTS: { mode: Exclude<RightPanelMode, 'none'>; title: string; icon: Rea
     mode: 'live-preview',
     title: 'Live Preview',
     icon: (
-      <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="w-5 h-4">
+      <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" className="w-5 h-4">
         <rect x="1" y="1" width="18" height="12" rx="1.5" />
         <path d="M5 1v12" />
         <path d="M13 1v12" />
@@ -41,7 +41,7 @@ const LAYOUTS: { mode: Exclude<RightPanelMode, 'none'>; title: string; icon: Rea
     mode: 'both',
     title: 'Book Mind + Live Preview',
     icon: (
-      <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="w-5 h-4">
+      <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" className="w-5 h-4">
         <rect x="1" y="1" width="18" height="12" rx="1.5" />
         <path d="M5 1v12" />
         <path d="M13 1v12" />

@@ -4,10 +4,17 @@ import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useBookMind, BookMindContext, BookMindAction, ChatSession } from '../hooks/useBookMind';
-import { useFeatureAccess } from '@/lib/hooks/useSubscription';
+import { useFeatureAccess, useSubscription } from '@/lib/hooks/useSubscription';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { loadBookLibrary } from '../utils/bookLibrary';
-import { Sparkles } from 'lucide-react';
+// Book icon inline — used in place of Sparkles for brand consistency
+function BookIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+    </svg>
+  );
+}
 
 const QUICK_ACTIONS: { action: BookMindAction; label: string; description: string }[] = [
   { action: 'summarize-book',       label: 'Summarize book',        description: 'Plot, themes & arc' },
@@ -52,6 +59,7 @@ function BookMindContent() {
   const { user } = useAuth();
 
   const hasBookMindAccess = useFeatureAccess('book_mind_ai');
+  const { isLoading: subLoading } = useSubscription();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const [selectedBookId, setSelectedBookId] = useState<string | null>(bookIdParam);
@@ -155,6 +163,15 @@ function BookMindContent() {
     }
   };
 
+  // ── Loading state (prevents flash of wrong UI while subscription fetches) ──
+  if (subLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
+        <BookIcon className="w-6 h-6 text-gray-700 animate-pulse" />
+      </div>
+    );
+  }
+
   // ── Locked state ────────────────────────────────────────────────────────────
   if (!hasBookMindAccess) {
     return (
@@ -165,8 +182,8 @@ function BookMindContent() {
             <div className="flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(75,85,99,0.4)_0%,_transparent_70%)] scale-150" />
-                <div className="relative w-20 h-20 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center">
-                  <Sparkles className="w-9 h-9 text-gray-300" />
+                <div className="relative w-20 h-20 rounded-2xl bg-gray-900/50 border border-white/8 flex items-center justify-center">
+                  <BookIcon className="w-9 h-9 text-gray-400" />
                 </div>
               </div>
             </div>
@@ -185,8 +202,8 @@ function BookMindContent() {
                 'Review timeline and chronology',
                 'Spot overused words and phrases',
               ].map((feature, i) => (
-                <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-900/50 border border-gray-800">
-                  <div className="w-5 h-5 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
+                <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.04] border border-white/8">
+                  <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                     <svg className="w-3 h-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
@@ -228,15 +245,15 @@ function BookMindContent() {
       <div className={`
         fixed lg:relative inset-y-0 left-0 z-50 lg:z-auto
         w-64 lg:flex-shrink-0
-        border-r border-gray-800/60
-        bg-[#111]
+        border-r border-white/8
+        bg-[#0a0a0a]
         transition-all duration-200
         ${showSidebar ? 'translate-x-0 lg:w-64' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:overflow-hidden'}
       `}>
         <div className="flex flex-col h-full w-64">
 
           {/* Collapse button */}
-          <div className="p-4 border-b border-gray-800/60">
+          <div className="p-4 border-b border-white/8">
             <button
               onClick={() => setShowSidebar(false)}
               className="p-2 rounded-lg hover:bg-white/5 transition-colors"
@@ -257,7 +274,7 @@ function BookMindContent() {
               className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm text-gray-500 hover:text-gray-300"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
               </svg>
               New chat
             </button>
@@ -276,7 +293,7 @@ function BookMindContent() {
                   <option key={book.id} value={book.id}>{book.title || 'Untitled'}</option>
                 ))}
               </select>
-              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
@@ -306,7 +323,7 @@ function BookMindContent() {
                               if (e.key === 'Enter') handleRenameSubmit(session.id);
                               if (e.key === 'Escape') { setEditingSessionId(null); setEditingName(''); }
                             }}
-                            className="w-full px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none"
+                            className="w-full px-3 py-2 text-sm bg-[#111] border border-white/15 rounded-lg text-white focus:outline-none"
                             autoFocus
                           />
                         ) : (
@@ -325,7 +342,7 @@ function BookMindContent() {
                               title="Rename"
                             >
                               <svg className="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                               </svg>
                             </button>
                             <button
@@ -334,7 +351,7 @@ function BookMindContent() {
                               title="Delete"
                             >
                               <svg className="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                               </svg>
                             </button>
                           </div>
@@ -348,13 +365,13 @@ function BookMindContent() {
           </div>
 
           {/* Back to Editor */}
-          <div className="p-3 border-t border-gray-800/60">
+          <div className="p-3 border-t border-white/8">
             <Link
               href={selectedBookId ? `/make-ebook?load=${selectedBookId}` : '/make-ebook'}
               className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-400 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Back to editor
             </Link>
@@ -363,10 +380,10 @@ function BookMindContent() {
       </div>
 
       {/* ── Main ── */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 bg-gradient-to-br from-gray-900 via-[#0a0a0a] to-gray-900">
 
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-gray-800/60 bg-[#0a0a0a]/80 backdrop-blur-md">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-white/8 bg-gray-900/80 backdrop-blur-md">
           <div className="flex items-center gap-3">
             {!showSidebar && (
               <button
@@ -374,14 +391,12 @@ function BookMindContent() {
                 className="p-2 rounded-lg hover:bg-white/5 transition-colors"
               >
                 <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
             )}
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-gray-300" />
-              </div>
+              <BookIcon className="w-5 h-5 text-gray-400" />
               <div>
                 <h1 className="text-sm font-semibold text-white">Book Mind</h1>
                 {selectedBook && (
@@ -408,16 +423,13 @@ function BookMindContent() {
 
             /* ── Empty state ── */
             <div className="flex flex-col items-center justify-center h-full px-6 py-16">
-              <div className="relative mb-8">
-                <div className="absolute inset-0 rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(75,85,99,0.35)_0%,_transparent_65%)] scale-[2.5]" />
-                <div className="relative w-16 h-16 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-gray-300" />
-                </div>
+              <div className="mb-6 w-12 h-12 rounded-full bg-gray-900 flex items-center justify-center">
+                <BookIcon className="w-6 h-6 text-gray-400" />
               </div>
 
               <h2 className="text-2xl font-bold text-white mb-2">Ask about your book</h2>
               <p className="text-sm text-gray-500 text-center max-w-sm mb-10">
-                Book Mind has read every word of your manuscript. Ask it anything — it won't write for you.
+                Book Mind has read every word of your manuscript. Ask it anything about your story, characters, or themes.
               </p>
 
               <div className="grid grid-cols-2 gap-2 w-full max-w-md">
@@ -426,7 +438,7 @@ function BookMindContent() {
                     key={qa.action}
                     onClick={() => handleQuickAction(qa.action)}
                     disabled={isLoading || !selectedBook}
-                    className="group flex flex-col items-start p-4 rounded-xl bg-gray-900/60 border border-gray-800 hover:border-gray-700 hover:bg-gray-900 transition-all text-left disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="group flex flex-col items-start p-4 rounded-xl bg-white/[0.04] border border-white/8 hover:border-white/15 hover:bg-white/[0.07] transition-all text-left disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <span className="text-sm font-medium text-gray-200 mb-1 group-hover:text-white transition-colors">{qa.label}</span>
                     <span className="text-xs text-gray-600 group-hover:text-gray-500 transition-colors">{qa.description}</span>
@@ -456,17 +468,17 @@ function BookMindContent() {
                 >
                   {message.role === 'user' ? (
                     <div className="max-w-[78%]">
-                      <div className="px-4 py-3 rounded-2xl rounded-tr-none bg-gray-700 text-white text-sm leading-relaxed">
+                      <div className="px-4 py-3 rounded-2xl rounded-tr-none bg-[#2a2a2a] text-white text-sm leading-relaxed">
                         {message.content}
                       </div>
                     </div>
                   ) : (
                     <>
-                      <div className="w-7 h-7 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Sparkles className="w-3.5 h-3.5 text-gray-400" />
+                      <div className="w-7 h-7 rounded-full bg-[#1a1a1a] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <BookIcon className="w-3.5 h-3.5 text-gray-500" />
                       </div>
                       <div className="flex-1 max-w-[85%] space-y-2">
-                        <div className="px-4 py-3.5 rounded-2xl rounded-tl-none bg-gray-900">
+                        <div className="px-4 py-3.5 rounded-2xl rounded-tl-none bg-[#111]">
                           {message.content ? (
                             <div
                               className="text-sm text-gray-300 leading-relaxed [&>p+p]:mt-3 [&>p>strong]:text-white [&>p>strong]:font-semibold"
@@ -497,10 +509,10 @@ function BookMindContent() {
               {/* Thinking indicator (only before placeholder appears) */}
               {isLoading && (
                 <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Sparkles className="w-3.5 h-3.5 text-gray-600 animate-pulse" />
+                  <div className="w-7 h-7 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <BookIcon className="w-3.5 h-3.5 text-gray-600 animate-pulse" />
                   </div>
-                  <div className="px-4 py-3.5 rounded-2xl rounded-tl-none bg-gray-900">
+                  <div className="px-4 py-3.5 rounded-2xl rounded-tl-none bg-[#111]">
                     <ThinkingDots />
                   </div>
                 </div>
@@ -518,9 +530,9 @@ function BookMindContent() {
         </div>
 
         {/* ── Input ── */}
-        <div className="border-t border-gray-800/60 bg-[#0a0a0a] p-4">
+        <div className="p-4 pb-6 bg-gradient-to-t from-[#0a0a0a] to-transparent">
           <div className="max-w-3xl mx-auto">
-            <div className="relative rounded-2xl bg-gray-900 border border-gray-800 focus-within:border-gray-700 transition-colors">
+            <div className="flex items-center gap-3 rounded-[28px] border border-white/10 bg-white/[0.04] px-5 py-2.5">
               <textarea
                 ref={inputRef}
                 value={inputValue}
@@ -533,24 +545,19 @@ function BookMindContent() {
                 placeholder={selectedBook ? `Ask anything about "${selectedBook.title || 'your book'}"…` : 'Select a book to get started…'}
                 disabled={isLoading || !selectedBook}
                 rows={1}
-                className="w-full px-4 pt-3.5 pb-12 bg-transparent text-sm text-white placeholder-gray-600 focus:outline-none resize-none disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ minHeight: '52px', maxHeight: '200px' }}
+                className="flex-1 bg-transparent text-sm text-white placeholder-gray-600 focus:outline-none resize-none disabled:opacity-40 disabled:cursor-not-allowed leading-relaxed self-center"
+                style={{ minHeight: '28px', maxHeight: '200px' }}
               />
-              <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                <button
-                  onClick={handleSend}
-                  disabled={!inputValue.trim() || isLoading || !selectedBook}
-                  className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-gray-900 disabled:opacity-20 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
-                >
-                  <svg className="w-4 h-4 rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                </button>
-              </div>
+              <button
+                onClick={handleSend}
+                disabled={!inputValue.trim() || isLoading || !selectedBook}
+                className="flex-shrink-0 w-9 h-9 rounded-full bg-white flex items-center justify-center text-gray-900 disabled:opacity-20 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5M5 12l7-7 7 7" />
+                </svg>
+              </button>
             </div>
-            <p className="text-[11px] text-gray-700 text-center mt-2.5">
-              Enter to send · Shift+Enter for new line
-            </p>
           </div>
         </div>
       </div>
@@ -562,7 +569,7 @@ export default function BookMindPage() {
   return (
     <Suspense fallback={
       <div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
-        <Sparkles className="w-6 h-6 text-gray-600 animate-pulse" />
+        <BookIcon className="w-6 h-6 text-gray-700 animate-pulse" />
       </div>
     }>
       <BookMindContent />

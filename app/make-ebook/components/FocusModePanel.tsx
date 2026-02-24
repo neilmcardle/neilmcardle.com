@@ -47,16 +47,16 @@ function Toggle({
 }
 
 const COL_OPTIONS: { value: ColumnWidth; label: string }[] = [
-  { value: "narrow", label: "Narrow" },
-  { value: "normal", label: "Normal" },
   { value: "full", label: "Full" },
+  { value: "normal", label: "Normal" },
 ];
 
 const SOUND_OPTIONS: { value: AmbientSound; label: string; icon: string }[] = [
   { value: "none", label: "Off", icon: "○" },
   { value: "pink-noise", label: "Pink noise", icon: "∿" },
-  { value: "rain", label: "Rain", icon: "☁" },
-  { value: "custom", label: "Custom", icon: "♪" },
+  { value: "rain", label: "Rain", icon: "☂" },
+  { value: "fire", label: "Fire", icon: "🔥" },
+  { value: "forest", label: "Forest", icon: "🌲" },
 ];
 
 // ── Floating panel (shown when focus mode is active) ─────────────────────────
@@ -66,29 +66,51 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
 
   return (
     <div className="fixed top-4 right-4 z-[90] flex flex-col items-end gap-2 select-none">
+      {/* The always-visible focus pill — top right */}
+      <button
+        onClick={() => setOpen((p) => !p)}
+        title={open ? "Close settings" : "Focus settings"}
+        className={`flex items-center gap-1.5 px-3 h-8 rounded-full text-xs font-medium transition-all duration-300 shadow-lg backdrop-blur-md border ${
+          open
+            ? "bg-white text-gray-900 border-transparent opacity-100"
+            : "bg-[#111]/70 border-white/10 text-white/50 opacity-60 hover:opacity-100 hover:text-white/80"
+        }`}
+      >
+        <svg
+          className="w-3.5 h-3.5 flex-shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          strokeLinecap="round"
+        >
+          <circle cx="12" cy="12" r="3" />
+          <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
+        </svg>
+        {open ? "Done" : "Focus"}
+      </button>
+
       {/* Settings panel */}
       {open && (
-        <div className="w-72 rounded-2xl bg-[#161616] backdrop-blur-xl border border-white/20 shadow-2xl p-5 text-sm animate-in fade-in slide-in-from-top-2 duration-150 mt-12">
+        <div className="w-72 rounded-2xl bg-[#161616] backdrop-blur-xl border border-white/20 shadow-2xl p-5 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
           {/* Toggles */}
           <p className="text-[10px] font-semibold text-white/55 uppercase tracking-widest mb-3">
-            View
+            Focus mode
           </p>
           <Toggle
+            label="Full screen"
+            checked={settings.fullScreen}
+            onChange={(v) => onChangeSetting("fullScreen", v)}
+          />
+          <Toggle
             label="Minimal interface"
-            description="Hide sidebar & status bar"
             checked={settings.hideChrome}
             onChange={(v) => onChangeSetting("hideChrome", v)}
           />
           <Toggle
             label="Hide formatting toolbar"
-            description="Off by default — use keyboard shortcuts"
             checked={settings.hideToolbar}
             onChange={(v) => onChangeSetting("hideToolbar", v)}
-          />
-          <Toggle
-            label="Full screen"
-            checked={settings.fullScreen}
-            onChange={(v) => onChangeSetting("fullScreen", v)}
           />
 
           {/* Column width */}
@@ -116,13 +138,11 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
           </p>
           <Toggle
             label="Typewriter mode"
-            description="Cursor stays centred vertically"
             checked={settings.typewriterMode}
             onChange={(v) => onChangeSetting("typewriterMode", v)}
           />
           <Toggle
             label="Paragraph focus"
-            description="Dims all but the active paragraph"
             checked={settings.paragraphFocus}
             onChange={(v) => onChangeSetting("paragraphFocus", v)}
           />
@@ -180,29 +200,6 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
         </div>
       )}
 
-      {/* The always-visible focus pill — top right */}
-      <button
-        onClick={() => setOpen((p) => !p)}
-        title={open ? "Close settings" : "Focus settings"}
-        className={`flex items-center gap-1.5 px-3 h-8 rounded-full text-xs font-medium transition-all duration-300 shadow-lg backdrop-blur-md border ${
-          open
-            ? "bg-white text-gray-900 border-transparent opacity-100"
-            : "bg-[#111]/70 border-white/10 text-white/50 opacity-60 hover:opacity-100 hover:text-white/80"
-        }`}
-      >
-        <svg
-          className="w-3.5 h-3.5 flex-shrink-0"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          strokeLinecap="round"
-        >
-          <circle cx="12" cy="12" r="3" />
-          <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
-        </svg>
-        {open ? "Done" : "Focus"}
-      </button>
     </div>
   );
 }
@@ -220,7 +217,7 @@ export function FocusModeButton({ onClick }: { onClick: () => void }) {
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth={2}
+        strokeWidth={1.5}
         strokeLinecap="round"
       >
         <circle cx="12" cy="12" r="3" />

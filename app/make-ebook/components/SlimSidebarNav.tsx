@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { LibraryIcon } from './icons';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { useSubscription } from '@/lib/hooks/useSubscription';
@@ -258,7 +257,12 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             aria-label="Library"
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+              <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <rect x="4" y="4" width="3" height="16" rx="0.5" />
+                <rect x="10" y="7" width="3" height="13" rx="0.5" />
+                <rect x="16" y="5" width="3" height="15" rx="0.5" />
+                <path d="M3 20h18" />
+              </svg>
             </div>
             <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'library' && isPanelOpen ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
               Library{libraryCount > 0 ? ` (${libraryCount})` : ''}
@@ -275,7 +279,11 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             aria-label="Book"
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <img src="/preview-icon.svg" alt="Book" className="w-5 h-5 dark:invert" />
+              <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                <path d="M8 7h8M8 11h8M8 15h5" />
+              </svg>
             </div>
             <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'book' && isPanelOpen ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
               Book
@@ -292,7 +300,11 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             aria-label="Chapters"
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
+              <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6" />
+                <path d="M16 13H8M16 17H8M10 9H8" />
+              </svg>
             </div>
             <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'chapters' && isPanelOpen ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
               Chapters{chaptersCount > 0 ? ` (${chaptersCount})` : ''}
@@ -309,7 +321,10 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             aria-label="Preview"
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert" />
+              <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
             </div>
             <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'preview' && isPanelOpen ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
               Preview

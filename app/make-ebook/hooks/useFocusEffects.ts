@@ -49,8 +49,8 @@ export function useTypewriterMode(enabled: boolean) {
         if (!container || container === document.documentElement) return;
 
         const containerRect = container.getBoundingClientRect();
-        // Target: cursor should sit at 42% from the top of the scroll container
-        const targetY = containerRect.top + containerRect.height * 0.42;
+        // Target: cursor should sit at 42% from the top of the scroll container, shifted up 40px
+        const targetY = containerRect.top + containerRect.height * 0.42 - 40;
         const delta = rect.top - targetY;
 
         // Only scroll if the cursor is meaningfully out of position

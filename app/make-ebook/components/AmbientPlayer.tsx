@@ -105,10 +105,14 @@ export function AmbientPlayer({ sound, volume, active }: AmbientPlayerProps) {
     }
   }, [volume, sound]);
 
-  // ── File-based audio (rain / custom) ────────────────────────────────────────
+  // ── File-based audio (rain / fire / forest / custom) ───────────────────────
   const fileSrc =
     sound === "rain"
-      ? "/audio/ambient-rain.mp3"
+      ? "/audio/rain.mp3"
+      : sound === "fire"
+      ? "/audio/fire.mp3"
+      : sound === "forest"
+      ? "/audio/forest.mp3"
       : sound === "custom"
       ? "/audio/ambient-custom.mp3"
       : null;

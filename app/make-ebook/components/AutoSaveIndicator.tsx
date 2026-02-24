@@ -74,7 +74,7 @@ export function AutoSaveIndicator({ isDirty, isSaving, lastSaved, compact = fals
             <Cloud className="w-4 h-4 text-green-500" />
           ) : (
             <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
             </svg>
           )}
         </div>
@@ -86,7 +86,7 @@ export function AutoSaveIndicator({ isDirty, isSaving, lastSaved, compact = fals
           <Cloud className="w-3 h-3 text-green-500" />
         ) : (
           <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
           </svg>
         )}
         <span>{saveText} {formatLastSaved(lastSaved)}</span>

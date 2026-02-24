@@ -204,7 +204,7 @@ About this book:
 - ${context.allChapters.length} chapters
 
 ${context.chapterTitle ? `Currently open: ${context.chapterTitle}` : ''}
-
+${context.selectedText ? `\nThe author has highlighted this passage and wants to discuss it:\n"""\n${context.selectedText}\n"""` : ''}
 === FULL MANUSCRIPT ===
 ${fullBookContent}
 === END ===`;

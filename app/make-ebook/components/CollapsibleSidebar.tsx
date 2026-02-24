@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { LibraryIcon, PlusIcon, TrashIcon, SaveIcon, DownloadIcon, CloseIcon } from './icons';
+import { PlusIcon, TrashIcon, SaveIcon, DownloadIcon, CloseIcon } from './icons';
 import { ExportHistoryButton } from './ExportHistoryPanel';
 import EmptyStateHint from './EmptyStateHint';
 import DragIcon from './icons/DragIcon';
@@ -370,7 +370,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
-            <LibraryIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+            <svg className="w-5 h-5 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <rect x="4" y="4" width="3" height="16" rx="0.5" />
+              <rect x="10" y="7" width="3" height="13" rx="0.5" />
+              <rect x="16" y="5" width="3" height="15" rx="0.5" />
+              <path d="M3 20h18" />
+            </svg>
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
             <span className="text-xs text-gray-600 dark:text-gray-400">({libraryBooks.length})</span>
           </div>
@@ -386,8 +391,9 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'}`}
                 title={multiSelectMode ? "Cancel selection" : "Select multiple"}
               >
-                <svg className={`w-4 h-4 ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path className={multiSelectMode ? '' : 'dark:stroke-white'} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                <svg className={`w-4 h-4 ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                  <circle className={multiSelectMode ? '' : 'dark:stroke-white'} cx="12" cy="12" r="9" />
+                  <path className={multiSelectMode ? '' : 'dark:stroke-white'} d="M8.5 12l2.5 2.5 4.5-4.5" />
                 </svg>
                 <span className={`text-[10px] font-medium ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
                   {multiSelectMode ? 'Cancel' : 'Select'}
@@ -399,7 +405,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title="New book"
             >
-              <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <path className="dark:stroke-white" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path className="dark:stroke-white" d="M14 2v6h6" />
+                <path className="dark:stroke-white" d="M9 14h6M12 11v6" />
+              </svg>
               <span className="text-[10px] font-medium text-[#050505] dark:text-[#e5e5e5]">New</span>
             </button>
             <button
@@ -407,8 +417,9 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title="Import document"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path className="dark:stroke-white" strokeLinecap="round" strokeLinejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <path className="dark:stroke-white" d="M12 3v12M7.5 10l4.5 5 4.5-5" />
+                <path className="dark:stroke-white" d="M4 19h16" />
               </svg>
               <span className="text-[10px] font-medium text-[#050505] dark:text-[#e5e5e5]">Import</span>
             </button>
@@ -540,7 +551,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   <div data-tour="book-details" className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <img src="/preview-icon.svg" alt="Details" className="w-5 h-5 dark:invert flex-shrink-0" />
+            <svg className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              <path d="M8 7h8M8 11h8M8 15h5" />
+            </svg>
             <div className="flex flex-col gap-0.5 flex-1 min-w-0">
               <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Book</span>
               {title && (
@@ -559,7 +574,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             >
               {saveFeedback ? (
                 <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
                 </svg>
               ) : (
                 <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
@@ -799,7 +814,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                       <div className="flex items-center gap-1 mt-1.5 text-xs font-medium text-orange-600 dark:text-orange-400 group-hover:gap-1.5 transition-all">
                         <span>Open Coverly</span>
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
                       </div>
                     </div>
@@ -816,7 +831,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   <div data-tour="chapters" className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
-            <img src="/chapters-icon.svg" alt="Chapters" className="w-5 h-5 dark:invert" />
+            <svg className="w-5 h-5 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <path d="M14 2v6h6" />
+              <path d="M16 13H8M16 17H8M10 9H8" />
+            </svg>
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Chapters</span>
             <span className="text-xs text-gray-500 dark:text-gray-400">({chapters.length})</span>
           </div>
@@ -980,12 +999,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                       title={ch.locked ? 'Unlock chapter' : 'Mark complete and lock'}
                     >
                       {ch.locked ? (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
                           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                           <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                         </svg>
                       ) : (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
                           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                           <path d="M7 11V7a5 5 0 0 1 10 0"/>
                         </svg>
@@ -1019,7 +1038,10 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
-            <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert" />
+            <svg className="w-5 h-5 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Preview</span>
           </div>
         </div>

@@ -67,7 +67,7 @@ export default function ResizableRightPanel({ children, className = '' }: Resiza
     <div
       ref={panelRef}
       style={{ width }}
-      className={`hidden lg:flex flex-col flex-shrink-0 h-screen overflow-hidden border-l border-gray-200 dark:border-gray-800 relative ${className}`}
+      className={`hidden lg:flex flex-col flex-shrink-0 h-screen overflow-hidden border-l border-gray-200 dark:border-gray-800 relative animate-slide-in-right ${className}`}
     >
       {/* Resize handle — left edge */}
       <div
