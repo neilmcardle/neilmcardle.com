@@ -345,9 +345,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-100 overflow-x-hidden">
+    <div className="min-h-screen bg-[#1e1e1e] text-gray-100 overflow-x-hidden">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-lg border-b border-gray-800">
+      <nav className="sticky top-0 z-50 bg-[#1e1e1e]/80 backdrop-blur-lg border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -421,7 +421,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-800 bg-[#0a0a0a]">
+          <div className="md:hidden border-t border-gray-800 bg-[#1e1e1e]">
             <div className="px-4 py-4 space-y-4">
               <button
                 onClick={() => scrollToSection(featuresRef)}
@@ -476,7 +476,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-[#0a0a0a] to-gray-900" />
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-[#1e1e1e] to-gray-900" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-40">
           <div className="text-center max-w-4xl mx-auto">
@@ -505,7 +505,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
               <div className="me-cta-shine">
                 <button
                   onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                  className="group px-8 py-4 text-lg font-semibold bg-[#0a0a0a] text-white rounded-full hover:bg-gray-900 transition-colors flex items-center justify-center gap-2"
+                  className="group px-8 py-4 text-lg font-semibold bg-[#1e1e1e] text-white rounded-full hover:bg-gray-900 transition-colors flex items-center justify-center gap-2"
                 >
                   Try for free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -886,7 +886,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             <div className="me-cta-shine">
               <button
                 onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                className="group px-8 py-4 text-lg font-semibold bg-[#0a0a0a] text-white rounded-full hover:bg-gray-900 transition-colors inline-flex items-center gap-2"
+                className="group px-8 py-4 text-lg font-semibold bg-[#1e1e1e] text-white rounded-full hover:bg-gray-900 transition-colors inline-flex items-center gap-2"
               >
                 Try for free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -897,7 +897,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-gray-800 bg-[#0a0a0a]">
+      <footer className="py-12 border-t border-gray-800 bg-[#1e1e1e]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-2">

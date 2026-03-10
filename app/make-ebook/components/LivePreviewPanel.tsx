@@ -62,15 +62,15 @@ export default function LivePreviewPanel({ chapters, selectedChapter, onChapterS
   const dims = deviceDimensions[device];
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-[#0a0a0a]">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-[#1e1e1e]">
       {/* Header */}
-      <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-gray-800">
+      <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-[#2f2f2f]">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Live Preview</h3>
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-800 rounded transition-colors"
+              className="p-1 hover:bg-gray-200 dark:hover:bg-[#2f2f2f] rounded transition-colors"
               title="Close preview"
             >
               <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +88,7 @@ export default function LivePreviewPanel({ chapters, selectedChapter, onChapterS
               className={`px-2 py-1 text-xs rounded transition-colors ${
                 device === key
                   ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  : 'bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a]'
               }`}
             >
               {val.name}
@@ -121,7 +121,7 @@ export default function LivePreviewPanel({ chapters, selectedChapter, onChapterS
 
       {/* Chapter nav */}
       {chapters.length > 1 && (
-        <div className="flex-shrink-0 px-3 pb-2 border-t border-gray-200 dark:border-gray-800">
+        <div className="flex-shrink-0 px-3 pb-2 border-t border-gray-200 dark:border-[#2f2f2f]">
           <div className="flex gap-1 overflow-x-auto py-2">
             {chapters.map((ch, i) => (
               <button
@@ -130,7 +130,7 @@ export default function LivePreviewPanel({ chapters, selectedChapter, onChapterS
                 className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
                   i === selectedChapter
                     ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
-                    : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
+                    : 'bg-gray-200 dark:bg-[#262626] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#2f2f2f]'
                 }`}
               >
                 {ch.title || `Ch ${i + 1}`}
@@ -141,7 +141,7 @@ export default function LivePreviewPanel({ chapters, selectedChapter, onChapterS
       )}
 
       {/* Theme picker */}
-      <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-gray-800">
+      <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-[#2f2f2f]">
         <div className="flex items-center justify-center gap-3">
           {(['light', 'sepia', 'dark'] as const).map((t) => (
             <button
@@ -150,7 +150,7 @@ export default function LivePreviewPanel({ chapters, selectedChapter, onChapterS
               className={`w-6 h-6 rounded-full border-2 transition-all ${
                 theme === t
                   ? 'scale-110 border-gray-900 dark:border-white shadow-md'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-500'
+                  : 'border-gray-300 dark:border-[#3a3a3a] hover:border-gray-500'
               }`}
               style={{ backgroundColor: t === 'light' ? '#ffffff' : t === 'sepia' ? '#f4ecd8' : '#1a1a1a' }}
               title={t.charAt(0).toUpperCase() + t.slice(1)}

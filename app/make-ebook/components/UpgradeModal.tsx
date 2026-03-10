@@ -91,18 +91,18 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
       }}
     >
       <div 
-        className="bg-white dark:bg-[#0a0a0a] rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-800"
+        className="bg-white dark:bg-[#1e1e1e] rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-[#2f2f2f]"
         style={{ pointerEvents: 'auto' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-white dark:bg-[#1e1e1e] border-b border-gray-200 dark:border-[#2f2f2f] px-6 py-4 flex items-center justify-between">
           <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
             Choose Your Plan
           </h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-2 text-gray-500 hover:text-gray-700 dark:text-[#a3a3a3] dark:hover:text-[#e5e5e5] rounded-lg hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -113,8 +113,8 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
         <div className="p-6 space-y-6">
           {/* Feature that triggered modal */}
           {feature && (
-            <div className="bg-gray-50 dark:bg-[#111] border border-gray-300 dark:border-gray-700 rounded-lg p-4">
-              <p className="text-sm text-gray-700 dark:text-gray-300 text-center">
+            <div className="bg-gray-50 dark:bg-[#111] border border-gray-300 dark:border-[#2f2f2f] rounded-lg p-4">
+              <p className="text-sm text-gray-700 dark:text-[#d4d4d4] text-center">
                 <strong>{feature}</strong> is a Pro feature
               </p>
             </div>
@@ -128,14 +128,14 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
               className={`cursor-pointer rounded-lg border-2 p-6 transition-all ${
                 selectedPlan === 'monthly'
                   ? 'border-gray-900 dark:border-white bg-gray-50 dark:bg-[#111]'
-                  : 'border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600'
+                  : 'border-gray-200 dark:border-[#2f2f2f] hover:border-gray-400 dark:hover:border-[#3a3a3a]'
               }`}
             >
               <div className="flex items-center gap-2 mb-4">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                   selectedPlan === 'monthly'
                     ? 'border-gray-900 dark:border-white bg-gray-900 dark:bg-white'
-                    : 'border-gray-400 dark:border-gray-600'
+                    : 'border-gray-400 dark:border-[#3a3a3a]'
                 }`}>
                   {selectedPlan === 'monthly' && (
                     <Check className="w-3 h-3 text-white dark:text-black" />
@@ -146,9 +146,9 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
               
               <div className="mb-4">
                 <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                  $9<span className="text-lg text-gray-600 dark:text-gray-400">/mo</span>
+                  $9<span className="text-lg text-gray-600 dark:text-[#a3a3a3]">/mo</span>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-sm text-gray-600 dark:text-[#a3a3a3] mt-1">
                   Cancel anytime, no commitment
                 </p>
               </div>
@@ -160,7 +160,7 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
               className={`cursor-pointer rounded-lg border-2 p-6 transition-all relative ${
                 selectedPlan === 'lifetime'
                   ? 'border-gray-900 dark:border-white bg-gray-50 dark:bg-[#111]'
-                  : 'border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-600'
+                  : 'border-gray-200 dark:border-[#2f2f2f] hover:border-gray-400 dark:hover:border-[#3a3a3a]'
               }`}
             >
               <div className="absolute top-3 right-3 bg-gray-900 dark:bg-white text-white dark:text-black text-xs font-semibold px-2.5 py-1 rounded">
@@ -171,7 +171,7 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                   selectedPlan === 'lifetime'
                     ? 'border-gray-900 dark:border-white bg-gray-900 dark:bg-white'
-                    : 'border-gray-400 dark:border-gray-600'
+                    : 'border-gray-400 dark:border-[#3a3a3a]'
                 }`}>
                   {selectedPlan === 'lifetime' && (
                     <Check className="w-3 h-3 text-white dark:text-black" />
@@ -182,9 +182,9 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
               
               <div className="mb-4">
                 <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                  $149<span className="text-lg text-gray-600 dark:text-gray-400"> once</span>
+                  $149<span className="text-lg text-gray-600 dark:text-[#a3a3a3]"> once</span>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-sm text-gray-600 dark:text-[#a3a3a3] mt-1">
                   One-time payment, forever access
                 </p>
               </div>
@@ -192,18 +192,18 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
           </div>
 
           {/* Features List */}
-          <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+          <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-[#2f2f2f]">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
               Pro includes:
             </h3>
 
             <div className="space-y-2">
               {features.map((f, i) => (
-                <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-lg">
+                <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#2f2f2f] rounded-lg">
                   <f.icon className="w-5 h-5 text-gray-900 dark:text-white mt-0.5 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{f.title}</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{f.desc}</p>
+                    <p className="text-xs text-gray-600 dark:text-[#a3a3a3] mt-0.5">{f.desc}</p>
                   </div>
                 </div>
               ))}
@@ -212,7 +212,7 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
 
           {/* Free Tier Features */}
           <div className="bg-gray-50 dark:bg-[#111] rounded-lg p-4">
-            <p className="text-xs text-gray-600 dark:text-gray-400">
+            <p className="text-xs text-gray-600 dark:text-[#a3a3a3]">
               <strong>Free tier includes:</strong> Unlimited books, EPUB/PDF export, professional typography, offline mode, version history, export history
             </p>
           </div>
@@ -228,13 +228,13 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
           <button
             onClick={() => handleCheckout(selectedPlan === 'monthly' ? 'subscription' : 'lifetime')}
             disabled={checkoutLoading || isLoading}
-            className="w-full py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-full transition-all hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg uppercase tracking-wide text-sm"
+            className="w-full py-3.5 bg-gray-900 dark:bg-white text-white dark:text-[#111] font-semibold rounded-full transition-all hover:bg-gray-800 dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg uppercase tracking-wide text-sm"
           >
             {checkoutLoading ? 'Redirecting...' : 
               selectedPlan === 'monthly' ? 'Subscribe to Pro - $9/month' : 'Buy Lifetime - $149'}
           </button>
 
-          <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-center text-gray-500 dark:text-[#a3a3a3]">
             Secure checkout powered by Stripe • 30-day money back guarantee
           </p>
         </div>

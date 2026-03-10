@@ -41,7 +41,7 @@ export default function ChapterNavDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2f2f2f] text-sm font-medium text-gray-700 dark:text-[#d4d4d4] transition-colors"
           title="Navigate chapters"
         >
           <span className="max-w-[150px] truncate">{displayTitle}</span>
@@ -49,7 +49,7 @@ export default function ChapterNavDropdown({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64 max-h-[400px] overflow-y-auto" align="start">
-        <DropdownMenuLabel className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+        <DropdownMenuLabel className="text-xs font-semibold text-gray-500 dark:text-[#a3a3a3] uppercase tracking-wide">
           Chapters ({chapters.length})
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -63,12 +63,12 @@ export default function ChapterNavDropdown({
               onClick={() => onChapterSelect(index)}
               className={`cursor-pointer ${
                 isSelected
-                  ? 'bg-gray-100 dark:bg-gray-800 font-medium'
+                  ? 'bg-gray-100 dark:bg-[#262626] font-medium'
                   : ''
               }`}
             >
               <div className="flex items-center gap-2 w-full">
-                <span className="text-xs text-gray-500 dark:text-gray-400 font-mono flex-shrink-0">
+                <span className="text-xs text-gray-500 dark:text-[#a3a3a3] font-mono flex-shrink-0">
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <span className="flex-1 truncate">{chapterTitle}</span>

@@ -11,7 +11,7 @@ interface QualityScoreBadgeProps {
 
 export function QualityScoreBadge({ score, compact = false }: QualityScoreBadgeProps) {
   const getColor = () => {
-    return 'text-gray-700 bg-gray-100 dark:text-gray-300 dark:bg-gray-800';
+    return 'text-gray-700 bg-gray-100 dark:text-[#d4d4d4] dark:bg-[#262626]';
   };
 
   const getLabel = () => {
@@ -80,8 +80,8 @@ export function QualityIssuesList({ issues, onNavigateAction }: QualityIssuesLis
     <div className="space-y-4">
       {grouped.error && grouped.error.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2 uppercase tracking-wide">
-            <span className="w-2 h-2 rounded-full bg-gray-900 dark:bg-gray-100" />
+          <h4 className="text-xs font-semibold text-gray-900 dark:text-[#f5f5f5] mb-2 flex items-center gap-2 uppercase tracking-wide">
+            <span className="w-2 h-2 rounded-full bg-gray-900 dark:bg-[#f5f5f5]" />
             Must Fix ({grouped.error.length})
           </h4>
           <div className="space-y-2">
@@ -94,8 +94,8 @@ export function QualityIssuesList({ issues, onNavigateAction }: QualityIssuesLis
 
       {grouped.warning && grouped.warning.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2 uppercase tracking-wide">
-            <span className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-500" />
+          <h4 className="text-xs font-semibold text-gray-600 dark:text-[#a3a3a3] mb-2 flex items-center gap-2 uppercase tracking-wide">
+            <span className="w-2 h-2 rounded-full bg-gray-400 dark:bg-[#737373]" />
             Should Fix ({grouped.warning.length})
           </h4>
           <div className="space-y-2">
@@ -108,8 +108,8 @@ export function QualityIssuesList({ issues, onNavigateAction }: QualityIssuesLis
 
       {grouped.suggestion && grouped.suggestion.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-2 uppercase tracking-wide">
-            <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600" />
+          <h4 className="text-xs font-semibold text-gray-400 dark:text-[#737373] mb-2 flex items-center gap-2 uppercase tracking-wide">
+            <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-[#525252]" />
             Worth Considering ({grouped.suggestion.length})
           </h4>
           <div className="space-y-2">
@@ -142,11 +142,11 @@ function IssueCard({ issue, onNavigateAction }: IssueCardProps) {
       }`}
     >
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+        <div className="text-sm font-medium text-gray-900 dark:text-[#f5f5f5]">
           {issue.message}
         </div>
         {issue.hint && (
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-start gap-1.5">
+          <div className="text-xs text-gray-500 dark:text-[#a3a3a3] mt-1 flex items-start gap-1.5">
             <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
             </svg>
@@ -154,7 +154,7 @@ function IssueCard({ issue, onNavigateAction }: IssueCardProps) {
           </div>
         )}
         {issue.chapterTitle && canNavigate && (
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 flex items-center gap-1 font-medium underline underline-offset-2">
+          <div className="text-xs text-gray-500 dark:text-[#a3a3a3] mt-1.5 flex items-center gap-1 font-medium underline underline-offset-2">
             <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
@@ -180,27 +180,27 @@ export function QualityPanel({
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-[#f5f5f5]">
           eBook Quality Check
         </h3>
         <QualityScoreBadge score={score} compact />
       </div>
       
       {issues.length === 0 ? (
-        <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-          <svg className="w-10 h-10 mx-auto mb-2 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center py-6 text-gray-500 dark:text-[#a3a3a3]">
+          <svg className="w-10 h-10 mx-auto mb-2 text-gray-400 dark:text-[#737373]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">All clear</p>
+          <p className="font-semibold text-sm text-gray-800 dark:text-[#e5e5e5]">All clear</p>
           <p className="text-xs mt-1">Your eBook looks great. Ready to export.</p>
         </div>
       ) : (
         <>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
+          <p className="text-xs text-gray-600 dark:text-[#a3a3a3]">
             Click an issue to jump to that chapter and fix it.
           </p>
           
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+          <div className="border-t border-gray-200 dark:border-[#2f2f2f] pt-3">
             <QualityIssuesList 
               issues={issues} 
               onNavigateAction={onNavigateToChapterAction}
@@ -279,7 +279,7 @@ export function QualityDropdown({
   const dropdownContent = isOpen && mounted ? createPortal(
     <div 
       ref={dropdownRef}
-      className="fixed max-h-96 overflow-y-auto bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-[9999]"
+      className="fixed max-h-96 overflow-y-auto bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f] z-[9999]"
       style={{ 
         top: position.top, 
         left: position.left,

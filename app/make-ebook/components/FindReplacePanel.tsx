@@ -74,11 +74,11 @@ export default function FindReplacePanel({
   return (
     <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/50" onClick={onClose}>
       <div
-        className="bg-white dark:bg-[#0a0a0a] rounded-lg shadow-xl w-full max-w-lg mx-4 border border-gray-200 dark:border-[#333]"
+        className="bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl w-full max-w-lg mx-4 border border-gray-200 dark:border-[#333]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-gray-800">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-[#2f2f2f]">
           <h3 className="text-base font-semibold text-gray-900 dark:text-white">Find & Replace</h3>
           <button
             onClick={onClose}
@@ -102,7 +102,7 @@ export default function FindReplacePanel({
               className="w-full px-3 py-2 pr-16 text-sm rounded-lg border border-gray-300 dark:border-[#444] bg-white dark:bg-[#111] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {searchTerm && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-gray-400">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-[#a3a3a3]">
                 {totalMatches} match{totalMatches !== 1 ? 'es' : ''}
               </span>
             )}
@@ -119,7 +119,7 @@ export default function FindReplacePanel({
 
           {/* Options row */}
           <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-[#a3a3a3] cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={caseSensitive}
@@ -148,7 +148,7 @@ export default function FindReplacePanel({
           {searchTerm && (
             <div className="max-h-48 overflow-y-auto border border-gray-200 dark:border-[#333] rounded-lg divide-y divide-gray-200 dark:divide-[#333]">
               {matches.length === 0 ? (
-                <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                <div className="px-4 py-3 text-sm text-gray-500 dark:text-[#a3a3a3] text-center">
                   No matches found
                 </div>
               ) : (
@@ -162,14 +162,14 @@ export default function FindReplacePanel({
                       className="text-sm text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 truncate text-left flex-1 mr-3"
                     >
                       {m.chapterTitle}
-                      <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                      <span className="ml-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
                         {m.count} match{m.count !== 1 ? 'es' : ''}
                       </span>
                     </button>
                     <button
                       onClick={() => handleReplaceInChapter(m.chapterIndex)}
                       disabled={!replaceTerm}
-                      className="px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#252525] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
+                      className="px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#252525] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
                     >
                       Replace
                     </button>
@@ -181,8 +181,8 @@ export default function FindReplacePanel({
         </div>
 
         {/* Footer hint */}
-        <div className="px-5 py-2.5 border-t border-gray-200 dark:border-gray-800 text-xs text-gray-400 dark:text-gray-500">
-          <kbd className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400 font-mono">Esc</kbd> to close
+        <div className="px-5 py-2.5 border-t border-gray-200 dark:border-[#2f2f2f] text-xs text-gray-400 dark:text-[#737373]">
+          <kbd className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-[#a3a3a3] font-mono">Esc</kbd> to close
         </div>
       </div>
     </div>

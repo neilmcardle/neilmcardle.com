@@ -2,74 +2,59 @@
 
 import React from 'react';
 
-export type RightPanelMode = 'none' | 'book-mind' | 'live-preview' | 'both';
+export type RightPanelMode = 'none' | 'book-mind' | 'live-preview';
 
 interface LayoutSwitcherProps {
   mode: RightPanelMode;
   onChange: (mode: RightPanelMode) => void;
 }
 
-const LAYOUTS: { mode: Exclude<RightPanelMode, 'none'>; title: string; icon: React.ReactNode }[] = [
-  {
-    mode: 'book-mind',
-    title: 'Book Mind',
-    icon: (
-      <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" className="w-5 h-4">
-        <rect x="1" y="1" width="18" height="12" rx="1.5" />
-        <path d="M5 1v12" />
-        <path d="M13 1v12" />
-        <circle cx="15.5" cy="5" r="0.7" fill="currentColor" stroke="none" />
-        <circle cx="15.5" cy="7" r="0.7" fill="currentColor" stroke="none" />
-        <circle cx="15.5" cy="9" r="0.7" fill="currentColor" stroke="none" />
-      </svg>
-    ),
-  },
-  {
-    mode: 'live-preview',
-    title: 'Live Preview',
-    icon: (
-      <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" className="w-5 h-4">
-        <rect x="1" y="1" width="18" height="12" rx="1.5" />
-        <path d="M5 1v12" />
-        <path d="M13 1v12" />
-        <rect x="14" y="3" width="4" height="5.5" rx="0.5" strokeWidth="1" />
-        <path d="M14.5 10.5h3" strokeWidth="1" />
-      </svg>
-    ),
-  },
-  {
-    mode: 'both',
-    title: 'Book Mind + Live Preview',
-    icon: (
-      <svg viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" className="w-5 h-4">
-        <rect x="1" y="1" width="18" height="12" rx="1.5" />
-        <path d="M5 1v12" />
-        <path d="M13 1v12" />
-        <path d="M13 7h6" />
-        <circle cx="16" cy="4.5" r="0.7" fill="currentColor" stroke="none" />
-        <rect x="14.5" y="8.5" width="3" height="3" rx="0.4" strokeWidth="1" />
-      </svg>
-    ),
-  },
+// Same open-book icon used in SlimSidebarNav + BookMindPanel
+function BookMindIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+    </svg>
+  );
+}
+
+// Eye icon — consistent with Overview nav
+function LivePreviewIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+const TABS: { mode: Exclude<RightPanelMode, 'none'>; label: string; Icon: React.ComponentType }[] = [
+  { mode: 'book-mind',    label: 'Book Mind',    Icon: BookMindIcon },
+  { mode: 'live-preview', label: 'Live Preview', Icon: LivePreviewIcon },
 ];
 
 export default function LayoutSwitcher({ mode, onChange }: LayoutSwitcherProps) {
   return (
-    <div className="flex items-center gap-0.5 rounded-lg border border-gray-200 dark:border-gray-700 p-0.5 bg-gray-50 dark:bg-[#1a1a1a]">
-      {LAYOUTS.map(({ mode: m, title, icon }) => (
-        <button
-          key={m}
-          onClick={() => onChange(mode === m ? 'none' : m)}
-          title={title}
-          className={`p-1 rounded-md transition-colors ${
-            mode === m
-              ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-              : 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-          }`}
-        >
-          {icon}
-        </button>
-      ))}
+    <div className="flex items-center rounded-lg border border-gray-200 dark:border-[#2f2f2f] overflow-hidden bg-gray-50 dark:bg-[#1a1a1a]">
+      {TABS.map(({ mode: m, label, Icon }, i) => {
+        const active = mode === m;
+        return (
+          <button
+            key={m}
+            onClick={() => onChange(m)}
+            title={label}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium transition-colors whitespace-nowrap
+              ${i > 0 ? 'border-l border-gray-200 dark:border-[#2f2f2f]' : ''}
+              ${active
+                ? 'bg-white dark:bg-[#2f2f2f] text-gray-900 dark:text-white'
+                : 'text-gray-400 dark:text-[#737373] hover:text-gray-700 dark:hover:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+              }`}
+          >
+            <Icon />
+            <span>{label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

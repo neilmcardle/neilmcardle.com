@@ -75,7 +75,7 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
   return (
     <div className="flex-1 relative overflow-hidden">
       {/* Background gradient — matches marketing hero */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-[#0a0a0a] to-gray-900" />
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-[#1e1e1e] to-gray-900" />
 
       <div className="relative flex flex-col items-center justify-center h-full px-0 sm:px-8 py-8 sm:py-16 min-h-0 overflow-y-auto">
         {/* Logo */}
@@ -112,7 +112,7 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
               <button
                 type="button"
                 onClick={onNewBook}
-                className="w-full px-8 py-4 text-lg font-semibold bg-[#0a0a0a] text-white rounded-full hover:bg-gray-900 transition-colors"
+                className="w-full px-8 py-4 text-lg font-semibold bg-[#1e1e1e] text-white rounded-full hover:bg-gray-900 transition-colors"
               >
                 Start New Book
               </button>
@@ -122,7 +122,7 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
               <button
                 type="button"
                 onClick={onOpenLibrary}
-                className="w-full px-8 py-4 text-lg font-semibold bg-[#0a0a0a] text-white rounded-full hover:bg-gray-900 transition-colors flex items-center justify-center gap-3"
+                className="w-full px-8 py-4 text-lg font-semibold bg-[#1e1e1e] text-white rounded-full hover:bg-gray-900 transition-colors flex items-center justify-center gap-3"
               >
                 Browse Library
                 <span className="px-2.5 py-0.5 bg-gray-700 text-gray-300 rounded-full text-xs font-semibold">

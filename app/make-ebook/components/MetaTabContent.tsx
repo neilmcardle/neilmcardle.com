@@ -71,8 +71,8 @@ export default function MetaTabContent({
   return (
     <div className="space-y-3 pb-8">
       {/* Cover Image */}
-      <section className="p-4 rounded bg-white dark:bg-[#0a0a0a] relative">
-        <h2 className="text-sm font-semibold mb-2 flex items-center text-gray-900 dark:text-gray-100">
+      <section className="p-4 rounded bg-white dark:bg-[#1e1e1e] relative">
+        <h2 className="text-sm font-semibold mb-2 flex items-center text-gray-900 dark:text-[#f5f5f5]">
           Cover Image
           <button
             type="button"
@@ -87,7 +87,7 @@ export default function MetaTabContent({
         {!coverUrl ? (
           <label
             htmlFor="cover-upload"
-            className={`w-full flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-[#E8E8E8] dark:border-gray-700 rounded bg-white dark:bg-[#0a0a0a] text-[#737373] dark:text-gray-400 cursor-pointer hover:bg-[#F9F9F9] dark:hover:bg-[#1a1a1a] transition ${lockedSections.cover ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
+            className={`w-full flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-[#E8E8E8] dark:border-[#2f2f2f] rounded bg-white dark:bg-[#1e1e1e] text-[#737373] dark:text-[#a3a3a3] cursor-pointer hover:bg-[#F9F9F9] dark:hover:bg-[#1a1a1a] transition ${lockedSections.cover ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
             style={{ minHeight: 120 }}
           >
             <UploadIcon className="w-5 h-5 mb-2" />
@@ -114,7 +114,7 @@ export default function MetaTabContent({
             />
             <button
               type="button"
-              className="absolute bottom-2 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 p-2 rounded-full shadow-md transition-all duration-200 flex items-center justify-center"
+              className="absolute bottom-2 bg-white/90 dark:bg-[#262626]/90 hover:bg-white dark:hover:bg-[#2f2f2f] p-2 rounded-full shadow-md transition-all duration-200 flex items-center justify-center"
               style={{ right: '40px' }}
               onClick={() => document.getElementById('cover-upload')?.click()}
               disabled={lockedSections.cover}
@@ -164,8 +164,8 @@ export default function MetaTabContent({
       </section>
       
       {/* Book Info */}
-      <section className="p-4 rounded bg-white dark:bg-[#0a0a0a] relative">
-        <h2 className="text-sm font-semibold mb-2 flex items-center text-gray-900 dark:text-gray-100">
+      <section className="p-4 rounded bg-white dark:bg-[#1e1e1e] relative">
+        <h2 className="text-sm font-semibold mb-2 flex items-center text-gray-900 dark:text-[#f5f5f5]">
           Book Information
           <button
             type="button"
@@ -179,9 +179,9 @@ export default function MetaTabContent({
         </h2>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">Title *</label>
+            <label className="block text-xs mb-1 text-gray-700 dark:text-[#d4d4d4]">Title *</label>
             <input
-              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-[#f5f5f5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
               placeholder="Enter book title..."
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -189,9 +189,9 @@ export default function MetaTabContent({
             />
           </div>
           <div>
-            <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">Author *</label>
+            <label className="block text-xs mb-1 text-gray-700 dark:text-[#d4d4d4]">Author *</label>
             <input
-              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-[#f5f5f5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
               placeholder="Enter author name..."
               value={author}
               onChange={e => setAuthor(e.target.value)}
@@ -199,9 +199,9 @@ export default function MetaTabContent({
             />
           </div>
           <div>
-            <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">Description/Blurb</label>
+            <label className="block text-xs mb-1 text-gray-700 dark:text-[#d4d4d4]">Description/Blurb</label>
             <textarea
-              className={`w-full px-3 py-2 rounded text-sm bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-sm bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-[#f5f5f5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.bookInfo ? "opacity-60 cursor-not-allowed" : ""}`}
               placeholder="Brief description or back cover blurb (optional)"
               value={blurb}
               onChange={e => setBlurb(e.target.value)}
@@ -213,8 +213,8 @@ export default function MetaTabContent({
       </section>
       
       {/* Publishing details */}
-      <section className="p-4 rounded bg-white dark:bg-[#0a0a0a] relative">
-        <h2 className="text-sm font-semibold mb-2 flex items-center text-gray-900 dark:text-gray-100">
+      <section className="p-4 rounded bg-white dark:bg-[#1e1e1e] relative">
+        <h2 className="text-sm font-semibold mb-2 flex items-center text-gray-900 dark:text-[#f5f5f5]">
           Publishing Details
           <button
             type="button"
@@ -228,9 +228,9 @@ export default function MetaTabContent({
         </h2>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">Publisher</label>
+            <label className="block text-xs mb-1 text-gray-700 dark:text-[#d4d4d4]">Publisher</label>
             <input
-              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.publishingDetails ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-[#f5f5f5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.publishingDetails ? "opacity-60 cursor-not-allowed" : ""}`}
               placeholder="Enter publisher name..."
               value={publisher}
               onChange={e => setPublisher(e.target.value)}
@@ -238,32 +238,32 @@ export default function MetaTabContent({
             />
           </div>
           <div>
-            <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">Publication Date</label>
+            <label className="block text-xs mb-1 text-gray-700 dark:text-[#d4d4d4]">Publication Date</label>
             <input
               type="date"
-              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 ${lockedSections.publishingDetails ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-[#f5f5f5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 ${lockedSections.publishingDetails ? "opacity-60 cursor-not-allowed" : ""}`}
               value={pubDate}
               onChange={e => setPubDate(e.target.value)}
               disabled={lockedSections.publishingDetails}
             />
           </div>
           <div>
-            <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">ISBN (optional)</label>
+            <label className="block text-xs mb-1 text-gray-700 dark:text-[#d4d4d4]">ISBN (optional)</label>
             <input
-              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.publishingDetails ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-[#f5f5f5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.publishingDetails ? "opacity-60 cursor-not-allowed" : ""}`}
               placeholder="978-0-123456-78-9"
               value={isbn}
               onChange={e => setIsbn(e.target.value)}
               disabled={lockedSections.publishingDetails}
             />
-            <p className="mt-1 text-[10px] text-gray-500 dark:text-gray-400">
-              ISBNs must be purchased from official agencies (e.g., £93 from <a href="https://www.nielsenisbnstore.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-gray-300">Nielsen UK</a>). They cannot be invented.
+            <p className="mt-1 text-[10px] text-gray-500 dark:text-[#a3a3a3]">
+              ISBNs must be purchased from official agencies (e.g., £93 from <a href="https://www.nielsenisbnstore.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-[#d4d4d4]">Nielsen UK</a>). They cannot be invented.
             </p>
           </div>
           <div>
-            <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">Language</label>
+            <label className="block text-xs mb-1 text-gray-700 dark:text-[#d4d4d4]">Language</label>
             <select
-              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 ${lockedSections.publishingDetails ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-[#f5f5f5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 ${lockedSections.publishingDetails ? "opacity-60 cursor-not-allowed" : ""}`}
               value={language}
               onChange={e => setLanguage(e.target.value)}
               disabled={lockedSections.publishingDetails}
@@ -276,9 +276,9 @@ export default function MetaTabContent({
             </select>
           </div>
           <div>
-            <label className="block text-xs mb-1 text-gray-700 dark:text-gray-300">Genre</label>
+            <label className="block text-xs mb-1 text-gray-700 dark:text-[#d4d4d4]">Genre</label>
             <select
-              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 ${lockedSections.publishingDetails ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full px-3 py-2 rounded text-base bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-[#f5f5f5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 ${lockedSections.publishingDetails ? "opacity-60 cursor-not-allowed" : ""}`}
               value={genre}
               onChange={e => setGenre(e.target.value)}
               disabled={lockedSections.publishingDetails}
@@ -298,8 +298,8 @@ export default function MetaTabContent({
         </div>
       </section>
       {/* Tags */}
-      <section className="p-4 rounded bg-white dark:bg-[#0a0a0a] relative">
-        <h2 className="text-sm font-semibold mb-2 flex items-center text-gray-900 dark:text-gray-100">
+      <section className="p-4 rounded bg-white dark:bg-[#1e1e1e] relative">
+        <h2 className="text-sm font-semibold mb-2 flex items-center text-gray-900 dark:text-[#f5f5f5]">
           Tags & Keywords
           <button
             type="button"
@@ -313,7 +313,7 @@ export default function MetaTabContent({
         </h2>
         <div className="flex gap-2">
           <input
-            className={`w-full px-3 py-2 rounded text-sm bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`w-full px-3 py-2 rounded text-sm bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-[#f5f5f5] border border-transparent focus:border-black dark:focus:border-white focus:outline-none focus:ring-0 placeholder:text-[#a0a0a0] dark:placeholder:text-[#666666] placeholder:text-sm ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
             placeholder="e.g., fiction, thriller, mystery, romance"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
@@ -321,7 +321,7 @@ export default function MetaTabContent({
             disabled={lockedSections.tags}
           />
           <button
-            className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible bg-white dark:bg-[#1a1a1a] text-[#6a6c72] dark:text-[#e5e5e5] border-[#E8E8E8] dark:border-gray-700 hover:bg-[#F7F7F7] dark:hover:bg-[#2a2a2a] ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible bg-white dark:bg-[#1a1a1a] text-[#6a6c72] dark:text-[#e5e5e5] border-[#E8E8E8] dark:border-[#2f2f2f] hover:bg-[#F7F7F7] dark:hover:bg-[#2a2a2a] ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
             type="button"
             onClick={handleAddTag}
             disabled={lockedSections.tags}
@@ -337,7 +337,7 @@ export default function MetaTabContent({
             >
               {tag}
               <button
-                className="ml-1 text-[#86868B] dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 focus:outline-none"
+                className="ml-1 text-[#86868B] dark:text-[#a3a3a3] hover:text-red-600 dark:hover:text-red-400 focus:outline-none"
                 onClick={() => handleRemoveTag(tag)}
                 type="button"
                 disabled={lockedSections.tags}

@@ -30,7 +30,7 @@ export function UserDropdownMobile() {
 
   if (loading) {
     return (
-      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2f2f2f] animate-pulse" />
     );
   }
 
@@ -42,7 +42,7 @@ export function UserDropdownMobile() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition px-0"
+          className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition px-0"
           aria-label="User menu"
         >
           <img

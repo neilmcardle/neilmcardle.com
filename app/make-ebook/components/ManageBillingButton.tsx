@@ -84,9 +84,9 @@ export default function ManageBillingButton({
 
   // Variant classes
   const variantClasses = {
-    default: 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100',
-    outline: 'border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800',
-    ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+    default: 'bg-gray-900 dark:bg-white text-white dark:text-[#111] hover:bg-gray-800 dark:hover:bg-[#e5e5e5]',
+    outline: 'border border-gray-300 dark:border-[#2f2f2f] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-50 dark:hover:bg-[#2f2f2f]',
+    ghost: 'text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f]'
   };
 
   return (

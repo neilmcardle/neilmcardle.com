@@ -98,26 +98,26 @@ export function SplitPreviewLayout({
         }`}
         style={{ width: isPreviewEnabled ? panelWidth : 0 }}
       >
-        <div className="h-full flex flex-col bg-gray-50 dark:bg-[#0a0a0a] border-l border-gray-200 dark:border-gray-800 relative">
+        <div className="h-full flex flex-col bg-gray-50 dark:bg-[#1e1e1e] border-l border-gray-200 dark:border-[#2f2f2f] relative">
 
           {/* Resize handle — left edge of right panel */}
           <div
-            className="absolute left-0 top-0 h-full w-1 cursor-col-resize z-50 hidden lg:block hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            className="absolute left-0 top-0 h-full w-1 cursor-col-resize z-50 hidden lg:block hover:bg-gray-300 dark:hover:bg-[#3a3a3a] transition-colors"
             onMouseDown={handleResizeStart}
           />
 
           {/* Preview Header */}
-          <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-[#2f2f2f]">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-[#141413] dark:text-white">
                 Live Preview
               </h3>
               <button
                 onClick={onTogglePreviewAction}
-                className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-800 rounded transition-colors"
+                className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#2f2f2f] rounded transition-colors"
                 aria-label="Close preview"
               >
-                <svg className="w-4 h-4 text-[#141413]/50 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-[#141413]/50 dark:text-[#a3a3a3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -132,7 +132,7 @@ export function SplitPreviewLayout({
                   className={`px-2 py-1 text-xs rounded transition-colors ${
                     previewDevice === key
                       ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                      : 'bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a]'
                   }`}
                 >
                   {val.name}
@@ -175,7 +175,7 @@ export function SplitPreviewLayout({
 
           {/* Chapter Navigation */}
           {chapters.length > 1 && (
-            <div className="flex-shrink-0 px-3 pb-2 border-t border-gray-200 dark:border-gray-800">
+            <div className="flex-shrink-0 px-3 pb-2 border-t border-gray-200 dark:border-[#2f2f2f]">
               <div className="flex gap-1 overflow-x-auto py-2 scrollbar-thin">
                 {chapters.map((ch, i) => (
                   <button
@@ -184,7 +184,7 @@ export function SplitPreviewLayout({
                     className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
                       i === selectedChapter
                         ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
-                        : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
+                        : 'bg-gray-200 dark:bg-[#262626] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#2f2f2f]'
                     }`}
                   >
                     {ch.title || `Ch ${i + 1}`}
@@ -195,7 +195,7 @@ export function SplitPreviewLayout({
           )}
 
           {/* Theme Controls */}
-          <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-gray-800">
+          <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-[#2f2f2f]">
             <div className="flex items-center justify-center gap-3">
               {(['light', 'sepia', 'dark'] as const).map((theme) => (
                 <button
@@ -204,7 +204,7 @@ export function SplitPreviewLayout({
                   className={`w-6 h-6 rounded-full border-2 transition-all ${
                     previewTheme === theme
                       ? 'scale-110 border-[#141413] dark:border-white shadow-md'
-                      : 'border-[#dedddd] dark:border-gray-600 hover:border-[#141413]/40'
+                      : 'border-[#dedddd] dark:border-[#3a3a3a] hover:border-[#141413]/40'
                   }`}
                   style={{
                     backgroundColor: theme === 'light' ? '#ffffff' :

@@ -60,7 +60,7 @@ export default function PreviewEreaderPanel({
           <select
             value={fontFamily}
             onChange={(e) => setFontFamily(e.target.value)}
-            className="px-2 py-1 text-sm rounded bg-[#f0eee6] dark:bg-[#161616] border border-[#e4e4de] dark:border-gray-800"
+            className="px-2 py-1 text-sm rounded bg-[#f0eee6] dark:bg-[#161616] border border-[#e4e4de] dark:border-[#2f2f2f]"
             aria-label="Select preview font"
           >
             <option value="serif">Serif</option>
@@ -70,7 +70,7 @@ export default function PreviewEreaderPanel({
             <option value="Roboto, sans-serif">Roboto</option>
             <option value="Times New Roman, serif">Times New Roman</option>
           </select>
-          <div className="ml-auto text-xs text-[#141413]/50 dark:text-gray-400">{previewIndex + 1}/{chapters.length}</div>
+          <div className="ml-auto text-xs text-[#141413]/50 dark:text-[#a3a3a3]">{previewIndex + 1}/{chapters.length}</div>
         </div>
 
         <div className="flex justify-center">
@@ -82,7 +82,7 @@ export default function PreviewEreaderPanel({
               style={{ fontFamily: fontFamily, WebkitFontSmoothing: 'antialiased' }}
             >
               <div className="p-3">
-                <div className="text-xs uppercase text-[#141413]/50 dark:text-gray-400 mb-2">{chapter.title || 'Untitled'}</div>
+                <div className="text-xs uppercase text-[#141413]/50 dark:text-[#a3a3a3] mb-2">{chapter.title || 'Untitled'}</div>
                 <div className="whitespace-pre-wrap text-[13px]">{text || 'No content in this chapter.'}</div>
               </div>
             </div>
@@ -91,8 +91,8 @@ export default function PreviewEreaderPanel({
       </div>
 
       <div className="px-3 py-2 border-t border-[#e4e4de] dark:border-[#262626] flex items-center gap-2">
-        <button onClick={prev} className="flex-1 px-3 py-2 rounded border border-[#e4e4de] dark:border-gray-800 bg-[#f0eee6] dark:bg-[#141414] hover:bg-[#e9e8e4] dark:hover:bg-[#1a1a1a]">◀ Chapter</button>
-        <button onClick={next} className="flex-1 px-3 py-2 rounded border border-[#e4e4de] dark:border-gray-800 bg-[#f0eee6] dark:bg-[#141414] hover:bg-[#e9e8e4] dark:hover:bg-[#1a1a1a]">Chapter ▶</button>
+        <button onClick={prev} className="flex-1 px-3 py-2 rounded border border-[#e4e4de] dark:border-[#2f2f2f] bg-[#f0eee6] dark:bg-[#141414] hover:bg-[#e9e8e4] dark:hover:bg-[#1a1a1a]">◀ Chapter</button>
+        <button onClick={next} className="flex-1 px-3 py-2 rounded border border-[#e4e4de] dark:border-[#2f2f2f] bg-[#f0eee6] dark:bg-[#141414] hover:bg-[#e9e8e4] dark:hover:bg-[#1a1a1a]">Chapter ▶</button>
       </div>
     </aside>
   );

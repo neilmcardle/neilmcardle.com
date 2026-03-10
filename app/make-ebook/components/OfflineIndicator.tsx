@@ -24,7 +24,7 @@ export function OfflineIndicator({
     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
       isOnline 
         ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
-        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+        : 'bg-gray-100 dark:bg-[#262626] text-gray-600 dark:text-[#a3a3a3]'
     }`}>
       {/* Status Icon */}
       {isSyncing ? (
@@ -84,7 +84,7 @@ export function OfflineIndicatorCompact({
       className={`flex items-center justify-center w-6 h-6 rounded-full ${
         isOnline 
           ? 'text-blue-500' 
-          : 'text-gray-500 dark:text-gray-400'
+          : 'text-gray-500 dark:text-[#a3a3a3]'
       }`}
       title={isSyncing ? 'Syncing...' : isOnline ? `${pendingSyncCount} changes to sync` : 'You are offline - changes saved locally'}
     >

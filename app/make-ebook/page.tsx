@@ -692,12 +692,12 @@ function MakeEbookPage() {
   return (
     <>
       {/* Main Content - Full height without header */}
-      <div className="bg-white dark:bg-[#0a0a0a] text-[#15161a] dark:text-[#e5e5e5]">
+      <div className="bg-white dark:bg-[#1e1e1e] text-[#15161a] dark:text-[#e5e5e5]">
         
         {/* New Book Confirmation Dialog */}
         {newBookConfirmOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#0a0a0a] rounded shadow-2xl p-6 max-w-md w-full">
+            <div className="bg-white dark:bg-[#1e1e1e] rounded shadow-2xl p-6 max-w-md w-full">
               <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Start New Book?</h2>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
                 This will save your current book and start a new one. All your current work will be preserved in the library.
@@ -723,7 +723,7 @@ function MakeEbookPage() {
         {/* Save Dialog */}
         {saveDialogOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#0a0a0a] rounded shadow-2xl p-6 max-w-md w-full">
+            <div className="bg-white dark:bg-[#1e1e1e] rounded shadow-2xl p-6 max-w-md w-full">
               <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Save Book</h2>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
                 This book already exists in your library. Do you want to overwrite the existing version or save as a new version?
@@ -755,7 +755,7 @@ function MakeEbookPage() {
         {/* Import Document Dialog */}
         {docImport.importDialogOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl p-6 max-w-md w-full">
+            <div className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl p-6 max-w-md w-full">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Import Document</h2>
                 <button
@@ -818,7 +818,7 @@ function MakeEbookPage() {
         {/* Version History Panel */}
         {showVersionHistory && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+            <div className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
               <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#333]">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Version History</h2>
                 <button
@@ -846,7 +846,7 @@ function MakeEbookPage() {
         {/* Export History Panel */}
         {showExportHistory && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+            <div className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
               <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#333]">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Export History</h2>
                 <button
@@ -884,7 +884,7 @@ function MakeEbookPage() {
 
         {/* Mobile Book Mind Drawer — full-screen, lg:hidden */}
         {mobileBookMindOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 flex flex-col animate-slide-in-from-bottom bg-white dark:bg-[#0a0a0a]">
+          <div className="lg:hidden fixed inset-0 z-50 flex flex-col animate-slide-in-from-bottom bg-white dark:bg-[#1e1e1e]">
             <BookMindPanel
               bookId={currentBookId}
               userId={user?.id}
@@ -911,7 +911,7 @@ function MakeEbookPage() {
             onClick={() => setMobileSidebarOpen(false)}
           />
           {/* Sidebar Panel */}
-          <div className={`absolute top-0 left-0 h-full w-full bg-white dark:bg-[#0a0a0a] shadow-2xl transform transition-transform duration-200 ease-out ${
+          <div className={`absolute top-0 left-0 h-full w-full bg-white dark:bg-[#1e1e1e] shadow-2xl transform transition-transform duration-200 ease-out ${
             mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
             <div className="flex flex-col h-full">
@@ -1404,7 +1404,7 @@ function MakeEbookPage() {
                               <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300 dark:from-gray-600 dark:via-gray-500 dark:to-gray-600 opacity-80 group-hover:opacity-100 transition-opacity" />
                               
                               {/* Inner content */}
-                              <div className="relative flex items-center gap-3 rounded-xl bg-white dark:bg-[#0a0a0a] px-3 py-3">
+                              <div className="relative flex items-center gap-3 rounded-xl bg-white dark:bg-[#1e1e1e] px-3 py-3">
                                 {/* Example cover thumbnail */}
                                 <div className="flex-shrink-0 w-12 h-16 rounded-md overflow-hidden shadow-md ring-1 ring-black/10 dark:ring-white/10 group-hover:shadow-lg transition-shadow">
                                   <img
@@ -1477,7 +1477,7 @@ function MakeEbookPage() {
                             </button>
 
                             {chapterTypeDropdownOpen && (
-                              <div ref={dropdownRef} className="absolute left-0 top-full mt-1 w-56 bg-white dark:bg-[#0a0a0a] rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 py-2 max-h-96 overflow-y-auto">
+                              <div ref={dropdownRef} className="absolute left-0 top-full mt-1 w-56 bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 py-2 max-h-96 overflow-y-auto">
                                 <div className="space-y-3 px-2">
                                   {/* Front Matter */}
                                   <div>
@@ -1679,15 +1679,15 @@ function MakeEbookPage() {
                     )}
                   </div>
 
-                  {/* Preview Section */}
+                  {/* Overview Section */}
                   <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
                     <button
                       onClick={() => expandMobileSection('preview')}
                       className="flex items-center justify-between py-2 w-full text-left"
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <img src="/summary-icon.svg" alt="Preview" className="w-5 h-5 dark:invert flex-shrink-0" />
-                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Preview</span>
+                        <img src="/summary-icon.svg" alt="Overview" className="w-5 h-5 dark:invert flex-shrink-0" />
+                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Overview</span>
                       </div>
                       {sidebarPreviewExpanded ? (
                         <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
@@ -1814,7 +1814,7 @@ function MakeEbookPage() {
               </div>
 
               {/* Footer - Compact */}
-              <footer className="flex-shrink-0 pt-3 pb-3 px-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] space-y-2.5">
+              <footer className="flex-shrink-0 pt-3 pb-3 px-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e1e1e] space-y-2.5">
                 {/* User Account Row */}
                 <div className="flex items-center justify-between">
                   <UserDropdownMobile />
@@ -1865,7 +1865,7 @@ function MakeEbookPage() {
             onClick={() => setMobileChaptersOpen(false)}
           />
           {/* Chapters Panel */}
-          <div className={`absolute top-0 right-0 h-full w-full bg-white dark:bg-[#0a0a0a] shadow-2xl transform transition-transform duration-200 ease-out ${
+          <div className={`absolute top-0 right-0 h-full w-full bg-white dark:bg-[#1e1e1e] shadow-2xl transform transition-transform duration-200 ease-out ${
             mobileChaptersOpen ? 'translate-x-0' : 'translate-x-full'
           }`}>
             <div className="flex flex-col h-full">
@@ -1881,7 +1881,7 @@ function MakeEbookPage() {
                 </div>
                 <button
                   onClick={() => setMobileChaptersOpen(false)}
-                  className="flex items-center justify-center px-5 py-4 rounded-full bg-white dark:bg-[#0a0a0a] gap-2 focus:outline-none transition-opacity relative"
+                  className="flex items-center justify-center px-5 py-4 rounded-full bg-white dark:bg-[#1e1e1e] gap-2 focus:outline-none transition-opacity relative"
                   aria-label="Close chapters menu"
                   style={{ minWidth: 56, minHeight: 56 }}
                 >
@@ -2016,7 +2016,7 @@ function MakeEbookPage() {
                       <span className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5]">Add Chapter</span>
                     </button>
                     {chapterTypeDropdownOpen && (
-                      <div ref={dropdownRef} className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#0a0a0a] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
+                      <div ref={dropdownRef} className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#1e1e1e] rounded border border-[#E8E8E8] dark:border-gray-700 shadow-lg max-h-96 overflow-y-auto">
                         <div className="p-3">
                           <div className="space-y-4">
                             <div>
@@ -2137,12 +2137,9 @@ function MakeEbookPage() {
               setTimeout(() => onboarding.startTour(), chapters.length === 0 ? 800 : 100);
             }}
             onBookMindToggle={() => setRightPanelMode(prev =>
-              prev === 'none' ? 'book-mind' :
-              prev === 'book-mind' ? 'none' :
-              prev === 'live-preview' ? 'both' :
-              'live-preview'
+              prev === 'book-mind' ? 'none' : 'book-mind'
             )}
-            isBookMindOpen={rightPanelMode === 'book-mind' || rightPanelMode === 'both'}
+            isBookMindOpen={rightPanelMode === 'book-mind'}
           />}
 
           {/* Desktop Sidebar - Hidden on Mobile, animates open/closed */}
@@ -2227,11 +2224,11 @@ function MakeEbookPage() {
           />}
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main data-editor-scroll className={`flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] ${chapters.length === 0 ? 'px-0 py-0' : 'px-2 py-8'} ${chapters.length > 0 ? 'lg:pl-8' : 'lg:pl-0'} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}>
+          <main data-editor-scroll className={`flex-1 flex flex-col bg-white dark:bg-[#1e1e1e] ${chapters.length === 0 ? 'px-0 py-0' : 'px-2 py-8'} ${chapters.length > 0 ? 'lg:pl-8' : 'lg:pl-0'} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}>
             
             {/* Mobile Header - Compact Status Bar - Hidden when no chapters (landing page) */}
             {chapters.length > 0 && (
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#0a0a0a]">
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1e1e1e]">
               <div className="flex items-center justify-between px-2 py-1.5 gap-1 border-b border-gray-200 dark:border-gray-700">
                 {/* Left: Menu Button */}
                 <div className="flex items-center gap-0.5">
@@ -2331,7 +2328,7 @@ function MakeEbookPage() {
               ) : (
               <>
               {/* Compact Chapter Header - Always visible on mobile for title editing */}
-              <div className="flex-shrink-0 bg-white dark:bg-[#0a0a0a] border-none pb-1 px-2 transition-all duration-200">
+              <div className="flex-shrink-0 bg-white dark:bg-[#1e1e1e] border-none pb-1 px-2 transition-all duration-200">
                 {/* Chapter Title Input - Clean UI */}
                 <div className="mt-0">
                   <div className="flex items-center gap-0 px-1 py-1">
@@ -2498,7 +2495,7 @@ function MakeEbookPage() {
                       onChange={(m) => {
                         setRightPanelMode(m);
                         // Close split preview when a right panel with live preview is shown
-                        if (m === 'live-preview' || m === 'both') {
+                        if (m === 'live-preview') {
                           setIsSplitPreviewEnabled(false);
                         }
                       }}
@@ -2506,7 +2503,7 @@ function MakeEbookPage() {
                   </div>
                 </div>
                 {/* Compact Chapter Title Header - Clean UI */}
-                <div className="mb-1 flex-shrink-0 bg-white dark:bg-[#0a0a0a] pb-1">
+                <div className="mb-1 flex-shrink-0 bg-white dark:bg-[#1e1e1e] pb-1">
                   <div className="flex items-center gap-1 px-1 py-1">
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 dark:hidden ml-1" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 hidden dark:block ml-1" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
@@ -2615,7 +2612,7 @@ function MakeEbookPage() {
                     />
                   </div>
                   {/* Word Stats Footer */}
-                  <div className="flex-shrink-0 flex items-center justify-center py-2 border-t border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-[#0a0a0a]/50">
+                  <div className="flex-shrink-0 flex items-center justify-center py-2 border-t border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-[#1e1e1e]/50">
                     <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
                       {/* Chapter stats */}
                       <span className="flex items-center gap-1.5">
@@ -2653,8 +2650,8 @@ function MakeEbookPage() {
           {rightPanelMode !== 'none' && !(focus.active && focus.settings.hideChrome) && (
             <ResizableRightPanel>
               {/* Book Mind */}
-              {(rightPanelMode === 'book-mind' || rightPanelMode === 'both') && (
-                <div className={rightPanelMode === 'both' ? 'flex-1 min-h-0 overflow-hidden' : 'h-full'}>
+              {rightPanelMode === 'book-mind' && (
+                <div className="h-full">
                   <BookMindPanel
                     bookId={currentBookId}
                     userId={user?.id}
@@ -2664,18 +2661,18 @@ function MakeEbookPage() {
                     chapters={chapters.map(c => ({ title: c.title, content: c.content, type: c.type }))}
                     selectedChapterIndex={selectedChapter}
                     selectedText={selectedEditorText}
-                    onClose={() => setRightPanelMode(rightPanelMode === 'both' ? 'live-preview' : 'none')}
+                    onClose={() => setRightPanelMode('none')}
                   />
                 </div>
               )}
               {/* Live Preview Panel */}
-              {(rightPanelMode === 'live-preview' || rightPanelMode === 'both') && (
-                <div className={`${rightPanelMode === 'both' ? 'flex-1 min-h-0 border-t border-gray-200 dark:border-gray-800' : 'h-full'} overflow-hidden`}>
+              {rightPanelMode === 'live-preview' && (
+                <div className="h-full overflow-hidden">
                   <LivePreviewPanel
                     chapters={chapters}
                     selectedChapter={selectedChapter}
                     onChapterSelect={setSelectedChapter}
-                    onClose={() => setRightPanelMode(rightPanelMode === 'both' ? 'book-mind' : 'none')}
+                    onClose={() => setRightPanelMode('none')}
                   />
                 </div>
               )}
@@ -2723,7 +2720,7 @@ function MakeEbookPage() {
       {/* Sync Conflict Resolution Dialog */}
       {cloudSync.syncConflicts.length > 0 && cloudSync.syncConflicts[0] && (
         <div className="fixed inset-0 z-[150] bg-black/30 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl p-6 max-w-md w-full animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl p-6 max-w-md w-full animate-in fade-in zoom-in-95 duration-150">
             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">Sync Conflict</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               &ldquo;{cloudSync.syncConflicts[0].local.title || 'Untitled'}&rdquo; was edited on this device and another.

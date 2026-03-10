@@ -96,7 +96,7 @@ export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }
   return (
     <div className="fixed inset-0 z-[10000] bg-black/70 dark:bg-black/85 flex items-center justify-center">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 h-16 bg-[#f0eee6]/95 dark:bg-[#0a0a0a]/90 backdrop-blur-sm border-b border-[#e4e4de] dark:border-[#333] flex items-center justify-between px-6 z-10">
+      <div className="absolute top-0 left-0 right-0 h-16 bg-[#f0eee6]/95 dark:bg-[#1e1e1e]/90 backdrop-blur-sm border-b border-[#e4e4de] dark:border-[#333] flex items-center justify-between px-6 z-10">
         <h2 className="text-lg font-semibold text-[#141413] dark:text-white">
           {bookTitle || 'EPUB Preview'}
         </h2>
@@ -118,21 +118,21 @@ export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }
       </div>
 
       {/* Navigation Controls */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f0eee6]/95 dark:bg-[#0a0a0a]/90 backdrop-blur-sm border-t border-[#e4e4de] dark:border-[#333] flex items-center justify-center gap-4 z-10">
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f0eee6]/95 dark:bg-[#1e1e1e]/90 backdrop-blur-sm border-t border-[#e4e4de] dark:border-[#333] flex items-center justify-center gap-4 z-10">
         <button
           onClick={handlePrevPage}
           disabled={!isReady || !canGoPrev}
-          className="px-6 py-3 bg-[#141413] dark:bg-white text-[#faf9f5] dark:text-gray-900 rounded-lg font-medium hover:bg-[#141413]/80 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-6 py-3 bg-[#141413] dark:bg-white text-[#faf9f5] dark:text-[#111] rounded-lg font-medium hover:bg-[#141413]/80 dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           ← Previous
         </button>
-        <div className="text-sm text-[#141413]/60 dark:text-gray-400">
+        <div className="text-sm text-[#141413]/60 dark:text-[#a3a3a3]">
           {isReady ? 'Use arrow keys to navigate' : 'Loading...'}
         </div>
         <button
           onClick={handleNextPage}
           disabled={!isReady || !canGoNext}
-          className="px-6 py-3 bg-[#141413] dark:bg-white text-[#faf9f5] dark:text-gray-900 rounded-lg font-medium hover:bg-[#141413]/80 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-6 py-3 bg-[#141413] dark:bg-white text-[#faf9f5] dark:text-[#111] rounded-lg font-medium hover:bg-[#141413]/80 dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           Next →
         </button>

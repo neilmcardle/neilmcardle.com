@@ -233,7 +233,7 @@ export default function OnboardingTour({
         role="dialog"
         aria-modal="true"
         aria-label={`Onboarding tour step ${currentStep + 1} of ${totalSteps}`}
-        className={`fixed z-[201] w-[300px] max-w-[calc(100vw-32px)] bg-white dark:bg-[#0a0a0a] rounded-xl shadow-2xl border border-blue-400/60 p-4 transition-all duration-150 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        className={`fixed z-[201] w-[300px] max-w-[calc(100vw-32px)] bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl border border-blue-400/60 p-4 transition-all duration-150 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         style={tooltipStyle}
       >
         {/* Arrow — border layer (blue outline) */}
@@ -311,12 +311,12 @@ export default function OnboardingTour({
 
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-400 dark:text-gray-500">
+          <span className="text-xs text-gray-400 dark:text-[#737373]">
             Step {currentStep + 1} of {totalSteps}
           </span>
           <button
             onClick={onSkip}
-            className="p-1 -m-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            className="p-1 -m-1 text-gray-400 hover:text-gray-600 dark:text-[#737373] dark:hover:text-[#d4d4d4] transition-colors"
             aria-label="Close tour"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,10 +326,10 @@ export default function OnboardingTour({
         </div>
 
         {/* Content */}
-        <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">
+        <h3 className="text-sm font-bold text-gray-900 dark:text-[#f5f5f5] mb-1">
           {stepData.title}
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+        <p className="text-sm text-gray-600 dark:text-[#d4d4d4] mb-4 leading-relaxed">
           {stepData.description}
         </p>
 
@@ -339,7 +339,7 @@ export default function OnboardingTour({
             {!isFirstStep && (
               <button
                 onClick={onPrev}
-                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#a3a3a3] dark:hover:text-[#e5e5e5] transition-colors"
               >
                 Back
               </button>
@@ -349,7 +349,7 @@ export default function OnboardingTour({
             {!isLastStep && (
               <button
                 onClick={onSkip}
-                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#a3a3a3] dark:hover:text-[#e5e5e5] transition-colors"
               >
                 Skip
               </button>
@@ -357,7 +357,7 @@ export default function OnboardingTour({
             <button
               ref={nextBtnRef}
               onClick={onNext}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-[#111] hover:bg-gray-800 dark:hover:bg-[#e5e5e5] transition-colors"
             >
               {isLastStep ? 'Done' : 'Next'}
             </button>
@@ -371,7 +371,7 @@ export default function OnboardingTour({
           --tour-arrow-bg: white;
         }
         .dark {
-          --tour-arrow-bg: #0a0a0a;
+          --tour-arrow-bg: #1e1e1e;
         }
       `}</style>
     </>

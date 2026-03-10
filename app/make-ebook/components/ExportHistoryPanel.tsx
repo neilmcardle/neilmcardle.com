@@ -58,8 +58,8 @@ export function ExportHistoryPanel({
   if (isLoading) {
     return (
       <div className="p-6 text-center">
-        <div className="animate-spin w-6 h-6 border-2 border-gray-300 border-t-gray-900 dark:border-gray-600 dark:border-t-gray-100 rounded-full mx-auto" />
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Loading export history...</p>
+        <div className="animate-spin w-6 h-6 border-2 border-gray-300 border-t-gray-900 dark:border-[#3a3a3a] dark:border-t-gray-100 rounded-full mx-auto" />
+        <p className="text-xs text-gray-500 dark:text-[#a3a3a3] mt-2">Loading export history...</p>
       </div>
     );
   }
@@ -67,15 +67,15 @@ export function ExportHistoryPanel({
   if (exports.length === 0) {
     return (
       <div className="p-6 text-center">
-        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-[#262626] flex items-center justify-center">
           <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
-        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+        <h3 className="text-sm font-medium text-gray-900 dark:text-[#f5f5f5] mb-1">
           No exports yet
         </h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-xs text-gray-500 dark:text-[#a3a3a3]">
           Export your book to EPUB to see it here.
         </p>
       </div>
@@ -85,16 +85,16 @@ export function ExportHistoryPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+      <div className="p-4 border-b border-gray-200 dark:border-[#2f2f2f]">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-[#f5f5f5]">
             Export History
           </h3>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-gray-500 dark:text-[#a3a3a3]">
             {exports.length}/5 saved
           </span>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-xs text-gray-500 dark:text-[#a3a3a3] mt-1">
           Last 5 exports are kept for preview and download
         </p>
       </div>
@@ -108,7 +108,7 @@ export function ExportHistoryPanel({
           return (
             <div
               key={exp.id}
-              className={`border-b border-gray-100 dark:border-gray-800 ${
+              className={`border-b border-gray-100 dark:border-[#2f2f2f] ${
                 isExpanded ? 'bg-gray-50 dark:bg-[#1f1f1f]' : ''
               }`}
             >
@@ -120,7 +120,7 @@ export function ExportHistoryPanel({
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <span className="text-sm font-medium text-gray-900 dark:text-[#f5f5f5]">
                         {formatTimestamp(exp.timestamp)}
                       </span>
                       {isLatest && (
@@ -129,10 +129,10 @@ export function ExportHistoryPanel({
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-gray-700 dark:text-gray-300 truncate mt-0.5">
+                    <div className="text-xs text-gray-700 dark:text-[#d4d4d4] truncate mt-0.5">
                       {exp.title}
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-[#a3a3a3]">
                       <span>{exp.wordCount.toLocaleString()} words</span>
                       <span>•</span>
                       <span>{exp.chapterCount} chapters</span>
@@ -170,7 +170,7 @@ export function ExportHistoryPanel({
                     </button>
                     <button
                       onClick={() => onDownloadAction(exp.id)}
-                      className="flex-1 py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-800 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-center gap-1.5 text-gray-700 dark:text-gray-300"
+                      className="flex-1 py-2 px-3 rounded-lg border border-gray-200 dark:border-[#2f2f2f] text-xs font-medium hover:bg-gray-50 dark:hover:bg-[#2f2f2f] transition-colors flex items-center justify-center gap-1.5 text-gray-700 dark:text-[#d4d4d4]"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -179,7 +179,7 @@ export function ExportHistoryPanel({
                     </button>
                     <button
                       onClick={() => onDeleteAction(exp.id)}
-                      className="p-2 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
+                      className="p-2 rounded-lg border border-gray-200 dark:border-[#2f2f2f] text-gray-500 dark:text-[#a3a3a3] hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
                       title="Delete this export"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -196,7 +196,7 @@ export function ExportHistoryPanel({
 
       {/* Footer with Clear All */}
       {exports.length > 1 && (
-        <div className="p-3 border-t border-gray-200 dark:border-gray-800">
+        <div className="p-3 border-t border-gray-200 dark:border-[#2f2f2f]">
           {confirmClear ? (
             <div className="flex items-center gap-2">
               <span className="text-xs text-red-600 dark:text-red-400 flex-1">
@@ -213,7 +213,7 @@ export function ExportHistoryPanel({
               </button>
               <button
                 onClick={() => setConfirmClear(false)}
-                className="px-3 py-1.5 rounded text-xs font-medium border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="px-3 py-1.5 rounded text-xs font-medium border border-gray-200 dark:border-[#2f2f2f] hover:bg-gray-100 dark:hover:bg-[#2f2f2f]"
               >
                 Cancel
               </button>
@@ -221,7 +221,7 @@ export function ExportHistoryPanel({
           ) : (
             <button
               onClick={() => setConfirmClear(true)}
-              className="w-full py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+              className="w-full py-2 text-xs text-gray-500 dark:text-[#a3a3a3] hover:text-red-600 dark:hover:text-red-400 transition-colors"
             >
               Clear all export history
             </button>
@@ -245,11 +245,11 @@ export function ExportHistoryButton({ exportCount, onClickAction }: ExportHistor
       className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
       title="View export history"
     >
-      <svg className="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-4 h-4 text-gray-600 dark:text-[#a3a3a3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       {exportCount > 0 && (
-        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{exportCount}</span>
+        <span className="text-xs font-medium text-gray-700 dark:text-[#d4d4d4]">{exportCount}</span>
       )}
     </button>
   );

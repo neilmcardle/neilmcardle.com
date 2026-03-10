@@ -47,15 +47,15 @@ export function VersionHistoryPanel({
   if (versions.length === 0) {
     return (
       <div className="p-6 text-center">
-        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-[#262626] flex items-center justify-center">
           <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+        <h3 className="text-sm font-medium text-gray-900 dark:text-[#f5f5f5] mb-1">
           No version history yet
         </h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-xs text-gray-500 dark:text-[#a3a3a3]">
           Versions are saved automatically when you save your book.
         </p>
       </div>
@@ -65,16 +65,16 @@ export function VersionHistoryPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+      <div className="p-4 border-b border-gray-200 dark:border-[#2f2f2f]">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-[#f5f5f5]">
             Version History
           </h3>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-gray-500 dark:text-[#a3a3a3]">
             {versions.length} saved
           </span>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-xs text-gray-500 dark:text-[#a3a3a3] mt-1">
           Click any version to preview and restore
         </p>
       </div>
@@ -89,7 +89,7 @@ export function VersionHistoryPanel({
           return (
             <div
               key={version.id}
-              className={`border-b border-gray-100 dark:border-gray-800 ${
+              className={`border-b border-gray-100 dark:border-[#2f2f2f] ${
                 isExpanded ? 'bg-gray-50 dark:bg-[#1f1f1f]' : ''
               }`}
             >
@@ -101,7 +101,7 @@ export function VersionHistoryPanel({
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <span className="text-sm font-medium text-gray-900 dark:text-[#f5f5f5]">
                         {formatTimestamp(version.timestamp)}
                       </span>
                       {isLatest && (
@@ -110,7 +110,7 @@ export function VersionHistoryPanel({
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-[#a3a3a3]">
                       <span>{version.wordCount.toLocaleString()} words</span>
                       <span>•</span>
                       <span>{version.chapterCount} chapters</span>
@@ -140,11 +140,11 @@ export function VersionHistoryPanel({
                   )}
 
                   {/* Chapter Preview */}
-                  <div className="bg-white dark:bg-[#0a0a0a] rounded-lg border border-gray-200 dark:border-gray-800 p-2 mb-3">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Chapters:</div>
+                  <div className="bg-white dark:bg-[#1e1e1e] rounded-lg border border-gray-200 dark:border-[#2f2f2f] p-2 mb-3">
+                    <div className="text-xs text-gray-500 dark:text-[#a3a3a3] mb-1">Chapters:</div>
                     <div className="space-y-1 max-h-24 overflow-y-auto">
                       {version.chapters.slice(0, 5).map((ch, i) => (
-                        <div key={ch.id} className="text-xs text-gray-700 dark:text-gray-300 truncate">
+                        <div key={ch.id} className="text-xs text-gray-700 dark:text-[#d4d4d4] truncate">
                           {i + 1}. {ch.title || 'Untitled Chapter'}
                         </div>
                       ))}
@@ -172,7 +172,7 @@ export function VersionHistoryPanel({
                     </button>
                     <button
                       onClick={() => onDeleteAction(version.id)}
-                      className="p-2 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
+                      className="p-2 rounded-lg border border-gray-200 dark:border-[#2f2f2f] text-gray-500 dark:text-[#a3a3a3] hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
                       title="Delete this version"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -189,7 +189,7 @@ export function VersionHistoryPanel({
 
       {/* Footer with Clear All */}
       {versions.length > 1 && (
-        <div className="p-3 border-t border-gray-200 dark:border-gray-800">
+        <div className="p-3 border-t border-gray-200 dark:border-[#2f2f2f]">
           {confirmClear ? (
             <div className="flex items-center gap-2">
               <span className="text-xs text-red-600 dark:text-red-400 flex-1">
@@ -206,7 +206,7 @@ export function VersionHistoryPanel({
               </button>
               <button
                 onClick={() => setConfirmClear(false)}
-                className="px-3 py-1.5 rounded text-xs font-medium border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="px-3 py-1.5 rounded text-xs font-medium border border-gray-200 dark:border-[#2f2f2f] hover:bg-gray-100 dark:hover:bg-[#2f2f2f]"
               >
                 Cancel
               </button>
@@ -214,7 +214,7 @@ export function VersionHistoryPanel({
           ) : (
             <button
               onClick={() => setConfirmClear(true)}
-              className="w-full py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+              className="w-full py-2 text-xs text-gray-500 dark:text-[#a3a3a3] hover:text-red-600 dark:hover:text-red-400 transition-colors"
             >
               Clear all version history
             </button>
@@ -235,7 +235,7 @@ export function VersionHistoryButton({ versionCount, onClickAction }: VersionHis
   return (
     <button
       onClick={onClickAction}
-      className="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+      className="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors"
       title="View version history"
     >
       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
