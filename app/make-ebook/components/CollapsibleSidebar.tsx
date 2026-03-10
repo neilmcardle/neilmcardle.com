@@ -117,6 +117,7 @@ interface CollapsibleSidebarProps {
   handleSaveBook: () => void;
   handleExportEPUB: () => void;
   handleExportPDF: () => void;
+  handleExportDocx: () => void;
   saveFeedback: boolean;
 
   // Export history
@@ -266,6 +267,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     handleSaveBook,
     handleExportEPUB,
     handleExportPDF,
+    handleExportDocx,
     saveFeedback,
     exportHistoryCount,
     onShowExportHistory,
@@ -504,9 +506,9 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                             setSelectedBookId(null);
                           }}
                           className="px-2 py-1 text-xs rounded bg-black dark:bg-white text-white dark:text-black hover:opacity-80"
-                          title="Load book"
+                          title="Open book"
                         >
-                          Load
+                          Open
                         </button>
                         <button
                           onClick={() => handleExportLibraryBook(book.id)}
@@ -583,22 +585,37 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 {saveFeedback ? 'Saved!' : 'Save'}
               </span>
             </button>
-            <button
-              onClick={handleExportEPUB}
-              className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
-              title="Export as EPUB"
-            >
-              <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-              <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">EPUB</span>
-            </button>
-            <button
-              onClick={handleExportPDF}
-              className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
-              title="Export as PDF"
-            >
-              <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-              <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">PDF</span>
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors">
+                  <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                  <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Export</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" sideOffset={8} className="w-44">
+                <DropdownMenuItem onClick={handleExportEPUB} className="flex items-center gap-2 cursor-pointer">
+                  <DownloadIcon className="w-4 h-4" />
+                  <div>
+                    <div className="text-sm font-medium">EPUB</div>
+                    <div className="text-xs text-gray-500">Kindle, Kobo, Apple Books</div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportPDF} className="flex items-center gap-2 cursor-pointer">
+                  <DownloadIcon className="w-4 h-4" />
+                  <div>
+                    <div className="text-sm font-medium">PDF</div>
+                    <div className="text-xs text-gray-500">Print & sharing</div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportDocx} className="flex items-center gap-2 cursor-pointer">
+                  <DownloadIcon className="w-4 h-4" />
+                  <div>
+                    <div className="text-sm font-medium">Word</div>
+                    <div className="text-xs text-gray-500">Editors & agents</div>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {exportHistoryCount > 0 && (
               <ExportHistoryButton
                 exportCount={exportHistoryCount}

@@ -54,7 +54,7 @@ export function UserDropdownMobile() {
           />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56 z-[150] [&>*]:ml-2" style={{ marginLeft: '8px' }}>
+      <DropdownMenuContent align="start" side="top" sideOffset={8} className="w-56 z-[200]">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">Account</p>

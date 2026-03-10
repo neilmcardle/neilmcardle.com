@@ -187,7 +187,14 @@ export async function POST(req: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          if (grokKey) {
+          if (anthropicKey) {
+            await streamAnthropic(
+              anthropicKey,
+              process.env.ANTHROPIC_MODEL || 'claude-3-5-haiku-20241022',
+              messages,
+              controller
+            );
+          } else if (grokKey) {
             await streamOpenAICompatible(
               'https://api.x.ai/v1/chat/completions',
               grokKey,
@@ -200,13 +207,6 @@ export async function POST(req: NextRequest) {
               'https://api.openai.com/v1/chat/completions',
               openaiKey,
               process.env.OPENAI_MODEL || 'gpt-4o-mini',
-              messages,
-              controller
-            );
-          } else if (anthropicKey) {
-            await streamAnthropic(
-              anthropicKey,
-              process.env.ANTHROPIC_MODEL || 'claude-3-haiku-20240307',
               messages,
               controller
             );

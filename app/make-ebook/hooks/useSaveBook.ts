@@ -5,6 +5,7 @@ import { Chapter, Endnote, EndnoteReference } from "../types";
 import { TypographyPreset } from "../utils/typographyPresets";
 import { exportEpub } from "../utils/exportEpub";
 import { exportPdf } from "../utils/exportPdf";
+import { exportDocx } from "../utils/exportDocx";
 import { loadBookLibrary, saveBookToLibrary, removeBookFromLibrary } from "../utils/bookLibrary";
 import { ensureChapterIds, migrateEndnoteReferences } from "../utils/pageUtils";
 
@@ -229,6 +230,11 @@ export function useSaveBook({
     exportPdf({ title, author, publisher, chapters: migratedChapters, typographyPreset });
   }
 
+  async function handleExportDocx() {
+    const migratedChapters = ensureChapterIds(chapters);
+    await exportDocx({ title, author, publisher, chapters: migratedChapters });
+  }
+
   async function handlePreviewExport(exportId: string) {
     const blob = await getExportBlob(exportId);
     if (blob) {
@@ -265,6 +271,7 @@ export function useSaveBook({
     handleSaveAsNewVersion,
     handleExportEPUB,
     handleExportPDF,
+    handleExportDocx,
     handlePreviewExport,
     handleDownloadExport,
   };

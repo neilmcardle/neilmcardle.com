@@ -7,6 +7,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { PlusIcon, TrashIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, LockIcon, MetadataIcon, MenuIcon } from "./components/icons";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import LandingPage from "./components/LandingPage";
 import MarketingLandingPage from "./components/MarketingLandingPage";
@@ -1094,7 +1100,7 @@ function MakeEbookPage() {
                                       className="px-2 py-1 text-xs rounded bg-black dark:bg-white text-white dark:text-black hover:opacity-80"
                                       title="Load book"
                                     >
-                                      Load
+                                      Open
                                     </button>
                                     <button
                                       onClick={() => library.handleExportLibraryBook(book.id)}
@@ -1181,22 +1187,38 @@ function MakeEbookPage() {
                               {saveFeedback ? 'Saved!' : 'Save'}
                             </span>
                           </button>
-                          <button
-                            onClick={() => saveBook.handleExportEPUB()}
-                            className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-                            title="Export as EPUB"
-                          >
-                            <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">EPUB</span>
-                          </button>
-                          <button
-                            onClick={saveBook.handleExportPDF}
-                            className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
-                            title="Export as PDF"
-                          >
-                            <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">PDF</span>
-                          </button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors">
+                                <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Export</span>
+                                <ChevronDown className="w-3 h-3 text-gray-400" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-44 z-[200]">
+                              <DropdownMenuItem onClick={() => saveBook.handleExportEPUB()} className="flex items-center gap-2 cursor-pointer">
+                                <DownloadIcon className="w-4 h-4" />
+                                <div>
+                                  <div className="text-sm font-medium">EPUB</div>
+                                  <div className="text-xs text-gray-500">Kindle, Kobo, Apple Books</div>
+                                </div>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={saveBook.handleExportPDF} className="flex items-center gap-2 cursor-pointer">
+                                <DownloadIcon className="w-4 h-4" />
+                                <div>
+                                  <div className="text-sm font-medium">PDF</div>
+                                  <div className="text-xs text-gray-500">Print & sharing</div>
+                                </div>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={saveBook.handleExportDocx} className="flex items-center gap-2 cursor-pointer">
+                                <DownloadIcon className="w-4 h-4" />
+                                <div>
+                                  <div className="text-sm font-medium">Word</div>
+                                  <div className="text-xs text-gray-500">Editors & agents</div>
+                                </div>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                           {exportHistory.length > 0 && (
                             <ExportHistoryButton
                               exportCount={exportHistory.length}
@@ -1794,38 +1816,10 @@ function MakeEbookPage() {
               {/* Footer - Compact */}
               <footer className="flex-shrink-0 pt-3 pb-3 px-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] space-y-2.5">
                 {/* User Account Row */}
-                {user ? (
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <SubscriptionBadge showUpgradeButton={false} />
-                      <span className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate min-w-0 flex-1">{user.email}</span>
-                      <ThemeToggle />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <ManageBillingButton variant="ghost" size="sm" className="h-auto p-0 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" />
-                      <button
-                        onClick={async () => {
-                          await signOut();
-                          setMobileSidebarOpen(false);
-                        }}
-                        className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                      >
-                        Log out
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between">
-                    <Link
-                      href="/login"
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-                      onClick={() => setMobileSidebarOpen(false)}
-                    >
-                      Log in
-                    </Link>
-                    <ThemeToggle />
-                  </div>
-                )}
+                <div className="flex items-center justify-between">
+                  <UserDropdownMobile />
+                  <ThemeToggle />
+                </div>
 
                 {/* Links Row — extra spacing from account section */}
                 <div className="pt-2" />
@@ -2218,6 +2212,7 @@ function MakeEbookPage() {
             handleSaveBook={saveBook.handleSaveBook}
             handleExportEPUB={saveBook.handleExportEPUB}
             handleExportPDF={saveBook.handleExportPDF}
+            handleExportDocx={saveBook.handleExportDocx}
             saveFeedback={saveFeedback}
             exportHistoryCount={exportHistory.length}
             onShowExportHistory={() => setShowExportHistory(true)}
@@ -2820,7 +2815,7 @@ function MakeEbookPage() {
 // Export page without ProtectedRoute wrapper - the MarketingLandingPage handles auth
 export default function MakeEbookPageWrapper() {
   return (
-    <Suspense fallback={<div>Loading makeEbook...</div>}>
+    <Suspense fallback={<div>Creating makeEbook...</div>}>
       <MakeEbookPage />
     </Suspense>
   );
