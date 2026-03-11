@@ -746,3 +746,63 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   pointer-events: none;
   transition: opacity 0.25s ease;
 }
+/* ============================================
+   makeEbook Marketing — Ink Wash Hero Background
+   Uses @property to animate radial-gradient positions
+   ============================================ */
+
+@property --iw1x { syntax: '<percentage>'; initial-value: 20%; inherits: false; }
+@property --iw1y { syntax: '<percentage>'; initial-value: 40%; inherits: false; }
+@property --iw2x { syntax: '<percentage>'; initial-value: 80%; inherits: false; }
+@property --iw2y { syntax: '<percentage>'; initial-value: 65%; inherits: false; }
+@property --iw3x { syntax: '<percentage>'; initial-value: 55%; inherits: false; }
+@property --iw3y { syntax: '<percentage>'; initial-value: 20%; inherits: false; }
+
+@keyframes ink-drift {
+  0%, 100% { --iw1x: 20%; --iw1y: 40%; --iw2x: 80%; --iw2y: 65%; --iw3x: 55%; --iw3y: 20%; }
+  33%       { --iw1x: 38%; --iw1y: 62%; --iw2x: 62%; --iw2y: 38%; --iw3x: 72%; --iw3y: 48%; }
+  66%       { --iw1x: 62%; --iw1y: 28%; --iw2x: 35%; --iw2y: 72%; --iw3x: 28%; --iw3y: 68%; }
+}
+
+.hero-ink-wash {
+  position: relative;
+  background:
+    radial-gradient(ellipse 70% 55% at var(--iw1x) var(--iw1y), rgba(20,20,20,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 45% at var(--iw2x) var(--iw2y), rgba(20,20,20,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 65% 60% at var(--iw3x) var(--iw3y), rgba(20,20,20,0.08) 0%, transparent 65%),
+    #fafaf9;
+  animation: ink-drift 14s ease-in-out infinite;
+}
+
+/* Paper grain texture overlay — parent needs position:relative + overflow:hidden */
+.paper-grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Feature card spotlight — white light follows cursor */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(380px circle at var(--mx, -100%) var(--my, -100%), rgba(255,255,255,0.35), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.spotlight-card:hover::after {
+  opacity: 1;
+}

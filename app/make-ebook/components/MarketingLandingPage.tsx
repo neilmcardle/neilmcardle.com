@@ -40,8 +40,8 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
       className={className}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(28px)',
-        transition: `opacity 0.65s ease ${delay}ms, transform 0.65s ease ${delay}ms`,
+        transform: visible ? 'translateY(0)' : 'translateY(48px)',
+        transition: `opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
       }}
     >
       {children}
@@ -277,6 +277,24 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const [videoOpen, setVideoOpen] = useState(false);
   const [videoVisible, setVideoVisible] = useState(false);
   const { user, signOut } = useAuth();
+  const [typed, setTyped] = useState('');
+  const [typingDone, setTypingDone] = useState(false);
+  const TYPEWRITER_PHRASE = 'and finish it like a pro.';
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      let i = 0;
+      const interval = setInterval(() => {
+        i++;
+        setTyped(TYPEWRITER_PHRASE.slice(0, i));
+        if (i === TYPEWRITER_PHRASE.length) {
+          clearInterval(interval);
+          setTimeout(() => setTypingDone(true), 600);
+        }
+      }, 52);
+      return () => clearInterval(interval);
+    }, 500);
+    return () => clearTimeout(delay);
+  }, []);
   const featuresRef = useRef<HTMLElement>(null);
   const pricingRef = useRef<HTMLElement>(null);
   const chatRef = useRef<HTMLDivElement>(null);
@@ -474,9 +492,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-50 via-white to-neutral-50" />
+      <section className="relative overflow-hidden hero-ink-wash paper-grain">
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-40">
           <div className="text-center max-w-4xl mx-auto">
@@ -487,17 +503,20 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6 text-[#111] text-balance">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 text-[#111] text-balance" style={{ letterSpacing: '-0.05em' }}>
               Write your first eBook,
               <br />
               <span className="text-[#111]">
-                and finish it like a pro.
+                {typed}
+                {!typingDone && <span className="animate-pulse font-thin text-[#999]">|</span>}
               </span>
             </h1>
 
             {/* Subheadline */}
             <p className="text-xl sm:text-2xl text-[#666] mb-10 max-w-2xl mx-auto">
-              Create and download a professional eBook file in your browser, ready for Kindle, Kobo, Apple and more.
+              Create and download a professional eBook file in your browser, ready for{' '}
+              <span className="font-playfair italic text-[#444]">Kindle, Kobo, Apple</span>
+              {' '}and more.
             </p>
 
             {/* CTA Buttons */}
@@ -556,12 +575,19 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         </div>
       </section>
 
+      {/* Ink wave divider */}
+      <div className="w-full overflow-hidden" style={{ background: '#fafaf9', lineHeight: 0 }} aria-hidden="true">
+        <svg viewBox="0 0 1440 56" className="w-full block" preserveAspectRatio="none" style={{ height: 56, display: 'block' }}>
+          <path d="M0,28 C200,56 400,0 720,28 C1040,56 1240,0 1440,28 L1440,56 L0,56 Z" fill="#ffffff" />
+        </svg>
+      </div>
+
       {/* How It Works Section */}
       <section className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-[#111]">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-[#111]" style={{ letterSpacing: '-0.04em' }}>
                 Three steps to published
               </h2>
               <p className="text-xl text-[#666]">
@@ -572,10 +598,10 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {HOW_IT_WORKS.map((item, index) => (
               <FadeIn key={index} delay={index * 120}>
-                <div className="relative">
-                  <div className="text-6xl font-bold text-neutral-200 mb-4 leading-none">{item.step}</div>
-                  <h3 className="text-xl font-semibold text-[#111] mb-3">{item.title}</h3>
-                  <p className="text-[#666] leading-relaxed">{item.description}</p>
+                <div className="relative pt-20">
+                  <div className="font-playfair select-none pointer-events-none absolute top-0 -left-2 text-[#ececec] font-bold leading-none" style={{ fontSize: '9rem', letterSpacing: '-0.06em', zIndex: 0 }}>{item.step}</div>
+                  <h3 className="relative text-xl font-semibold text-[#111] mb-3" style={{ letterSpacing: '-0.02em', zIndex: 1, position: 'relative' }}>{item.title}</h3>
+                  <p className="text-[#666] leading-relaxed" style={{ position: 'relative', zIndex: 1 }}>{item.description}</p>
                   {index < HOW_IT_WORKS.length - 1 && (
                     <div className="hidden md:block absolute top-8 -right-4 text-neutral-300">
                       <ChevronRight className="w-6 h-6" />
@@ -607,7 +633,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   <Eye className="w-4 h-4" />
                   Live Preview
                 </div>
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-[#111]">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-[#111]" style={{ letterSpacing: '-0.04em' }}>
                   See exactly how your book will look
                 </h2>
                 <p className="text-xl text-[#666] mb-8">
@@ -638,7 +664,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-[#111] text-balance">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-[#111] text-balance" style={{ letterSpacing: '-0.04em' }}>
                 Everything you need to write your book
               </h2>
               <p className="text-xl text-[#666]">
@@ -653,10 +679,16 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
               <div className="group relative rounded-2xl">
                 {/* Animated border — fades in on hover */}
                 <div className="me-card-border absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                <div className="relative rounded-2xl p-8 shadow-lg transition-shadow border border-neutral-200 overflow-hidden">
+                <div
+                  className="spotlight-card relative rounded-2xl p-8 shadow-lg hover:shadow-xl border border-neutral-200 overflow-hidden transition-all duration-300 group-hover:-translate-y-1"
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    e.currentTarget.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`);
+                    e.currentTarget.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`);
+                  }}
+                >
                   {/* Gradient background - always light */}
                   <div className="absolute inset-0 bg-neutral-100 rounded-2xl" />
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(200,200,200,0.15)_0%,_transparent_70%)]" />
 
                   {/* Content */}
                   <div className="relative z-10">
@@ -686,7 +718,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   </svg>
                   AI-Powered
                 </div>
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-[#111]">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-[#111]" style={{ letterSpacing: '-0.04em' }}>
                   Meet Book Mind, your AI writing companion
                 </h2>
                 <p className="text-xl text-[#666] mb-8">
@@ -803,7 +835,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-[#111]">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-[#111]" style={{ letterSpacing: '-0.04em' }}>
                 Simple, transparent pricing
               </h2>
               <p className="text-xl text-[#666]">
@@ -830,11 +862,18 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                     </span>
                   </div>
                 )}
-                <div className={`relative rounded-2xl p-8 h-full flex flex-col ${
-                  plan.highlighted
-                    ? 'bg-[#111] border border-[#111]'
-                    : 'bg-white border border-neutral-200'
-                }`}>
+                <div
+                  className={`spotlight-card relative rounded-2xl p-8 h-full flex flex-col transition-all duration-300 group-hover:-translate-y-1 ${
+                    plan.highlighted
+                      ? 'bg-[#111] border border-[#111] shadow-xl'
+                      : 'bg-white border border-neutral-200 shadow-lg hover:shadow-xl'
+                  }`}
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    e.currentTarget.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`);
+                    e.currentTarget.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`);
+                  }}
+                >
                   <h3 className={`text-xl font-semibold mb-2 ${plan.highlighted ? 'text-white' : 'text-[#111]'}`}>{plan.name}</h3>
                   <div className="mb-4">
                     <span className={`text-4xl font-bold ${plan.highlighted ? 'text-white' : 'text-[#111]'}`}>{plan.price}</span>
@@ -875,7 +914,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       <section className="py-24 lg:py-32 bg-neutral-50">
         <FadeIn>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#111] mb-6 text-balance">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#111] mb-6 text-balance" style={{ letterSpacing: '-0.04em' }}>
               Ready to write your book?
             </h2>
             <p className="text-xl text-[#666] mb-10">
