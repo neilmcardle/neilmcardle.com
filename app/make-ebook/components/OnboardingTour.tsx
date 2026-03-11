@@ -217,7 +217,7 @@ export default function OnboardingTour({
       {/* Highlight ring around target element */}
       {targetRect && (
         <div
-          className={`fixed z-[200] pointer-events-none rounded-lg border-2 border-blue-400/60 transition-all duration-300 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
+          className={`fixed z-[200] pointer-events-none rounded-lg border-2 border-[#111]/40 dark:border-white/40 transition-all duration-300 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
           style={{
             top: targetRect.top - PADDING,
             left: targetRect.left - PADDING,
@@ -233,7 +233,7 @@ export default function OnboardingTour({
         role="dialog"
         aria-modal="true"
         aria-label={`Onboarding tour step ${currentStep + 1} of ${totalSteps}`}
-        className={`fixed z-[201] w-[300px] max-w-[calc(100vw-32px)] bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl border border-blue-400/60 p-4 transition-all duration-150 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        className={`fixed z-[201] w-[300px] max-w-[calc(100vw-32px)] bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl border border-[#111]/40 dark:border-white/40 p-4 transition-all duration-150 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         style={tooltipStyle}
       >
         {/* Arrow — border layer (blue outline) */}

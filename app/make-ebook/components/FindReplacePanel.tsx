@@ -99,7 +99,7 @@ export default function FindReplacePanel({
               placeholder="Find..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full px-3 py-2 pr-16 text-sm rounded-lg border border-gray-300 dark:border-[#444] bg-white dark:bg-[#111] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 pr-16 text-sm rounded-lg border border-gray-300 dark:border-[#444] bg-white dark:bg-[#111] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-0"
             />
             {searchTerm && (
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-[#a3a3a3]">
@@ -114,7 +114,7 @@ export default function FindReplacePanel({
             placeholder="Replace with..."
             value={replaceTerm}
             onChange={(e) => onReplaceChange(e.target.value)}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-[#444] bg-white dark:bg-[#111] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-[#444] bg-white dark:bg-[#111] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-0"
           />
 
           {/* Options row */}
@@ -131,7 +131,7 @@ export default function FindReplacePanel({
             <button
               onClick={handleReplaceAll}
               disabled={totalMatches === 0 || !replaceTerm}
-              className="px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 text-sm font-medium rounded-lg bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-[#333] dark:hover:bg-[#e5e5e5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Replace All ({totalMatches})
             </button>

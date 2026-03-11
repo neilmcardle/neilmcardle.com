@@ -12,14 +12,14 @@ const autofillStyles = `
   input:-webkit-autofill:focus,
   input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px white inset !important;
-    -webkit-text-fill-color: #111827 !important;
-    caret-color: #111827 !important;
+    -webkit-text-fill-color: #111 !important;
+    caret-color: #111 !important;
   }
   .dark input:-webkit-autofill,
   .dark input:-webkit-autofill:hover,
   .dark input:-webkit-autofill:focus,
   .dark input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px #111827 inset !important;
+    -webkit-box-shadow: 0 0 0 30px #262626 inset !important;
     -webkit-text-fill-color: #fff !important;
     caret-color: #fff !important;
   }
@@ -129,11 +129,11 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
         />
         
         {/* Modal */}
-        <div className="relative w-full max-w-md bg-white dark:bg-[#0a0a0a] rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+        <div className="relative w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f] overflow-hidden">
           {/* Close button */}
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors z-10"
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors z-10"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -150,7 +150,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
             </h2>
             
             {/* Description */}
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-gray-600 dark:text-[#a3a3a3] mb-6">
               We&apos;ve sent {showVerificationMessage ? 'a verification link' : 'a password reset link'} to{' '}
               <span className="font-medium text-gray-900 dark:text-white">{email}</span>
             </p>
@@ -178,7 +178,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
                   handleClose()
                 }
               }}
-              className="w-full py-3 px-6 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              className="w-full py-3 px-6 bg-[#111] dark:bg-white text-white dark:text-[#111] rounded-full font-semibold hover:bg-[#333] dark:hover:bg-[#e5e5e5] transition-colors"
             >
               {showResetMessage ? 'Back to Sign In' : 'Got it'}
             </button>
@@ -200,11 +200,11 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
         />
         
         {/* Modal */}
-        <div className="relative w-full max-w-md bg-white dark:bg-[#0a0a0a] rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+        <div className="relative w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f] overflow-hidden">
           {/* Close button */}
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors z-10"
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors z-10"
           >
           <X className="w-5 h-5 text-gray-500" />
         </button>
@@ -228,7 +228,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
           </h2>
           
           {/* Subtitle */}
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600 dark:text-[#a3a3a3]">
             {mode === 'signin'
               ? 'Sign in to continue writing'
               : mode === 'reset'
@@ -253,7 +253,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
           
           {/* Email Field */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4] mb-2">
               Email
             </label>
             <input
@@ -264,7 +264,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
               placeholder="you@example.com"
               required
               disabled={isLoading}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent transition-shadow disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-[#2f2f2f] bg-white dark:bg-[#262626] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#555] focus:border-transparent transition-shadow disabled:opacity-50"
             />
           </div>
           
@@ -272,14 +272,14 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
           {mode !== 'reset' && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4]">
                   Password
                 </label>
                 {mode === 'signin' && (
                   <button
                     type="button"
                     onClick={() => handleModeSwitch('reset')}
-                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium underline"
+                    className="text-sm text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white font-medium underline"
                     disabled={isLoading}
                   >
                     Forgot password?
@@ -295,10 +295,10 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
                 required
                 minLength={6}
                 disabled={isLoading}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent transition-shadow disabled:opacity-50"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-[#2f2f2f] bg-white dark:bg-[#262626] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#555] focus:border-transparent transition-shadow disabled:opacity-50"
               />
               {mode === 'signup' && (
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
                   At least 6 characters
                 </p>
               )}
@@ -309,7 +309,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
           <button
             type="submit"
             disabled={isLoading}
-            className="group w-full py-3.5 px-6 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="group w-full py-3.5 px-6 bg-[#111] dark:bg-white text-white dark:text-[#111] rounded-full font-semibold hover:bg-[#333] dark:hover:bg-[#e5e5e5] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -324,7 +324,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
           {/* Mode Switch */}
           <div className="text-center pt-2">
             {mode === 'reset' ? (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600 dark:text-[#a3a3a3]">
                 Remember your password?{' '}
                 <button
                   type="button"
@@ -336,7 +336,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
                 </button>
               </p>
             ) : (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600 dark:text-[#a3a3a3]">
                 {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
                 <button
                   type="button"
@@ -353,8 +353,8 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
         
         {/* Footer */}
         {mode === 'signup' && (
-          <div className="px-8 pb-6 pt-2 border-t border-gray-200 dark:border-gray-800">
-            <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+          <div className="px-8 pb-6 pt-2 border-t border-gray-200 dark:border-[#2f2f2f]">
+            <p className="text-xs text-center text-gray-500 dark:text-[#a3a3a3]">
               By creating an account, you agree to our{' '}
               <a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-gray-300">Terms</a>
               {' '}and{' '}

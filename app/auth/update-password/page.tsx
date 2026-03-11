@@ -108,7 +108,7 @@ export default function UpdatePasswordPage() {
 
   if (checkingSession) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#1e1e1e] flex items-center justify-center px-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <div className="flex items-center justify-center">
@@ -123,7 +123,7 @@ export default function UpdatePasswordPage() {
 
   if (!isValidSession) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#1e1e1e] flex items-center justify-center px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
@@ -149,7 +149,7 @@ export default function UpdatePasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#1e1e1e] flex items-center justify-center px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
@@ -166,11 +166,11 @@ export default function UpdatePasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#1e1e1e] flex items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-            <KeyRound className="w-6 h-6 text-blue-600" />
+          <div className="mx-auto w-12 h-12 bg-neutral-100 dark:bg-[#262626] rounded-full flex items-center justify-center mb-4">
+            <KeyRound className="w-6 h-6 text-[#444] dark:text-[#a3a3a3]" />
           </div>
           <CardTitle>Set New Password</CardTitle>
           <CardDescription>
