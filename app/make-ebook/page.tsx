@@ -924,7 +924,7 @@ function MakeEbookPage() {
                       handleGoToHome();
                       setMobileSidebarOpen(false);
                     }}
-                    className="hover:opacity-70 transition-opacity ml-2"
+                    className="hover:opacity-70 transition-opacity"
                     aria-label="Go to home"
                   >
                     <Image
@@ -1104,7 +1104,7 @@ function MakeEbookPage() {
                                     </button>
                                     <button
                                       onClick={() => library.handleExportLibraryBook(book.id)}
-                                      className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                                      className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded hidden"
                                       title="Export as EPUB"
                                     >
                                       <img
@@ -1686,7 +1686,11 @@ function MakeEbookPage() {
                       className="flex items-center justify-between py-2 w-full text-left"
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <img src="/summary-icon.svg" alt="Overview" className="w-5 h-5 dark:invert flex-shrink-0" />
+                        <svg className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-[#e5e5e5]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="3" width="18" height="18" rx="2" />
+                          <rect x="6" y="6" width="12" height="6" rx="1" />
+                          <path d="M6 15h8M6 18h5" />
+                        </svg>
                         <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Overview</span>
                       </div>
                       {sidebarPreviewExpanded ? (
@@ -1814,40 +1818,23 @@ function MakeEbookPage() {
               </div>
 
               {/* Footer - Compact */}
-              <footer className="flex-shrink-0 pt-3 pb-3 px-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e1e1e] space-y-2.5">
-                {/* User Account Row */}
+              <footer className="flex-shrink-0 py-1.5 px-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e1e1e]">
                 <div className="flex items-center justify-between">
                   <UserDropdownMobile />
-                  <ThemeToggle />
+                  <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-[#737373]">
+                    <button
+                      onClick={() => {
+                        setMobileSidebarOpen(false);
+                        onboarding.resetOnboarding();
+                        if (chapters.length === 0) clearEditorState();
+                        setTimeout(() => onboarding.startTour(), chapters.length === 0 ? 800 : 400);
+                      }}
+                      className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
+                    >Tour</button>
+                    <a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors">Terms</a>
+                    <a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors">Privacy</a>
+                  </div>
                 </div>
-
-                {/* Links Row — extra spacing from account section */}
-                <div className="pt-2" />
-                <div className="flex items-center justify-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                  <button
-                    onClick={() => {
-                      setMobileSidebarOpen(false);
-                      onboarding.resetOnboarding();
-                      if (chapters.length === 0) {
-                        clearEditorState();
-                      }
-                      setTimeout(() => onboarding.startTour(), chapters.length === 0 ? 800 : 400);
-                    }}
-                    className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>Tour</span>
-                  </button>
-                  <span className="text-gray-300 dark:text-gray-600">·</span>
-                  <a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms</a>
-                  <span className="text-gray-300 dark:text-gray-600">·</span>
-                  <a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy</a>
-                </div>
-
-                {/* Copyright */}
-                <div className="text-center text-[10px] text-gray-400 dark:text-gray-500">© 2026 Neil McArdle</div>
               </footer>
             </div>
           </div>
@@ -2153,7 +2140,6 @@ function MakeEbookPage() {
             setSelectedBookId={setSelectedBookId}
             handleLoadBook={library.handleLoadBook}
             handleDeleteBook={library.handleDeleteBook}
-            handleExportLibraryBook={library.handleExportLibraryBook}
             showNewBookConfirmation={showNewBookConfirmation}
             showImportDialog={docImport.showImportDialog}
             multiSelectMode={library.multiSelectMode}
@@ -2235,7 +2221,7 @@ function MakeEbookPage() {
                   <button
                     data-tour="mobile-menu"
                     onClick={() => setMobileSidebarOpen(true)}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
+                    className="p-1.5 ml-[5px] rounded-lg hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors flex-shrink-0"
                     aria-label="Open menu"
                   >
                     <img
@@ -2331,7 +2317,7 @@ function MakeEbookPage() {
               <div className="flex-shrink-0 bg-white dark:bg-[#1e1e1e] border-none pb-1 px-2 transition-all duration-200">
                 {/* Chapter Title Input - Clean UI */}
                 <div className="mt-0">
-                  <div className="flex items-center gap-0 px-1 py-1">
+                  <div className="flex items-center gap-0 py-1">
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
                     <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
                     <input

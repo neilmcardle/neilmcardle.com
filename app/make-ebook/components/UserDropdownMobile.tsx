@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useTheme } from "@/lib/contexts/ThemeContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,7 @@ import ManageBillingButton from "./ManageBillingButton";
 
 export function UserDropdownMobile() {
   const { user, signOut, loading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -42,7 +44,7 @@ export function UserDropdownMobile() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition px-0"
+          className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition px-0 -ml-2"
           aria-label="User menu"
         >
           <img
@@ -70,6 +72,15 @@ export function UserDropdownMobile() {
         <div className="px-2 py-1.5">
           <ManageBillingButton variant="ghost" size="sm" className="w-full justify-start" />
         </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={toggleTheme}>
+          {theme === 'light' ? (
+            <img src="/moon-icon.svg" alt="Dark mode" className="mr-2 h-4 w-4" />
+          ) : (
+            <img src="/sun-icon.svg" alt="Light mode" className="mr-2 h-4 w-4 dark:invert" />
+          )}
+          <span>{theme === 'light' ? 'Dark mode' : 'Light mode'}</span>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleLogout}

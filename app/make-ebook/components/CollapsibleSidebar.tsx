@@ -51,7 +51,6 @@ interface CollapsibleSidebarProps {
   setSelectedBookId: (id: string | null) => void;
   handleLoadBook: (id: string) => void;
   handleDeleteBook: (id: string) => void;
-  handleExportLibraryBook: (id: string) => void;
   showNewBookConfirmation: () => void;
   showImportDialog: () => void;
   
@@ -211,7 +210,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     setSelectedBookId,
     handleLoadBook,
     handleDeleteBook,
-    handleExportLibraryBook,
     showNewBookConfirmation,
     showImportDialog,
     multiSelectMode,
@@ -509,22 +507,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                           title="Open book"
                         >
                           Open
-                        </button>
-                        <button
-                          onClick={() => handleExportLibraryBook(book.id)}
-                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"
-                          title="Export as EPUB"
-                        >
-                          <img
-                            src="/export-download-icon.svg"
-                            alt="Export"
-                            className="w-4 h-4 dark:hidden"
-                          />
-                          <img
-                            src="/dark-export-download-icon.svg"
-                            alt="Export"
-                            className="w-4 h-4 hidden dark:block"
-                          />
                         </button>
                         <button
                           onClick={() => handleDeleteBook(book.id)}

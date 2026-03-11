@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
 
 const LITERARY_QUOTES = [
   {
@@ -73,11 +74,8 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
   }, []);
 
   return (
-    <div className="flex-1 relative overflow-hidden">
-      {/* Background gradient — matches marketing hero */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-[#1e1e1e] to-gray-900" />
-
-      <div className="relative flex flex-col items-center justify-center h-full px-0 sm:px-8 py-8 sm:py-16 min-h-0 overflow-y-auto">
+    <div className="flex-1 bg-white dark:bg-[#1e1e1e] overflow-hidden">
+      <div className="flex flex-col items-center justify-center h-full px-6 sm:px-8 py-8 sm:py-16 min-h-0 overflow-y-auto">
         {/* Logo */}
         <div className="mb-8 sm:mb-12 flex-shrink-0">
           <Image
@@ -85,51 +83,49 @@ export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: 
             alt="makeEbook"
             width={96}
             height={96}
-            className="w-16 h-16 sm:w-24 sm:h-24 invert opacity-80"
+            className="w-16 h-16 sm:w-24 sm:h-24 dark:invert opacity-80"
             priority
           />
         </div>
 
         {/* Quote */}
         <div className="max-w-3xl mb-8 sm:mb-16 text-center animate-in fade-in duration-1000 flex-shrink-0">
-          <p className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-serif italic text-gray-300 leading-relaxed mb-4 sm:mb-6">
+          <p className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-serif italic text-[#444] dark:text-[#d4d4d4] leading-relaxed mb-4 sm:mb-6">
             &ldquo;{quote.text}&rdquo;
           </p>
-          <p className="text-sm sm:text-lg md:text-xl text-gray-500 font-light">
+          <p className="text-sm sm:text-lg md:text-xl text-[#999] dark:text-[#737373] font-light">
             — {quote.author}
           </p>
         </div>
 
         {/* Tagline */}
-        <h2 className="text-base sm:text-xl md:text-2xl text-gray-400 mb-8 sm:mb-12 font-light text-center flex-shrink-0">
+        <h2 className="text-base sm:text-xl md:text-2xl text-[#888] dark:text-[#a3a3a3] mb-8 sm:mb-12 font-light text-center flex-shrink-0">
           What would you like to create today?
         </h2>
 
-        {/* Action Buttons — matches marketing hero CTA style */}
+        {/* Action Buttons */}
         <div className="flex items-center justify-center mb-4 sm:mb-8 w-full sm:w-auto px-4 sm:px-0 flex-shrink-0">
           {libraryCount === 0 ? (
-            <div className="me-cta-shine w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={onNewBook}
-                className="w-full px-8 py-4 text-lg font-semibold bg-[#1e1e1e] text-white rounded-full hover:bg-gray-900 transition-colors"
-              >
-                Start New Book
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={onNewBook}
+              className="group w-full sm:w-auto px-8 py-4 text-lg font-semibold bg-[#111] dark:bg-white text-white dark:text-[#111] rounded-full hover:bg-[#333] dark:hover:bg-[#e5e5e5] transition-colors flex items-center justify-center gap-2"
+            >
+              Start New Book
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
           ) : (
-            <div className="me-cta-shine w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={onOpenLibrary}
-                className="w-full px-8 py-4 text-lg font-semibold bg-[#1e1e1e] text-white rounded-full hover:bg-gray-900 transition-colors flex items-center justify-center gap-3"
-              >
-                Browse Library
-                <span className="px-2.5 py-0.5 bg-gray-700 text-gray-300 rounded-full text-xs font-semibold">
-                  {libraryCount}
-                </span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={onOpenLibrary}
+              className="group w-full sm:w-auto px-8 py-4 text-lg font-semibold bg-[#111] dark:bg-white text-white dark:text-[#111] rounded-full hover:bg-[#333] dark:hover:bg-[#e5e5e5] transition-colors flex items-center justify-center gap-3"
+            >
+              Browse Library
+              <span className="px-2.5 py-0.5 bg-[#333] dark:bg-[#262626] text-[#e5e5e5] dark:text-[#d4d4d4] rounded-full text-xs font-semibold">
+                {libraryCount}
+              </span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
           )}
         </div>
       </div>
