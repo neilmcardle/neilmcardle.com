@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import MuxPlayer from '@mux/mux-player-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -266,6 +266,42 @@ function InteractiveLivePreview() {
     </div>
   );
 }
+// ── Ink splodge helpers ───────────────────────────────────────────────────────
+
+interface InkSplodge {
+  id: number;
+  x: number;
+  y: number;
+  mainPath: string;
+  satellites: { x: number; y: number; r: number }[];
+  rotation: number;
+  opacity: number;
+}
+
+function generateInkBlob(): Pick<InkSplodge, 'mainPath' | 'satellites'> {
+  const n = 7 + Math.floor(Math.random() * 4);
+  const base = 22 + Math.random() * 32;
+  const pts = Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+    const r = base * (0.45 + Math.random() * 0.75);
+    return { x: Math.cos(a) * r, y: Math.sin(a) * r };
+  });
+  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+  for (let i = 0; i < n; i++) {
+    const p1 = pts[i], p2 = pts[(i + 1) % n];
+    const cpx = (p1.x + p2.x) / 2 + (Math.random() - 0.5) * base * 0.55;
+    const cpy = (p1.y + p2.y) / 2 + (Math.random() - 0.5) * base * 0.55;
+    d += ` Q ${cpx.toFixed(1)} ${cpy.toFixed(1)} ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+  }
+  d += ' Z';
+  const satellites = Array.from({ length: 2 + Math.floor(Math.random() * 3) }, () => {
+    const a = Math.random() * Math.PI * 2;
+    const dist = base * (0.9 + Math.random() * 0.85);
+    return { x: Math.cos(a) * dist, y: Math.sin(a) * dist, r: 2 + Math.random() * 7 };
+  });
+  return { mainPath: d, satellites };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function MarketingLandingPage({ onStartWritingAction, libraryCount }: MarketingLandingPageProps) {
@@ -276,6 +312,164 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [videoOpen, setVideoOpen] = useState(false);
   const [videoVisible, setVideoVisible] = useState(false);
+  const [inkSplodges, setInkSplodges] = useState<InkSplodge[]>([]);
+  const [isPenActive, setIsPenActive] = useState(true);
+  const [heroInView, setHeroInView] = useState(true);
+  const isPenActiveRef = useRef(true);
+  const isDrawingRef = useRef(false);
+  const inkCanvasRef = useRef<HTMLCanvasElement>(null);
+  const heroSectionRef = useRef<HTMLElement>(null);
+  const inkPenPos = useRef<{ x: number; y: number } | null>(null);
+  const inkRafRef = useRef<number>(0);
+
+  useEffect(() => {
+    const check = () => {
+      const hero = heroSectionRef.current;
+      if (!hero) return;
+      const rect = hero.getBoundingClientRect();
+      // in view as long as the bottom of the hero is still below the top of the viewport
+      setHeroInView(rect.bottom > 0);
+    };
+    check();
+    const el = document.scrollingElement || document.body;
+    el.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('scroll', check, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', check);
+      window.removeEventListener('scroll', check);
+    };
+  }, []);
+
+  const clearInkCanvas = useCallback(() => {
+    const canvas = inkCanvasRef.current;
+    if (!canvas) return;
+    canvas.getContext('2d')!.clearRect(0, 0, canvas.width, canvas.height);
+    setInkSplodges([]);
+  }, []);
+
+  useEffect(() => {
+    const canvas = inkCanvasRef.current;
+    if (!canvas) return;
+    const hero = canvas.parentElement!;
+    const resize = () => { canvas.width = hero.offsetWidth; canvas.height = hero.offsetHeight; };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(hero);
+    const ctx = canvas.getContext('2d')!;
+    let frame = 0;
+    const fade = () => {
+      frame++;
+      if (frame % 4 === 0) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = 'rgba(0,0,0,0.012)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'source-over';
+      }
+      inkRafRef.current = requestAnimationFrame(fade);
+    };
+    inkRafRef.current = requestAnimationFrame(fade);
+    return () => { cancelAnimationFrame(inkRafRef.current); ro.disconnect(); };
+  }, []);
+
+  const handleHeroMouseDown = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    if (!isPenActiveRef.current) return;
+    e.preventDefault();
+    isDrawingRef.current = true;
+    const canvas = inkCanvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    inkPenPos.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }, []);
+
+  const handleHeroMouseUp = useCallback(() => {
+    isDrawingRef.current = false;
+    inkPenPos.current = null;
+  }, []);
+
+  const handleHeroMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    if (!isPenActiveRef.current || !isDrawingRef.current) return;
+    const canvas = inkCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d')!;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const last = inkPenPos.current;
+    if (last) {
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = 'rgba(20,18,15,0.32)';
+      ctx.lineWidth = 1;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    }
+    inkPenPos.current = { x, y };
+  }, []);
+
+  const handleHeroMouseLeave = useCallback(() => {
+    isDrawingRef.current = false;
+    inkPenPos.current = null;
+  }, []);
+
+  const drawLine = useCallback((x: number, y: number) => {
+    const canvas = inkCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d')!;
+    const last = inkPenPos.current;
+    if (last) {
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = 'rgba(20,18,15,0.32)';
+      ctx.lineWidth = 1;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    }
+    inkPenPos.current = { x, y };
+  }, []);
+
+  const handleHeroTouchStart = useCallback((e: React.TouchEvent<HTMLElement>) => {
+    if (!isPenActiveRef.current) return;
+    e.preventDefault();
+    isDrawingRef.current = true;
+    const canvas = inkCanvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    inkPenPos.current = { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  }, []);
+
+  const handleHeroTouchMove = useCallback((e: React.TouchEvent<HTMLElement>) => {
+    if (!isPenActiveRef.current || !isDrawingRef.current) return;
+    e.preventDefault();
+    const canvas = inkCanvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    drawLine(t.clientX - rect.left, t.clientY - rect.top);
+  }, [drawLine]);
+
+  const handleHeroTouchEnd = useCallback(() => {
+    isDrawingRef.current = false;
+    inkPenPos.current = null;
+  }, []);
+
+  const handleHeroClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const blob = generateInkBlob();
+    const id = Date.now() + Math.random();
+    setInkSplodges(prev => [...prev, {
+      id, x, y, ...blob,
+      rotation: Math.random() * 360,
+      opacity: 0.18 + Math.random() * 0.12,
+    }]);
+    setTimeout(() => setInkSplodges(prev => prev.filter(s => s.id !== id)), 2900);
+  }, []);
   const { user, signOut } = useAuth();
   const [typed, setTyped] = useState('');
   const [typingDone, setTypingDone] = useState(false);
@@ -491,8 +685,57 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         )}
       </nav>
 
+      {/* Ink controls — fixed top-right below nav */}
+      {heroInView && (
+        <div className="fixed top-[72px] right-6 z-[100] flex flex-col items-end gap-1.5">
+          <span className="text-[10px] text-neutral-400 font-medium tracking-wide select-none">Take some notes</span>
+          <div className="flex items-center gap-1 bg-white/70 backdrop-blur-sm rounded-full px-2 py-1.5 border border-neutral-200/60">
+            <button
+              onClick={() => { const next = !isPenActiveRef.current; isPenActiveRef.current = next; setIsPenActive(next); inkPenPos.current = null; }}
+              title={isPenActive ? 'Pen on — click to disable' : 'Pen off — click to enable'}
+              className={`flex items-center justify-center w-6 h-6 rounded-full transition-colors ${isPenActive ? 'text-[#111]' : 'text-neutral-300'}`}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
+            <div className="w-px h-3 bg-neutral-300" />
+            <button
+              onClick={clearInkCanvas}
+              title="Reset drawing"
+              className="flex items-center justify-center w-6 h-6 rounded-full text-neutral-400 hover:text-[#111] transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden hero-ink-wash paper-grain">
+      <section ref={heroSectionRef} className="relative overflow-hidden hero-ink-wash paper-grain select-none" onClick={handleHeroClick} onMouseDown={handleHeroMouseDown} onMouseUp={handleHeroMouseUp} onMouseMove={handleHeroMouseMove} onMouseLeave={handleHeroMouseLeave} onTouchStart={handleHeroTouchStart} onTouchMove={handleHeroTouchMove} onTouchEnd={handleHeroTouchEnd}>
+
+        {/* Ink pen canvas */}
+        <canvas ref={inkCanvasRef} className="absolute inset-0 pointer-events-none z-[9]" aria-hidden="true" />
+
+        {/* Ink splodges */}
+        {inkSplodges.map(s => (
+          <svg
+            key={s.id}
+            className="ink-drop"
+            style={{ left: s.x, top: s.y, '--rot': `${s.rotation}deg`, '--ink-opacity': s.opacity } as React.CSSProperties}
+            viewBox="-80 -80 160 160"
+            width="160"
+            height="160"
+            aria-hidden="true"
+          >
+            <path d={s.mainPath} fill={`rgba(20,18,15,${s.opacity})`} />
+            {s.satellites.map((sat, i) => (
+              <circle key={i} cx={sat.x} cy={sat.y} r={sat.r} fill={`rgba(20,18,15,${s.opacity * 0.65})`} />
+            ))}
+          </svg>
+        ))}
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-40">
           <div className="text-center max-w-4xl mx-auto">
