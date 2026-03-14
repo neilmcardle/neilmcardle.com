@@ -51,12 +51,14 @@ const COL_OPTIONS: { value: ColumnWidth; label: string }[] = [
   { value: "normal", label: "Normal" },
 ];
 
-const SOUND_OPTIONS: { value: AmbientSound; label: string; icon: string }[] = [
-  { value: "none", label: "Off", icon: "○" },
-  { value: "pink-noise", label: "Pink noise", icon: "∿" },
-  { value: "rain", label: "Rain", icon: "☂" },
-  { value: "fire", label: "Fire", icon: "🔥" },
-  { value: "forest", label: "Forest", icon: "🌲" },
+const SOUND_OPTIONS: { value: AmbientSound; label: string }[] = [
+  { value: "none",        label: "Off"         },
+  { value: "pink-noise",  label: "Pink noise"  },
+  { value: "rain-light",  label: "Rain light"  },
+  { value: "rain-medium", label: "Rain medium" },
+  { value: "waves",       label: "Waves"       },
+  { value: "fire",        label: "Fire"        },
+  { value: "train",       label: "Train"       },
 ];
 
 // ── Floating panel (shown when focus mode is active) ─────────────────────────
@@ -152,17 +154,16 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
             Ambient sound
           </p>
           <div className="grid grid-cols-2 gap-1.5 mb-3">
-            {SOUND_OPTIONS.map(({ value, label, icon }) => (
+            {SOUND_OPTIONS.map(({ value, label }) => (
               <button
                 key={value}
                 onClick={() => onChangeSetting("ambientSound", value)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors text-left ${
+                className={`px-3 py-2 rounded-lg text-xs transition-colors text-left ${
                   settings.ambientSound === value
                     ? "bg-white text-gray-900 font-medium"
                     : "bg-white/8 text-white/65 hover:bg-white/12 hover:text-white/90"
                 }`}
               >
-                <span className="text-base leading-none">{icon}</span>
                 {label}
               </button>
             ))}

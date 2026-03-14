@@ -47,6 +47,8 @@ import ChapterNavDropdown from "./components/ChapterNavDropdown";
 import SubscriptionBadge, { SubscriptionBadgeCompact } from "./components/SubscriptionBadge";
 import ManageBillingButton from "./components/ManageBillingButton";
 import { useWordStats } from "./hooks/useWordStats";
+import { useWritingGoals } from "./hooks/useWritingGoals";
+import { WritingGoalsBadge } from "./components/WritingGoalsBadge";
 import { useVersionHistory } from "./hooks/useVersionHistory";
 import { VersionHistoryPanel, VersionHistoryButton } from "./components/VersionHistoryPanel";
 import { useExportHistory } from "./hooks/useExportHistory";
@@ -321,6 +323,7 @@ function MakeEbookPage() {
 
   // Word stats hook
   const { bookStats, sessionStats } = useWordStats(chapters, user?.id);
+  const writingGoals = useWritingGoals({ userId: user?.id, wordsThisSession: sessionStats.wordsThisSession });
 
   // Version history hook
   const { 
@@ -2466,9 +2469,10 @@ function MakeEbookPage() {
                       onChapterSelect={setSelectedChapter}
                       bookTitle={title}
                     />
-                    <VersionHistoryButton 
-                      versionCount={versions.length} 
-                      onClickAction={() => setShowVersionHistory(true)} 
+                    <WritingGoalsBadge {...writingGoals} />
+                    <VersionHistoryButton
+                      versionCount={versions.length}
+                      onClickAction={() => setShowVersionHistory(true)}
                     />
                     <QualityDropdown
                       score={qualityScore}
@@ -2598,7 +2602,7 @@ function MakeEbookPage() {
                     />
                   </div>
                   {/* Word Stats Footer */}
-                  <div className="flex-shrink-0 flex items-center justify-center py-2 border-t border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-[#1e1e1e]/50">
+                  <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 border-t border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-[#1e1e1e]/50">
                     <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
                       {/* Chapter stats */}
                       <span className="flex items-center gap-1.5">
@@ -2618,6 +2622,8 @@ function MakeEbookPage() {
                         </>
                       )}
                     </div>
+                    {/* Goals badge — compact, right-aligned */}
+                    <WritingGoalsBadge {...writingGoals} />
                   </div>
                 </div>
               </section>

@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 export type ColumnWidth = "narrow" | "normal" | "full";
-export type AmbientSound = "none" | "pink-noise" | "rain" | "fire" | "forest" | "custom";
+export type AmbientSound = "none" | "pink-noise" | "rain-light" | "rain-medium" | "waves" | "fire" | "train" | "custom";
 
 export interface FocusSettings {
   hideChrome: boolean;     // sidebar + status bar
