@@ -447,13 +447,13 @@ html[data-theme='dark'] .shadow-card {
   padding: 1.5px;
   background: conic-gradient(
     from var(--me-angle),
-    rgba(210, 210, 210, 1)   0%,
-    rgba(210, 210, 210, 1)   20%,
-    rgba(240, 240, 240, 0.9) 37%,
+    rgba(15, 15, 15, 1)      0%,
+    rgba(15, 15, 15, 1)      20%,
+    rgba(180, 180, 180, 0.9) 37%,
     rgba(255, 255, 255, 1)   50%,
-    rgba(240, 240, 240, 0.9) 63%,
-    rgba(210, 210, 210, 1)   80%,
-    rgba(210, 210, 210, 1)   100%
+    rgba(180, 180, 180, 0.9) 63%,
+    rgba(15, 15, 15, 1)      80%,
+    rgba(15, 15, 15, 1)      100%
   );
   animation: me-spin 8s linear infinite;
 }
@@ -462,13 +462,13 @@ html[data-theme='dark'] .shadow-card {
 .me-card-border {
   background: conic-gradient(
     from var(--me-angle),
-    rgba(210, 210, 210, 1)   0%,
-    rgba(210, 210, 210, 1)   20%,
-    rgba(240, 240, 240, 0.9) 37%,
+    rgba(15, 15, 15, 1)      0%,
+    rgba(15, 15, 15, 1)      20%,
+    rgba(180, 180, 180, 0.9) 37%,
     rgba(255, 255, 255, 1)   50%,
-    rgba(240, 240, 240, 0.9) 63%,
-    rgba(210, 210, 210, 1)   80%,
-    rgba(210, 210, 210, 1)   100%
+    rgba(180, 180, 180, 0.9) 63%,
+    rgba(15, 15, 15, 1)      80%,
+    rgba(15, 15, 15, 1)      100%
   );
   animation: me-spin 8s linear infinite;
 }
@@ -767,9 +767,9 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 .hero-ink-wash {
   position: relative;
   background:
-    radial-gradient(ellipse 70% 55% at var(--iw1x) var(--iw1y), rgba(20,20,20,0.14) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 45% at var(--iw2x) var(--iw2y), rgba(20,20,20,0.10) 0%, transparent 55%),
-    radial-gradient(ellipse 65% 60% at var(--iw3x) var(--iw3y), rgba(20,20,20,0.08) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 55% at var(--iw1x) var(--iw1y), rgba(20,20,20,0.042) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 45% at var(--iw2x) var(--iw2y), rgba(20,20,20,0.028) 0%, transparent 55%),
+    radial-gradient(ellipse 65% 60% at var(--iw3x) var(--iw3y), rgba(20,20,20,0.020) 0%, transparent 65%),
     #fafaf9;
   animation: ink-drift 14s ease-in-out infinite;
 }

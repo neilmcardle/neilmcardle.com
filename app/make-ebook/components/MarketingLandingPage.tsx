@@ -314,31 +314,13 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const [videoVisible, setVideoVisible] = useState(false);
   const [inkSplodges, setInkSplodges] = useState<InkSplodge[]>([]);
   const [isPenActive, setIsPenActive] = useState(true);
-  const [heroInView, setHeroInView] = useState(true);
   const isPenActiveRef = useRef(true);
   const isDrawingRef = useRef(false);
   const inkCanvasRef = useRef<HTMLCanvasElement>(null);
   const heroSectionRef = useRef<HTMLElement>(null);
+  const pageWrapperRef = useRef<HTMLDivElement>(null);
   const inkPenPos = useRef<{ x: number; y: number } | null>(null);
   const inkRafRef = useRef<number>(0);
-
-  useEffect(() => {
-    const check = () => {
-      const hero = heroSectionRef.current;
-      if (!hero) return;
-      const rect = hero.getBoundingClientRect();
-      // in view as long as the bottom of the hero is still below the top of the viewport
-      setHeroInView(rect.bottom > 0);
-    };
-    check();
-    const el = document.scrollingElement || document.body;
-    el.addEventListener('scroll', check, { passive: true });
-    window.addEventListener('scroll', check, { passive: true });
-    return () => {
-      el.removeEventListener('scroll', check);
-      window.removeEventListener('scroll', check);
-    };
-  }, []);
 
   const clearInkCanvas = useCallback(() => {
     const canvas = inkCanvasRef.current;
@@ -349,12 +331,12 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
   useEffect(() => {
     const canvas = inkCanvasRef.current;
-    if (!canvas) return;
-    const hero = canvas.parentElement!;
-    const resize = () => { canvas.width = hero.offsetWidth; canvas.height = hero.offsetHeight; };
+    const wrapper = pageWrapperRef.current;
+    if (!canvas || !wrapper) return;
+    const resize = () => { canvas.width = wrapper.offsetWidth; canvas.height = wrapper.offsetHeight; };
     resize();
     const ro = new ResizeObserver(resize);
-    ro.observe(hero);
+    ro.observe(wrapper);
     const ctx = canvas.getContext('2d')!;
     let frame = 0;
     const fade = () => {
@@ -557,7 +539,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#333] overflow-x-hidden">
+    <div ref={pageWrapperRef} className="relative min-h-screen bg-white text-[#333] overflow-x-hidden" onMouseDown={handleHeroMouseDown} onMouseUp={handleHeroMouseUp} onMouseMove={handleHeroMouseMove} onMouseLeave={handleHeroMouseLeave} onTouchStart={handleHeroTouchStart} onTouchMove={handleHeroTouchMove} onTouchEnd={handleHeroTouchEnd}>
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -685,9 +667,11 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         )}
       </nav>
 
+      {/* Full-page ink canvas */}
+      <canvas ref={inkCanvasRef} className="absolute top-0 left-0 w-full h-full pointer-events-none z-[9]" aria-hidden="true" />
+
       {/* Ink controls — fixed top-right below nav */}
-      {heroInView && (
-        <div className="fixed top-[72px] right-6 z-[100] flex flex-col items-end gap-1.5">
+      <div className="fixed top-[72px] right-6 z-[100] flex flex-col items-end gap-1.5">
           <span className="text-[10px] text-neutral-400 font-medium tracking-wide select-none">Take some notes</span>
           <div className="flex items-center gap-1 bg-white/70 backdrop-blur-sm rounded-full px-2 py-1.5 border border-neutral-200/60">
             <button
@@ -711,13 +695,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             </button>
           </div>
         </div>
-      )}
 
       {/* Hero Section */}
-      <section ref={heroSectionRef} className="relative overflow-hidden hero-ink-wash paper-grain select-none" onClick={handleHeroClick} onMouseDown={handleHeroMouseDown} onMouseUp={handleHeroMouseUp} onMouseMove={handleHeroMouseMove} onMouseLeave={handleHeroMouseLeave} onTouchStart={handleHeroTouchStart} onTouchMove={handleHeroTouchMove} onTouchEnd={handleHeroTouchEnd}>
-
-        {/* Ink pen canvas */}
-        <canvas ref={inkCanvasRef} className="absolute inset-0 pointer-events-none z-[9]" aria-hidden="true" />
+      <section ref={heroSectionRef} className="relative overflow-hidden hero-ink-wash paper-grain select-none" onClick={handleHeroClick}>
 
         {/* Ink splodges */}
         {inkSplodges.map(s => (
