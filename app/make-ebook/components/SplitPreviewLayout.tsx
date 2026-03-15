@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Chapter } from '../types';
+import { TypographyPreset, PRESET_DESCRIPTIONS, TYPOGRAPHY_PRESETS } from '../utils/typographyPresets';
 
 interface SplitPreviewLayoutProps {
   children: React.ReactNode;
@@ -10,6 +11,8 @@ interface SplitPreviewLayoutProps {
   isPreviewEnabled: boolean;
   onTogglePreviewAction: () => void;
   onChapterSelectAction?: (index: number) => void;
+  typographyPreset?: TypographyPreset;
+  setTypographyPreset?: (p: TypographyPreset) => void;
 }
 
 type DeviceType = 'kindle' | 'ipad' | 'phone';
@@ -29,9 +32,12 @@ export function SplitPreviewLayout({
   isPreviewEnabled,
   onTogglePreviewAction,
   onChapterSelectAction,
+  typographyPreset = 'default',
+  setTypographyPreset,
 }: SplitPreviewLayoutProps) {
   const [previewDevice, setPreviewDevice] = useState<DeviceType>('kindle');
   const [previewTheme, setPreviewTheme] = useState<ThemeType>('light');
+  const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
 
   // ── Resizable width ──────────────────────────────────────────────
   const [panelWidth, setPanelWidth] = useState(() => {
@@ -123,21 +129,56 @@ export function SplitPreviewLayout({
               </button>
             </div>
 
-            {/* Device Selector */}
-            <div className="flex gap-1">
-              {(Object.entries(deviceDimensions) as [DeviceType, typeof deviceDimensions.kindle][]).map(([key, val]) => (
-                <button
-                  key={key}
-                  onClick={() => setPreviewDevice(key)}
-                  className={`px-2 py-1 text-xs rounded transition-colors ${
-                    previewDevice === key
-                      ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
-                      : 'bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a]'
-                  }`}
-                >
-                  {val.name}
-                </button>
-              ))}
+            {/* Device Selector + EPUB Theme */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex gap-1">
+                {(Object.entries(deviceDimensions) as [DeviceType, typeof deviceDimensions.kindle][]).map(([key, val]) => (
+                  <button
+                    key={key}
+                    onClick={() => setPreviewDevice(key)}
+                    className={`px-2 py-1 text-xs rounded transition-colors ${
+                      previewDevice === key
+                        ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
+                        : 'bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a]'
+                    }`}
+                  >
+                    {val.name}
+                  </button>
+                ))}
+              </div>
+              {setTypographyPreset && (
+                <div className="relative">
+                  <button
+                    onClick={() => setThemeDropdownOpen(v => !v)}
+                    className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a] transition-colors whitespace-nowrap"
+                  >
+                    <span>{PRESET_DESCRIPTIONS[typographyPreset].name}</span>
+                    <svg className={`w-3 h-3 transition-transform duration-150 ${themeDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {themeDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setThemeDropdownOpen(false)} />
+                      <div className="absolute right-0 top-full mt-1 bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#2f2f2f] rounded shadow-lg z-50 min-w-[110px] py-1">
+                        {(Object.keys(PRESET_DESCRIPTIONS) as TypographyPreset[]).map((preset) => (
+                          <button
+                            key={preset}
+                            onClick={() => { setTypographyPreset(preset); setThemeDropdownOpen(false); }}
+                            className={`w-full text-left px-3 py-1.5 text-xs transition-colors ${
+                              typographyPreset === preset
+                                ? 'font-medium text-[#050505] dark:text-white bg-gray-50 dark:bg-[#2a2a2a]'
+                                : 'text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+                            }`}
+                          >
+                            {PRESET_DESCRIPTIONS[preset].name}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -167,6 +208,7 @@ export function SplitPreviewLayout({
                   <EReaderContent
                     chapter={chapters[selectedChapter]}
                     theme={previewTheme}
+                    typographyPreset={typographyPreset}
                   />
                 </div>
               </div>
@@ -217,6 +259,7 @@ export function SplitPreviewLayout({
               ))}
             </div>
           </div>
+
         </div>
       </div>
     </div>
@@ -224,16 +267,19 @@ export function SplitPreviewLayout({
 }
 
 // E-Reader content renderer with proper typography
-function EReaderContent({ 
-  chapter, 
-  theme 
-}: { 
-  chapter?: Chapter; 
+function EReaderContent({
+  chapter,
+  theme,
+  typographyPreset = 'default',
+}: {
+  chapter?: Chapter;
   theme: ThemeType;
+  typographyPreset?: TypographyPreset;
 }) {
   const textColor = theme === 'dark' ? '#e5e5e5' : '#141413';
   const linkColor = theme === 'dark' ? '#93c5fd' : '#2563eb';
-  
+  const preset = TYPOGRAPHY_PRESETS[typographyPreset];
+
   if (!chapter) {
     return (
       <div className="h-full flex items-center justify-center p-6">
@@ -243,29 +289,28 @@ function EReaderContent({
   }
 
   return (
-    <article 
+    <article
       className="p-6"
-      style={{ 
-        fontFamily: 'Georgia, "Times New Roman", serif',
+      style={{
+        fontFamily: preset.fontFamily,
         color: textColor,
-        lineHeight: 1.8,
+        lineHeight: preset.lineHeight,
         fontSize: '14px',
+        textAlign: preset.textAlign as 'left' | 'justify',
       }}
     >
       {chapter.title && (
-        <h1 
-          className="text-lg font-bold mb-4 text-center"
-          style={{ color: textColor }}
+        <h1
+          className="text-lg font-bold mb-4"
+          style={{ color: textColor, textAlign: (preset.chapterTitleAlign || 'center') as 'left' | 'center' }}
         >
           {chapter.title}
         </h1>
       )}
-      <div 
+      <div
         dangerouslySetInnerHTML={{ __html: chapter.content || '<p style="color: #999; font-style: italic;">No content yet...</p>' }}
-        style={{
-          textAlign: 'justify',
-        }}
-        className="prose-sm [&_p]:mb-3 [&_p]:text-indent-4 [&_a]:no-underline"
+        className="[&_p]:mb-3 [&_a]:no-underline"
+        style={{ textIndent: preset.textIndent }}
       />
       <style jsx>{`
         article :global(a) {

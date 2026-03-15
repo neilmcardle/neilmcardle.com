@@ -2,12 +2,15 @@
 
 import React, { useState } from 'react';
 import { Chapter } from '../types';
+import { TypographyPreset, PRESET_DESCRIPTIONS, TYPOGRAPHY_PRESETS } from '../utils/typographyPresets';
 
 interface LivePreviewPanelProps {
   chapters: Chapter[];
   selectedChapter: number;
   onChapterSelect?: (index: number) => void;
   onClose?: () => void;
+  typographyPreset?: TypographyPreset;
+  setTypographyPreset?: (p: TypographyPreset) => void;
 }
 
 type DeviceType = 'kindle' | 'ipad' | 'phone';
@@ -19,9 +22,18 @@ const deviceDimensions = {
   phone:  { width: 220, height: 390, name: 'Phone' },
 };
 
-function EReaderContent({ chapter, theme }: { chapter?: Chapter; theme: ThemeType }) {
+function EReaderContent({
+  chapter,
+  theme,
+  typographyPreset = 'default',
+}: {
+  chapter?: Chapter;
+  theme: ThemeType;
+  typographyPreset?: TypographyPreset;
+}) {
   const textColor = theme === 'dark' ? '#e5e5e5' : '#141413';
   const linkColor = theme === 'dark' ? '#93c5fd' : '#2563eb';
+  const preset = TYPOGRAPHY_PRESETS[typographyPreset];
 
   if (!chapter) {
     return (
@@ -34,17 +46,26 @@ function EReaderContent({ chapter, theme }: { chapter?: Chapter; theme: ThemeTyp
   return (
     <article
       className="p-6"
-      style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: textColor, lineHeight: 1.8, fontSize: '13px' }}
+      style={{
+        fontFamily: preset.fontFamily,
+        color: textColor,
+        lineHeight: preset.lineHeight,
+        fontSize: '13px',
+        textAlign: preset.textAlign as 'left' | 'justify',
+      }}
     >
       {chapter.title && (
-        <h1 className="text-base font-bold mb-4 text-center" style={{ color: textColor }}>
+        <h1
+          className="text-base font-bold mb-4"
+          style={{ color: textColor, textAlign: (preset.chapterTitleAlign || 'center') as 'left' | 'center' }}
+        >
           {chapter.title}
         </h1>
       )}
       <div
         dangerouslySetInnerHTML={{ __html: chapter.content || '<p style="color:#999;font-style:italic;">No content yet…</p>' }}
-        style={{ textAlign: 'justify' }}
         className="[&_p]:mb-3"
+        style={{ textIndent: preset.textIndent }}
       />
       <style jsx>{`
         article :global(a) { color: ${linkColor}; }
@@ -55,9 +76,13 @@ function EReaderContent({ chapter, theme }: { chapter?: Chapter; theme: ThemeTyp
   );
 }
 
-export default function LivePreviewPanel({ chapters, selectedChapter, onChapterSelect, onClose }: LivePreviewPanelProps) {
+export default function LivePreviewPanel({
+  chapters, selectedChapter, onChapterSelect, onClose,
+  typographyPreset = 'default', setTypographyPreset,
+}: LivePreviewPanelProps) {
   const [device, setDevice] = useState<DeviceType>('kindle');
   const [theme, setTheme] = useState<ThemeType>('light');
+  const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
 
   const dims = deviceDimensions[device];
 
@@ -79,21 +104,56 @@ export default function LivePreviewPanel({ chapters, selectedChapter, onChapterS
             </button>
           )}
         </div>
-        {/* Device selector */}
-        <div className="flex gap-1">
-          {(Object.entries(deviceDimensions) as [DeviceType, typeof deviceDimensions.kindle][]).map(([key, val]) => (
-            <button
-              key={key}
-              onClick={() => setDevice(key)}
-              className={`px-2 py-1 text-xs rounded transition-colors ${
-                device === key
-                  ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
-                  : 'bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a]'
-              }`}
-            >
-              {val.name}
-            </button>
-          ))}
+        {/* Device selector + EPUB Theme */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex gap-1">
+            {(Object.entries(deviceDimensions) as [DeviceType, typeof deviceDimensions.kindle][]).map(([key, val]) => (
+              <button
+                key={key}
+                onClick={() => setDevice(key)}
+                className={`px-2 py-1 text-xs rounded transition-colors ${
+                  device === key
+                    ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
+                    : 'bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a]'
+                }`}
+              >
+                {val.name}
+              </button>
+            ))}
+          </div>
+          {setTypographyPreset && (
+            <div className="relative">
+              <button
+                onClick={() => setThemeDropdownOpen(v => !v)}
+                className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a] transition-colors whitespace-nowrap"
+              >
+                <span>{PRESET_DESCRIPTIONS[typographyPreset].name}</span>
+                <svg className={`w-3 h-3 transition-transform duration-150 ${themeDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {themeDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setThemeDropdownOpen(false)} />
+                  <div className="absolute right-0 top-full mt-1 bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#2f2f2f] rounded shadow-lg z-50 min-w-[110px] py-1">
+                    {(Object.keys(PRESET_DESCRIPTIONS) as TypographyPreset[]).map((preset) => (
+                      <button
+                        key={preset}
+                        onClick={() => { setTypographyPreset(preset); setThemeDropdownOpen(false); }}
+                        className={`w-full text-left px-3 py-1.5 text-xs transition-colors ${
+                          typographyPreset === preset
+                            ? 'font-medium text-[#050505] dark:text-white bg-gray-50 dark:bg-[#2a2a2a]'
+                            : 'text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+                        }`}
+                      >
+                        {PRESET_DESCRIPTIONS[preset].name}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -113,7 +173,7 @@ export default function LivePreviewPanel({ chapters, selectedChapter, onChapterS
             }}
           >
             <div className="h-full overflow-y-auto">
-              <EReaderContent chapter={chapters[selectedChapter]} theme={theme} />
+              <EReaderContent chapter={chapters[selectedChapter]} theme={theme} typographyPreset={typographyPreset} />
             </div>
           </div>
         </div>
@@ -158,6 +218,7 @@ export default function LivePreviewPanel({ chapters, selectedChapter, onChapterS
           ))}
         </div>
       </div>
+
     </div>
   );
 }

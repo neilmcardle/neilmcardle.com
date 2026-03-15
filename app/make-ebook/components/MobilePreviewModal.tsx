@@ -31,17 +31,17 @@ export function MobilePreviewModal({
   const screenBg = theme === 'light' ? '#faf9f5' : theme === 'sepia' ? '#f4ecd8' : '#1a1a1a';
 
   return (
-    <div className="fixed inset-0 z-[130] flex flex-col lg:hidden overflow-hidden bg-[#f0eee6] dark:bg-[#1e1e1e]">
+    <div className="fixed inset-0 z-[130] flex flex-col lg:hidden overflow-hidden bg-white dark:bg-[#1e1e1e]">
       {/* Header */}
-      <div className="flex-shrink-0 p-3 border-b border-[#e4e4de] dark:border-[#2f2f2f]">
+      <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-[#2f2f2f]">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-[#141413] dark:text-white">Live Preview</h3>
+          <h3 className="text-sm font-semibold text-[#050505] dark:text-white">Live Preview</h3>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-[#e9e8e4] dark:hover:bg-[#2f2f2f] rounded transition-colors"
+            className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#2f2f2f] rounded transition-colors"
             aria-label="Close preview"
           >
-            <svg className="w-4 h-4 text-[#141413]/50 dark:text-[#a3a3a3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-gray-400 dark:text-[#a3a3a3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -54,8 +54,8 @@ export function MobilePreviewModal({
               onClick={() => setDevice(key)}
               className={`px-2 py-1 text-xs rounded transition-colors ${
                 device === key
-                  ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
-                  : 'bg-[#e9e8e4] dark:bg-[#2f2f2f] text-[#141413]/70 dark:text-[#d4d4d4] hover:bg-[#e4e4de] dark:hover:bg-[#3a3a3a]'
+                  ? 'bg-[#050505] text-white dark:bg-white dark:text-black'
+                  : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#333]'
               }`}
             >
               {val.name}
@@ -103,7 +103,7 @@ export function MobilePreviewModal({
 
       {/* Chapter Navigation Tabs */}
       {chapters.length > 1 && (
-        <div className="flex-shrink-0 px-3 pb-2 border-t border-[#e4e4de] dark:border-[#2f2f2f]">
+        <div className="flex-shrink-0 px-3 pb-2 border-t border-gray-200 dark:border-[#2f2f2f]">
           <div className="flex gap-1 overflow-x-auto py-2 scrollbar-thin">
             {chapters.map((ch, i) => (
               <button
@@ -111,8 +111,8 @@ export function MobilePreviewModal({
                 onClick={() => onChapterSelect(i)}
                 className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
                   i === selectedChapter
-                    ? 'bg-[#141413] text-[#faf9f5] dark:bg-white dark:text-black'
-                    : 'bg-[#e9e8e4] dark:bg-[#262626] text-[#141413]/70 dark:text-[#d4d4d4] hover:bg-[#e4e4de] dark:hover:bg-[#2f2f2f]'
+                    ? 'bg-[#050505] text-white dark:bg-white dark:text-black'
+                    : 'bg-gray-100 dark:bg-[#262626] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#2f2f2f]'
                 }`}
               >
                 {ch.title || `Ch ${i + 1}`}
@@ -123,7 +123,7 @@ export function MobilePreviewModal({
       )}
 
       {/* Theme Dots */}
-      <div className="flex-shrink-0 p-3 border-t border-[#e4e4de] dark:border-[#2f2f2f]">
+      <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-[#2f2f2f]">
         <div className="flex items-center justify-center gap-3">
           {(['light', 'sepia', 'dark'] as const).map((t) => (
             <button
@@ -131,8 +131,8 @@ export function MobilePreviewModal({
               onClick={() => setTheme(t)}
               className={`w-6 h-6 rounded-full border-2 transition-all ${
                 theme === t
-                  ? 'scale-110 border-[#141413] dark:border-white shadow-md'
-                  : 'border-[#dedddd] dark:border-[#3a3a3a] hover:border-[#141413]/40'
+                  ? 'scale-110 border-[#050505] dark:border-white shadow-md'
+                  : 'border-gray-300 dark:border-[#3a3a3a] hover:border-gray-500'
               }`}
               style={{
                 backgroundColor: t === 'light' ? '#faf9f5' : t === 'sepia' ? '#f4ecd8' : '#1a1a1a',

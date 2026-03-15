@@ -3,7 +3,7 @@
  * These CSS styles ensure high-quality rendering across e-readers
  */
 
-export type TypographyPreset = 'novel' | 'nonfiction' | 'technical' | 'poetry' | 'default';
+export type TypographyPreset = 'novel' | 'nonfiction' | 'technical' | 'poetry' | 'modern' | 'academic' | 'memoir' | 'childrens' | 'default';
 
 export interface TypographyConfig {
   fontFamily: string;
@@ -57,6 +57,50 @@ export const TYPOGRAPHY_PRESETS: Record<TypographyPreset, TypographyConfig> = {
     lineHeight: 2,
     textIndent: '0',
     paragraphSpacing: '1.5em',
+    textAlign: 'left',
+    hyphenation: false,
+    dropCaps: false,
+    chapterTitleAlign: 'center',
+  },
+  modern: {
+    fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif',
+    fontSize: '0.95em',
+    lineHeight: 1.75,
+    textIndent: '0',
+    paragraphSpacing: '1em',
+    textAlign: 'left',
+    hyphenation: false,
+    dropCaps: false,
+    chapterTitleAlign: 'left',
+  },
+  academic: {
+    fontFamily: 'Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif',
+    fontSize: '0.92em',
+    lineHeight: 1.65,
+    textIndent: '1.5em',
+    paragraphSpacing: '0',
+    textAlign: 'justify',
+    hyphenation: true,
+    dropCaps: false,
+    chapterTitleAlign: 'center',
+  },
+  memoir: {
+    fontFamily: 'Palatino, "Palatino Linotype", Georgia, serif',
+    fontSize: '1.05em',
+    lineHeight: 1.85,
+    textIndent: '1.5em',
+    paragraphSpacing: '0',
+    textAlign: 'left',
+    hyphenation: true,
+    dropCaps: true,
+    chapterTitleAlign: 'center',
+  },
+  childrens: {
+    fontFamily: 'Verdana, Geneva, Tahoma, sans-serif',
+    fontSize: '1.2em',
+    lineHeight: 2.1,
+    textIndent: '0',
+    paragraphSpacing: '1.2em',
     textAlign: 'left',
     hyphenation: false,
     dropCaps: false,
@@ -343,6 +387,22 @@ export const PRESET_DESCRIPTIONS: Record<TypographyPreset, { name: string; descr
   poetry: {
     name: 'Poetry',
     description: 'Generous line spacing for verse and poetry collections',
+  },
+  modern: {
+    name: 'Modern',
+    description: 'Clean sans-serif with open spacing — great for business and self-help',
+  },
+  academic: {
+    name: 'Academic',
+    description: 'Palatino with justified text and indents — formal essays and papers',
+  },
+  memoir: {
+    name: 'Memoir',
+    description: 'Warm Palatino with drop caps and generous line height — personal narratives',
+  },
+  childrens: {
+    name: "Children's",
+    description: 'Large friendly text with loose spacing — easy reading for young audiences',
   },
   default: {
     name: 'Standard',

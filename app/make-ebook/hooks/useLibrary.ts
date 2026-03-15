@@ -32,7 +32,7 @@ interface UseLibraryParams {
   setCurrentBookId: (id: string) => void;
   setSelectedChapter: (i: number) => void;
   setMobileSidebarOpen: (v: boolean) => void;
-  setSidebarView: (view: 'library' | 'book' | 'chapters' | 'preview' | null) => void;
+  setSidebarView: (view: 'library' | 'book' | 'chapters' | 'notes' | null) => void;
   setBookJustLoaded: (v: boolean) => void;
   setDialogState: React.Dispatch<React.SetStateAction<DialogState>>;
   clearEditorState: () => void;

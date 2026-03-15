@@ -4,7 +4,6 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { useFeatureAccess } from "@/lib/hooks/useSubscription";
 import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { PlusIcon, TrashIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, LockIcon, MetadataIcon, MenuIcon } from "./components/icons";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import {
@@ -64,7 +63,7 @@ import { useOnboarding } from "./hooks/useOnboarding";
 import OnboardingTour from "./components/OnboardingTour";
 import { loadBookLibrary, saveBookToLibrary } from "./utils/bookLibrary";
 // Extracted utilities & components
-import { formatRelativeTime, plainText, getContentChapterNumber } from "./utils/pageUtils";
+import { formatRelativeTime, getContentChapterNumber } from "./utils/pageUtils";
 import { ChapterCapsuleMarker } from "./components/ChapterCapsuleMarker";
 import { HandleDragIcon } from "./components/HandleDragIcon";
 import { MobilePreviewModal, mobileDeviceDimensions } from "./components/MobilePreviewModal";
@@ -167,7 +166,7 @@ function MakeEbookPage() {
   const { lockedSections, setLockedSections, toggleSection } = useLockedSections();
 
   const [tab, setTab] = useState<"setup" | "ai" | "preview" | "library">("setup");
-  const [sidebarView, setSidebarView] = useState<'library' | 'book' | 'chapters' | 'preview' | null>(null);
+  const [sidebarView, setSidebarView] = useState<'library' | 'book' | 'chapters' | 'notes' | null>(null);
   
   // Derived state: panel is open when sidebarView is not null
   const isPanelOpen = sidebarView !== null;
@@ -234,17 +233,15 @@ function MakeEbookPage() {
 
   // Collapsible sidebar sections state
   const [sidebarLibraryExpanded, setSidebarLibraryExpanded] = useState(true);
-  const [sidebarPreviewExpanded, setSidebarPreviewExpanded] = useState(false);
   const [sidebarChaptersExpanded, setSidebarChaptersExpanded] = useState(true);
   const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] = useState(false);
   const [showEreaderPreview, setShowEreaderPreview] = useState(false);
-  
+
   // Mobile accordion: only one section open at a time
-  const expandMobileSection = (section: 'library' | 'book' | 'chapters' | 'preview') => {
+  const expandMobileSection = (section: 'library' | 'book' | 'chapters') => {
     setSidebarLibraryExpanded(section === 'library' ? !sidebarLibraryExpanded : false);
     setSidebarBookDetailsExpanded(section === 'book' ? !sidebarBookDetailsExpanded : false);
     setSidebarChaptersExpanded(section === 'chapters' ? !sidebarChaptersExpanded : false);
-    setSidebarPreviewExpanded(section === 'preview' ? !sidebarPreviewExpanded : false);
   };
 
   // When a sidebar view is opened, ensure its panel is expanded by default
@@ -253,7 +250,6 @@ function MakeEbookPage() {
     if (sidebarView === 'library') setSidebarLibraryExpanded(true);
     if (sidebarView === 'book') setSidebarBookDetailsExpanded(true);
     if (sidebarView === 'chapters') setSidebarChaptersExpanded(true);
-    if (sidebarView === 'preview') setSidebarPreviewExpanded(true);
   }, [sidebarView]);
 
   const [saveFeedback, setSaveFeedback] = useState(false);
@@ -494,6 +490,22 @@ function MakeEbookPage() {
     setChapters(prev => prev.map((ch, i) => i === index ? { ...ch, locked: !ch.locked } : ch));
   }, [setChapters]);
 
+  // Outline notes — persisted to localStorage keyed by book ID
+  const [outlineNotes, setOutlineNotesState] = useState('');
+  const currentBookIdForOutline = useRef<string | null>(null);
+
+  useEffect(() => {
+    const id = selectedBookId || 'unsaved';
+    currentBookIdForOutline.current = id;
+    setOutlineNotesState(localStorage.getItem(`makeebook-outline-${id}`) || '');
+  }, [selectedBookId]);
+
+  const setOutlineNotes = useCallback((value: string) => {
+    setOutlineNotesState(value);
+    const id = currentBookIdForOutline.current || 'unsaved';
+    localStorage.setItem(`makeebook-outline-${id}`, value);
+  }, []);
+
   // Restore a version from history
   const handleRestoreVersion = useCallback((restoredChapters: Chapter[], metadata: { blurb?: string; publisher?: string; pubDate?: string; genre?: string; tags?: string[] }) => {
     setDialogState({
@@ -675,12 +687,6 @@ function MakeEbookPage() {
     }
   }, [mobileSidebarOpen, tab]); // Re-check when tab changes as content changes
 
-  const totalWords = chapters.reduce(
-    (sum, ch) => sum + (plainText(ch.content).split(/\s+/).filter(Boolean).length || 0),
-    0
-  );
-  const pageCount = Math.max(1, Math.ceil(totalWords / 300));
-  const readingTime = Math.max(1, Math.round(totalWords / 200));
 
   // Show marketing landing page for visitors (before they start editing)
   if (showMarketingPage && chapters.length === 0) {
@@ -1682,140 +1688,7 @@ function MakeEbookPage() {
                     )}
                   </div>
 
-                  {/* Overview Section */}
-                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
-                    <button
-                      onClick={() => expandMobileSection('preview')}
-                      className="flex items-center justify-between py-2 w-full text-left"
-                    >
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <svg className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-[#e5e5e5]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="3" width="18" height="18" rx="2" />
-                          <rect x="6" y="6" width="12" height="6" rx="1" />
-                          <path d="M6 15h8M6 18h5" />
-                        </svg>
-                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Overview</span>
-                      </div>
-                      {sidebarPreviewExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                      )}
-                    </button>
-                    
-                    {sidebarPreviewExpanded && (
-                      <div className="mt-2 px-2">
-                        {/* Cover Preview */}
-                        <div className="mb-4 flex justify-center">
-                          <div className="w-32 h-48 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden">
-                            {coverUrl ? (
-                              <img
-                                src={coverUrl}
-                                alt="Book cover"
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <img src="/preview-icon.svg" alt="No cover" className="w-8 h-8 opacity-40 dark:invert" />
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* Book Info */}
-                        <div className="space-y-2 text-sm">
-                          <div>
-                            <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Title</div>
-                            <div className="font-medium text-[#050505] dark:text-[#e5e5e5]">{title || 'Untitled'}</div>
-                          </div>
-                          
-                          <div>
-                            <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Author</div>
-                            <div className="text-[#050505] dark:text-[#e5e5e5]">{author || 'Unknown'}</div>
-                          </div>
-                          
-                          {pubDate && (
-                            <div>
-                              <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Publication Date</div>
-                              <div className="text-[#050505] dark:text-[#e5e5e5]">{new Date(pubDate).toLocaleDateString()}</div>
-                            </div>
-                          )}
-                          
-                          {language && (
-                            <div>
-                              <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Language</div>
-                              <div className="flex items-center gap-2">
-                                <img src="/dark-languages-icon.svg" className="w-4 h-4 hidden dark:block" alt="" />
-                                <img src="/languages-icon.svg" className="w-4 h-4 dark:hidden" alt="" />
-                                <span className="text-[#050505] dark:text-[#e5e5e5]">{language}</span>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {genre && (
-                            <div>
-                              <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Genre</div>
-                              <div className="text-[#050505] dark:text-[#e5e5e5]">{genre}</div>
-                            </div>
-                          )}
-                          
-                          {tags.length > 0 && (
-                            <div>
-                              <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Tags</div>
-                              <div className="flex flex-wrap gap-1">
-                                {tags.map((tag) => (
-                                  <span
-                                    key={tag}
-                                    className="inline-block px-2 py-0.5 text-xs rounded bg-gray-100 dark:bg-[#1a1a1a] text-[#050505] dark:text-[#e5e5e5]"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Stats */}
-                        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-700 dark:text-gray-400">Chapters</span>
-                            <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{chapters.length}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-700 dark:text-gray-400">Words</span>
-                            <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{totalWords.toLocaleString()}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-700 dark:text-gray-400">Pages</span>
-                            <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{pageCount}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-700 dark:text-gray-400">Reading Time</span>
-                            <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">
-                              {readingTime} {readingTime === 1 ? 'minute' : 'minutes'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Book Mind */}
-                  {currentBookId && (
-                    <div className="pt-2">
-                      <Link
-                        href={`/make-ebook/book-mind?book=${currentBookId}`}
-                        onClick={() => setMobileSidebarOpen(false)}
-                        className="flex items-center gap-2.5 py-2 px-1 rounded-lg hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors"
-                      >
-                        <div className="w-7 h-7 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center flex-shrink-0">
-                          <svg className="w-4 h-4 text-white dark:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                          </svg>
-                        </div>
-                        <span className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5]">Book Mind</span>
-                      </Link>
-                    </div>
-                  )}
 
                 </div>
               </div>
@@ -2157,6 +2030,8 @@ function MakeEbookPage() {
             handleAddChapter={handleAddChapter}
             handleRemoveChapter={handleRemoveChapter}
             handleToggleChapterLock={handleToggleChapterLock}
+            outlineNotes={outlineNotes}
+            setOutlineNotes={setOutlineNotes}
             handleDragStart={handleDragStart}
             handleDragEnter={handleDragEnter}
             handleDragEnd={handleDragEnd}
@@ -2191,10 +2066,6 @@ function MakeEbookPage() {
             coverFile={coverUrl}
             handleCoverChange={handleCoverChange}
             lockedSections={lockedSections}
-            coverUrl={coverUrl}
-            totalWords={totalWords}
-            pageCount={pageCount}
-            readingTime={readingTime}
             handleSaveBook={saveBook.handleSaveBook}
             handleExportEPUB={saveBook.handleExportEPUB}
             handleExportPDF={saveBook.handleExportPDF}
@@ -2204,8 +2075,6 @@ function MakeEbookPage() {
             onShowExportHistory={() => setShowExportHistory(true)}
             sidebarLibraryExpanded={sidebarLibraryExpanded}
             setSidebarLibraryExpanded={setSidebarLibraryExpanded}
-            sidebarPreviewExpanded={sidebarPreviewExpanded}
-            setSidebarPreviewExpanded={setSidebarPreviewExpanded}
             sidebarChaptersExpanded={sidebarChaptersExpanded}
             setSidebarChaptersExpanded={setSidebarChaptersExpanded}
             sidebarBookDetailsExpanded={sidebarBookDetailsExpanded}
@@ -2443,6 +2312,8 @@ function MakeEbookPage() {
                 isPreviewEnabled={isSplitPreviewEnabled}
                 onTogglePreviewAction={() => setIsSplitPreviewEnabled(prev => !prev)}
                 onChapterSelectAction={(i) => setSelectedChapter(i)}
+                typographyPreset={typographyPreset}
+                setTypographyPreset={setTypographyPreset}
               >
               <>
               {/* Editor Area - Prioritized for Writing */}
@@ -2665,6 +2536,8 @@ function MakeEbookPage() {
                     selectedChapter={selectedChapter}
                     onChapterSelect={setSelectedChapter}
                     onClose={() => setRightPanelMode('none')}
+                    typographyPreset={typographyPreset}
+                    setTypographyPreset={setTypographyPreset}
                   />
                 </div>
               )}

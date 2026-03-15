@@ -27,6 +27,7 @@ interface Chapter {
   title: string;
   content: string;
   locked?: boolean;
+  synopsis?: string;
 }
 
 interface Book {
@@ -41,7 +42,7 @@ interface CollapsibleSidebarProps {
   // Panel visibility (always rendered, animated via CSS)
   isPanelOpen: boolean;
   // Active view from slim sidebar
-  activeView: 'library' | 'book' | 'chapters' | 'preview' | null;
+  activeView: 'library' | 'book' | 'chapters' | 'notes' | null;
   // Close handler
   onClose: () => void;
   
@@ -105,12 +106,10 @@ interface CollapsibleSidebarProps {
   coverFile: string | null;
   handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   lockedSections: { bookInfo: boolean; publishing: boolean; tags: boolean; cover: boolean };
-  
-  // Preview props
-  coverUrl: string | null;
-  totalWords: number;
-  pageCount: number;
-  readingTime: number;
+
+  // Notes props
+  outlineNotes: string;
+  setOutlineNotes: (value: string) => void;
   
   // Actions
   handleSaveBook: () => void;
@@ -126,8 +125,6 @@ interface CollapsibleSidebarProps {
   // Expanded state
   sidebarLibraryExpanded: boolean;
   setSidebarLibraryExpanded: (value: boolean) => void;
-  sidebarPreviewExpanded: boolean;
-  setSidebarPreviewExpanded: (value: boolean) => void;
   sidebarChaptersExpanded: boolean;
   setSidebarChaptersExpanded: (value: boolean) => void;
   sidebarBookDetailsExpanded: boolean;
@@ -234,6 +231,8 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     dragItemIndex,
     ghostPillPosition,
     getContentChapterNumber,
+    outlineNotes,
+    setOutlineNotes,
     title,
     setTitle,
     author,
@@ -258,10 +257,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     coverFile,
     handleCoverChange,
     lockedSections,
-    coverUrl,
-    totalWords,
-    pageCount,
-    readingTime,
     handleSaveBook,
     handleExportEPUB,
     handleExportPDF,
@@ -271,8 +266,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     onShowExportHistory,
     sidebarLibraryExpanded,
     setSidebarLibraryExpanded,
-    sidebarPreviewExpanded,
-    setSidebarPreviewExpanded,
     sidebarChaptersExpanded,
     setSidebarChaptersExpanded,
     sidebarBookDetailsExpanded,
@@ -608,6 +601,24 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         </div>
 
         <div className="mt-2 space-y-3 pl-2 pr-2">
+            {/* Cover Image */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Cover Image</label>
+              <div className="w-full aspect-[2/3] max-h-52 bg-gray-100 dark:bg-[#2a2a2a] rounded border border-gray-200 dark:border-[#2f2f2f] overflow-hidden flex items-center justify-center mb-2">
+                {coverFile
+                  ? <img src={coverFile} alt="Cover" className="w-full h-full object-cover" />
+                  : <img src="/image-icon.svg" alt="" className="w-8 h-8 opacity-30 dark:opacity-20" />
+                }
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleCoverChange}
+                disabled={lockedSections.cover}
+                className="w-full text-sm text-[#C0C0C0] file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed"
+              />
+            </div>
+
             {/* Title */}
             <div>
               <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Title</label>
@@ -759,21 +770,9 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               )}
             </div>
             
-            {/* Cover Image */}
+            {/* Coverly promo */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Cover Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleCoverChange}
-                disabled={lockedSections.bookInfo}
-                className="w-full text-sm text-[#C0C0C0] file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed"
-              />
-              {coverFile && (
-                <p className="text-xs text-green-600 dark:text-green-400 mt-1">Cover uploaded</p>
-              )}
-              <div className="mt-3">
-                <button
+              <button
                   type="button"
                   onClick={() => {
                     const params = new URLSearchParams({
@@ -819,7 +818,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                     </div>
                   </div>
                 </button>
-              </div>
             </div>
           </div>
       </div>
@@ -1032,113 +1030,24 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
       </div>
         )}
 
-      {/* Overview Section */}
-      {activeView === 'preview' && (
-  <div className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
-        <div className="flex items-center justify-between py-2 px-2">
-          <div className="flex items-center gap-2">
+      {/* Notes Section */}
+      {activeView === 'notes' && (
+        <div className="flex flex-col h-full">
+          <div className="flex items-center gap-2 py-2 px-2 flex-shrink-0">
             <svg className="w-5 h-5 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <rect x="6" y="6" width="12" height="6" rx="1" />
-              <path d="M6 15h8M6 18h5" />
+              <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
             </svg>
-            <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Overview</span>
+            <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Notes</span>
           </div>
+          <textarea
+            value={outlineNotes}
+            onChange={e => setOutlineNotes(e.target.value)}
+            placeholder={"Plan your chapters, map out your plot, jot down ideas — anything that helps you write."}
+            className="flex-1 w-full resize-none px-3 py-2 text-sm text-[#333] dark:text-[#d4d4d4] bg-transparent border-0 placeholder:text-gray-300 dark:placeholder:text-[#444] focus:outline-none focus:ring-0 leading-relaxed"
+          />
         </div>
-        <div className="mt-2 px-2">
-            {/* Cover Preview */}
-            <div className="mb-4 flex justify-center">
-              <div className="w-32 h-48 bg-gray-100 dark:bg-[#1e1e1e] rounded border border-gray-200 dark:border-[#2f2f2f] flex items-center justify-center overflow-hidden">
-                {coverUrl ? (
-                  <img
-                    src={coverUrl}
-                    alt="Book cover"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <img src="/preview-icon.svg" alt="No cover" className="w-8 h-8 opacity-40 dark:invert" />
-                )}
-              </div>
-            </div>
-            
-            {/* Book Info */}
-            <div className="space-y-2 text-sm">
-              <div>
-                <div className="text-xs text-gray-600 dark:text-[#a3a3a3] mb-1">Title</div>
-                <div className="font-medium text-[#050505] dark:text-[#e5e5e5]">{title || 'Untitled'}</div>
-              </div>
-              
-              <div>
-                <div className="text-xs text-gray-600 dark:text-[#a3a3a3] mb-1">Author</div>
-                <div className="text-[#050505] dark:text-[#e5e5e5]">{author || 'Unknown'}</div>
-              </div>
-              
-              {pubDate && (
-                <div>
-                  <div className="text-xs text-gray-600 dark:text-[#a3a3a3] mb-1">Publication Date</div>
-                  <div className="text-[#050505] dark:text-[#e5e5e5]">{new Date(pubDate).toLocaleDateString()}</div>
-                </div>
-              )}
-              
-              {language && (
-                <div>
-                  <div className="text-xs text-gray-600 dark:text-[#a3a3a3] mb-1">Language</div>
-                  <div className="flex items-center gap-2">
-                    <img src="/dark-languages-icon.svg" className="w-4 h-4 hidden dark:block" alt="" />
-                    <img src="/languages-icon.svg" className="w-4 h-4 dark:hidden" alt="" />
-                    <span className="text-[#050505] dark:text-[#e5e5e5]">{language}</span>
-                  </div>
-                </div>
-              )}
-              
-              {genre && (
-                <div>
-                  <div className="text-xs text-gray-600 dark:text-[#a3a3a3] mb-1">Genre</div>
-                  <div className="text-[#050505] dark:text-[#e5e5e5]">{genre}</div>
-                </div>
-              )}
-              
-              {tags.length > 0 && (
-                <div>
-                  <div className="text-xs text-gray-600 dark:text-[#a3a3a3] mb-1">Tags</div>
-                  <div className="flex flex-wrap gap-1">
-                    {tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-block px-2 py-0.5 text-xs rounded bg-gray-100 dark:bg-[#1a1a1a] text-[#050505] dark:text-[#e5e5e5]"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Stats */}
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#2f2f2f] space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600 dark:text-[#a3a3a3]">Chapters</span>
-                <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{chapters.length}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600 dark:text-[#a3a3a3]">Words</span>
-                <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{totalWords.toLocaleString()}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600 dark:text-[#a3a3a3]">Pages</span>
-                <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">{pageCount}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600 dark:text-[#a3a3a3]">Reading Time</span>
-                <span className="font-medium text-[#050505] dark:text-[#e5e5e5]">
-                  {readingTime} {readingTime === 1 ? 'minute' : 'minutes'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-        )}
+      )}
+
       </div>
       </div>
 

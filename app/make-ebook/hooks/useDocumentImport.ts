@@ -10,7 +10,7 @@ interface UseDocumentImportParams {
   setSelectedChapter: (i: number) => void;
   setTags: (tags: string[]) => void;
   clearCover: () => void;
-  setSidebarView: (view: 'library' | 'book' | 'chapters' | 'preview' | null) => void;
+  setSidebarView: (view: 'library' | 'book' | 'chapters' | 'notes' | null) => void;
 }
 
 export function useDocumentImport({

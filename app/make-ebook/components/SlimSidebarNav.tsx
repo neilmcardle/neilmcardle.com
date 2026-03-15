@@ -17,8 +17,8 @@ import {
 import { LogOut, CreditCard } from 'lucide-react';
 
 interface SlimSidebarNavProps {
-  activeView: 'library' | 'book' | 'chapters' | 'preview' | null;
-  onViewChange: (view: 'library' | 'book' | 'chapters' | 'preview' | null) => void;
+  activeView: 'library' | 'book' | 'chapters' | 'notes' | null;
+  onViewChange: (view: 'library' | 'book' | 'chapters' | 'notes' | null) => void;
   libraryCount: number;
   chaptersCount: number;
   isPanelOpen: boolean;
@@ -225,7 +225,7 @@ function ThemeToggleButton() {
 
 export default function SlimSidebarNav({ activeView, onViewChange, libraryCount, chaptersCount, isPanelOpen, onLogoClick, onStartTour, onBookMindToggle, isBookMindOpen }: SlimSidebarNavProps) {
   
-  const handleViewClick = (view: 'library' | 'book' | 'chapters' | 'preview') => {
+  const handleViewClick = (view: 'library' | 'book' | 'chapters' | 'notes') => {
     // If clicking the same view and panel is open, close it
     if (activeView === view && isPanelOpen) {
       onViewChange(null);
@@ -322,23 +322,22 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           </button>
         </Tooltip>
 
-        {/* Overview */}
-        <Tooltip text="Overview">
+
+
+        {/* Notes */}
+        <Tooltip text="Notes">
           <button
-            data-tour="preview"
-            onClick={() => handleViewClick('preview')}
+            onClick={() => handleViewClick('notes')}
             className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
-            aria-label="Overview"
+            aria-label="Notes"
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
               <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <rect x="6" y="6" width="12" height="6" rx="1" />
-                <path d="M6 15h8M6 18h5" />
+                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
               </svg>
             </div>
-            <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'preview' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
-              Overview
+            <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'notes' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
+              Notes
             </span>
           </button>
         </Tooltip>
