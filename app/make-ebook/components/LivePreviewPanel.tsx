@@ -64,7 +64,23 @@ function EReaderContent({
       )}
       <div
         dangerouslySetInnerHTML={{ __html: chapter.content || '<p style="color:#999;font-style:italic;">No content yet…</p>' }}
-        className="[&_p]:mb-3"
+        className={[
+          '[&_p]:mb-3',
+          '[&_h1]:text-xl [&_h1]:font-bold [&_h1]:mt-5 [&_h1]:mb-3 [&_h1]:leading-tight [&_h1]:[text-indent:0]',
+          '[&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:leading-tight [&_h2]:[text-indent:0]',
+          '[&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-2 [&_h3]:leading-tight [&_h3]:[text-indent:0]',
+          '[&_h4]:text-sm [&_h4]:font-semibold [&_h4]:mt-3 [&_h4]:mb-1 [&_h4]:[text-indent:0]',
+          '[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3',
+          '[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3',
+          '[&_li]:mb-1',
+          '[&_blockquote]:border-l-2 [&_blockquote]:border-current [&_blockquote]:border-opacity-30 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:opacity-70 [&_blockquote]:mb-3',
+          '[&_strong]:font-bold',
+          '[&_em]:italic',
+          '[&_a]:underline',
+          '[&_hr]:my-4 [&_hr]:border-current [&_hr]:opacity-20',
+          '[&_pre]:bg-black/10 [&_pre]:rounded [&_pre]:p-2 [&_pre]:mb-3 [&_pre]:text-xs [&_pre]:overflow-x-auto',
+          '[&_code]:bg-black/10 [&_code]:rounded [&_code]:px-1 [&_code]:text-xs',
+        ].join(' ')}
         style={{ textIndent: preset.textIndent }}
       />
       <style jsx>{`
