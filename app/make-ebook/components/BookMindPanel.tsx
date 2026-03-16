@@ -68,7 +68,7 @@ export default function BookMindPanel({
 
   useEffect(() => { if (externalSelectedText) setDismissedText(null); }, [externalSelectedText]);
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-  useEffect(() => { setTimeout(() => inputRef.current?.focus(), 100); }, []);
+  useEffect(() => { setTimeout(() => inputRef.current?.focus(), 260); }, []);
 
   const currentChapter = chapters[selectedChapterIndex] ?? { title: '', content: '', type: 'chapter' };
   const context: BookMindContext = {
@@ -110,18 +110,18 @@ export default function BookMindPanel({
   const Header = (
     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#2f2f2f] flex-shrink-0">
       <div className="flex items-center gap-2">
-        <BookIcon className="w-4 h-4 text-gray-500 dark:text-[#a3a3a3]" />
+        <BookIcon className="w-6 h-6 text-gray-500 dark:text-[#a3a3a3]" />
         <span className="text-sm font-medium text-gray-900 dark:text-white">Book Mind</span>
       </div>
       <div className="flex items-center gap-0.5">
         {bookId && (
           <Link
             href={`/make-ebook/book-mind?book=${bookId}`}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
+            className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
             title="Open full page"
             target="_blank"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </Link>
@@ -129,20 +129,20 @@ export default function BookMindPanel({
         {messages.length > 0 && (
           <button
             onClick={() => { clearMessages(); createSession(); }}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
+            className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
             title="New chat"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
             </svg>
           </button>
         )}
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
+          className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
           title="Close"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -150,53 +150,37 @@ export default function BookMindPanel({
     </div>
   );
 
-  // ── Loading ───────────────────────────────────────────────────────────────
-  if (subLoading) {
-    return (
-      <div className="flex flex-col h-full bg-white dark:bg-[#1e1e1e] w-full">
-        {Header}
-        <div className="flex-1 flex items-center justify-center">
-          <BookIcon className="w-5 h-5 text-gray-300 dark:text-[#737373] animate-pulse" />
-        </div>
-      </div>
-    );
-  }
-
-  // ── Locked ────────────────────────────────────────────────────────────────
-  if (!hasAccess) {
-    return (
-      <div className="flex flex-col h-full bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white w-full">
-        {Header}
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="text-center space-y-4 max-w-[240px]">
-            <BookIcon className="w-8 h-8 text-gray-300 dark:text-[#737373] mx-auto" />
-            <div>
-              <h3 className="text-sm font-semibold mb-1">Book Mind AI</h3>
-              <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed">
-                AI-powered analysis of your manuscript. Summarise chapters, find plot holes, explore themes.
-              </p>
-            </div>
-            <button
-              onClick={handleUpgrade}
-              disabled={checkoutLoading}
-              className="w-full py-2.5 bg-gray-900 dark:bg-white text-white dark:text-black text-sm font-medium rounded-xl hover:bg-gray-700 dark:hover:bg-[#e5e5e5] transition-colors disabled:opacity-50"
-            >
-              {checkoutLoading ? 'Redirecting…' : 'Upgrade to Pro'}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Main ──────────────────────────────────────────────────────────────────
+  // ── Single stable layout (prevents animation jump from layout shifts) ─────
   return (
     <div className="flex flex-col h-full bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white w-full">
       {Header}
 
-      {/* Messages / Empty state */}
+      {/* Content area */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0">
-        {messages.length === 0 ? (
+        {subLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <BookIcon className="w-5 h-5 text-gray-300 dark:text-[#737373] animate-pulse" />
+          </div>
+        ) : !hasAccess ? (
+          <div className="flex h-full items-center justify-center">
+            <div className="text-center space-y-4 max-w-[240px]">
+              <BookIcon className="w-8 h-8 text-gray-300 dark:text-[#737373] mx-auto" />
+              <div>
+                <h3 className="text-sm font-semibold mb-1">Book Mind AI</h3>
+                <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed">
+                  AI-powered analysis of your manuscript. Summarise chapters, find plot holes, explore themes.
+                </p>
+              </div>
+              <button
+                onClick={handleUpgrade}
+                disabled={checkoutLoading}
+                className="w-full py-2.5 bg-gray-900 dark:bg-white text-white dark:text-black text-sm font-medium rounded-xl hover:bg-gray-700 dark:hover:bg-[#e5e5e5] transition-colors disabled:opacity-50"
+              >
+                {checkoutLoading ? 'Redirecting…' : 'Upgrade to Pro'}
+              </button>
+            </div>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="space-y-3 pt-2">
             {chapters.length === 0 ? (
               <div className="text-center py-12">
@@ -263,8 +247,8 @@ export default function BookMindPanel({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="flex-shrink-0 px-3 pb-3 pt-2">
+      {/* Input — always rendered to keep layout stable during animation */}
+      <div className={`flex-shrink-0 px-3 pb-3 pt-2 ${subLoading || !hasAccess ? 'invisible' : ''}`}>
         {activeSelectedText && (
           <div className="flex items-center gap-2 px-1 pb-2">
             <p className="flex-1 text-xs text-gray-400 dark:text-[#737373] truncate italic">

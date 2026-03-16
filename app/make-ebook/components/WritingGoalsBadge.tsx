@@ -33,7 +33,7 @@ export function WritingGoalsBadge({
   const [goalInput, setGoalInput] = useState(String(dailyTarget));
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ top: 0, left: 0, isMobile: false });
+  const [position, setPosition] = useState({ top: 0 as number | undefined, bottom: undefined as number | undefined, left: 0, isMobile: false });
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -45,10 +45,16 @@ export function WritingGoalsBadge({
     const rect = buttonRef.current.getBoundingClientRect();
     const isMobile = window.innerWidth < 640;
     const dropdownWidth = isMobile ? window.innerWidth - 24 : 272;
+    const dropdownHeight = 420; // approximate max height
     const left = isMobile
       ? 12
       : Math.min(rect.right - dropdownWidth, window.innerWidth - dropdownWidth - 12);
-    setPosition({ top: rect.bottom + 8, left, isMobile });
+    const spaceBelow = window.innerHeight - rect.bottom;
+    if (spaceBelow < dropdownHeight) {
+      setPosition({ top: undefined, bottom: window.innerHeight - rect.top + 8, left, isMobile });
+    } else {
+      setPosition({ top: rect.bottom + 8, bottom: undefined, left, isMobile });
+    }
   }, []);
 
   useEffect(() => {
@@ -80,6 +86,7 @@ export function WritingGoalsBadge({
       className="fixed bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl border border-neutral-200 dark:border-[#2f2f2f] z-[9999] overflow-hidden"
       style={{
         top: position.top,
+        bottom: position.bottom,
         left: position.left,
         width: position.isMobile ? 'calc(100vw - 24px)' : '272px',
       }}
@@ -208,20 +215,20 @@ export function WritingGoalsBadge({
         ref={buttonRef}
         onClick={() => setIsOpen(o => !o)}
         title="Writing goals & streak"
-        className="flex items-center gap-1.5 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium bg-neutral-100 dark:bg-[#262626] text-[#444] dark:text-[#d4d4d4] hover:bg-neutral-200 dark:hover:bg-[#2f2f2f] transition-colors"
+        className="flex items-center gap-1.5 px-3 h-10 rounded-lg text-xs font-medium bg-neutral-100 dark:bg-[#262626] text-[#444] dark:text-[#d4d4d4] hover:bg-neutral-200 dark:hover:bg-[#2f2f2f] transition-colors"
       >
-        <FlameIcon className={`w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0 ${currentStreak > 0 || goalMet ? 'text-[#111] dark:text-white' : 'text-neutral-400 dark:text-[#555]'}`} />
+        <FlameIcon className={`w-4 h-4 flex-shrink-0 ${currentStreak > 0 || goalMet ? 'text-[#111] dark:text-white' : 'text-neutral-400 dark:text-[#555]'}`} />
         {currentStreak > 0 && (
           <span className="font-semibold">{currentStreak}</span>
         )}
         {/* Mini progress bar */}
-        <div className="hidden sm:block w-10 h-1 rounded-full bg-neutral-200 dark:bg-[#3a3a3a] overflow-hidden">
+        <div className="w-10 h-1 rounded-full bg-neutral-200 dark:bg-[#3a3a3a] overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${goalMet ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-[#111] dark:bg-white'}`}
             style={{ width: `${progressPercent}%` }}
           />
         </div>
-        <span className="hidden sm:inline">{todayWords > 0 ? `${todayWords.toLocaleString()}` : 'Goal'}</span>
+        <span>{todayWords > 0 ? `${todayWords.toLocaleString()}` : 'Goal'}</span>
       </button>
       {dropdownContent}
     </>

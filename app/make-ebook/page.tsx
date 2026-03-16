@@ -235,13 +235,15 @@ function MakeEbookPage() {
   const [sidebarLibraryExpanded, setSidebarLibraryExpanded] = useState(true);
   const [sidebarChaptersExpanded, setSidebarChaptersExpanded] = useState(true);
   const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] = useState(false);
+  const [sidebarNotesExpanded, setSidebarNotesExpanded] = useState(false);
   const [showEreaderPreview, setShowEreaderPreview] = useState(false);
 
   // Mobile accordion: only one section open at a time
-  const expandMobileSection = (section: 'library' | 'book' | 'chapters') => {
+  const expandMobileSection = (section: 'library' | 'book' | 'chapters' | 'notes') => {
     setSidebarLibraryExpanded(section === 'library' ? !sidebarLibraryExpanded : false);
     setSidebarBookDetailsExpanded(section === 'book' ? !sidebarBookDetailsExpanded : false);
     setSidebarChaptersExpanded(section === 'chapters' ? !sidebarChaptersExpanded : false);
+    setSidebarNotesExpanded(section === 'notes' ? !sidebarNotesExpanded : false);
   };
 
   // When a sidebar view is opened, ensure its panel is expanded by default
@@ -573,7 +575,7 @@ function MakeEbookPage() {
       },
     ]);
     setSelectedChapter(0);
-    setSidebarView('book');
+    setSidebarView(null);
 
     // Trigger onboarding tour for first-time users
     if (!onboarding.isOnboardingComplete) {
@@ -1235,6 +1237,24 @@ function MakeEbookPage() {
                             />
                           )}
                         </div>
+                        {/* Cover Image */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Cover Image</label>
+                          <div className="w-full aspect-[2/3] max-h-52 bg-gray-100 dark:bg-[#2a2a2a] rounded border border-gray-200 dark:border-gray-700 overflow-hidden flex items-center justify-center mb-2">
+                            {coverUrl
+                              ? <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
+                              : <img src="/image-icon.svg" alt="" className="w-8 h-8 opacity-30 dark:opacity-20" />
+                            }
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleCoverChange}
+                            disabled={lockedSections.bookInfo}
+                            className="w-full text-sm text-[#C0C0C0] file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed"
+                          />
+                        </div>
+
                         {/* Title */}
                         <div>
                           <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Title</label>
@@ -1383,19 +1403,8 @@ function MakeEbookPage() {
                           )}
                         </div>
                         
-                        {/* Cover Image */}
+                        {/* Coverly promo */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Cover Image</label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleCoverChange}
-                            disabled={lockedSections.bookInfo}
-                            className="w-full text-sm text-gray-600 dark:text-gray-400 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed"
-                          />
-                          {coverUrl && (
-                            <p className="text-xs text-green-600 dark:text-green-400 mt-1">Cover uploaded</p>
-                          )}
                           <div className="mt-3">
                             <button
                               type="button"
@@ -1688,7 +1697,34 @@ function MakeEbookPage() {
                     )}
                   </div>
 
-
+                  {/* Notes Section */}
+                  <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
+                    <button
+                      onClick={() => expandMobileSection('notes')}
+                      className="flex items-center justify-between py-2 w-full text-left"
+                    >
+                      <div className="flex items-center gap-2">
+                        <svg className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+                        </svg>
+                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Notes</span>
+                      </div>
+                      {sidebarNotesExpanded ? (
+                        <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                      )}
+                    </button>
+                    {sidebarNotesExpanded && (
+                      <textarea
+                        value={outlineNotes}
+                        onChange={e => setOutlineNotes(e.target.value)}
+                        placeholder="Plan your chapters, map out your plot, jot down ideas — anything that helps you write."
+                        rows={8}
+                        className="w-full resize-none px-2 py-2 text-sm text-[#333] dark:text-[#d4d4d4] bg-transparent border-0 placeholder:text-gray-300 dark:placeholder:text-[#444] focus:outline-none focus:ring-0 leading-relaxed"
+                      />
+                    )}
+                  </div>
 
                 </div>
               </div>
@@ -2082,7 +2118,7 @@ function MakeEbookPage() {
           />}
 
           {/* Main Editor Panel - Mobile Optimised */}
-          <main data-editor-scroll className={`flex-1 flex flex-col bg-white dark:bg-[#1e1e1e] ${chapters.length === 0 ? 'px-0 py-0' : 'px-2 py-8'} ${chapters.length > 0 ? 'lg:pl-8' : 'lg:pl-0'} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}>
+          <main data-editor-scroll className={`flex-1 flex flex-col bg-white dark:bg-[#1e1e1e] ${chapters.length === 0 ? 'px-0 py-0' : 'px-2 py-8'} ${chapters.length > 0 ? 'lg:pl-0' : 'lg:pl-0'} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}>
             
             {/* Mobile Header - Compact Status Bar - Hidden when no chapters (landing page) */}
             {chapters.length > 0 && (
@@ -2145,7 +2181,10 @@ function MakeEbookPage() {
                       aria-label="Preview book"
                       title="Preview"
                     >
-                      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 3v18" /></svg>
+                      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
                     </button>
                   </div>
                 )}
@@ -2325,11 +2364,11 @@ function MakeEbookPage() {
                     {isDirty && !isSaving && (
                       <button
                         onClick={() => { saveBook.saveBookDirectly(false); markClean(); }}
-                        className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                        className="flex items-center gap-2 h-10 px-3 rounded-lg bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors text-xs font-medium text-gray-700 dark:text-[#d4d4d4]"
                         title="Save now (⌘S)"
                       >
-                        <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Save</span>
+                        <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
+                        <span>Save</span>
                       </button>
                     )}
                   </div>
@@ -2340,7 +2379,6 @@ function MakeEbookPage() {
                       onChapterSelect={setSelectedChapter}
                       bookTitle={title}
                     />
-                    <WritingGoalsBadge {...writingGoals} />
                     <VersionHistoryButton
                       versionCount={versions.length}
                       onClickAction={() => setShowVersionHistory(true)}
@@ -2473,7 +2511,7 @@ function MakeEbookPage() {
                     />
                   </div>
                   {/* Word Stats Footer */}
-                  <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 border-t border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-[#1e1e1e]/50">
+                  <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 border-t border-gray-100 dark:border-gray-800/50">
                     <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
                       {/* Chapter stats */}
                       <span className="flex items-center gap-1.5">

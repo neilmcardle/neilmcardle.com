@@ -211,10 +211,10 @@ export function FocusModeButton({ onClick }: { onClick: () => void }) {
     <button
       onClick={onClick}
       title="Enter focus mode  ⌘⇧F"
-      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors group"
+      className="flex items-center gap-1.5 px-3 h-10 rounded-lg bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors group"
     >
       <svg
-        className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4] transition-colors"
+        className="w-6 h-6 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4] transition-colors"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

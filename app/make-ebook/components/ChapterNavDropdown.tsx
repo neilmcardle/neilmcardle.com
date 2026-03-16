@@ -41,7 +41,7 @@ export default function ChapterNavDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2f2f2f] text-sm font-medium text-gray-700 dark:text-[#d4d4d4] transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 h-10 rounded-lg bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] text-sm font-medium text-gray-700 dark:text-[#d4d4d4] transition-colors"
           title="Navigate chapters"
         >
           <span className="max-w-[150px] truncate">{displayTitle}</span>

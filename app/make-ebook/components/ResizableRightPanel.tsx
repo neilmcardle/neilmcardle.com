@@ -19,6 +19,13 @@ export default function ResizableRightPanel({ children, className = '' }: Resiza
     return saved ? Math.min(Math.max(parseInt(saved, 10), MIN_WIDTH), MAX_WIDTH) : DEFAULT_WIDTH;
   });
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setIsExpanded(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   const panelRef = useRef<HTMLDivElement>(null);
   const isResizing = useRef(false);
   const startX = useRef(0);
@@ -66,8 +73,8 @@ export default function ResizableRightPanel({ children, className = '' }: Resiza
   return (
     <div
       ref={panelRef}
-      style={{ width }}
-      className={`hidden lg:flex flex-col flex-shrink-0 h-screen overflow-hidden border-l border-gray-200 dark:border-[#2f2f2f] relative animate-slide-in-right ${className}`}
+      style={{ width: isExpanded ? width : 0 }}
+      className={`hidden lg:flex flex-col flex-shrink-0 h-screen overflow-hidden border-l border-gray-200 dark:border-[#2f2f2f] relative transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-x-hidden ${className}`}
     >
       {/* Resize handle — left edge */}
       <div

@@ -242,14 +242,14 @@ export function ExportHistoryButton({ exportCount, onClickAction }: ExportHistor
   return (
     <button
       onClick={onClickAction}
-      className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
+      className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
       title="View export history"
     >
       <svg className="w-4 h-4 text-gray-600 dark:text-[#a3a3a3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       {exportCount > 0 && (
-        <span className="text-xs font-medium text-gray-700 dark:text-[#d4d4d4]">{exportCount}</span>
+        <span className="text-[10px] font-medium text-gray-700 dark:text-[#d4d4d4]">{exportCount}</span>
       )}
     </button>
   );
