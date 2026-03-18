@@ -18,7 +18,9 @@ import {
   ArrowRight,
   Menu,
   X,
-  Eye
+  Eye,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 
 function FadeIn({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -312,7 +314,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [videoOpen, setVideoOpen] = useState(false);
   const [videoVisible, setVideoVisible] = useState(false);
-  const [inkSplodges, setInkSplodges] = useState<InkSplodge[]>([]);
+  const [audioPlaying, setAudioPlaying] = useState(true);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const userMutedRef = useRef(false);
   const [isPenActive, setIsPenActive] = useState(true);
   const isPenActiveRef = useRef(true);
   const isDrawingRef = useRef(false);
@@ -439,19 +443,6 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
     inkPenPos.current = null;
   }, []);
 
-  const handleHeroClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const blob = generateInkBlob();
-    const id = Date.now() + Math.random();
-    setInkSplodges(prev => [...prev, {
-      id, x, y, ...blob,
-      rotation: Math.random() * 360,
-      opacity: 0.18 + Math.random() * 0.12,
-    }]);
-    setTimeout(() => setInkSplodges(prev => prev.filter(s => s.id !== id)), 2900);
-  }, []);
   const { user, signOut } = useAuth();
   const [typed, setTyped] = useState('');
   const [typingDone, setTypingDone] = useState(false);
@@ -516,6 +507,46 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
     }
   };
 
+  // Ambient audio — attempt autoplay; if blocked, trigger on first cursor/touch/scroll
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = 0.35;
+
+    const events = ['mousemove', 'touchstart', 'scroll', 'click', 'keydown'];
+
+    const tryPlay = () => {
+      if (audio.paused && !userMutedRef.current) {
+        audio.play().then(() => setAudioPlaying(true)).catch(() => {});
+      }
+      events.forEach(e => window.removeEventListener(e, tryPlay));
+    };
+
+    audio.play()
+      .then(() => setAudioPlaying(true))
+      .catch(() => {
+        events.forEach(e => window.addEventListener(e, tryPlay, { once: true }));
+      });
+
+    return () => {
+      audio.pause();
+      events.forEach(e => window.removeEventListener(e, tryPlay));
+    };
+  }, []);
+
+  const toggleAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audioPlaying) {
+      audio.pause();
+      userMutedRef.current = true;
+      setAudioPlaying(false);
+    } else {
+      userMutedRef.current = false;
+      audio.play().then(() => setAudioPlaying(true)).catch(() => {});
+    }
+  };
+
   const openVideo = () => {
     setVideoOpen(true);
     requestAnimationFrame(() => requestAnimationFrame(() => setVideoVisible(true)));
@@ -540,6 +571,22 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
   return (
     <div ref={pageWrapperRef} className="relative min-h-screen bg-white text-[#333] overflow-x-hidden" onMouseDown={handleHeroMouseDown} onMouseUp={handleHeroMouseUp} onMouseMove={handleHeroMouseMove} onMouseLeave={handleHeroMouseLeave} onTouchStart={handleHeroTouchStart} onTouchMove={handleHeroTouchMove} onTouchEnd={handleHeroTouchEnd}>
+
+      {/* Ambient audio */}
+      <audio ref={audioRef} src="/audio/hero-soundtrack.mp3" loop preload="auto" />
+
+      {/* Mute / unmute button */}
+      <button
+        onClick={toggleAudio}
+        title={audioPlaying ? 'Mute ambient sound' : 'Play ambient sound'}
+        className="fixed bottom-6 right-6 z-[100] w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm border border-neutral-200/70 flex items-center justify-center shadow-sm hover:bg-white transition-colors"
+      >
+        {audioPlaying
+          ? <Volume2 className="w-4 h-4 text-neutral-500" />
+          : <VolumeX className="w-4 h-4 text-neutral-400" />
+        }
+      </button>
+
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -671,7 +718,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       <canvas ref={inkCanvasRef} className="absolute top-0 left-0 w-full h-full pointer-events-none z-[9]" aria-hidden="true" />
 
       {/* Ink controls — fixed top-right below nav */}
-      <div className="fixed top-[72px] right-6 z-[100] flex flex-col items-end gap-1.5">
+      <div className="hidden md:flex fixed top-[72px] right-6 z-[100] flex-col items-end gap-1.5">
           <span className="text-[10px] text-neutral-400 font-medium tracking-wide select-none">Take some notes</span>
           <div className="flex items-center gap-1 bg-white/70 backdrop-blur-sm rounded-full px-2 py-1.5 border border-neutral-200/60">
             <button
@@ -696,31 +743,27 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
           </div>
         </div>
 
-      {/* Hero Section */}
-      <section ref={heroSectionRef} className="relative overflow-hidden hero-ink-wash paper-grain select-none" onClick={handleHeroClick}>
+      {/* Hero Section — Fullscreen Video */}
+      <section ref={heroSectionRef} className="relative min-h-screen flex flex-col justify-start overflow-hidden">
 
-        {/* Ink splodges */}
-        {inkSplodges.map(s => (
-          <svg
-            key={s.id}
-            className="ink-drop"
-            style={{ left: s.x, top: s.y, '--rot': `${s.rotation}deg`, '--ink-opacity': s.opacity } as React.CSSProperties}
-            viewBox="-80 -80 160 160"
-            width="160"
-            height="160"
-            aria-hidden="true"
-          >
-            <path d={s.mainPath} fill={`rgba(20,18,15,${s.opacity})`} />
-            {s.satellites.map((sat, i) => (
-              <circle key={i} cx={sat.x} cy={sat.y} r={sat.r} fill={`rgba(20,18,15,${s.opacity * 0.65})`} />
-            ))}
-          </svg>
-        ))}
+        {/* Looping background video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover grayscale"
+          src="/hero-video.mp4"
+        />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-40">
+        {/* Light overlay — preserves the editorial off-white aesthetic */}
+        <div className="absolute inset-0 bg-[#F2F2F0]/45" />
+
+        {/* Content */}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <div className="text-center max-w-4xl mx-auto">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-100/50 text-[#333] text-sm font-medium mb-8 border border-neutral-200">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 text-[#333] text-sm font-medium mb-8 border border-neutral-200/80">
               <Sparkles className="w-4 h-4" />
               AI-Powered Writing Tools
             </div>
@@ -736,18 +779,18 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             </h1>
 
             {/* Subheadline */}
-            <p className="text-xl sm:text-2xl text-[#666] mb-10 max-w-2xl mx-auto">
+            <p className="text-xl sm:text-2xl text-[#555] mb-10 max-w-2xl mx-auto">
               Create and download a professional eBook file in your browser, ready for{' '}
-              <span className="font-playfair italic text-[#444]">Kindle, Kobo, Apple</span>
+              <span className="font-playfair italic text-[#333]">Kindle, Kobo, Apple</span>
               {' '}and more.
             </p>
 
-            {/* CTA Buttons */}
+            {/* CTA */}
             <div className="flex items-center justify-center mb-8">
               <div className="me-cta-shine">
                 <button
                   onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                  className="group px-8 py-4 text-lg font-semibold bg-white text-[#111] rounded-full hover:bg-neutral-50 transition-colors flex items-center justify-center gap-2"
+                  className="group px-8 py-4 text-lg font-semibold bg-white text-[#111] rounded-full hover:bg-neutral-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
                 >
                   Try for free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -756,42 +799,40 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             </div>
 
             {/* Trust indicators */}
-            <p className="text-sm text-[#888]">
+            <p className="text-sm text-[#666]">
               No credit card required • Free to start • Export unlimited EPUBs
             </p>
           </div>
 
-          {/* Hero Product Preview — click to watch demo */}
-          <div className="mt-16 lg:mt-24 relative">
-            <div className="relative mx-auto max-w-5xl">
-              {/* Glow effect */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-neutral-200/40 via-neutral-100/40 to-neutral-200/40 blur-3xl rounded-3xl" />
+        </div>
+      </section>
 
-              {/* Laptop image with play button overlay */}
-              <div
-                className="relative cursor-pointer group"
-                onClick={openVideo}
-              >
-                <Image
-                  src="/makeebook-laptop.png"
-                  alt="makeEbook app on laptop — click to watch demo"
-                  width={1920}
-                  height={1200}
-                  className="w-full h-auto"
-                  style={{
-                    maskImage: 'radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%)',
-                    WebkitMaskImage: 'radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%)',
-                  }}
-                  priority
-                />
-                {/* Play button */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                    <svg className="w-8 h-8 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div>
+      {/* Product Preview Section */}
+      <section className="bg-white py-16 lg:py-24">
+        <div className="text-center mb-10 lg:mb-14">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#111]" style={{ letterSpacing: '-0.04em' }}>
+            Start your first eBook
+          </h2>
+        </div>
+        <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="absolute -inset-4 bg-gradient-to-r from-neutral-200/40 via-neutral-100/40 to-neutral-200/40 blur-3xl rounded-3xl" />
+          <div className="relative cursor-pointer group" onClick={openVideo}>
+            <Image
+              src="/makeebook-laptop.png"
+              alt="makeEbook app on laptop — click to watch demo"
+              width={1920}
+              height={1200}
+              className="w-full h-auto"
+              style={{
+                maskImage: 'radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%)',
+                WebkitMaskImage: 'radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%)',
+              }}
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-8 h-8 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
               </div>
             </div>
           </div>
@@ -1134,19 +1175,30 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 lg:py-32 bg-neutral-50">
+      <section className="relative py-24 lg:py-32 overflow-hidden">
+        {/* Same looping background video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover grayscale"
+          src="/hero-video.mp4"
+        />
+        {/* Light overlay — matches hero */}
+        <div className="absolute inset-0 bg-[#F2F2F0]/45" />
         <FadeIn>
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#111] mb-6 text-balance" style={{ letterSpacing: '-0.04em' }}>
               Ready to write your book?
             </h2>
-            <p className="text-xl text-[#666] mb-10">
+            <p className="text-xl text-[#555] mb-10">
               Start creating in seconds. No credit card required.
             </p>
             <div className="me-cta-shine">
               <button
                 onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                className="group px-8 py-4 text-lg font-semibold bg-white text-[#111] rounded-full hover:bg-neutral-50 transition-colors inline-flex items-center gap-2"
+                className="group px-8 py-4 text-lg font-semibold bg-white text-[#111] rounded-full hover:bg-neutral-50 transition-colors inline-flex items-center gap-2 shadow-sm"
               >
                 Try for free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
