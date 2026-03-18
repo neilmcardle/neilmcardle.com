@@ -384,7 +384,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   }, []);
 
   const handleHeroTouchStart = useCallback((e: React.TouchEvent<HTMLElement>) => {
-    if (!isPenActiveRef.current) return;
+    if (!isPenActiveRef.current || window.innerWidth < 1024) return;
     e.preventDefault();
     isDrawingRef.current = true;
     const canvas = inkCanvasRef.current;
@@ -395,7 +395,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   }, []);
 
   const handleHeroTouchMove = useCallback((e: React.TouchEvent<HTMLElement>) => {
-    if (!isPenActiveRef.current || !isDrawingRef.current) return;
+    if (!isPenActiveRef.current || !isDrawingRef.current || window.innerWidth < 1024) return;
     e.preventDefault();
     const canvas = inkCanvasRef.current;
     if (!canvas) return;
@@ -537,21 +537,6 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
   return (
     <div ref={pageWrapperRef} className="relative min-h-screen bg-white text-[#333] overflow-x-hidden" onMouseDown={handleHeroMouseDown} onMouseUp={handleHeroMouseUp} onMouseMove={handleHeroMouseMove} onMouseLeave={handleHeroMouseLeave} onTouchStart={handleHeroTouchStart} onTouchMove={handleHeroTouchMove} onTouchEnd={handleHeroTouchEnd}>
-
-      {/* Ambient audio */}
-      <audio ref={audioRef} src="/audio/hero-wind.mp3" loop preload="auto" />
-
-      {/* Mute / unmute button */}
-      <button
-        onClick={toggleAudio}
-        title={audioPlaying ? 'Mute ambient sound' : 'Play ambient sound'}
-        className="fixed bottom-6 right-6 z-[100] w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm border border-neutral-200/70 flex items-center justify-center shadow-sm hover:bg-white transition-colors"
-      >
-        {audioPlaying
-          ? <Volume2 className="w-4 h-4 text-neutral-500" />
-          : <VolumeX className="w-4 h-4 text-neutral-400" />
-        }
-      </button>
 
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-neutral-200">
