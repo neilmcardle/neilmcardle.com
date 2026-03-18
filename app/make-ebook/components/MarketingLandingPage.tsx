@@ -270,39 +270,6 @@ function InteractiveLivePreview() {
 }
 // ── Ink splodge helpers ───────────────────────────────────────────────────────
 
-interface InkSplodge {
-  id: number;
-  x: number;
-  y: number;
-  mainPath: string;
-  satellites: { x: number; y: number; r: number }[];
-  rotation: number;
-  opacity: number;
-}
-
-function generateInkBlob(): Pick<InkSplodge, 'mainPath' | 'satellites'> {
-  const n = 7 + Math.floor(Math.random() * 4);
-  const base = 22 + Math.random() * 32;
-  const pts = Array.from({ length: n }, (_, i) => {
-    const a = (i / n) * Math.PI * 2 - Math.PI / 2;
-    const r = base * (0.45 + Math.random() * 0.75);
-    return { x: Math.cos(a) * r, y: Math.sin(a) * r };
-  });
-  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
-  for (let i = 0; i < n; i++) {
-    const p1 = pts[i], p2 = pts[(i + 1) % n];
-    const cpx = (p1.x + p2.x) / 2 + (Math.random() - 0.5) * base * 0.55;
-    const cpy = (p1.y + p2.y) / 2 + (Math.random() - 0.5) * base * 0.55;
-    d += ` Q ${cpx.toFixed(1)} ${cpy.toFixed(1)} ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
-  }
-  d += ' Z';
-  const satellites = Array.from({ length: 2 + Math.floor(Math.random() * 3) }, () => {
-    const a = Math.random() * Math.PI * 2;
-    const dist = base * (0.9 + Math.random() * 0.85);
-    return { x: Math.cos(a) * dist, y: Math.sin(a) * dist, r: 2 + Math.random() * 7 };
-  });
-  return { mainPath: d, satellites };
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -314,9 +281,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [videoOpen, setVideoOpen] = useState(false);
   const [videoVisible, setVideoVisible] = useState(false);
-  const [audioPlaying, setAudioPlaying] = useState(true);
+  const [audioPlaying, setAudioPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const userMutedRef = useRef(false);
+  const userMutedRef = useRef(true);
   const [isPenActive, setIsPenActive] = useState(true);
   const isPenActiveRef = useRef(true);
   const isDrawingRef = useRef(false);
@@ -330,7 +297,6 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
     const canvas = inkCanvasRef.current;
     if (!canvas) return;
     canvas.getContext('2d')!.clearRect(0, 0, canvas.width, canvas.height);
-    setInkSplodges([]);
   }, []);
 
   useEffect(() => {
@@ -573,7 +539,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
     <div ref={pageWrapperRef} className="relative min-h-screen bg-white text-[#333] overflow-x-hidden" onMouseDown={handleHeroMouseDown} onMouseUp={handleHeroMouseUp} onMouseMove={handleHeroMouseMove} onMouseLeave={handleHeroMouseLeave} onTouchStart={handleHeroTouchStart} onTouchMove={handleHeroTouchMove} onTouchEnd={handleHeroTouchEnd}>
 
       {/* Ambient audio */}
-      <audio ref={audioRef} src="/audio/hero-soundtrack.mp3" loop preload="auto" />
+      <audio ref={audioRef} src="/audio/hero-wind.mp3" loop preload="auto" />
 
       {/* Mute / unmute button */}
       <button
@@ -746,18 +712,16 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       {/* Hero Section — Fullscreen Video */}
       <section ref={heroSectionRef} className="relative min-h-screen flex flex-col justify-start overflow-hidden">
 
-        {/* Looping background video */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
+        {/* Hero background image */}
+        <img
+          src="/woman-hero-bg.jpg"
+          alt=""
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover grayscale"
-          src="/hero-video.mp4"
         />
 
         {/* Light overlay — preserves the editorial off-white aesthetic */}
-        <div className="absolute inset-0 bg-[#F2F2F0]/45" />
+        <div className="absolute inset-0 bg-[#F2F2F0]/80" />
 
         {/* Content */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
@@ -1176,17 +1140,15 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
       {/* CTA Section */}
       <section className="relative py-24 lg:py-32 overflow-hidden">
-        {/* Same looping background video */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
+        {/* Background image */}
+        <img
+          src="/man-hero-bg.jpg"
+          alt=""
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover grayscale"
-          src="/hero-video.mp4"
         />
         {/* Light overlay — matches hero */}
-        <div className="absolute inset-0 bg-[#F2F2F0]/45" />
+        <div className="absolute inset-0 bg-[#F2F2F0]/80" />
         <FadeIn>
           <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#111] mb-6 text-balance" style={{ letterSpacing: '-0.04em' }}>
