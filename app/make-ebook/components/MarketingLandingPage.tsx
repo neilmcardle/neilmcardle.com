@@ -811,7 +811,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       <section className="bg-white py-16 lg:py-24">
         <div className="text-center mb-10 lg:mb-14">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#111]" style={{ letterSpacing: '-0.04em' }}>
-            Start your first eBook
+            Write your untold story
           </h2>
         </div>
         <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
