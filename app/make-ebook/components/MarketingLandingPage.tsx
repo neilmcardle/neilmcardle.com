@@ -279,10 +279,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [videoOpen, setVideoOpen] = useState(false);
   const [videoVisible, setVideoVisible] = useState(false);
-  const [audioPlaying, setAudioPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const userMutedRef = useRef(true);
-  const [isPenActive, setIsPenActive] = useState(true);
+const [isPenActive, setIsPenActive] = useState(true);
   const isPenActiveRef = useRef(true);
   const isDrawingRef = useRef(false);
   const inkCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -470,33 +467,6 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       setCheckoutLoading(null);
     }
   };
-
-  // Ambient audio — attempt autoplay; if blocked, trigger on first cursor/touch/scroll
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.volume = 0.35;
-
-    const events = ['mousemove', 'touchstart', 'scroll', 'click', 'keydown'];
-
-    const tryPlay = () => {
-      if (audio.paused && !userMutedRef.current) {
-        audio.play().then(() => setAudioPlaying(true)).catch(() => {});
-      }
-      events.forEach(e => window.removeEventListener(e, tryPlay));
-    };
-
-    audio.play()
-      .then(() => setAudioPlaying(true))
-      .catch(() => {
-        events.forEach(e => window.addEventListener(e, tryPlay, { once: true }));
-      });
-
-    return () => {
-      audio.pause();
-      events.forEach(e => window.removeEventListener(e, tryPlay));
-    };
-  }, []);
 
   const openVideo = () => {
     setVideoOpen(true);
@@ -714,9 +684,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
             {/* Subheadline */}
             <p className="text-xl sm:text-2xl text-[#555] mb-10 max-w-2xl mx-auto">
-              Create and download a professional eBook file in your browser, ready for{' '}
-              <span className="font-playfair italic text-[#333]">Kindle, Kobo, Apple</span>
-              {' '}and more.
+              Free, browser-based eBook editor. Write, format and export a professional EPUB ready for{' '}
+              <span className="font-playfair italic text-[#333]">Kindle, Kobo, Apple Books</span>
+              {' '}and more. No install needed.
             </p>
 
             {/* CTA */}
