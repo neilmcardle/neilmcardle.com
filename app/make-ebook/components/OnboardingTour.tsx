@@ -236,7 +236,7 @@ export default function OnboardingTour({
         className={`fixed z-[201] w-[300px] max-w-[calc(100vw-32px)] bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl border border-[#111]/40 dark:border-white/40 p-4 transition-all duration-150 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         style={tooltipStyle}
       >
-        {/* Arrow — border layer (blue outline) */}
+        {/* Arrow — border layer (matches tooltip border) */}
         <div
           className="absolute w-0 h-0"
           style={{
@@ -245,28 +245,28 @@ export default function OnboardingTour({
               top: -7,
               borderLeft: '7px solid transparent',
               borderRight: '7px solid transparent',
-              borderBottom: '7px solid rgb(96 165 250 / 0.6)',
+              borderBottom: '7px solid var(--tour-border-color)',
               transform: 'translateX(-7px)',
             }),
             ...(arrowDirection === 'bottom' && {
               bottom: -7,
               borderLeft: '7px solid transparent',
               borderRight: '7px solid transparent',
-              borderTop: '7px solid rgb(96 165 250 / 0.6)',
+              borderTop: '7px solid var(--tour-border-color)',
               transform: 'translateX(-7px)',
             }),
             ...(arrowDirection === 'left' && {
               left: -7,
               borderTop: '7px solid transparent',
               borderBottom: '7px solid transparent',
-              borderRight: '7px solid rgb(96 165 250 / 0.6)',
+              borderRight: '7px solid var(--tour-border-color)',
               transform: 'translateY(-7px)',
             }),
             ...(arrowDirection === 'right' && {
               right: -7,
               borderTop: '7px solid transparent',
               borderBottom: '7px solid transparent',
-              borderLeft: '7px solid rgb(96 165 250 / 0.6)',
+              borderLeft: '7px solid var(--tour-border-color)',
               transform: 'translateY(-7px)',
             }),
           }}
@@ -365,13 +365,15 @@ export default function OnboardingTour({
         </div>
       </div>
 
-      {/* CSS custom property for arrow color */}
+      {/* CSS custom properties for arrow colors */}
       <style jsx global>{`
         :root {
           --tour-arrow-bg: white;
+          --tour-border-color: rgba(17, 17, 17, 0.4);
         }
         .dark {
           --tour-arrow-bg: #1e1e1e;
+          --tour-border-color: rgba(255, 255, 255, 0.4);
         }
       `}</style>
     </>

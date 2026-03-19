@@ -298,7 +298,10 @@ function MakeEbookPage() {
       'editor': () => setSidebarView(null),
       'preview': () => {
         setSidebarView(null);
-        setIsSplitPreviewEnabled(true);
+        // Don't open split preview if the right panel Live Preview is already showing
+        if (rightPanelMode !== 'live-preview') {
+          setIsSplitPreviewEnabled(true);
+        }
       },
       'export': () => setSidebarView('book'),
       'auto-save': () => setSidebarView(null),
@@ -2568,7 +2571,7 @@ function MakeEbookPage() {
               )}
               {/* Live Preview Panel */}
               {rightPanelMode === 'live-preview' && (
-                <div className="h-full overflow-hidden">
+                <div data-tour="preview" className="h-full overflow-hidden">
                   <LivePreviewPanel
                     chapters={chapters}
                     selectedChapter={selectedChapter}

@@ -236,7 +236,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
   };
 
   return (
-  <aside className="hidden lg:flex flex-col w-16 bg-white dark:bg-[#1e1e1e] h-screen items-center relative overflow-x-hidden z-50">
+  <aside className="hidden lg:flex flex-col w-16 bg-white dark:bg-[#1e1e1e] h-screen items-center relative z-50">
       {/* Logo at top */}
       <div className="flex-shrink-0 pt-6 pb-6">
         <Tooltip text="makeEBook">

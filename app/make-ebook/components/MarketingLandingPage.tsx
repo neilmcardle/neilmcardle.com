@@ -19,8 +19,6 @@ import {
   Menu,
   X,
   Eye,
-  Volume2,
-  VolumeX
 } from 'lucide-react';
 
 function FadeIn({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -499,19 +497,6 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       events.forEach(e => window.removeEventListener(e, tryPlay));
     };
   }, []);
-
-  const toggleAudio = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (audioPlaying) {
-      audio.pause();
-      userMutedRef.current = true;
-      setAudioPlaying(false);
-    } else {
-      userMutedRef.current = false;
-      audio.play().then(() => setAudioPlaying(true)).catch(() => {});
-    }
-  };
 
   const openVideo = () => {
     setVideoOpen(true);
@@ -1127,7 +1112,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       <section className="relative py-24 lg:py-32 overflow-hidden">
         {/* Background image */}
         <img
-          src="/man-hero-bg.jpg"
+          src="/man-mars-hero-bg.jpg"
           alt=""
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover grayscale"
