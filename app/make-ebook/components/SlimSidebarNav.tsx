@@ -167,7 +167,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
           {onStartTour && (
             <DropdownMenuItem onClick={onStartTour}>
               <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>Take the tour</span>
             </DropdownMenuItem>
@@ -175,7 +175,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
           <DropdownMenuItem asChild>
             <a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer">
               <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <span>Terms</span>
             </a>
@@ -183,7 +183,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
           <DropdownMenuItem asChild>
             <a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer">
               <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               <span>Privacy</span>
             </a>
@@ -267,14 +267,14 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             aria-label="Library"
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <rect x="4" y="4" width="3" height="16" rx="0.5" />
                 <rect x="10" y="7" width="3" height="13" rx="0.5" />
                 <rect x="16" y="5" width="3" height="15" rx="0.5" />
                 <path d="M3 20h18" />
               </svg>
             </div>
-            <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'library' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
+            <span className={`text-2xs font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'library' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
               Library{libraryCount > 0 ? ` (${libraryCount})` : ''}
             </span>
           </button>
@@ -289,13 +289,13 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             aria-label="Book"
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                 <path d="M8 7h8M8 11h8M8 15h5" />
               </svg>
             </div>
-            <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'book' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
+            <span className={`text-2xs font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'book' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
               Book
             </span>
           </button>
@@ -310,13 +310,13 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             aria-label="Chapters"
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <path d="M14 2v6h6" />
                 <path d="M16 13H8M16 17H8M10 9H8" />
               </svg>
             </div>
-            <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'chapters' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
+            <span className={`text-2xs font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'chapters' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
               Chapters{chaptersCount > 0 ? ` (${chaptersCount})` : ''}
             </span>
           </button>
@@ -332,11 +332,11 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             aria-label="Notes"
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
               </svg>
             </div>
-            <span className={`text-[10px] font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'notes' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
+            <span className={`text-2xs font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'notes' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
               Notes
             </span>
           </button>

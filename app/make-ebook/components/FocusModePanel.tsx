@@ -83,7 +83,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth={1.5}
+          strokeWidth={1.6}
           strokeLinecap="round"
         >
           <circle cx="12" cy="12" r="3" />
@@ -96,7 +96,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
       {open && (
         <div className="w-72 rounded-2xl bg-[#161616] backdrop-blur-xl border border-white/20 shadow-2xl p-5 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
           {/* Toggles */}
-          <p className="text-[10px] font-semibold text-white/55 uppercase tracking-widest mb-3">
+          <p className="text-2xs font-semibold text-white/55 uppercase tracking-widest mb-3">
             Focus mode
           </p>
           <Toggle
@@ -135,7 +135,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
             </div>
           </div>
 
-          <p className="text-[10px] font-semibold text-white/55 uppercase tracking-widest mt-3 mb-3">
+          <p className="text-2xs font-semibold text-white/55 uppercase tracking-widest mt-3 mb-3">
             Writing
           </p>
           <Toggle
@@ -150,7 +150,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
           />
 
           {/* Ambient sound */}
-          <p className="text-[10px] font-semibold text-white/55 uppercase tracking-widest mt-3 mb-3">
+          <p className="text-2xs font-semibold text-white/55 uppercase tracking-widest mt-3 mb-3">
             Ambient sound
           </p>
           <div className="grid grid-cols-2 gap-1.5 mb-3">
@@ -218,7 +218,7 @@ export function FocusModeButton({ onClick }: { onClick: () => void }) {
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
+        strokeWidth={1.6}
         strokeLinecap="round"
       >
         <circle cx="12" cy="12" r="3" />

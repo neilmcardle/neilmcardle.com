@@ -19,7 +19,7 @@ interface BookMindPanelProps {
 
 function BookIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
     </svg>
   );
@@ -122,7 +122,7 @@ export default function BookMindPanel({
             target="_blank"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </Link>
         )}
@@ -133,7 +133,7 @@ export default function BookMindPanel({
             title="New chat"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M12 4v16m8-8H4" />
             </svg>
           </button>
         )}
@@ -143,7 +143,7 @@ export default function BookMindPanel({
           title="Close"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
@@ -198,10 +198,10 @@ export default function BookMindPanel({
                       key={action}
                       onClick={() => handleQuickAction(action)}
                       disabled={isLoading}
-                      className="flex flex-col gap-0.5 p-3 rounded-xl bg-neutral-100 dark:bg-[#262626] hover:bg-neutral-200 dark:hover:bg-[#303030] transition-colors text-left disabled:opacity-40"
+                      className="flex flex-col gap-0.5 p-3 rounded-xl bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#303030] transition-colors text-left disabled:opacity-50"
                     >
                       <span className="text-xs font-medium text-gray-900 dark:text-white">{label}</span>
-                      <span className="text-[10px] text-gray-500 dark:text-[#737373]">{description}</span>
+                      <span className="text-2xs text-gray-500 dark:text-[#737373]">{description}</span>
                     </button>
                   ))}
                 </div>
@@ -215,7 +215,7 @@ export default function BookMindPanel({
                 <div className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                   message.role === 'user'
                     ? 'bg-gray-900 dark:bg-[#2a2a2a] text-white rounded-br-sm'
-                    : 'bg-neutral-100 dark:bg-[#262626] text-gray-800 dark:text-[#f5f5f5] rounded-bl-sm'
+                    : 'bg-gray-100 dark:bg-[#262626] text-gray-800 dark:text-[#f5f5f5] rounded-bl-sm'
                 }`}>
                   {message.content ? (
                     <div
@@ -231,7 +231,7 @@ export default function BookMindPanel({
 
             {isLoading && messages[messages.length - 1]?.role === 'user' && (
               <div className="flex justify-start">
-                <div className="bg-neutral-100 dark:bg-[#262626] rounded-2xl rounded-bl-sm px-4 py-3">
+                <div className="bg-gray-100 dark:bg-[#262626] rounded-2xl rounded-bl-sm px-4 py-3">
                   <ThinkingDots />
                 </div>
               </div>
@@ -259,12 +259,12 @@ export default function BookMindPanel({
               className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-[#d4d4d4] transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
         )}
-        <div className="flex items-center gap-2 rounded-3xl bg-neutral-100 dark:bg-[#262626] px-4 py-2.5">
+        <div className="flex items-center gap-2 rounded-3xl bg-gray-100 dark:bg-[#262626] px-4 py-2.5">
           <textarea
             ref={inputRef}
             value={input}
@@ -273,14 +273,14 @@ export default function BookMindPanel({
             placeholder={chapters.length > 0 ? 'Ask about your book…' : 'Open a book first…'}
             disabled={chapters.length === 0}
             rows={1}
-            className="flex-1 appearance-none bg-transparent border-0 outline-none ring-0 shadow-none text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#888] focus:outline-none focus:ring-0 focus:shadow-none resize-none max-h-[120px] leading-relaxed disabled:opacity-40"
+            className="flex-1 appearance-none bg-transparent border-0 outline-none ring-0 shadow-none text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#888] focus:outline-none focus:ring-0 focus:shadow-none resize-none max-h-[120px] leading-relaxed disabled:opacity-50"
           />
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading || chapters.length === 0}
-            className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-gray-700 dark:hover:bg-[#e5e5e5] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-gray-700 dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5M5 12l7-7 7 7" />
             </svg>
           </button>

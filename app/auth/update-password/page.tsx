@@ -169,7 +169,7 @@ export default function UpdatePasswordPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-[#1e1e1e] flex items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-neutral-100 dark:bg-[#262626] rounded-full flex items-center justify-center mb-4">
+          <div className="mx-auto w-12 h-12 bg-gray-100 dark:bg-[#262626] rounded-full flex items-center justify-center mb-4">
             <KeyRound className="w-6 h-6 text-[#444] dark:text-[#a3a3a3]" />
           </div>
           <CardTitle>Set New Password</CardTitle>

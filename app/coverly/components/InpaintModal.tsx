@@ -212,24 +212,24 @@ export function InpaintModal({
 
   return (
     <div className="fixed inset-0 z-[10002] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800">
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Edit Image with AI
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            <X className="w-5 h-5 text-neutral-500" />
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-4 space-y-4 overflow-y-auto flex-1">
           {/* Instructions */}
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Paint over the areas you want to change. White marks = areas AI will regenerate.
           </p>
 
@@ -275,8 +275,8 @@ export function InpaintModal({
                 onClick={() => setTool("brush")}
                 className={`p-2 rounded-lg transition-colors ${
                   tool === "brush"
-                    ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
-                    : "bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
+                    ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
                 title="Brush"
               >
@@ -286,8 +286,8 @@ export function InpaintModal({
                 onClick={() => setTool("eraser")}
                 className={`p-2 rounded-lg transition-colors ${
                   tool === "eraser"
-                    ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
-                    : "bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
+                    ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
                 title="Eraser"
               >
@@ -296,14 +296,14 @@ export function InpaintModal({
               <button
                 onClick={handleUndo}
                 disabled={historyIndex < 0}
-                className="p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 disabled:opacity-40 transition-colors"
+                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 disabled:opacity-50 transition-colors"
                 title="Undo"
               >
                 <RotateCcw className="w-5 h-5" />
               </button>
               <button
                 onClick={handleClear}
-                className="px-3 py-2 text-sm rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                className="px-3 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
               >
                 Clear
               </button>
@@ -311,22 +311,22 @@ export function InpaintModal({
 
             {/* Brush size */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-neutral-500">Size</span>
+              <span className="text-xs text-gray-500">Size</span>
               <input
                 type="range"
                 min="10"
                 max="80"
                 value={brushSize}
                 onChange={(e) => setBrushSize(Number(e.target.value))}
-                className="w-24 accent-neutral-900 dark:accent-white"
+                className="w-24 accent-gray-900 dark:accent-white"
               />
-              <span className="text-xs text-neutral-600 dark:text-neutral-400 w-6">{brushSize}</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 w-6">{brushSize}</span>
             </div>
           </div>
 
           {/* Prompt input */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
               What should appear in the marked areas?
             </label>
             <textarea
@@ -334,21 +334,21 @@ export function InpaintModal({
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="e.g., 'a glowing moon', 'autumn leaves', 'remove the object'"
               rows={2}
-              className="w-full px-3 py-2 text-sm border border-neutral-300 dark:border-neutral-700 rounded-lg 
-                         bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white
-                         focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white 
-                         placeholder:text-neutral-400 resize-none"
+              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg 
+                         bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+                         focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-white 
+                         placeholder:text-gray-400 resize-none"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3 border-t border-neutral-200 dark:border-neutral-800 flex justify-end gap-3">
+        <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3">
           <button
             onClick={onClose}
             disabled={isProcessing}
-            className="px-4 py-2 text-sm font-medium rounded-lg border border-neutral-300 dark:border-neutral-700
-                       text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800
+            className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700
+                       text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800
                        disabled:opacity-50 transition-colors"
           >
             Cancel
@@ -357,8 +357,8 @@ export function InpaintModal({
             onClick={handleSubmit}
             disabled={isProcessing || !prompt.trim()}
             className="px-4 py-2 text-sm font-medium rounded-lg flex items-center gap-2
-                       bg-neutral-900 dark:bg-white text-white dark:text-neutral-900
-                       hover:bg-neutral-800 dark:hover:bg-neutral-100
+                       bg-gray-900 dark:bg-white text-white dark:text-gray-900
+                       hover:bg-gray-800 dark:hover:bg-gray-100
                        disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Sparkles className="w-4 h-4" />

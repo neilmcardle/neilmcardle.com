@@ -21,16 +21,16 @@ export default function EmptyStateHint({ icon, title, description, action, compa
           {icon}
         </div>
       )}
-      <p className={`font-medium text-gray-500 dark:text-[#a3a3a3] ${compact ? 'text-[11px] mb-0.5' : 'text-xs mb-1'}`}>
+      <p className={`font-medium text-gray-500 dark:text-[#a3a3a3] ${compact ? 'text-3xs mb-0.5' : 'text-xs mb-1'}`}>
         {title}
       </p>
-      <p className={`text-gray-400 dark:text-[#737373] ${compact ? 'text-[10px]' : 'text-[11px]'}`}>
+      <p className={`text-gray-400 dark:text-[#737373] ${compact ? 'text-2xs' : 'text-3xs'}`}>
         {description}
       </p>
       {action && (
         <button
           onClick={action.onClick}
-          className={`mt-2 text-gray-600 dark:text-[#d4d4d4] underline hover:text-gray-900 dark:hover:text-white transition-colors ${compact ? 'text-[10px]' : 'text-xs'}`}
+          className={`mt-2 text-gray-600 dark:text-[#d4d4d4] underline hover:text-gray-900 dark:hover:text-white transition-colors ${compact ? 'text-2xs' : 'text-xs'}`}
         >
           {action.label}
         </button>

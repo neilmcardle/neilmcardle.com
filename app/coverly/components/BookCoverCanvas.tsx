@@ -215,7 +215,7 @@ export default function BookCoverCanvas() {
     <div className="flex h-full w-full relative">
       {/* Collapsible Side Panel - slimline when closed */}
       <div 
-        className={`flex-shrink-0 border-r border-neutral-200 bg-white flex flex-col overflow-hidden transition-all duration-300 ${
+        className={`flex-shrink-0 border-r border-gray-200 bg-white flex flex-col overflow-hidden transition-all duration-300 ${
           isPanelOpen ? "w-80" : "w-12"
         }`}
         style={{ zIndex: 1000 }}
@@ -223,19 +223,19 @@ export default function BookCoverCanvas() {
         {isPanelOpen ? (
           <>
             {/* Panel Header with Collapse Button */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 bg-white">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
               <Image src="/coverly-logo.svg" alt="Coverly" width={100} height={24} className="h-6 w-auto" />
               <div className="flex items-center gap-1">
                 <button
                   onClick={handleResetCanvas}
-                  className="p-1.5 rounded-md hover:bg-neutral-100 text-neutral-500 transition-colors"
+                  className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 transition-colors"
                   title="Reset canvas"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setIsPanelOpen(false)}
-                  className="p-1.5 rounded-md hover:bg-neutral-100 text-neutral-500 transition-colors"
+                  className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 transition-colors"
                   title="Collapse panel"
                 >
                   <PanelLeftClose className="w-4 h-4" />
@@ -259,7 +259,7 @@ export default function BookCoverCanvas() {
           <div className="flex flex-col items-center py-3 h-full">
             <button
               onClick={() => setIsPanelOpen(true)}
-              className="p-2 rounded-md hover:bg-neutral-100 transition-colors"
+              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
               title="Open panel"
             >
               <Image src="/coverly-logomark.svg" alt="Open panel" width={20} height={20} className="w-5 h-5" />
@@ -283,8 +283,8 @@ export default function BookCoverCanvas() {
       {isGenerating && (
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center" style={{ zIndex: 10001 }}>
           <div className="bg-white rounded-lg p-6 shadow-xl">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-neutral-900 mx-auto mb-4" />
-            <p className="text-neutral-700">Generating cover...</p>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900 mx-auto mb-4" />
+            <p className="text-gray-700">Generating cover...</p>
           </div>
         </div>
       )}

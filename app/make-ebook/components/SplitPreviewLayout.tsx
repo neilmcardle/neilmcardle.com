@@ -124,7 +124,7 @@ export function SplitPreviewLayout({
                 aria-label="Close preview"
               >
                 <svg className="w-4 h-4 text-[#141413]/50 dark:text-[#a3a3a3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
@@ -154,7 +154,7 @@ export function SplitPreviewLayout({
                   >
                     <span>{PRESET_DESCRIPTIONS[typographyPreset].name}</span>
                     <svg className={`w-3 h-3 transition-transform duration-150 ${themeDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
                   {themeDropdownOpen && (

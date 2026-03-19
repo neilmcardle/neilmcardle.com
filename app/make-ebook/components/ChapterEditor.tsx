@@ -80,7 +80,7 @@ export default function ChapterEditor({
                 type="button"
                 onClick={() => handleRemove(chapter.id)}
                 disabled={lockedSections.chapters}
-                className="text-xs text-red-500 hover:underline disabled:opacity-40"
+                className="text-xs text-red-500 hover:underline disabled:opacity-50"
               >
                 Remove Chapter
               </button>

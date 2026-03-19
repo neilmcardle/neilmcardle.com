@@ -32,7 +32,7 @@ export default function SubscriptionBadge({
   if (tier === 'pro' && !isGrandfathered) {
     return (
       <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#1a1a1a] dark:bg-white border border-gray-200 dark:border-[#2f2f2f] ${className}`}>
-        <span className="text-[10px] font-semibold text-white dark:text-[#1a1a1a] uppercase tracking-wide">Pro</span>
+        <span className="text-2xs font-semibold text-white dark:text-[#1a1a1a] uppercase tracking-wide">Pro</span>
       </div>
     );
   }
@@ -41,7 +41,7 @@ export default function SubscriptionBadge({
   if (isGrandfathered) {
     return (
       <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#1a1a1a] dark:bg-white border border-gray-200 dark:border-[#2f2f2f] ${className}`}>
-        <span className="text-[10px] font-semibold text-white dark:text-[#1a1a1a] uppercase tracking-wide">Pro (Lifetime)</span>
+        <span className="text-2xs font-semibold text-white dark:text-[#1a1a1a] uppercase tracking-wide">Pro (Lifetime)</span>
       </div>
     );
   }
@@ -96,7 +96,7 @@ export function SubscriptionBadgeCompact({ className = '' }: { className?: strin
         className={`w-6 h-6 rounded-full bg-[#1a1a1a] dark:bg-white flex items-center justify-center border border-gray-200 dark:border-[#2f2f2f] ${className}`}
         title={isGrandfathered ? "Pro (Lifetime)" : "Pro"}
       >
-        <span className="text-white dark:text-[#1a1a1a] font-bold text-[10px]">P</span>
+        <span className="text-white dark:text-[#1a1a1a] font-bold text-2xs">P</span>
       </div>
     );
   }

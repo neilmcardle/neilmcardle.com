@@ -85,7 +85,7 @@ export default function FindReplacePanel({
             className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors"
             aria-label="Close"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round"/></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round"/></svg>
           </button>
         </div>
 
@@ -131,7 +131,7 @@ export default function FindReplacePanel({
             <button
               onClick={handleReplaceAll}
               disabled={totalMatches === 0 || !replaceTerm}
-              className="px-3 py-1.5 text-sm font-medium rounded-lg bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-[#333] dark:hover:bg-[#e5e5e5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 text-sm font-medium rounded-lg bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-[#333] dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Replace All ({totalMatches})
             </button>
@@ -169,7 +169,7 @@ export default function FindReplacePanel({
                     <button
                       onClick={() => handleReplaceInChapter(m.chapterIndex)}
                       disabled={!replaceTerm}
-                      className="px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#252525] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
+                      className="px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
                     >
                       Replace
                     </button>

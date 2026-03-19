@@ -74,7 +74,7 @@ export default function ChapterNavDropdown({
                 <span className="flex-1 truncate">{chapterTitle}</span>
                 {isSelected && (
                   <svg className="w-4 h-4 text-gray-900 dark:text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 13l4 4L19 7" />
                   </svg>
                 )}
               </div>

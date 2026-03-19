@@ -317,49 +317,49 @@ export function DesignPanel({
     <div className="p-4 space-y-5 overflow-y-auto h-full bg-white">
       {/* AI Engine Selection */}
       <div className="space-y-3">
-        <span className="text-xs font-medium text-neutral-500 uppercase tracking-wide">AI Engine</span>
+        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">AI Engine</span>
         <div className="grid grid-cols-3 gap-2">
           <button
             onClick={() => setProvider("gemini")}
             disabled={providerStatus?.gemini !== "configured"}
             className={`flex flex-col items-center gap-2 px-2 py-3 rounded-lg border-2 transition-all ${
               provider === "gemini"
-                ? "border-neutral-900 bg-neutral-100"
-                : "border-neutral-200 hover:border-neutral-400"
+                ? "border-gray-900 bg-gray-100"
+                : "border-gray-200 hover:border-gray-400"
             } ${providerStatus?.gemini !== "configured" ? "opacity-40 cursor-not-allowed" : ""}`}
           >
             <Image src="/gmi-logomark.svg" alt="Gemini" width={28} height={28} className="w-7 h-7" />
-            <span className="text-xs font-medium text-neutral-700">Gemini</span>
+            <span className="text-xs font-medium text-gray-700">Gemini</span>
           </button>
           <button
             onClick={() => setProvider("openai")}
             disabled={providerStatus?.openai !== "configured"}
             className={`flex flex-col items-center gap-2 px-2 py-3 rounded-lg border-2 transition-all ${
               provider === "openai"
-                ? "border-neutral-900 bg-neutral-100"
-                : "border-neutral-200 hover:border-neutral-400"
+                ? "border-gray-900 bg-gray-100"
+                : "border-gray-200 hover:border-gray-400"
             } ${providerStatus?.openai !== "configured" ? "opacity-40 cursor-not-allowed" : ""}`}
           >
-            <OpenAILogo className="w-7 h-7 text-neutral-900" />
-            <span className="text-xs font-medium text-neutral-700">DALL·E</span>
+            <OpenAILogo className="w-7 h-7 text-gray-900" />
+            <span className="text-xs font-medium text-gray-700">DALL·E</span>
           </button>
           <button
             onClick={() => setProvider("grok")}
             disabled={providerStatus?.grok !== "configured"}
             className={`flex flex-col items-center gap-2 px-2 py-3 rounded-lg border-2 transition-all ${
               provider === "grok"
-                ? "border-neutral-900 bg-neutral-100"
-                : "border-neutral-200 hover:border-neutral-400"
+                ? "border-gray-900 bg-gray-100"
+                : "border-gray-200 hover:border-gray-400"
             } ${providerStatus?.grok !== "configured" ? "opacity-40 cursor-not-allowed" : ""}`}
           >
             <Image src="/gk-logo.svg" alt="Grok" width={28} height={28} className="w-7 h-7" />
-            <span className="text-xs font-medium text-neutral-700">Grok</span>
+            <span className="text-xs font-medium text-gray-700">Grok</span>
           </button>
         </div>
       </div>
 
       {/* Divider */}
-      <div className="border-t border-neutral-200" />
+      <div className="border-t border-gray-200" />
 
       {/* Text Inputs */}
       <div className="space-y-3">
@@ -368,36 +368,36 @@ export function DesignPanel({
           placeholder="Book Title"
           value={titleText}
           onChange={(e) => setTitleText(e.target.value)}
-          className="w-full px-3 py-2.5 text-sm font-medium border border-neutral-300 rounded-lg 
-                     bg-white text-neutral-900
-                     focus:outline-none focus:ring-2 focus:ring-neutral-900 placeholder:text-neutral-400"
+          className="w-full px-3 py-2.5 text-sm font-medium border border-gray-300 rounded-lg 
+                     bg-white text-gray-900
+                     focus:outline-none focus:ring-2 focus:ring-gray-900 placeholder:text-gray-400"
         />
         <input
           type="text"
           placeholder="Subtitle (optional)"
           value={subtitleText}
           onChange={(e) => setSubtitleText(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg 
-                     bg-white text-neutral-900
-                     focus:outline-none focus:ring-2 focus:ring-neutral-900 placeholder:text-neutral-400"
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg 
+                     bg-white text-gray-900
+                     focus:outline-none focus:ring-2 focus:ring-gray-900 placeholder:text-gray-400"
         />
         <input
           type="text"
           placeholder="Author Name (optional)"
           value={authorText}
           onChange={(e) => setAuthorText(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg 
-                     bg-white text-neutral-900
-                     focus:outline-none focus:ring-2 focus:ring-neutral-900 placeholder:text-neutral-400"
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg 
+                     bg-white text-gray-900
+                     focus:outline-none focus:ring-2 focus:ring-gray-900 placeholder:text-gray-400"
         />
         <textarea
           placeholder="Describe the artwork style (e.g., 'space landscape with planets', 'dark forest with fog'). AI generates the background, you add text in the canvas."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
-          className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg 
-                     bg-white text-neutral-900
-                     focus:outline-none focus:ring-2 focus:ring-neutral-900 resize-y min-h-[100px] max-h-[300px] placeholder:text-neutral-400"
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg 
+                     bg-white text-gray-900
+                     focus:outline-none focus:ring-2 focus:ring-gray-900 resize-y min-h-[100px] max-h-[300px] placeholder:text-gray-400"
         />
       </div>
 
@@ -406,8 +406,8 @@ export function DesignPanel({
         onClick={handleGenerate}
         disabled={isGenerating}
         className="w-full flex items-center justify-center gap-2 px-4 py-3 
-                   bg-neutral-900 text-white font-semibold 
-                   rounded-lg hover:bg-neutral-800
+                   bg-gray-900 text-white font-semibold 
+                   rounded-lg hover:bg-gray-800
                    disabled:opacity-50 disabled:cursor-not-allowed transition-all"
       >
         <Image src="/coverly-logomark.svg" alt="" width={20} height={20} className="w-5 h-5 invert" />
@@ -420,8 +420,8 @@ export function DesignPanel({
           onClick={handleOpenInpaintModal}
           disabled={isInpainting}
           className="w-full flex items-center justify-center gap-2 px-4 py-3 
-                     bg-white text-neutral-900 font-semibold border border-neutral-900
-                     rounded-lg hover:bg-neutral-100
+                     bg-white text-gray-900 font-semibold border border-gray-900
+                     rounded-lg hover:bg-gray-100
                      disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           <Image src="/pencil-icon.svg" alt="" width={20} height={20} className="w-5 h-5" />
@@ -431,23 +431,23 @@ export function DesignPanel({
 
       {/* Last Used Provider */}
       {lastUsedProvider && (
-        <p className="text-xs text-center text-neutral-500">
+        <p className="text-xs text-center text-gray-500">
           Generated with {lastUsedProvider === "openai" ? "DALL·E 3" : lastUsedProvider === "gemini" ? "Gemini" : "Grok"}
         </p>
       )}
 
       {/* Divider */}
-      <div className="border-t border-neutral-200" />
+      <div className="border-t border-gray-200" />
 
       {/* Export Section */}
       <div className="space-y-3">
-        <span className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Export</span>
+        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Export</span>
         <button
           onClick={handleDownload}
           disabled={isExporting}
           className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium
-                     border border-neutral-300 rounded-lg
-                     text-neutral-700 hover:bg-neutral-100
+                     border border-gray-300 rounded-lg
+                     text-gray-700 hover:bg-gray-100
                      disabled:opacity-50 transition-colors"
         >
           <Download className="w-4 h-4" />

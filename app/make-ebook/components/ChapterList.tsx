@@ -70,7 +70,7 @@ export function ChapterList({
           >
             <HandleDots />
             <span className="ml-3 text-[12px] truncate flex-1 min-w-0">{displayTitle}</span>
-            <span className="ml-4 text-[11px] font-medium whitespace-nowrap">{plainText(ch.content).length} chars</span>
+            <span className="ml-4 text-3xs font-medium whitespace-nowrap">{plainText(ch.content).length} chars</span>
             <button
               className="ml-4 p-1 rounded hover:bg-white/10 text-white/65 hover:text-white transition"
               onClick={e => {

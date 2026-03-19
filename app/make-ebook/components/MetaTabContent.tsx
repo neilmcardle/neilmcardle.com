@@ -92,7 +92,7 @@ export default function MetaTabContent({
           >
             <UploadIcon className="w-5 h-5 mb-2" />
             <span className="text-xs mb-1">Upload cover image</span>
-            <span className="text-[10px] mb-2">Recommended: 1600x2560px, JPG/PNG, 300dpi</span>
+            <span className="text-2xs mb-2">Recommended: 1600x2560px, JPG/PNG, 300dpi</span>
             <button
               type="button"
               className="px-3 py-1 rounded bg-[#ececef] dark:bg-[#1a1a1a] text-xs text-[#15161a] dark:text-[#e5e5e5] mt-2"
@@ -256,7 +256,7 @@ export default function MetaTabContent({
               onChange={e => setIsbn(e.target.value)}
               disabled={lockedSections.publishingDetails}
             />
-            <p className="mt-1 text-[10px] text-gray-500 dark:text-[#a3a3a3]">
+            <p className="mt-1 text-2xs text-gray-500 dark:text-[#a3a3a3]">
               ISBNs must be purchased from official agencies (e.g., £93 from <a href="https://www.nielsenisbnstore.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-[#d4d4d4]">Nielsen UK</a>). They cannot be invented.
             </p>
           </div>

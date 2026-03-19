@@ -363,7 +363,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   <div className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-5 h-5 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
               <rect x="4" y="4" width="3" height="16" rx="0.5" />
               <rect x="10" y="7" width="3" height="13" rx="0.5" />
               <rect x="16" y="5" width="3" height="15" rx="0.5" />
@@ -384,11 +384,11 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'}`}
                 title={multiSelectMode ? "Cancel selection" : "Select multiple"}
               >
-                <svg className={`w-4 h-4 ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                <svg className={`w-4 h-4 ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                   <circle className={multiSelectMode ? '' : 'dark:stroke-white'} cx="12" cy="12" r="9" />
                   <path className={multiSelectMode ? '' : 'dark:stroke-white'} d="M8.5 12l2.5 2.5 4.5-4.5" />
                 </svg>
-                <span className={`text-[10px] font-medium ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
+                <span className={`text-2xs font-medium ${multiSelectMode ? 'text-blue-600 dark:text-blue-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
                   {multiSelectMode ? 'Cancel' : 'Select'}
                 </span>
               </button>
@@ -398,23 +398,23 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title="New book"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path className="dark:stroke-white" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <path className="dark:stroke-white" d="M14 2v6h6" />
                 <path className="dark:stroke-white" d="M9 14h6M12 11v6" />
               </svg>
-              <span className="text-[10px] font-medium text-[#050505] dark:text-[#e5e5e5]">New</span>
+              <span className="text-2xs font-medium text-[#050505] dark:text-[#e5e5e5]">New</span>
             </button>
             <button
               onClick={showImportDialog}
               className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
               title="Import document"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path className="dark:stroke-white" d="M12 3v12M7.5 10l4.5 5 4.5-5" />
                 <path className="dark:stroke-white" d="M4 19h16" />
               </svg>
-              <span className="text-[10px] font-medium text-[#050505] dark:text-[#e5e5e5]">Import</span>
+              <span className="text-2xs font-medium text-[#050505] dark:text-[#e5e5e5]">Import</span>
             </button>
           </div>
         </div>
@@ -433,7 +433,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 <button
                   onClick={handleDeleteSelectedBooks}
                   disabled={selectedBookIds.size === 0}
-                  className="text-xs text-red-600 dark:text-red-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="text-xs text-red-600 dark:text-red-400 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Delete Selected
                 </button>
@@ -445,7 +445,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 compact
                 icon={
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
                 }
                 title="No saved books yet"
@@ -528,7 +528,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   <div data-tour="book-details" className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <svg className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
               <path d="M8 7h8M8 11h8M8 15h5" />
@@ -546,17 +546,17 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             <button
               onClick={handleSaveBook}
               disabled={!!saveFeedback}
-              className={`flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-all disabled:opacity-60 ${saveFeedback ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
+              className={`flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-all disabled:opacity-50 ${saveFeedback ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
               title={saveFeedback ? "Saved!" : "Save book"}
             >
               {saveFeedback ? (
                 <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 13l4 4L19 7" />
                 </svg>
               ) : (
                 <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
               )}
-              <span className={`text-[10px] font-medium ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-[#d4d4d4]'}`}>
+              <span className={`text-2xs font-medium ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-[#d4d4d4]'}`}>
                 {saveFeedback ? 'Saved!' : 'Save'}
               </span>
             </button>
@@ -564,7 +564,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               <DropdownMenuTrigger asChild>
                 <button className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors">
                   <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                  <span className="text-[10px] font-medium text-gray-700 dark:text-[#d4d4d4]">Export</span>
+                  <span className="text-2xs font-medium text-gray-700 dark:text-[#d4d4d4]">Export</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" sideOffset={8} className="w-44">
@@ -615,7 +615,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 accept="image/*"
                 onChange={handleCoverChange}
                 disabled={lockedSections.cover}
-                className="w-full text-sm text-[#C0C0C0] file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full text-sm text-[#C0C0C0] file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -627,7 +627,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="Book title"
               />
             </div>
@@ -640,7 +640,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="Author name"
               />
             </div>
@@ -652,7 +652,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={blurb}
                 onChange={(e) => setBlurb(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] resize-none placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] resize-none placeholder-[#C0C0C0]"
                 placeholder="Brief description or back cover blurb (optional)"
                 rows={3}
               />
@@ -666,7 +666,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={publisher}
                 onChange={(e) => setPublisher(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="Publisher name"
               />
             </div>
@@ -679,7 +679,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={pubDate}
                 onChange={(e) => setPubDate(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
               />
             </div>
             
@@ -690,7 +690,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
               >
                 {LANGUAGES.map((lang) => (
                   <option key={lang} value={lang}>
@@ -708,7 +708,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="e.g. Fiction, Mystery"
               />
             </div>
@@ -721,10 +721,10 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 value={isbn}
                 onChange={(e) => setIsbn(e.target.value)}
                 disabled={lockedSections.bookInfo}
-                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="978-0-123456-78-9"
               />
-              <p className="mt-1 text-[10px] text-gray-500 dark:text-[#a3a3a3]">
+              <p className="mt-1 text-2xs text-gray-500 dark:text-[#a3a3a3]">
                 ISBNs must be purchased from official agencies (e.g., £93 from <a href="https://www.nielsenisbnstore.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-[#d4d4d4]">Nielsen UK</a>). They cannot be invented.
               </p>
             </div>
@@ -739,13 +739,13 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
                   disabled={lockedSections.bookInfo}
-                  className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-60 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
+                  className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                   placeholder="e.g., fiction, thriller, mystery, romance"
                 />
                 <button
                   onClick={handleAddTag}
                   disabled={lockedSections.bookInfo}
-                  className="px-3 py-2 rounded bg-gray-100 dark:bg-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  className="px-3 py-2 rounded bg-gray-100 dark:bg-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
                 </button>
@@ -812,7 +812,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                       <div className="flex items-center gap-1 mt-1.5 text-xs font-medium text-orange-600 dark:text-orange-400 group-hover:gap-1.5 transition-all">
                         <span>Open Coverly</span>
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
                       </div>
                     </div>
@@ -828,7 +828,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   <div data-tour="chapters" className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
         <div className="flex items-center justify-between py-2 px-2">
           <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-5 h-5 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <path d="M14 2v6h6" />
               <path d="M16 13H8M16 17H8M10 9H8" />
@@ -917,7 +917,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 compact
                 icon={
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                   </svg>
                 }
                 title="No chapters yet"
@@ -925,7 +925,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               />
             ) : (
             <>
-            <p className="text-[10px] text-gray-600 dark:text-[#a3a3a3] px-2 mb-1">Drag to reorder</p>
+            <p className="text-2xs text-gray-600 dark:text-[#a3a3a3] px-2 mb-1">Drag to reorder</p>
             {chapters.map((ch, i) => {
               const isSelected = selectedChapter === i;
               const titleText = ch.title?.trim() || 'Title';
@@ -977,7 +977,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 >
                   <HandleDragIcon isSelected={isSelected} />
                   <div className="flex flex-col flex-1 min-w-0">
-                    <span className={`text-[10px] ${isSelected ? 'text-gray-500 dark:text-[#a3a3a3]' : 'text-gray-500 dark:text-[#737373]'}`}> 
+                    <span className={`text-2xs ${isSelected ? 'text-gray-500 dark:text-[#a3a3a3]' : 'text-gray-500 dark:text-[#737373]'}`}> 
                       {typeLabel}
                     </span>
                     <span className={`text-sm truncate ${isSelected ? 'text-gray-900 dark:text-[#f5f5f5] font-medium' : 'text-gray-600 dark:text-[#a3a3a3]'}`}>
@@ -996,12 +996,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                       title={ch.locked ? 'Unlock chapter' : 'Mark complete and lock'}
                     >
                       {ch.locked ? (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                           <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                         </svg>
                       ) : (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                           <path d="M7 11V7a5 5 0 0 1 10 0"/>
                         </svg>
@@ -1034,7 +1034,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
       {activeView === 'notes' && (
         <div className="flex flex-col h-full">
           <div className="flex items-center gap-2 py-2 px-2 flex-shrink-0">
-            <svg className="w-5 h-5 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-5 h-5 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
               <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
             </svg>
             <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Notes</span>

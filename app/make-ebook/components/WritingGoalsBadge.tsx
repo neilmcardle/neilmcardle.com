@@ -83,7 +83,7 @@ export function WritingGoalsBadge({
   const dropdownContent = isOpen && mounted ? createPortal(
     <div
       ref={dropdownRef}
-      className="fixed bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl border border-neutral-200 dark:border-[#2f2f2f] z-[9999] overflow-hidden"
+      className="fixed bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f] z-[9999] overflow-hidden"
       style={{
         top: position.top,
         bottom: position.bottom,
@@ -92,12 +92,12 @@ export function WritingGoalsBadge({
       }}
     >
       {/* Today's progress */}
-      <div className="p-4 border-b border-neutral-200 dark:border-[#2f2f2f]">
+      <div className="p-4 border-b border-gray-200 dark:border-[#2f2f2f]">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-[#111] dark:text-[#f5f5f5]">Today's progress</span>
           {goalMet && (
             <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
               Goal met!
@@ -105,7 +105,7 @@ export function WritingGoalsBadge({
           )}
         </div>
         {/* Progress bar */}
-        <div className="h-1.5 rounded-full bg-neutral-200 dark:bg-[#2f2f2f] overflow-hidden mb-2">
+        <div className="h-1.5 rounded-full bg-gray-200 dark:bg-[#2f2f2f] overflow-hidden mb-2">
           <div
             className={`h-full rounded-full transition-all duration-500 ${goalMet ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-[#111] dark:bg-white'}`}
             style={{ width: `${progressPercent}%` }}
@@ -123,9 +123,9 @@ export function WritingGoalsBadge({
       </div>
 
       {/* Streak */}
-      <div className="px-4 py-3 border-b border-neutral-200 dark:border-[#2f2f2f] flex items-center justify-between">
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-[#2f2f2f] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <FlameIcon className={`w-4 h-4 ${currentStreak > 0 ? 'text-[#111] dark:text-white' : 'text-neutral-300 dark:text-[#444]'}`} />
+          <FlameIcon className={`w-4 h-4 ${currentStreak > 0 ? 'text-[#111] dark:text-white' : 'text-gray-300 dark:text-[#444]'}`} />
           <div>
             <span className="text-sm font-semibold text-[#111] dark:text-[#f5f5f5]">{currentStreak}</span>
             <span className="text-xs text-[#888] dark:text-[#737373] ml-1">day streak</span>
@@ -137,7 +137,7 @@ export function WritingGoalsBadge({
       </div>
 
       {/* Last 7 days */}
-      <div className="px-4 py-3 border-b border-neutral-200 dark:border-[#2f2f2f]">
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-[#2f2f2f]">
         <p className="text-xs text-[#888] dark:text-[#737373] mb-2">Last 7 days</p>
         <div className="flex gap-1.5 items-end">
           {weekHistory.map((day: DayHistory) => {
@@ -149,10 +149,10 @@ export function WritingGoalsBadge({
                   title={`${day.date}: ${day.words.toLocaleString()} words`}
                   className={`w-full h-5 rounded-sm transition-colors ${
                     !hasWords
-                      ? 'bg-neutral-100 dark:bg-[#262626]'
+                      ? 'bg-gray-100 dark:bg-[#262626]'
                       : day.metGoal
                       ? 'bg-[#111] dark:bg-white'
-                      : 'bg-neutral-400 dark:bg-[#555]'
+                      : 'bg-gray-400 dark:bg-[#555]'
                   } ${isToday ? 'ring-1 ring-offset-1 ring-[#111] dark:ring-white ring-offset-white dark:ring-offset-[#1e1e1e]' : ''}`}
                 />
                 <span className="text-[9px] text-[#aaa] dark:text-[#555]">{DAY_LABELS(day.date)}</span>
@@ -163,11 +163,11 @@ export function WritingGoalsBadge({
         <div className="flex items-center gap-3 mt-2">
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-sm bg-[#111] dark:bg-white" />
-            <span className="text-[10px] text-[#888] dark:text-[#737373]">Goal met</span>
+            <span className="text-2xs text-[#888] dark:text-[#737373]">Goal met</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-sm bg-neutral-400 dark:bg-[#555]" />
-            <span className="text-[10px] text-[#888] dark:text-[#737373]">Wrote</span>
+            <div className="w-2 h-2 rounded-sm bg-gray-400 dark:bg-[#555]" />
+            <span className="text-2xs text-[#888] dark:text-[#737373]">Wrote</span>
           </div>
         </div>
       </div>
@@ -185,7 +185,7 @@ export function WritingGoalsBadge({
             onChange={e => setGoalInput(e.target.value)}
             onBlur={commitGoal}
             onKeyDown={e => { if (e.key === 'Enter') { commitGoal(); (e.target as HTMLInputElement).blur(); } }}
-            className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-neutral-200 dark:border-[#2f2f2f] bg-white dark:bg-[#262626] text-[#111] dark:text-[#f5f5f5] focus:outline-none focus:border-[#111] dark:focus:border-[#a3a3a3]"
+            className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#262626] text-[#111] dark:text-[#f5f5f5] focus:outline-none focus:border-[#111] dark:focus:border-[#a3a3a3]"
           />
           <span className="text-xs text-[#888] dark:text-[#737373]">words/day</span>
         </div>
@@ -194,10 +194,10 @@ export function WritingGoalsBadge({
             <button
               key={n}
               onClick={() => { setDailyTarget(n); setGoalInput(String(n)); }}
-              className={`flex-1 py-1 text-[10px] rounded-md border transition-colors ${
+              className={`flex-1 py-1 text-2xs rounded-md border transition-colors ${
                 dailyTarget === n
                   ? 'border-[#111] dark:border-[#a3a3a3] bg-[#111] dark:bg-[#a3a3a3] text-white dark:text-[#111] font-medium'
-                  : 'border-neutral-200 dark:border-[#2f2f2f] text-[#444] dark:text-[#737373] hover:border-neutral-400 dark:hover:border-[#555]'
+                  : 'border-gray-200 dark:border-[#2f2f2f] text-[#444] dark:text-[#737373] hover:border-gray-400 dark:hover:border-[#555]'
               }`}
             >
               {n >= 1000 ? `${n / 1000}k` : n}
@@ -215,14 +215,14 @@ export function WritingGoalsBadge({
         ref={buttonRef}
         onClick={() => setIsOpen(o => !o)}
         title="Writing goals & streak"
-        className="flex items-center gap-1.5 px-3 h-10 rounded-lg text-xs font-medium bg-neutral-100 dark:bg-[#262626] text-[#444] dark:text-[#d4d4d4] hover:bg-neutral-200 dark:hover:bg-[#2f2f2f] transition-colors"
+        className="flex items-center gap-1.5 px-3 h-10 rounded-lg text-xs font-medium bg-gray-100 dark:bg-[#262626] text-[#444] dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors"
       >
-        <FlameIcon className={`w-4 h-4 flex-shrink-0 ${currentStreak > 0 || goalMet ? 'text-[#111] dark:text-white' : 'text-neutral-400 dark:text-[#555]'}`} />
+        <FlameIcon className={`w-4 h-4 flex-shrink-0 ${currentStreak > 0 || goalMet ? 'text-[#111] dark:text-white' : 'text-gray-400 dark:text-[#555]'}`} />
         {currentStreak > 0 && (
           <span className="font-semibold">{currentStreak}</span>
         )}
         {/* Mini progress bar */}
-        <div className="w-10 h-1 rounded-full bg-neutral-200 dark:bg-[#3a3a3a] overflow-hidden">
+        <div className="w-10 h-1 rounded-full bg-gray-200 dark:bg-[#3a3a3a] overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${goalMet ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-[#111] dark:bg-white'}`}
             style={{ width: `${progressPercent}%` }}

@@ -18,7 +18,20 @@ const config = {
       },
     },
     extend: {
+      fontSize: {
+        // Non-standard sizes used throughout the app — registered here so they
+        // can be referenced as utility classes instead of arbitrary values.
+        '2xs': ['0.625rem', { lineHeight: '1rem' }],   // 10px — labels, metadata
+        '3xs': ['0.6875rem', { lineHeight: '1rem' }],  // 11px — footers, captions
+      },
       colors: {
+        // Brand accent (chapter pills, active states)
+        'me-accent': '#4070ff',
+        // Dark-mode surface palette — use these instead of arbitrary hex values
+        'me-base':    '#1e1e1e',   // Main panel / sidebar backgrounds
+        'me-surface': '#262626',   // Elevated surface (inputs, cards within panels)
+        'me-raised':  '#2f2f2f',   // Borders, hover states, tooltips
+
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

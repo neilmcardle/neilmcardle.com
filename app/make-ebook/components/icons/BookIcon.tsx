@@ -17,7 +17,7 @@ export const BookIcon: React.FC<BookIconProps> = ({
       viewBox="0 0 24 24" 
       fill={fill} 
       stroke="currentColor"
-      strokeWidth={1.5}
+      strokeWidth={1.6}
       strokeLinecap="round"
       strokeLinejoin="round"
     >

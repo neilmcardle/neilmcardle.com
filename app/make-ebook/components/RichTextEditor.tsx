@@ -36,7 +36,7 @@ interface RichTextEditorProps
 type FormatState = Record<string, boolean>;
 
 const BTN =
-  'w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed overflow-visible';
+  'w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed overflow-visible';
 const BTN_ACTIVE = 'bg-gray-200 shadow-inner';
 
 const INLINE = [
@@ -945,7 +945,7 @@ export default function RichTextEditor({
               title="Insert Endnote"
               type="button"
               disabled={disabled || !onCreateEndnote}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation disabled:opacity-40"
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] flex items-center justify-center active:scale-95 transition-transform touch-manipulation disabled:opacity-50"
             >
               <Image src="/endnote-icon.svg" alt="Endnote" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -1020,7 +1020,7 @@ export default function RichTextEditor({
                     setShowMoreMenu(false);
                   }}
                   disabled={!onCreateEndnote}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] text-sm font-medium text-gray-700 dark:text-[#d4d4d4] active:bg-gray-200 disabled:opacity-40"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] text-sm font-medium text-gray-700 dark:text-[#d4d4d4] active:bg-gray-200 disabled:opacity-50"
                 >
                   <Image src="/endnote-icon.svg" alt="" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
                   Endnote
@@ -1326,7 +1326,7 @@ export default function RichTextEditor({
           }
         `}</style>
         {showWordCount && (
-          <div className="px-4 pb-2 text-[11px] text-[#86868B] dark:text-[#a3a3a3] flex justify-between items-center select-none">
+          <div className="px-4 pb-2 text-3xs text-[#86868B] dark:text-[#a3a3a3] flex justify-between items-center select-none">
             {/* Terms/Privacy links - only on mobile */}
             <div className="lg:hidden flex items-center space-x-2">
               <a href="https://neilmcardle.com/terms" className="hover:underline" target="_blank" rel="noopener noreferrer">
@@ -1420,7 +1420,7 @@ export default function RichTextEditor({
                 onMouseDown={e => e.preventDefault()}
                 title={action.title}
                 type="button"
-                className="w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
+                className="w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
                 onClick={() => {
                   if (action.cmd === 'endnote') {
                     handleEndnoteClick();
@@ -1491,7 +1491,7 @@ export default function RichTextEditor({
               />
               {!hasEndnotes && (
                 <p className="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-start gap-1.5">
-                  <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                   <span>Your first endnote will automatically create an Endnotes chapter at the end of your book.</span>
@@ -1578,7 +1578,7 @@ export default function RichTextEditor({
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-[10px] font-semibold tracking-wide uppercase text-[#86868B] select-none">
+      <div className="text-2xs font-semibold tracking-wide uppercase text-[#86868B] select-none">
         {label}
       </div>
       {children}
