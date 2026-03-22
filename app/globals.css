@@ -11,6 +11,12 @@
   box-shadow: none;
 }
 
+/* Firefox: remove inner border that appears on button click */
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
 *:focus-visible {
   outline: 2px solid var(--me-accent);
   outline-offset: 2px;
@@ -505,13 +511,13 @@ html[data-theme='dark'] .shadow-card {
 .me-card-border {
   background: conic-gradient(
     from var(--me-angle),
-    rgba(15, 15, 15, 1)      0%,
-    rgba(15, 15, 15, 1)      20%,
-    rgba(180, 180, 180, 0.9) 37%,
+    rgba(210, 210, 210, 1)   0%,
+    rgba(210, 210, 210, 1)   20%,
+    rgba(240, 240, 240, 0.9) 37%,
     rgba(255, 255, 255, 1)   50%,
-    rgba(180, 180, 180, 0.9) 63%,
-    rgba(15, 15, 15, 1)      80%,
-    rgba(15, 15, 15, 1)      100%
+    rgba(240, 240, 240, 0.9) 63%,
+    rgba(210, 210, 210, 1)   80%,
+    rgba(210, 210, 210, 1)   100%
   );
   animation: me-spin 8s linear infinite;
 }
@@ -583,6 +589,41 @@ html.dark .bg-cream {
 
 html[data-theme='dark'] .bg-cream {
   background-color: #2a2416;
+}
+
+/* ── Editor content typography ──────────────────────────────────────────── */
+[contenteditable] h1 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 1.5rem 0 1rem;
+  letter-spacing: -0.02em;
+}
+[contenteditable] h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 1.25rem 0 0.75rem;
+  letter-spacing: -0.01em;
+}
+[contenteditable] h3 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 1rem 0 0.5rem;
+}
+[contenteditable] p {
+  margin: 0 0 0.75rem;
+}
+[contenteditable] blockquote {
+  border-left: 2px solid #4070ff;
+  padding-left: 0.75rem;
+  font-style: italic;
+  opacity: 0.75;
+  margin: 0.75rem 0;
 }
 
 .ProseMirror {

@@ -82,7 +82,7 @@ export default function FindReplacePanel({
           <h3 className="text-base font-semibold text-gray-900 dark:text-white">Find & Replace</h3>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
             aria-label="Close"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round"/></svg>
@@ -169,7 +169,7 @@ export default function FindReplacePanel({
                     <button
                       onClick={() => handleReplaceInChapter(m.chapterIndex)}
                       disabled={!replaceTerm}
-                      className="px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+                      className="px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
                     >
                       Replace
                     </button>
@@ -182,7 +182,7 @@ export default function FindReplacePanel({
 
         {/* Footer hint */}
         <div className="px-5 py-2.5 border-t border-gray-200 dark:border-[#2f2f2f] text-xs text-gray-400 dark:text-[#737373]">
-          <kbd className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-[#a3a3a3] font-mono">Esc</kbd> to close
+          <kbd className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] font-mono">Esc</kbd> to close
         </div>
       </div>
     </div>

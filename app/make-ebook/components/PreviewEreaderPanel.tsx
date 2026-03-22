@@ -49,7 +49,7 @@ export default function PreviewEreaderPanel({
           <div className="text-sm font-medium text-[#141413] dark:text-[#e5e5e5]">e‑Reader Preview</div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={onClose} aria-label="Close preview" className="p-1 rounded hover:bg-[#e9e8e4] dark:hover:bg-[#1a1a1a]">
+          <button onClick={onClose} aria-label="Close preview" className="p-1 rounded hover:bg-[#e9e8e4] dark:hover:bg-[#2f2f2f]">
             ✕
           </button>
         </div>
@@ -91,8 +91,8 @@ export default function PreviewEreaderPanel({
       </div>
 
       <div className="px-3 py-2 border-t border-[#e4e4de] dark:border-[#262626] flex items-center gap-2">
-        <button onClick={prev} className="flex-1 px-3 py-2 rounded border border-[#e4e4de] dark:border-[#2f2f2f] bg-[#f0eee6] dark:bg-[#141414] hover:bg-[#e9e8e4] dark:hover:bg-[#1a1a1a]">◀ Chapter</button>
-        <button onClick={next} className="flex-1 px-3 py-2 rounded border border-[#e4e4de] dark:border-[#2f2f2f] bg-[#f0eee6] dark:bg-[#141414] hover:bg-[#e9e8e4] dark:hover:bg-[#1a1a1a]">Chapter ▶</button>
+        <button onClick={prev} className="flex-1 px-3 py-2 rounded border border-[#e4e4de] dark:border-[#2f2f2f] bg-[#f0eee6] dark:bg-[#141414] hover:bg-[#e9e8e4] dark:hover:bg-[#2f2f2f]">◀ Chapter</button>
+        <button onClick={next} className="flex-1 px-3 py-2 rounded border border-[#e4e4de] dark:border-[#2f2f2f] bg-[#f0eee6] dark:bg-[#141414] hover:bg-[#e9e8e4] dark:hover:bg-[#2f2f2f]">Chapter ▶</button>
       </div>
     </aside>
   );

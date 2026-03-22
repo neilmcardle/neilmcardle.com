@@ -37,7 +37,7 @@ export function ChapterList({
     <div className="relative flex flex-col gap-3 pr-1 min-h-[120px]">
       {/* The animated marker */}
       <span
-        className="absolute left-[-16px] w-2 rounded-full bg-blue-600 transition-all duration-300"
+        className="absolute left-[-16px] w-2 rounded-full bg-[#4070ff] transition-all duration-300"
         style={{
           top: markerStyle.top,
           height: markerStyle.height,
@@ -60,9 +60,8 @@ export function ChapterList({
           <div
             key={i}
             ref={el => (pillRefs.current[i] = el)}
-            className={`flex items-center rounded-[30px] px-5 py-2.5 mb-2 cursor-pointer transition 
-              ${isSelected ? "text-white font-semibold" : "text-white/75"}
-              bg-[#181a1d] hover:bg-[#23252a] hover:text-white
+            className={`flex items-center rounded-[30px] px-5 py-2.5 mb-2 cursor-pointer transition
+              ${isSelected ? "bg-[#4070ff]/15 text-white font-semibold" : "bg-[#181a1d] text-white/75 hover:bg-[#23252a] hover:text-white"}
               relative
             `}
             onClick={() => onSelect(i)}

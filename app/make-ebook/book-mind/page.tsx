@@ -288,7 +288,7 @@ function BookMindContent() {
                       <div
                         key={session.id}
                         className={`group relative rounded-lg transition-colors ${
-                          session.id === currentSessionId ? 'bg-gray-100 dark:bg-[#262626]' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
+                          session.id === currentSessionId ? 'bg-gray-100 dark:bg-[#262626]' : 'hover:bg-gray-50 dark:hover:bg-[#2f2f2f]'
                         }`}
                       >
                         {editingSessionId === session.id ? (
@@ -301,7 +301,7 @@ function BookMindContent() {
                               if (e.key === 'Enter') handleRenameSubmit(session.id);
                               if (e.key === 'Escape') { setEditingSessionId(null); setEditingName(''); }
                             }}
-                            className="w-full px-3 py-2 text-sm bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] rounded-lg text-gray-900 dark:text-white focus:outline-none"
+                            className="w-full px-3 py-2 text-sm bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] rounded-lg text-gray-900 dark:text-white focus:outline-none"
                             autoFocus
                           />
                         ) : (

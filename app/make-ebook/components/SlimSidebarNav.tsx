@@ -103,7 +103,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
   if (loading) {
     return (
       <Tooltip text="Loading...">
-        <div className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg bg-gray-50 dark:bg-[#1a1a1a] animate-pulse" />
+        <div className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg bg-gray-50 dark:bg-[#2f2f2f] animate-pulse" />
       </Tooltip>
     );
   }
@@ -258,7 +258,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
       </div>
 
       {/* Navigation Items */}
-      <nav className="flex-1 flex flex-col gap-2 w-full px-2 overflow-y-auto overflow-x-hidden">
+      <nav className="flex-1 flex flex-col gap-2 w-full px-2 pt-1 overflow-y-auto">
         {/* Library */}
         <Tooltip text="Library">
           <button
@@ -266,15 +266,15 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
             aria-label="Library"
           >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80 ${activeView === 'library' && isPanelOpen ? 'bg-[#4070ff]/12' : ''}`}>
+              <svg className={`w-5 h-5 transition-colors ${activeView === 'library' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-500 dark:text-[#737373]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <rect x="4" y="4" width="3" height="16" rx="0.5" />
                 <rect x="10" y="7" width="3" height="13" rx="0.5" />
                 <rect x="16" y="5" width="3" height="15" rx="0.5" />
                 <path d="M3 20h18" />
               </svg>
             </div>
-            <span className={`text-2xs font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'library' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
+            <span className={`text-2xs font-medium -mt-2 transition-colors group-hover:opacity-80 ${activeView === 'library' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-400 dark:text-[#525252]'}`}>
               Library{libraryCount > 0 ? ` (${libraryCount})` : ''}
             </span>
           </button>
@@ -288,14 +288,14 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
             aria-label="Book"
           >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80 ${activeView === 'book' && isPanelOpen ? 'bg-[#4070ff]/12' : ''}`}>
+              <svg className={`w-5 h-5 transition-colors ${activeView === 'book' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-500 dark:text-[#737373]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                 <path d="M8 7h8M8 11h8M8 15h5" />
               </svg>
             </div>
-            <span className={`text-2xs font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'book' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
+            <span className={`text-2xs font-medium -mt-2 transition-colors group-hover:opacity-80 ${activeView === 'book' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-400 dark:text-[#525252]'}`}>
               Book
             </span>
           </button>
@@ -309,14 +309,14 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
             aria-label="Chapters"
           >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80 ${activeView === 'chapters' && isPanelOpen ? 'bg-[#4070ff]/12' : ''}`}>
+              <svg className={`w-5 h-5 transition-colors ${activeView === 'chapters' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-500 dark:text-[#737373]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <path d="M14 2v6h6" />
                 <path d="M16 13H8M16 17H8M10 9H8" />
               </svg>
             </div>
-            <span className={`text-2xs font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'chapters' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
+            <span className={`text-2xs font-medium -mt-2 transition-colors group-hover:opacity-80 ${activeView === 'chapters' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-400 dark:text-[#525252]'}`}>
               Chapters{chaptersCount > 0 ? ` (${chaptersCount})` : ''}
             </span>
           </button>
@@ -331,12 +331,12 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
             className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
             aria-label="Notes"
           >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <svg className="w-5 h-5 text-gray-700 dark:text-[#d4d4d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80 ${activeView === 'notes' && isPanelOpen ? 'bg-[#4070ff]/12' : ''}`}>
+              <svg className={`w-5 h-5 transition-colors ${activeView === 'notes' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-500 dark:text-[#737373]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
               </svg>
             </div>
-            <span className={`text-2xs font-medium -mt-2 transition-opacity group-hover:opacity-60 ${activeView === 'notes' && isPanelOpen ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-500 dark:text-[#a3a3a3]'}`}>
+            <span className={`text-2xs font-medium -mt-2 transition-colors group-hover:opacity-80 ${activeView === 'notes' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-400 dark:text-[#525252]'}`}>
               Notes
             </span>
           </button>

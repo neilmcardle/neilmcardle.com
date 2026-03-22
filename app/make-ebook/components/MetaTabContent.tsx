@@ -87,7 +87,7 @@ export default function MetaTabContent({
         {!coverUrl ? (
           <label
             htmlFor="cover-upload"
-            className={`w-full flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-[#E8E8E8] dark:border-[#2f2f2f] rounded bg-white dark:bg-[#1e1e1e] text-[#737373] dark:text-[#a3a3a3] cursor-pointer hover:bg-[#F9F9F9] dark:hover:bg-[#1a1a1a] transition ${lockedSections.cover ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
+            className={`w-full flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-[#E8E8E8] dark:border-[#2f2f2f] rounded bg-white dark:bg-[#1e1e1e] text-[#737373] dark:text-[#a3a3a3] cursor-pointer hover:bg-[#F9F9F9] dark:hover:bg-[#2f2f2f] transition ${lockedSections.cover ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
             style={{ minHeight: 120 }}
           >
             <UploadIcon className="w-5 h-5 mb-2" />
@@ -95,7 +95,7 @@ export default function MetaTabContent({
             <span className="text-2xs mb-2">Recommended: 1600x2560px, JPG/PNG, 300dpi</span>
             <button
               type="button"
-              className="px-3 py-1 rounded bg-[#ececef] dark:bg-[#1a1a1a] text-xs text-[#15161a] dark:text-[#e5e5e5] mt-2"
+              className="px-3 py-1 rounded bg-[#ececef] dark:bg-[#262626] text-xs text-[#15161a] dark:text-[#e5e5e5] mt-2"
               disabled={lockedSections.cover}
               onClick={(e) => {
                 e.preventDefault();
@@ -321,7 +321,7 @@ export default function MetaTabContent({
             disabled={lockedSections.tags}
           />
           <button
-            className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible bg-white dark:bg-[#1a1a1a] text-[#6a6c72] dark:text-[#e5e5e5] border-[#E8E8E8] dark:border-[#2f2f2f] hover:bg-[#F7F7F7] dark:hover:bg-[#2a2a2a] ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`w-8 h-8 rounded border transition-colors touch-manipulation flex items-center justify-center overflow-visible bg-white dark:bg-[#262626] text-[#6a6c72] dark:text-[#e5e5e5] border-[#E8E8E8] dark:border-[#2f2f2f] hover:bg-[#F7F7F7] dark:hover:bg-[#2a2a2a] ${lockedSections.tags ? "opacity-60 cursor-not-allowed" : ""}`}
             type="button"
             onClick={handleAddTag}
             disabled={lockedSections.tags}
@@ -333,7 +333,7 @@ export default function MetaTabContent({
           {tags.map((tag: string) => (
             <span
               key={tag}
-              className="bg-[#F7F7F7] dark:bg-[#1a1a1a] text-gray-900 dark:text-[#e5e5e5] text-xs px-2 py-1 rounded flex items-center"
+              className="bg-[#F7F7F7] dark:bg-[#262626] text-gray-900 dark:text-[#e5e5e5] text-xs px-2 py-1 rounded flex items-center"
             >
               {tag}
               <button

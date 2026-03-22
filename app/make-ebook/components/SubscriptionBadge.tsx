@@ -52,7 +52,7 @@ export default function SubscriptionBadge({
       <>
         <button
           onClick={() => setShowUpgradeModal(true)}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-[#1a1a1a] border-2 border-gray-300 dark:border-[#2f2f2f] hover:border-gray-900 dark:hover:border-white transition-all ${className}`}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-[#262626] border-2 border-gray-300 dark:border-[#2f2f2f] hover:border-gray-900 dark:hover:border-white transition-all ${className}`}
         >
           <Sparkles className="w-3.5 h-3.5 text-gray-700 dark:text-[#d4d4d4]" />
           <span className="text-xs font-semibold text-gray-700 dark:text-[#d4d4d4] uppercase tracking-wide">
@@ -106,7 +106,7 @@ export function SubscriptionBadgeCompact({ className = '' }: { className?: strin
     <>
       <button
         onClick={() => setShowUpgradeModal(true)}
-        className={`w-6 h-6 rounded-full bg-white dark:bg-[#1a1a1a] border-2 border-gray-300 dark:border-[#2f2f2f] hover:border-gray-900 dark:hover:border-white flex items-center justify-center transition-all ${className}`}
+        className={`w-6 h-6 rounded-full bg-white dark:bg-[#262626] border-2 border-gray-300 dark:border-[#2f2f2f] hover:border-gray-900 dark:hover:border-white flex items-center justify-center transition-all ${className}`}
         title="Upgrade to Pro"
       >
         <Sparkles className="w-3.5 h-3.5 text-gray-700 dark:text-[#d4d4d4]" />

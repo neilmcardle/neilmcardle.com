@@ -35,7 +35,7 @@ const TABS: { mode: Exclude<RightPanelMode, 'none'>; label: string; Icon: React.
 
 export default function LayoutSwitcher({ mode, onChange }: LayoutSwitcherProps) {
   return (
-    <div className="flex items-center rounded-lg border border-gray-200 dark:border-[#2f2f2f] overflow-hidden bg-gray-50 dark:bg-[#1a1a1a]">
+    <div className="flex items-center rounded-lg border border-gray-200 dark:border-[#2f2f2f] overflow-hidden bg-gray-50 dark:bg-[#1e1e1e]">
       {TABS.map(({ mode: m, label, Icon }, i) => {
         const active = mode === m;
         return (
@@ -46,8 +46,8 @@ export default function LayoutSwitcher({ mode, onChange }: LayoutSwitcherProps) 
             className={`flex items-center gap-1.5 px-3 h-10 text-xs font-medium transition-colors whitespace-nowrap
               ${i > 0 ? 'border-l border-gray-200 dark:border-[#2f2f2f]' : ''}
               ${active
-                ? 'bg-white dark:bg-[#2f2f2f] text-gray-900 dark:text-white'
-                : 'text-gray-400 dark:text-[#737373] hover:text-gray-700 dark:hover:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+                ? 'bg-white dark:bg-[#262626] text-[#4070ff] dark:text-[#4070ff]'
+                : 'text-gray-400 dark:text-[#525252] hover:text-gray-700 dark:hover:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#262626]'
               }`}
           >
             <Icon />

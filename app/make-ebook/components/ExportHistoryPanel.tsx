@@ -242,7 +242,7 @@ export function ExportHistoryButton({ exportCount, onClickAction }: ExportHistor
   return (
     <button
       onClick={onClickAction}
-      className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded transition-colors"
+      className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2f2f2f] rounded transition-colors"
       title="View export history"
     >
       <svg className="w-4 h-4 text-gray-600 dark:text-[#a3a3a3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">

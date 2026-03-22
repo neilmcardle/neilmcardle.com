@@ -220,7 +220,7 @@ export default function LivePreviewPanel({
                           onClick={() => { setTypographyPreset(preset); setThemeDropdownOpen(false); }}
                           className={`w-full text-left px-3 py-1.5 text-xs transition-colors ${
                             typographyPreset === preset
-                              ? 'font-medium text-[#050505] dark:text-white bg-gray-50 dark:bg-[#2a2a2a]'
+                              ? 'font-medium text-[#4070ff] bg-[#4070ff]/10 dark:bg-[#4070ff]/15'
                               : 'text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
                           }`}
                         >

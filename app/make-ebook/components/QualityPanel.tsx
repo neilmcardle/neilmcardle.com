@@ -135,7 +135,7 @@ function IssueCard({ issue, onNavigateAction }: IssueCardProps) {
     <button
       onClick={() => issue.chapterId && onNavigateAction(issue.chapterId)}
       disabled={!canNavigate}
-      className={`w-full text-left p-3 rounded-lg bg-gray-50 dark:bg-[#1a1a1a] transition-colors ${
+      className={`w-full text-left p-3 rounded-lg bg-gray-50 dark:bg-[#262626] transition-colors ${
         canNavigate 
           ? 'hover:bg-gray-100 dark:hover:bg-[#333] cursor-pointer' 
           : 'cursor-default'
