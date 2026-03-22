@@ -839,7 +839,7 @@ export default function RichTextEditor({
         isMobileKeyboardOpen ? 'lg:block hidden' : ''
       }`}>
         {/* Sleek horizontal toolbar */}
-        <div className="flex items-center px-2 py-2 gap-1 overflow-x-auto overflow-y-visible scrollbar-hide">
+        <div className="flex items-center px-6 py-2 gap-1 overflow-x-auto overflow-y-visible scrollbar-hide">
           {/* Format buttons (B, I, U, S) */}
           <div className="flex items-center gap-0.5 flex-shrink-0">
             {INLINE.map(b => (
