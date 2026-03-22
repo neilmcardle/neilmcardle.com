@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { Loader2, Mail, CheckCircle, AlertCircle, X, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
@@ -32,6 +33,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: AuthModalProps) {
+  const [mounted, setMounted] = useState(false)
   const [mode, setMode] = useState<'signin' | 'signup' | 'reset'>(defaultMode)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -39,6 +41,8 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
   const [showVerificationMessage, setShowVerificationMessage] = useState(false)
   const [showResetMessage, setShowResetMessage] = useState(false)
   const { signIn, signUp, resetPassword, authError, clearError } = useAuth()
+
+  useEffect(() => { setMounted(true) }, [])
 
   // Sync mode with defaultMode when modal opens or defaultMode changes
   useEffect(() => {
@@ -114,11 +118,11 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
     }
   }
 
-  if (!isOpen) return null
+  if (!isOpen || !mounted) return null
 
   // Success states (verification email sent, password reset sent)
   if (showVerificationMessage || showResetMessage) {
-    return (
+    return createPortal(
       <>
         <style dangerouslySetInnerHTML={{ __html: autofillStyles }} />
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -185,11 +189,12 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
           </div>
         </div>
       </div>
-      </>
+      </>,
+      document.body
     )
   }
 
-  return (
+  return createPortal(
     <>
       <style dangerouslySetInnerHTML={{ __html: autofillStyles }} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -364,6 +369,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
         )}
       </div>
     </div>
-    </>
+    </>,
+    document.body
   )
 }
