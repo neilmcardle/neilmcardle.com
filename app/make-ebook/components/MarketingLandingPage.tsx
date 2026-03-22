@@ -199,7 +199,7 @@ function InteractiveLivePreview() {
 
       {/* Header */}
       <div className="flex-shrink-0 px-4 pt-3 pb-3 border-b border-gray-200">
-        <p className="text-2xs font-semibold text-gray-400 uppercase tracking-widest mb-2.5">Live Preview</p>
+        <p className="text-2xs font-semibold text-gray-600 uppercase tracking-widest mb-2.5">Live Preview</p>
         <div className="flex gap-1.5">
           {(Object.entries(PREVIEW_DEVICES) as [PreviewDevice, typeof PREVIEW_DEVICES.kindle][]).map(([key, val]) => (
             <button
@@ -625,12 +625,12 @@ const [isPenActive, setIsPenActive] = useState(true);
 
       {/* Ink controls — fixed top-right below nav */}
       <div className="hidden md:flex fixed top-[72px] right-6 z-[100] flex-col items-end gap-1.5">
-          <span className="text-2xs text-gray-400 font-medium tracking-wide select-none">Take some notes</span>
+          <span className="text-2xs text-gray-600 font-medium tracking-wide select-none">Take some notes</span>
           <div className="flex items-center gap-1 bg-white/70 backdrop-blur-sm rounded-full px-2 py-1.5 border border-gray-200/60">
             <button
               onClick={() => { const next = !isPenActiveRef.current; isPenActiveRef.current = next; setIsPenActive(next); inkPenPos.current = null; }}
               title={isPenActive ? 'Pen on — click to disable' : 'Pen off — click to enable'}
-              className={`flex items-center justify-center w-6 h-6 rounded-full transition-colors ${isPenActive ? 'text-[#111]' : 'text-gray-300'}`}
+              className={`flex items-center justify-center w-6 h-6 rounded-full transition-colors ${isPenActive ? 'text-[#111]' : 'text-gray-500'}`}
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -640,7 +640,7 @@ const [isPenActive, setIsPenActive] = useState(true);
             <button
               onClick={clearInkCanvas}
               title="Reset drawing"
-              className="flex items-center justify-center w-6 h-6 rounded-full text-gray-400 hover:text-[#111] transition-colors"
+              className="flex items-center justify-center w-6 h-6 rounded-full text-gray-600 hover:text-[#111] transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -661,7 +661,7 @@ const [isPenActive, setIsPenActive] = useState(true);
         />
 
         {/* Light overlay — preserves the editorial off-white aesthetic */}
-        <div className="absolute inset-0 bg-[#F2F2F0]/80" />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 80% at 50% 45%, rgba(242,242,240,0.97) 30%, rgba(242,242,240,0.88) 60%, rgba(242,242,240,0.70) 100%)' }} />
 
         {/* Content */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
@@ -683,7 +683,7 @@ const [isPenActive, setIsPenActive] = useState(true);
             </h1>
 
             {/* Subheadline */}
-            <p className="text-xl sm:text-2xl text-[#555] mb-10 max-w-2xl mx-auto">
+            <p className="text-xl sm:text-2xl text-[#333] mb-10 max-w-2xl mx-auto">
               Free, browser-based eBook editor. Write, format and export a professional EPUB ready for{' '}
               <span className="font-playfair italic text-[#333]">Kindle, Kobo, Apple Books</span>
               {' '}and more. No install needed.
@@ -1045,7 +1045,7 @@ const [isPenActive, setIsPenActive] = useState(true);
                   <h3 className={`text-xl font-semibold mb-2 ${plan.highlighted ? 'text-white' : 'text-[#111]'}`}>{plan.name}</h3>
                   <div className="mb-4">
                     <span className={`text-4xl font-bold ${plan.highlighted ? 'text-white' : 'text-[#111]'}`}>{plan.price}</span>
-                    <span className={plan.highlighted ? 'text-gray-400' : 'text-[#888]'}>{plan.period}</span>
+                    <span className={plan.highlighted ? 'text-gray-400' : 'text-[#555]'}>{plan.period}</span>
                   </div>
                   <p className={`mb-6 ${plan.highlighted ? 'text-gray-300' : 'text-[#666]'}`}>{plan.description}</p>
                   <ul className="space-y-3 mb-8 flex-1">
@@ -1088,13 +1088,13 @@ const [isPenActive, setIsPenActive] = useState(true);
           className="absolute inset-0 w-full h-full object-cover grayscale"
         />
         {/* Light overlay — matches hero */}
-        <div className="absolute inset-0 bg-[#F2F2F0]/80" />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 80% at 50% 45%, rgba(242,242,240,0.97) 30%, rgba(242,242,240,0.88) 60%, rgba(242,242,240,0.70) 100%)' }} />
         <FadeIn>
           <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#111] mb-6 text-balance" style={{ letterSpacing: '-0.04em' }}>
               Ready to write your book?
             </h2>
-            <p className="text-xl text-[#555] mb-10">
+            <p className="text-xl text-[#333] mb-10">
               Start creating in seconds. No credit card required.
             </p>
             <div className="me-cta-shine">
@@ -1128,7 +1128,7 @@ const [isPenActive, setIsPenActive] = useState(true);
               <p className="text-[#666] mb-4 max-w-sm">
                 The complete ebook creation tool for authors. Write, edit, and export professional EPUB files.
               </p>
-              <p className="text-sm text-[#888]">
+              <p className="text-sm text-[#555]">
                 make-ebook is a <a href="https://neilmcardle.com" className="underline hover:text-[#333]">neilmcardle.com</a> company.
               </p>
             </div>
@@ -1148,7 +1148,7 @@ const [isPenActive, setIsPenActive] = useState(true);
               </ul>
             </div>
           </div>
-          <div className="mt-12 pt-8 border-t border-gray-200 text-center text-sm text-[#888]">
+          <div className="mt-12 pt-8 border-t border-gray-200 text-center text-sm text-[#555]">
             © {new Date().getFullYear()} Neil McArdle. All rights reserved.
           </div>
         </div>
