@@ -5,6 +5,7 @@ import MuxPlayer from '@mux/mux-player-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AuthModal } from '@/components/auth/AuthModal';
+import { BlurText } from './BlurText';
 import { useAuth } from '@/lib/hooks/useAuth';
 import {
   BookOpen,
@@ -673,12 +674,12 @@ const [isPenActive, setIsPenActive] = useState(true);
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 text-[#111] text-balance" style={{ letterSpacing: '-0.05em' }}>
-              Write your first eBook,
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 text-[#111]" style={{ letterSpacing: '-0.05em' }}>
+              <BlurText text="Write your first eBook," />
               <br />
               <span className="text-[#111]">
                 {typed}
-                {!typingDone && <span className="animate-pulse font-thin text-[#999]">|</span>}
+                <span className={`font-thin text-[#999] ${typingDone ? 'invisible' : 'animate-pulse'}`}>|</span>
               </span>
             </h1>
 
