@@ -937,6 +937,86 @@ export default function RichTextEditor({
           {/* Divider */}
           <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
+          {/* Indent / Outdent */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => {
+                focusEditor();
+                const sel = window.getSelection();
+                if (!sel || sel.rangeCount === 0) return;
+                // Find the block element containing the cursor
+                let el: Element | null = sel.getRangeAt(0).startContainer.nodeType === 3
+                  ? (sel.getRangeAt(0).startContainer as Text).parentElement
+                  : sel.getRangeAt(0).startContainer as Element;
+                while (el && el !== editorRef.current) {
+                  if (['P','DIV','H1','H2','H3','H4','LI'].includes(el.tagName)) break;
+                  el = el.parentElement;
+                }
+                if (!el) return;
+                // Find first text node in this block
+                let firstText: Text | null = null;
+                const find = (n: Node) => { if (firstText) return; if (n.nodeType === 3) { firstText = n as Text; return; } n.childNodes.forEach(find); };
+                find(el);
+                if (!firstText) return;
+                const txt = firstText.textContent || '';
+                const count = txt.startsWith('\u2003\u2003') ? 2 : txt.startsWith('\u2003') ? 1 : 0;
+                if (count > 0) {
+                  const r = document.createRange();
+                  r.setStart(firstText, 0); r.setEnd(firstText, count);
+                  sel.removeAllRanges(); sel.addRange(r);
+                  document.execCommand('delete');
+                }
+              }}
+              title="Outdent"
+              type="button"
+              disabled={disabled}
+              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-600 dark:text-[#d4d4d4] active:scale-95 transition-transform touch-manipulation"
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 6h18M9 12h12M9 18h12" /><path d="M7 9l-4 3 4 3" />
+              </svg>
+            </button>
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => {
+                focusEditor();
+                const sel = window.getSelection();
+                if (!sel || sel.rangeCount === 0) return;
+                // Find the block element containing the cursor
+                let el: Element | null = sel.getRangeAt(0).startContainer.nodeType === 3
+                  ? (sel.getRangeAt(0).startContainer as Text).parentElement
+                  : sel.getRangeAt(0).startContainer as Element;
+                while (el && el !== editorRef.current) {
+                  if (['P','DIV','H1','H2','H3','H4','LI'].includes(el.tagName)) break;
+                  el = el.parentElement;
+                }
+                if (!el) return;
+                // Find first text node in this block
+                let firstText: Text | null = null;
+                const find = (n: Node) => { if (firstText) return; if (n.nodeType === 3) { firstText = n as Text; return; } n.childNodes.forEach(find); };
+                find(el);
+                if (!firstText) return;
+                // Move cursor to start of block and insert em-spaces
+                const r = document.createRange();
+                r.setStart(firstText, 0); r.collapse(true);
+                sel.removeAllRanges(); sel.addRange(r);
+                document.execCommand('insertText', false, '\u2003\u2003');
+              }}
+              title="Indent"
+              type="button"
+              disabled={disabled}
+              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-600 dark:text-[#d4d4d4] active:scale-95 transition-transform touch-manipulation"
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 6h18M9 12h12M9 18h12" /><path d="M3 9l4 3-4 3" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+
           {/* Endnote, Link, Anchor buttons */}
           <div className="flex items-center gap-0.5 flex-shrink-0">
             <button
@@ -1069,7 +1149,7 @@ export default function RichTextEditor({
           )}
           
           {/* Main toolbar - horizontally scrollable */}
-          <div className="flex items-center px-2 py-1.5 gap-1 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center px-6 py-1.5 gap-1 overflow-x-auto scrollbar-hide">
             {/* Undo/Redo */}
             <div className="flex items-center gap-0.5 flex-shrink-0">
               <button
@@ -1252,7 +1332,7 @@ export default function RichTextEditor({
       <div className="flex-1 min-w-0 relative flex flex-col min-h-0">
         {showPlaceholder && (
           <div
-            className="absolute left-4 top-4 text-[#737373] text-lg pointer-events-none select-none z-10"
+            className="absolute left-6 top-6 text-[#737373] text-lg pointer-events-none select-none z-10"
           >
             {placeholder}
           </div>
@@ -1272,6 +1352,12 @@ export default function RichTextEditor({
           }}
           contentEditable={!disabled}
           suppressContentEditableWarning
+          onKeyDown={(e) => {
+            if (e.key === 'Tab') {
+              e.preventDefault();
+              document.execCommand('insertText', false, '\u2003\u2003');
+            }
+          }}
           onInput={handleInput}
           onFocus={handleFocus}
           onBlur={handleBlur}

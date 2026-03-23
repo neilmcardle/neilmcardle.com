@@ -128,7 +128,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
+            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group outline-none focus:outline-none"
             aria-label="User menu"
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
@@ -263,7 +263,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
         <Tooltip text="Library">
           <button
             onClick={() => handleViewClick('library')}
-            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
+            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group outline-none focus:outline-none"
             aria-label="Library"
           >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80 ${activeView === 'library' && isPanelOpen ? 'bg-[#4070ff]/12' : ''}`}>
@@ -285,7 +285,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           <button
             data-tour="book-details"
             onClick={() => handleViewClick('book')}
-            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
+            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group outline-none focus:outline-none"
             aria-label="Book"
           >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80 ${activeView === 'book' && isPanelOpen ? 'bg-[#4070ff]/12' : ''}`}>
@@ -306,7 +306,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           <button
             data-tour="chapters"
             onClick={() => handleViewClick('chapters')}
-            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
+            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group outline-none focus:outline-none"
             aria-label="Chapters"
           >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80 ${activeView === 'chapters' && isPanelOpen ? 'bg-[#4070ff]/12' : ''}`}>
@@ -328,7 +328,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
         <Tooltip text="Notes">
           <button
             onClick={() => handleViewClick('notes')}
-            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
+            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group outline-none focus:outline-none"
             aria-label="Notes"
           >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80 ${activeView === 'notes' && isPanelOpen ? 'bg-[#4070ff]/12' : ''}`}>

@@ -133,7 +133,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
         />
         
         {/* Modal */}
-        <div className="relative w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f] overflow-hidden">
+        <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f] overflow-hidden">
           {/* Close button */}
           <button
             onClick={handleClose}
@@ -205,7 +205,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
         />
         
         {/* Modal */}
-        <div className="relative w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f] overflow-hidden">
+        <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f] overflow-hidden">
           {/* Close button */}
           <button
             onClick={handleClose}
@@ -269,7 +269,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
               placeholder="you@example.com"
               required
               disabled={isLoading}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-[#2f2f2f] bg-white dark:bg-[#262626] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#555] focus:border-transparent transition-shadow disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-[#2f2f2f] bg-white dark:bg-[#262626] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#555] focus:border-transparent transition-shadow disabled:opacity-50 touch-manipulation"
             />
           </div>
           
@@ -300,7 +300,7 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
                 required
                 minLength={6}
                 disabled={isLoading}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-[#2f2f2f] bg-white dark:bg-[#262626] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#555] focus:border-transparent transition-shadow disabled:opacity-50"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-[#2f2f2f] bg-white dark:bg-[#262626] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#555] focus:border-transparent transition-shadow disabled:opacity-50 touch-manipulation"
               />
               {mode === 'signup' && (
                 <p className="mt-2 text-xs text-gray-500 dark:text-[#a3a3a3]">

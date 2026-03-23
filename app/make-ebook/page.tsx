@@ -2361,7 +2361,7 @@ function MakeEbookPage() {
               {/* Editor Area - Prioritized for Writing */}
               <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2">
                 {/* Status Bar with Auto-Save and Quality Score */}
-                <div className={`flex items-center justify-between px-2 mb-2 transition-opacity duration-300 ${focus.active && focus.settings.hideChrome ? 'focus-hide-chrome' : ''}`}>
+                <div className={`flex items-center justify-between px-6 mb-2 transition-opacity duration-300 ${focus.active && focus.settings.hideChrome ? 'focus-hide-chrome' : ''}`}>
                   <div data-tour="auto-save" className="flex items-center gap-2">
                     <AutoSaveIndicator isDirty={isDirty} isSaving={isSaving} lastSaved={lastSaved} hasCloudSync={hasCloudSync} />
                     {isDirty && !isSaving && (
@@ -2413,7 +2413,7 @@ function MakeEbookPage() {
                   </div>
                   <input
                     className="w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-none min-w-0 text-gray-900 dark:text-white/90 placeholder:text-gray-300 dark:placeholder:text-white/20"
-                    style={{ border: 'none', backgroundColor: 'transparent', boxShadow: 'none', fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.3, letterSpacing: '-0.01em' }}
+                    style={{ border: 'none', backgroundColor: 'transparent', boxShadow: 'none', padding: 0, fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.3, letterSpacing: '-0.01em' }}
                     placeholder="Chapter title..."
                     value={chapters[selectedChapter]?.title ?? ""}
                     onChange={(e) =>
@@ -2432,7 +2432,7 @@ function MakeEbookPage() {
                     focus.active && focus.settings.typewriterMode ? "typewriter-mode" : "",
                   ].filter(Boolean).join(" ")}
                 >
-                  <div className="mt-2 mb-3 flex-shrink-0 flex items-start justify-between px-2">
+                  <div className="mt-2 mb-3 flex-shrink-0 flex items-start justify-between px-6">
                     <div className="flex items-start gap-2">
                       <div className="flex flex-col items-center">
                         <button
@@ -2515,7 +2515,7 @@ function MakeEbookPage() {
                     />
                   </div>
                   {/* Word Stats Footer */}
-                  <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 border-t border-gray-100 dark:border-gray-800/50">
+                  <div className="flex-shrink-0 flex items-center justify-between px-6 py-2 border-t border-gray-100 dark:border-gray-800/50">
                     <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
                       {/* Chapter stats */}
                       <span className="flex items-center gap-1.5">

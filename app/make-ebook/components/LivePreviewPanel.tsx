@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Chapter } from '../types';
 import { TypographyPreset, PRESET_DESCRIPTIONS, TYPOGRAPHY_PRESETS } from '../utils/typographyPresets';
 
@@ -17,29 +17,34 @@ type DeviceType = 'kindle' | 'ipad' | 'phone';
 type ThemeType = 'light' | 'sepia' | 'dark';
 type ViewMode = 'scroll' | 'page';
 
+const FOOTER_HEIGHT = 26;
+const PAGE_BOTTOM_MARGIN = 28; // prevents lines being clipped at the page boundary
+
 const deviceDimensions = {
   kindle: { width: 280, height: 390, name: 'Kindle' },
   ipad:   { width: 310, height: 420, name: 'iPad' },
   phone:  { width: 220, height: 390, name: 'Phone' },
 };
 
-const CONTENT_CLASSES = [
-  '[&_p]:mb-3',
-  '[&_h1]:text-xl [&_h1]:font-bold [&_h1]:mt-5 [&_h1]:mb-3 [&_h1]:leading-tight [&_h1]:[text-indent:0]',
-  '[&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:leading-tight [&_h2]:[text-indent:0]',
-  '[&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-2 [&_h3]:leading-tight [&_h3]:[text-indent:0]',
-  '[&_h4]:text-sm [&_h4]:font-semibold [&_h4]:mt-3 [&_h4]:mb-1 [&_h4]:[text-indent:0]',
-  '[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3',
-  '[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3',
-  '[&_li]:mb-1',
-  '[&_blockquote]:border-l-2 [&_blockquote]:border-current [&_blockquote]:border-opacity-30 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:opacity-70 [&_blockquote]:mb-3',
-  '[&_strong]:font-bold',
-  '[&_em]:italic',
-  '[&_a]:underline',
-  '[&_hr]:my-4 [&_hr]:border-current [&_hr]:opacity-20',
-  '[&_pre]:bg-black/10 [&_pre]:rounded [&_pre]:p-2 [&_pre]:mb-3 [&_pre]:text-xs [&_pre]:overflow-x-auto',
-  '[&_code]:bg-black/10 [&_code]:rounded [&_code]:px-1 [&_code]:text-xs',
-].join(' ');
+function contentClasses(usesIndent: boolean) {
+  return [
+    usesIndent ? '[&_p]:mb-0' : '[&_p]:mb-3',
+    '[&_h1]:text-xl [&_h1]:font-bold [&_h1]:mt-5 [&_h1]:mb-3 [&_h1]:leading-tight [&_h1]:[text-indent:0]',
+    '[&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:leading-tight [&_h2]:[text-indent:0]',
+    '[&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-2 [&_h3]:leading-tight [&_h3]:[text-indent:0]',
+    '[&_h4]:text-sm [&_h4]:font-semibold [&_h4]:mt-3 [&_h4]:mb-1 [&_h4]:[text-indent:0]',
+    '[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3',
+    '[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3',
+    '[&_li]:mb-1',
+    '[&_blockquote]:border-l-2 [&_blockquote]:border-current [&_blockquote]:border-opacity-30 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:opacity-70 [&_blockquote]:mb-3',
+    '[&_strong]:font-bold',
+    '[&_em]:italic',
+    '[&_a]:underline',
+    '[&_hr]:my-4 [&_hr]:border-current [&_hr]:opacity-20',
+    '[&_pre]:bg-black/10 [&_pre]:rounded [&_pre]:p-2 [&_pre]:mb-3 [&_pre]:text-xs [&_pre]:overflow-x-auto',
+    '[&_code]:bg-black/10 [&_code]:rounded [&_code]:px-1 [&_code]:text-xs',
+  ].join(' ');
+}
 
 function ArticleContent({
   chapter,
@@ -53,6 +58,7 @@ function ArticleContent({
   const textColor = theme === 'dark' ? '#e5e5e5' : '#141413';
   const linkColor = theme === 'dark' ? '#93c5fd' : '#2563eb';
   const preset = TYPOGRAPHY_PRESETS[typographyPreset];
+  const usesIndent = preset.textIndent !== '0' && preset.textIndent !== '';
 
   if (!chapter) {
     return (
@@ -64,7 +70,7 @@ function ArticleContent({
 
   return (
     <article
-      className="p-6"
+      className="px-5 pt-5 pb-2"
       style={{
         fontFamily: preset.fontFamily,
         color: textColor,
@@ -83,7 +89,7 @@ function ArticleContent({
       )}
       <div
         dangerouslySetInnerHTML={{ __html: chapter.content || '<p style="color:#999;font-style:italic;">No content yet…</p>' }}
-        className={CONTENT_CLASSES}
+        className={contentClasses(usesIndent)}
         style={{ textIndent: preset.textIndent }}
       />
       <style jsx>{`
@@ -93,6 +99,26 @@ function ArticleContent({
       `}</style>
     </article>
   );
+}
+
+function calcLocAndPercent(
+  chapters: Chapter[],
+  selectedChapter: number,
+  currentPage: number,
+  totalPages: number,
+  viewMode: ViewMode,
+) {
+  const stripped = (ch: Chapter) =>
+    ((ch.content || '').replace(/<[^>]+>/g, '').length) + (ch.title || '').length;
+
+  const totalChars = chapters.reduce((s, ch) => s + stripped(ch), 0);
+  const charsBeforeCurrentChapter = chapters.slice(0, selectedChapter).reduce((s, ch) => s + stripped(ch), 0);
+  const currentChapterChars = chapters[selectedChapter] ? stripped(chapters[selectedChapter]) : 0;
+  const progressInChapter = viewMode === 'page' ? currentPage / Math.max(1, totalPages) : 0;
+  const currentPosition = charsBeforeCurrentChapter + Math.floor(progressInChapter * currentChapterChars);
+  const loc = Math.max(1, Math.round(currentPosition / 128));
+  const percentage = totalChars > 0 ? Math.max(1, Math.round((currentPosition / totalChars) * 100)) : 1;
+  return { loc, percentage };
 }
 
 export default function LivePreviewPanel({
@@ -108,17 +134,17 @@ export default function LivePreviewPanel({
   const measureRef = useRef<HTMLDivElement>(null);
 
   const dims = deviceDimensions[device];
+  const contentHeight = dims.height - FOOTER_HEIGHT;
+  const effectivePageHeight = contentHeight - PAGE_BOTTOM_MARGIN;
 
-  // Reset to first page when chapter, device, or view mode changes
   useEffect(() => { setCurrentPage(0); }, [selectedChapter, device, viewMode]);
 
-  // Measure total pages via hidden div — runs whenever content or device size changes
   const measurePages = useCallback(() => {
     if (measureRef.current) {
-      const pages = Math.max(1, Math.ceil(measureRef.current.scrollHeight / dims.height));
+      const pages = Math.max(1, Math.ceil(measureRef.current.scrollHeight / effectivePageHeight));
       setTotalPages(pages);
     }
-  }, [dims.height]);
+  }, [effectivePageHeight]);
 
   useEffect(() => {
     if (viewMode !== 'page') return;
@@ -127,7 +153,10 @@ export default function LivePreviewPanel({
   }, [viewMode, selectedChapter, chapters, measurePages]);
 
   const bgColor = theme === 'light' ? '#ffffff' : theme === 'sepia' ? '#f4ecd8' : '#1a1a1a';
+  const footerTextColor = theme === 'dark' ? 'rgba(229,229,229,0.4)' : 'rgba(20,20,19,0.35)';
+  const footerBorderColor = theme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
   const chapter = chapters[selectedChapter];
+  const { loc, percentage } = calcLocAndPercent(chapters, selectedChapter, currentPage, totalPages, viewMode);
 
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-[#1e1e1e]">
@@ -148,7 +177,7 @@ export default function LivePreviewPanel({
           )}
         </div>
 
-        {/* Controls row: device + view mode toggle + typography */}
+        {/* Controls row */}
         <div className="flex items-center justify-between gap-2">
           {/* Device selector */}
           <div className="flex gap-1">
@@ -242,52 +271,78 @@ export default function LivePreviewPanel({
           className="relative bg-[#2a2a2a] p-2 shadow-2xl max-w-full"
           style={{ width: dims.width + 16, borderRadius: 20 }}
         >
+          {/* Screen */}
           <div
-            className="w-full rounded-lg overflow-hidden relative"
+            className="w-full rounded-lg overflow-hidden flex flex-col"
             style={{ width: dims.width, height: dims.height, backgroundColor: bgColor }}
           >
-            {viewMode === 'scroll' ? (
-              <div className="h-full overflow-y-auto">
-                <ArticleContent chapter={chapter} theme={theme} typographyPreset={typographyPreset} />
-              </div>
-            ) : (
-              <div style={{ width: dims.width, height: dims.height, overflow: 'hidden' }}>
-                {/* Hidden div used only to measure total content height */}
-                <div
-                  ref={measureRef}
-                  style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, width: dims.width, pointerEvents: 'none' }}
-                >
+            {/* Content area */}
+            <div className="flex-1 overflow-hidden relative" style={{ height: contentHeight }}>
+              {viewMode === 'scroll' ? (
+                <div className="h-full overflow-y-auto">
                   <ArticleContent chapter={chapter} theme={theme} typographyPreset={typographyPreset} />
                 </div>
+              ) : (
+                <div style={{ width: dims.width, height: contentHeight, overflow: 'hidden' }}>
+                  {/* Hidden measure div */}
+                  <div
+                    ref={measureRef}
+                    style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, width: dims.width, pointerEvents: 'none' }}
+                  >
+                    <ArticleContent chapter={chapter} theme={theme} typographyPreset={typographyPreset} />
+                  </div>
 
-                {/* Horizontal track: N page windows side-by-side, slides left per page */}
-                <div
-                  style={{
-                    display: 'flex',
-                    width: totalPages * dims.width,
-                    transform: `translateX(${-currentPage * dims.width}px)`,
-                    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    willChange: 'transform',
-                  }}
-                >
-                  {Array.from({ length: totalPages }, (_, i) => (
-                    <div
-                      key={i}
-                      style={{ width: dims.width, height: dims.height, overflow: 'hidden', flexShrink: 0 }}
-                    >
-                      {/* Each window shows a different vertical slice of the same content */}
-                      <div style={{ transform: `translateY(${-i * dims.height}px)` }}>
-                        <ArticleContent chapter={chapter} theme={theme} typographyPreset={typographyPreset} />
+                  {/* Horizontal page track */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      width: totalPages * dims.width,
+                      transform: `translateX(${-currentPage * dims.width}px)`,
+                      transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      willChange: 'transform',
+                    }}
+                  >
+                    {Array.from({ length: totalPages }, (_, i) => (
+                      <div
+                        key={i}
+                        style={{ width: dims.width, height: contentHeight, overflow: 'hidden', flexShrink: 0, position: 'relative' }}
+                      >
+                        <div style={{ transform: `translateY(${-i * effectivePageHeight}px)` }}>
+                          <ArticleContent chapter={chapter} theme={theme} typographyPreset={typographyPreset} />
+                        </div>
+                        {/* Curtain covers the bottom margin so cut-off lines are hidden */}
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: PAGE_BOTTOM_MARGIN, background: bgColor }} />
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Kindle-style footer: Loc / % */}
+            <div
+              style={{
+                flexShrink: 0,
+                height: FOOTER_HEIGHT,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingLeft: 14,
+                paddingRight: 14,
+                borderTop: `1px solid ${footerBorderColor}`,
+              }}
+            >
+              <span style={{ fontSize: '9px', color: footerTextColor, fontFamily: 'Georgia, "Times New Roman", serif', letterSpacing: '0.01em' }}>
+                Loc {loc}
+              </span>
+              <span style={{ fontSize: '9px', color: footerTextColor, fontFamily: 'Georgia, "Times New Roman", serif', letterSpacing: '0.01em' }}>
+                {percentage}%
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Page navigation — only shown in page mode */}
+        {/* Page navigation — only in page mode */}
         {viewMode === 'page' && (
           <div className="flex items-center gap-4">
             <button
