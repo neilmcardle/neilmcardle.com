@@ -81,6 +81,22 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
     if (isOpen) setMode(defaultMode)
   }, [isOpen, defaultMode])
 
+  // iOS tap-target fix: page scroll offset displaces touch hit-tests on fixed/top-layer
+  // elements. Lock body position to scrollY so offset becomes 0.
+  useEffect(() => {
+    if (!isOpen) return
+    const scrollY = window.scrollY
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = '100%'
+    return () => {
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      window.scrollTo(0, scrollY)
+    }
+  }, [isOpen])
+
   const resetForm = useCallback(() => {
     setEmail('')
     setPassword('')
