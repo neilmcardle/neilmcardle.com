@@ -51,6 +51,21 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
     }
   }, [isOpen, defaultMode])
 
+  // iOS scroll-lock: prevents the page scroll offset from displacing fixed-element tap targets
+  useEffect(() => {
+    if (!isOpen) return
+    const scrollY = window.scrollY
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = '100%'
+    return () => {
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      window.scrollTo(0, scrollY)
+    }
+  }, [isOpen])
+
   const resetForm = () => {
     setEmail('')
     setPassword('')
