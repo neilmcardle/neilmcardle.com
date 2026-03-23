@@ -125,12 +125,12 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
     return createPortal(
       <>
         <style dangerouslySetInnerHTML={{ __html: autofillStyles }} />
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={handleClose}>
-          {/* Backdrop — visual only, no pointer events */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" style={{ pointerEvents: 'none' }} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop — click to close, no backdrop-filter to avoid iOS compositing issues */}
+          <div className="absolute inset-0 bg-black/60 cursor-pointer" onClick={handleClose} />
 
         {/* Modal */}
-        <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f]" onClick={e => e.stopPropagation()}>
+        <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f]" onClick={e => e.stopPropagation()} onTouchStart={e => e.stopPropagation()}>
           {/* Close button */}
           <button
             onClick={handleClose}
@@ -194,12 +194,12 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
   return createPortal(
     <>
       <style dangerouslySetInnerHTML={{ __html: autofillStyles }} />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={handleClose}>
-        {/* Backdrop — visual only, no pointer events */}
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" style={{ pointerEvents: 'none' }} />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Backdrop — click to close, no backdrop-filter to avoid iOS compositing issues */}
+        <div className="absolute inset-0 bg-black/60 cursor-pointer" onClick={handleClose} />
 
         {/* Modal */}
-        <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f]" onClick={e => e.stopPropagation()}>
+        <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-gray-200 dark:border-[#2f2f2f]" onClick={e => e.stopPropagation()} onTouchStart={e => e.stopPropagation()}>
           {/* Close button */}
           <button
             onClick={handleClose}
