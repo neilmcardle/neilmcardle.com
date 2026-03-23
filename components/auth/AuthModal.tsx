@@ -9,6 +9,11 @@ import Image from 'next/image'
 // CSS stacking / z-index / position:fixed coordinate issues on iOS Safari.
 const dialogStyles = `
   dialog[data-auth-modal] {
+    border: none;
+    background: transparent;
+    padding: 0;
+  }
+  dialog[data-auth-modal][open] {
     position: fixed;
     inset: 0;
     width: 100%;
@@ -17,8 +22,6 @@ const dialogStyles = `
     max-height: 100%;
     margin: 0;
     padding: 1rem;
-    border: none;
-    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
