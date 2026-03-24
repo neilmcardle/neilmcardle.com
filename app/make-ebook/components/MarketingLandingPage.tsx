@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import MuxPlayer from '@mux/mux-player-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { AuthModal } from '@/components/auth/AuthModal';
+import { useRouter } from 'next/navigation';
 import { BlurText } from './BlurText';
 import { useAuth } from '@/lib/hooks/useAuth';
 import {
@@ -273,8 +273,7 @@ function InteractiveLivePreview() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function MarketingLandingPage({ onStartWritingAction, libraryCount }: MarketingLandingPageProps) {
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<'pro' | 'lifetime' | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -448,8 +447,7 @@ const [isPenActive, setIsPenActive] = useState(true);
   }, []);
 
   const handleOpenAuth = (mode: 'signin' | 'signup') => {
-    setAuthMode(mode);
-    setAuthModalOpen(true);
+    router.push(`/signin?mode=${mode}&from=/make-ebook`);
   };
 
   const handleCheckout = async (type: 'pro' | 'lifetime') => {
@@ -1315,12 +1313,6 @@ const [isPenActive, setIsPenActive] = useState(true);
         </div>
       )}
 
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={authModalOpen}
-        onCloseAction={() => setAuthModalOpen(false)}
-        defaultMode={authMode}
-      />
     </div>
   );
 }

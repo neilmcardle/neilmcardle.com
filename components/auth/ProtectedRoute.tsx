@@ -2,7 +2,7 @@
 
 import { ReactNode, useState, useEffect } from 'react'
 import { useAuth } from '@/lib/hooks/useAuth'
-import { AuthModal } from './AuthModal'
+import { useRouter } from 'next/navigation'
 import { Button } from '../ui/button'
 import { Lock, Edit3, BookOpen, Download, BookHeart, BookDown, BookText } from 'lucide-react'
 import { MakeEbookIcon } from '@/components/MakeEbookIcon'
@@ -67,7 +67,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
   const { isAuthenticated, loading } = useAuth()
-  const [showAuthModal, setShowAuthModal] = useState(false)
+  const router = useRouter()
   const { theme } = useTheme()
   const [quote, setQuote] = useState(LITERARY_QUOTES[0])
 
@@ -102,12 +102,6 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
   // Default locked state with sign-up prompt
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] relative transition-colors">
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onCloseAction={() => setShowAuthModal(false)}
-        defaultMode="signup"
-      />
 
       {/* Locked State - Card Layout */}
       <div className="flex items-center justify-center min-h-screen p-4">
@@ -165,7 +159,7 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
               >
                 <button
                   type="button"
-                  onClick={() => setShowAuthModal(true)}
+                  onClick={() => router.push('/signin?mode=signup&from=/make-ebook')}
                   className="text-gray-900 dark:text-white px-6 py-3 font-medium inline-flex items-center justify-center gap-2 transition-all focus:outline-none w-full"
                   style={{
                     borderRadius: '999px',
