@@ -10,7 +10,6 @@ function SignInContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const rawMode = searchParams.get('mode') ?? 'signup'
-  const from = searchParams.get('from') ?? '/make-ebook'
   const initialMode = (rawMode === 'signin' || rawMode === 'signup' || rawMode === 'reset')
     ? rawMode as 'signin' | 'signup' | 'reset'
     : 'signup'
@@ -48,12 +47,12 @@ function SignInContent() {
           if (needsVerification) {
             setShowVerificationMessage(true)
           } else {
-            router.push(from)
+            router.push('/make-ebook')
           }
         }
       } else if (mode === 'signin') {
         const { error } = await signIn(email.trim(), password)
-        if (!error) router.push(from)
+        if (!error) router.push('/make-ebook')
       } else if (mode === 'reset') {
         const { error, resetSent } = await resetPassword(email.trim())
         if (!error && resetSent) setShowResetMessage(true)
@@ -95,7 +94,7 @@ function SignInContent() {
                 setShowResetMessage(false)
                 setMode('signin')
               } else {
-                router.push(from)
+                router.push('/make-ebook')
               }
             }}
             className="w-full py-3 px-6 bg-[#111] dark:bg-white text-white dark:text-[#111] rounded-full font-semibold hover:bg-[#333] dark:hover:bg-[#e5e5e5] transition-colors"

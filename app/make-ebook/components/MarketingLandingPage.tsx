@@ -447,7 +447,7 @@ const [isPenActive, setIsPenActive] = useState(true);
   }, []);
 
   const handleOpenAuth = (mode: 'signin' | 'signup') => {
-    router.push(`/signin?mode=${mode}&from=/make-ebook`);
+    router.push(`/make-ebook/signin?mode=${mode}`);
   };
 
   const handleCheckout = async (type: 'pro' | 'lifetime') => {

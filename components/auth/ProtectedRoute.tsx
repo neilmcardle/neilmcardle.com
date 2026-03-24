@@ -159,7 +159,7 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
               >
                 <button
                   type="button"
-                  onClick={() => router.push('/signin?mode=signup&from=/make-ebook')}
+                  onClick={() => router.push('/make-ebook/signin?mode=signup')}
                   className="text-gray-900 dark:text-white px-6 py-3 font-medium inline-flex items-center justify-center gap-2 transition-all focus:outline-none w-full"
                   style={{
                     borderRadius: '999px',
