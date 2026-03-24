@@ -496,13 +496,13 @@ html[data-theme='dark'] .shadow-card {
   padding: 1.5px;
   background: conic-gradient(
     from var(--me-angle),
-    rgba(15, 15, 15, 1)      0%,
-    rgba(15, 15, 15, 1)      20%,
-    rgba(180, 180, 180, 0.9) 37%,
-    rgba(255, 255, 255, 1)   50%,
-    rgba(180, 180, 180, 0.9) 63%,
-    rgba(15, 15, 15, 1)      80%,
-    rgba(15, 15, 15, 1)      100%
+    rgba(37, 99, 235, 1)      0%,
+    rgba(37, 99, 235, 1)      20%,
+    rgba(147, 197, 253, 0.9)  37%,
+    rgba(255, 255, 255, 1)    50%,
+    rgba(147, 197, 253, 0.9)  63%,
+    rgba(37, 99, 235, 1)      80%,
+    rgba(37, 99, 235, 1)      100%
   );
   animation: me-spin 8s linear infinite;
 }

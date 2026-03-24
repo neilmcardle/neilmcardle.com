@@ -693,7 +693,7 @@ const [isPenActive, setIsPenActive] = useState(true);
               <div className="me-cta-shine">
                 <button
                   onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                  className="group px-8 py-4 text-lg font-semibold bg-white text-[#111] rounded-full hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  className="group px-8 py-4 text-lg font-semibold bg-white text-[#111] rounded-full flex items-center justify-center gap-2"
                 >
                   Try for free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -935,7 +935,7 @@ const [isPenActive, setIsPenActive] = useState(true);
                     'Catch formatting issues before you export',
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-[#333] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-[#333]">{item}</span>
@@ -1021,7 +1021,7 @@ const [isPenActive, setIsPenActive] = useState(true);
                     'Get word usage insights and suggestions'
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="rgb(145,238,69)" strokeWidth={1.6}>
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-[#333]">{item}</span>
@@ -1146,9 +1146,11 @@ const [isPenActive, setIsPenActive] = useState(true);
 
                 {plan.highlighted && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-[rgb(145,238,69)] text-[#1a3a05] border border-[rgb(110,200,40)] whitespace-nowrap">
-                      Most Popular
-                    </span>
+                    <div className="me-cta-shine">
+                      <span className="px-3 py-1 text-xs font-semibold rounded-full bg-white text-[#111] whitespace-nowrap">
+                        Most Popular
+                      </span>
+                    </div>
                   </div>
                 )}
                 <div
@@ -1172,7 +1174,7 @@ const [isPenActive, setIsPenActive] = useState(true);
                   <ul className="space-y-3 mb-8 flex-1">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-3">
-                        <svg className={`w-5 h-5 flex-shrink-0 ${plan.highlighted ? 'text-gray-400' : 'text-[#666]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                        <svg className={`w-5 h-5 flex-shrink-0 ${plan.highlighted ? 'text-blue-400' : 'text-blue-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                         <span className={plan.highlighted ? 'text-gray-200' : 'text-[#333]'}>{feature}</span>
@@ -1221,7 +1223,7 @@ const [isPenActive, setIsPenActive] = useState(true);
             <div className="me-cta-shine">
               <button
                 onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                className="group px-8 py-4 text-lg font-semibold bg-white text-[#111] rounded-full hover:bg-gray-50 transition-colors inline-flex items-center gap-2 shadow-sm"
+                className="group px-8 py-4 text-lg font-semibold bg-white text-[#111] rounded-full inline-flex items-center gap-2"
               >
                 Try for free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
