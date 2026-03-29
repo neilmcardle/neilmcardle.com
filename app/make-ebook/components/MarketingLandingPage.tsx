@@ -656,57 +656,67 @@ const [isPenActive, setIsPenActive] = useState(true);
           src="/woman-hero-bg.jpg"
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover grayscale"
+          className="absolute inset-0 w-full h-full object-cover"
         />
 
-        {/* Light overlay — preserves the editorial off-white aesthetic */}
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 80% at 50% 45%, rgba(242,242,240,0.97) 30%, rgba(242,242,240,0.88) 60%, rgba(242,242,240,0.70) 100%)' }} />
 
         {/* Content */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <div className="text-center max-w-4xl mx-auto">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 text-[#333] text-sm font-medium mb-8 border border-gray-200/80">
-              <Sparkles className="w-4 h-4" />
-              AI-Powered Writing Tools
-            </div>
 
-            {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 text-[#111]" style={{ letterSpacing: '-0.05em' }}>
-              <BlurText text="Write your first eBook," />
-              <br />
-              <span className="text-[#111]">
-                {typed}
-                <span className={`font-thin text-[#999] ${typingDone ? 'invisible' : 'animate-pulse'}`}>|</span>
-              </span>
-            </h1>
-
-            {/* Subheadline */}
-            <p className="text-xl sm:text-2xl text-[#333] mb-10 max-w-2xl mx-auto">
-              Free, browser-based eBook editor. Write, format and export a professional EPUB ready for{' '}
-              <span className="font-playfair italic text-[#333]">Kindle, Kobo, Apple Books</span>
-              {' '}and more. No install needed.
-            </p>
-
-            {/* CTA */}
-            <div className="flex items-center justify-center mb-8">
-              <div className="me-cta-shine">
-                <button
-                  onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-                  className="group px-8 py-4 text-lg font-semibold bg-white text-[#111] rounded-full flex items-center justify-center gap-2"
-                >
-                  Try for free
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
+            {/* Glass card */}
+            <div className="rounded-3xl px-8 py-12 sm:px-12 sm:py-14"
+              style={{
+                background: 'rgba(255,255,255,0.55)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.7)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+              }}
+            >
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 text-[#333] text-sm font-medium mb-8 border border-gray-200/80">
+                <Sparkles className="w-4 h-4" />
+                AI-Powered Writing Tools
               </div>
+
+              {/* Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 text-[#111]" style={{ letterSpacing: '-0.05em' }}>
+                <BlurText text="Write your first eBook," />
+                <br />
+                <span className="text-[#111]">
+                  {typed}
+                  <span className={`font-thin text-[#999] ${typingDone ? 'invisible' : 'animate-pulse'}`}>|</span>
+                </span>
+              </h1>
+
+              {/* Subheadline */}
+              <p className="text-xl sm:text-2xl text-[#333] mb-10 max-w-2xl mx-auto">
+                Free, browser-based eBook editor. Write, format and export a professional EPUB ready for{' '}
+                <span className="font-playfair italic text-[#333]">Kindle, Kobo, Apple Books</span>
+                {' '}and more. No install needed.
+              </p>
+
+              {/* CTA */}
+              <div className="flex items-center justify-center mb-8">
+                <div className="me-cta-shine">
+                  <button
+                    onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
+                    className="group px-8 py-4 text-lg font-semibold bg-white text-[#111] rounded-full flex items-center justify-center gap-2"
+                  >
+                    Try for free
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Trust indicators */}
+              <p className="text-sm text-[#666]">
+                No credit card required • Free to start • Export unlimited EPUBs
+              </p>
             </div>
 
-            {/* Trust indicators */}
-            <p className="text-sm text-[#666]">
-              No credit card required • Free to start • Export unlimited EPUBs
-            </p>
           </div>
-
         </div>
       </section>
 
@@ -1208,7 +1218,7 @@ const [isPenActive, setIsPenActive] = useState(true);
           src="/man-mars-hero-bg.jpg"
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover grayscale"
+          className="absolute inset-0 w-full h-full object-cover"
         />
         {/* Light overlay — matches hero */}
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 80% at 50% 45%, rgba(242,242,240,0.97) 30%, rgba(242,242,240,0.88) 60%, rgba(242,242,240,0.70) 100%)' }} />
