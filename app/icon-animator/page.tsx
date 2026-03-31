@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useControls, Leva, folder } from "leva";
+import { useControls, LevaPanel, folder } from "leva";
 
 // ─── Shadow tokens ───────────────────────────────────────────────────────────
 const SH_SM = "0 0 0 1px rgba(0,0,0,0.06), 0 1px 2px -1px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04)";
@@ -51,6 +51,7 @@ function makeKeyframes(preset: string, travel: number, scale: number): string {
     case "heartbeat": return `@keyframes ia-heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(${s})}28%{transform:scale(1)}42%{transform:scale(${sm2})}70%{transform:scale(1)}}`;
     case "blink":     return `@keyframes ia-blink{0%,100%{opacity:1}50%{opacity:0}}`;
     case "swing":     return `@keyframes ia-swing{0%,100%{transform:rotate(0)}20%{transform:rotate(20deg)}40%{transform:rotate(-16deg)}60%{transform:rotate(10deg)}80%{transform:rotate(-6deg)}}`;
+    case "draw":      return `@keyframes ia-draw{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}`;
     default:          return "";
   }
 }
@@ -113,6 +114,7 @@ function buildCSS(p: BuildParams): string {
   const strokeLines = p.stroked
     ? [`  stroke-width: ${p.strokeWidth};`, `  stroke-linecap: ${p.strokeCap};`, `  stroke-linejoin: ${p.strokeJoin};`]
     : [`  stroke: none;`];
+  const drawLines = p.preset === "draw" && p.stroked ? [`  stroke-dasharray: 1000;`, `  stroke-dashoffset: 1000;`] : [];
   const shadowLine = p.shadowFilter !== "none" ? [`  filter: ${p.shadowFilter};`] : [];
   return [
     kf, "",
@@ -120,6 +122,7 @@ function buildCSS(p: BuildParams): string {
     `  color: ${p.color};`,
     `  fill: ${p.filled ? p.fillColor : "none"};`,
     ...strokeLines,
+    ...drawLines,
     `  transform-origin: ${p.transformOrigin};`,
     ...shadowLine,
     `  animation: ia-${p.preset} ${p.duration}s ${timing}${delayStr}${iterStr}${dirStr}${fillStr};`,
@@ -136,6 +139,7 @@ function buildReact(p: BuildParams): string {
   const strokeLines = p.stroked
     ? [`  strokeWidth: ${p.strokeWidth},`, `  strokeLinecap: "${p.strokeCap}",`, `  strokeLinejoin: "${p.strokeJoin}",`]
     : [`  stroke: "none",`];
+  const drawLines = p.preset === "draw" && p.stroked ? [`  strokeDasharray: 1000,`, `  strokeDashoffset: 1000,`] : [];
   const shadowLine = p.shadowFilter !== "none" ? [`  filter: "${p.shadowFilter}",`] : [];
   return [
     `"use client";`,
@@ -148,6 +152,7 @@ function buildReact(p: BuildParams): string {
     `  color: "${p.color}",`,
     `  fill: "${p.filled ? p.fillColor : "none"}",`,
     ...strokeLines,
+    ...drawLines,
     `  transformOrigin: "${p.transformOrigin}",`,
     ...shadowLine,
     `  animation: \`ia-${p.preset} ${p.duration}s ${timing} ${delayStr}${iterStr}${dirStr}${fillStr}\`.trim(),`,
@@ -214,7 +219,24 @@ export default function IconAnimator() {
   const [pasteError, setPasteError] = useState("");
   const [origin,     setOrigin]     = useState("50% 50%");
   const [copied,     setCopied]     = useState(false);
+  const [panelWidth, setPanelWidth] = useState(256);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const onPanelResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = panelWidth;
+    const onMove = (ev: MouseEvent) => {
+      const w = Math.max(200, Math.min(520, startW + (startX - ev.clientX)));
+      setPanelWidth(w);
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  };
 
   const {
     preset, duration, delay, iterations, direction, fillMode, easing,
@@ -228,7 +250,7 @@ export default function IconAnimator() {
       preset: {
         label: "Preset",
         value: "bounce",
-        options: { Bounce:"bounce", Spin:"spin", Pulse:"pulse", Wiggle:"wiggle", Pop:"pop", Shake:"shake", Float:"float", Heartbeat:"heartbeat", Blink:"blink", Swing:"swing" },
+        options: { Bounce:"bounce", Spin:"spin", Pulse:"pulse", Wiggle:"wiggle", Pop:"pop", Shake:"shake", Float:"float", Heartbeat:"heartbeat", Blink:"blink", Swing:"swing", Draw:"draw" },
       },
     }),
     Timing: folder({
@@ -276,11 +298,13 @@ export default function IconAnimator() {
   const fillStr  = fillMode !== "none" ? ` ${fillMode}` : "";
 
   const shadowFilter = shadowEnabled ? makeShadowFilter(shadowPreset, shadowColor, shadowOpacity) : "none";
+  const animKey = `${preset}-${duration}-${delay}-${iterations}-${direction}-${fillMode}-${easing}`;
 
   const animStyle: React.CSSProperties = {
     animation: `ia-${preset} ${duration}s ${timing}${delayStr}${iterStr}${dirStr}${fillStr}`,
     transformOrigin: origin,
     ...(shadowFilter !== "none" ? { filter: shadowFilter } : {}),
+    ...(preset === "draw" && stroked ? { strokeDasharray: 1000, strokeDashoffset: 1000 } : {}),
   };
 
   const params: BuildParams = { preset, duration, delay, iterations, direction, fillMode, easing, color, stroked, strokeWidth, strokeCap, strokeJoin, filled, fillColor, transformOrigin: origin, travel, scale, shadowFilter };
@@ -323,43 +347,43 @@ export default function IconAnimator() {
     <>
       <style>{kf}</style>
 
-      <style>{`
-        #leva__root > div {
-          resize: horizontal !important;
-          overflow: auto !important;
-          min-width: 200px !important;
-          max-width: 520px !important;
-        }
-      `}</style>
-
-      <Leva
-        titleBar={{ title: "Controls", drag: true, filter: false, position: { x: 0, y: 50 } }}
-        theme={{
-          colors: {
-            elevation1: "#ffffff",
-            elevation2: "#f8f8f7",
-            elevation3: "rgba(0,0,0,0.05)",
-            accent1: "#111111",
-            accent2: "rgba(0,0,0,0.18)",
-            highlight1: "rgba(0,0,0,0.72)",
-            highlight2: "rgba(0,0,0,0.45)",
-            highlight3: "rgba(0,0,0,0.28)",
-            vivid1: "#111111",
-            toolTipBackground: "#111111",
-            toolTipText: "#ffffff",
-          },
-          radii: { xs: "4px", sm: "6px", lg: "10px" },
-          shadows: {
-            level1: "0 0 0 1px rgba(0,0,0,0.06), 0 2px 8px -2px rgba(0,0,0,0.06), 0 6px 16px rgba(0,0,0,0.04)",
-            level2: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.08)",
-          },
-          fonts: { sans: "var(--font-inter,-apple-system,BlinkMacSystemFont,sans-serif)", mono: "ui-monospace,monospace" },
-          fontSizes: { root: "11px" },
-          fontWeights: { label: "450", folder: "500", button: "500" },
-          sizes: { rootWidth: "256px", controlWidth: "116px", rowHeight: "28px", titleBarHeight: "36px" },
-          borderWidths: { root: "0px", focus: "1px", hover: "0px", active: "0px" },
-        }}
-      />
+      {/* Controls panel — custom container for reliable resize */}
+      <div style={{ position: "fixed", top: 60, right: 20, width: panelWidth, zIndex: 200 }}>
+        {/* Resize handle on left edge */}
+        <div
+          onMouseDown={onPanelResizeStart}
+          style={{ position: "absolute", left: -4, top: 0, width: 8, height: "100%", cursor: "ew-resize", zIndex: 10 }}
+        />
+        <LevaPanel
+          fill
+          titleBar={{ title: "Controls", drag: false, filter: false }}
+          theme={{
+            colors: {
+              elevation1: "#ffffff",
+              elevation2: "#f8f8f7",
+              elevation3: "rgba(0,0,0,0.05)",
+              accent1: "#111111",
+              accent2: "rgba(0,0,0,0.18)",
+              highlight1: "rgba(0,0,0,0.72)",
+              highlight2: "rgba(0,0,0,0.45)",
+              highlight3: "rgba(0,0,0,0.28)",
+              vivid1: "#111111",
+              toolTipBackground: "#111111",
+              toolTipText: "#ffffff",
+            },
+            radii: { xs: "4px", sm: "6px", lg: "10px" },
+            shadows: {
+              level1: "0 0 0 1px rgba(0,0,0,0.06), 0 2px 8px -2px rgba(0,0,0,0.06), 0 6px 16px rgba(0,0,0,0.04)",
+              level2: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.08)",
+            },
+            fonts: { sans: "var(--font-inter,-apple-system,BlinkMacSystemFont,sans-serif)", mono: "ui-monospace,monospace" },
+            fontSizes: { root: "11px" },
+            fontWeights: { label: "450", folder: "500", button: "500" },
+            sizes: { rootWidth: "100%", controlWidth: "116px", rowHeight: "28px", titleBarHeight: "36px" },
+            borderWidths: { root: "0px", focus: "1px", hover: "0px", active: "0px" },
+          }}
+        />
+      </div>
 
       <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#f8f8f7", fontFamily: "var(--font-inter)", overflow: "hidden" }}>
 
@@ -445,9 +469,9 @@ export default function IconAnimator() {
             {/* Icon card */}
             <div style={{ width: iconSize * 2.25, height: iconSize * 2.25, minWidth: 100, minHeight: 100, borderRadius: iconSize * 0.44, background: previewBg, boxShadow: SH_MD, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background 0.2s" }}>
               {customIcon ? (
-                <svg viewBox={customIcon.viewBox} {...svgShared} style={{ width: iconSize, height: iconSize, ...animStyle }} dangerouslySetInnerHTML={{ __html: customIcon.inner }} />
+                <svg key={animKey} viewBox={customIcon.viewBox} {...svgShared} style={{ width: iconSize, height: iconSize, ...animStyle }} dangerouslySetInnerHTML={{ __html: customIcon.inner }} />
               ) : (
-                <svg viewBox="0 0 24 24" {...svgShared} style={{ width: iconSize, height: iconSize, ...animStyle }}>
+                <svg key={animKey} viewBox="0 0 24 24" {...svgShared} style={{ width: iconSize, height: iconSize, ...animStyle }}>
                   {icon?.el}
                 </svg>
               )}
