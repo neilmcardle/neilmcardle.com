@@ -24,7 +24,7 @@ const PRODUCTS = [
   },
   {
     name: "Icon Animator",
-    icon: "/make-ebook-logo.svg",
+    icon: "/neil-mcardle-logomark.svg",
     href: "/icon-animator",
     external: false,
     wordmark: false,
