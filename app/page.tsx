@@ -155,7 +155,7 @@ export default function Homepage() {
               fontWeight: 300,
             }}
           >
-            I make complex tools<br />feel effortless.
+            I make complex tools feel effortless.
           </p>
 
           <div className="flex items-center gap-6">
@@ -163,7 +163,7 @@ export default function Homepage() {
               className="text-sm text-black/30 dark:text-white/50 tracking-wide"
               style={{ fontFamily: "var(--font-inter)" }}
             >
-              Product designer · Builder · UK
+              Software designer · UK
             </p>
             <a
               href={`mailto:${email}`}
