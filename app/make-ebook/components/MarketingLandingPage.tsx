@@ -497,15 +497,14 @@ const [isPenActive, setIsPenActive] = useState(true);
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center">
               <Image
-                src="/make-ebook-logo.svg"
+                src="/make-ebook-logomark.svg"
                 alt="makeEbook"
-                width={32}
-                height={32}
-                className="w-8 h-8"
+                width={120}
+                height={24}
+                className="h-6 w-auto"
               />
-              <span className="font-semibold text-lg text-[#111]">makeEbook</span>
             </div>
 
             {/* Desktop Nav */}
@@ -1248,15 +1247,14 @@ const [isPenActive, setIsPenActive] = useState(true);
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center mb-4">
                 <Image
-                  src="/make-ebook-logo.svg"
+                  src="/make-ebook-logomark.svg"
                   alt="makeEbook"
-                  width={32}
-                  height={32}
-                  className="w-8 h-8"
+                  width={120}
+                  height={24}
+                  className="h-6 w-auto"
                 />
-                <span className="font-semibold text-lg text-[#111]">makeEbook</span>
               </div>
               <p className="text-[#666] mb-4 max-w-sm">
                 The complete ebook creation tool for authors. Write, edit, and export professional EPUB files.

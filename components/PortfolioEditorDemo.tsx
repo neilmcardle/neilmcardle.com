@@ -94,7 +94,7 @@ export default function PortfolioEditorDemo() {
         style={{ background: "#1e1e1e", borderRight: "1px solid #2f2f2f" }}
       >
         <div className="mb-3 w-8 h-8 flex items-center justify-center opacity-50">
-          <img src="/dark-make-ebook-logomark.svg" alt="" className="w-6 h-6" />
+          <img src="/make-ebook-logo.svg" alt="" className="w-6 h-6 invert" />
         </div>
         <nav className="flex flex-col w-full px-2 gap-0.5 pt-1">
           <NavBtn label="Library">
