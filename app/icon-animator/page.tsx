@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useControls, LevaPanel, folder } from "leva";
+import { useControls, Leva, LevaPanel, levaStore, folder } from "leva";
 
 // ─── Shadow tokens ───────────────────────────────────────────────────────────
 const SH_SM = "0 0 0 1px rgba(0,0,0,0.06), 0 1px 2px -1px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04)";
@@ -12,7 +12,6 @@ const SH_MD = "0 0 0 1px rgba(0,0,0,0.06), 0 2px 8px -2px rgba(0,0,0,0.08), 0 6p
 type IconDef = { id: string; name: string; el: React.ReactNode };
 
 const ICONS: IconDef[] = [
-  { id: "sun",         name: "Sun",         el: <><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></> },
   { id: "zap",         name: "Zap",         el: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /> },
   { id: "heart",       name: "Heart",       el: <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /> },
   { id: "star",        name: "Star",        el: <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /> },
@@ -30,6 +29,7 @@ const ICONS: IconDef[] = [
   { id: "user",        name: "User",        el: <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></> },
   { id: "home",        name: "Home",        el: <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></> },
   { id: "moon",        name: "Moon",        el: <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /> },
+  { id: "sun",         name: "Sun",         el: <><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></> },
   { id: "sparkles",    name: "Sparkles",    el: <><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z" /><path d="M5 3l.75 2.25L8 6l-2.25.75L5 9l-.75-2.25L2 6l2.25-.75L5 3z" /><path d="M19 16l.75 2.25L22 19l-2.25.75L19 22l-.75-2.25L16 19l2.25-.75L19 16z" /></> },
   { id: "settings",    name: "Settings",    el: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></> },
 ];
@@ -219,6 +219,8 @@ export default function IconAnimator() {
   const [pasteError, setPasteError] = useState("");
   const [origin,     setOrigin]     = useState("50% 50%");
   const [copied,     setCopied]     = useState(false);
+  const [playing,    setPlaying]    = useState(true);
+  const [resetKey,   setResetKey]   = useState(0);
   const [panelWidth, setPanelWidth] = useState(256);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -238,14 +240,14 @@ export default function IconAnimator() {
     window.addEventListener("mouseup", onUp);
   };
 
-  const {
+  const [{
     preset, duration, delay, iterations, direction, fillMode, easing,
     travel, scale,
     color, stroked, strokeWidth, strokeCap, strokeJoin, filled, fillColor,
     shadowEnabled, shadowPreset, shadowColor, shadowOpacity,
     iconSize, previewBg,
     format,
-  } = useControls({
+  }, setControls] = useControls(() => ({
     Animation: folder({
       preset: {
         label: "Preset",
@@ -266,13 +268,13 @@ export default function IconAnimator() {
       scale:  { label: "Scale Peak",   value: 1.25, min: 1.02, max: 2.5,  step: 0.01 },
     }),
     Style: folder({
-      color:       { label: "Color",        value: "#111111" },
-      filled:      { label: "Fill",         value: false   },
-      fillColor:   { label: "Fill Color",   value: "#111111", render: get => get("Style.filled") },
-      stroked:     { label: "Stroke",       value: true },
-      strokeWidth: { label: "Stroke Width", value: 1.5,    min: 0.25, max: 4,    step: 0.25, render: get => get("Style.stroked") },
-      strokeCap:   { label: "Stroke Cap",   value: "round",  options: { Round:"round", Square:"square", Butt:"butt" }, render: get => get("Style.stroked") },
-      strokeJoin:  { label: "Stroke Join",  value: "round",  options: { Round:"round", Miter:"miter",  Bevel:"bevel" }, render: get => get("Style.stroked") },
+      filled:      { label: "Fill",          value: false   },
+      fillColor:   { label: "Fill Color",    value: "#111111", render: get => get("Style.filled") },
+      stroked:     { label: "Stroke",        value: true },
+      color:       { label: "Stroke Color",  value: "#111111", render: get => get("Style.stroked") },
+      strokeWidth: { label: "Stroke Width",  value: 1.5,    min: 0.25, max: 4,    step: 0.25, render: get => get("Style.stroked") },
+      strokeCap:   { label: "Stroke Cap",    value: "round",  options: { Round:"round", Square:"square", Butt:"butt" }, render: get => get("Style.stroked") },
+      strokeJoin:  { label: "Stroke Join",   value: "round",  options: { Round:"round", Miter:"miter",  Bevel:"bevel" }, render: get => get("Style.stroked") },
     }),
     Shadow: folder({
       shadowEnabled: { label: "Enable",  value: false },
@@ -287,7 +289,7 @@ export default function IconAnimator() {
     Export: folder({
       format: { label: "Format", value: "css", options: { CSS:"css", React:"react" } },
     }),
-  });
+  }));
 
   const icon = customIcon ? null : (ICONS.find(i => i.id === iconId) ?? ICONS[0]);
   const timing  = preset === "spin" ? "linear" : easing;
@@ -298,10 +300,11 @@ export default function IconAnimator() {
   const fillStr  = fillMode !== "none" ? ` ${fillMode}` : "";
 
   const shadowFilter = shadowEnabled ? makeShadowFilter(shadowPreset, shadowColor, shadowOpacity) : "none";
-  const animKey = `${preset}-${duration}-${delay}-${iterations}-${direction}-${fillMode}-${easing}`;
+  const animKey = `${preset}-${duration}-${delay}-${iterations}-${direction}-${fillMode}-${easing}-${resetKey}`;
 
   const animStyle: React.CSSProperties = {
     animation: `ia-${preset} ${duration}s ${timing}${delayStr}${iterStr}${dirStr}${fillStr}`,
+    animationPlayState: playing ? "running" : "paused",
     transformOrigin: origin,
     ...(shadowFilter !== "none" ? { filter: shadowFilter } : {}),
     ...(preset === "draw" && stroked ? { strokeDasharray: 1000, strokeDashoffset: 1000 } : {}),
@@ -346,41 +349,67 @@ export default function IconAnimator() {
   return (
     <>
       <style>{kf}</style>
+      <Leva hidden />
+
+      <style>{`
+        .ia-panel [class*="leva-"] { font-family: var(--font-inter,-apple-system,BlinkMacSystemFont,sans-serif) !important; }
+        .ia-panel > div:last-child { background: #fff !important; border: none !important; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 2px 8px -2px rgba(0,0,0,0.08), 0 6px 16px rgba(0,0,0,0.04) !important; border-radius: 12px !important; overflow: hidden !important; padding-top: 8px !important; padding-bottom: 16px !important; }
+        .ia-panel [class*="StyledTitle"] { background: transparent !important; color: rgba(0,0,0,0.55) !important; font-size: 10px !important; font-weight: 500 !important; letter-spacing: 0.08em !important; text-transform: uppercase !important; padding-left: 24px !important; }
+        .ia-panel [class*="StyledContent"] { background: transparent !important; }
+        .ia-panel label { color: rgba(0,0,0,0.38) !important; font-weight: 400 !important; font-size: 10px !important; }
+        .ia-panel input[type="text"], .ia-panel input[type="number"], .ia-panel select { background: rgba(0,0,0,0.03) !important; border: none !important; border-radius: 6px !important; color: rgba(0,0,0,0.65) !important; }
+        .ia-panel input:focus { box-shadow: 0 0 0 1px rgba(0,0,0,0.1) !important; }
+        .ia-panel [class*="Indicator"] { background: #b1b1b1 !important; opacity: 1 !important; }
+        .ia-panel [class*="Range"] [class*="Scrubber"] { background: #b1b1b1 !important; opacity: 1 !important; box-shadow: 0 0 0 2px #fff !important; }
+        .ia-panel i > svg { fill: rgba(0,0,0,0.28) !important; transition: fill 0.15s !important; }
+        .ia-panel i:hover > svg { fill: rgba(0,0,0,0.55) !important; }
+        .ia-panel [class*="Chevron"] svg { fill: rgba(0,0,0,0.2) !important; }
+        .ia-panel [class*="StyledWrapper"] { border-color: transparent !important; }
+        .ia-panel [class*="StyledWrapper"]::after { display: none !important; }
+        .ia-panel div[class*="leva-"] input[type="checkbox"] + label { background-color: rgba(0,0,0,0.1) !important; border-radius: 4px !important; margin-left: auto !important; }
+        .ia-panel div[class*="leva-"] input[type="checkbox"]:checked + label { background-color: #111 !important; }
+        .ia-panel div[class*="leva-"] input[type="checkbox"] + label > svg { stroke: #fff !important; }
+        .ia-panel div[class*="leva-"] input[type="checkbox"]:checked + label > svg { display: block !important; }
+        .ia-panel svg[viewBox="0 0 20 20"] { overflow: hidden !important; color: transparent !important; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='rgba(0,0,0,0.35)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'/%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/%3E%3C/svg%3E") no-repeat center / contain !important; }
+        .ia-panel svg[viewBox="0 0 20 20"] path { display: none !important; }
+      `}</style>
 
       {/* Controls panel — custom container for reliable resize */}
-      <div style={{ position: "fixed", top: 60, right: 20, width: panelWidth, zIndex: 200 }}>
-        {/* Resize handle on left edge */}
+      <div className="ia-panel" style={{ position: "fixed", top: 60, right: 20, width: panelWidth, zIndex: 200, borderRadius: 12 }}>
+        {/* Resize handle — invisible cursor zone inside left edge */}
         <div
           onMouseDown={onPanelResizeStart}
-          style={{ position: "absolute", left: -4, top: 0, width: 8, height: "100%", cursor: "ew-resize", zIndex: 10 }}
+          style={{ position: "absolute", left: 0, top: 0, width: 10, height: "100%", cursor: "ew-resize", zIndex: 10, borderRadius: "12px 0 0 12px", background: "transparent" }}
         />
         <LevaPanel
+          store={levaStore}
           fill
+          flat
           titleBar={{ title: "Controls", drag: false, filter: false }}
           theme={{
             colors: {
-              elevation1: "#ffffff",
-              elevation2: "#f8f8f7",
-              elevation3: "rgba(0,0,0,0.05)",
-              accent1: "#111111",
-              accent2: "rgba(0,0,0,0.18)",
-              highlight1: "rgba(0,0,0,0.72)",
-              highlight2: "rgba(0,0,0,0.45)",
-              highlight3: "rgba(0,0,0,0.28)",
+              elevation1: "#dedede",
+              elevation2: "#fafaf9",
+              elevation3: "rgba(0,0,0,0.1)",
+              accent1: "#b1b1b1",
+              accent2: "#b1b1b1",
+              accent3: "#b1b1b1",
+              highlight1: "rgba(0,0,0,0.6)",
+              highlight2: "rgba(0,0,0,0.38)",
+              highlight3: "#ffffff",
+              folderWidgetColor: "rgba(0,0,0,0.3)",
+              folderTextColor: "rgba(0,0,0,0.55)",
               vivid1: "#111111",
               toolTipBackground: "#111111",
               toolTipText: "#ffffff",
             },
             radii: { xs: "4px", sm: "6px", lg: "10px" },
-            shadows: {
-              level1: "0 0 0 1px rgba(0,0,0,0.06), 0 2px 8px -2px rgba(0,0,0,0.06), 0 6px 16px rgba(0,0,0,0.04)",
-              level2: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.08)",
-            },
+            shadows: { level1: "none", level2: "none" },
             fonts: { sans: "var(--font-inter,-apple-system,BlinkMacSystemFont,sans-serif)", mono: "ui-monospace,monospace" },
             fontSizes: { root: "11px" },
-            fontWeights: { label: "450", folder: "500", button: "500" },
+            fontWeights: { label: "400", folder: "500", button: "500" },
             sizes: { rootWidth: "100%", controlWidth: "116px", rowHeight: "28px", titleBarHeight: "36px" },
-            borderWidths: { root: "0px", focus: "1px", hover: "0px", active: "0px" },
+            borderWidths: { root: "0px", focus: "1px", hover: "0px", active: "0px", folder: "0px" },
           }}
         />
       </div>
@@ -466,8 +495,9 @@ export default function IconAnimator() {
           {/* Center: preview + code */}
           <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, padding: "32px 40px", overflowY: "auto", backgroundImage: "radial-gradient(rgba(0,0,0,0.055) 1px,transparent 1px)", backgroundSize: "20px 20px" }}>
 
-            {/* Icon card */}
-            <div style={{ width: iconSize * 2.25, height: iconSize * 2.25, minWidth: 100, minHeight: 100, borderRadius: iconSize * 0.44, background: previewBg, boxShadow: SH_MD, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background 0.2s" }}>
+            {/* Icon card + play/pause */}
+            <div style={{ display: "flex", alignItems: "center", gap: 16, flexShrink: 0 }}>
+            <div style={{ width: iconSize * 2.25, height: iconSize * 2.25, minWidth: 100, minHeight: 100, borderRadius: iconSize * 0.44, background: previewBg, boxShadow: SH_MD, display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s" }}>
               {customIcon ? (
                 <svg key={animKey} viewBox={customIcon.viewBox} {...svgShared} style={{ width: iconSize, height: iconSize, ...animStyle }} dangerouslySetInnerHTML={{ __html: customIcon.inner }} />
               ) : (
@@ -476,15 +506,27 @@ export default function IconAnimator() {
                 </svg>
               )}
             </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <button onClick={() => setPlaying(p => !p)} title={playing ? "Pause" : "Play"} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "none", cursor: "pointer", background: "#fff", color: "rgba(0,0,0,0.45)", boxShadow: SH_SM, transition: "all 0.15s" }}>
+                {playing
+                  ? <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="3" width="5" height="18" rx="1" /><rect x="14" y="3" width="5" height="18" rx="1" /></svg>
+                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                }
+              </button>
+              <button onClick={() => { setPlaying(false); setResetKey(k => k + 1); }} title="Reset" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "none", cursor: "pointer", background: "#fff", color: "rgba(0,0,0,0.45)", boxShadow: SH_SM, transition: "all 0.15s" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
+              </button>
+            </div>
+            </div>
 
             {/* Code block */}
             <div style={{ width: "100%", maxWidth: 560, borderRadius: 16, background: "#fff", boxShadow: SH_SM, overflow: "hidden", flexShrink: 0 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
                 <div style={{ display: "flex", gap: 8 }}>
                   {["css","react"].map(f => (
-                    <span key={f} style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.14em", color: format === f ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.25)", fontWeight: format === f ? 600 : 400, cursor: "default" }}>
+                    <button key={f} onClick={() => setControls({ format: f })} style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.14em", color: format === f ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.25)", fontWeight: format === f ? 600 : 400, cursor: "pointer", background: "none", border: "none", padding: 0 }}>
                       {f}
-                    </span>
+                    </button>
                   ))}
                 </div>
                 <button onClick={handleCopy} style={{ fontSize: 10, padding: "3px 10px", borderRadius: 6, border: "none", cursor: "pointer", background: copied ? "#111" : "rgba(0,0,0,0.05)", color: copied ? "#fff" : "rgba(0,0,0,0.45)", transition: "all 0.15s" }}>

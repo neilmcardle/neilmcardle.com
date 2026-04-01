@@ -24,7 +24,7 @@ const PRODUCTS = [
   },
   {
     name: "Icon Animator",
-    icon: "/neil-mcardle-logomark.svg",
+    icon: "/sun-icon.svg",
     href: "/icon-animator",
     external: false,
     wordmark: false,
@@ -346,8 +346,8 @@ export default function Homepage() {
 
           {/* Animated preview */}
           <div
-            className="w-full rounded-2xl flex items-center justify-center gap-10 sm:gap-16"
-            style={{ background: "#111", height: 260 }}
+            className="w-full rounded-2xl flex items-center justify-center gap-10 sm:gap-16 bg-[#f8f8f7] dark:bg-[#111]"
+            style={{ height: 260, boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.06)" }}
           >
             {[
               { d: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />, anim: "animate-bounce",   delay: "0ms"   },
@@ -360,11 +360,10 @@ export default function Homepage() {
                 key={i}
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="white"
+                className={`w-8 h-8 stroke-black/50 dark:stroke-white/70 ${item.anim}`}
                 strokeWidth={1.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={`w-8 h-8 opacity-70 ${item.anim}`}
                 style={{ animationDelay: item.delay }}
               >
                 {item.d}
