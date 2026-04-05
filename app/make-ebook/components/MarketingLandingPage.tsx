@@ -521,6 +521,12 @@ const [isPenActive, setIsPenActive] = useState(true);
               >
                 Pricing
               </button>
+              <Link
+                href="/make-ebook/blog"
+                className="text-sm text-[#444] hover:text-[#111] transition-colors"
+              >
+                Blog
+              </Link>
               {user ? (
                 <div className="flex items-center gap-4">
                   <button
@@ -580,6 +586,13 @@ const [isPenActive, setIsPenActive] = useState(true);
               >
                 Pricing
               </button>
+              <Link
+                href="/make-ebook/blog"
+                className="block w-full text-left text-[#444]"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Blog
+              </Link>
               <div className="pt-4 border-t border-gray-200">
                 {user ? (
                   <>

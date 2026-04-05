@@ -204,7 +204,8 @@ function MakeEbookPage() {
   const markCleanFnRef = useRef<() => void>(() => {});
 
   // Show marketing landing page when no books and user hasn't started editing
-  const [showMarketingPage, setShowMarketingPage] = useState(true);
+  // If user is already signed in on mount, go straight to the editor
+  const [showMarketingPage, setShowMarketingPage] = useState(!user);
 
   // EPUB Reader modal state
   const [showEPUBReader, setShowEPUBReader] = useState(false);
