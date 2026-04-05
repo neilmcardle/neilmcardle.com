@@ -33,3 +33,10 @@ make-ebook/firebase.ts
 
 # firebase
 make-ebook/components/AuthProvider.tsx.DS_Store
+
+# strategy & config docs (private)
+CLAUDE.md
+SEO-STRATEGY.md
+GOOGLE-ADS-STRATEGY.md
+STRIPE_IMPLEMENTATION.md
+STRIPE_SETUP.md

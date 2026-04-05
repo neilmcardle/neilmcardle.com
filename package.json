@@ -50,6 +50,7 @@
     "@stripe/stripe-js": "^7.9.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.4",
+    "@tailwindcss/typography": "^0.5.19",
     "@tinymce/tinymce-react": "^6.3.0",
     "@tiptap/extension-link": "^3.4.2",
     "@tiptap/extension-text-align": "^3.4.2",
