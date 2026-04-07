@@ -388,7 +388,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                   <circle className={multiSelectMode ? '' : 'dark:stroke-white'} cx="12" cy="12" r="9" />
                   <path className={multiSelectMode ? '' : 'dark:stroke-white'} d="M8.5 12l2.5 2.5 4.5-4.5" />
                 </svg>
-                <span className={`text-2xs font-medium ${multiSelectMode ? 'text-[#4070ff]' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
+                <span className={`text-xs font-medium ${multiSelectMode ? 'text-[#4070ff]' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
                   {multiSelectMode ? 'Cancel' : 'Select'}
                 </span>
               </button>
@@ -403,7 +403,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 <path className="dark:stroke-white" d="M14 2v6h6" />
                 <path className="dark:stroke-white" d="M9 14h6M12 11v6" />
               </svg>
-              <span className="text-2xs font-medium text-[#050505] dark:text-[#e5e5e5]">New</span>
+              <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">New</span>
             </button>
             <button
               onClick={showImportDialog}
@@ -414,7 +414,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 <path className="dark:stroke-white" d="M12 3v12M7.5 10l4.5 5 4.5-5" />
                 <path className="dark:stroke-white" d="M4 19h16" />
               </svg>
-              <span className="text-2xs font-medium text-[#050505] dark:text-[#e5e5e5]">Import</span>
+              <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Import</span>
             </button>
           </div>
         </div>
@@ -556,7 +556,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               ) : (
                 <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
               )}
-              <span className={`text-2xs font-medium ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-[#d4d4d4]'}`}>
+              <span className={`text-xs font-medium ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-[#d4d4d4]'}`}>
                 {saveFeedback ? 'Saved!' : 'Save'}
               </span>
             </button>
@@ -564,7 +564,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               <DropdownMenuTrigger asChild>
                 <button className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#262626] rounded transition-colors">
                   <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                  <span className="text-2xs font-medium text-gray-700 dark:text-[#d4d4d4]">Export</span>
+                  <span className="text-xs font-medium text-gray-700 dark:text-[#d4d4d4]">Export</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" sideOffset={8} className="w-44">
@@ -724,7 +724,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] placeholder-[#C0C0C0]"
                 placeholder="978-0-123456-78-9"
               />
-              <p className="mt-1 text-2xs text-gray-500 dark:text-[#a3a3a3]">
+              <p className="mt-1 text-xs text-gray-500 dark:text-[#a3a3a3]">
                 ISBNs must be purchased from official agencies (e.g., £93 from <a href="https://www.nielsenisbnstore.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-[#d4d4d4]">Nielsen UK</a>). They cannot be invented.
               </p>
             </div>
@@ -925,7 +925,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               />
             ) : (
             <>
-            <p className="text-2xs text-gray-600 dark:text-[#a3a3a3] px-2 mb-1">Drag to reorder</p>
+            <p className="text-xs text-gray-600 dark:text-[#a3a3a3] px-2 mb-1">Drag to reorder</p>
             {chapters.map((ch, i) => {
               const isSelected = selectedChapter === i;
               const titleText = ch.title?.trim() || 'Title';
@@ -977,7 +977,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 >
                   <HandleDragIcon isSelected={isSelected} />
                   <div className="flex flex-col flex-1 min-w-0">
-                    <span className={`text-2xs ${isSelected ? 'text-gray-500 dark:text-[#a3a3a3]' : 'text-gray-500 dark:text-[#737373]'}`}> 
+                    <span className={`text-xs ${isSelected ? 'text-gray-500 dark:text-[#a3a3a3]' : 'text-gray-500 dark:text-[#737373]'}`}> 
                       {typeLabel}
                     </span>
                     <span className={`text-sm truncate ${isSelected ? 'text-gray-900 dark:text-[#f5f5f5] font-medium' : 'text-gray-600 dark:text-[#a3a3a3]'}`}>
