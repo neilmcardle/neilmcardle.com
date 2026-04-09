@@ -546,9 +546,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
           </div>
 
           {/* Headline */}
-          <h1 className="font-serif font-bold mb-6 text-gray-900 overflow-hidden" style={{ fontSize: 'clamp(1rem, 3.8vw, 3.5rem)', letterSpacing: '-0.03em', lineHeight: 1.15 }}>
-            <span className="block whitespace-nowrap">Write your first eBook,</span>
-            <span className="block whitespace-nowrap">
+          <h1 className="font-serif font-bold mb-6 text-gray-900 overflow-hidden" style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', letterSpacing: '-0.03em', lineHeight: 1.15 }}>
+            <span className="block sm:whitespace-nowrap">Write your first eBook,</span>
+            <span className="block sm:whitespace-nowrap">
               {typed}
               <span className={`font-thin text-gray-600 ${typingDone ? 'invisible' : 'animate-pulse'}`}>|</span>
             </span>
