@@ -8,18 +8,12 @@ import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/lib/hooks/useAuth';
 import {
-  BookOpen,
-  Sparkles,
-  Cloud,
-  FileText,
-  Palette,
-  Languages,
   ChevronRight,
   ArrowRight,
-  Menu,
   X,
-  Eye,
 } from 'lucide-react';
+
+import MarketingNav from './MarketingNav';
 
 // Shared IntersectionObserver for all FadeIn instances
 const fadeObserverCallbacks = new WeakMap<Element, () => void>();
@@ -99,38 +93,36 @@ interface MarketingLandingPageProps {
   libraryCount: number;
 }
 
-const FEATURES = [
-  {
-    icon: BookOpen,
-    title: 'Professional EPUB Export',
-    description: 'Export publication-ready EPUB files for Amazon KDP, Apple Books, Kobo, and all major publishing platforms.'
+// ── Section rhythm system ─────────────────────────────────────────────────────
+// Three tiers create vertical rhythm across the page so adjacent sections never
+// share the same "volume". Use cinematic for moments that should land hardest,
+// standard for the body of the page, intimate for asides and quiet beats.
+const SECTION_TIERS = {
+  cinematic: {
+    section: 'py-28 sm:py-40 lg:py-48',
+    title: {
+      fontSize: 'clamp(2.75rem, 5.5vw + 0.5rem, 5rem)',
+      letterSpacing: '-0.04em',
+      lineHeight: 1.02,
+    } as const,
   },
-  {
-    icon: Sparkles,
-    title: 'AI Writing Assistant',
-    description: 'Get intelligent suggestions, overcome writer\'s block, and polish your prose with our AI-powered Book Mind.'
+  standard: {
+    section: 'py-20 sm:py-28',
+    title: {
+      fontSize: 'clamp(2rem, 3vw + 0.75rem, 3.25rem)',
+      letterSpacing: '-0.035em',
+      lineHeight: 1.1,
+    } as const,
   },
-  {
-    icon: FileText,
-    title: 'Chapter Management',
-    description: 'Organize your book with drag-and-drop chapters, including front matter, back matter, and content sections.'
+  intimate: {
+    section: 'py-16 sm:py-20',
+    title: {
+      fontSize: 'clamp(1.375rem, 1vw + 1rem, 1.75rem)',
+      letterSpacing: '-0.02em',
+      lineHeight: 1.25,
+    } as const,
   },
-  {
-    icon: Palette,
-    title: 'Beautiful Typography',
-    description: 'Choose from professionally designed typography presets or customize fonts, spacing, and styling.'
-  },
-  {
-    icon: Languages,
-    title: 'Multi-Language Support',
-    description: 'Write in any language with smart quotes and language-specific typography settings.'
-  },
-  {
-    icon: Cloud,
-    title: 'Cloud Sync',
-    description: 'Your books are automatically saved and synced across devices. Write on any computer, pick up where you left off.'
-  }
-];
+};
 
 const TESTIMONIALS = [
   {
@@ -300,14 +292,13 @@ function InteractiveLivePreview() {
 
 export default function MarketingLandingPage({ onStartWritingAction, libraryCount }: MarketingLandingPageProps) {
   const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<'pro' | 'lifetime' | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [videoOpen, setVideoOpen] = useState(false);
   const [videoVisible, setVideoVisible] = useState(false);
   const heroSectionRef = useRef<HTMLElement>(null);
 
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const featuresRef = useRef<HTMLElement>(null);
   const pricingRef = useRef<HTMLElement>(null);
   const chatRef = useRef<HTMLDivElement>(null);
@@ -371,151 +362,18 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
   const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
-    setMobileMenuOpen(false);
   };
 
   return (
     <div className="relative min-h-screen bg-[#faf9f5] text-gray-700 overflow-x-hidden">
 
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-[#faf9f5]/80 backdrop-blur-lg border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <Image
-                src="/make-ebook-logomark.svg"
-                alt="makeEbook"
-                width={120}
-                height={24}
-                className="h-6 w-auto"
-              />
-            </div>
-
-            {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-8">
-              <button
-                onClick={() => scrollToSection(featuresRef)}
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Features
-              </button>
-              <button
-                onClick={() => scrollToSection(pricingRef)}
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Pricing
-              </button>
-              <Link
-                href="/make-ebook/blog"
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Blog
-              </Link>
-              {user ? (
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={onStartWritingAction}
-                    className="text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors"
-                  >
-                    My Books {libraryCount > 0 && `(${libraryCount})`}
-                  </button>
-                  <button
-                    onClick={() => signOut()}
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => handleOpenAuth('signin')}
-                    className="text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors"
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => handleOpenAuth('signup')}
-                    className="px-4 py-2 text-sm font-medium bg-me-accent text-white rounded-full hover:bg-blue-700 transition-colors"
-                  >
-                    Get Started
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden p-3 -mr-1 text-gray-900"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-[#faf9f5]">
-            <div className="px-4 py-4 space-y-4">
-              <button
-                onClick={() => scrollToSection(featuresRef)}
-                className="block w-full text-left text-gray-600"
-              >
-                Features
-              </button>
-              <button
-                onClick={() => scrollToSection(pricingRef)}
-                className="block w-full text-left text-gray-600"
-              >
-                Pricing
-              </button>
-              <Link
-                href="/make-ebook/blog"
-                className="block w-full text-left text-gray-600"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Blog
-              </Link>
-              <div className="pt-4 border-t border-gray-200">
-                {user ? (
-                  <>
-                    <button
-                      onClick={() => { onStartWritingAction(); setMobileMenuOpen(false); }}
-                      className="block w-full text-left font-medium mb-2 text-gray-900"
-                    >
-                      My Books {libraryCount > 0 && `(${libraryCount})`}
-                    </button>
-                    <button
-                      onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                      className="block w-full text-left text-gray-600"
-                    >
-                      Sign Out
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => { handleOpenAuth('signin'); setMobileMenuOpen(false); }}
-                      className="block w-full text-left font-medium mb-2 text-gray-900"
-                    >
-                      Sign In
-                    </button>
-                    <button
-                      onClick={() => { handleOpenAuth('signup'); setMobileMenuOpen(false); }}
-                      className="block w-full text-left text-gray-900"
-                    >
-                      Get Started
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </nav>
+      <MarketingNav
+        onFeaturesClick={() => scrollToSection(featuresRef)}
+        onPricingClick={() => scrollToSection(pricingRef)}
+        onMyBooksClick={onStartWritingAction}
+        libraryCount={libraryCount}
+      />
 
       {/* Hero Section */}
       <section ref={heroSectionRef} className="pt-20 pb-24 sm:pt-32 sm:pb-36 lg:pt-40 lg:pb-44">
@@ -537,7 +395,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
 
           {/* Subheadline */}
           <p
-            className="mt-8 sm:mt-10 max-w-xl text-gray-600"
+            className="mt-8 sm:mt-10 max-w-xl text-gray-600 text-pretty"
             style={{
               fontFamily: 'Georgia, serif',
               fontSize: 'clamp(1.0625rem, 1.25vw + 0.625rem, 1.4375rem)',
@@ -568,47 +426,15 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         </div>
       </section>
 
-      {/* Product Preview Section */}
-      <section className="py-32">
-        <div className="text-center mb-16">
-          <h2 className="font-serif font-bold text-gray-900" style={{ fontSize: 'clamp(1.75rem, 3vw + 0.5rem, 3rem)', letterSpacing: '-0.03em' }}>
-            Write your untold story
-          </h2>
-        </div>
-        <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <button className="relative cursor-pointer group w-full text-left" onClick={openVideo} aria-label="Watch product demo video">
-            <Image
-              src="/makeebook-laptop.png"
-              alt="makeEbook app on laptop, click to watch demo"
-              width={1920}
-              height={1200}
-              className="w-full h-auto"
-              style={{
-                maskImage: 'radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%)',
-                WebkitMaskImage: 'radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%)',
-              }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-20 h-20 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                <svg className="w-8 h-8 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-            </div>
-          </button>
-        </div>
-      </section>
-
-
-      {/* How It Works Section */}
-      <section className="py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* How It Works Section — cinematic */}
+      <section className={SECTION_TIERS.cinematic.section}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <FadeIn>
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="font-serif font-bold mb-6 text-gray-900" style={{ fontSize: 'clamp(1.75rem, 3vw + 0.5rem, 3rem)', letterSpacing: '-0.03em' }}>
-                Three steps to published
+            <div className="max-w-3xl mb-20 sm:mb-24">
+              <h2 className="font-serif font-bold text-gray-900 text-balance" style={SECTION_TIERS.cinematic.title}>
+                Three steps to published.
               </h2>
-              <p className="text-xl text-gray-600" style={{ fontFamily: 'Georgia, serif' }}>
+              <p className="mt-6 text-xl sm:text-2xl text-gray-600 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}>
                 No formatting headaches. No technical setup. Just write.
               </p>
             </div>
@@ -618,8 +444,8 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
               <FadeIn key={index} delay={index * 120}>
                 <div className="relative pt-20">
                   <div className="font-playfair select-none pointer-events-none absolute top-0 -left-2 text-gray-200 font-bold leading-none" style={{ fontSize: '9rem', letterSpacing: '-0.06em', zIndex: 0 }}>{item.step}</div>
-                  <h3 className="relative text-xl font-semibold text-gray-900 mb-3" style={{ letterSpacing: '-0.02em', zIndex: 1, position: 'relative' }}>{item.title}</h3>
-                  <p className="text-gray-600 leading-relaxed" style={{ position: 'relative', zIndex: 1 }}>{item.description}</p>
+                  <h3 className="relative text-xl font-semibold text-gray-900 mb-3 text-balance" style={{ letterSpacing: '-0.02em', zIndex: 1, position: 'relative' }}>{item.title}</h3>
+                  <p className="text-gray-600 leading-relaxed text-pretty" style={{ position: 'relative', zIndex: 1 }}>{item.description}</p>
                   {index < HOW_IT_WORKS.length - 1 && (
                     <div className="hidden md:block absolute top-8 -right-4 text-gray-300">
                       <ChevronRight className="w-6 h-6" />
@@ -632,19 +458,16 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         </div>
       </section>
 
-      {/* Editor Showcase Section */}
-      <section className="py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Editor Showcase Section — standard */}
+      <section id="features" ref={featuresRef} className={SECTION_TIERS.standard.section} style={{ scrollMarginTop: '6rem' }}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <FadeIn>
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-gray-600 text-sm font-medium mb-6 border border-gray-200">
-                Inside the editor
-              </div>
-              <h2 className="font-serif font-bold mb-6 text-gray-900" style={{ fontSize: 'clamp(1.75rem, 3vw + 0.5rem, 3rem)', letterSpacing: '-0.03em' }}>
-                Everything a writer needs
+            <div className="max-w-3xl mb-14 sm:mb-16">
+              <h2 className="font-serif font-bold text-gray-900 text-balance" style={SECTION_TIERS.standard.title}>
+                Everything a writer needs.
               </h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto" style={{ fontFamily: 'Georgia, serif' }}>
-                A focused, professional writing environment built from the ground up for ebook authors.
+              <p className="mt-5 text-lg sm:text-xl text-gray-600 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}>
+                A focused writing environment built from the ground up for ebook authors.
               </p>
             </div>
           </FadeIn>
@@ -655,8 +478,8 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             <FadeIn delay={0}>
               <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm">
                 <div className="p-8 pb-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2" style={{ letterSpacing: '-0.02em' }}>Write without friction</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">Rich formatting tools built for authors. Headings, quotes, lists and more, all without leaving the keyboard.</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2 text-balance" style={{ letterSpacing: '-0.02em' }}>Write without friction</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed text-pretty">Rich formatting tools built for authors. Headings, quotes, lists and more, all without leaving the keyboard.</p>
                 </div>
                 <div className="mx-4 mb-4 rounded-xl overflow-hidden border border-[#2f2f2f]">
                   {/* Toolbar */}
@@ -691,8 +514,8 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             <FadeIn delay={100}>
               <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm">
                 <div className="p-8 pb-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2" style={{ letterSpacing: '-0.02em' }}>Every chapter in its place</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">Build and reorder your book structure at a glance. Drag chapters into place, track word counts, and never lose your thread.</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2 text-balance" style={{ letterSpacing: '-0.02em' }}>Every chapter in its place</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed text-pretty">Build and reorder your book structure at a glance. Drag chapters into place, track word counts, and never lose your thread.</p>
                 </div>
                 <div className="mx-4 mb-4 rounded-xl overflow-hidden border border-[#2f2f2f] bg-[#1e1e1e]">
                   <div className="flex items-center justify-between px-4 py-3 border-b border-[#2f2f2f]">
@@ -725,8 +548,8 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             <FadeIn delay={200}>
               <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm">
                 <div className="p-8 pb-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2" style={{ letterSpacing: '-0.02em' }}>Export in one click</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">Pick a typography preset and get a publish-ready EPUB instantly. No formatting knowledge or extra tools required.</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2 text-balance" style={{ letterSpacing: '-0.02em' }}>Export in one click</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed text-pretty">Pick a typography preset and get a publish-ready EPUB instantly. No formatting knowledge or extra tools required.</p>
                 </div>
                 <div className="mx-4 mb-4 rounded-xl overflow-hidden border border-[#2f2f2f] bg-[#1e1e1e]">
                   <div className="px-5 pt-5 pb-5">
@@ -760,10 +583,10 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         </div>
       </section>
 
-      {/* Live Previewer Section */}
-      <section className="py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      {/* Live Previewer Section — standard */}
+      <section className={SECTION_TIERS.standard.section}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Interactive Live Preview */}
             <FadeIn>
               <div className="relative flex justify-center lg:justify-start">
@@ -774,17 +597,13 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
             {/* Text side */}
             <FadeIn delay={150}>
               <div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-gray-600 text-sm font-medium mb-6 border border-gray-200">
-                  <Eye className="w-4 h-4" />
-                  Live Preview
-                </div>
-                <h2 className="font-serif font-bold mb-6 text-gray-900" style={{ fontSize: 'clamp(1.75rem, 3vw + 0.5rem, 3rem)', letterSpacing: '-0.03em' }}>
-                  See exactly how your book will look
+                <h2 className="font-serif font-bold text-gray-900 text-balance" style={SECTION_TIERS.standard.title}>
+                  See your book before you ship it.
                 </h2>
-                <p className="text-xl text-gray-600 mb-8" style={{ fontFamily: 'Georgia, serif' }}>
-                  Preview your ebook on Kindle, iPad, and phone, live as you write. No guessing, no surprises when you publish.
+                <p className="mt-5 text-lg sm:text-xl text-gray-600 text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}>
+                  Preview on Kindle, iPad, and phone, live as you write. No guessing, no surprises on publish day.
                 </p>
-                <ul className="space-y-4 mb-8">
+                <ul className="mt-8 space-y-4">
                   {[
                     'Switch between Kindle, iPad, and Phone instantly',
                     'Typography and layout rendered in real time',
@@ -804,55 +623,19 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         </div>
       </section>
 
-      {/* Features Section */}
-      <section ref={featuresRef} className="py-32 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <FadeIn>
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="font-serif font-bold mb-6 text-gray-900 text-balance" style={{ fontSize: 'clamp(1.75rem, 3vw + 0.5rem, 3rem)', letterSpacing: '-0.03em' }}>
-                Everything you need to write your book
-              </h2>
-              <p className="text-xl text-gray-600" style={{ fontFamily: 'Georgia, serif' }}>
-                Powerful features, simple interface. Focus on your story, not the tools.
-              </p>
-            </div>
-          </FadeIn>
-
-          <div className="max-w-3xl mx-auto">
-            {FEATURES.map((feature, index) => (
-              <FadeIn key={index} delay={index * 60}>
-                <div className={`flex items-start gap-6 py-8 ${index < FEATURES.length - 1 ? 'border-b border-gray-200' : ''}`}>
-                  <feature.icon className="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{feature.title}</h3>
-                    <p className="text-gray-600" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.7 }}>{feature.description}</p>
-                  </div>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* AI Section */}
-      <section className="py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <FadeIn>
+      {/* AI Section — cinematic */}
+      <section className={SECTION_TIERS.cinematic.section}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
+            <FadeIn className="lg:col-span-7">
               <div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-gray-600 text-sm font-medium mb-6 border border-gray-200">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                  AI-Powered
-                </div>
-                <h2 className="font-serif font-bold mb-6 text-gray-900" style={{ fontSize: 'clamp(1.75rem, 3vw + 0.5rem, 3rem)', letterSpacing: '-0.03em' }}>
-                  Meet Book Mind, your AI writing companion
+                <h2 className="font-serif font-bold text-gray-900 text-balance" style={SECTION_TIERS.cinematic.title}>
+                  An editor that has read every page.
                 </h2>
-                <p className="text-xl text-gray-600 mb-8" style={{ fontFamily: 'Georgia, serif' }}>
-                  Analyze your entire book, find inconsistencies, summarize chapters, and get intelligent suggestions. Like having a thoughtful editor always by your side.
+                <p className="mt-6 text-xl sm:text-2xl text-gray-600 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}>
+                  Book Mind reads your whole manuscript. It catches inconsistencies, summarises chapters, and surfaces insights only a careful editor would notice.
                 </p>
-                <ul className="space-y-4 mb-8">
+                <ul className="mt-8 space-y-4">
                   {[
                     'Summarize your entire book or individual chapters',
                     'Find plot holes and character inconsistencies',
@@ -869,7 +652,7 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                 </ul>
               </div>
             </FadeIn>
-            <FadeIn delay={150}>
+            <FadeIn delay={150} className="lg:col-span-5">
               <div className="relative">
                 <div ref={chatRef} className="bg-gray-50 rounded-2xl p-8 shadow-xl border border-gray-200 min-h-[260px]">
                   <div className="space-y-4">
@@ -917,62 +700,70 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         </div>
       </section>
 
-      {/* Testimonial */}
-      <section className="py-20 border-t border-gray-200">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <blockquote className="font-serif italic text-gray-700 text-2xl leading-relaxed mb-4">
+      {/* Testimonial — intimate */}
+      <section className={`${SECTION_TIERS.intimate.section} border-t border-gray-200`}>
+        <div className="max-w-3xl mx-auto px-6 sm:px-10 lg:px-16">
+          <blockquote
+            className="font-serif text-gray-800 text-balance"
+            style={{
+              fontSize: 'clamp(1.5rem, 2vw + 0.75rem, 2.25rem)',
+              lineHeight: 1.35,
+              letterSpacing: '-0.01em',
+            }}
+          >
             &ldquo;{TESTIMONIALS[0].quote}&rdquo;
           </blockquote>
-          <p className="text-sm text-gray-600">
-           .{TESTIMONIALS[0].author}, {TESTIMONIALS[0].role}
+          <p className="mt-6 text-sm text-gray-500 uppercase tracking-widest">
+            {TESTIMONIALS[0].author} &middot; {TESTIMONIALS[0].role}
           </p>
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section ref={pricingRef} className="py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Pricing Section — standard */}
+      <section id="pricing" ref={pricingRef} className={SECTION_TIERS.standard.section} style={{ scrollMarginTop: '6rem' }}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <FadeIn>
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="font-serif font-bold mb-6 text-gray-900" style={{ fontSize: 'clamp(1.75rem, 3vw + 0.5rem, 3rem)', letterSpacing: '-0.03em' }}>
-                Simple, transparent pricing
+            <div className="max-w-3xl mb-14 sm:mb-16">
+              <h2 className="font-serif font-bold text-gray-900 text-balance" style={SECTION_TIERS.standard.title}>
+                Pricing that respects your draft.
               </h2>
-              <p className="text-xl text-gray-600" style={{ fontFamily: 'Georgia, serif' }}>
-                Choose the plan that works for you. Upgrade or downgrade anytime.
+              <p className="mt-5 text-lg sm:text-xl text-gray-600 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}>
+                Start free and stay free for as long as you like. Upgrade when the book is ready, not before.
               </p>
               {checkoutError && (
-                <p className="mt-4 text-sm text-red-400">{checkoutError}</p>
+                <p className="mt-4 text-sm text-red-500">{checkoutError}</p>
               )}
             </div>
           </FadeIn>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {PRICING.map((plan, index) => (
+          {/* Free + Pro lead the comparison */}
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl">
+            {[PRICING[0], PRICING[1]].map((plan, index) => (
               <div key={index} className="group relative rounded-2xl">
                 {plan.highlighted && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gray-900 text-white whitespace-nowrap">
-                      Most Popular
+                  <div className="absolute -top-3.5 left-8 z-10">
+                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gray-900 text-white whitespace-nowrap uppercase tracking-wider">
+                      Most popular
                     </span>
                   </div>
                 )}
                 <div
-                  className={`relative rounded-2xl p-8 h-full flex flex-col transition-all duration-300 group-hover:-translate-y-1 ${
+                  className={`relative rounded-2xl p-8 sm:p-10 h-full flex flex-col transition-all duration-300 group-hover:-translate-y-1 ${
                     plan.highlighted
                       ? 'bg-gray-900 border border-gray-900 shadow-xl'
                       : 'bg-white border border-gray-200 shadow-lg hover:shadow-xl'
                   }`}
                 >
-                  <h3 className={`text-xl font-semibold mb-2 ${plan.highlighted ? 'text-white' : 'text-gray-900'}`}>{plan.name}</h3>
-                  <div className="mb-4">
-                    <span className={`text-4xl font-bold ${plan.highlighted ? 'text-white' : 'text-gray-900'}`}>{plan.price}</span>
-                    <span className={plan.highlighted ? 'text-gray-600' : 'text-gray-600'}>{plan.period}</span>
+                  <h3 className={`text-2xl font-semibold mb-2 ${plan.highlighted ? 'text-white' : 'text-gray-900'}`} style={{ letterSpacing: '-0.02em' }}>{plan.name}</h3>
+                  <div className="mb-4 flex items-baseline gap-1">
+                    <span className={`text-5xl font-bold ${plan.highlighted ? 'text-white' : 'text-gray-900'}`} style={{ letterSpacing: '-0.03em' }}>{plan.price}</span>
+                    <span className={plan.highlighted ? 'text-gray-400' : 'text-gray-500'}>{plan.period}</span>
                   </div>
-                  <p className={`mb-6 ${plan.highlighted ? 'text-gray-300' : 'text-gray-600'}`}>{plan.description}</p>
-                  <ul className="space-y-3 mb-8 flex-1">
+                  <p className={`mb-8 text-pretty ${plan.highlighted ? 'text-gray-300' : 'text-gray-600'}`} style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}>{plan.description}</p>
+                  <ul className="space-y-3 mb-10 flex-1">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-3">
-                        <svg className={`w-5 h-5 flex-shrink-0 ${plan.highlighted ? 'text-blue-400' : 'text-blue-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                        <svg className={`w-5 h-5 flex-shrink-0 mt-0.5 ${plan.highlighted ? 'text-blue-400' : 'text-blue-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                         <span className={plan.highlighted ? 'text-gray-200' : 'text-gray-700'}>{feature}</span>
@@ -988,14 +779,61 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                       }
                     }}
                     disabled={!!plan.checkoutType && checkoutLoading === plan.checkoutType}
-                    className={`w-full py-3 rounded-full font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${plan.highlighted ? 'bg-white text-gray-900 hover:bg-gray-100' : 'bg-gray-900 text-white hover:bg-gray-700'}`}
+                    className={`w-full py-3.5 rounded-full font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${plan.highlighted ? 'bg-white text-gray-900 hover:bg-gray-100' : 'bg-gray-900 text-white hover:bg-gray-700'}`}
                   >
-                    {plan.checkoutType && checkoutLoading === plan.checkoutType ? 'Redirecting…' : plan.cta}
+                    {plan.checkoutType && checkoutLoading === plan.checkoutType ? 'Redirecting\u2026' : plan.cta}
                   </button>
                 </div>
               </div>
             ))}
           </div>
+
+          {/* Lifetime — graduation stripe */}
+          {(() => {
+            const lifetime = PRICING[2];
+            return (
+              <FadeIn delay={120}>
+                <div className="mt-6 lg:mt-8 max-w-5xl">
+                  <div className="relative rounded-2xl border border-gray-200 bg-gradient-to-br from-amber-50 via-white to-amber-50/40 p-8 sm:p-10 shadow-sm">
+                    <div className="absolute -top-3.5 left-8">
+                      <span className="px-3 py-1 text-xs font-semibold rounded-full bg-amber-900 text-amber-50 whitespace-nowrap uppercase tracking-wider">
+                        Pay once, write forever
+                      </span>
+                    </div>
+                    <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+                      <div className="lg:col-span-5">
+                        <h3 className="text-2xl font-semibold text-gray-900 mb-2 text-balance" style={{ letterSpacing: '-0.02em' }}>{lifetime.name}</h3>
+                        <div className="mb-3 flex items-baseline gap-1">
+                          <span className="text-5xl font-bold text-gray-900" style={{ letterSpacing: '-0.03em' }}>{lifetime.price}</span>
+                          <span className="text-gray-500">{lifetime.period}</span>
+                        </div>
+                        <p className="text-gray-600 text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}>{lifetime.description}</p>
+                      </div>
+                      <ul className="lg:col-span-5 grid sm:grid-cols-2 gap-x-6 gap-y-3">
+                        {lifetime.features.map((feature, i) => (
+                          <li key={i} className="flex items-start gap-3">
+                            <svg className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span className="text-gray-700 text-sm">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="lg:col-span-2 flex lg:justify-end">
+                        <button
+                          onClick={() => lifetime.checkoutType && handleCheckout(lifetime.checkoutType)}
+                          disabled={!!lifetime.checkoutType && checkoutLoading === lifetime.checkoutType}
+                          className="w-full lg:w-auto px-6 py-3.5 rounded-full font-semibold bg-amber-900 text-amber-50 hover:bg-amber-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                        >
+                          {lifetime.checkoutType && checkoutLoading === lifetime.checkoutType ? 'Redirecting\u2026' : lifetime.cta}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </FadeIn>
+            );
+          })()}
 
           {/* FAQ */}
           <div className="max-w-2xl mx-auto mt-20">
@@ -1007,40 +845,64 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
               { q: 'Do I need to install anything?', a: 'No. makeEbook runs entirely in your browser and works offline too.' },
             ].map((item, i) => (
               <div key={i} className={`py-5 ${i > 0 ? 'border-t border-gray-200' : ''}`}>
-                <h4 className="font-semibold text-gray-900 mb-1">{item.q}</h4>
-                <p className="text-gray-600 text-sm" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.7 }}>{item.a}</p>
+                <h4 className="font-semibold text-gray-900 mb-1 text-balance">{item.q}</h4>
+                <p className="text-gray-600 text-sm text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.7 }}>{item.a}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-32 border-t border-gray-200">
+      {/* CTA Section — cinematic reprise */}
+      <section className={`${SECTION_TIERS.cinematic.section} border-t border-gray-200`}>
         <FadeIn>
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="font-serif font-bold text-gray-900 mb-6 text-balance" style={{ fontSize: 'clamp(1.75rem, 3vw + 0.5rem, 3rem)', letterSpacing: '-0.03em' }}>
-              Ready to write your book?
+          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+            <h2 className="font-serif font-bold text-gray-900 text-balance max-w-4xl" style={SECTION_TIERS.cinematic.title}>
+              The book is still waiting for&nbsp;you.
             </h2>
-            <p className="text-xl text-gray-600 mb-8" style={{ fontFamily: 'Georgia, serif' }}>
-              Start creating in seconds. No credit card required.
+            <p className="mt-8 text-xl sm:text-2xl text-gray-600 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}>
+              Free, in your browser, no install. Open the editor and write the first sentence.
             </p>
-            <button
-              onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
-              className="group px-8 py-4 text-lg font-semibold bg-gray-900 text-white rounded-full inline-flex items-center gap-2 hover:bg-gray-800 transition-colors"
-            >
-              Start writing, it&apos;s free
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+            <div className="mt-10 sm:mt-12">
+              <button
+                onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')}
+                className="group px-8 py-4 text-base sm:text-lg font-semibold bg-gray-900 text-white rounded-full inline-flex items-center gap-2 hover:bg-gray-800 transition-colors"
+              >
+                Start writing
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
           </div>
         </FadeIn>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="md:col-span-2">
+      <footer className="pt-20 pb-12 sm:pt-24 sm:pb-16 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+
+          {/* Wordmark moment — quiet typographic anchor */}
+          <div className="mb-16 sm:mb-20 max-w-3xl">
+            <p
+              className="font-serif font-bold text-gray-900 text-balance"
+              style={{
+                fontSize: 'clamp(1.75rem, 2.5vw + 0.75rem, 2.75rem)',
+                letterSpacing: '-0.035em',
+                lineHeight: 1.1,
+              }}
+            >
+              Built for the writers who finish.
+            </p>
+            <p
+              className="mt-4 text-gray-600 max-w-md text-pretty"
+              style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}
+            >
+              makeEbook is made in the open by a single person who wanted Scrivener without the friction.
+            </p>
+          </div>
+
+          {/* Link grid */}
+          <div className="grid grid-cols-2 md:grid-cols-12 gap-8 sm:gap-10">
+            <div className="col-span-2 md:col-span-4">
               <div className="flex items-center mb-4">
                 <Image
                   src="/make-ebook-logomark.svg"
@@ -1050,32 +912,47 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
                   className="h-6 w-auto"
                 />
               </div>
-              <p className="text-gray-600 mb-4 max-w-sm">
-                The complete ebook creation tool for authors. Write, edit, and export professional EPUB files.
-              </p>
-              <p className="text-sm text-gray-600">
-                MakeEbook is a <a href="https://neilmcardle.com" className="underline hover:text-gray-700">neilmcardle.com</a> company.
+              <p className="text-sm text-gray-600 max-w-xs text-pretty">
+                A <a href="https://neilmcardle.com" className="underline decoration-gray-300 hover:decoration-gray-700 hover:text-gray-900">neilmcardle.com</a> project. Made with care, in the open.
               </p>
             </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-900">Product</h4>
-              <ul className="space-y-2 text-gray-600">
-                <li><button onClick={() => scrollToSection(featuresRef)} className="hover:text-gray-900">Features</button></li>
-                <li><button onClick={() => scrollToSection(pricingRef)} className="hover:text-gray-900">Pricing</button></li>
-                <li><Link href="/make-ebook/book-mind" className="hover:text-gray-900">Book Mind</Link></li>
+
+            <div className="md:col-span-3">
+              <h4 className="text-xs font-semibold mb-4 text-gray-900 uppercase tracking-widest">Product</h4>
+              <ul className="space-y-3 text-gray-600">
+                <li><button onClick={() => scrollToSection(featuresRef)} className="hover:text-gray-900 transition-colors">Features</button></li>
+                <li><button onClick={() => scrollToSection(pricingRef)} className="hover:text-gray-900 transition-colors">Pricing</button></li>
+                <li><Link href="/make-ebook/book-mind" className="hover:text-gray-900 transition-colors">Book Mind</Link></li>
               </ul>
             </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-900">Legal</h4>
-              <ul className="space-y-2 text-gray-600">
-                <li><a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900">Terms & Conditions</a></li>
-                <li><a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900">Privacy Policy</a></li>
+
+            <div className="md:col-span-3">
+              <h4 className="text-xs font-semibold mb-4 text-gray-900 uppercase tracking-widest">Resources</h4>
+              <ul className="space-y-3 text-gray-600">
+                <li><Link href="/make-ebook/blog" className="hover:text-gray-900 transition-colors">Blog</Link></li>
+                <li><Link href="/make-ebook/signin" className="hover:text-gray-900 transition-colors">Sign in</Link></li>
+                <li>
+                  <button onClick={user ? onStartWritingAction : () => handleOpenAuth('signup')} className="hover:text-gray-900 transition-colors">
+                    Start writing
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <div className="md:col-span-2">
+              <h4 className="text-xs font-semibold mb-4 text-gray-900 uppercase tracking-widest">Legal</h4>
+              <ul className="space-y-3 text-gray-600">
+                <li><a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 transition-colors">Terms</a></li>
+                <li><a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 transition-colors">Privacy</a></li>
               </ul>
             </div>
           </div>
-          <div className="mt-12 pt-8 border-t border-gray-200 text-center text-sm text-gray-600">
-            © {new Date().getFullYear()} Neil McArdle. All rights reserved.
+
+          <div className="mt-16 pt-8 border-t border-gray-200 flex flex-wrap items-center justify-between gap-4 text-sm text-gray-500">
+            <p>&copy; {new Date().getFullYear()} Neil McArdle. All rights reserved.</p>
+            <p className="font-serif italic">Write the book you&rsquo;ve been putting off.</p>
           </div>
+
         </div>
       </footer>
 
