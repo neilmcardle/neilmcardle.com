@@ -55,7 +55,9 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   };
 
   const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
-    ref.current?.scrollIntoView({ behavior: 'smooth' });
+    const reduce = typeof window !== 'undefined'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    ref.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
   };
 
   const startWriting = user ? onStartWritingAction : () => handleOpenAuth('signup');
@@ -70,30 +72,32 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         libraryCount={libraryCount}
       />
 
-      <HeroSection
-        onPrimaryClick={startWriting}
-        onWatchTourClick={() => setVideoOpen(true)}
-      />
+      <main id="main-content">
+        <HeroSection
+          onPrimaryClick={startWriting}
+          onWatchTourClick={() => setVideoOpen(true)}
+        />
 
-      <HowItWorksSection />
+        <HowItWorksSection />
 
-      <EditorShowcaseSection ref={featuresRef} />
+        <EditorShowcaseSection ref={featuresRef} />
 
-      <LivePreviewerSection />
+        <LivePreviewerSection />
 
-      <BookMindPitchSection />
+        <BookMindPitchSection />
 
-      <TestimonialSection />
+        <TestimonialSection />
 
-      <PricingSection
-        ref={pricingRef}
-        onCheckout={handleCheckout}
-        onFreeCtaClick={startWriting}
-        checkoutLoading={checkoutLoading}
-        checkoutError={checkoutError}
-      />
+        <PricingSection
+          ref={pricingRef}
+          onCheckout={handleCheckout}
+          onFreeCtaClick={startWriting}
+          checkoutLoading={checkoutLoading}
+          checkoutError={checkoutError}
+        />
 
-      <FinalCtaSection onCtaClick={startWriting} />
+        <FinalCtaSection onCtaClick={startWriting} />
+      </main>
 
       <MarketingFooter
         onFeaturesClick={() => scrollToSection(featuresRef)}

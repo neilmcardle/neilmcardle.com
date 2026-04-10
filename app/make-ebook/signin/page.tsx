@@ -82,7 +82,7 @@ function SignInContent() {
   const PageShell = ({ children }: { children: React.ReactNode }) => (
     <div className="relative min-h-screen flex flex-col bg-me-cream dark:bg-me-cream-dark text-gray-700 dark:text-[#d4d4d4]">
       <MarketingNav />
-      <main className="flex-1 flex items-center justify-center px-6 sm:px-10 py-16 sm:py-20">
+      <main id="main-content" className="flex-1 flex items-center justify-center px-6 sm:px-10 py-16 sm:py-20">
         {children}
       </main>
       <MarketingFooter showWordmark={false} />

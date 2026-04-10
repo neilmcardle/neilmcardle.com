@@ -47,12 +47,49 @@ export default async function BlogPostPage({ params }: PageProps) {
   const post = getPostBySlug(slug);
   if (!post) notFound();
 
+  const updatedDate = post.updatedDate ?? post.date;
+  const wasUpdated = updatedDate !== post.date;
+
+  // Article schema.org JSON-LD — gives Google enough metadata to render rich
+  // results (publish date, author, headline, breadcrumbs).
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.description,
+    author: {
+      '@type': 'Person',
+      name: 'Neil McArdle',
+      url: 'https://neilmcardle.com',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'makeEbook',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://makeebook.ink/make-ebook-logomark.svg',
+      },
+    },
+    datePublished: post.date,
+    dateModified: updatedDate,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://makeebook.ink/blog/${post.slug}`,
+    },
+    keywords: post.keywords.join(', '),
+    articleSection: post.category,
+  };
+
   return (
     <div className="relative min-h-screen bg-me-cream text-gray-700">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
       <MarketingNav />
 
       {/* Article */}
-      <article className="max-w-3xl mx-auto px-6 sm:px-10 pt-16 sm:pt-20 pb-24">
+      <article id="main-content" className="max-w-3xl mx-auto px-6 sm:px-10 pt-16 sm:pt-20 pb-24">
         {/* Back link */}
         <Link
           href="/make-ebook/blog"
@@ -84,11 +121,21 @@ export default async function BlogPostPage({ params }: PageProps) {
             {post.description}
           </p>
           <div className="text-sm text-gray-500">
-            {new Date(post.date).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}{" "}
+            {wasUpdated ? (
+              <>
+                Updated{" "}
+                {new Date(updatedDate).toLocaleDateString("en-GB", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </>
+            ) : (
+              new Date(post.date).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })
+            )}{" "}
             &middot; {post.readingTime}
           </div>
         </header>

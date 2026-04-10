@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -37,6 +37,8 @@ export default function MarketingNav({
   const { user, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   // Borderless at top, blurred + bordered after scroll
   useEffect(() => {
@@ -45,6 +47,51 @@ export default function MarketingNav({
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Mobile menu: focus trap + Esc-to-close. When the drawer opens, capture
+  // Tab/Shift+Tab so focus cycles through the drawer's interactive elements
+  // instead of leaking to the page below. Esc closes and returns focus to the
+  // button that opened the menu.
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const drawer = mobileMenuRef.current;
+    if (!drawer) return;
+
+    // Focus the first interactive element inside the drawer on open.
+    const focusable = drawer.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    focusable[0]?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setMobileMenuOpen(false);
+        menuButtonRef.current?.focus();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+
+      const items = drawer.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [mobileMenuOpen]);
 
   const handleFeatures = () => {
     if (onFeaturesClick) {
@@ -85,7 +132,8 @@ export default function MarketingNav({
 
   const handleLogoClick = () => {
     if (typeof window !== 'undefined' && window.location.pathname === '/make-ebook') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
     } else {
       router.push('/make-ebook');
     }
@@ -172,10 +220,12 @@ export default function MarketingNav({
 
           {/* Mobile menu button */}
           <button
+            ref={menuButtonRef}
             className="md:hidden -mr-2 p-2 text-gray-900"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileMenuOpen}
+            aria-controls="marketing-mobile-menu"
           >
             {mobileMenuOpen ? <X size={26} strokeWidth={1.75} /> : <Menu size={26} strokeWidth={1.75} />}
           </button>
@@ -184,7 +234,11 @@ export default function MarketingNav({
 
       {/* Mobile menu — editorial drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200/80 bg-me-cream">
+        <div
+          ref={mobileMenuRef}
+          id="marketing-mobile-menu"
+          className="md:hidden border-t border-gray-200/80 bg-me-cream"
+        >
           <div className="max-w-7xl mx-auto px-6 sm:px-10 py-8 sm:py-10">
             <ul className="space-y-1 font-serif">
               <li>

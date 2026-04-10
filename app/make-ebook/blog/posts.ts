@@ -2,7 +2,14 @@ export interface BlogPost {
   slug: string;
   title: string;
   description: string;
+  /** ISO date string for when the post was first published. */
   date: string;
+  /**
+   * ISO date string for the last meaningful update. Used by the byline
+   * ("Updated April 2026") and the Article JSON-LD `dateModified` field.
+   * Defaults to `date` when omitted.
+   */
+  updatedDate?: string;
   readingTime: string;
   category: string;
   keywords: string[];
@@ -12,9 +19,10 @@ export interface BlogPost {
 export const posts: BlogPost[] = [
   {
     slug: 'how-to-write-an-ebook',
-    title: 'How to Write an Ebook: Complete Beginner\'s Guide [2026]',
+    title: 'How to Write an Ebook: Complete Beginner\'s Guide',
     description: 'Learn how to write, format, and publish your first ebook step by step. From outline to published EPUB — everything a beginner needs to know.',
     date: '2026-04-05',
+    updatedDate: '2026-04-05',
     readingTime: '12 min read',
     category: 'Getting Started',
     keywords: ['how to write an ebook', 'ebook writing guide', 'write ebook', 'ebook for beginners'],
@@ -95,14 +103,15 @@ export const posts: BlogPost[] = [
   },
   {
     slug: 'best-ebook-creation-tools',
-    title: 'Best Ebook Creation Tools [2026]: Detailed Comparison',
+    title: 'The Best Ebook Creation Tools: A Detailed Comparison',
     description: 'Compare the top ebook creation tools for self-publishing authors. Scrivener vs Atticus vs Vellum vs makeEbook — features, pricing, and which is right for you.',
     date: '2026-04-05',
+    updatedDate: '2026-04-05',
     readingTime: '10 min read',
     category: 'Tools & Comparisons',
     keywords: ['best ebook creation tools', 'ebook writing software', 'ebook creator', 'Scrivener alternative'],
     content: `
-      <p class="lead">Choosing the right ebook creation tool can make the difference between a frustrating process and a smooth path to publication. Here's an honest comparison of the best options in 2026.</p>
+      <p class="lead">Choosing the right ebook creation tool can make the difference between a frustrating process and a smooth path to publication. Here's an honest comparison of the best options available today.</p>
 
       <h2>What to Look For in an Ebook Tool</h2>
       <p>Before comparing specific tools, here's what actually matters:</p>
@@ -205,5 +214,9 @@ export function getPostBySlug(slug: string): BlogPost | undefined {
 }
 
 export function getAllPosts(): BlogPost[] {
-  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return posts.sort((a, b) => {
+    const aDate = new Date(a.updatedDate ?? a.date).getTime();
+    const bDate = new Date(b.updatedDate ?? b.date).getTime();
+    return bDate - aDate;
+  });
 }

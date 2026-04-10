@@ -12,7 +12,7 @@ export default function BlogIndex() {
       <MarketingNav />
 
       {/* Header */}
-      <header className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-20 pb-16 sm:pt-28 sm:pb-20">
+      <header id="main-content" className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-20 pb-16 sm:pt-28 sm:pb-20">
         <div className="max-w-3xl">
           <h1
             className="font-serif font-bold text-gray-900 text-balance"

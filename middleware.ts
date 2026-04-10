@@ -21,6 +21,15 @@ export function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
+    // Sitemap and robots — rewrite to the make-ebook generators so they're
+    // served at the apex (makeebook.ink/sitemap.xml, makeebook.ink/robots.txt).
+    // Must run BEFORE the static-file short-circuit below.
+    if (pathname === '/sitemap.xml' || pathname === '/robots.txt') {
+      const url = request.nextUrl.clone();
+      url.pathname = `/make-ebook${pathname}`;
+      return NextResponse.rewrite(url);
+    }
+
     // Static files and Next.js internals pass through
     if (
       pathname.startsWith('/_next/') ||

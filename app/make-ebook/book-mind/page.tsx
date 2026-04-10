@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { useBookMind, BookMindContext, BookMindAction, ChatSession } from '../hooks/useBookMind';
@@ -172,7 +172,7 @@ function BookMindContent() {
     return (
       <div className="relative min-h-screen flex flex-col bg-me-cream text-gray-700">
         <MarketingNav />
-        <main className="flex-1 flex items-center justify-center px-6 sm:px-10 py-16">
+        <main id="main-content" className="flex-1 flex items-center justify-center px-6 sm:px-10 py-16">
           <BookIcon className="w-6 h-6 text-gray-300 animate-pulse" />
         </main>
         <MarketingFooter showWordmark={false} />
@@ -192,7 +192,7 @@ function BookMindContent() {
     return (
       <div className="relative min-h-screen flex flex-col bg-me-cream text-gray-700">
         <MarketingNav />
-        <main className="flex-1 flex items-center justify-center px-6 sm:px-10 lg:px-16 py-16 sm:py-24">
+        <main id="main-content" className="flex-1 flex items-center justify-center px-6 sm:px-10 lg:px-16 py-16 sm:py-24">
           <div className="w-full max-w-3xl">
             {/* Eyebrow */}
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">

@@ -30,6 +30,48 @@ select:focus-visible {
   box-shadow: none;
 }
 
+/* ── Skip link ───────────────────────────────────────────────────────────────
+   Hidden by default, becomes visible only when focused (keyboard tab from the
+   page top). Provides a one-keypress jump past the marketing nav.
+─────────────────────────────────────────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: #111;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 9999px;
+  transform: translateY(-200%);
+  transition: transform 0.2s ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid #4070ff;
+  outline-offset: 2px;
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────────
+   Honour the user's OS-level preference for reduced motion. We collapse all
+   transitions and animations to near-zero so the same JSX renders without
+   parallax, fades, or hover translations. The JS-side smooth-scroll calls in
+   MarketingNav/MarketingLandingPage check window.matchMedia separately.
+─────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 html,
 body {
   height: 100%;

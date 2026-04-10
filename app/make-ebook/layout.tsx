@@ -60,10 +60,73 @@ export const viewport: Viewport = {
   ],
 };
 
+// SoftwareApplication schema.org JSON-LD — surfaces price + product type in
+// Google search results. Lives in the layout so every page in the makeEbook
+// surface advertises the product to crawlers, not just the landing page.
+const softwareApplicationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'makeEbook',
+  url: 'https://makeebook.ink',
+  description: DESCRIPTION,
+  applicationCategory: 'WritingApplication',
+  operatingSystem: 'Web Browser',
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Free',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro',
+      price: '9',
+      priceCurrency: 'USD',
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification',
+        price: '9',
+        priceCurrency: 'USD',
+        unitText: 'MONTH',
+      },
+    },
+    {
+      '@type': 'Offer',
+      name: 'Lifetime',
+      price: '149',
+      priceCurrency: 'USD',
+    },
+  ],
+  creator: {
+    '@type': 'Person',
+    name: 'Neil McArdle',
+    url: 'https://neilmcardle.com',
+  },
+  featureList: [
+    'EPUB and PDF export',
+    'Drag and drop chapter management',
+    'AI manuscript analysis (Book Mind)',
+    'Live ebook preview',
+    'Multi-language support',
+    'Works offline as a PWA',
+  ],
+};
+
 export default function MakeEbookLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema) }}
+      />
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
+      {children}
+    </>
+  );
 }
