@@ -26,6 +26,12 @@ const config = {
         '3xs': ['0.6875rem', { lineHeight: '1rem' }],  // 11px — footers, captions
       },
       colors: {
+        // Marketing brand surface — used by the public-facing landing, blog,
+        // signin, and shared marketing nav. Distinct from the editor's
+        // dark-mode panels and the e-reader paper palette.
+        'me-cream':      '#faf9f5',   // Primary marketing background
+        'me-cream-dark': '#0a0a0a',   // Dark mirror for cream (signin etc.)
+
         // Brand accent (chapter pills, active states)
         'me-accent': '#4070ff',
         // Dark-mode surface palette — use these instead of arbitrary hex values

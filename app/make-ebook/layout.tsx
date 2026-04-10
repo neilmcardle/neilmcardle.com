@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://makeebook.ink"),
   title: TITLE,
   description: DESCRIPTION,
+  alternates: {
+    canonical: "https://makeebook.ink",
+  },
   manifest: "/makeebook-manifest.json",
   appleWebApp: {
     capable: true,

@@ -3,10 +3,14 @@
 import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { useBookMind, BookMindContext, BookMindAction, ChatSession } from '../hooks/useBookMind';
 import { useFeatureAccess, useSubscription } from '@/lib/hooks/useSubscription';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { loadBookLibrary } from '../utils/bookLibrary';
+import MarketingNav from '../components/MarketingNav';
+import MarketingFooter from '../components/MarketingFooter';
+import { SECTION_TIERS } from '../components/marketing/sectionTiers';
 // Book icon inline — used in place of Sparkles for brand consistency
 function BookIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
@@ -166,38 +170,91 @@ function BookMindContent() {
   // ── Loading state (prevents flash of wrong UI while subscription fetches) ──
   if (subLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-white dark:bg-[#1e1e1e]">
-        <BookIcon className="w-6 h-6 text-gray-300 dark:text-[#888] animate-pulse" />
+      <div className="relative min-h-screen flex flex-col bg-me-cream text-gray-700">
+        <MarketingNav />
+        <main className="flex-1 flex items-center justify-center px-6 sm:px-10 py-16">
+          <BookIcon className="w-6 h-6 text-gray-300 animate-pulse" />
+        </main>
+        <MarketingFooter showWordmark={false} />
       </div>
     );
   }
 
-  // ── Locked state ────────────────────────────────────────────────────────────
+  // ── Locked state — Pro upgrade pitch ───────────────────────────────────────
   if (!hasBookMindAccess) {
+    const PITCH_BULLETS = [
+      'Summarises every chapter, scene, and arc',
+      'Catches plot holes and character inconsistencies',
+      'Surfaces themes and writing patterns you missed',
+      'Answers any question about your manuscript, instantly',
+    ];
+
     return (
-      <div className="flex h-screen bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white">
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="max-w-sm w-full text-center space-y-6">
-            <BookIcon className="w-10 h-10 text-gray-300 dark:text-[#888] mx-auto" />
-            <div>
-              <h1 className="text-2xl font-bold mb-2">Book Mind AI</h1>
-              <p className="text-gray-500 dark:text-[#a3a3a3] text-sm leading-relaxed">AI-powered analysis of your manuscript. Summarise chapters, find plot holes, explore themes.</p>
-            </div>
-            <button
-              onClick={handleUpgrade}
-              disabled={checkoutLoading}
-              className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-black font-semibold rounded-xl hover:bg-gray-700 dark:hover:bg-[#e5e5e5] transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+      <div className="relative min-h-screen flex flex-col bg-me-cream text-gray-700">
+        <MarketingNav />
+        <main className="flex-1 flex items-center justify-center px-6 sm:px-10 lg:px-16 py-16 sm:py-24">
+          <div className="w-full max-w-3xl">
+            {/* Eyebrow */}
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
+              Book Mind &middot; Pro feature
+            </p>
+
+            {/* Headline */}
+            <h1
+              className="mt-4 font-serif font-bold text-gray-900 text-balance"
+              style={SECTION_TIERS.cinematic.title}
             >
-              {checkoutLoading ? 'Redirecting…' : 'Upgrade to Pro — $9/month'}
-            </button>
-            <Link href="/make-ebook" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to editor
-            </Link>
+              An editor that has read every page.
+            </h1>
+
+            {/* Sub */}
+            <p
+              className="mt-6 text-xl sm:text-2xl text-gray-600 max-w-xl text-pretty"
+              style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}
+            >
+              Book Mind reads your whole manuscript and answers questions only a careful editor would notice.
+            </p>
+
+            {/* Bullets */}
+            <ul className="mt-10 space-y-4 max-w-xl">
+              {PITCH_BULLETS.map((bullet) => (
+                <li key={bullet} className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700 text-pretty">{bullet}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* CTAs */}
+            <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-5">
+              <button
+                onClick={handleUpgrade}
+                disabled={checkoutLoading}
+                className="group px-8 py-4 text-base sm:text-lg font-semibold bg-gray-900 text-white rounded-full inline-flex items-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {checkoutLoading ? 'Redirecting\u2026' : 'Upgrade to Pro \u2014 $9/month'}
+                {!checkoutLoading && (
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                )}
+              </button>
+              <Link
+                href="/make-ebook"
+                className="group inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium underline-offset-4 decoration-gray-300 hover:underline"
+              >
+                Back to the editor
+                <span aria-hidden className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+              </Link>
+            </div>
+
+            {/* Trust line */}
+            <p className="mt-8 text-sm text-gray-500">
+              Cancel anytime. Your books are always yours.
+            </p>
           </div>
-        </div>
+        </main>
+        <MarketingFooter showWordmark={false} />
       </div>
     );
   }
@@ -536,7 +593,7 @@ function BookMindContent() {
 export default function BookMindPage() {
   return (
     <Suspense fallback={
-      <div className="flex h-screen items-center justify-center bg-white dark:bg-[#1e1e1e]">
+      <div className="flex h-screen items-center justify-center bg-me-cream dark:bg-[#1e1e1e]">
         <BookIcon className="w-6 h-6 text-gray-300 dark:text-[#888] animate-pulse" />
       </div>
     }>

@@ -1,14 +1,14 @@
 import Link from "next/link";
-import Image from "next/image";
 import { getAllPosts } from "./posts";
 import { ArrowRight } from "lucide-react";
 import MarketingNav from "../components/MarketingNav";
+import MarketingFooter from "../components/MarketingFooter";
 
 export default function BlogIndex() {
   const posts = getAllPosts();
 
   return (
-    <div className="relative min-h-screen bg-[#faf9f5] text-gray-700">
+    <div className="relative min-h-screen bg-me-cream text-gray-700">
       <MarketingNav />
 
       {/* Header */}
@@ -67,18 +67,7 @@ export default function BlogIndex() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="py-12 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Image src="/make-ebook-logomark.svg" alt="makeEbook" width={120} height={24} className="h-6 w-auto" />
-            <span className="text-sm text-gray-500">&copy; {new Date().getFullYear()}</span>
-          </div>
-          <Link href="/make-ebook" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-            Back to makeEbook
-          </Link>
-        </div>
-      </footer>
+      <MarketingFooter showWordmark={false} />
     </div>
   );
 }

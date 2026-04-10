@@ -1,10 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getPostBySlug, getAllPosts } from "../posts";
 import type { Metadata } from "next";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import MarketingNav from "../../components/MarketingNav";
+import MarketingFooter from "../../components/MarketingFooter";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -48,7 +48,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!post) notFound();
 
   return (
-    <div className="relative min-h-screen bg-[#faf9f5] text-gray-700">
+    <div className="relative min-h-screen bg-me-cream text-gray-700">
       <MarketingNav />
 
       {/* Article */}
@@ -131,18 +131,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         </div>
       </article>
 
-      {/* Footer */}
-      <footer className="py-12 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Image src="/make-ebook-logomark.svg" alt="makeEbook" width={120} height={24} className="h-6 w-auto" />
-            <span className="text-sm text-gray-500">&copy; {new Date().getFullYear()}</span>
-          </div>
-          <Link href="/make-ebook/blog" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-            All posts
-          </Link>
-        </div>
-      </footer>
+      <MarketingFooter showWordmark={false} />
     </div>
   );
 }

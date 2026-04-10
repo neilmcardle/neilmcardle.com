@@ -95,7 +95,7 @@ export default function MarketingNav({
     <nav
       className={`sticky top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${
         navScrolled || mobileMenuOpen
-          ? 'bg-[#faf9f5]/85 backdrop-blur-lg border-b border-gray-200/80'
+          ? 'bg-me-cream/85 backdrop-blur-lg border-b border-gray-200/80'
           : 'bg-transparent border-b border-transparent'
       }`}
     >
@@ -184,7 +184,7 @@ export default function MarketingNav({
 
       {/* Mobile menu — editorial drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200/80 bg-[#faf9f5]">
+        <div className="md:hidden border-t border-gray-200/80 bg-me-cream">
           <div className="max-w-7xl mx-auto px-6 sm:px-10 py-8 sm:py-10">
             <ul className="space-y-1 font-serif">
               <li>

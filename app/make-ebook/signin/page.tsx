@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { Loader2, Mail, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react'
 import MarketingNav from '../components/MarketingNav'
+import MarketingFooter from '../components/MarketingFooter'
 
 function SignInContent() {
   const router = useRouter()
@@ -79,11 +80,12 @@ function SignInContent() {
 
   // ── Shared shells ────────────────────────────────────────────────────────────
   const PageShell = ({ children }: { children: React.ReactNode }) => (
-    <div className="relative min-h-screen flex flex-col bg-[#faf9f5] dark:bg-[#0a0a0a] text-gray-700 dark:text-[#d4d4d4]">
+    <div className="relative min-h-screen flex flex-col bg-me-cream dark:bg-me-cream-dark text-gray-700 dark:text-[#d4d4d4]">
       <MarketingNav />
       <main className="flex-1 flex items-center justify-center px-6 sm:px-10 py-16 sm:py-20">
         {children}
       </main>
+      <MarketingFooter showWordmark={false} />
     </div>
   )
 
@@ -318,7 +320,7 @@ function SignInContent() {
 export default function SignInPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#faf9f5] dark:bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-me-cream dark:bg-me-cream-dark flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
       </div>
     }>
