@@ -10,7 +10,7 @@ export default function TestimonialSection() {
   if (!t) return null;
 
   return (
-    <section className={`${SECTION_TIERS.intimate.section} border-t border-gray-200`}>
+    <section className={SECTION_TIERS.intimate.section}>
       <div className="max-w-3xl mx-auto px-6 sm:px-10 lg:px-16">
         <blockquote
           className="font-serif text-gray-800 text-balance"
