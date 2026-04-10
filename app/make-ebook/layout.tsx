@@ -1,9 +1,14 @@
 import React from "react";
 import type { Metadata, Viewport } from "next";
 
+const TITLE = "makeEbook — Write the book you've been putting off";
+const DESCRIPTION =
+  "A free, browser-based editor that turns rough drafts into EPUBs ready for Kindle, Kobo, and Apple Books. No install, no credit card.";
+
 export const metadata: Metadata = {
-  title: "makeEbook - Create Beautiful eBooks",
-  description: "Create, edit, and export professional eBooks right in your browser. Works offline.",
+  metadataBase: new URL("https://makeebook.ink"),
+  title: TITLE,
+  description: DESCRIPTION,
   manifest: "/makeebook-manifest.json",
   appleWebApp: {
     capable: true,
@@ -19,8 +24,8 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "makeEbook - Create Beautiful eBooks",
-    description: "The complete ebook creation tool for authors. Write, edit, and export professional EPUB files in minutes.",
+    title: TITLE,
+    description: DESCRIPTION,
     url: "https://makeebook.ink",
     siteName: "makeEbook",
     type: "website",
@@ -29,14 +34,14 @@ export const metadata: Metadata = {
         url: "/social-make-ebook.png",
         width: 1200,
         height: 630,
-        alt: "makeEbook - Create Beautiful eBooks",
+        alt: "makeEbook — write, format, and export a professional EPUB",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "makeEbook - Create Beautiful eBooks",
-    description: "The complete ebook creation tool for authors. Write, edit, and export professional EPUB files in minutes.",
+    title: TITLE,
+    description: DESCRIPTION,
     images: ["/social-make-ebook.png"],
   },
 };
