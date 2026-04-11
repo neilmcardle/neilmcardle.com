@@ -1,11 +1,15 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: Theme;
+  // True when the user is allowed to change theme. Anonymous visitors are
+  // locked to light mode; only signed-in users can switch and persist dark.
+  canToggle: boolean;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
 }
@@ -21,49 +25,64 @@ function applyThemeClass(resolved: 'light' | 'dark') {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const { user, loading: authLoading } = useAuth();
   const [theme, setThemeState] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
-  // Apply theme to DOM
-  const applyTheme = (newTheme: Theme) => {
-    applyThemeClass(newTheme);
-  };
-
-  // Load theme preference from localStorage on mount
   useEffect(() => {
     setMounted(true);
-
-    const savedTheme = localStorage.getItem('theme');
-
-    // Migrate legacy themes to light/dark only
-    let resolved: Theme = 'light';
-    if (savedTheme === 'dark') {
-      resolved = 'dark';
-    }
-
-    // Migrate legacy values
-    if (savedTheme && savedTheme !== 'light' && savedTheme !== 'dark') {
-      localStorage.setItem('theme', resolved);
-    }
-
-    setThemeState(resolved);
-    applyTheme(resolved);
   }, []);
 
+  // Apply the correct theme whenever auth resolves or changes.
+  //
+  // Rules:
+  // - While auth is still loading, stay in light mode (safe default).
+  // - Anonymous visitors are always light. Any stale 'dark' value left in
+  //   localStorage from a prior session is cleared on sign-out, so it won't
+  //   leak back in here.
+  // - Signed-in users load their persisted preference, defaulting to light.
+  useEffect(() => {
+    if (!mounted) return;
+
+    if (authLoading) {
+      setThemeState('light');
+      applyThemeClass('light');
+      return;
+    }
+
+    if (!user) {
+      setThemeState('light');
+      applyThemeClass('light');
+      // Drop any stale preference so the next anonymous visitor is clean.
+      try { localStorage.removeItem('theme'); } catch {}
+      return;
+    }
+
+    const savedTheme = localStorage.getItem('theme');
+    const resolved: Theme = savedTheme === 'dark' ? 'dark' : 'light';
+    setThemeState(resolved);
+    applyThemeClass(resolved);
+  }, [mounted, authLoading, user]);
+
   const toggleTheme = () => {
+    // Anonymous visitors cannot toggle. No-op keeps callers simple.
+    if (!user) return;
     setThemeState(prevTheme => {
       const newTheme: Theme = prevTheme === 'light' ? 'dark' : 'light';
       localStorage.setItem('theme', newTheme);
-      applyTheme(newTheme);
+      applyThemeClass(newTheme);
       return newTheme;
     });
   };
 
   const setTheme = (newTheme: Theme) => {
+    if (!user) return;
     localStorage.setItem('theme', newTheme);
-    applyTheme(newTheme);
+    applyThemeClass(newTheme);
     setThemeState(newTheme);
   };
+
+  const canToggle = !!user && !authLoading;
 
   // Prevent rendering until mounted to avoid hydration mismatch
   if (!mounted) {
@@ -71,7 +90,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, canToggle, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -80,7 +99,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    return { theme: 'light' as Theme, toggleTheme: () => {}, setTheme: () => {} };
+    return {
+      theme: 'light' as Theme,
+      canToggle: false,
+      toggleTheme: () => {},
+      setTheme: () => {},
+    };
   }
   return context;
 }

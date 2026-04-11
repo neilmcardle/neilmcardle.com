@@ -3,7 +3,12 @@
 import { useTheme } from '@/lib/contexts/ThemeContext';
 
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, canToggle, toggleTheme } = useTheme();
+
+  // Anonymous visitors are locked to light mode. Hide the toggle entirely
+  // rather than disabling it so we don't advertise a feature that's gated
+  // behind sign-in.
+  if (!canToggle) return null;
 
   const nextTheme = theme === 'light' ? 'dark' : 'light';
 

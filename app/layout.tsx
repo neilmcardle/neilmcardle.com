@@ -30,17 +30,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="font-sans" style={{ fontFamily: 'var(--font-inter)' }}>
-        <ThemeProvider>
-          <AuthProvider>
-            <SubscriptionProvider>
+        <AuthProvider>
+          <SubscriptionProvider>
+            <ThemeProvider>
               <div className="min-h-screen flex flex-col">
                 <main className="flex-1">{children}</main>
                 <ClientFooterWrapper /> {/* Use the client-side wrapper */}
               </div>
               <Toaster />
-            </SubscriptionProvider>
-          </AuthProvider>
-        </ThemeProvider>
+            </ThemeProvider>
+          </SubscriptionProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>

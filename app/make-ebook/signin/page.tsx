@@ -16,8 +16,10 @@ function PageShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen flex flex-col bg-me-cream dark:bg-me-cream-dark text-gray-700 dark:text-[#d4d4d4]">
       <MarketingNav />
-      <main id="main-content" className="flex-1 flex items-center justify-center px-6 sm:px-10 py-16 sm:py-20">
-        {children}
+      <main id="main-content" className="flex-1 flex flex-col px-6 sm:px-10 py-16 sm:py-20">
+        <div className="my-auto mx-auto w-full flex justify-center">
+          {children}
+        </div>
       </main>
       <MarketingFooter showWordmark={false} />
     </div>

@@ -172,8 +172,10 @@ function BookMindContent() {
     return (
       <div className="relative min-h-screen flex flex-col bg-me-cream text-gray-700">
         <MarketingNav />
-        <main id="main-content" className="flex-1 flex items-center justify-center px-6 sm:px-10 py-16">
-          <BookIcon className="w-6 h-6 text-gray-300 animate-pulse" />
+        <main id="main-content" className="flex-1 flex flex-col px-6 sm:px-10 py-16">
+          <div className="my-auto mx-auto">
+            <BookIcon className="w-6 h-6 text-gray-300 animate-pulse" />
+          </div>
         </main>
         <MarketingFooter showWordmark={false} />
       </div>
@@ -192,8 +194,8 @@ function BookMindContent() {
     return (
       <div className="relative min-h-screen flex flex-col bg-me-cream text-gray-700">
         <MarketingNav />
-        <main id="main-content" className="flex-1 flex items-center justify-center px-6 sm:px-10 lg:px-16 py-16 sm:py-24">
-          <div className="w-full max-w-3xl">
+        <main id="main-content" className="flex-1 flex flex-col px-6 sm:px-10 lg:px-16 py-16 sm:py-24">
+          <div className="my-auto w-full max-w-3xl mx-auto">
             {/* Eyebrow */}
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
               Book Mind &middot; Pro feature
