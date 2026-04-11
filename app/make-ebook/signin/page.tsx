@@ -7,6 +7,31 @@ import { Loader2, Mail, CheckCircle, AlertCircle, ArrowRight } from 'lucide-reac
 import MarketingNav from '../components/MarketingNav'
 import MarketingFooter from '../components/MarketingFooter'
 
+// ── Shared shells ──────────────────────────────────────────────────────────
+// Defined outside SignInContent so they keep stable component identity across
+// re-renders. If these lived inside the parent component, every keystroke
+// would rebuild the component tree and inputs would lose focus after each
+// character typed.
+function PageShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative min-h-screen flex flex-col bg-me-cream dark:bg-me-cream-dark text-gray-700 dark:text-[#d4d4d4]">
+      <MarketingNav />
+      <main id="main-content" className="flex-1 flex items-center justify-center px-6 sm:px-10 py-16 sm:py-20">
+        {children}
+      </main>
+      <MarketingFooter showWordmark={false} />
+    </div>
+  )
+}
+
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="w-full max-w-md rounded-2xl border border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#1e1e1e] shadow-sm">
+      {children}
+    </div>
+  )
+}
+
 function SignInContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -77,23 +102,6 @@ function SignInContent() {
       setIsLoading(false)
     }
   }
-
-  // ── Shared shells ────────────────────────────────────────────────────────────
-  const PageShell = ({ children }: { children: React.ReactNode }) => (
-    <div className="relative min-h-screen flex flex-col bg-me-cream dark:bg-me-cream-dark text-gray-700 dark:text-[#d4d4d4]">
-      <MarketingNav />
-      <main id="main-content" className="flex-1 flex items-center justify-center px-6 sm:px-10 py-16 sm:py-20">
-        {children}
-      </main>
-      <MarketingFooter showWordmark={false} />
-    </div>
-  )
-
-  const Card = ({ children }: { children: React.ReactNode }) => (
-    <div className="w-full max-w-md rounded-2xl border border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#1e1e1e] shadow-sm">
-      {children}
-    </div>
-  )
 
   // ── Verification / reset success state ───────────────────────────────────────
   if (showVerificationMessage || showResetMessage) {
