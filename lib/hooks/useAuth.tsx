@@ -149,17 +149,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     setAuthError(null)
+
+    // Always drop the in-memory user state first so the UI reflects the
+    // signed-out state immediately, even if the rest of this function fails.
+    setUser(null)
+
     const supabase = ensureSupabase()
-    if (!supabase) {
-      console.log('Authentication service not available for sign out')
-      return
+
+    // Attempt the real sign-out via Supabase. Use scope: 'local' so we don't
+    // depend on a successful round-trip to the auth server — if the JWT is
+    // expired, the user is offline, or something is blocking the network, a
+    // 'global' sign-out would throw and leave the session intact. 'local'
+    // always clears the browser session.
+    if (supabase) {
+      try {
+        await supabase.auth.signOut({ scope: 'local' })
+      } catch (error) {
+        // Swallow: we'll fall through to the hard cleanup below.
+        console.error('Sign out error (continuing with local cleanup):', error)
+      }
     }
-    
-    try {
-      await supabase.auth.signOut()
-    } catch (error) {
-      console.error('Sign out error:', error)
-      setAuthError('Failed to sign out')
+
+    // Belt-and-braces: nuke any Supabase auth tokens left in storage.
+    // Supabase stores these under keys like `sb-<project-ref>-auth-token`, so
+    // we iterate and drop anything that looks like one. This runs even if the
+    // Supabase client is unavailable above.
+    if (typeof window !== 'undefined') {
+      try {
+        for (const key of Object.keys(localStorage)) {
+          if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+            localStorage.removeItem(key)
+          }
+        }
+      } catch {
+        // Ignore: private-mode browsers may throw on localStorage access.
+      }
+
+      // Finally, force-navigate to a public route. A full page replace
+      // (not router.push) guarantees a clean slate: all React state, all
+      // cached fetches, and any subscription/theme contexts are reset on
+      // the next load. Using replace() also means the signed-in route
+      // doesn't sit in history for a back-button bypass.
+      window.location.replace('/make-ebook')
     }
   }
   
