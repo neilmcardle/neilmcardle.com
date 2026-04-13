@@ -13,15 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
-import LandingPage from "./components/LandingPage";
+import EmptyEditorState from "./components/EmptyEditorState";
 import MarketingLandingPage from "./components/MarketingLandingPage";
 import BinIcon from "./components/icons/BinIcon";
 import { LANGUAGES, today } from "./utils/constants";
 import { CHAPTER_TEMPLATES, Chapter, Endnote, EndnoteReference } from "./types";
-import MetaTabContent from "./components/MetaTabContent";
-import PreviewPanel from "./components/PreviewPanel";
-import PreviewEreaderPanel from "./components/PreviewEreaderPanel";
-import AiTabContent from "./components/AiTabContent";
 import { useChapters } from "./hooks/useChapters";
 import { useTags } from "./hooks/useTags";
 import { useCover } from "./hooks/useCover";
@@ -29,30 +25,22 @@ import { useLockedSections } from "./hooks/useLockedSections";
 import { useAutoSave, useUnsavedChangesWarning } from "./hooks/useAutoSave";
 import { useEditorShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useBookState } from "./hooks/useBookState";
-import { useQualityValidator } from "./hooks/useQualityValidator";
 import { autoFixAllChapters } from "./utils/typographyFixer";
-import { TypographyPreset } from "./utils/typographyPresets";
 import RichTextEditor from "./components/RichTextEditor";
-import CollapsibleSidebar from "./components/CollapsibleSidebar";
-import SlimSidebarNav from "./components/SlimSidebarNav";
+import EditorLeftNav from "./components/EditorLeftNav";
 import BookMindPanel from "./components/BookMindPanel";
-import LivePreviewPanel from "./components/LivePreviewPanel";
-import LayoutSwitcher, { RightPanelMode } from "./components/LayoutSwitcher";
-import ResizableRightPanel from "./components/ResizableRightPanel";
-import AutoSaveIndicator from "./components/AutoSaveIndicator";
-import { QualityDropdown } from "./components/QualityPanel";
-import { WordStatsDropdown } from "./components/WordStatsDropdown";
+import EditorRightPanel from "./components/EditorRightPanel";
+import EditorCanvas from "./components/EditorCanvas";
+import type { RightPanelMode } from "./components/LayoutSwitcher";
+import EditorHeader from "./components/EditorHeader";
 import ChapterNavDropdown from "./components/ChapterNavDropdown";
 import SubscriptionBadge, { SubscriptionBadgeCompact } from "./components/SubscriptionBadge";
 import ManageBillingButton from "./components/ManageBillingButton";
 import { useWordStats } from "./hooks/useWordStats";
 import { useWritingGoals } from "./hooks/useWritingGoals";
-import { WritingGoalsBadge } from "./components/WritingGoalsBadge";
 import { useVersionHistory } from "./hooks/useVersionHistory";
-import { VersionHistoryPanel, VersionHistoryButton } from "./components/VersionHistoryPanel";
 import { useExportHistory } from "./hooks/useExportHistory";
-import { ExportHistoryPanel, ExportHistoryButton } from "./components/ExportHistoryPanel";
-import SplitPreviewLayout from "./components/SplitPreviewLayout";
+import HistoryPanel from "./components/HistoryPanel";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import EPUBReaderModal from "./components/EPUBReaderModal";
 import UpgradeModal from "./components/UpgradeModal";
@@ -76,7 +64,7 @@ import { useLibrary } from "./hooks/useLibrary";
 import { useCloudSync } from "./hooks/useCloudSync";
 import { useFocusMode } from "./hooks/useFocusMode";
 import { useTypewriterMode, useParagraphFocus } from "./hooks/useFocusEffects";
-import { FocusModePanel, FocusModeButton } from "./components/FocusModePanel";
+import { FocusModePanel } from "./components/FocusModePanel";
 import { AmbientPlayer } from "./components/AmbientPlayer";
 
 function MakeEbookPage() {
@@ -237,7 +225,6 @@ function MakeEbookPage() {
   const [sidebarChaptersExpanded, setSidebarChaptersExpanded] = useState(true);
   const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] = useState(false);
   const [sidebarNotesExpanded, setSidebarNotesExpanded] = useState(false);
-  const [showEreaderPreview, setShowEreaderPreview] = useState(false);
 
   // Mobile accordion: only one section open at a time
   const expandMobileSection = (section: 'library' | 'book' | 'chapters' | 'notes') => {
@@ -288,7 +275,6 @@ function MakeEbookPage() {
   }, []);
   
   // Split preview state (inside main) — off by default; right panel LayoutSwitcher is preferred
-  const [isSplitPreviewEnabled, setIsSplitPreviewEnabled] = useState(false);
 
   // Onboarding tour
   const onboarding = useOnboarding({
@@ -299,10 +285,8 @@ function MakeEbookPage() {
       'editor': () => setSidebarView(null),
       'preview': () => {
         setSidebarView(null);
-        // Don't open split preview if the right panel Live Preview is already showing
-        if (rightPanelMode !== 'live-preview') {
-          setIsSplitPreviewEnabled(true);
-        }
+        // Onboarding tour step: show the live preview panel on the right.
+        setRightPanelMode('live-preview');
       },
       'export': () => setSidebarView('book'),
       'auto-save': () => setSidebarView(null),
@@ -310,17 +294,6 @@ function MakeEbookPage() {
       'mobile-editor': () => setMobileSidebarOpen(false),
       'mobile-preview': () => setMobileSidebarOpen(false),
     },
-  });
-
-  // Typography preset for EPUB export
-  const [typographyPreset, setTypographyPreset] = useState<TypographyPreset>('default');
-
-  // Quality validator hook
-  const { issues: qualityIssues, score: qualityScore, autoFixableCount } = useQualityValidator({
-    chapters,
-    title,
-    author,
-    coverFile: coverUrl,
   });
 
   // Word stats hook
@@ -337,9 +310,6 @@ function MakeEbookPage() {
     hasVersions 
   } = useVersionHistory({ bookId: currentBookId, userId: user?.id });
 
-  // State for version history panel visibility
-  const [showVersionHistory, setShowVersionHistory] = useState(false);
-
   // Export history hook
   const {
     exports: exportHistory,
@@ -350,8 +320,9 @@ function MakeEbookPage() {
     clearHistory: clearExportHistory,
   } = useExportHistory({ bookId: currentBookId, maxExports: 5 });
 
-  // State for export history panel visibility
-  const [showExportHistory, setShowExportHistory] = useState(false);
+  // Unified History modal: null = closed, otherwise the tab to open on.
+  // Replaces the old split showVersionHistory / showExportHistory booleans.
+  const [historyModal, setHistoryModal] = useState<'versions' | 'exports' | null>(null);
 
   // ── Extracted hooks ────────────────────────────────────────────────────────
   const cloudSync = useCloudSync({ user, isLoadingBookRef, setLibraryBooks });
@@ -388,10 +359,11 @@ function MakeEbookPage() {
     coverUrl, endnotes, endnoteReferences,
     currentBookId, setCurrentBookId,
     user, hasCloudSync,
-    saveVersion, saveExport, exportHistory, getExportBlob, typographyPreset,
+    saveVersion, saveExport, exportHistory, getExportBlob,
     setDialogState, setLibraryBooks, setSaveFeedback,
     setSaveDialogOpen, newBookConfirmOpen, setNewBookConfirmOpen,
-    setEpubBlob, setShowEPUBReader, setShowExportHistory,
+    setEpubBlob, setShowEPUBReader,
+    closeExportHistoryModal: () => setHistoryModal(null),
     markClean: () => markCleanFnRef.current(),
     clearEditorState: () => clearEditorStateFnRef.current(),
   });
@@ -400,11 +372,11 @@ function MakeEbookPage() {
   useTypewriterMode(focus.active && focus.settings.typewriterMode);
   useParagraphFocus(focus.active && focus.settings.paragraphFocus);
 
-  // Close sidebar and live preview when focus mode activates with hideChrome on
+  // Close sidebar and right panel when focus mode activates with hideChrome on
   useEffect(() => {
     if (focus.active && focus.settings.hideChrome) {
       setSidebarView(null);
-      setIsSplitPreviewEnabled(false);
+      setRightPanelMode('none');
     }
   }, [focus.active, focus.settings.hideChrome]);
   // ──────────────────────────────────────────────────────────────────────────
@@ -442,7 +414,8 @@ function MakeEbookPage() {
       saveBook.handleExportEPUB();
     },
     onPreview: () => {
-      setIsSplitPreviewEnabled(prev => !prev);
+      // ⌘P toggles the right-panel live preview.
+      setRightPanelMode((prev) => (prev === 'live-preview' ? 'none' : 'live-preview'));
     },
     onNewChapter: () => {
       handleAddChapter('content', '');
@@ -483,13 +456,6 @@ function MakeEbookPage() {
     }
   }, [chapters, setChapters]);
 
-  // Navigate to chapter from quality issue
-  const handleNavigateToChapterFromIssue = useCallback((chapterId: string) => {
-    const chapterIndex = chapters.findIndex(ch => ch.id === chapterId);
-    if (chapterIndex >= 0) {
-      setSelectedChapter(chapterIndex);
-    }
-  }, [chapters, setSelectedChapter]);
 
   // Toggle chapter locked state
   const handleToggleChapterLock = useCallback((index: number) => {
@@ -529,7 +495,7 @@ function MakeEbookPage() {
         if (metadata.genre) setGenre(metadata.genre);
         if (metadata.tags) setTags(metadata.tags);
         setSelectedChapter(0);
-        setShowVersionHistory(false);
+        setHistoryModal(null);
         markDirty();
       },
     });
@@ -830,64 +796,26 @@ function MakeEbookPage() {
           </div>
         )}
 
-        {/* Version History Panel */}
-        {showVersionHistory && (
-          <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
-              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#333]">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Version History</h2>
-                <button
-                  onClick={() => setShowVersionHistory(false)}
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                <VersionHistoryPanel
-                  versions={versions}
-                  currentWordCount={bookStats.totalWords}
-                  onRestoreAction={handleRestoreVersion}
-                  onDeleteAction={deleteVersion}
-                  onClearAllAction={clearHistory}
-                />
-              </div>
-            </div>
-          </div>
+        {/* Unified History modal — version + export history with tabs */}
+        {historyModal && (
+          <HistoryPanel
+            initialTab={historyModal}
+            onClose={() => setHistoryModal(null)}
+            versions={versions}
+            currentWordCount={bookStats.totalWords}
+            onRestoreVersion={handleRestoreVersion}
+            onDeleteVersion={deleteVersion}
+            onClearAllVersions={clearHistory}
+            exports={exportHistory}
+            exportsLoading={exportHistoryLoading}
+            onPreviewExport={saveBook.handlePreviewExport}
+            onDownloadExport={saveBook.handleDownloadExport}
+            onDeleteExport={deleteExport}
+            onClearAllExports={clearExportHistory}
+          />
         )}
 
-        {/* Export History Panel */}
-        {showExportHistory && (
-          <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
-              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#333]">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Export History</h2>
-                <button
-                  onClick={() => setShowExportHistory(false)}
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
-                >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                <ExportHistoryPanel
-                  exports={exportHistory}
-                  isLoading={exportHistoryLoading}
-                  onPreviewAction={saveBook.handlePreviewExport}
-                  onDownloadAction={saveBook.handleDownloadExport}
-                  onDeleteAction={deleteExport}
-                  onClearAllAction={clearExportHistory}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Mobile Preview Modal — mirrors desktop SplitPreviewLayout */}
+        {/* Mobile Preview Modal — full-screen live preview on small viewports */}
         {mobilePreviewOpen && (
           <MobilePreviewModal
             chapters={chapters}
@@ -1234,12 +1162,6 @@ function MakeEbookPage() {
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
-                          {exportHistory.length > 0 && (
-                            <ExportHistoryButton
-                              exportCount={exportHistory.length}
-                              onClickAction={() => setShowExportHistory(true)}
-                            />
-                          )}
                         </div>
                         {/* Cover Image */}
                         <div>
@@ -2022,104 +1944,89 @@ function MakeEbookPage() {
 
         {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
-          {/* Slim Sidebar Navigation - Desktop Only, hidden in focus mode */}
-          {!(focus.active && focus.settings.hideChrome) && <SlimSidebarNav
-            activeView={sidebarView}
-            onViewChange={setSidebarView}
-            libraryCount={libraryBooks.length}
-            chaptersCount={chapters.length}
-            isPanelOpen={isPanelOpen}
-            onLogoClick={handleGoToHome}
-            onStartTour={() => {
-              onboarding.resetOnboarding();
-              if (chapters.length === 0) {
-                clearEditorState();
-              }
-              // Always explicitly start tour — resetOnboarding state update is async,
-              // so clearEditorState's internal check sees stale isOnboardingComplete
-              setTimeout(() => onboarding.startTour(), chapters.length === 0 ? 800 : 100);
-            }}
-            onBookMindToggle={() => setRightPanelMode(prev =>
-              prev === 'book-mind' ? 'none' : 'book-mind'
-            )}
-            isBookMindOpen={rightPanelMode === 'book-mind'}
-          />}
-
-          {/* Desktop Sidebar - Hidden on Mobile, animates open/closed */}
-          {/* Conditionally hidden in focus mode when hideChrome is on */}
-          {!(focus.active && focus.settings.hideChrome) && <CollapsibleSidebar
-            isPanelOpen={isPanelOpen}
-            activeView={sidebarView}
-            onClose={() => setSidebarView(null)}
-            libraryBooks={libraryBooks}
-            selectedBookId={selectedBookId}
-            setSelectedBookId={setSelectedBookId}
-            handleLoadBook={library.handleLoadBook}
-            handleDeleteBook={library.handleDeleteBook}
-            showNewBookConfirmation={showNewBookConfirmation}
-            showImportDialog={docImport.showImportDialog}
-            multiSelectMode={library.multiSelectMode}
-            setMultiSelectMode={library.setMultiSelectMode}
-            selectedBookIds={library.selectedBookIds}
-            toggleBookSelection={library.toggleBookSelection}
-            toggleSelectAll={library.toggleSelectAll}
-            handleDeleteSelectedBooks={library.handleDeleteSelectedBooks}
-            chapters={chapters}
-            selectedChapter={selectedChapter}
-            handleSelectChapter={handleSelectChapter}
-            handleAddChapter={handleAddChapter}
-            handleRemoveChapter={handleRemoveChapter}
-            handleToggleChapterLock={handleToggleChapterLock}
-            outlineNotes={outlineNotes}
-            setOutlineNotes={setOutlineNotes}
-            handleDragStart={handleDragStart}
-            handleDragEnter={handleDragEnter}
-            handleDragEnd={handleDragEnd}
-            handleTouchStart={handleTouchStart}
-            handleTouchMove={handleTouchMove}
-            handleTouchEnd={handleTouchEnd}
-            dragOverIndex={dragOverIndex}
-            dragItemIndex={dragItemIndex}
-            ghostPillPosition={ghostPillPosition}
-            getContentChapterNumber={getContentChapterNumber}
-            title={title}
-            setTitle={setTitle}
-            author={author}
-            setAuthor={setAuthor}
-            blurb={blurb}
-            setBlurb={setBlurb}
-            publisher={publisher}
-            setPublisher={setPublisher}
-            pubDate={pubDate}
-            setPubDate={setPubDate}
-            isbn={isbn}
-            setIsbn={setIsbn}
-            language={language}
-            setLanguage={setLanguage}
-            genre={genre}
-            setGenre={setGenre}
-            tags={tags}
-            handleAddTag={handleAddTag}
-            handleRemoveTag={handleRemoveTag}
-            tagInput={tagInput}
-            setTagInput={setTagInput}
-            coverFile={coverUrl}
-            handleCoverChange={handleCoverChange}
-            lockedSections={lockedSections}
-            handleSaveBook={saveBook.handleSaveBook}
-            handleExportEPUB={saveBook.handleExportEPUB}
-            handleExportPDF={saveBook.handleExportPDF}
-            handleExportDocx={saveBook.handleExportDocx}
-            saveFeedback={saveFeedback}
-            exportHistoryCount={exportHistory.length}
-            onShowExportHistory={() => setShowExportHistory(true)}
-            sidebarLibraryExpanded={sidebarLibraryExpanded}
-            setSidebarLibraryExpanded={setSidebarLibraryExpanded}
-            sidebarChaptersExpanded={sidebarChaptersExpanded}
-            setSidebarChaptersExpanded={setSidebarChaptersExpanded}
-            sidebarBookDetailsExpanded={sidebarBookDetailsExpanded}
-            setSidebarBookDetailsExpanded={setSidebarBookDetailsExpanded}
-          />}
+          {/* Desktop left navigation — slim rail + collapsible content sidebar */}
+          {!(focus.active && focus.settings.hideChrome) && (
+            <EditorLeftNav
+              isPanelOpen={isPanelOpen}
+              activeView={sidebarView}
+              onViewChange={setSidebarView}
+              onClose={() => setSidebarView(null)}
+              onLogoClick={handleGoToHome}
+              onStartTour={() => {
+                onboarding.resetOnboarding();
+                if (chapters.length === 0) {
+                  clearEditorState();
+                }
+                // Always explicitly start tour — resetOnboarding state update is
+                // async, so clearEditorState's internal check sees stale
+                // isOnboardingComplete otherwise.
+                setTimeout(() => onboarding.startTour(), chapters.length === 0 ? 800 : 100);
+              }}
+              onBookMindToggle={() => setRightPanelMode((prev) => (prev === 'book-mind' ? 'none' : 'book-mind'))}
+              rightPanelMode={rightPanelMode}
+              libraryBooks={libraryBooks}
+              selectedBookId={selectedBookId}
+              setSelectedBookId={setSelectedBookId}
+              handleLoadBook={library.handleLoadBook}
+              handleDeleteBook={library.handleDeleteBook}
+              showNewBookConfirmation={showNewBookConfirmation}
+              showImportDialog={docImport.showImportDialog}
+              multiSelectMode={library.multiSelectMode}
+              setMultiSelectMode={library.setMultiSelectMode}
+              selectedBookIds={library.selectedBookIds}
+              toggleBookSelection={library.toggleBookSelection}
+              toggleSelectAll={library.toggleSelectAll}
+              handleDeleteSelectedBooks={library.handleDeleteSelectedBooks}
+              chapters={chapters}
+              selectedChapter={selectedChapter}
+              handleSelectChapter={handleSelectChapter}
+              handleAddChapter={handleAddChapter}
+              handleRemoveChapter={handleRemoveChapter}
+              handleToggleChapterLock={handleToggleChapterLock}
+              outlineNotes={outlineNotes}
+              setOutlineNotes={setOutlineNotes}
+              handleDragStart={handleDragStart}
+              handleDragEnter={handleDragEnter}
+              handleDragEnd={handleDragEnd}
+              handleTouchStart={handleTouchStart}
+              handleTouchMove={handleTouchMove}
+              handleTouchEnd={handleTouchEnd}
+              dragOverIndex={dragOverIndex}
+              dragItemIndex={dragItemIndex}
+              ghostPillPosition={ghostPillPosition}
+              getContentChapterNumber={getContentChapterNumber}
+              title={title}
+              setTitle={setTitle}
+              author={author}
+              setAuthor={setAuthor}
+              blurb={blurb}
+              setBlurb={setBlurb}
+              publisher={publisher}
+              setPublisher={setPublisher}
+              pubDate={pubDate}
+              setPubDate={setPubDate}
+              isbn={isbn}
+              setIsbn={setIsbn}
+              language={language}
+              setLanguage={setLanguage}
+              genre={genre}
+              setGenre={setGenre}
+              tags={tags}
+              handleAddTag={handleAddTag}
+              handleRemoveTag={handleRemoveTag}
+              tagInput={tagInput}
+              setTagInput={setTagInput}
+              coverFile={coverUrl}
+              handleCoverChange={handleCoverChange}
+              lockedSections={lockedSections}
+              sidebarLibraryExpanded={sidebarLibraryExpanded}
+              setSidebarLibraryExpanded={setSidebarLibraryExpanded}
+              sidebarChaptersExpanded={sidebarChaptersExpanded}
+              setSidebarChaptersExpanded={setSidebarChaptersExpanded}
+              sidebarBookDetailsExpanded={sidebarBookDetailsExpanded}
+              setSidebarBookDetailsExpanded={setSidebarBookDetailsExpanded}
+            />
+          )}
 
           {/* Main Editor Panel - Mobile Optimised */}
           <main data-editor-scroll className={`flex-1 flex flex-col bg-white dark:bg-[#1e1e1e] ${chapters.length === 0 ? 'px-0 py-0' : 'px-2 py-8'} ${chapters.length > 0 ? 'lg:pl-0' : 'lg:pl-0'} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}>
@@ -2160,12 +2067,6 @@ function MakeEbookPage() {
                         bookTitle={title}
                       />
                     </div>
-                    {/* Quality Check */}
-                    <QualityDropdown
-                      score={qualityScore}
-                      issues={qualityIssues}
-                      onNavigateToChapterAction={handleNavigateToChapterFromIssue}
-                    />
                     {/* Book Mind Button - Mobile */}
                     <button
                       onClick={() => setMobileBookMindOpen(true)}
@@ -2220,8 +2121,8 @@ function MakeEbookPage() {
             {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
             <div data-tour="mobile-editor" className={`lg:hidden flex flex-col ${chapters.length === 0 ? '' : 'gap-2 pt-[52px]'} flex-1 min-h-0 overflow-y-auto pb-0`}>
               {chapters.length === 0 ? (
-                // Landing Page - Mobile version
-                <LandingPage
+                // Empty editor state — mobile
+                <EmptyEditorState
                   onNewBook={handleNewBook}
                   onOpenLibrary={() => setMobileSidebarOpen(true)}
                   libraryCount={libraryBooks.length}
@@ -2342,259 +2243,70 @@ function MakeEbookPage() {
             {/* DESKTOP layout */}
             <div className="hidden lg:flex flex-col flex-1 min-h-0 overflow-hidden">
               {chapters.length === 0 ? (
-                // Landing Page - Show when no book is loaded
-                <LandingPage
+                // Empty editor state — desktop (shown when no book is loaded)
+                <EmptyEditorState
                   onNewBook={handleNewBook}
                   onOpenLibrary={() => setSidebarView('library')}
                   libraryCount={libraryBooks.length}
                 />
               ) : (
-              <SplitPreviewLayout
-                chapters={chapters}
-                selectedChapter={selectedChapter}
-                isPreviewEnabled={isSplitPreviewEnabled}
-                onTogglePreviewAction={() => setIsSplitPreviewEnabled(prev => !prev)}
-                onChapterSelectAction={(i) => setSelectedChapter(i)}
-                typographyPreset={typographyPreset}
-                setTypographyPreset={setTypographyPreset}
-              >
-              <>
-              {/* Editor Area - Prioritized for Writing */}
+              /* Editor Area — live preview now lives exclusively in EditorRightPanel */
               <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2">
-                {/* Status Bar with Auto-Save and Quality Score */}
-                <div className={`flex items-center justify-between px-6 mb-2 transition-opacity duration-300 ${focus.active && focus.settings.hideChrome ? 'focus-hide-chrome' : ''}`}>
-                  <div data-tour="auto-save" className="flex items-center gap-2">
-                    <AutoSaveIndicator isDirty={isDirty} isSaving={isSaving} lastSaved={lastSaved} hasCloudSync={hasCloudSync} />
-                    {isDirty && !isSaving && (
-                      <button
-                        onClick={() => { saveBook.saveBookDirectly(false); markClean(); }}
-                        className="flex items-center gap-2 h-10 px-3 rounded-lg bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors text-xs font-medium text-gray-700 dark:text-[#d4d4d4]"
-                        title="Save now (⌘S)"
-                      >
-                        <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-                        <span>Save</span>
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <ChapterNavDropdown
-                      chapters={chapters}
-                      selectedChapter={selectedChapter}
-                      onChapterSelect={setSelectedChapter}
-                      bookTitle={title}
-                    />
-                    <VersionHistoryButton
-                      versionCount={versions.length}
-                      onClickAction={() => setShowVersionHistory(true)}
-                    />
-                    <QualityDropdown
-                      score={qualityScore}
-                      issues={qualityIssues}
-                      onNavigateToChapterAction={handleNavigateToChapterFromIssue}
-                    />
-                    <FocusModeButton onClick={focus.toggleFocusMode} />
-                    <LayoutSwitcher
-                      mode={rightPanelMode}
-                      onChange={(m) => {
-                        setRightPanelMode(m);
-                        // Close split preview when a right panel with live preview is shown
-                        if (m === 'live-preview') {
-                          setIsSplitPreviewEnabled(false);
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-                {/* Chapter Title Header */}
-                <div className="flex-shrink-0 px-6 pt-5 pb-3 bg-white dark:bg-[#1e1e1e] dark:border-b dark:border-[#2f2f2f]">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-gray-400 dark:text-white/30 mb-2 select-none">
-                    {chapters[selectedChapter]?.type === 'frontmatter' ? 'Front Matter'
-                      : chapters[selectedChapter]?.type === 'backmatter' ? 'Back Matter'
-                      : 'Chapter'}
-                  </div>
-                  <input
-                    className="w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-none min-w-0 text-gray-900 dark:text-white/90 placeholder:text-gray-300 dark:placeholder:text-white/20"
-                    style={{ border: 'none', backgroundColor: 'transparent', boxShadow: 'none', padding: 0, fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.3, letterSpacing: '-0.01em' }}
-                    placeholder="Chapter title..."
-                    value={chapters[selectedChapter]?.title ?? ""}
-                    onChange={(e) =>
-                      handleChapterTitleChange(selectedChapter, e.target.value)
-                    }
-                  />
-                </div>
-                {/* Rich Text Editor - Maximum Space */}
-                <div
-                  data-tour="editor"
-                  className={[
-                    "w-full flex-1 min-h-0 flex flex-col transition-all duration-300",
-                    focus.active && focus.settings.columnWidth === "narrow" ? "focus-col-narrow" : "",
-                    focus.active && focus.settings.columnWidth === "normal" ? "focus-col-normal" : "",
-                    focus.active && focus.settings.paragraphFocus ? "paragraph-focus" : "",
-                    focus.active && focus.settings.typewriterMode ? "typewriter-mode" : "",
-                  ].filter(Boolean).join(" ")}
-                >
-                  <div className="mt-2 mb-3 flex-shrink-0 flex items-start justify-between px-6">
-                    <div className="flex items-start gap-2">
-                      <div className="flex flex-col items-center">
-                        <button
-                          title="Undo content changes"
-                          type="button"
-                          className="hover:opacity-70 transition-opacity"
-                          onClick={() => {
-                            const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
-                            if (editorElement) {
-                              editorElement.focus();
-                              document.execCommand('undo');
-                            }
-                          }}
-                        >
-                          <div className="bg-white dark:bg-[#262626] rounded-full p-2">
-                            <Image
-                              src="/undo-icon.svg"
-                              alt="Undo"
-                              width={16}
-                              height={16}
-                              className="w-4 h-4 dark:invert"
-                              style={{ borderRadius: '0', boxShadow: 'none' }}
-                            />
-                          </div>
-                        </button>
-                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Undo</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <button
-                          title="Redo content changes"
-                          type="button"
-                          className="hover:opacity-70 transition-opacity"
-                          onClick={() => {
-                            const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
-                            if (editorElement) {
-                              editorElement.focus();
-                              document.execCommand('redo');
-                            }
-                          }}
-                        >
-                          <div className="bg-white dark:bg-[#262626] rounded-full p-2">
-                            <Image
-                              src="/redo-icon.svg"
-                              alt="Redo"
-                              width={16}
-                              height={16}
-                              className="w-4 h-4 dark:invert"
-                              style={{ borderRadius: '0', boxShadow: 'none' }}
-                            />
-                          </div>
-                        </button>
-                        <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Redo</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex-1 min-h-0">
-                    {chapters[selectedChapter]?.locked && (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-[#262626] border-b border-gray-200 dark:border-[#2f2f2f] text-xs text-gray-500 dark:text-gray-400">
-                        <LockIcon className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span>This chapter is locked. Click the lock icon in the chapter list to edit.</span>
-                      </div>
-                    )}
-                    <RichTextEditor
-                      value={chapters[selectedChapter]?.content || ""}
-                      onChange={(html) =>
-                        handleChapterContentChange(selectedChapter, html)
-                      }
-                      minHeight={400}
-                      placeholder={
-                        selectedChapter === 0
-                          ? "Write your first chapter here..."
-                          : "Now add some content to your chapter..."
-                      }
-                      className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
-                      onCreateEndnote={endnotesHook.handleCreateEndnote}
-                      chapterId={chapters[selectedChapter]?.id}
-                      hasEndnotes={endnotes.length > 0}
-                      disabled={!!chapters[selectedChapter]?.locked}
-                      hideToolbar={focus.active && focus.settings.hideToolbar}
-                    />
-                  </div>
-                  {/* Word Stats Footer */}
-                  <div className="flex-shrink-0 flex items-center justify-between px-6 py-2 border-t border-gray-100 dark:border-gray-800/50">
-                    <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
-                      {/* Chapter stats */}
-                      <span className="flex items-center gap-1.5">
-                        <span className="text-gray-300 dark:text-gray-600">Chapter:</span>
-                        <span>{(bookStats.chapterStats?.[selectedChapter]?.wordCount || 0).toLocaleString()} words</span>
-                      </span>
-                      <span className="text-gray-300 dark:text-gray-700">|</span>
-                      {/* Book stats */}
-                      <span className="flex items-center gap-1.5">
-                        <span className="text-gray-300 dark:text-gray-600">Book:</span>
-                        <span>{bookStats.totalWords.toLocaleString()} words</span>
-                      </span>
-                      {sessionStats.wordsThisSession > 0 && (
-                        <>
-                          <span className="text-gray-300 dark:text-gray-700">|</span>
-                          <span className="text-green-500/70 dark:text-green-500/50">+{sessionStats.wordsThisSession.toLocaleString()} this session</span>
-                        </>
-                      )}
-                    </div>
-                    {/* Goals badge — compact, right-aligned */}
-                    <WritingGoalsBadge {...writingGoals} />
-                  </div>
-                </div>
+                <EditorHeader
+                  isDirty={isDirty}
+                  isSaving={isSaving}
+                  lastSaved={lastSaved}
+                  hasCloudSync={hasCloudSync}
+                  onSaveNow={() => { saveBook.saveBookDirectly(false); markClean(); }}
+                  chapters={chapters}
+                  selectedChapter={selectedChapter}
+                  onChapterSelect={setSelectedChapter}
+                  bookTitle={title}
+                  versionCount={versions.length}
+                  exportCount={exportHistory.length}
+                  onShowHistory={() => setHistoryModal('versions')}
+                  onToggleFocusMode={focus.toggleFocusMode}
+                  rightPanelMode={rightPanelMode}
+                  onRightPanelModeChange={setRightPanelMode}
+                  onExportEPUB={saveBook.handleExportEPUB}
+                  onExportPDF={saveBook.handleExportPDF}
+                  onExportDocx={saveBook.handleExportDocx}
+                  hideChrome={focus.active && focus.settings.hideChrome}
+                />
+                <EditorCanvas
+                  chapters={chapters}
+                  selectedChapter={selectedChapter}
+                  onChapterTitleChange={handleChapterTitleChange}
+                  onChapterContentChange={handleChapterContentChange}
+                  onCreateEndnote={endnotesHook.handleCreateEndnote}
+                  endnotesCount={endnotes.length}
+                  bookStats={bookStats}
+                  sessionStats={sessionStats}
+                  todayWords={writingGoals.todayWords}
+                  focus={{ active: focus.active, settings: focus.settings }}
+                />
               </section>
-
-              {/* Right-side preview toggle (desktop) - now uses split preview */}
-              <div className="hidden">
-                {/* Legacy floating preview toggle - replaced by split preview */}
-              </div>
-              </>
-              </SplitPreviewLayout>
               )}
             </div>
           </main>
 
-          {/* Right Panel — controlled by LayoutSwitcher */}
-          {rightPanelMode !== 'none' && !(focus.active && focus.settings.hideChrome) && (
-            <ResizableRightPanel>
-              {/* Book Mind */}
-              {rightPanelMode === 'book-mind' && (
-                <div className="h-full">
-                  <BookMindPanel
-                    bookId={currentBookId}
-                    userId={user?.id}
-                    title={title}
-                    author={author}
-                    genre={genre}
-                    chapters={chapters.map(c => ({ title: c.title, content: c.content, type: c.type }))}
-                    selectedChapterIndex={selectedChapter}
-                    selectedText={selectedEditorText}
-                    onClose={() => setRightPanelMode('none')}
-                  />
-                </div>
-              )}
-              {/* Live Preview Panel */}
-              {rightPanelMode === 'live-preview' && (
-                <div data-tour="preview" className="h-full overflow-hidden">
-                  <LivePreviewPanel
-                    chapters={chapters}
-                    selectedChapter={selectedChapter}
-                    onChapterSelect={setSelectedChapter}
-                    onClose={() => setRightPanelMode('none')}
-                    typographyPreset={typographyPreset}
-                    setTypographyPreset={setTypographyPreset}
-                  />
-                </div>
-              )}
-            </ResizableRightPanel>
+          {/* Right panel — Book Mind or Live Preview, hidden in full focus mode */}
+          {!(focus.active && focus.settings.hideChrome) && (
+            <EditorRightPanel
+              mode={rightPanelMode}
+              onClose={() => setRightPanelMode('none')}
+              chapters={chapters}
+              selectedChapter={selectedChapter}
+              onChapterSelect={setSelectedChapter}
+              bookId={currentBookId}
+              userId={user?.id}
+              title={title}
+              author={author}
+              genre={genre}
+              selectedText={selectedEditorText}
+            />
           )}
         </div>
-        {showEreaderPreview && (
-          <PreviewEreaderPanel
-            chapters={chapters}
-            selectedChapter={selectedChapter}
-            setSelectedChapter={(i: number) => setSelectedChapter(i)}
-            onClose={() => setShowEreaderPreview(false)}
-          />
-        )}
 
         {/* Terms/Privacy links moved to mobile editor footer */}
       </div>

@@ -11,15 +11,17 @@ import { loadBookLibrary } from '../utils/bookLibrary';
 import MarketingNav from '../components/MarketingNav';
 import MarketingFooter from '../components/MarketingFooter';
 import { SECTION_TIERS } from '../components/marketing/sectionTiers';
-// Book icon inline — used in place of Sparkles for brand consistency
-function BookIcon({ className = "w-5 h-5" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-    </svg>
-  );
-}
+import {
+  BookMindIcon as BookIcon,
+  ThinkingDots,
+  formatBookMindMessage as formatMessage,
+} from '../components/BookMindShared';
 
+// The standalone page uses long-form labels ("Summarize book") rather than
+// the terse ones in BookMindShared ("Summarise"). The full-page surface has
+// room to breathe; the inline right panel does not. This is an intentional
+// local override — do not replace with the shared constant without also
+// adding a label variant there.
 const QUICK_ACTIONS: { action: BookMindAction; label: string; description: string }[] = [
   { action: 'summarize-book',       label: 'Summarize book',        description: 'Plot, themes & arc' },
   { action: 'list-characters',      label: 'List characters',       description: 'Who appears and where' },
@@ -28,34 +30,6 @@ const QUICK_ACTIONS: { action: BookMindAction; label: string; description: strin
   { action: 'timeline-review',      label: 'Review timeline',       description: 'Chronology check' },
   { action: 'word-frequency',       label: 'Word usage',            description: 'Overused words & phrases' },
 ];
-
-/** Convert plain text with markdown-ish formatting into HTML paragraphs */
-function formatMessage(content: string): string {
-  if (!content) return '';
-  return content
-    .split(/\n\n+/)
-    .map(para =>
-      `<p>${para
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br />')
-      }</p>`
-    )
-    .join('');
-}
-
-function ThinkingDots() {
-  return (
-    <span className="inline-flex items-center gap-1 py-1">
-      {[0, 150, 300].map((delay) => (
-        <span
-          key={delay}
-          className="w-1.5 h-1.5 rounded-full bg-gray-500 animate-bounce"
-          style={{ animationDelay: `${delay}ms`, animationDuration: '900ms' }}
-        />
-      ))}
-    </span>
-  );
-}
 
 function BookMindContent() {
   const searchParams = useSearchParams();

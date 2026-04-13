@@ -4,6 +4,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useBookMind, BookMindContext, BookMindAction, BookMindMessage } from '../hooks/useBookMind';
 import { useFeatureAccess, useSubscription } from '@/lib/hooks/useSubscription';
+import {
+  BookMindIcon as BookIcon,
+  ThinkingDots,
+  formatBookMindMessage as formatMessage,
+  BOOK_MIND_COMPACT_QUICK_ACTIONS as QUICK_ACTIONS,
+} from './BookMindShared';
 
 interface BookMindPanelProps {
   bookId?: string;
@@ -16,37 +22,6 @@ interface BookMindPanelProps {
   selectedText?: string;
   onClose: () => void;
 }
-
-function BookIcon({ className = "w-4 h-4" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-    </svg>
-  );
-}
-
-function ThinkingDots() {
-  return (
-    <span className="inline-flex items-center gap-1 py-1">
-      {[0, 150, 300].map((delay) => (
-        <span key={delay} className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-[#737373] animate-bounce" style={{ animationDelay: `${delay}ms` }} />
-      ))}
-    </span>
-  );
-}
-
-function formatMessage(text: string): string {
-  return text.split(/\n{2,}/).map(p =>
-    `<p>${p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br />')}</p>`
-  ).join('');
-}
-
-const QUICK_ACTIONS: { action: BookMindAction; label: string; description: string }[] = [
-  { action: 'summarize-book',       label: 'Summarise',      description: 'Full book overview' },
-  { action: 'list-characters',      label: 'Characters',     description: 'Who appears where' },
-  { action: 'find-inconsistencies', label: 'Inconsistencies',description: 'Plot holes & gaps' },
-  { action: 'analyze-themes',       label: 'Themes',         description: 'Big ideas' },
-];
 
 export default function BookMindPanel({
   bookId, userId, title, author, genre,

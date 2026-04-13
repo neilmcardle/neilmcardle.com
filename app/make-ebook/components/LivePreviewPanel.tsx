@@ -2,15 +2,19 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Chapter } from '../types';
-import { TypographyPreset, PRESET_DESCRIPTIONS, TYPOGRAPHY_PRESETS } from '../utils/typographyPresets';
+import { TypographyPreset, TYPOGRAPHY_PRESETS } from '../utils/typographyPresets';
+
+// Typography is now fixed to the 'default' preset. The user-facing picker
+// was removed in Phase 3 — see CLAUDE.md. The preset infrastructure is
+// still live so we can re-enable multiple styles later (likely at export
+// time rather than in this preview header).
+const FIXED_PRESET: TypographyPreset = 'default';
 
 interface LivePreviewPanelProps {
   chapters: Chapter[];
   selectedChapter: number;
   onChapterSelect?: (index: number) => void;
   onClose?: () => void;
-  typographyPreset?: TypographyPreset;
-  setTypographyPreset?: (p: TypographyPreset) => void;
 }
 
 type DeviceType = 'kindle' | 'ipad' | 'phone';
@@ -123,11 +127,10 @@ function calcLocAndPercent(
 
 export default function LivePreviewPanel({
   chapters, selectedChapter, onChapterSelect, onClose,
-  typographyPreset = 'default', setTypographyPreset,
 }: LivePreviewPanelProps) {
+  const typographyPreset = FIXED_PRESET;
   const [device, setDevice] = useState<DeviceType>('kindle');
   const [theme, setTheme] = useState<ThemeType>('light');
-  const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('scroll');
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -227,40 +230,6 @@ export default function LivePreviewPanel({
               </button>
             </div>
 
-            {/* Typography preset */}
-            {setTypographyPreset && (
-              <div className="relative">
-                <button
-                  onClick={() => setThemeDropdownOpen(v => !v)}
-                  className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a] transition-colors whitespace-nowrap"
-                >
-                  <span>{PRESET_DESCRIPTIONS[typographyPreset].name}</span>
-                  <svg className={`w-3 h-3 transition-transform duration-150 ${themeDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {themeDropdownOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setThemeDropdownOpen(false)} />
-                    <div className="absolute right-0 top-full mt-1 bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#2f2f2f] rounded shadow-lg z-50 min-w-[110px] py-1">
-                      {(Object.keys(PRESET_DESCRIPTIONS) as TypographyPreset[]).map((preset) => (
-                        <button
-                          key={preset}
-                          onClick={() => { setTypographyPreset(preset); setThemeDropdownOpen(false); }}
-                          className={`w-full text-left px-3 py-1.5 text-xs transition-colors ${
-                            typographyPreset === preset
-                              ? 'font-medium text-[#4070ff] bg-[#4070ff]/10 dark:bg-[#4070ff]/15'
-                              : 'text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
-                          }`}
-                        >
-                          {PRESET_DESCRIPTIONS[preset].name}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </div>

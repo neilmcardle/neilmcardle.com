@@ -5,7 +5,14 @@ import React from 'react';
 import { SECTION_TIERS } from '../sectionTiers';
 import { TESTIMONIALS } from '../marketing-content';
 
+// Social proof is load-bearing. A single testimonial reads as
+// "we barely have any users" — worse than no testimonial at all. Gate
+// rendering behind a minimum count so the section only appears once there's
+// real critical mass to show.
+const MIN_TESTIMONIALS_TO_SHOW = 3;
+
 export default function TestimonialSection() {
+  if (TESTIMONIALS.length < MIN_TESTIMONIALS_TO_SHOW) return null;
   const t = TESTIMONIALS[0];
   if (!t) return null;
 

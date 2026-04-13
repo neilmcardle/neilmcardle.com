@@ -2,7 +2,6 @@
 import { useRef } from "react";
 import { saveEbookToSupabase } from "@/lib/supabaseEbooks";
 import { Chapter, Endnote, EndnoteReference } from "../types";
-import { TypographyPreset } from "../utils/typographyPresets";
 import { exportEpub } from "../utils/exportEpub";
 import { exportPdf } from "../utils/exportPdf";
 import { exportDocx } from "../utils/exportDocx";
@@ -50,7 +49,6 @@ interface UseSaveBookParams {
   saveExport: (params: { title: string; author: string; wordCount: number; chapterCount: number; blob: Blob }) => Promise<void>;
   exportHistory: ExportHistoryEntry[];
   getExportBlob: (id: string) => Promise<Blob | null>;
-  typographyPreset: TypographyPreset;
   // State setters
   setDialogState: React.Dispatch<React.SetStateAction<DialogState>>;
   setLibraryBooks: (books: any[]) => void;
@@ -60,7 +58,7 @@ interface UseSaveBookParams {
   setNewBookConfirmOpen: (v: boolean) => void;
   setEpubBlob: (b: Blob | null) => void;
   setShowEPUBReader: (v: boolean) => void;
-  setShowExportHistory: (v: boolean) => void;
+  closeExportHistoryModal: () => void;
   markClean: () => void;
   // Callback
   clearEditorState: () => void;
@@ -72,10 +70,10 @@ export function useSaveBook({
   coverUrl, endnotes, endnoteReferences,
   currentBookId, setCurrentBookId,
   user, hasCloudSync,
-  saveVersion, saveExport, exportHistory, getExportBlob, typographyPreset,
+  saveVersion, saveExport, exportHistory, getExportBlob,
   setDialogState, setLibraryBooks, setSaveFeedback,
   setSaveDialogOpen, newBookConfirmOpen, setNewBookConfirmOpen,
-  setEpubBlob, setShowEPUBReader, setShowExportHistory,
+  setEpubBlob, setShowEPUBReader, closeExportHistoryModal,
   markClean, clearEditorState,
 }: UseSaveBookParams) {
   const isSavingRef = useRef(false);
@@ -192,12 +190,13 @@ export function useSaveBook({
       return sum + text.trim().split(/\s+/).filter(w => w.length > 0).length;
     }, 0);
 
+    // Typography is fixed to the 'default' preset (exportEpub's own default).
+    // The user-facing picker was cut in Phase 3 — see CLAUDE.md.
     const blob = await exportEpub({
       title, author, blurb, publisher, pubDate, isbn, language, genre, tags,
       coverFile: coverUrl,
       chapters: migratedChapters,
       endnoteReferences: migratedEndnoteRefs,
-      typographyPreset,
       returnBlob: true,
     }) as Blob;
 
@@ -227,7 +226,7 @@ export function useSaveBook({
 
   function handleExportPDF() {
     const migratedChapters = ensureChapterIds(chapters);
-    exportPdf({ title, author, publisher, chapters: migratedChapters, typographyPreset });
+    exportPdf({ title, author, publisher, chapters: migratedChapters });
   }
 
   async function handleExportDocx() {
@@ -240,7 +239,7 @@ export function useSaveBook({
     if (blob) {
       setEpubBlob(blob);
       setShowEPUBReader(true);
-      setShowExportHistory(false);
+      closeExportHistoryModal();
     }
   }
 

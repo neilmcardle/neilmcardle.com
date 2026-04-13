@@ -59,13 +59,13 @@ const LITERARY_QUOTES = [
   }
 ];
 
-interface LandingPageProps {
+interface EmptyEditorStateProps {
   onNewBook: () => void;
   onOpenLibrary: () => void;
   libraryCount: number;
 }
 
-export default function LandingPage({ onNewBook, onOpenLibrary, libraryCount }: LandingPageProps) {
+export default function EmptyEditorState({ onNewBook, onOpenLibrary, libraryCount }: EmptyEditorStateProps) {
   const [quote, setQuote] = useState(LITERARY_QUOTES[0]);
 
   useEffect(() => {
