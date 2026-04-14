@@ -6,58 +6,13 @@ import { getUserById, getUserByEmail } from '@/lib/db/users'
 /**
  * Subscription Data Endpoint
  *
- * Returns current user's subscription information for client-side display
- * Used by useSubscription hook
+ * Returns current user's subscription information for client-side display.
+ * Used by the useSubscription hook.
  */
-
-// Deep-serialise an Error through the .cause chain, pulling every useful
-// field off each level. Drizzle wraps its source error as "Failed query:
-// <sql>" and puts the original on .cause — so the actual Postgres error
-// (code/severity/detail/hint) was hidden from our earlier diagnostics.
-// This walks up to 5 levels of cause and captures enumerable props.
-function serializeError(err: unknown, depth = 0): any {
-  if (!err || depth > 5) return err ?? null
-  try {
-    const e: any = err
-    const out: Record<string, any> = {
-      message: typeof e.message === 'string' ? e.message : String(e),
-      name: e.name ?? null,
-    }
-    // Postgres-js / node-postgres error fields
-    for (const field of [
-      'code',
-      'severity',
-      'detail',
-      'hint',
-      'position',
-      'where',
-      'schema',
-      'table',
-      'column',
-      'dataType',
-      'constraint',
-      'routine',
-      // Node.js network errors
-      'errno',
-      'syscall',
-      'address',
-      'port',
-    ]) {
-      if (e[field] !== undefined) out[field] = e[field]
-    }
-    if (e.stack) out.stack = String(e.stack).split('\n').slice(0, 8).join('\n')
-    if (e.cause) out.cause = serializeError(e.cause, depth + 1)
-    return out
-  } catch (serErr) {
-    return { message: 'serializeError threw', err: String(serErr) }
-  }
-}
-
 export async function GET(req: NextRequest) {
   try {
     const response = NextResponse.json({ error: 'Internal server error' }, { status: 500 })
 
-    // Get authenticated user
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -80,50 +35,45 @@ export async function GET(req: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized', authError: authError?.message ?? null },
+        { error: 'Unauthorized' },
         { status: 401, headers: response.headers }
       )
     }
 
-    // DIAGNOSTIC MODE v3: Drizzle wraps the real Postgres error inside a
-    // generic Error with message "Failed query: <sql>", preserving the
-    // original on `.cause`. Previous diagnostic versions only grabbed
-    // `.message`, so we were looking at the wrapper the whole time. This
-    // version walks the cause chain and grabs every enumerable field off
-    // each error object — SQLSTATE, severity, detail, hint, table, column,
-    // where, position, the works.
-    const byIdResult = await getUserById(user.id)
-    const byEmailResult = user.email ? await getUserByEmail(user.email) : null
+    // Primary lookup by auth UUID. Happy path.
+    let { user: dbUser } = await getUserById(user.id)
 
-    const dbUser = byIdResult.user || byEmailResult?.user || null
+    // Defensive fallback: if the id lookup returned null, try email. This
+    // handles the (rare) case where public.users.id has drifted out of
+    // sync with auth.users.id — from a manual DB edit, a deleted-and-
+    // recreated auth row, or an older auth flow that never wrote through
+    // the current callback. The email is on the validated JWT and
+    // users.email is UNIQUE, so it's a safe second lookup. When the
+    // fallback fires, a warning is logged so the drift shows up in Vercel
+    // runtime logs for later cleanup.
+    if (!dbUser && user.email) {
+      const { user: fallbackUser } = await getUserByEmail(user.email)
+      if (fallbackUser) {
+        console.warn(
+          `[subscription] id lookup failed but email lookup succeeded for ${user.email}. ` +
+          `auth.id=${user.id}, public.users.id=${fallbackUser.id}. ` +
+          `Fix with: UPDATE public.users SET id = '${user.id}' WHERE email = '${user.email}';`
+        )
+        dbUser = fallbackUser
+      }
+    }
 
     if (!dbUser) {
       return NextResponse.json(
-        {
-          error: 'User not found',
-          debug: {
-            authId: user.id,
-            authEmail: user.email ?? null,
-            getUserById: {
-              foundUser: byIdResult.user ? true : false,
-              error: serializeError(byIdResult.error),
-            },
-            getUserByEmail: byEmailResult
-              ? {
-                  foundUser: byEmailResult.user ? true : false,
-                  error: serializeError(byEmailResult.error),
-                }
-              : null,
-            databaseUrlHostFragment: (process.env.DATABASE_URL ?? '').split('@')[1]?.split(':')[0] ?? 'none',
-          },
-        },
+        { error: 'User not found' },
         { status: 404, headers: response.headers }
       )
     }
 
-    // Compute tier from the dbUser we already have rather than hitting
-    // getUserSubscriptionTier, which re-queries by id and would reproduce
-    // the same drift bug. This mirrors the logic in lib/db/users.ts exactly.
+    // Compute tier inline from the dbUser we already have rather than
+    // re-querying via getUserSubscriptionTier — which would hit the same
+    // drift bug the fallback above is defending against. Mirrors the
+    // logic in lib/db/users.ts exactly.
     let tier: 'free' | 'pro' = 'free'
     if (dbUser.isGrandfathered) {
       tier = 'pro'
