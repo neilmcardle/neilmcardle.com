@@ -1,16 +1,14 @@
 "use client";
 
 import React, { useState, useRef, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import { useBookMind, BookMindContext, BookMindAction, ChatSession } from '../hooks/useBookMind';
 import { useFeatureAccess, useSubscription } from '@/lib/hooks/useSubscription';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { loadBookLibrary } from '../utils/bookLibrary';
 import MarketingNav from '../components/MarketingNav';
 import MarketingFooter from '../components/MarketingFooter';
-import { SECTION_TIERS } from '../components/marketing/sectionTiers';
 import {
   BookMindIcon as BookIcon,
   ThinkingDots,
@@ -33,12 +31,19 @@ const QUICK_ACTIONS: { action: BookMindAction; label: string; description: strin
 
 function BookMindContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const bookIdParam = searchParams?.get('book') || null;
   const { user } = useAuth();
 
   const hasBookMindAccess = useFeatureAccess('book_mind_ai');
   const { isLoading: subLoading } = useSubscription();
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Free users should never reach this page. Per CLAUDE.md Pro/Free UI
+  // policy, the upgrade pitch lives in exactly one place (the account
+  // dropdown) — not here. Redirect them back to the editor.
+  useEffect(() => {
+    if (!subLoading && !hasBookMindAccess) router.replace('/make-ebook');
+  }, [subLoading, hasBookMindAccess, router]);
 
   const [selectedBookId, setSelectedBookId] = useState<string | null>(bookIdParam);
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
@@ -126,108 +131,15 @@ function BookMindContent() {
     return groups;
   }, {});
 
-  const handleUpgrade = async () => {
-    setCheckoutLoading(true);
-    try {
-      const res = await fetch('/api/checkout', { method: 'POST', credentials: 'include' });
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Failed'); }
-      const { url } = await res.json();
-      if (url) window.location.href = url;
-      else throw new Error('No checkout URL');
-    } catch (err) {
-      console.error('Checkout error:', err);
-      alert('Failed to start checkout. Please try again.');
-      setCheckoutLoading(false);
-    }
-  };
-
-  // ── Loading state (prevents flash of wrong UI while subscription fetches) ──
-  if (subLoading) {
+  // ── Loading / redirect state: render a minimal shell while subscription
+  //    resolves, and while the redirect effect fires for Free users.
+  if (subLoading || !hasBookMindAccess) {
     return (
       <div className="relative min-h-screen flex flex-col bg-me-cream text-gray-700">
         <MarketingNav />
         <main id="main-content" className="flex-1 flex flex-col px-6 sm:px-10 py-16">
           <div className="my-auto mx-auto">
             <BookIcon className="w-6 h-6 text-gray-300 animate-pulse" />
-          </div>
-        </main>
-        <MarketingFooter showWordmark={false} />
-      </div>
-    );
-  }
-
-  // ── Locked state — Pro upgrade pitch ───────────────────────────────────────
-  if (!hasBookMindAccess) {
-    const PITCH_BULLETS = [
-      'Summarises every chapter, scene, and arc',
-      'Catches plot holes and character inconsistencies',
-      'Surfaces themes and writing patterns you missed',
-      'Answers any question about your manuscript, instantly',
-    ];
-
-    return (
-      <div className="relative min-h-screen flex flex-col bg-me-cream text-gray-700">
-        <MarketingNav />
-        <main id="main-content" className="flex-1 flex flex-col px-6 sm:px-10 lg:px-16 py-16 sm:py-24">
-          <div className="my-auto w-full max-w-3xl mx-auto">
-            {/* Eyebrow */}
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
-              Book Mind &middot; Pro feature
-            </p>
-
-            {/* Headline */}
-            <h1
-              className="mt-4 font-serif font-bold text-gray-900 text-balance"
-              style={SECTION_TIERS.cinematic.title}
-            >
-              An editor that has read every page.
-            </h1>
-
-            {/* Sub */}
-            <p
-              className="mt-6 text-xl sm:text-2xl text-gray-600 max-w-xl text-pretty"
-              style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}
-            >
-              Book Mind reads your whole manuscript and answers questions only a careful editor would notice.
-            </p>
-
-            {/* Bullets */}
-            <ul className="mt-10 space-y-4 max-w-xl">
-              {PITCH_BULLETS.map((bullet) => (
-                <li key={bullet} className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-gray-700 text-pretty">{bullet}</span>
-                </li>
-              ))}
-            </ul>
-
-            {/* CTAs */}
-            <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-5">
-              <button
-                onClick={handleUpgrade}
-                disabled={checkoutLoading}
-                className="group px-8 py-4 text-base sm:text-lg font-semibold bg-gray-900 text-white rounded-full inline-flex items-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {checkoutLoading ? 'Redirecting\u2026' : 'Upgrade to Pro \u2014 $9/month'}
-                {!checkoutLoading && (
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                )}
-              </button>
-              <Link
-                href="/make-ebook"
-                className="group inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium underline-offset-4 decoration-gray-300 hover:underline"
-              >
-                Back to the editor
-                <span aria-hidden className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
-              </Link>
-            </div>
-
-            {/* Trust line */}
-            <p className="mt-8 text-sm text-gray-500">
-              Cancel anytime. Your books are always yours.
-            </p>
           </div>
         </main>
         <MarketingFooter showWordmark={false} />

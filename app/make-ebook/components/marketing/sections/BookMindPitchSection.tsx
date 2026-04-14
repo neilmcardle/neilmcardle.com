@@ -46,7 +46,7 @@ export default function BookMindPitchSection() {
   }, []);
 
   return (
-    <section className={SECTION_TIERS.cinematic.section}>
+    <section id="book-mind" className={SECTION_TIERS.cinematic.section}>
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           <FadeIn className="lg:col-span-7">

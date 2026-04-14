@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { useFeatureAccess } from '@/lib/hooks/useSubscription';
 
 export type RightPanelMode = 'none' | 'book-mind' | 'live-preview';
 
@@ -34,9 +35,11 @@ const TABS: { mode: Exclude<RightPanelMode, 'none'>; label: string; Icon: React.
 ];
 
 export default function LayoutSwitcher({ mode, onChange }: LayoutSwitcherProps) {
+  const hasBookMind = useFeatureAccess('book_mind_ai');
+  const visibleTabs = hasBookMind ? TABS : TABS.filter(t => t.mode !== 'book-mind');
   return (
     <div className="flex items-center rounded-lg border border-gray-200 dark:border-[#2f2f2f] overflow-hidden bg-gray-50 dark:bg-[#1e1e1e]">
-      {TABS.map(({ mode: m, label, Icon }, i) => {
+      {visibleTabs.map(({ mode: m, label, Icon }, i) => {
         const active = mode === m;
         return (
           <button

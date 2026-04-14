@@ -113,7 +113,7 @@ export default function MarketingFooter({
             <ul className="space-y-3 text-gray-600">
               <li><button onClick={handleFeatures} className="hover:text-gray-900 transition-colors">Features</button></li>
               <li><button onClick={handlePricing} className="hover:text-gray-900 transition-colors">Pricing</button></li>
-              <li><Link href="/make-ebook/book-mind" className="hover:text-gray-900 transition-colors">Book Mind</Link></li>
+              <li><Link href="/make-ebook#book-mind" className="hover:text-gray-900 transition-colors">Book Mind</Link></li>
             </ul>
           </div>
 
