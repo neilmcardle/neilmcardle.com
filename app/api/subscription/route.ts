@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // DIAGNOSTIC MODE: run both lookups and surface raw results in the
+    // DIAGNOSTIC MODE v2: run both lookups and surface raw results in the
     // response. This is here because the normal error-swallowing path in
     // getUserById/getUserByEmail has been hiding the true reason production
     // Drizzle reads of public.users return null despite the rows existing.
