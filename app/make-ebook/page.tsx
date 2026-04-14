@@ -34,8 +34,6 @@ import EditorCanvas from "./components/EditorCanvas";
 import type { RightPanelMode } from "./components/LayoutSwitcher";
 import EditorHeader from "./components/EditorHeader";
 import ChapterNavDropdown from "./components/ChapterNavDropdown";
-import SubscriptionBadge, { SubscriptionBadgeCompact } from "./components/SubscriptionBadge";
-import ManageBillingButton from "./components/ManageBillingButton";
 import { useWordStats } from "./hooks/useWordStats";
 import { useWritingGoals } from "./hooks/useWritingGoals";
 import { useVersionHistory } from "./hooks/useVersionHistory";
@@ -590,7 +588,32 @@ function MakeEbookPage() {
     setShowMarketingPage(false); // Dismiss marketing page when starting a new book
     handleNewBookConfirm();
   }
-  
+
+  // Create a new book from pasted manuscript text. Takes the pasted
+  // content and drops it into a single content chapter, then navigates to
+  // the Book details sidebar so the user can set a title/author next.
+  // Safe to call without the New Book confirmation dialog because this
+  // handler only fires from EmptyEditorState, which is only rendered when
+  // chapters.length === 0 (nothing to lose).
+  function handlePasteManuscript(text: string) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    setShowMarketingPage(false);
+    const newChapter: Chapter = {
+      id: `chapter-${Date.now()}`,
+      type: 'content',
+      title: 'Chapter 1',
+      content: trimmed,
+    };
+    setChapters([newChapter]);
+    setTitle('Pasted manuscript');
+    setAuthor('');
+    setSelectedChapter(0);
+    markDirty();
+    setSidebarView('book');
+  }
+
+
   function handleStartWriting() {
     // Called from marketing page when user wants to enter the editor
     setShowMarketingPage(false);
@@ -2126,6 +2149,8 @@ function MakeEbookPage() {
                   onNewBook={handleNewBook}
                   onOpenLibrary={() => setMobileSidebarOpen(true)}
                   libraryCount={libraryBooks.length}
+                  onPasteManuscript={handlePasteManuscript}
+                  onUploadFile={docImport.showImportDialog}
                 />
               ) : (
               <>
@@ -2248,6 +2273,8 @@ function MakeEbookPage() {
                   onNewBook={handleNewBook}
                   onOpenLibrary={() => setSidebarView('library')}
                   libraryCount={libraryBooks.length}
+                  onPasteManuscript={handlePasteManuscript}
+                  onUploadFile={docImport.showImportDialog}
                 />
               ) : (
               /* Editor Area — live preview now lives exclusively in EditorRightPanel */

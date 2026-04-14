@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useTheme } from '@/lib/contexts/ThemeContext';
 import { useSubscription } from '@/lib/hooks/useSubscription';
 import SubscriptionBadge from './SubscriptionBadge';
+import UpgradeModal from './UpgradeModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { LogOut, CreditCard } from 'lucide-react';
+import { LogOut, CreditCard, Sparkles } from 'lucide-react';
 
 interface SlimSidebarNavProps {
   activeView: 'library' | 'book' | 'chapters' | 'notes' | null;
@@ -71,6 +72,12 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
   const { tier, isGrandfathered, stripeCustomerId } = useSubscription();
   const { theme, toggleTheme } = useTheme();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  // Free users get a single Upgrade row in the dropdown — the only place
+  // upgrade messaging should appear in the product per CLAUDE.md policy.
+  // Pro and Lifetime users never see this row.
+  const showUpgradeRow = tier === 'free' && !isGrandfathered;
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -140,12 +147,21 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
           <DropdownMenuLabel className="font-normal pt-2 pb-2">
             <div className="flex flex-col space-y-2">
               <div className="flex items-center">
-                <SubscriptionBadge showUpgradeButton={true} />
+                <SubscriptionBadge />
               </div>
               <p className="text-sm font-medium leading-none truncate">{user?.email || 'user@email.com'}</p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          {showUpgradeRow && (
+            <>
+              <DropdownMenuItem onClick={() => setUpgradeOpen(true)} className="font-medium">
+                <Sparkles className="mr-2 h-4 w-4" />
+                <span>Upgrade to Pro</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
           <DropdownMenuItem onClick={toggleTheme}>
             {theme === 'light' ? (
               <img src="/moon-icon.svg" alt="Dark mode" className="mr-2 h-4 w-4" />
@@ -195,6 +211,10 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      {/* Rendered at the Tooltip level so the modal survives the dropdown
+          closing on click — the Upgrade row dismisses the menu, then this
+          modal opens from the same click. */}
+      <UpgradeModal isOpen={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </Tooltip>
   );
 }
