@@ -93,7 +93,7 @@ async function streamAnthropic(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 700,
+      max_tokens: 4096,
       stream: true,
       system: systemMessage,
       messages: userMessages.map(m => ({
@@ -213,7 +213,7 @@ export async function POST(req: NextRequest) {
           if (anthropicKey) {
             await streamAnthropic(
               anthropicKey,
-              process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
+              process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
               messages,
               controller
             );
