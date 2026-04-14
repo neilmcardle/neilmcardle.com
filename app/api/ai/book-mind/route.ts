@@ -213,7 +213,7 @@ export async function POST(req: NextRequest) {
           if (anthropicKey) {
             await streamAnthropic(
               anthropicKey,
-              process.env.ANTHROPIC_MODEL || 'claude-3-5-haiku-20241022',
+              process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
               messages,
               controller
             );
