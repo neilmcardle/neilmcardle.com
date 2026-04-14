@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from '@supabase/ssr'
 import { CookieOptions } from '@supabase/ssr'
-import { getUserSubscriptionTier } from '@/lib/db/users'
+import { getUserById, getUserByEmail } from '@/lib/db/users'
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -163,7 +163,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const tier = await getUserSubscriptionTier(user.id);
+    // Defensive tier lookup: primary by auth UUID, fallback to email.
+    // Mirrors the pattern in /api/subscription/route.ts. Avoids the failure
+    // mode where getUserSubscriptionTier silently returns 'free' on any
+    // DB error (drift, password, connection) — which would cause Book Mind
+    // to 403 real Pro users. Computes tier inline from the dbUser we fetch
+    // so there's no second round-trip that could reproduce the same bug.
+    let { user: dbUser } = await getUserById(user.id);
+    if (!dbUser && user.email) {
+      const { user: fallbackUser } = await getUserByEmail(user.email);
+      if (fallbackUser) {
+        console.warn(
+          `[book-mind] id lookup failed but email lookup succeeded for ${user.email}. ` +
+          `auth.id=${user.id}, public.users.id=${fallbackUser.id}.`
+        );
+        dbUser = fallbackUser;
+      }
+    }
+
+    let tier: 'free' | 'pro' = 'free';
+    if (dbUser) {
+      if (dbUser.isGrandfathered) tier = 'pro';
+      else if (dbUser.hasLifetimeAccess) tier = 'pro';
+      else if (dbUser.subscriptionStatus === 'active' && dbUser.subscriptionTier === 'pro') tier = 'pro';
+    }
 
     if (tier !== 'pro') {
       return NextResponse.json(
