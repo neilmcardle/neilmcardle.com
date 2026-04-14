@@ -9,6 +9,50 @@ import { getUserById, getUserByEmail } from '@/lib/db/users'
  * Returns current user's subscription information for client-side display
  * Used by useSubscription hook
  */
+
+// Deep-serialise an Error through the .cause chain, pulling every useful
+// field off each level. Drizzle wraps its source error as "Failed query:
+// <sql>" and puts the original on .cause — so the actual Postgres error
+// (code/severity/detail/hint) was hidden from our earlier diagnostics.
+// This walks up to 5 levels of cause and captures enumerable props.
+function serializeError(err: unknown, depth = 0): any {
+  if (!err || depth > 5) return err ?? null
+  try {
+    const e: any = err
+    const out: Record<string, any> = {
+      message: typeof e.message === 'string' ? e.message : String(e),
+      name: e.name ?? null,
+    }
+    // Postgres-js / node-postgres error fields
+    for (const field of [
+      'code',
+      'severity',
+      'detail',
+      'hint',
+      'position',
+      'where',
+      'schema',
+      'table',
+      'column',
+      'dataType',
+      'constraint',
+      'routine',
+      // Node.js network errors
+      'errno',
+      'syscall',
+      'address',
+      'port',
+    ]) {
+      if (e[field] !== undefined) out[field] = e[field]
+    }
+    if (e.stack) out.stack = String(e.stack).split('\n').slice(0, 8).join('\n')
+    if (e.cause) out.cause = serializeError(e.cause, depth + 1)
+    return out
+  } catch (serErr) {
+    return { message: 'serializeError threw', err: String(serErr) }
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const response = NextResponse.json({ error: 'Internal server error' }, { status: 500 })
