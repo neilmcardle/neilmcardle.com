@@ -36,37 +36,54 @@ export async function GET(req: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized', authError: authError?.message ?? null },
         { status: 401, headers: response.headers }
       )
     }
 
-    // Primary lookup: match by auth UUID. This is the happy path and the
-    // only path that should fire in a healthy system.
-    let { user: dbUser } = await getUserById(user.id)
+    // DIAGNOSTIC MODE: run both lookups and surface raw results in the
+    // response. This is here because the normal error-swallowing path in
+    // getUserById/getUserByEmail has been hiding the true reason production
+    // Drizzle reads of public.users return null despite the rows existing.
+    // Remove this block and restore normal logic once the root cause is
+    // identified from the returned debug payload.
+    const byIdResult = await getUserById(user.id)
+    const byEmailResult = user.email ? await getUserByEmail(user.email) : null
 
-    // Fallback lookup: match by email. Fires when the public.users row's id
-    // has drifted out of sync with auth.users.id — e.g. row created under an
-    // older auth UUID that has since rotated, or inserted manually with a
-    // stale id. The email is on the validated JWT so we can trust it, and
-    // users.email is UNIQUE so this is a safe match. When this fallback
-    // triggers, we log a loud warning so the mismatch shows up in runtime
-    // logs and can be investigated and fixed at the data layer.
-    if (!dbUser && user.email) {
-      const { user: fallbackUser } = await getUserByEmail(user.email)
-      if (fallbackUser) {
-        console.warn(
-          `[subscription] id-lookup failed but email-lookup succeeded for ${user.email}. ` +
-          `auth.id=${user.id}, public.users.id=${fallbackUser.id}. ` +
-          `Rows are out of sync — fix with: UPDATE public.users SET id = '${user.id}' WHERE email = '${user.email}';`
-        )
-        dbUser = fallbackUser
-      }
-    }
+    const dbUser = byIdResult.user || byEmailResult?.user || null
 
     if (!dbUser) {
       return NextResponse.json(
-        { error: 'User not found' },
+        {
+          error: 'User not found',
+          debug: {
+            authId: user.id,
+            authEmail: user.email ?? null,
+            getUserById: {
+              foundUser: byIdResult.user ? true : false,
+              error: byIdResult.error
+                ? {
+                    message: (byIdResult.error as Error).message ?? String(byIdResult.error),
+                    name: (byIdResult.error as Error).name ?? null,
+                    stack: (byIdResult.error as Error).stack ?? null,
+                  }
+                : null,
+            },
+            getUserByEmail: byEmailResult
+              ? {
+                  foundUser: byEmailResult.user ? true : false,
+                  error: byEmailResult.error
+                    ? {
+                        message: (byEmailResult.error as Error).message ?? String(byEmailResult.error),
+                        name: (byEmailResult.error as Error).name ?? null,
+                        stack: (byEmailResult.error as Error).stack ?? null,
+                      }
+                    : null,
+                }
+              : null,
+            databaseUrlHostFragment: (process.env.DATABASE_URL ?? '').split('@')[1]?.split(':')[0] ?? 'none',
+          },
+        },
         { status: 404, headers: response.headers }
       )
     }
