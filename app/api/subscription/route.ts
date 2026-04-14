@@ -41,12 +41,13 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // DIAGNOSTIC MODE v2: run both lookups and surface raw results in the
-    // response. This is here because the normal error-swallowing path in
-    // getUserById/getUserByEmail has been hiding the true reason production
-    // Drizzle reads of public.users return null despite the rows existing.
-    // Remove this block and restore normal logic once the root cause is
-    // identified from the returned debug payload.
+    // DIAGNOSTIC MODE v3: Drizzle wraps the real Postgres error inside a
+    // generic Error with message "Failed query: <sql>", preserving the
+    // original on `.cause`. Previous diagnostic versions only grabbed
+    // `.message`, so we were looking at the wrapper the whole time. This
+    // version walks the cause chain and grabs every enumerable field off
+    // each error object — SQLSTATE, severity, detail, hint, table, column,
+    // where, position, the works.
     const byIdResult = await getUserById(user.id)
     const byEmailResult = user.email ? await getUserByEmail(user.email) : null
 
@@ -61,24 +62,12 @@ export async function GET(req: NextRequest) {
             authEmail: user.email ?? null,
             getUserById: {
               foundUser: byIdResult.user ? true : false,
-              error: byIdResult.error
-                ? {
-                    message: (byIdResult.error as Error).message ?? String(byIdResult.error),
-                    name: (byIdResult.error as Error).name ?? null,
-                    stack: (byIdResult.error as Error).stack ?? null,
-                  }
-                : null,
+              error: serializeError(byIdResult.error),
             },
             getUserByEmail: byEmailResult
               ? {
                   foundUser: byEmailResult.user ? true : false,
-                  error: byEmailResult.error
-                    ? {
-                        message: (byEmailResult.error as Error).message ?? String(byEmailResult.error),
-                        name: (byEmailResult.error as Error).name ?? null,
-                        stack: (byEmailResult.error as Error).stack ?? null,
-                      }
-                    : null,
+                  error: serializeError(byEmailResult.error),
                 }
               : null,
             databaseUrlHostFragment: (process.env.DATABASE_URL ?? '').split('@')[1]?.split(':')[0] ?? 'none',
