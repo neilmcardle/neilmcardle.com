@@ -143,7 +143,7 @@ export default function EmptyEditorState({
               <ActionCard
                 primary
                 label="Paste manuscript"
-                description="From Word, Docs, or any AI"
+                description="From anywhere"
                 onClick={() => setPasteExpanded(true)}
               />
               <ActionCard
