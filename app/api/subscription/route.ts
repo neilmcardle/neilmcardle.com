@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { CookieOptions } from '@supabase/ssr'
-import { getUserSubscriptionTier, getUserById } from '@/lib/db/users'
+import { getUserById, getUserByEmail } from '@/lib/db/users'
 
 /**
  * Subscription Data Endpoint
@@ -41,18 +41,47 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Get user from database
-    const { user: dbUser, error: dbError } = await getUserById(user.id)
+    // Primary lookup: match by auth UUID. This is the happy path and the
+    // only path that should fire in a healthy system.
+    let { user: dbUser } = await getUserById(user.id)
 
-    if (dbError || !dbUser) {
+    // Fallback lookup: match by email. Fires when the public.users row's id
+    // has drifted out of sync with auth.users.id — e.g. row created under an
+    // older auth UUID that has since rotated, or inserted manually with a
+    // stale id. The email is on the validated JWT so we can trust it, and
+    // users.email is UNIQUE so this is a safe match. When this fallback
+    // triggers, we log a loud warning so the mismatch shows up in runtime
+    // logs and can be investigated and fixed at the data layer.
+    if (!dbUser && user.email) {
+      const { user: fallbackUser } = await getUserByEmail(user.email)
+      if (fallbackUser) {
+        console.warn(
+          `[subscription] id-lookup failed but email-lookup succeeded for ${user.email}. ` +
+          `auth.id=${user.id}, public.users.id=${fallbackUser.id}. ` +
+          `Rows are out of sync — fix with: UPDATE public.users SET id = '${user.id}' WHERE email = '${user.email}';`
+        )
+        dbUser = fallbackUser
+      }
+    }
+
+    if (!dbUser) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404, headers: response.headers }
       )
     }
 
-    // Get computed subscription tier (handles grandfathering logic)
-    const tier = await getUserSubscriptionTier(user.id)
+    // Compute tier from the dbUser we already have rather than hitting
+    // getUserSubscriptionTier, which re-queries by id and would reproduce
+    // the same drift bug. This mirrors the logic in lib/db/users.ts exactly.
+    let tier: 'free' | 'pro' = 'free'
+    if (dbUser.isGrandfathered) {
+      tier = 'pro'
+    } else if (dbUser.hasLifetimeAccess) {
+      tier = 'pro'
+    } else if (dbUser.subscriptionStatus === 'active' && dbUser.subscriptionTier === 'pro') {
+      tier = 'pro'
+    }
 
     return NextResponse.json(
       {
