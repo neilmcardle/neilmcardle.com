@@ -29,6 +29,13 @@ const PRODUCTS = [
     external: false,
     wordmark: false,
   },
+  {
+    name: "Promptr",
+    icon: "/pencil-icon.svg",
+    href: "/promptr",
+    external: false,
+    wordmark: false,
+  },
 ];
 
 function SelectedWork() {
@@ -383,6 +390,117 @@ export default function Homepage() {
               style={{ fontFamily: "var(--font-inter)" }}
             >
               Design · Development
+            </p>
+          </div>
+        </section>
+
+        {/* ── Divider ───────────────────────────────────────── */}
+        <div className="w-full h-px bg-black/[0.08] dark:bg-white/[0.08] mb-20" />
+
+        {/* ── Work: Promptr ─────────────────────────────────── */}
+        <section className="mb-24">
+          <div className="flex items-end justify-between mb-8">
+            <div className="flex items-end gap-5">
+              <span
+                className="text-[11px] font-medium uppercase tracking-[0.2em] text-black/25 dark:text-white/45 pb-1"
+                style={{ fontFamily: "var(--font-inter)" }}
+              >
+                04
+              </span>
+              <h2
+                className="text-3xl sm:text-4xl text-black dark:text-white leading-none"
+                style={{ fontFamily: "var(--font-playfair)", fontWeight: 400, letterSpacing: "-0.02em" }}
+              >
+                Promptr
+              </h2>
+            </div>
+            <Link
+              href="/promptr"
+              className="flex items-center gap-1.5 text-sm text-black/35 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors duration-200 pb-1"
+              style={{ fontFamily: "var(--font-inter)" }}
+            >
+              Try it
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M7 17L17 7M7 7h10v10" />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Live scorecard preview — renders the same dots + labels the
+              real tool uses, so the showcase is authentic to what the
+              user will see when they click through. No image asset. */}
+          <div
+            className="w-full rounded-2xl bg-[#f8f8f7] dark:bg-[#111] p-8 sm:p-14"
+            style={{ boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.06)" }}
+          >
+            <div className="max-w-[440px] mx-auto flex flex-col gap-4">
+              {[
+                { label: "Clarity",        score: 4 },
+                { label: "Specificity",    score: 2 },
+                { label: "Role & Context", score: 3 },
+                { label: "Constraints",    score: 4 },
+                { label: "Output format",  score: 5 },
+                { label: "Examples",       score: 5 },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between">
+                  <span
+                    className="text-sm text-black/65 dark:text-white/65"
+                    style={{ fontFamily: "var(--font-inter)" }}
+                  >
+                    {row.label}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <span
+                          key={i}
+                          className="w-2 h-2 rounded-full"
+                          style={{
+                            background: i <= row.score
+                              ? "rgba(0,0,0,0.78)"
+                              : "rgba(0,0,0,0.12)",
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span
+                      className="text-xs text-black/40 dark:text-white/45 tabular-nums"
+                      style={{ fontFamily: "var(--font-inter)", minWidth: 24, textAlign: "right" }}
+                    >
+                      {row.score}/5
+                    </span>
+                  </div>
+                </div>
+              ))}
+              <div className="mt-3 pt-4 border-t border-black/[0.08] dark:border-white/[0.08] flex items-baseline justify-between gap-4">
+                <span
+                  className="text-lg text-black/75 dark:text-white/80"
+                  style={{ fontFamily: "var(--font-playfair)", letterSpacing: "-0.01em" }}
+                >
+                  Tight and actionable. A good draft.
+                </span>
+                <span
+                  className="text-xs text-black/40 dark:text-white/45 tabular-nums whitespace-nowrap"
+                  style={{ fontFamily: "var(--font-inter)" }}
+                >
+                  23/30 · Strong
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <p
+              className="text-sm text-black/50 dark:text-white/60 max-w-[480px] leading-relaxed"
+              style={{ fontFamily: "var(--font-inter)" }}
+            >
+              A workshop for your first draft. Paste a prompt, score it against a rubric, refine it, and learn what actually makes one work.
+            </p>
+            <p
+              className="text-[11px] uppercase tracking-[0.15em] text-black/25 dark:text-white/45 whitespace-nowrap pt-0.5"
+              style={{ fontFamily: "var(--font-inter)" }}
+            >
+              Design · Development · AI
             </p>
           </div>
         </section>
