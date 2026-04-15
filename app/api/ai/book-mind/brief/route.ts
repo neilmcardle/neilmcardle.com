@@ -16,7 +16,12 @@ import { requireProUser } from '../_lib/proAuth';
 import { streamWithFallback, SystemBlock } from '../_lib/anthropic';
 
 export const runtime = 'nodejs';
-export const maxDuration = 120;
+// Hobby plan caps serverless functions at 60s. Haiku 4.5 completes a
+// 200K-word brief in roughly 30-45s with streaming, so 60s leaves
+// headroom without hitting the ceiling. If a genuinely huge manuscript
+// ever runs over, we'll need to chunk the brief into per-chapter calls
+// (each well under 60s) rather than raise this value.
+export const maxDuration = 60;
 
 interface BriefRequest {
   chapters: Array<{ id: string; title: string; content: string; type: string }>;
