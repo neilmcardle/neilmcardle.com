@@ -46,7 +46,8 @@ import FindReplacePanel from "./components/FindReplacePanel";
 import { useFindReplace } from "./hooks/useFindReplace";
 import { useOnboarding } from "./hooks/useOnboarding";
 import OnboardingTour from "./components/OnboardingTour";
-import { loadBookLibrary, saveBookToLibrary } from "./utils/bookLibrary";
+import { loadBookLibrary, saveBookToLibrary, loadBookById } from "./utils/bookLibrary";
+import { ensureManuscriptBrief } from "./utils/manuscriptBrief";
 // Extracted utilities & components
 import { formatRelativeTime, getContentChapterNumber } from "./utils/pageUtils";
 import { ChapterCapsuleMarker } from "./components/ChapterCapsuleMarker";
@@ -316,6 +317,34 @@ function MakeEbookPage() {
     deleteExport,
     clearHistory: clearExportHistory,
   } = useExportHistory({ bookId: currentBookId, maxExports: 5 });
+
+  // Kick off Book Mind's manuscript brief in the background whenever a new
+  // book is loaded or when the current book is opened for the first time
+  // by a Pro user. The brief is the spine of every fast Book Mind
+  // interaction — once it exists in localStorage, chat / Cmd-K / margin
+  // annotations all read it locally without an API call. Idempotent: the
+  // generator returns immediately if the brief is already fresh, joins
+  // an existing in-flight call, or starts a new one. Free users skip
+  // entirely — Book Mind is Pro-gated and we don't burn API calls for
+  // them. Errors are swallowed and surfaced in the next chat send if
+  // anything went wrong.
+  useEffect(() => {
+    if (!hasBookMind) return;
+    if (!currentBookId || !user?.id) return;
+    const book = loadBookById(user.id, currentBookId);
+    if (!book || book.chapters.length === 0) return;
+    let cancelled = false;
+    ensureManuscriptBrief({
+      userId: user.id,
+      book,
+    }).then(result => {
+      if (cancelled) return;
+      if (!result.ok && result.reason && result.reason !== 'fresh') {
+        console.warn('[book-mind] brief generation:', result.reason, result.error);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [currentBookId, user?.id, hasBookMind]);
 
   // Unified History modal: null = closed, otherwise the tab to open on.
   // Replaces the old split showVersionHistory / showExportHistory booleans.

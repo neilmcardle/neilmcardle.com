@@ -22,6 +22,10 @@ export function saveBookToLibrary(userId: string, book: Partial<BookRecord>): st
   if (typeof window === "undefined") return "";
   let library = loadBookLibrary(userId);
   const id = book.id || "book-" + Date.now();
+  // Preserve bookmindMemory across saves: prefer the value on the incoming
+  // record (the editor passes it through), otherwise fall back to the
+  // existing on-disk record so the brain doesn't get wiped on a partial save.
+  const existing = library.find((b) => b.id === id);
   const bookToSave: BookRecord = {
     id,
     title: book.title || '',
@@ -38,6 +42,7 @@ export function saveBookToLibrary(userId: string, book: Partial<BookRecord>): st
     endnotes: book.endnotes || [],
     endnoteReferences: book.endnoteReferences || [],
     savedAt: Date.now(),
+    bookmindMemory: book.bookmindMemory ?? existing?.bookmindMemory,
   };
   const idx = library.findIndex((b) => b.id === id);
   if (idx >= 0) library[idx] = bookToSave;
@@ -83,6 +88,7 @@ export function normalizeBookFromSupabase(book: Record<string, unknown>): BookRe
     endnotes: Array.isArray(book.endnotes) ? book.endnotes : [],
     endnoteReferences: normalizeEndnoteReferences(book.endnoteReferences || book.endnote_references),
     savedAt: (book.savedAt as number) || (book.updated_at ? new Date(book.updated_at as string).getTime() : Date.now()),
+    bookmindMemory: (book.bookmindMemory as BookRecord['bookmindMemory']) ?? undefined,
   };
 }
 
