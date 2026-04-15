@@ -20,7 +20,7 @@ interface SubscriptionData {
 const SubscriptionContext = createContext<SubscriptionData | undefined>(undefined)
 
 export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, loading: authLoading } = useAuth()
   const [data, setData] = useState<SubscriptionData>({
     tier: 'free',
     status: null,
@@ -33,8 +33,16 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   })
 
   useEffect(() => {
+    // Wait for auth to settle before making any tier decision. If auth
+    // is still resolving, "not authenticated" actually means "we don't
+    // know yet" — collapsing that to tier='free' causes a race where
+    // downstream consumers (Book Mind redirect, LayoutSwitcher gating,
+    // etc.) briefly see a Pro user as Free and make the wrong call. We
+    // keep isLoading=true until auth has genuinely landed on an answer.
+    if (authLoading) return
+
     if (!isAuthenticated || !user) {
-      // User not authenticated - default to free tier
+      // Auth has settled: user is genuinely anonymous. Default to free.
       setData({
         tier: 'free',
         status: null,
@@ -90,7 +98,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     }
 
     fetchSubscription()
-  }, [user?.id, isAuthenticated])
+  }, [user?.id, isAuthenticated, authLoading])
 
   return (
     <SubscriptionContext.Provider value={data}>
