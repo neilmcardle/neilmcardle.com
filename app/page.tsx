@@ -444,7 +444,7 @@ export default function Homepage() {
               ].map((row) => (
                 <div key={row.label} className="flex items-center justify-between">
                   <span
-                    className="text-sm text-black/65 dark:text-white/65"
+                    className="text-sm text-black/65 dark:text-white/70"
                     style={{ fontFamily: "var(--font-inter)" }}
                   >
                     {row.label}
@@ -454,17 +454,16 @@ export default function Homepage() {
                       {[1, 2, 3, 4, 5].map((i) => (
                         <span
                           key={i}
-                          className="w-2 h-2 rounded-full"
-                          style={{
-                            background: i <= row.score
-                              ? "rgba(0,0,0,0.78)"
-                              : "rgba(0,0,0,0.12)",
-                          }}
+                          className={`w-2 h-2 rounded-full ${
+                            i <= row.score
+                              ? "bg-black/75 dark:bg-white/85"
+                              : "bg-black/10 dark:bg-white/15"
+                          }`}
                         />
                       ))}
                     </div>
                     <span
-                      className="text-xs text-black/40 dark:text-white/45 tabular-nums"
+                      className="text-xs text-black/40 dark:text-white/50 tabular-nums"
                       style={{ fontFamily: "var(--font-inter)", minWidth: 24, textAlign: "right" }}
                     >
                       {row.score}/5
@@ -472,15 +471,15 @@ export default function Homepage() {
                   </div>
                 </div>
               ))}
-              <div className="mt-3 pt-4 border-t border-black/[0.08] dark:border-white/[0.08] flex items-baseline justify-between gap-4">
+              <div className="mt-3 pt-4 border-t border-black/[0.08] dark:border-white/[0.1] flex items-baseline justify-between gap-4">
                 <span
-                  className="text-lg text-black/75 dark:text-white/80"
+                  className="text-lg text-black/75 dark:text-white/85"
                   style={{ fontFamily: "var(--font-playfair)", letterSpacing: "-0.01em" }}
                 >
                   Tight and actionable. A good draft.
                 </span>
                 <span
-                  className="text-xs text-black/40 dark:text-white/45 tabular-nums whitespace-nowrap"
+                  className="text-xs text-black/40 dark:text-white/55 tabular-nums whitespace-nowrap"
                   style={{ fontFamily: "var(--font-inter)" }}
                 >
                   23/30 · Strong
