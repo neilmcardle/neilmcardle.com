@@ -21,6 +21,11 @@ interface BookMindRequest {
     selectedText?: string;
     chapterContent?: string;
     action?: string;
+    // 'narrow' = current chapter + index (conversational, fast path).
+    // 'full'   = whole manuscript (analytical, quality path).
+    // The client decides which based on the action type; the server uses
+    // it to pick the right model so quality and rate limits both hold.
+    mode?: 'narrow' | 'full';
   };
 }
 
@@ -136,6 +141,7 @@ export async function POST(req: NextRequest) {
   try {
     const body: BookMindRequest = await req.json();
     const { messages } = body;
+    const mode = body.context?.mode ?? 'full';
 
     if (!messages || messages.length === 0) {
       return NextResponse.json({ error: "No messages provided" }, { status: 400 });
@@ -207,13 +213,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Model routing. Narrow mode (conversational, chapter-scoped) goes to
+    // Haiku 4.5 — fast, cheap, and high per-minute rate-limit headroom for
+    // the common case. Full mode (analytical, whole-manuscript) goes to
+    // Sonnet 4.6 by default because Book Mind's moat is editorial quality
+    // on literary analysis. Env overrides let the user swap models without
+    // a code change (e.g. force Haiku on analytical when tier limits bite).
+    const anthropicModel =
+      mode === 'full'
+        ? process.env.ANTHROPIC_MODEL_ANALYTICAL ||
+          process.env.ANTHROPIC_MODEL ||
+          'claude-sonnet-4-6'
+        : process.env.ANTHROPIC_MODEL_CONVERSATIONAL ||
+          process.env.ANTHROPIC_MODEL ||
+          'claude-haiku-4-5-20251001';
+
     const stream = new ReadableStream({
       async start(controller) {
         try {
           if (anthropicKey) {
             await streamAnthropic(
               anthropicKey,
-              process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+              anthropicModel,
               messages,
               controller
             );

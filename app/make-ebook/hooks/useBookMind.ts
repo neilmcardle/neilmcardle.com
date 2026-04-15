@@ -47,16 +47,37 @@ interface UseBookMindOptions {
 
 
 const ACTION_PROMPTS: Record<BookMindAction, string> = {
-  'summarize-book': 'Give me a natural summary of what this book is about—the main story, what themes are running through it, and how the characters develop. Keep it conversational, like you\'re telling a friend about a book you just read.',
+  'summarize-book': 'Give me a natural summary of what this book is about, the main story, what themes are running through it, and how the characters develop. Keep it conversational, like you\'re telling a friend about a book you just read.',
   'summarize-chapter': 'Walk me through what happens in this chapter. What are the key moments, how do the characters change or react, and how does it fit into the bigger picture?',
-  'list-characters': 'Who are all the people in this book? For each one, tell me where they show up and what their deal is—what role do they play in the story?',
-  'find-inconsistencies': 'Look through the book and flag anything that doesn\'t quite add up—plot holes, timeline issues, characters acting out of character, facts that contradict each other. Be specific about what you find.',
+  'list-characters': 'Who are all the people in this book? For each one, tell me where they show up and what their deal is, what role do they play in the story?',
+  'find-inconsistencies': 'Look through the book and flag anything that doesn\'t quite add up, plot holes, timeline issues, characters acting out of character, facts that contradict each other. Be specific about what you find.',
   'analyze-themes': 'What are the big ideas running through this book? Point to specific moments that show these themes in action.',
   'check-grammar': 'Go through this chapter and catch any grammar, spelling, or punctuation issues. Tell me where they are and how to fix them.',
   'timeline-review': 'Map out when everything happens in this book. Note any dates or time references, and flag anything that seems off with the chronology.',
   'word-frequency': 'Look at the language patterns in this book. Are there words or phrases that keep coming up? Any habits the author might want to mix up for variety?',
   'ask-question': ''
 };
+
+// Which actions genuinely need the whole manuscript in context vs. which
+// can work from the currently open chapter plus a lightweight index of the
+// rest. Analytical actions inspect the whole book; conversational and
+// chapter-scoped actions do not. This is the core of the smart-context
+// strategy: most turns send ~5–15K tokens instead of the full ~40K+,
+// which keeps us under Anthropic's per-minute rate limits and makes
+// responses feel immediate. See CLAUDE.md Phase 1 notes.
+export type BookMindMode = 'narrow' | 'full';
+
+const ANALYTICAL_ACTIONS: BookMindAction[] = [
+  'summarize-book',
+  'list-characters',
+  'find-inconsistencies',
+  'analyze-themes',
+  'timeline-review',
+  'word-frequency',
+];
+
+const pickMode = (action?: BookMindAction): BookMindMode =>
+  action && ANALYTICAL_ACTIONS.includes(action) ? 'full' : 'narrow';
 
 const CHAT_STORAGE_KEY = 'bookmind_chats';
 
@@ -183,11 +204,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     }
   }, [currentSessionId, bookId]);
 
-  const buildSystemPrompt = (context: BookMindContext): string => {
-    const fullBookContent = context.allChapters
-      .map((ch, i) => `[${ch.type.toUpperCase()}] ${ch.title || `Chapter ${i + 1}`}\n${ch.content}`)
-      .join('\n\n---\n\n');
-
+  const buildSystemPrompt = (context: BookMindContext, mode: BookMindMode): string => {
     // Suppress placeholder titles like "Pasted manuscript" (default set by
     // the editor when a user pastes raw text without naming the book yet).
     // Echoing that as if it were the real title makes responses look broken.
@@ -196,9 +213,9 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     const hasRealTitle = rawTitle && !PLACEHOLDER_TITLES.includes(rawTitle.toLowerCase());
     const displayTitle = hasRealTitle ? rawTitle : 'this manuscript (untitled)';
 
-    return `You are Book Mind, the editorial brain inside makeEbook. You have read the author's full manuscript and you are their sharpest collaborator: equal parts line editor, developmental editor, and honest first reader. Your judgement is the thing they are paying for. Make it count.
+    const voiceAndFormat = `You are Book Mind, the editorial brain inside makeEbook. You have read the author's manuscript and you are their sharpest collaborator: equal parts line editor, developmental editor, and honest first reader. Your judgement is the thing they are paying for. Make it count.
 
-You help with anything: analysis, feedback, summaries, spotting issues, writing suggestions, drafting passages, continuing scenes, character work. Ground every claim in the actual text — quote specifically, name chapters, refer to real moments. The author should feel like you genuinely know their book.
+You help with anything: analysis, feedback, summaries, spotting issues, writing suggestions, drafting passages, continuing scenes, character work. Ground every claim in the actual text. Quote specifically, name chapters, refer to real moments. The author should feel like you genuinely know their book.
 
 VOICE
 - Direct, confident, literary. No hedging. No corporate softeners ("I'd be happy to…", "Great question!"). No AI tells.
@@ -206,25 +223,89 @@ VOICE
 - Match response length to the question. A short question gets a short answer. An analysis request gets substance, but never filler.
 - Never break character. Never mention being an AI or a language model.
 
-STRICT FORMATTING RULES — the UI renders these responses in a narrow right-hand chat panel, roughly 360px wide. Follow these without exception:
-- NEVER use em dashes (—). Use commas, colons, or full stops instead. This is a brand rule and non-negotiable.
+STRICT FORMATTING RULES. The UI renders responses in a narrow right-hand chat panel, roughly 360px wide. Follow these without exception:
+- NEVER use em dashes. Use commas, colons, or full stops instead. This is a brand rule and non-negotiable.
 - NEVER use H1 or H2 headings (no # or ##). If you need structure, use short bolded labels inline (**Like this:**) or numbered points.
-- NEVER use horizontal rules (---).
+- NEVER use horizontal rules.
 - NEVER use tables unless explicitly asked. Tables overflow the panel.
 - Short paragraphs, two to four sentences. No walls of text.
 - When you quote the manuscript, use standard quotation marks and keep quotes tight (one or two sentences).
-- If you are nearing a natural stopping point, stop cleanly. Do not trail off mid-sentence or promise more. Wrap up with a concrete closing thought.
+- If you are nearing a natural stopping point, stop cleanly. Do not trail off mid-sentence or promise more. Wrap up with a concrete closing thought.`;
 
-ABOUT THIS BOOK
+    const bookMeta = `ABOUT THIS BOOK
 - Title: ${displayTitle}
 - Author: ${context.author?.trim() || 'not yet specified'}
 - Genre: ${context.genre?.trim() || 'not yet specified'}
-- ${context.allChapters.length} chapters
+- ${context.allChapters.length} chapters`;
+
+    const selectionBlock = context.selectedText
+      ? `\nThe author has highlighted this passage and wants to discuss it:\n"""\n${context.selectedText}\n"""\n`
+      : '';
+
+    if (mode === 'full') {
+      // Analytical actions need the whole manuscript in context so the
+      // model can cross-reference chapters, find inconsistencies, trace
+      // arcs, and so on.
+      const fullBookContent = context.allChapters
+        .map((ch, i) => `[${ch.type.toUpperCase()}] ${ch.title || `Chapter ${i + 1}`}\n${ch.content}`)
+        .join('\n\n---\n\n');
+
+      return `${voiceAndFormat}
+
+${bookMeta}
 
 ${context.chapterTitle ? `Currently open: ${context.chapterTitle}` : ''}
-${context.selectedText ? `\nThe author has highlighted this passage and wants to discuss it:\n"""\n${context.selectedText}\n"""` : ''}
+${selectionBlock}
 === FULL MANUSCRIPT ===
 ${fullBookContent}
+=== END ===`;
+    }
+
+    // Narrow mode: send the currently open chapter in full, plus a compact
+    // index of every other chapter (title, word count, opening passage, and
+    // closing passage). This gives the model enough semantic signal to
+    // place its answer in the whole-book context without shipping the
+    // entire manuscript on every turn.
+    const currentIdx = Math.max(
+      0,
+      context.allChapters.findIndex(ch => ch.title === context.chapterTitle)
+    );
+    const currentChapter = context.allChapters[currentIdx] ?? context.allChapters[0] ?? {
+      title: '',
+      content: '',
+      type: 'chapter',
+    };
+
+    const makePreview = (text: string, head: number, tail: number) => {
+      const clean = text.replace(/\s+/g, ' ').trim();
+      if (clean.length <= head + tail + 20) return clean;
+      return `${clean.slice(0, head)}… ${clean.slice(-tail)}`;
+    };
+
+    const chapterIndex = context.allChapters
+      .map((ch, i) => {
+        const wc = ch.content.split(/\s+/).filter(Boolean).length;
+        const marker = i === currentIdx ? ' ← currently open' : '';
+        const preview = ch.content.trim()
+          ? makePreview(ch.content, 400, 200)
+          : '(empty)';
+        return `${i + 1}. [${ch.type}] ${ch.title || `Chapter ${i + 1}`} (${wc.toLocaleString()} words)${marker}\n   ${preview}`;
+      })
+      .join('\n\n');
+
+    return `${voiceAndFormat}
+
+${bookMeta}
+
+You have the chapter the author is currently reading in full below, plus a structural index of every other chapter (title, word count, opening and closing passages). Use the index to place your answer in the whole-book context. If the author asks something that would require reading a specific other chapter in detail, say so plainly so they can switch to a whole-book action.
+${selectionBlock}
+=== CHAPTER INDEX (all ${context.allChapters.length} chapters) ===
+${chapterIndex}
+=== END INDEX ===
+
+=== CURRENTLY OPEN CHAPTER (full text) ===
+[${currentChapter.type.toUpperCase()}] ${currentChapter.title || `Chapter ${currentIdx + 1}`}
+${currentChapter.content}
 === END ===`;
   };
 
@@ -258,16 +339,18 @@ ${fullBookContent}
         }
       }
 
+      const mode = pickMode(action);
+
       const response = await fetch('/api/ai/book-mind', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [
-            { role: 'system', content: buildSystemPrompt(context) },
+            { role: 'system', content: buildSystemPrompt(context, mode) },
             ...updatedMessages.slice(-10).map(m => ({ role: m.role, content: m.content })),
             { role: 'user', content: prompt }
           ],
-          context: { action }
+          context: { action, mode }
         }),
       });
 

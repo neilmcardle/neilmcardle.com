@@ -46,6 +46,14 @@ export default function BookMindPanel({
     allChapters: chapters, selectedText: activeSelectedText,
   };
 
+  // Trust signal: what Book Mind is actually reading. Anchored to the
+  // current manuscript state so the author sees the real reach, not a
+  // stale snapshot. Cheap word count (char-based, good enough).
+  const totalWords = chapters.reduce((sum, ch) => {
+    const words = ch.content.split(/\s+/).filter(Boolean).length;
+    return sum + words;
+  }, 0);
+
   const ensureSession = () => { if (!currentSessionId) createSession(); };
 
   const handleSend = async () => {
@@ -170,6 +178,19 @@ export default function BookMindPanel({
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Context transparency strip — tells the author exactly what Book
+          Mind can see right now. Anchors trust: responses are grounded in
+          the actual manuscript state, not a stale snapshot. Hidden when no
+          book is open. */}
+      {chapters.length > 0 && (
+        <div className="flex-shrink-0 px-4 py-1.5 border-t border-gray-100 dark:border-[#262626]">
+          <p className="text-2xs text-gray-400 dark:text-[#737373] leading-tight">
+            Reading all {chapters.length} {chapters.length === 1 ? 'chapter' : 'chapters'}
+            {totalWords > 0 ? ` · ${totalWords.toLocaleString()} words` : ''}
+          </p>
+        </div>
+      )}
 
       {/* Input — always rendered to keep layout stable during animation */}
       <div className="flex-shrink-0 px-3 pb-3 pt-2">
