@@ -31,10 +31,23 @@ function BookMindContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const bookIdParam = searchParams?.get('book') || null;
+  const debugMode = searchParams?.get('debug') === '1';
   const { user, loading: authLoading } = useAuth();
 
   const hasBookMindAccess = useFeatureAccess('book_mind_ai');
-  const { isLoading: subLoading } = useSubscription();
+  const subscription = useSubscription();
+  const { isLoading: subLoading, tier, isPro } = subscription;
+
+  // Debug: track whether the redirect effect fires and why. Appended to
+  // the debug overlay below when `?debug=1` is in the URL. No-op in
+  // production unless the URL param is set.
+  const [redirectLog, setRedirectLog] = React.useState<string[]>([]);
+  const logRef = React.useRef(redirectLog);
+  logRef.current = redirectLog;
+  const pushLog = React.useCallback((line: string) => {
+    if (!debugMode) return;
+    setRedirectLog(prev => [...prev, `${new Date().toISOString().slice(11, 23)} ${line}`]);
+  }, [debugMode]);
 
   // Free users should never reach this page. Per CLAUDE.md Pro/Free UI
   // policy, the upgrade pitch lives in exactly one place (the account
@@ -48,9 +61,14 @@ function BookMindContent() {
   // for a split second before the Pro subscription has a chance to
   // load, and Pro users bounce straight back to the editor.
   useEffect(() => {
+    pushLog(`effect run: authLoading=${authLoading} subLoading=${subLoading} hasBookMindAccess=${hasBookMindAccess} tier=${tier}`);
     if (authLoading || subLoading) return;
-    if (!hasBookMindAccess) router.replace('/make-ebook');
-  }, [authLoading, subLoading, hasBookMindAccess, router]);
+    if (!hasBookMindAccess) {
+      pushLog(`REDIRECTING: no book mind access (tier=${tier})`);
+      if (debugMode) return; // Debug mode: don't actually redirect, just log
+      router.replace('/make-ebook');
+    }
+  }, [authLoading, subLoading, hasBookMindAccess, router, tier, pushLog, debugMode]);
 
   const [selectedBookId, setSelectedBookId] = useState<string | null>(bookIdParam);
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
@@ -144,10 +162,24 @@ function BookMindContent() {
   // caused a jarring flash of the public landing chrome when a Pro user
   // opened the full view, and a flash of the wrong page entirely when a
   // Free user was about to be redirected back to the editor.
-  if (authLoading || subLoading || !hasBookMindAccess) {
+  //
+  // In debug mode (?debug=1), we NEVER redirect and we stay in the
+  // shell so the overlay remains visible for as long as needed.
+  if (authLoading || subLoading || !hasBookMindAccess || debugMode) {
     return (
       <div className="flex h-screen items-center justify-center bg-white dark:bg-[#1e1e1e]">
         <BookIcon className="w-6 h-6 text-gray-300 dark:text-[#737373] animate-pulse" />
+        {debugMode && (
+          <DebugOverlay
+            authLoading={authLoading}
+            user={user}
+            subLoading={subLoading}
+            subscription={subscription}
+            hasBookMindAccess={hasBookMindAccess}
+            bookIdParam={bookIdParam}
+            redirectLog={redirectLog}
+          />
+        )}
       </div>
     );
   }
@@ -479,6 +511,63 @@ function BookMindContent() {
           );
         })()}
       </div>
+    </div>
+  );
+}
+
+// Debug overlay — only renders when the URL has ?debug=1. Shows the
+// exact auth + subscription state and a log of every redirect effect
+// run, so we can see why Pro users bounce off this page. Temporary,
+// should be removed after the bug is diagnosed.
+function DebugOverlay(props: {
+  authLoading: boolean;
+  user: { id: string; email?: string } | null | undefined;
+  subLoading: boolean;
+  subscription: { tier: string; isPro: boolean; isGrandfathered: boolean; error: string | null };
+  hasBookMindAccess: boolean;
+  bookIdParam: string | null;
+  redirectLog: string[];
+}) {
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 12,
+        right: 12,
+        zIndex: 9999,
+        maxWidth: 480,
+        padding: '12px 16px',
+        background: 'rgba(0,0,0,0.92)',
+        color: '#fff',
+        fontFamily: 'ui-monospace, monospace',
+        fontSize: 11,
+        lineHeight: 1.5,
+        borderRadius: 8,
+        border: '1px solid #444',
+      }}
+    >
+      <div style={{ fontWeight: 600, marginBottom: 6, color: '#4ade80' }}>Book Mind debug overlay</div>
+      <div>authLoading: <b>{String(props.authLoading)}</b></div>
+      <div>user.id: <b>{props.user?.id ?? '(none)'}</b></div>
+      <div>user.email: <b>{props.user?.email ?? '(none)'}</b></div>
+      <div>subLoading: <b>{String(props.subLoading)}</b></div>
+      <div>subscription.tier: <b>{props.subscription.tier}</b></div>
+      <div>subscription.isPro: <b>{String(props.subscription.isPro)}</b></div>
+      <div>subscription.isGrandfathered: <b>{String(props.subscription.isGrandfathered)}</b></div>
+      <div>subscription.error: <b>{props.subscription.error ?? '(none)'}</b></div>
+      <div>hasBookMindAccess: <b>{String(props.hasBookMindAccess)}</b></div>
+      <div>bookIdParam: <b>{props.bookIdParam ?? '(none)'}</b></div>
+      <div style={{ marginTop: 8, borderTop: '1px solid #444', paddingTop: 8 }}>
+        <div style={{ color: '#a3a3a3', marginBottom: 4 }}>Redirect effect log:</div>
+        {props.redirectLog.length === 0 ? (
+          <div style={{ color: '#737373' }}>(no effect runs yet)</div>
+        ) : (
+          props.redirectLog.map((line, i) => (
+            <div key={i} style={{ color: line.includes('REDIRECTING') ? '#f87171' : '#d4d4d4' }}>{line}</div>
+          ))
+        )}
+      </div>
+      <div style={{ marginTop: 8, fontSize: 10, color: '#737373' }}>Redirect is suppressed in debug mode. Remove ?debug=1 to restore normal behavior.</div>
     </div>
   );
 }
