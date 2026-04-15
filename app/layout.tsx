@@ -8,6 +8,7 @@ import { AuthProvider } from "@/lib/hooks/useAuth";
 import { SubscriptionProvider } from "@/lib/hooks/useSubscription";
 import { ThemeProvider } from "@/lib/contexts/ThemeContext";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import ClientFooterWrapper from "@/components/ClientFooterWrapper";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ClientFooterWrapper /> {/* Use the client-side wrapper */}
               </div>
               <Toaster />
+              <SonnerToaster />
             </ThemeProvider>
           </SubscriptionProvider>
         </AuthProvider>

@@ -3,7 +3,11 @@
 import React from 'react';
 import { useFeatureAccess } from '@/lib/hooks/useSubscription';
 
-export type RightPanelMode = 'none' | 'book-mind' | 'live-preview';
+// The right-panel modes are internal keys; the user-facing labels can
+// differ (the Inspector tab is still labelled "Book Mind" because that
+// is the product name the user knows). Mode `'inspector'` replaces the
+// old `'book-mind'` mode as part of the Phase A UI rewrite.
+export type RightPanelMode = 'none' | 'inspector' | 'live-preview';
 
 interface LayoutSwitcherProps {
   mode: RightPanelMode;
@@ -30,13 +34,13 @@ function LivePreviewIcon() {
 }
 
 const TABS: { mode: Exclude<RightPanelMode, 'none'>; label: string; Icon: React.ComponentType }[] = [
-  { mode: 'book-mind',    label: 'Book Mind',    Icon: BookMindIcon },
+  { mode: 'inspector',    label: 'Book Mind',    Icon: BookMindIcon },
   { mode: 'live-preview', label: 'Live Preview', Icon: LivePreviewIcon },
 ];
 
 export default function LayoutSwitcher({ mode, onChange }: LayoutSwitcherProps) {
   const hasBookMind = useFeatureAccess('book_mind_ai');
-  const visibleTabs = hasBookMind ? TABS : TABS.filter(t => t.mode !== 'book-mind');
+  const visibleTabs = hasBookMind ? TABS : TABS.filter(t => t.mode !== 'inspector');
   return (
     <div className="flex items-center rounded-lg border border-gray-200 dark:border-[#2f2f2f] overflow-hidden bg-gray-50 dark:bg-[#1e1e1e]">
       {visibleTabs.map(({ mode: m, label, Icon }, i) => {

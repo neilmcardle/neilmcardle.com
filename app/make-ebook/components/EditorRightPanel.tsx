@@ -1,32 +1,30 @@
 'use client';
 
-// Right-hand side panel of the desktop editor. Hosts either Book Mind or
-// the live preview, whichever mode the LayoutSwitcher is set to. Extracted
-// from page.tsx so the two surfaces (editor / right panel) can iterate
-// independently. The ResizableRightPanel wrapper handles the user-facing
-// width resize and width persistence — this component only decides which
-// panel to render inside it.
+// Right-hand side panel of the desktop editor. Hosts either the Book
+// Mind Inspector (a four-tab workspace: Chat / Insights / Issues /
+// Pre-flight) or the live preview, depending on the LayoutSwitcher
+// mode. Extracted from page.tsx so the two surfaces (editor / right
+// panel) can iterate independently. The ResizableRightPanel wrapper
+// handles the user-facing width resize and width persistence.
+//
+// Legacy note: the old `BookMindPanel.tsx` file still exists but is
+// unreachable from the live UI — the LayoutSwitcher now uses
+// `'inspector'` instead of `'book-mind'`. Deleting the legacy file is
+// a separate atomic-removal step later in Phase A.
 
 import React from 'react';
 import ResizableRightPanel from './ResizableRightPanel';
-import BookMindPanel from './BookMindPanel';
+import InspectorPanel from './bookmind/InspectorPanel';
 import LivePreviewPanel from './LivePreviewPanel';
 import type { RightPanelMode } from './LayoutSwitcher';
-
-interface Chapter {
-  id: string;
-  type: 'frontmatter' | 'content' | 'backmatter';
-  title: string;
-  content: string;
-  locked?: boolean;
-}
+import type { Chapter as BookChapter } from '../types';
 
 interface EditorRightPanelProps {
   mode: RightPanelMode;
   onClose: () => void;
 
   // Shared
-  chapters: Chapter[];
+  chapters: BookChapter[];
   selectedChapter: number;
   onChapterSelect: (index: number) => void;
 
@@ -56,18 +54,18 @@ export default function EditorRightPanel({
 
   return (
     <ResizableRightPanel>
-      {mode === 'book-mind' && (
+      {mode === 'inspector' && (
         <div className="h-full">
-          <BookMindPanel
+          <InspectorPanel
             bookId={bookId}
             userId={userId}
             title={title}
             author={author}
             genre={genre}
-            chapters={chapters.map((c) => ({ title: c.title, content: c.content, type: c.type }))}
+            chapters={chapters}
             selectedChapterIndex={selectedChapter}
             selectedText={selectedText}
-            onClose={onClose}
+            onNavigateToChapter={onChapterSelect}
           />
         </div>
       )}

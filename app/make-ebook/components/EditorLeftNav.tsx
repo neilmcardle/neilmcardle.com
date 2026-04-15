@@ -128,7 +128,7 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         onLogoClick={props.onLogoClick}
         onStartTour={props.onStartTour}
         onBookMindToggle={props.onBookMindToggle}
-        isBookMindOpen={props.rightPanelMode === 'book-mind'}
+        isBookMindOpen={props.rightPanelMode === 'inspector'}
       />
 
       <CollapsibleSidebar

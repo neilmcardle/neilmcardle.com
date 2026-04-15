@@ -2013,7 +2013,7 @@ function MakeEbookPage() {
                 // isOnboardingComplete otherwise.
                 setTimeout(() => onboarding.startTour(), chapters.length === 0 ? 800 : 100);
               }}
-              onBookMindToggle={() => setRightPanelMode((prev) => (prev === 'book-mind' ? 'none' : 'book-mind'))}
+              onBookMindToggle={() => setRightPanelMode((prev) => (prev === 'inspector' ? 'none' : 'inspector'))}
               rightPanelMode={rightPanelMode}
               libraryBooks={libraryBooks}
               selectedBookId={selectedBookId}
