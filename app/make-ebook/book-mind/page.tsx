@@ -60,14 +60,23 @@ function BookMindContent() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Re-run whenever the signed-in user changes. The old version only
+  // depended on selectedBookId, so it ran once on first render with an
+  // empty user id (auth still loading), saw an empty library, and never
+  // re-ran after auth settled. The library is keyed per-user, so the
+  // user id is the load-bearing dependency here, not the selected book.
   useEffect(() => {
-    const books = loadBookLibrary(user?.id ?? '');
+    if (!user?.id) {
+      setLibraryBooks([]);
+      return;
+    }
+    const books = loadBookLibrary(user.id);
     setLibraryBooks(books);
     if (!selectedBookId && books.length > 0) {
       const mostRecent = books.reduce((a: any, b: any) => (a.savedAt > b.savedAt ? a : b));
       setSelectedBookId(mostRecent.id);
     }
-  }, [selectedBookId]);
+  }, [user?.id, selectedBookId]);
 
   const selectedBook = libraryBooks.find((b: any) => b.id === selectedBookId);
 
