@@ -27,6 +27,24 @@ const nextConfig = {
 
     return config;
   },
+  async redirects() {
+    return [
+      // The standalone /make-ebook/book-mind route was removed in Phase A
+      // of the Book Mind rewrite. Any bookmarks pointing at it land back
+      // in the editor, where Book Mind now lives inside the Inspector
+      // right panel.
+      {
+        source: '/make-ebook/book-mind',
+        destination: '/make-ebook',
+        permanent: true,
+      },
+      {
+        source: '/make-ebook/book-mind/:path*',
+        destination: '/make-ebook',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       // Development - disable all caching

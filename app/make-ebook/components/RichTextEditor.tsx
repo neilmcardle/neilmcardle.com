@@ -31,6 +31,16 @@ interface RichTextEditorProps
   chapterId?: string;
   hasEndnotes?: boolean;
   hideToolbar?: boolean;
+  // Book Mind inline edit (⌘K). When the user presses Cmd/Ctrl+K with a
+  // non-empty selection, we capture the selection's text, its live
+  // Range (for later replacement), and its bounding rect (for anchoring
+  // the floating popover). The consumer is responsible for showing the
+  // popover and, on accept, calling back to insert new text.
+  onInlineEditRequest?: (args: {
+    selectedText: string;
+    range: Range;
+    rect: DOMRect;
+  }) => void;
 }
 
 type FormatState = Record<string, boolean>;
@@ -96,6 +106,7 @@ export default function RichTextEditor({
   chapterId,
   hasEndnotes = false,
   hideToolbar = false,
+  onInlineEditRequest,
   ...rest
 }: RichTextEditorProps) {
   const { theme } = useTheme();
@@ -1353,6 +1364,27 @@ export default function RichTextEditor({
           contentEditable={!disabled}
           suppressContentEditableWarning
           onKeyDown={(e) => {
+            // Book Mind Cmd-K inline edit. Only fires when the editor
+            // has a non-empty selection — otherwise the keypress falls
+            // through so browser defaults (bookmarks, address bar) keep
+            // their normal behaviour when the user isn't editing.
+            if (e.key === 'k' && (e.metaKey || e.ctrlKey) && onInlineEditRequest) {
+              const sel = window.getSelection();
+              if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+                const range = sel.getRangeAt(0);
+                const selectedText = sel.toString().trim();
+                if (selectedText) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onInlineEditRequest({
+                    selectedText,
+                    range: range.cloneRange(),
+                    rect: range.getBoundingClientRect(),
+                  });
+                  return;
+                }
+              }
+            }
             if (e.key === 'Tab') {
               e.preventDefault();
               document.execCommand('insertText', false, '\u2003\u2003');

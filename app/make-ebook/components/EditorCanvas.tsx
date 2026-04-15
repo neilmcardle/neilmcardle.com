@@ -52,6 +52,17 @@ interface EditorCanvasProps {
   todayWords: number;
 
   focus: FocusState;
+
+  // Book Mind inline edit (⌘K). Threaded from page.tsx through this
+  // canvas into RichTextEditor. When the user presses ⌘K with a
+  // non-empty selection the handler fires with the selected text, the
+  // Range (for later replacement), and the bounding rect (for anchoring
+  // the popover). Optional — if not provided, ⌘K is a no-op.
+  onInlineEditRequest?: (args: {
+    selectedText: string;
+    range: Range;
+    rect: DOMRect;
+  }) => void;
 }
 
 // Run the document.execCommand-based undo/redo on the active contentEditable.
@@ -75,6 +86,7 @@ export default function EditorCanvas({
   sessionStats,
   todayWords,
   focus,
+  onInlineEditRequest,
 }: EditorCanvasProps) {
   const chapter = chapters[selectedChapter];
   const sectionLabel =
@@ -148,6 +160,7 @@ export default function EditorCanvas({
             hasEndnotes={endnotesCount > 0}
             disabled={!!chapter?.locked}
             hideToolbar={focus.active && focus.settings.hideToolbar}
+            onInlineEditRequest={onInlineEditRequest}
           />
         </div>
 

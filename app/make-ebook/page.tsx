@@ -28,7 +28,8 @@ import { useBookState } from "./hooks/useBookState";
 import { autoFixAllChapters } from "./utils/typographyFixer";
 import RichTextEditor from "./components/RichTextEditor";
 import EditorLeftNav from "./components/EditorLeftNav";
-import BookMindPanel from "./components/BookMindPanel";
+import InspectorPanel from "./components/bookmind/InspectorPanel";
+import InlineEditPopover, { InlineEditRequest } from "./components/bookmind/InlineEditPopover";
 import EditorRightPanel from "./components/EditorRightPanel";
 import EditorCanvas from "./components/EditorCanvas";
 import type { RightPanelMode } from "./components/LayoutSwitcher";
@@ -160,7 +161,7 @@ function MakeEbookPage() {
   // Right panel layout mode
   const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>('none');
 
-  // Selected editor text — passed to BookMindPanel for context
+  // Selected editor text — passed to the Inspector Chat tab for context
   const [selectedEditorText, setSelectedEditorText] = useState<string | undefined>(undefined);
   useEffect(() => {
     const handleSelection = () => {
@@ -171,6 +172,66 @@ function MakeEbookPage() {
     document.addEventListener('selectionchange', handleSelection);
     return () => document.removeEventListener('selectionchange', handleSelection);
   }, []);
+
+  // Book Mind Cmd-K inline edit request. Opened by RichTextEditor when
+  // the user hits ⌘K with a non-empty selection. The range is saved so
+  // the accept handler can restore it and replace the exact same bytes
+  // the user originally highlighted — independent of whatever the caret
+  // is doing by the time they press Accept.
+  const [inlineEditRequest, setInlineEditRequest] = useState<InlineEditRequest>({
+    open: false,
+    anchorRect: null,
+    selectedText: "",
+    range: null,
+  });
+
+  const handleInlineEditRequest = useCallback(
+    (args: { selectedText: string; range: Range; rect: DOMRect }) => {
+      if (!hasBookMind) return;
+      setInlineEditRequest({
+        open: true,
+        anchorRect: args.rect,
+        selectedText: args.selectedText,
+        range: args.range,
+      });
+    },
+    [hasBookMind],
+  );
+
+  const handleInlineEditClose = useCallback(() => {
+    setInlineEditRequest(prev => ({ ...prev, open: false }));
+  }, []);
+
+  // Accept: restore the saved range, write the new text in, let the
+  // editor's own input handler propagate the change through onChange.
+  // Plain text is converted to inline HTML with <br> for newlines so
+  // multi-line rewrites render correctly inside the contentEditable.
+  const handleInlineEditAccept = useCallback(
+    (newText: string) => {
+      const range = inlineEditRequest.range;
+      if (!range) return;
+
+      const editorEl = document.querySelector('[contenteditable="true"]') as HTMLElement | null;
+      if (editorEl) editorEl.focus();
+
+      const sel = window.getSelection();
+      if (!sel) return;
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      // Escape HTML and turn newlines into <br>. Paragraph-level
+      // breaks aren't introduced — inline edits almost always replace
+      // a sentence or short span, so a flat <br>-separated insertion
+      // keeps the surrounding structure intact.
+      const escaped = newText
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
+      document.execCommand('insertHTML', false, escaped);
+    },
+    [inlineEditRequest.range],
+  );
   // Book metadata state (consolidated hook)
   const {
     title, setTitle, author, setAuthor, blurb, setBlurb,
@@ -876,20 +937,40 @@ function MakeEbookPage() {
           />
         )}
 
-        {/* Mobile Book Mind Drawer — full-screen, lg:hidden */}
+        {/* Mobile Book Mind Drawer — full-screen, lg:hidden.
+            Hosts the full Inspector (four tabs) so mobile users get the
+            same Chat / Insights / Issues / Pre-flight surface as desktop.
+            The close button is a thin bar above the Inspector because
+            InspectorPanel does not own its own chrome. */}
         {mobileBookMindOpen && (
           <div className="lg:hidden fixed inset-0 z-50 flex flex-col animate-slide-in-from-bottom bg-white dark:bg-[#1e1e1e]">
-            <BookMindPanel
-              bookId={currentBookId}
-              userId={user?.id}
-              title={title}
-              author={author}
-              genre={genre}
-              chapters={chapters.map(c => ({ title: c.title, content: c.content, type: c.type }))}
-              selectedChapterIndex={selectedChapter}
-              selectedText={selectedEditorText}
-              onClose={() => setMobileBookMindOpen(false)}
-            />
+            <div className="flex items-center justify-end px-3 py-2 border-b border-gray-200 dark:border-[#2f2f2f] flex-shrink-0">
+              <button
+                onClick={() => setMobileBookMindOpen(false)}
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
+                aria-label="Close Book Mind"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <InspectorPanel
+                bookId={currentBookId}
+                userId={user?.id}
+                title={title}
+                author={author}
+                genre={genre}
+                chapters={chapters}
+                selectedChapterIndex={selectedChapter}
+                selectedText={selectedEditorText}
+                onNavigateToChapter={(idx) => {
+                  setSelectedChapter(idx);
+                  setMobileBookMindOpen(false);
+                }}
+              />
+            </div>
           </div>
         )}
 
@@ -2341,6 +2422,7 @@ function MakeEbookPage() {
                   sessionStats={sessionStats}
                   todayWords={writingGoals.todayWords}
                   focus={{ active: focus.active, settings: focus.settings }}
+                  onInlineEditRequest={handleInlineEditRequest}
                 />
               </section>
               )}
@@ -2367,6 +2449,21 @@ function MakeEbookPage() {
 
         {/* Terms/Privacy links moved to mobile editor footer */}
       </div>
+
+      {/* Book Mind Cmd-K inline edit popover. Renders at the top level
+          (via portal inside the component) so it floats above every
+          other surface and isn't clipped by any overflow: hidden
+          ancestor. Only active for Pro users because the underlying
+          inlineEdit call goes through the Pro-gated Book Mind API. */}
+      {hasBookMind && (
+        <InlineEditPopover
+          request={inlineEditRequest}
+          onClose={handleInlineEditClose}
+          onAccept={handleInlineEditAccept}
+          bookId={currentBookId}
+          userId={user?.id}
+        />
+      )}
 
       {/* EPUB Reader Modal */}
       <EPUBReaderModal
