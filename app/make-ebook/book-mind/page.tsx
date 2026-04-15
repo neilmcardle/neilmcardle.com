@@ -31,7 +31,7 @@ function BookMindContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const bookIdParam = searchParams?.get('book') || null;
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const hasBookMindAccess = useFeatureAccess('book_mind_ai');
   const { isLoading: subLoading } = useSubscription();
@@ -39,9 +39,18 @@ function BookMindContent() {
   // Free users should never reach this page. Per CLAUDE.md Pro/Free UI
   // policy, the upgrade pitch lives in exactly one place (the account
   // dropdown) — not here. Redirect them back to the editor.
+  //
+  // IMPORTANT: wait for auth to finish loading before deciding. In a
+  // fresh tab (target="_blank" from the right panel), useAuth hasn't
+  // resolved yet on first render, which means useSubscription sees
+  // !isAuthenticated and immediately returns tier='free' with
+  // isLoading=false. Without the authLoading guard, the redirect fires
+  // for a split second before the Pro subscription has a chance to
+  // load, and Pro users bounce straight back to the editor.
   useEffect(() => {
-    if (!subLoading && !hasBookMindAccess) router.replace('/make-ebook');
-  }, [subLoading, hasBookMindAccess, router]);
+    if (authLoading || subLoading) return;
+    if (!hasBookMindAccess) router.replace('/make-ebook');
+  }, [authLoading, subLoading, hasBookMindAccess, router]);
 
   const [selectedBookId, setSelectedBookId] = useState<string | null>(bookIdParam);
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
@@ -135,7 +144,7 @@ function BookMindContent() {
   // caused a jarring flash of the public landing chrome when a Pro user
   // opened the full view, and a flash of the wrong page entirely when a
   // Free user was about to be redirected back to the editor.
-  if (subLoading || !hasBookMindAccess) {
+  if (authLoading || subLoading || !hasBookMindAccess) {
     return (
       <div className="flex h-screen items-center justify-center bg-white dark:bg-[#1e1e1e]">
         <BookIcon className="w-6 h-6 text-gray-300 dark:text-[#737373] animate-pulse" />
