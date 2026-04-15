@@ -7,8 +7,6 @@ import { useBookMind, BookMindContext, BookMindAction, ChatSession } from '../ho
 import { useFeatureAccess, useSubscription } from '@/lib/hooks/useSubscription';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { loadBookLibrary } from '../utils/bookLibrary';
-import MarketingNav from '../components/MarketingNav';
-import MarketingFooter from '../components/MarketingFooter';
 import {
   BookMindIcon as BookIcon,
   ThinkingDots,
@@ -131,18 +129,16 @@ function BookMindContent() {
     return groups;
   }, {});
 
-  // ── Loading / redirect state: render a minimal shell while subscription
-  //    resolves, and while the redirect effect fires for Free users.
+  // Minimal loading / redirect shell — matches editor chrome (white / dark
+  // #1e1e1e), no marketing nav or footer. Two reasons: (1) this is a
+  // logged-in product page, not marketing; (2) the old marketing shell
+  // caused a jarring flash of the public landing chrome when a Pro user
+  // opened the full view, and a flash of the wrong page entirely when a
+  // Free user was about to be redirected back to the editor.
   if (subLoading || !hasBookMindAccess) {
     return (
-      <div className="relative min-h-screen flex flex-col bg-me-cream text-gray-700">
-        <MarketingNav />
-        <main id="main-content" className="flex-1 flex flex-col px-6 sm:px-10 py-16">
-          <div className="my-auto mx-auto">
-            <BookIcon className="w-6 h-6 text-gray-300 animate-pulse" />
-          </div>
-        </main>
-        <MarketingFooter showWordmark={false} />
+      <div className="flex h-screen items-center justify-center bg-white dark:bg-[#1e1e1e]">
+        <BookIcon className="w-6 h-6 text-gray-300 dark:text-[#737373] animate-pulse" />
       </div>
     );
   }
