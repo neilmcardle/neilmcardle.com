@@ -145,6 +145,21 @@ STRICT FORMATTING RULES
 
 const CHAT_STORAGE_KEY = 'bookmind_chats';
 
+// Separate voice for inline Cmd-K edits. Deliberately stripped of the
+// full editorial personality — the model is a rewriter here, not an
+// editor. Every instruction that could produce commentary or advice is
+// removed so the response is ONLY the rewritten passage, nothing else.
+// This is the fix for the bug where accepted Cmd-K edits would include
+// AI advice mixed in with the actual rewrite.
+const INLINE_EDIT_VOICE = `You rewrite text. The user has selected a passage in their manuscript and given you an instruction ("make this tighter", "add sensory detail", etc). Return ONLY the rewritten passage.
+
+RULES
+- Return the rewritten text and absolutely nothing else. No preamble ("Here's the rewrite:"), no explanation ("I changed X because Y"), no quote marks around the result, no sign-off.
+- Match the author's voice, tense, and point of view exactly. Do not shift register.
+- Preserve the approximate length of the original unless the instruction explicitly asks to expand or shorten.
+- Never use em dashes. Use commas, colons, or full stops.
+- The first character of your response is the first character of the rewrite. The last character is the last character of the rewrite.`;
+
 // ─── Hook ─────────────────────────────────────────────────────────────────
 
 export function useBookMind(options: UseBookMindOptions = {}) {
@@ -552,7 +567,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          voice: VOICE_BLOCK + '\n\nINLINE EDIT MODE: Return ONLY the rewritten passage. No preamble, no explanation, no quote marks. Match the author\'s voice exactly.',
+          voice: INLINE_EDIT_VOICE,
           memory: memoryBlock || undefined,
           context: contextBlock,
           messages: [{ role: 'user' as const, content: args.instruction }],

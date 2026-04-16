@@ -30,6 +30,7 @@ import RichTextEditor from "./components/RichTextEditor";
 import EditorLeftNav from "./components/EditorLeftNav";
 import InspectorPanel from "./components/bookmind/InspectorPanel";
 import InlineEditPopover, { InlineEditRequest } from "./components/bookmind/InlineEditPopover";
+import SelectionHint from "./components/bookmind/SelectionHint";
 import { toast } from "sonner";
 import EditorRightPanel from "./components/EditorRightPanel";
 import EditorCanvas from "./components/EditorCanvas";
@@ -202,6 +203,21 @@ function MakeEbookPage() {
   const handleInlineEditClose = useCallback(() => {
     setInlineEditRequest(prev => ({ ...prev, open: false }));
   }, []);
+
+  // Triggered by the SelectionHint badge when the user clicks it.
+  // Grabs the current selection and opens the popover, same as ⌘K.
+  const handleTriggerCmdK = useCallback(() => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+    const range = sel.getRangeAt(0);
+    const text = sel.toString().trim();
+    if (!text) return;
+    handleInlineEditRequest({
+      selectedText: text,
+      range: range.cloneRange(),
+      rect: range.getBoundingClientRect(),
+    });
+  }, [handleInlineEditRequest]);
 
   // Accept: restore the saved range, write the new text in, let the
   // editor's own input handler propagate the change through onChange.
@@ -2494,19 +2510,27 @@ function MakeEbookPage() {
         {/* Terms/Privacy links moved to mobile editor footer */}
       </div>
 
-      {/* Book Mind Cmd-K inline edit popover. Renders at the top level
-          (via portal inside the component) so it floats above every
-          other surface and isn't clipped by any overflow: hidden
-          ancestor. Only active for Pro users because the underlying
-          inlineEdit call goes through the Pro-gated Book Mind API. */}
+      {/* Book Mind Cmd-K inline edit popover + selection hint badge.
+          Renders at the top level (via portal inside the component) so
+          it floats above every other surface and isn't clipped by any
+          overflow: hidden ancestor. Only active for Pro users because
+          the underlying inlineEdit call goes through the Pro-gated
+          Book Mind API. */}
       {hasBookMind && (
-        <InlineEditPopover
-          request={inlineEditRequest}
-          onClose={handleInlineEditClose}
-          onAccept={handleInlineEditAccept}
-          bookId={currentBookId}
-          userId={user?.id}
-        />
+        <>
+          <InlineEditPopover
+            request={inlineEditRequest}
+            onClose={handleInlineEditClose}
+            onAccept={handleInlineEditAccept}
+            bookId={currentBookId}
+            userId={user?.id}
+          />
+          <SelectionHint
+            hasBookMind={hasBookMind}
+            inlineEditOpen={inlineEditRequest.open}
+            onTriggerCmdK={handleTriggerCmdK}
+          />
+        </>
       )}
 
       {/* EPUB Reader Modal */}
