@@ -118,7 +118,6 @@ export default function EditorHeader({
         />
         <HistoryButton versionCount={versionCount} exportCount={exportCount} onClickAction={onShowHistory} />
         <FocusModeButton onClick={onToggleFocusMode} />
-        <CmdKHint />
         <LayoutSwitcher mode={rightPanelMode} onChange={onRightPanelModeChange} />
 
         {/* Export pill CTA — the primary action of the whole product. Labelled,

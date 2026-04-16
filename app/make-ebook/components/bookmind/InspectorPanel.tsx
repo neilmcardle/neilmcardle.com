@@ -1,24 +1,20 @@
 "use client";
 
-// InspectorPanel — the new four-tab right-panel surface replacing the
-// old BookMindPanel. Chat is the default tab; Insights / Issues / Pre-flight
-// are Phase A stubs that will become real in Phase C.
+// InspectorPanel — the four-tab right-panel surface.
 //
-// The shell renders a compact tab bar at the top and a scrollable body
-// below. Each tab owns its own header + content, so the tab bar is
-// deliberately minimal — no extra header chrome above it, no title,
-// nothing to compete with the tab content's own header.
-//
-// Sizing: this component lives inside ResizableRightPanel, which
-// controls width. InspectorPanel just fills its container.
+// Chat is the default tab. Insights / Issues / Pre-flight read from
+// the analytical cache stored on BookRecord.bookmindMemory. The tab
+// bar is compact and delegates all content rendering to the child tabs.
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ChatTab from "./tabs/ChatTab";
 import InsightsTab from "./tabs/InsightsTab";
 import IssuesTab from "./tabs/IssuesTab";
 import PreflightTab from "./tabs/PreflightTab";
-import type { Chapter } from "../../types";
+import type { Chapter, BookRecord } from "../../types";
+import { loadBookById } from "../../utils/bookLibrary";
+import type { AnalyticalKind } from "../../utils/bookmindMemory";
 
 interface InspectorPanelProps {
   bookId?: string;
@@ -29,7 +25,10 @@ interface InspectorPanelProps {
   chapters: Chapter[];
   selectedChapterIndex: number;
   selectedText?: string;
+  coverFile?: string | null;
   onNavigateToChapter?: (chapterIndex: number) => void;
+  // Trigger a single-kind analytical refresh from a tab's Refresh button.
+  onRefreshAnalytical?: (kind: AnalyticalKind) => void;
 }
 
 type TabKey = "chat" | "insights" | "issues" | "preflight";
@@ -81,9 +80,23 @@ const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
 export default function InspectorPanel(props: InspectorPanelProps) {
   const [active, setActive] = useState<TabKey>("chat");
 
+  // Load the full BookRecord for the analytical tabs — they need the
+  // bookmindMemory.analytical cache. This reads from localStorage (the
+  // same source of truth the cache generator writes to), so it's always
+  // current. Re-runs on every render, which is fine because localStorage
+  // reads are ~0.1ms and the Inspector doesn't render on every keystroke.
+  const book: BookRecord | undefined = useMemo(() => {
+    if (!props.bookId || !props.userId) return undefined;
+    return loadBookById(props.userId, props.bookId);
+  }, [props.bookId, props.userId, active]); // re-read when switching tabs
+
+  const chapterIndex = useMemo(
+    () => props.chapters.map(c => ({ id: c.id, title: c.title })),
+    [props.chapters],
+  );
+
   return (
     <div className="flex flex-col h-full bg-white dark:bg-[#1e1e1e]">
-      {/* Tab bar */}
       <Tabs
         value={active}
         onValueChange={(v) => setActive(v as TabKey)}
@@ -116,13 +129,27 @@ export default function InspectorPanel(props: InspectorPanelProps) {
           />
         </TabsContent>
         <TabsContent value="insights" className="flex-1 min-h-0 mt-0 outline-none">
-          <InsightsTab />
+          <InsightsTab
+            book={book}
+            chapters={chapterIndex}
+            onNavigateToChapter={props.onNavigateToChapter}
+            onRefresh={props.onRefreshAnalytical}
+          />
         </TabsContent>
         <TabsContent value="issues" className="flex-1 min-h-0 mt-0 outline-none">
-          <IssuesTab />
+          <IssuesTab
+            book={book}
+            userId={props.userId}
+            chapters={chapterIndex}
+            onNavigateToChapter={props.onNavigateToChapter}
+            onRefresh={props.onRefreshAnalytical}
+          />
         </TabsContent>
         <TabsContent value="preflight" className="flex-1 min-h-0 mt-0 outline-none">
-          <PreflightTab />
+          <PreflightTab
+            book={book}
+            coverFile={props.coverFile ?? null}
+          />
         </TabsContent>
       </Tabs>
     </div>

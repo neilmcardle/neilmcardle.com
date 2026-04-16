@@ -53,6 +53,7 @@ import { useOnboarding } from "./hooks/useOnboarding";
 import OnboardingTour from "./components/OnboardingTour";
 import { loadBookLibrary, saveBookToLibrary, loadBookById } from "./utils/bookLibrary";
 import { ensureManuscriptBrief } from "./utils/manuscriptBrief";
+import { ensureAnalyticalCache } from "./utils/analyticalCache";
 // Extracted utilities & components
 import { formatRelativeTime, getContentChapterNumber } from "./utils/pageUtils";
 import { ChapterCapsuleMarker } from "./components/ChapterCapsuleMarker";
@@ -165,16 +166,39 @@ function MakeEbookPage() {
   // Right panel layout mode
   const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>('none');
 
-  // Selected editor text — passed to the Inspector Chat tab for context
+  // Selected editor text — passed to the Inspector Chat tab for context.
+  // Also captures the bounding rect for the ⌘K floating hint.
   const [selectedEditorText, setSelectedEditorText] = useState<string | undefined>(undefined);
+  const [cmdkHintRect, setCmdkHintRect] = useState<{ top: number; left: number } | null>(null);
+  const cmdkHintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     const handleSelection = () => {
       const sel = window.getSelection();
       const text = sel?.toString().trim();
-      if (text && text.length > 10) setSelectedEditorText(text);
+      if (text && text.length > 10) {
+        setSelectedEditorText(text);
+        // Check if the selection is inside the editor
+        try {
+          const node = sel?.anchorNode;
+          const editorEl = node?.parentElement?.closest?.('[contenteditable="true"]');
+          if (editorEl && sel && sel.rangeCount > 0) {
+            const rect = sel.getRangeAt(0).getBoundingClientRect();
+            setCmdkHintRect({ top: rect.bottom + 6, left: rect.left });
+            // Auto-dismiss after 3 seconds
+            if (cmdkHintTimer.current) clearTimeout(cmdkHintTimer.current);
+            cmdkHintTimer.current = setTimeout(() => setCmdkHintRect(null), 3000);
+          }
+        } catch { /* ignore */ }
+      } else {
+        setCmdkHintRect(null);
+      }
     };
     document.addEventListener('selectionchange', handleSelection);
-    return () => document.removeEventListener('selectionchange', handleSelection);
+    return () => {
+      document.removeEventListener('selectionchange', handleSelection);
+      if (cmdkHintTimer.current) clearTimeout(cmdkHintTimer.current);
+    };
   }, []);
 
   // Book Mind Cmd-K inline edit request. Opened by RichTextEditor when
@@ -444,6 +468,11 @@ function MakeEbookPage() {
     const book = loadBookById(user.id, currentBookId);
     if (!book || book.chapters.length === 0) return;
     let cancelled = false;
+    // Step 1: brief first (the spine of fast retrieval).
+    // Step 2: analytical cache second (benefits from prompt caching
+    // being warm from the brief call, since both send the manuscript
+    // as an ephemeral cache block). Sequential ordering means calls
+    // 2–5 pay 10% input cost instead of full price.
     ensureManuscriptBrief({
       userId: user.id,
       book,
@@ -451,6 +480,19 @@ function MakeEbookPage() {
       if (cancelled) return;
       if (!result.ok && result.reason && result.reason !== 'fresh') {
         console.warn('[book-mind] brief generation:', result.reason, result.error);
+      }
+      // Kick off the analytical cache after the brief lands. Each of
+      // the five kinds (themes, characters, inconsistencies, pacing,
+      // wordFrequency) runs sequentially so prompt caching stays warm.
+      // Fresh entries are skipped, so second-load is essentially free.
+      const freshBook = loadBookById(user!.id, currentBookId!);
+      if (freshBook && !cancelled) {
+        ensureAnalyticalCache({
+          userId: user!.id,
+          book: freshBook,
+        }).catch(err => {
+          console.warn('[book-mind] analytical cache:', err);
+        });
       }
     });
     return () => { cancelled = true; };
@@ -1028,6 +1070,7 @@ function MakeEbookPage() {
                 chapters={chapters}
                 selectedChapterIndex={selectedChapter}
                 selectedText={selectedEditorText}
+                coverFile={coverUrl}
                 onNavigateToChapter={(idx) => {
                   setSelectedChapter(idx);
                   setMobileBookMindOpen(false);
@@ -2517,6 +2560,7 @@ function MakeEbookPage() {
               author={author}
               genre={genre}
               selectedText={selectedEditorText}
+              coverFile={coverUrl}
             />
           )}
         </div>
@@ -2531,13 +2575,36 @@ function MakeEbookPage() {
           the underlying inlineEdit call goes through the Pro-gated
           Book Mind API. */}
       {hasBookMind && (
-        <InlineEditPopover
-          request={inlineEditRequest}
-          onClose={handleInlineEditClose}
-          onAccept={handleInlineEditAccept}
-          bookId={currentBookId}
-          userId={user?.id}
-        />
+        <>
+          <InlineEditPopover
+            request={inlineEditRequest}
+            onClose={handleInlineEditClose}
+            onAccept={handleInlineEditAccept}
+            bookId={currentBookId}
+            userId={user?.id}
+          />
+          {/* Floating ⌘K hint — appears briefly below selected text to
+              teach the user the shortcut exists. Hides when the popover
+              is open, after 3 seconds, or when the selection clears. */}
+          {cmdkHintRect && !inlineEditRequest.open && (
+            <div
+              style={{
+                position: 'fixed',
+                top: cmdkHintRect.top,
+                left: cmdkHintRect.left,
+                zIndex: 900,
+                pointerEvents: 'none',
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-900/90 dark:bg-[#2a2a2a]/95 text-white text-[11px] font-medium shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-1 duration-200"
+            >
+              <svg className="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              <span>⌘K for AI writer</span>
+            </div>
+          )}
+        </>
       )}
 
       {/* EPUB Reader Modal */}

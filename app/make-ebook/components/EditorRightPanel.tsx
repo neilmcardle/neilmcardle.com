@@ -35,6 +35,7 @@ interface EditorRightPanelProps {
   author: string;
   genre: string;
   selectedText?: string;
+  coverFile?: string | null;
 }
 
 export default function EditorRightPanel({
@@ -49,6 +50,7 @@ export default function EditorRightPanel({
   author,
   genre,
   selectedText,
+  coverFile,
 }: EditorRightPanelProps) {
   if (mode === 'none') return null;
 
@@ -65,6 +67,7 @@ export default function EditorRightPanel({
             chapters={chapters}
             selectedChapterIndex={selectedChapter}
             selectedText={selectedText}
+            coverFile={coverFile}
             onNavigateToChapter={onChapterSelect}
           />
         </div>
