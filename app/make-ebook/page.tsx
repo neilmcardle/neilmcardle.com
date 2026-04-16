@@ -70,7 +70,7 @@ import { AmbientPlayer } from "./components/AmbientPlayer";
 
 function MakeEbookPage() {
   // Auth context for Supabase user
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading: authLoading } = useAuth();
 
   // Check if user has Pro access for Cloud Sync
   const hasCloudSync = useFeatureAccess('cloud_sync');
@@ -788,7 +788,20 @@ function MakeEbookPage() {
   }
 
   useEffect(() => {
-    const books = loadBookLibrary(user?.id ?? '');
+    // Don't load the library until auth has settled. Without this,
+    // the effect fires on mount with user=null, reads an empty
+    // library (loadBookLibrary('') returns []), and immediately sets
+    // libraryLoading=false — so the loading indicator is never seen
+    // and the UI flashes "No saved books" for authenticated users.
+    // For anonymous visitors (auth finished but no user), stop the
+    // loading state so they see the clean empty UI.
+    if (authLoading) return;
+    if (!user?.id) {
+      setLibraryLoading(false);
+      return;
+    }
+
+    const books = loadBookLibrary(user.id);
     setLibraryBooks(books);
     setLibraryLoading(false);
 
@@ -811,7 +824,7 @@ function MakeEbookPage() {
     // Don't auto-load books on initial visit - let marketing page show first
     // Only set initialized to true so we don't keep re-running this effect
     if (!initialized) setInitialized(true);
-  }, [searchParams, initialized, currentBookId, chapters.length]);
+  }, [authLoading, user?.id, searchParams, initialized, currentBookId, chapters.length]);
 
   // Scroll indicator effect for mobile sidebar
   useEffect(() => {
