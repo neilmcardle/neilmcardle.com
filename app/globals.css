@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Book Mind inline-edit highlight. Applied to the span that wraps
+   accepted Cmd-K rewrites. Fades from a soft blue flash to transparent
+   over 2 seconds so the user sees exactly where the new text landed. */
+@keyframes bm-highlight-fade {
+  0% { background-color: rgba(64, 112, 255, 0.22); }
+  60% { background-color: rgba(64, 112, 255, 0.08); }
+  100% { background-color: transparent; }
+}
+.bm-edit-highlight {
+  animation: bm-highlight-fade 2s ease-out forwards;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
 /* ── Focus handling ──────────────────────────────────────────────────────────
    Mouse users: no visible ring (avoids distracting outlines on click).
    Keyboard users: clear focus ring for accessibility.

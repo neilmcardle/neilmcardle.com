@@ -293,12 +293,29 @@ export default function InlineEditPopover({
             </div>
           )}
 
-          {/* Active result */}
+          {/* Active result with original comparison */}
           {activeResult && (
-            <div className="px-4 pt-2 pb-3">
-              <p className="text-sm text-gray-800 dark:text-[#f5f5f5] leading-relaxed whitespace-pre-wrap">
-                {activeResult}
-              </p>
+            <div className="px-4 pt-2 pb-3 space-y-3">
+              {/* Original — faded and crossed out so the eye goes to the rewrite */}
+              <div>
+                <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium mb-1">
+                  Original
+                </p>
+                <p className="text-xs text-gray-400 dark:text-[#636363] leading-relaxed line-through decoration-gray-300 dark:decoration-[#525252]">
+                  {request.selectedText.length > 300
+                    ? request.selectedText.slice(0, 300) + "\u2026"
+                    : request.selectedText}
+                </p>
+              </div>
+              {/* Rewrite — full contrast */}
+              <div>
+                <p className="text-2xs uppercase tracking-wider text-[#4070ff] dark:text-[#4070ff] font-medium mb-1">
+                  Suggestion
+                </p>
+                <p className="text-sm text-gray-800 dark:text-[#f5f5f5] leading-relaxed whitespace-pre-wrap">
+                  {activeResult}
+                </p>
+              </div>
             </div>
           )}
 

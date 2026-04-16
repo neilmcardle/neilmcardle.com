@@ -30,6 +30,7 @@ import RichTextEditor from "./components/RichTextEditor";
 import EditorLeftNav from "./components/EditorLeftNav";
 import InspectorPanel from "./components/bookmind/InspectorPanel";
 import InlineEditPopover, { InlineEditRequest } from "./components/bookmind/InlineEditPopover";
+import { toast } from "sonner";
 import EditorRightPanel from "./components/EditorRightPanel";
 import EditorCanvas from "./components/EditorCanvas";
 import type { RightPanelMode } from "./components/LayoutSwitcher";
@@ -204,12 +205,22 @@ function MakeEbookPage() {
 
   // Accept: restore the saved range, write the new text in, let the
   // editor's own input handler propagate the change through onChange.
-  // Plain text is converted to inline HTML with <br> for newlines so
-  // multi-line rewrites render correctly inside the contentEditable.
+  // Wraps the insertion in a highlight span that fades out over 2s so
+  // the user sees exactly where the new text landed.
+  //
+  // Also captures the pre-edit chapter content so the sonner toast can
+  // offer a reliable "Undo" action that works even when the browser's
+  // native execCommand undo stack gets confused after programmatic
+  // range manipulation (a known contentEditable limitation).
   const handleInlineEditAccept = useCallback(
     (newText: string) => {
       const range = inlineEditRequest.range;
       if (!range) return;
+
+      // Snapshot the chapter content BEFORE insertion so the toast
+      // Undo action can restore it reliably.
+      const preEditContent = chapters[selectedChapter]?.content ?? '';
+      const chapterIdx = selectedChapter;
 
       const editorEl = document.querySelector('[contenteditable="true"]') as HTMLElement | null;
       if (editorEl) editorEl.focus();
@@ -219,18 +230,51 @@ function MakeEbookPage() {
       sel.removeAllRanges();
       sel.addRange(range);
 
-      // Escape HTML and turn newlines into <br>. Paragraph-level
-      // breaks aren't introduced — inline edits almost always replace
-      // a sentence or short span, so a flat <br>-separated insertion
-      // keeps the surrounding structure intact.
+      // Escape HTML, convert newlines, wrap in a highlight span that
+      // fades out to show where the new text was placed.
+      const highlightId = `bm-edit-${Date.now()}`;
       const escaped = newText
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/\n/g, '<br>');
-      document.execCommand('insertHTML', false, escaped);
+      const html = `<span id="${highlightId}" class="bm-edit-highlight">${escaped}</span>`;
+      document.execCommand('insertHTML', false, html);
+
+      // After the fade animation completes, unwrap the highlight span
+      // so it doesn't leave phantom markup in the editor's HTML.
+      setTimeout(() => {
+        const el = document.getElementById(highlightId);
+        if (el && el.parentNode) {
+          while (el.firstChild) el.parentNode.insertBefore(el.firstChild, el);
+          el.parentNode.removeChild(el);
+          // Trigger onChange so the cleaned HTML propagates to state.
+          if (editorEl) {
+            const evt = new Event('input', { bubbles: true });
+            editorEl.dispatchEvent(evt);
+          }
+        }
+      }, 2200);
+
+      // Toast with a reliable manual undo (bypasses the browser's
+      // undo stack, which can fail after programmatic range edits).
+      toast.success('Edit applied', {
+        description: 'The rewrite is highlighted in the text.',
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            handleChapterContentChange(chapterIdx, preEditContent);
+            if (editorEl) {
+              editorEl.innerHTML = preEditContent;
+              const evt = new Event('input', { bubbles: true });
+              editorEl.dispatchEvent(evt);
+            }
+            toast('Edit undone');
+          },
+        },
+      });
     },
-    [inlineEditRequest.range],
+    [inlineEditRequest.range, chapters, selectedChapter, handleChapterContentChange],
   );
   // Book metadata state (consolidated hook)
   const {
