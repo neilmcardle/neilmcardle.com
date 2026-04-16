@@ -319,6 +319,7 @@ function MakeEbookPage() {
   const [epubBlob, setEpubBlob] = useState<Blob | null>(null);
 
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
+  const [libraryLoading, setLibraryLoading] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mobileChaptersOpen, setMobileChaptersOpen] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
@@ -789,6 +790,7 @@ function MakeEbookPage() {
   useEffect(() => {
     const books = loadBookLibrary(user?.id ?? '');
     setLibraryBooks(books);
+    setLibraryLoading(false);
 
   const loadBookId = searchParams ? searchParams.get('load') : null;
     if (loadBookId) {
@@ -1183,7 +1185,16 @@ function MakeEbookPage() {
                           </div>
                         )}
                         <div className="mt-2 space-y-1 pl-2">
-                        {libraryBooks.length === 0 ? (
+                        {libraryLoading ? (
+                          <div className="space-y-2 py-2 px-2">
+                            {[1, 2, 3].map(i => (
+                              <div key={i} className="animate-pulse flex items-center gap-2">
+                                <div className="h-3 bg-gray-200 dark:bg-[#2f2f2f] rounded w-3/4" />
+                                <div className="h-2 bg-gray-100 dark:bg-[#262626] rounded w-1/4" />
+                              </div>
+                            ))}
+                          </div>
+                        ) : libraryBooks.length === 0 ? (
                           <div className="text-xs text-gray-600 dark:text-gray-400 py-4 px-2 text-center">
                             No saved books yet
                           </div>
@@ -2320,6 +2331,7 @@ function MakeEbookPage() {
                   onNewBook={handleNewBook}
                   onOpenLibrary={() => setMobileSidebarOpen(true)}
                   libraryCount={libraryBooks.length}
+                  libraryLoading={libraryLoading}
                   onPasteManuscript={handlePasteManuscript}
                   onUploadFile={docImport.showImportDialog}
                 />
@@ -2444,6 +2456,7 @@ function MakeEbookPage() {
                   onNewBook={handleNewBook}
                   onOpenLibrary={() => setSidebarView('library')}
                   libraryCount={libraryBooks.length}
+                  libraryLoading={libraryLoading}
                   onPasteManuscript={handlePasteManuscript}
                   onUploadFile={docImport.showImportDialog}
                 />

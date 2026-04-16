@@ -27,6 +27,7 @@ interface EmptyEditorStateProps {
   onNewBook: () => void;
   onOpenLibrary: () => void;
   libraryCount: number;
+  libraryLoading?: boolean;
   onPasteManuscript: (text: string) => void;
   onUploadFile: () => void;
 }
@@ -35,6 +36,7 @@ export default function EmptyEditorState({
   onNewBook,
   onOpenLibrary,
   libraryCount,
+  libraryLoading,
   onPasteManuscript,
   onUploadFile,
 }: EmptyEditorStateProps) {
@@ -156,13 +158,19 @@ export default function EmptyEditorState({
                 description="A blank book"
                 onClick={onNewBook}
               />
-              {libraryCount > 0 && (
+              {libraryLoading ? (
+                <ActionCard
+                  label="Open library"
+                  description="Loading your books…"
+                  onClick={() => {}}
+                />
+              ) : libraryCount > 0 ? (
                 <ActionCard
                   label="Open library"
                   description={`${libraryCount} saved ${libraryCount === 1 ? 'book' : 'books'}`}
                   onClick={onOpenLibrary}
                 />
-              )}
+              ) : null}
             </div>
           )}
         </div>
