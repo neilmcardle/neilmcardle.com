@@ -14,6 +14,7 @@ import ChapterNavDropdown from './ChapterNavDropdown';
 import { HistoryButton } from './HistoryPanel';
 import { FocusModeButton } from './FocusModePanel';
 import LayoutSwitcher, { RightPanelMode } from './LayoutSwitcher';
+import { useFeatureAccess } from '@/lib/hooks/useSubscription';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -117,6 +118,7 @@ export default function EditorHeader({
         />
         <HistoryButton versionCount={versionCount} exportCount={exportCount} onClickAction={onShowHistory} />
         <FocusModeButton onClick={onToggleFocusMode} />
+        <CmdKHint />
         <LayoutSwitcher mode={rightPanelMode} onChange={onRightPanelModeChange} />
 
         {/* Export pill CTA — the primary action of the whole product. Labelled,
@@ -177,6 +179,34 @@ export default function EditorHeader({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+    </div>
+  );
+}
+
+// Persistent ⌘K discoverability chip. Sits in the toolbar alongside
+// History, Focus Mode, and LayoutSwitcher. Only renders for Pro users.
+// Always visible, no conditional timing or localStorage dismissal.
+function CmdKHint() {
+  const hasBookMind = useFeatureAccess('book_mind_ai');
+  if (!hasBookMind) return null;
+  return (
+    <div
+      className="flex items-center gap-1.5 h-10 px-3 rounded-lg text-xs font-medium text-gray-400 dark:text-[#737373] select-none"
+      title="Select text and press ⌘K to edit with Book Mind"
+    >
+      <svg
+        className="w-3.5 h-3.5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+      </svg>
+      <span className="hidden sm:inline">⌘K</span>
     </div>
   );
 }

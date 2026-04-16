@@ -30,7 +30,9 @@ import RichTextEditor from "./components/RichTextEditor";
 import EditorLeftNav from "./components/EditorLeftNav";
 import InspectorPanel from "./components/bookmind/InspectorPanel";
 import InlineEditPopover, { InlineEditRequest } from "./components/bookmind/InlineEditPopover";
-import SelectionHint from "./components/bookmind/SelectionHint";
+// SelectionHint was removed — replaced by a permanent ⌘K chip in
+// EditorHeader that's always visible for Pro users without conditional
+// timing, localStorage dismissal, or selection detection.
 import { toast } from "sonner";
 import EditorRightPanel from "./components/EditorRightPanel";
 import EditorCanvas from "./components/EditorCanvas";
@@ -204,20 +206,6 @@ function MakeEbookPage() {
     setInlineEditRequest(prev => ({ ...prev, open: false }));
   }, []);
 
-  // Triggered by the SelectionHint badge when the user clicks it.
-  // Grabs the current selection and opens the popover, same as ⌘K.
-  const handleTriggerCmdK = useCallback(() => {
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed || !sel.rangeCount) return;
-    const range = sel.getRangeAt(0);
-    const text = sel.toString().trim();
-    if (!text) return;
-    handleInlineEditRequest({
-      selectedText: text,
-      range: range.cloneRange(),
-      rect: range.getBoundingClientRect(),
-    });
-  }, [handleInlineEditRequest]);
 
   // Accept: restore the saved range, write the new text in, let the
   // editor's own input handler propagate the change through onChange.
@@ -2543,20 +2531,13 @@ function MakeEbookPage() {
           the underlying inlineEdit call goes through the Pro-gated
           Book Mind API. */}
       {hasBookMind && (
-        <>
-          <InlineEditPopover
-            request={inlineEditRequest}
-            onClose={handleInlineEditClose}
-            onAccept={handleInlineEditAccept}
-            bookId={currentBookId}
-            userId={user?.id}
-          />
-          <SelectionHint
-            hasBookMind={hasBookMind}
-            inlineEditOpen={inlineEditRequest.open}
-            onTriggerCmdK={handleTriggerCmdK}
-          />
-        </>
+        <InlineEditPopover
+          request={inlineEditRequest}
+          onClose={handleInlineEditClose}
+          onAccept={handleInlineEditAccept}
+          bookId={currentBookId}
+          userId={user?.id}
+        />
       )}
 
       {/* EPUB Reader Modal */}
