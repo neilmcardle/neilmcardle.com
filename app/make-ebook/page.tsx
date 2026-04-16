@@ -2583,10 +2583,12 @@ function MakeEbookPage() {
             bookId={currentBookId}
             userId={user?.id}
           />
-          {/* Floating ⌘K hint — appears briefly below selected text to
-              teach the user the shortcut exists. Hides when the popover
-              is open, after 3 seconds, or when the selection clears. */}
-          {cmdkHintRect && !inlineEditRequest.open && (
+          {/* Floating shortcut hint — appears briefly below selected
+              text on desktop to teach the user that inline AI editing
+              exists. Hidden on mobile/tablet (no physical keyboard) and
+              shows the platform-correct modifier (⌘K on Mac, Ctrl+K
+              on Windows/Linux). */}
+          {cmdkHintRect && !inlineEditRequest.open && typeof navigator !== 'undefined' && !/Mobi|Android|iPad|iPhone/i.test(navigator.userAgent) && (
             <div
               style={{
                 position: 'fixed',
@@ -2595,13 +2597,13 @@ function MakeEbookPage() {
                 zIndex: 900,
                 pointerEvents: 'none',
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-900/90 dark:bg-[#2a2a2a]/95 text-white text-[11px] font-medium shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-1 duration-200"
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-900/90 dark:bg-[#2a2a2a]/95 text-white text-[11px] font-medium shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-1 duration-200"
             >
               <svg className="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                 <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
-              <span>⌘K for AI writer</span>
+              <span>{typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform) ? '⌘' : 'Ctrl+'}K for AI writer</span>
             </div>
           )}
         </>
