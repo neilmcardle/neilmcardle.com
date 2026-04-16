@@ -18,6 +18,7 @@ import InspectorPanel from './bookmind/InspectorPanel';
 import LivePreviewPanel from './LivePreviewPanel';
 import type { RightPanelMode } from './LayoutSwitcher';
 import type { Chapter as BookChapter } from '../types';
+import type { AnalyticalKind } from '../utils/bookmindMemory';
 
 interface EditorRightPanelProps {
   mode: RightPanelMode;
@@ -36,6 +37,7 @@ interface EditorRightPanelProps {
   genre: string;
   selectedText?: string;
   coverFile?: string | null;
+  onRefreshAnalytical?: (kind: AnalyticalKind) => void;
 }
 
 export default function EditorRightPanel({
@@ -51,6 +53,7 @@ export default function EditorRightPanel({
   genre,
   selectedText,
   coverFile,
+  onRefreshAnalytical,
 }: EditorRightPanelProps) {
   if (mode === 'none') return null;
 
@@ -69,6 +72,7 @@ export default function EditorRightPanel({
             selectedText={selectedText}
             coverFile={coverFile}
             onNavigateToChapter={onChapterSelect}
+            onRefreshAnalytical={onRefreshAnalytical}
           />
         </div>
       )}

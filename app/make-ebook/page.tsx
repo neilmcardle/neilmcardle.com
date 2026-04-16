@@ -54,6 +54,7 @@ import OnboardingTour from "./components/OnboardingTour";
 import { loadBookLibrary, saveBookToLibrary, loadBookById } from "./utils/bookLibrary";
 import { ensureManuscriptBrief } from "./utils/manuscriptBrief";
 import { ensureAnalyticalCache } from "./utils/analyticalCache";
+import type { AnalyticalKind } from "./utils/bookmindMemory";
 // Extracted utilities & components
 import { formatRelativeTime, getContentChapterNumber } from "./utils/pageUtils";
 import { ChapterCapsuleMarker } from "./components/ChapterCapsuleMarker";
@@ -231,6 +232,7 @@ function MakeEbookPage() {
   }, []);
 
 
+
   // Accept: restore the saved range, write the new text in, let the
   // editor's own input handler propagate the change through onChange.
   // Wraps the insertion in a highlight span that fades out over 2s so
@@ -351,6 +353,35 @@ function MakeEbookPage() {
     confirmLabel?: string;
     onConfirm: () => void;
   }>({ open: false, title: '', message: '', variant: 'alert', onConfirm: () => {} });
+
+  // Refresh a single analytical kind from an Inspector tab's Refresh
+  // button. Loads the book fresh, clears the stale entry, and re-runs
+  // just that one kind.
+  const handleRefreshAnalytical = useCallback(
+    async (kind: AnalyticalKind) => {
+      if (!currentBookId || !user?.id) return;
+      const book = loadBookById(user.id, currentBookId);
+      if (!book) return;
+      try {
+        await ensureAnalyticalCache({
+          userId: user.id,
+          book: { ...book, bookmindMemory: {
+            ...book.bookmindMemory,
+            rules: book.bookmindMemory?.rules ?? [],
+            characters: book.bookmindMemory?.characters ?? {},
+            decisions: book.bookmindMemory?.decisions ?? [],
+            analytical: {
+              ...book.bookmindMemory?.analytical,
+              [kind]: undefined,
+            },
+          }},
+        });
+      } catch (err) {
+        console.warn('[book-mind] refresh analytical:', kind, err);
+      }
+    },
+    [currentBookId, user?.id],
+  );
 
   // Collapsible sidebar sections state
   const [sidebarLibraryExpanded, setSidebarLibraryExpanded] = useState(true);
@@ -481,19 +512,10 @@ function MakeEbookPage() {
       if (!result.ok && result.reason && result.reason !== 'fresh') {
         console.warn('[book-mind] brief generation:', result.reason, result.error);
       }
-      // Kick off the analytical cache after the brief lands. Each of
-      // the five kinds (themes, characters, inconsistencies, pacing,
-      // wordFrequency) runs sequentially so prompt caching stays warm.
-      // Fresh entries are skipped, so second-load is essentially free.
-      const freshBook = loadBookById(user!.id, currentBookId!);
-      if (freshBook && !cancelled) {
-        ensureAnalyticalCache({
-          userId: user!.id,
-          book: freshBook,
-        }).catch(err => {
-          console.warn('[book-mind] analytical cache:', err);
-        });
-      }
+      // Analytical cache is NOT generated automatically on book open.
+      // It runs only when the user explicitly clicks Generate inside
+      // the Insights or Issues tabs. This avoids 5 Sonnet calls per
+      // book open that go unread if the user only uses Chat or Cmd-K.
     });
     return () => { cancelled = true; };
   }, [currentBookId, user?.id, hasBookMind]);
@@ -2561,6 +2583,7 @@ function MakeEbookPage() {
               genre={genre}
               selectedText={selectedEditorText}
               coverFile={coverUrl}
+              onRefreshAnalytical={handleRefreshAnalytical}
             />
           )}
         </div>
