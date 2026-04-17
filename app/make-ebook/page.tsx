@@ -2687,6 +2687,17 @@ function MakeEbookPage() {
               selectedText={selectedEditorText}
               coverFile={coverUrl}
               onRefreshAnalytical={handleRefreshAnalytical}
+              onAddDisclosureChapter={(content: string) => {
+                const newChapter = {
+                  id: `ch-${Date.now()}`,
+                  title: 'AI Disclosure',
+                  content,
+                  type: 'backmatter' as const,
+                };
+                setChapters(prev => [...prev, newChapter]);
+                setSelectedChapter(chapters.length);
+                toast.success('AI Disclosure chapter added');
+              }}
               flowMode={flowMode}
               onToggleFlowMode={handleToggleFlowMode}
             />

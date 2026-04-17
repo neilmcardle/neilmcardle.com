@@ -28,7 +28,7 @@ interface InspectorPanelProps {
   coverFile?: string | null;
   onNavigateToChapter?: (chapterIndex: number) => void;
   onRefreshAnalytical?: (kind: AnalyticalKind) => void;
-  // Flow mode toggle — opt-in ghost text + margin annotations
+  onAddDisclosureChapter?: (content: string) => void;
   flowMode?: boolean;
   onToggleFlowMode?: () => void;
 }
@@ -172,6 +172,11 @@ export default function InspectorPanel(props: InspectorPanelProps) {
           <PreflightTab
             book={book}
             coverFile={props.coverFile ?? null}
+            liveTitle={props.title}
+            liveAuthor={props.author}
+            liveChapters={props.chapters}
+            liveGenre={props.genre}
+            onAddDisclosureChapter={props.onAddDisclosureChapter}
           />
         </TabsContent>
       </Tabs>

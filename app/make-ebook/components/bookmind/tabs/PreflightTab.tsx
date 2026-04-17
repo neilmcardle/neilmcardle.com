@@ -17,6 +17,13 @@ import { BookMindIcon as BookIcon } from "../../BookMindShared";
 interface PreflightTabProps {
   book: BookRecord | undefined;
   coverFile: string | null;
+  liveTitle?: string;
+  liveAuthor?: string;
+  liveChapters?: Array<{ content: string }>;
+  liveLanguage?: string;
+  liveGenre?: string;
+  // Add the disclosure as a new backmatter chapter in the editor
+  onAddDisclosureChapter?: (content: string) => void;
 }
 
 interface CheckResult {
@@ -33,16 +40,25 @@ const DISCLOSURE_OPTIONS = [
   { id: "mixed", label: "Mix of human and AI writing", disclosure: "This book contains a mix of human-written and AI-generated content. The author wrote, directed, and edited all material to ensure quality and coherence." },
 ];
 
-export default function PreflightTab({ book, coverFile }: PreflightTabProps) {
+export default function PreflightTab({ book, coverFile, liveTitle, liveAuthor, liveChapters, liveLanguage, liveGenre, onAddDisclosureChapter }: PreflightTabProps) {
   const [selectedDisclosure, setSelectedDisclosure] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [addedChapter, setAddedChapter] = useState(false);
 
   if (!book) {
     return <EmptyState message="Open a book to run pre-flight checks." />;
   }
 
+  // Use live props (updated on every keystroke) when available,
+  // falling back to the book snapshot from localStorage.
+  const title = liveTitle ?? book.title;
+  const author = liveAuthor ?? book.author;
+  const chapters = liveChapters ?? book.chapters;
+  const language = liveLanguage ?? book.language;
+  const genre = liveGenre ?? book.genre;
+
   // ── Hard checks (deterministic, instant) ───────────────────────────
-  const totalWords = book.chapters.reduce((sum, ch) => {
+  const totalWords = chapters.reduce((sum, ch) => {
     return sum + ch.content.trim().split(/\s+/).filter(Boolean).length;
   }, 0);
 
@@ -58,19 +74,19 @@ export default function PreflightTab({ book, coverFile }: PreflightTabProps) {
     {
       id: "title",
       label: "Title",
-      status: book.title && book.title.trim() && !["untitled", "pasted manuscript", "untitled book"].includes(book.title.trim().toLowerCase())
+      status: title && title.trim() && !["untitled", "pasted manuscript", "untitled book"].includes(title.trim().toLowerCase())
         ? "pass"
         : "block",
-      message: book.title?.trim()
-        ? `"${book.title}"`
+      message: title?.trim()
+        ? `"${title}"`
         : "No title set. Amazon requires a title.",
     },
     {
       id: "author",
       label: "Author",
-      status: book.author?.trim() ? "pass" : "block",
-      message: book.author?.trim()
-        ? `${book.author}`
+      status: author?.trim() ? "pass" : "block",
+      message: author?.trim()
+        ? `${author}`
         : "No author name set.",
     },
     {
@@ -84,24 +100,24 @@ export default function PreflightTab({ book, coverFile }: PreflightTabProps) {
     {
       id: "language",
       label: "Language",
-      status: book.language?.trim() ? "pass" : "warn",
-      message: book.language?.trim()
-        ? `${book.language}`
+      status: language?.trim() ? "pass" : "warn",
+      message: language?.trim()
+        ? `${language}`
         : "No language set. Recommended for metadata completeness.",
     },
     {
       id: "genre",
       label: "Genre",
-      status: book.genre?.trim() ? "pass" : "warn",
-      message: book.genre?.trim()
-        ? `${book.genre}`
+      status: genre?.trim() ? "pass" : "warn",
+      message: genre?.trim()
+        ? `${genre}`
         : "No genre set. Helps Amazon categorize your book.",
     },
     {
       id: "chapters",
       label: "Chapter count",
-      status: book.chapters.length >= 1 ? "pass" : "block",
-      message: `${book.chapters.length} ${book.chapters.length === 1 ? "chapter" : "chapters"}.`,
+      status: chapters.length >= 1 ? "pass" : "block",
+      message: `${chapters.length} ${chapters.length === 1 ? "chapter" : "chapters"}.`,
     },
   ];
 
@@ -214,12 +230,29 @@ export default function PreflightTab({ book, coverFile }: PreflightTabProps) {
               <p className="text-xs text-gray-700 dark:text-[#d4d4d4] leading-relaxed mb-2">
                 {activeDisclosure.disclosure}
               </p>
-              <button
-                onClick={handleCopyDisclosure}
-                className="text-xs font-medium text-[#4070ff] hover:text-[#3560e6] transition-colors"
-              >
-                {copied ? "Copied to clipboard" : "Copy disclosure text"}
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleCopyDisclosure}
+                  className="text-xs font-medium text-[#4070ff] hover:text-[#3560e6] transition-colors"
+                >
+                  {copied ? "Copied to clipboard" : "Copy disclosure text"}
+                </button>
+                {onAddDisclosureChapter && (
+                  <button
+                    onClick={() => {
+                      onAddDisclosureChapter(
+                        `<h2>AI Disclosure</h2><p>${activeDisclosure.disclosure}</p>`
+                      );
+                      setAddedChapter(true);
+                      setTimeout(() => setAddedChapter(false), 2000);
+                    }}
+                    disabled={addedChapter}
+                    className="text-xs font-medium text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white transition-colors disabled:text-emerald-600 dark:disabled:text-emerald-400"
+                  >
+                    {addedChapter ? "Added to book" : "Add as back matter chapter"}
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>

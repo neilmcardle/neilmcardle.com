@@ -38,6 +38,7 @@ interface EditorRightPanelProps {
   selectedText?: string;
   coverFile?: string | null;
   onRefreshAnalytical?: (kind: AnalyticalKind) => void;
+  onAddDisclosureChapter?: (content: string) => void;
   flowMode?: boolean;
   onToggleFlowMode?: () => void;
 }
@@ -56,6 +57,7 @@ export default function EditorRightPanel({
   selectedText,
   coverFile,
   onRefreshAnalytical,
+  onAddDisclosureChapter,
   flowMode,
   onToggleFlowMode,
 }: EditorRightPanelProps) {
@@ -77,6 +79,7 @@ export default function EditorRightPanel({
             coverFile={coverFile}
             onNavigateToChapter={onChapterSelect}
             onRefreshAnalytical={onRefreshAnalytical}
+            onAddDisclosureChapter={onAddDisclosureChapter}
             flowMode={flowMode}
             onToggleFlowMode={onToggleFlowMode}
           />
