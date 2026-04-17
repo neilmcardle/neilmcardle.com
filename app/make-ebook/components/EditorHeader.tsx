@@ -133,7 +133,7 @@ export default function EditorHeader({
           <DropdownMenuTrigger asChild>
             <button
               data-tour="export"
-              className="flex items-center gap-2 h-10 px-5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors shadow-sm"
+              className="flex items-center gap-2 h-10 px-5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors shadow-sm"
               title="Export book"
             >
               <svg

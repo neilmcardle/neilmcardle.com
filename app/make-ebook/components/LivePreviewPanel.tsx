@@ -242,8 +242,8 @@ export default function LivePreviewPanel({
         >
           {/* Screen */}
           <div
-            className="w-full rounded-lg overflow-hidden flex flex-col"
-            style={{ width: dims.width, height: dims.height, backgroundColor: bgColor }}
+            className="w-full overflow-hidden flex flex-col"
+            style={{ width: dims.width, height: dims.height, backgroundColor: bgColor, borderRadius: 12 }}
           >
             {/* Content area */}
             <div className="flex-1 overflow-hidden relative" style={{ height: contentHeight }}>
