@@ -99,11 +99,11 @@ export interface SendMessageOpts {
 
 const ACTION_PROMPTS: Record<BookMindAction, string> = {
   'summarize-book': 'Give me a natural summary of what this book is about: the main story, the themes running through it, and how the characters develop. Keep it conversational and grounded in specific moments.',
-  'summarize-chapter': 'Walk me through what happens in the currently open chapter. What are the key moments, how do the characters change or react, and how does it fit into the bigger picture?',
+  'summarize-chapter': 'Walk me through what happens in the currently open chapter ONLY. What are the key moments, how do the characters change or react, and how does it fit into the bigger picture? Do not discuss other chapters.',
   'list-characters': 'Who are all the people in this book? For each one, tell me where they appear and what role they play in the story. Be specific.',
   'find-inconsistencies': "Look through the book and flag anything that doesn't quite add up: plot holes, timeline issues, characters acting out of character, facts that contradict each other. Be specific about what you find and where.",
   'analyze-themes': 'What are the big ideas running through this book? Point to specific moments that show these themes in action.',
-  'check-grammar': 'Go through the currently open chapter and catch any grammar, spelling, or punctuation issues. Tell me where they are and how to fix them.',
+  'check-grammar': 'Go through the currently open chapter ONLY. Catch any grammar, spelling, or punctuation issues. Tell me where they are and how to fix them. Do not check other chapters.',
   'timeline-review': 'Map out when everything happens in this book. Note any dates or time references, and flag anything that seems off with the chronology.',
   'word-frequency': 'Look at the language patterns in this book. Are there words or phrases that keep coming up? Any habits the author might want to mix up?',
   'ask-question': '',
@@ -316,9 +316,14 @@ export function useBookMind(options: UseBookMindOptions = {}) {
 
         // Spotlight is reserved for inline-edit surfaces (Cmd-K, ghost
         // text). Plain chat sends never auto-pick spotlight.
+        // Grammar and chapter-summary are chapter-scoped — force scene
+        // so they only read the current chapter, not the whole book.
+        const CHAPTER_SCOPED: BookMindAction[] = ['check-grammar', 'summarize-chapter'];
         const tier = opts.action && ANALYTICAL_ACTIONS.includes(opts.action)
           ? 'wide'
-          : pickContextTier({ query, currentChapter });
+          : opts.action && CHAPTER_SCOPED.includes(opts.action)
+            ? 'scene'
+            : pickContextTier({ query, currentChapter });
 
         const ctx = tier === 'wide'
           ? buildWideContext({ brief, chapters, query, selectedText: opts.selectedText })
