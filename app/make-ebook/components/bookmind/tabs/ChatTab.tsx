@@ -486,7 +486,7 @@ export default function ChatTab({
               e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
             }}
             onKeyDown={handleKeyDown}
-            placeholder={chapters.length > 0 ? "Ask about your book…" : "Open a book first…"}
+            placeholder={chapters.length > 0 ? "Ask about your book, or type / for commands…" : "Open a book first…"}
             disabled={chapters.length === 0}
             rows={1}
             className="flex-1 appearance-none bg-transparent border-0 outline-none ring-0 shadow-none text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#888] focus:outline-none focus:ring-0 focus:shadow-none resize-none max-h-[120px] leading-relaxed disabled:opacity-50"

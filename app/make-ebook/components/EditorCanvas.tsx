@@ -158,7 +158,7 @@ export default function EditorCanvas({
             value={chapter?.content || ''}
             onChange={(html) => onChapterContentChange(selectedChapter, html)}
             minHeight={400}
-            placeholder={selectedChapter === 0 ? 'Write your first chapter here...' : 'Now add some content to your chapter...'}
+            placeholder={selectedChapter === 0 ? 'Start writing, or type / for AI commands...' : 'Continue writing, or type / for AI commands...'}
             className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
             onCreateEndnote={onCreateEndnote}
             chapterId={chapter?.id}
