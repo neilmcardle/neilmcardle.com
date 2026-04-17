@@ -27,8 +27,10 @@ interface InspectorPanelProps {
   selectedText?: string;
   coverFile?: string | null;
   onNavigateToChapter?: (chapterIndex: number) => void;
-  // Trigger a single-kind analytical refresh from a tab's Refresh button.
   onRefreshAnalytical?: (kind: AnalyticalKind) => void;
+  // Flow mode toggle — opt-in ghost text + margin annotations
+  flowMode?: boolean;
+  onToggleFlowMode?: () => void;
 }
 
 type TabKey = "chat" | "insights" | "issues" | "preflight";
@@ -100,6 +102,28 @@ export default function InspectorPanel(props: InspectorPanelProps) {
         onValueChange={(v) => setActive(v as TabKey)}
         className="flex flex-col h-full"
       >
+        {/* Flow mode toggle — sits above the tab bar */}
+        {props.onToggleFlowMode && (
+          <div className="flex-shrink-0 flex items-center justify-between px-4 py-1.5 bg-gray-50 dark:bg-[#181818] border-b border-gray-100 dark:border-[#262626]">
+            <span className="text-2xs text-gray-400 dark:text-[#737373]">Flow mode</span>
+            <button
+              onClick={props.onToggleFlowMode}
+              className={`relative w-8 h-4 rounded-full transition-colors ${
+                props.flowMode
+                  ? "bg-[#4070ff]"
+                  : "bg-gray-300 dark:bg-[#3a3a3a]"
+              }`}
+              title={props.flowMode ? "Turn off ghost text and annotations" : "Turn on ghost text and craft annotations"}
+              aria-label="Toggle Flow mode"
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-transform ${
+                  props.flowMode ? "translate-x-4" : ""
+                }`}
+              />
+            </button>
+          </div>
+        )}
         <TabsList className="flex-shrink-0 h-11 w-full justify-start gap-0 bg-gray-50 dark:bg-[#181818] border-b border-gray-200 dark:border-[#2f2f2f] rounded-none p-0 mt-0">
           {TABS.map((tab) => (
             <TabsTrigger

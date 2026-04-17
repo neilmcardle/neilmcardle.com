@@ -31,6 +31,8 @@ import EditorLeftNav from "./components/EditorLeftNav";
 import InspectorPanel from "./components/bookmind/InspectorPanel";
 import InlineEditPopover, { InlineEditRequest } from "./components/bookmind/InlineEditPopover";
 import ComposePalette, { ComposePaletteRequest } from "./components/bookmind/ComposePalette";
+import GhostTextOverlay from "./components/bookmind/GhostTextOverlay";
+import MarginAnnotation from "./components/bookmind/MarginAnnotation";
 // SelectionHint was removed — replaced by a permanent ⌘K chip in
 // EditorHeader that's always visible for Pro users without conditional
 // timing, localStorage dismissal, or selection detection.
@@ -214,6 +216,33 @@ function MakeEbookPage() {
     selectedText: "",
     range: null,
   });
+
+  // Flow mode — opt-in ghost text + margin annotations. Persisted to
+  // localStorage so the setting survives page reloads. Off by default.
+  const [flowMode, setFlowMode] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("me_flow_mode") === "1";
+  });
+  const handleToggleFlowMode = useCallback(() => {
+    setFlowMode(prev => {
+      const next = !prev;
+      try { localStorage.setItem("me_flow_mode", next ? "1" : "0"); } catch { /* quota */ }
+      return next;
+    });
+  }, []);
+
+  // Ghost text accept handler — inserts the suggestion at the current
+  // caret position via execCommand so undo works.
+  const handleGhostAccept = useCallback((text: string) => {
+    const editorEl = document.querySelector('[contenteditable="true"]') as HTMLElement | null;
+    if (editorEl) editorEl.focus();
+    const escaped = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+    document.execCommand('insertHTML', false, escaped);
+  }, []);
 
   // Compose palette state — triggered by typing "/" at the start of a
   // line in the editor. The range points at the "/" character so we can
@@ -2666,6 +2695,8 @@ function MakeEbookPage() {
               selectedText={selectedEditorText}
               coverFile={coverUrl}
               onRefreshAnalytical={handleRefreshAnalytical}
+              flowMode={flowMode}
+              onToggleFlowMode={handleToggleFlowMode}
             />
           )}
         </div>
@@ -2694,6 +2725,22 @@ function MakeEbookPage() {
             onInsert={handleComposeInsert}
             bookId={currentBookId}
             userId={user?.id}
+          />
+          {/* Flow mode: ghost text + margin annotations. Both fire
+              background Haiku calls while the author writes. Off by
+              default, toggled via the Inspector panel header. */}
+          <GhostTextOverlay
+            enabled={flowMode && chapters.length > 0}
+            bookId={currentBookId}
+            userId={user?.id}
+            onAccept={handleGhostAccept}
+          />
+          <MarginAnnotation
+            enabled={flowMode && chapters.length > 0}
+            bookId={currentBookId}
+            userId={user?.id}
+            chapterContent={chapters[selectedChapter]?.content ?? ""}
+            chapterTitle={chapters[selectedChapter]?.title ?? ""}
           />
           {/* Floating shortcut hint — appears briefly below selected
               text on desktop to teach the user that inline AI editing
