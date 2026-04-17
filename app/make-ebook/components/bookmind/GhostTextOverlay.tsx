@@ -170,36 +170,45 @@ export default function GhostTextOverlay({
 
   if (!enabled || (!suggestion && !generating) || !position) return null;
 
+  // Render as a floating card BELOW the caret line, not inline.
+  // This avoids the ghost text overlapping existing manuscript text
+  // on the lines beneath the cursor.
   return (
     <div
       style={{
         position: "fixed",
-        top: position.top,
-        left: position.left,
+        top: position.top + 28, // drop below the line
+        left: Math.max(24, position.left - 12),
         zIndex: 800,
         pointerEvents: "none",
-        maxWidth: 480,
+        maxWidth: 440,
       }}
     >
-      {generating && !suggestion && (
-        <span
-          className="text-gray-300 dark:text-[#525252] animate-pulse"
-          style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: "15px", lineHeight: "1.75" }}
-        >
-          ...
-        </span>
-      )}
-      {suggestion && (
-        <span
-          className="text-gray-300 dark:text-[#525252]"
-          style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: "15px", lineHeight: "1.75" }}
-        >
-          {" "}{suggestion}
-          <span className="ml-2 text-[10px] text-gray-400 dark:text-[#636363] font-sans align-middle">
-            Tab ↵
-          </span>
-        </span>
-      )}
+      <div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#2f2f2f] rounded-xl shadow-lg px-4 py-3 pointer-events-none">
+        {generating && !suggestion && (
+          <p className="text-xs text-gray-400 dark:text-[#737373] animate-pulse">
+            Thinking...
+          </p>
+        )}
+        {suggestion && (
+          <>
+            <p
+              className="text-sm text-gray-700 dark:text-[#d4d4d4] leading-relaxed"
+              style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+            >
+              {suggestion}
+            </p>
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-[#262626]">
+              <span className="text-[10px] text-gray-400 dark:text-[#737373]">
+                Press <kbd className="inline-flex items-center px-1 py-0 rounded border border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] font-mono text-[10px] mx-0.5">Tab</kbd> to insert
+              </span>
+              <span className="text-[10px] text-gray-400 dark:text-[#636363]">
+                Flow mode · toggle off in Inspector
+              </span>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
