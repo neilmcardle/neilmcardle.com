@@ -182,7 +182,14 @@ function MakeEbookPage() {
   useEffect(() => {
     const handleSelection = () => {
       const sel = window.getSelection();
-      const text = sel?.toString().trim();
+      if (!sel || !sel.rangeCount) return;
+      // Only capture selections inside the editor's contentEditable.
+      // Selections in the chat panel, popovers, or other UI elements
+      // should not become manuscript context.
+      const node = sel.anchorNode;
+      const editorEl = node?.parentElement?.closest?.('[contenteditable="true"]');
+      if (!editorEl) return;
+      const text = sel.toString().trim();
       if (text && text.length > 10) {
         setSelectedEditorText(text);
         // Check if the selection is inside the editor

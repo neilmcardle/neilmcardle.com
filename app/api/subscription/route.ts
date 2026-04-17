@@ -63,6 +63,29 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // Local dev override: if the DB is unreachable (common when
+    // DATABASE_URL isn't configured for local dev) and the user is
+    // signed in with a known dev email, return Pro without a DB hit.
+    // This ONLY fires in development and ONLY when the DB lookup
+    // has already failed. Production always goes through the DB.
+    if (!dbUser && process.env.NODE_ENV === 'development') {
+      const devProEmails = ['neil@neilmcardle.com', 'neilmcardlemail@gmail.com', 'hello@makeebook.ink'];
+      if (user.email && devProEmails.includes(user.email)) {
+        console.warn(`[subscription] dev override: granting Pro to ${user.email} (DB unreachable)`);
+        return NextResponse.json(
+          {
+            tier: 'pro',
+            status: 'active',
+            isGrandfathered: true,
+            currentPeriodEnd: null,
+            stripeCustomerId: null,
+            isPro: true,
+          },
+          { status: 200, headers: response.headers }
+        );
+      }
+    }
+
     if (!dbUser) {
       return NextResponse.json(
         { error: 'User not found' },

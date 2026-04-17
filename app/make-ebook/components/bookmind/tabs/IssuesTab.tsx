@@ -93,13 +93,29 @@ export default function IssuesTab({
 
       <div className="flex-1 overflow-y-auto min-h-0 px-4 py-4">
         {!entry ? (
-          <div className="flex items-center gap-2 py-8 justify-center text-xs text-gray-400 dark:text-[#737373]">
-            <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2" />
-              <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-            </svg>
-            Scanning for issues...
-          </div>
+          onRefresh ? (
+            <div className="flex flex-col items-center gap-3 py-12">
+              <svg className="w-8 h-8 text-gray-300 dark:text-[#525252]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <p className="text-sm text-gray-500 dark:text-[#a3a3a3]">No scan yet</p>
+              <button
+                onClick={() => onRefresh("inconsistencies")}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-medium hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                Scan for issues
+              </button>
+            </div>
+          ) : (
+            <p className="text-xs text-gray-400 dark:text-[#737373] text-center py-8">Not yet scanned.</p>
+          )
         ) : visibleCards.length === 0 ? (
           <div className="text-center py-12">
             <svg className="w-8 h-8 text-emerald-400 dark:text-emerald-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">

@@ -54,6 +54,16 @@ export async function requireProUser(req: NextRequest): Promise<ProAuthResult> {
     }
   }
 
+  // Local dev override: grant Pro when DB is unreachable and the
+  // user matches a known dev email. See /api/subscription for the
+  // same pattern and the reasoning behind it.
+  if (!dbUser && process.env.NODE_ENV === 'development') {
+    const devProEmails = ['neil@neilmcardle.com', 'neilmcardlemail@gmail.com', 'hello@makeebook.ink'];
+    if (user.email && devProEmails.includes(user.email)) {
+      return { ok: true, user: { id: user.id, email: user.email } };
+    }
+  }
+
   let isPro = false;
   if (dbUser) {
     if (dbUser.isGrandfathered) isPro = true;
