@@ -129,6 +129,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
         <TabsContent value="insights" className="flex-1 min-h-0 mt-0 outline-none">
           <InsightsTab
             book={book}
+            userId={props.userId}
             chapters={chapterIndex}
             onNavigateToChapter={props.onNavigateToChapter}
             onRefresh={props.onRefreshAnalytical}

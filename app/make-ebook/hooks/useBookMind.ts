@@ -17,7 +17,7 @@
 // Sonnet for normal chat — that's reserved for background brief and
 // analytical-cache generation.
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Chapter as BookChapter } from '../types';
 import { loadBookById } from '../utils/bookLibrary';
 import { getMemory, formatMemoryForPrompt, isBriefFresh } from '../utils/bookmindMemory';
@@ -172,6 +172,11 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  // AbortController for cancelling in-flight requests. Stored in a ref
+  // so the stop() function can reach the controller that was set when
+  // the current request started, not a stale closure.
+  const abortRef = useRef<AbortController | null>(null);
 
   const generateId = () => `msg-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
   const generateSessionId = () => `chat-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
@@ -400,9 +405,14 @@ export function useBookMind(options: UseBookMindOptions = {}) {
       // Auto-escalate analytical actions to deep mode (Sonnet)
       const deep = opts.deep ?? (action ? ANALYTICAL_ACTIONS.includes(action) : false);
 
+      // Set up abort controller so the user can stop generation mid-stream.
+      const controller = new AbortController();
+      abortRef.current = controller;
+
       const response = await fetch('/api/ai/book-mind', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           voice: VOICE_BLOCK,
           memory: memoryBlock || undefined,
@@ -536,6 +546,17 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     setIsOpen(prev => !prev);
   }, []);
 
+  // Stop a running generation. Aborts the fetch, clears the loading
+  // state, and keeps whatever content has streamed in so far. The
+  // partial response stays in the message list as a truncated answer.
+  const stop = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    setIsLoading(false);
+  }, []);
+
   // ── Inline edit (Phase B placeholder) ────────────────────────────────
   //
   // Wired here so call sites can import the method now and the Phase B
@@ -617,6 +638,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     quickAction,
     clearMessages,
     inlineEdit,
+    stop,
     // Chat session management
     chatSessions,
     currentSessionId,

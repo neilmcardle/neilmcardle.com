@@ -11,14 +11,16 @@
 // This tab never makes its own API calls. It's a pure reader of cached
 // state. The analytical generator runs in page.tsx on book open.
 
-import React from "react";
-import { BookRecord, AnalyticalResponse } from "../../../types";
-import { getAnalytical, isAnalyticalFresh, AnalyticalKind } from "../../../utils/bookmindMemory";
+import React, { useState } from "react";
+import { BookRecord, AnalyticalResponse, AnalyticalCard } from "../../../types";
+import { getAnalytical, isAnalyticalFresh, setCharacter, getMemory, AnalyticalKind } from "../../../utils/bookmindMemory";
 import CardRenderer from "../CardRenderer";
 import { BookMindIcon as BookIcon } from "../../BookMindShared";
+import { toast } from "sonner";
 
 interface InsightsTabProps {
   book: BookRecord | undefined;
+  userId?: string;
   chapters: Array<{ id: string; title: string }>;
   onNavigateToChapter?: (chapterIndex: number) => void;
   onRefresh?: (kind: AnalyticalKind) => void;
@@ -33,15 +35,40 @@ const SECTIONS: Array<{ kind: AnalyticalKind; label: string; icon: string }> = [
 
 export default function InsightsTab({
   book,
+  userId,
   chapters,
   onNavigateToChapter,
   onRefresh,
 }: InsightsTabProps) {
+  const [addedChars, setAddedChars] = useState<Set<string>>(new Set());
+
   if (!book) {
     return (
       <EmptyState message="Open a book to see insights." />
     );
   }
+
+  const characterEntry = getAnalytical(book, "characters");
+  const characterCards = characterEntry?.payload?.cards ?? [];
+  const existingMemory = getMemory(book);
+
+  const handleAddCharacter = (card: AnalyticalCard) => {
+    if (!userId || !book) return;
+    setCharacter(userId, book.id, card.title, card.claim || card.body || "");
+    setAddedChars(prev => new Set(prev).add(card.title));
+    toast.success(`${card.title} added to Book Mind memory`);
+  };
+
+  const handleAddAllCharacters = () => {
+    if (!userId || !book) return;
+    for (const card of characterCards) {
+      if (!existingMemory.characters[card.title]) {
+        setCharacter(userId, book.id, card.title, card.claim || card.body || "");
+      }
+    }
+    setAddedChars(new Set(characterCards.map(c => c.title)));
+    toast.success(`${characterCards.length} characters added to Book Mind memory`);
+  };
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white">
@@ -61,17 +88,32 @@ export default function InsightsTab({
           const payload = entry?.payload;
 
           return (
-            <InsightSection
-              key={kind}
-              kind={kind}
-              label={label}
-              payload={payload ?? null}
-              isFresh={fresh}
-              isStale={!!entry && !fresh}
-              chapters={chapters}
-              onNavigateToChapter={onNavigateToChapter}
-              onRefresh={onRefresh ? () => onRefresh(kind) : undefined}
-            />
+            <div key={kind}>
+              <InsightSection
+                kind={kind}
+                label={label}
+                payload={payload ?? null}
+                isFresh={fresh}
+                isStale={!!entry && !fresh}
+                chapters={chapters}
+                onNavigateToChapter={onNavigateToChapter}
+                onRefresh={onRefresh ? () => onRefresh(kind) : undefined}
+              />
+              {/* Add-to-memory actions for the Characters section */}
+              {kind === "characters" && characterCards.length > 0 && userId && (
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    onClick={handleAddAllCharacters}
+                    disabled={addedChars.size === characterCards.length}
+                    className="text-2xs text-[#4070ff] hover:text-[#3560e6] disabled:text-gray-400 disabled:cursor-default transition-colors"
+                  >
+                    {addedChars.size === characterCards.length
+                      ? "All characters added to Book Mind"
+                      : `Add all ${characterCards.length} characters to Book Mind`}
+                  </button>
+                </div>
+              )}
+            </div>
           );
         })}
       </div>

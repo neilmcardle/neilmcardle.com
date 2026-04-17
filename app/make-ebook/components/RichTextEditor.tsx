@@ -605,13 +605,17 @@ export default function RichTextEditor({
           // or mid-sentence slashes.
           const beforeCursor = text.slice(0, offset).trimStart();
           if (beforeCursor === '/') {
-            const rect = range.getBoundingClientRect();
-            if (rect.width === 0 && rect.height > 0) {
-              onComposeRequest({
-                range: range.cloneRange(),
-                rect,
-              });
+            // Use the caret rect for popover anchoring. A collapsed
+            // range may report zero dimensions in some browsers, so
+            // we fall back to the parent element's rect if needed.
+            let rect = range.getBoundingClientRect();
+            if (rect.height === 0 && node.parentElement) {
+              rect = node.parentElement.getBoundingClientRect();
             }
+            onComposeRequest({
+              range: range.cloneRange(),
+              rect,
+            });
           }
         }
       }
