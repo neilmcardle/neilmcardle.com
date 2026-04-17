@@ -22,6 +22,7 @@ import { useBookMind } from "../../hooks/useBookMind";
 export interface Annotation {
   id: string;
   note: string;
+  quote?: string; // short excerpt from the text showing WHERE the issue is
   type: "craft" | "pacing" | "voice" | "repetition";
 }
 
@@ -88,15 +89,19 @@ export default function MarginAnnotation({
       try {
         const result = await inlineEdit({
           selectedText: chapterContent.slice(-3000), // last ~3000 chars for context
-          instruction: `You are a craft reader. Read this chapter excerpt and return 2-4 brief craft annotations as a JSON array. Each annotation is one object: {"id":"<unique>","note":"<one sentence, max 15 words>","type":"craft"|"pacing"|"voice"|"repetition"}.
+          instruction: `You are a craft reader. Read this chapter excerpt and return 2-4 brief craft annotations as a JSON array. Each annotation MUST include a short quote from the text so the author knows exactly where to look.
+
+Schema: [{"id":"<unique>","note":"<one sentence, max 15 words>","quote":"<5-10 words from the text this refers to>","type":"craft"|"pacing"|"voice"|"repetition"}]
 
 Focus on CRAFT only:
-- Repeated sentence openings in recent paragraphs
-- Dialogue tags doing too much work ("he said angrily" vs action beats)
-- Pacing: a paragraph that's notably longer/shorter than its neighbors
-- A character using a speech pattern that belongs to a different character
+- Repeated sentence openings in recent paragraphs (quote the repeated opening)
+- Dialogue tags doing too much work (quote the tag)
+- Pacing: a paragraph notably longer/shorter than neighbors (quote its opening)
+- A character using another character's speech pattern (quote the line)
 
-Do NOT flag grammar, spelling, or punctuation. Return ONLY the JSON array, no prose. If nothing notable, return [].`,
+The "quote" field must be a verbatim excerpt from the text, 5-10 words, so the author can find the exact spot.
+
+Do NOT flag grammar, spelling, or punctuation. Return ONLY the JSON array. If nothing notable, return [].`,
         });
 
         if (result) {
@@ -160,9 +165,16 @@ Do NOT flag grammar, spelling, or punctuation. Return ONLY the JSON array, no pr
           <span className={`text-[9px] font-semibold uppercase tracking-wide px-1 py-0.5 rounded flex-shrink-0 mt-0.5 ${TYPE_COLORS[annotation.type] || TYPE_COLORS.craft}`}>
             {annotation.type}
           </span>
-          <p className="text-[11px] text-gray-600 dark:text-[#a3a3a3] leading-snug flex-1">
-            {annotation.note}
-          </p>
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] text-gray-600 dark:text-[#a3a3a3] leading-snug">
+              {annotation.note}
+            </p>
+            {annotation.quote && (
+              <p className="text-[10px] text-gray-400 dark:text-[#636363] italic mt-0.5 truncate">
+                &ldquo;{annotation.quote}&rdquo;
+              </p>
+            )}
+          </div>
           <button
             onClick={() => handleDismiss(annotation.id)}
             className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-700 dark:hover:text-white transition-all mt-0.5"

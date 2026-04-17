@@ -93,12 +93,44 @@ export default function GhostTextOverlay({
         abortRef.current = controller;
 
         try {
-          const result = await inlineEdit({
-            selectedText: ctx.textBefore.slice(-500),
-            instruction: "Continue this text with 1-2 sentences. Match the voice, tense, and rhythm exactly. Return ONLY the continuation. Start with a space.",
-          });
+          // Call the API directly instead of inlineEdit, because
+        // inlineEdit uses a "rewrite" voice that confuses the model
+        // when asked to continue. This uses a bare fetch with a
+        // continuation-specific system prompt.
+        const ghostResponse = await fetch('/api/ai/book-mind', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({
+            voice: 'You continue prose. The author has paused at the end of a sentence. Write 1-2 sentences that continue naturally from where they stopped. Match the voice, tense, point of view, and rhythm exactly. Return ONLY the continuation text. No preamble, no quotes, no explanation. Start with a space. Never use em dashes.',
+            context: `=== TEXT SO FAR ===\n${ctx.textBefore.slice(-800)}\n=== END ===`,
+            messages: [{ role: 'user', content: 'Continue from here.' }],
+            tier: 'spotlight',
+          }),
+        });
+        if (!ghostResponse.ok || !ghostResponse.body || controller.signal.aborted) return;
+        const reader = ghostResponse.body.getReader();
+        const decoder = new TextDecoder();
+        let buf = '';
+        let result = '';
+        outer: while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buf += decoder.decode(value, { stream: true });
+          const lines = buf.split('\n');
+          buf = lines.pop() ?? '';
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const d = line.slice(6).trim();
+            if (d === '[DONE]') break outer;
+            try {
+              const p = JSON.parse(d);
+              if (p.content) result += p.content;
+            } catch { /* skip */ }
+          }
+        }
           if (controller.signal.aborted) return;
-          if (result?.trim()) {
+          if (result.trim()) {
             setSuggestion(result.trim());
           }
         } catch {
