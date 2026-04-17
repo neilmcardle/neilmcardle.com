@@ -103,13 +103,13 @@ export default function EditorHeader({
             title="Save now (⌘S)"
           >
             <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-            <span>Save</span>
+            <span className="hidden xl:inline">Save</span>
           </button>
         )}
       </div>
 
       {/* ── Right cluster: navigation, tools, and the primary Export CTA ── */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 xl:gap-3">
         <ChapterNavDropdown
           chapters={chapters}
           selectedChapter={selectedChapter}
@@ -133,7 +133,7 @@ export default function EditorHeader({
           <DropdownMenuTrigger asChild>
             <button
               data-tour="export"
-              className="flex items-center gap-2 h-10 px-5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors shadow-sm"
+              className="flex items-center gap-2 h-10 px-3 xl:px-5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors shadow-sm"
               title="Export book"
             >
               <svg
@@ -150,7 +150,7 @@ export default function EditorHeader({
                 <polyline points="7 10 12 15 17 10" />
                 <line x1="12" y1="15" x2="12" y2="3" />
               </svg>
-              <span>Export</span>
+              <span className="hidden xl:inline">Export</span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="bottom" align="end" sideOffset={8} className="w-48">
