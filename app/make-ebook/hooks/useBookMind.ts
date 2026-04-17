@@ -379,6 +379,14 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
 
+    // Auto-name the session from the first user message. Truncate to
+    // 40 chars so it reads well in the history popover. Only fires once
+    // per session (when messages was empty before this send).
+    if (messages.length === 0 && currentSessionId) {
+      const autoName = userMessage.trim().slice(0, 40) + (userMessage.trim().length > 40 ? '…' : '');
+      renameSession(currentSessionId, autoName);
+    }
+
     try {
       // Build the prompt to send. For canned analytical actions, we
       // substitute the curated prompt; the user message text is just a

@@ -21,6 +21,7 @@ interface MessageActionsProps {
   onRegenerate?: () => void;
   onContinue?: () => void;
   onOpenReadingView?: () => void;
+  onRemember?: (text: string) => void;
   disabled?: boolean;
 }
 
@@ -29,6 +30,7 @@ export default function MessageActions({
   onRegenerate,
   onContinue,
   onOpenReadingView,
+  onRemember,
   disabled,
 }: MessageActionsProps) {
   const [copied, setCopied] = useState(false);
@@ -100,6 +102,20 @@ export default function MessageActions({
         >
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
             <path d="M15 3h6v6M14 10l6.16-6.16M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5" />
+          </svg>
+        </ActionButton>
+      )}
+
+      {onRemember && (
+        <ActionButton
+          onClick={() => onRemember(content)}
+          disabled={disabled}
+          title="Save to Book Mind memory"
+          aria-label="Save key info to memory"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2a10 10 0 0110 10 10 10 0 01-10 10A10 10 0 012 12 10 10 0 0112 2z" />
+            <path d="M12 8v4l3 2" />
           </svg>
         </ActionButton>
       )}

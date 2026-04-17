@@ -100,6 +100,7 @@ export default function GhostTextOverlay({
         const ghostResponse = await fetch('/api/ai/book-mind', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           signal: controller.signal,
           body: JSON.stringify({
             voice: 'You continue prose. The author has paused at the end of a sentence. Write 1-2 sentences that continue naturally from where they stopped. Match the voice, tense, point of view, and rhythm exactly. Return ONLY the continuation text. No preamble, no quotes, no explanation. Start with a space. Never use em dashes.',

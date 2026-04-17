@@ -36,6 +36,8 @@ import CitationPill from "../CitationPill";
 import MessageActions from "../MessageActions";
 import ReadingView from "../ReadingView";
 import MemoryEditor from "../MemoryEditor";
+import { addRule } from "../../../utils/bookmindMemory";
+import { toast } from "sonner";
 import { linkCitations } from "../../../utils/citationLinker";
 import type { Chapter } from "../../../types";
 
@@ -186,6 +188,20 @@ export default function ChatTab({
   const handleNavigate = (chapterIndex: number) => {
     if (chapterIndex < 0) return;
     onNavigateToChapter?.(chapterIndex);
+  };
+
+  // Save a message's content as a memory rule. Prompts the user via
+  // window.prompt for what specifically to remember (pre-filled with
+  // the first sentence of the message). If they confirm, it's added
+  // to the per-book memory and injected into all future calls.
+  const handleRemember = (content: string) => {
+    if (!bookId || !userId) return;
+    const firstSentence = content.match(/^[^.!?]+[.!?]/)?.[0]?.trim() ?? content.slice(0, 80);
+    const rule = window.prompt("What should Book Mind remember from this?", firstSentence);
+    if (rule?.trim()) {
+      addRule(userId, bookId, rule.trim());
+      toast.success("Saved to Book Mind memory");
+    }
   };
 
   // History popover data
@@ -349,6 +365,7 @@ export default function ChatTab({
                 onRegenerate={() => handleRegenerate(message.id)}
                 onContinue={() => handleContinue(message.id)}
                 onOpenReadingView={() => setReadingView({ open: true, content: message.content })}
+                onRemember={handleRemember}
                 disabled={isLoading}
               />
             ))}
@@ -478,6 +495,7 @@ interface MessageBubbleProps {
   onRegenerate: () => void;
   onContinue: () => void;
   onOpenReadingView: () => void;
+  onRemember: (content: string) => void;
   disabled: boolean;
 }
 
@@ -488,6 +506,7 @@ function MessageBubble({
   onRegenerate,
   onContinue,
   onOpenReadingView,
+  onRemember,
   disabled,
 }: MessageBubbleProps) {
   const isUser = message.role === "user";
@@ -563,6 +582,7 @@ function MessageBubble({
               onRegenerate={onRegenerate}
               onContinue={onContinue}
               onOpenReadingView={onOpenReadingView}
+              onRemember={onRemember}
               disabled={disabled}
             />
           </div>
