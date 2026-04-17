@@ -32,7 +32,8 @@ interface InlineEditPopoverProps {
 const POPOVER_WIDTH = 440;
 const VIEWPORT_MARGIN = 12;
 const ANCHOR_GAP = 8;
-const NUM_ALTERNATIVES = 3;
+const INITIAL_ALTERNATIVES = 1;
+const MAX_ALTERNATIVES = 3;
 
 // Fixed-height regions of the popover (header + input + action bar).
 // The result area gets whatever vertical space remains.
@@ -49,8 +50,9 @@ export default function InlineEditPopover({
 
   const [instruction, setInstruction] = useState("");
   const [results, setResults] = useState<(string | null)[]>(
-    Array(NUM_ALTERNATIVES).fill(null),
+    Array(INITIAL_ALTERNATIVES).fill(null),
   );
+  const [numAlternatives, setNumAlternatives] = useState(INITIAL_ALTERNATIVES);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +68,8 @@ export default function InlineEditPopover({
   useEffect(() => {
     if (request.open) {
       setInstruction("");
-      setResults(Array(NUM_ALTERNATIVES).fill(null));
+      setNumAlternatives(INITIAL_ALTERNATIVES);
+      setResults(Array(INITIAL_ALTERNATIVES).fill(null));
       setActiveIndex(0);
       setIsLoading(false);
       setError(null);
@@ -133,10 +136,10 @@ export default function InlineEditPopover({
     const handle = (e: KeyboardEvent) => {
       if (e.key === "ArrowUp" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setActiveIndex(i => (i - 1 + NUM_ALTERNATIVES) % NUM_ALTERNATIVES);
+        setActiveIndex(i => (i - 1 + numAlternatives) % numAlternatives);
       } else if (e.key === "ArrowDown" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setActiveIndex(i => (i + 1) % NUM_ALTERNATIVES);
+        setActiveIndex(i => (i + 1) % numAlternatives);
       } else if (e.key === "Tab" && activeResult) {
         e.preventDefault();
         handleAccept();
@@ -150,14 +153,15 @@ export default function InlineEditPopover({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [request.open, hasAnyResult, activeResult, activeIndex]);
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(async (count?: number) => {
     if (!instruction.trim() || isLoading) return;
+    const n = count ?? numAlternatives;
     setIsLoading(true);
     setError(null);
-    setResults(Array(NUM_ALTERNATIVES).fill(null));
+    setResults(Array(n).fill(null));
     setActiveIndex(0);
 
-    const promises = Array.from({ length: NUM_ALTERNATIVES }, async (_, i) => {
+    const promises = Array.from({ length: n }, async (_, i) => {
       try {
         const rewritten = await inlineEdit({
           selectedText: request.selectedText,
@@ -175,12 +179,17 @@ export default function InlineEditPopover({
 
     await Promise.allSettled(promises);
     setIsLoading(false);
-  }, [instruction, isLoading, inlineEdit, request.selectedText]);
+  }, [instruction, isLoading, inlineEdit, request.selectedText, numAlternatives]);
 
   const handleRegenerate = useCallback(() => {
-    setResults(Array(NUM_ALTERNATIVES).fill(null));
+    setResults(Array(numAlternatives).fill(null));
     setActiveIndex(0);
     void handleSubmit();
+  }, [handleSubmit, numAlternatives]);
+
+  const handleMoreTakes = useCallback(() => {
+    setNumAlternatives(MAX_ALTERNATIVES);
+    void handleSubmit(MAX_ALTERNATIVES);
   }, [handleSubmit]);
 
   const handleAccept = useCallback(() => {
@@ -258,8 +267,8 @@ export default function InlineEditPopover({
             </div>
           )}
 
-          {/* Dot indicator for alternatives */}
-          {(hasAnyResult || isLoading) && (
+          {/* Dot indicator for alternatives — only show when multiple */}
+          {(hasAnyResult || isLoading) && numAlternatives > 1 && (
             <div className="px-4 pt-3 pb-1 flex items-center gap-3">
               <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium">
                 {isLoading && !hasAnyResult ? "Generating 3 alternatives\u2026" : "Alternatives"}
@@ -287,7 +296,7 @@ export default function InlineEditPopover({
               </div>
               {completedCount > 0 && (
                 <span className="text-2xs text-gray-400 dark:text-[#737373]">
-                  {completedCount}/{NUM_ALTERNATIVES} ready
+                  {completedCount}/{numAlternatives} ready
                 </span>
               )}
             </div>
@@ -351,6 +360,15 @@ export default function InlineEditPopover({
         <div className="flex items-center gap-1">
           {hasAnyResult && (
             <>
+              {numAlternatives < MAX_ALTERNATIVES && (
+                <button
+                  onClick={handleMoreTakes}
+                  disabled={isLoading}
+                  className="px-2.5 py-1 text-xs font-medium text-[#4070ff] hover:text-[#3560e6] rounded transition-colors disabled:opacity-50"
+                >
+                  More takes
+                </button>
+              )}
               <button
                 onClick={handleRegenerate}
                 disabled={isLoading}
@@ -369,7 +387,7 @@ export default function InlineEditPopover({
           )}
           {!hasAnyResult && !isLoading && (
             <button
-              onClick={handleSubmit}
+              onClick={() => handleSubmit()}
               disabled={!instruction.trim()}
               className="px-3 py-1 text-xs font-medium bg-[#4070ff] text-white hover:bg-[#3560e6] rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >

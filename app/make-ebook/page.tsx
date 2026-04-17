@@ -57,7 +57,8 @@ import { useFindReplace } from "./hooks/useFindReplace";
 import { useOnboarding } from "./hooks/useOnboarding";
 import OnboardingTour from "./components/OnboardingTour";
 import { loadBookLibrary, saveBookToLibrary, loadBookById } from "./utils/bookLibrary";
-import { ensureManuscriptBrief } from "./utils/manuscriptBrief";
+// ensureManuscriptBrief is now called lazily from useBookMind on first
+// chat send, not automatically on book open. No import needed here.
 import { ensureAnalyticalCache } from "./utils/analyticalCache";
 import type { AnalyticalKind } from "./utils/bookmindMemory";
 // Extracted utilities & components
@@ -605,32 +606,14 @@ function MakeEbookPage() {
   // entirely — Book Mind is Pro-gated and we don't burn API calls for
   // them. Errors are swallowed and surfaced in the next chat send if
   // anything went wrong.
-  useEffect(() => {
-    if (!hasBookMind) return;
-    if (!currentBookId || !user?.id) return;
-    const book = loadBookById(user.id, currentBookId);
-    if (!book || book.chapters.length === 0) return;
-    let cancelled = false;
-    // Step 1: brief first (the spine of fast retrieval).
-    // Step 2: analytical cache second (benefits from prompt caching
-    // being warm from the brief call, since both send the manuscript
-    // as an ephemeral cache block). Sequential ordering means calls
-    // 2–5 pay 10% input cost instead of full price.
-    ensureManuscriptBrief({
-      userId: user.id,
-      book,
-    }).then(result => {
-      if (cancelled) return;
-      if (!result.ok && result.reason && result.reason !== 'fresh') {
-        console.warn('[book-mind] brief generation:', result.reason, result.error);
-      }
-      // Analytical cache is NOT generated automatically on book open.
-      // It runs only when the user explicitly clicks Generate inside
-      // the Insights or Issues tabs. This avoids 5 Sonnet calls per
-      // book open that go unread if the user only uses Chat or Cmd-K.
-    });
-    return () => { cancelled = true; };
-  }, [currentBookId, user?.id, hasBookMind]);
+  // Brief generation is NOT automatic on book open. It runs only when
+  // the user explicitly triggers it (via a "Generate brief" action in
+  // the Chat tab, or the first time they use a feature that needs it).
+  // This avoids a Haiku call on every book open for users who might
+  // just be reading or editing without using Book Mind at all.
+  //
+  // If a brief already exists and is fresh (manuscriptHash matches),
+  // ensureManuscriptBrief returns immediately at zero cost.
 
   // Unified History modal: null = closed, otherwise the tab to open on.
   // Replaces the old split showVersionHistory / showExportHistory booleans.

@@ -18,7 +18,7 @@ interface GhostTextOverlayProps {
   onAccept: (text: string) => void;
 }
 
-const IDLE_MS = 2000;
+const IDLE_MS = 4000;
 const SENTENCE_END = /[.!?]\s*$/;
 
 function getCaretContext(): { rect: DOMRect; textBefore: string; atEnd: boolean } | null {
@@ -103,7 +103,7 @@ export default function GhostTextOverlay({
           credentials: 'include',
           signal: controller.signal,
           body: JSON.stringify({
-            voice: 'You continue prose. The author has paused at the end of a sentence. Write 1-2 sentences that continue naturally from where they stopped. Match the voice, tense, point of view, and rhythm exactly. Return ONLY the continuation text. No preamble, no quotes, no explanation. Start with a space. Never use em dashes.',
+            voice: 'Continue with one sentence, max 20 words. Match the voice exactly. No preamble. Start with a space. No em dashes.',
             context: `=== TEXT SO FAR ===\n${ctx.textBefore.slice(-800)}\n=== END ===`,
             messages: [{ role: 'user', content: 'Continue from here.' }],
             tier: 'spotlight',
@@ -168,6 +168,16 @@ export default function GhostTextOverlay({
     return () => document.removeEventListener("keydown", handle, true);
   }, [suggestion, onAccept, clear]);
 
+  // Escape or click on the thinking bubble dismisses and cancels the call
+  useEffect(() => {
+    if (!generating || suggestion) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { e.preventDefault(); clear(); }
+    };
+    document.addEventListener("keydown", handleKey, true);
+    return () => document.removeEventListener("keydown", handleKey, true);
+  }, [generating, suggestion, clear]);
+
   if (!enabled || (!suggestion && !generating) || !position) return null;
 
   // Render as a floating card BELOW the caret line, not inline.
@@ -180,15 +190,21 @@ export default function GhostTextOverlay({
         top: position.top + 28, // drop below the line
         left: Math.max(24, position.left - 12),
         zIndex: 800,
-        pointerEvents: "none",
         maxWidth: 440,
       }}
     >
-      <div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#2f2f2f] rounded-xl shadow-lg px-4 py-3 pointer-events-none">
+      <div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#2f2f2f] rounded-xl shadow-lg px-4 py-3">
         {generating && !suggestion && (
-          <p className="text-xs text-gray-400 dark:text-[#737373] animate-pulse">
-            Thinking...
-          </p>
+          <button
+            onClick={clear}
+            className="flex items-center gap-2 text-xs text-gray-400 dark:text-[#737373] animate-pulse hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors w-full text-left"
+            title="Click or press Esc to dismiss"
+          >
+            <span>Thinking...</span>
+            <svg className="w-3 h-3 flex-shrink-0 opacity-0 hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         )}
         {suggestion && (
           <>

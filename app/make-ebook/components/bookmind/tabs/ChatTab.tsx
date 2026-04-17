@@ -185,6 +185,33 @@ export default function ChatTab({
   // Navigation callback passed to CitationPill inside messages and
   // inside ReadingView. Delegates to the parent which knows how to
   // change selectedChapter and scroll the editor.
+  // Slash-command menu in the chat input. Shows when the user types
+  // "/" as the first character. Selecting a command pre-fills the input
+  // with a descriptive prompt and auto-sends it.
+  const showSlashMenu = input.trimStart() === '/' || (input.trimStart().startsWith('/') && input.trimStart().length < 12);
+  const SLASH_COMMANDS = [
+    { cmd: '/summarize', label: 'Summarize the current chapter', action: 'summarize-chapter' as BookMindAction },
+    { cmd: '/themes', label: 'Analyze the major themes in this book', action: 'analyze-themes' as BookMindAction },
+    { cmd: '/characters', label: 'List all characters in this book', action: 'list-characters' as BookMindAction },
+    { cmd: '/issues', label: 'Find inconsistencies and plot holes', action: 'find-inconsistencies' as BookMindAction },
+    { cmd: '/grammar', label: 'Check grammar in this chapter', action: 'check-grammar' as BookMindAction },
+    { cmd: '/timeline', label: 'Review the timeline', action: 'timeline-review' as BookMindAction },
+  ];
+  const slashFilter = input.trimStart().slice(1).toLowerCase();
+  const filteredSlash = slashFilter
+    ? SLASH_COMMANDS.filter(c => c.cmd.toLowerCase().includes(slashFilter) || c.label.toLowerCase().includes(slashFilter))
+    : SLASH_COMMANDS;
+
+  const handleSlashSelect = (cmd: typeof SLASH_COMMANDS[0]) => {
+    setInput('');
+    ensureSession();
+    sendMessage(cmd.label, {
+      selectedChapterIndex,
+      selectedText: activeSelectedText,
+      action: cmd.action,
+    });
+  };
+
   const handleNavigate = (chapterIndex: number) => {
     if (chapterIndex < 0) return;
     onNavigateToChapter?.(chapterIndex);
@@ -428,6 +455,25 @@ export default function ChatTab({
             <p className="text-2xs text-gray-400 dark:text-[#737373] mt-1">
               Your next message will be about this passage.
             </p>
+          </div>
+        )}
+        {/* Slash-command dropdown — appears above the input when the
+            user types "/" as the first character */}
+        {showSlashMenu && filteredSlash.length > 0 && (
+          <div className="mb-2 rounded-xl bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#2f2f2f] shadow-lg overflow-hidden">
+            <div className="px-3 py-1.5 border-b border-gray-100 dark:border-[#262626]">
+              <span className="text-2xs text-gray-400 dark:text-[#737373] font-medium uppercase tracking-wide">Commands</span>
+            </div>
+            {filteredSlash.map(cmd => (
+              <button
+                key={cmd.cmd}
+                onClick={() => handleSlashSelect(cmd)}
+                className="w-full flex items-start gap-3 px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-[#232323] transition-colors"
+              >
+                <span className="text-xs font-mono text-[#4070ff] whitespace-nowrap mt-0.5">{cmd.cmd}</span>
+                <span className="text-xs text-gray-600 dark:text-[#a3a3a3]">{cmd.label}</span>
+              </button>
+            ))}
           </div>
         )}
         <div className="flex items-center gap-2 rounded-3xl bg-gray-100 dark:bg-[#262626] px-4 py-2.5">

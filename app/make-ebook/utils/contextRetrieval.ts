@@ -311,7 +311,15 @@ export function pickContextTier(args: {
 export function renderContextForPrompt(ctx: RetrievedContext): string {
   const sections: string[] = [];
 
-  if (ctx.brief) {
+  // Only include the brief if we have retrieved chapters or a
+  // non-spotlight tier. For spotlight (Cmd-K, ghost text) and light
+  // (meta questions), the brief adds tokens without grounding value
+  // since the model already has the specific text it needs.
+  const includeBrief = ctx.brief && (
+    ctx.tier === 'scene' || ctx.tier === 'wide' || ctx.retrievedChapters.length > 0
+  );
+
+  if (includeBrief && ctx.brief) {
     const briefBlock = ctx.brief.chapterSummaries
       .map(s => {
         const entities = s.keyEntities.length > 0 ? ` · ${s.keyEntities.join(', ')}` : '';

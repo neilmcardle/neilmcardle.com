@@ -21,6 +21,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { Chapter as BookChapter } from '../types';
 import { loadBookById } from '../utils/bookLibrary';
 import { getMemory, formatMemoryForPrompt, isBriefFresh } from '../utils/bookmindMemory';
+import { ensureManuscriptBrief } from '../utils/manuscriptBrief';
 import {
   buildSceneContext,
   buildSpotlightContext,
@@ -304,6 +305,15 @@ export function useBookMind(options: UseBookMindOptions = {}) {
             : chapters[0];
         const brief = isBriefFresh(book) ? book.bookmindMemory!.brief! : null;
 
+        // Lazy brief generation: if the brief doesn't exist or is stale,
+        // fire generation in the background. The current message proceeds
+        // without the brief (fallback to chapter-only context); the next
+        // message will have it. Cost is paid only when the user actually
+        // uses Book Mind, not on every book open.
+        if (!brief && book.chapters.length > 0 && userId) {
+          ensureManuscriptBrief({ userId, book }).catch(() => {});
+        }
+
         // Spotlight is reserved for inline-edit surfaces (Cmd-K, ghost
         // text). Plain chat sends never auto-pick spotlight.
         const tier = opts.action && ANALYTICAL_ACTIONS.includes(opts.action)
@@ -313,12 +323,12 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         const ctx = tier === 'wide'
           ? buildWideContext({ brief, chapters, query, selectedText: opts.selectedText })
           : buildSceneContext({
-              brief,
-              chapters,
-              currentChapterId: currentChapter?.id,
-              query,
-              selectedText: opts.selectedText,
-            });
+                brief,
+                chapters,
+                currentChapterId: currentChapter?.id,
+                query,
+                selectedText: opts.selectedText,
+              });
 
         return { ctx, tier, chapters };
       }
@@ -504,6 +514,14 @@ export function useBookMind(options: UseBookMindOptions = {}) {
       updateCurrentSession(finalMessages);
       return fullContent;
     } catch (err) {
+      // User-initiated abort (stop button) is not an error — the partial
+      // response is already in the message list and the loading state
+      // was cleared by the stop() call. Don't show an error message.
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        setIsLoading(false);
+        return null;
+      }
+
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
       setError(errorMessage);
       setIsLoading(false);
@@ -511,7 +529,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
       const errorMsg: BookMindMessage = {
         id: generateId(),
         role: 'assistant',
-        content: `⚠️ ${errorMessage}`,
+        content: `Something went wrong: ${errorMessage}`,
         timestamp: Date.now(),
       };
       const finalMessages = [...updatedMessages, errorMsg];

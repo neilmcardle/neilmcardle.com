@@ -6,10 +6,12 @@ import FadeIn from '../FadeIn';
 import { SECTION_TIERS } from '../sectionTiers';
 
 const BULLETS = [
-  'Summarize your entire book or individual chapters',
-  'Find plot holes and character inconsistencies',
-  'Analyze themes and writing patterns',
-  'Get word usage insights and suggestions',
+  'Select text and press \u2318K for instant rewrites, right where you are',
+  'Amazon KDP pre-flight catches what would get your book delisted',
+  'Themes, characters, pacing, and issues, all pre-computed and instant',
+  'Type / to draft, continue, or transition, right in the editor',
+  'Book Mind remembers your rules, characters, and editorial decisions',
+  'Flow mode suggests the next sentence as you write',
 ];
 
 // Inline sparkle icon — used as the avatar in the chat demo. Kept inline to
@@ -52,10 +54,10 @@ export default function BookMindPitchSection() {
           <FadeIn className="lg:col-span-7">
             <div>
               <h2 className="font-serif font-bold text-gray-900 text-balance" style={SECTION_TIERS.cinematic.title}>
-                An editor that has read every page.
+                An editorial brain that lives inside your editor.
               </h2>
               <p className="mt-6 text-xl sm:text-2xl text-gray-600 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}>
-                Book Mind reads your whole manuscript. It catches inconsistencies, summarises chapters, and surfaces insights only a careful editor would notice.
+                Book Mind doesn't just chat about your manuscript. It edits inline, catches inconsistencies, guards against Amazon delisting, and remembers every decision you've made.
               </p>
               <ul className="mt-8 space-y-4">
                 {BULLETS.map((item, i) => (

@@ -36,7 +36,7 @@ export default function HeroSection({ onPrimaryClick, onWatchTourClick }: HeroSe
             lineHeight: 1.55,
           }}
         >
-          A free, browser-based editor that turns rough drafts into EPUBs ready for Kindle, Kobo, and Apple Books.
+          A free, browser-based editor with an AI editorial brain that catches inconsistencies, edits inline, and turns rough drafts into store-ready EPUBs.
         </p>
 
         {/* CTAs */}

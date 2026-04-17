@@ -13,6 +13,7 @@ import HowItWorksSection from './marketing/sections/HowItWorksSection';
 import EditorShowcaseSection from './marketing/sections/EditorShowcaseSection';
 import LivePreviewerSection from './marketing/sections/LivePreviewerSection';
 import BookMindPitchSection from './marketing/sections/BookMindPitchSection';
+import BookMindFeaturesSection from './marketing/sections/BookMindFeaturesSection';
 import TestimonialSection from './marketing/sections/TestimonialSection';
 import PricingSection from './marketing/sections/PricingSection';
 import FinalCtaSection from './marketing/sections/FinalCtaSection';
@@ -85,6 +86,8 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
         <LivePreviewerSection />
 
         <BookMindPitchSection />
+
+        <BookMindFeaturesSection />
 
         <TestimonialSection />
 

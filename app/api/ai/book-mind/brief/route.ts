@@ -99,7 +99,7 @@ ${manuscriptBlock}
       let buffer = '';
       try {
         for await (const delta of streamWithFallback({
-          tier: 'background',
+          tier: 'live', // Haiku — brief is information extraction, not editorial judgment
           systemBlocks,
           messages: [
             { role: 'user', content: 'Index this manuscript now. Begin emitting one JSON line per chapter.' },

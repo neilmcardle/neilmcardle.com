@@ -105,8 +105,12 @@ export async function POST(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
+        // Inconsistencies need editorial reasoning (Sonnet). Everything
+        // else (themes, characters, pacing, wordFrequency) is information
+        // extraction that Haiku handles well at ~1/3 the cost.
+        const tier = kind === 'inconsistencies' ? 'background' : 'live';
         for await (const delta of streamWithFallback({
-          tier: 'background',
+          tier,
           systemBlocks,
           messages: [
             {
