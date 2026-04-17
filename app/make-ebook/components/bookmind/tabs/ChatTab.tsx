@@ -429,7 +429,7 @@ export default function ChatTab({
 
             {isLoading && messages[messages.length - 1]?.role === "user" && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 dark:bg-[#262626] rounded-2xl rounded-bl-sm px-4 py-3">
+                <div className="bg-gray-100 dark:bg-[#262626] rounded-2xl rounded-tl-sm px-4 py-3">
                   <ThinkingDots />
                 </div>
               </div>
@@ -602,8 +602,8 @@ function MessageBubble({
       <div
         className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
           isUser
-            ? "bg-gray-900 dark:bg-[#2a2a2a] text-white rounded-br-sm"
-            : "bg-gray-100 dark:bg-[#262626] text-gray-800 dark:text-[#f5f5f5] rounded-bl-sm"
+            ? "bg-gray-900 dark:bg-[#2a2a2a] text-white rounded-tr-sm"
+            : "bg-gray-100 dark:bg-[#262626] text-gray-800 dark:text-[#f5f5f5] rounded-tl-sm"
         }`}
       >
         {!message.content ? (

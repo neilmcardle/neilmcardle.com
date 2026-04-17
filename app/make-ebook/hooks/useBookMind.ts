@@ -268,9 +268,24 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     try {
       const stored = localStorage.getItem(chatStorageKey);
       const allSessions: ChatSession[] = stored ? JSON.parse(stored) : [];
+
+      // Auto-name: if the session still has its default "Chat N" name
+      // and we now have a first user message, rename it to the first
+      // 40 chars of that message. Fires inside updateCurrentSession
+      // (not sendMessage) because currentSessionId is guaranteed to be
+      // set here — sendMessage's closure captures a stale null due to
+      // React batching when ensureSession() just created the session.
+      const session = allSessions.find(s => s.id === currentSessionId);
+      const firstUserMsg = newMessages.find(m => m.role === 'user');
+      let autoName: string | null = null;
+      if (session && firstUserMsg && /^Chat \d+$/.test(session.name)) {
+        const text = firstUserMsg.content.trim();
+        autoName = text.slice(0, 40) + (text.length > 40 ? '…' : '');
+      }
+
       const updated = allSessions.map(s =>
         s.id === currentSessionId
-          ? { ...s, messages: newMessages, updatedAt: Date.now() }
+          ? { ...s, messages: newMessages, updatedAt: Date.now(), ...(autoName ? { name: autoName } : {}) }
           : s,
       );
       localStorage.setItem(chatStorageKey, JSON.stringify(updated));
@@ -394,13 +409,6 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
 
-    // Auto-name the session from the first user message. Truncate to
-    // 40 chars so it reads well in the history popover. Only fires once
-    // per session (when messages was empty before this send).
-    if (messages.length === 0 && currentSessionId) {
-      const autoName = userMessage.trim().slice(0, 40) + (userMessage.trim().length > 40 ? '…' : '');
-      renameSession(currentSessionId, autoName);
-    }
 
     try {
       // Build the prompt to send. For canned analytical actions, we
