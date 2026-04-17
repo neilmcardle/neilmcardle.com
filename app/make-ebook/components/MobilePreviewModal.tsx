@@ -71,8 +71,8 @@ export function MobilePreviewModal({
           style={{ width: dim.width + 16, borderRadius: 24 }}
         >
           <div
-            className="w-full rounded-lg overflow-hidden transition-colors"
-            style={{ width: dim.width, height: dim.height, maxWidth: '100%', backgroundColor: screenBg }}
+            className="w-full overflow-hidden transition-colors"
+            style={{ width: dim.width, height: dim.height, maxWidth: '100%', backgroundColor: screenBg, borderRadius: 16 }}
           >
             <div className="h-full overflow-y-auto">
               {chapter ? (

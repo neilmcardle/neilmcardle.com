@@ -65,8 +65,8 @@ export default function InteractiveLivePreview() {
           style={{ borderRadius: 20, padding: 8 }}
         >
           <div
-            className="rounded-lg overflow-hidden transition-colors duration-300"
-            style={{ width: d.width, height: d.height, backgroundColor: bgColor }}
+            className="overflow-hidden transition-colors duration-300"
+            style={{ width: d.width, height: d.height, backgroundColor: bgColor, borderRadius: 12 }}
           >
             <div
               className="h-full overflow-y-auto px-5 py-5 [&_p]:mb-2.5 [&_em]:italic"
