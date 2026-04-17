@@ -30,6 +30,7 @@ import RichTextEditor from "./components/RichTextEditor";
 import EditorLeftNav from "./components/EditorLeftNav";
 import InspectorPanel from "./components/bookmind/InspectorPanel";
 import InlineEditPopover, { InlineEditRequest } from "./components/bookmind/InlineEditPopover";
+import ComposePalette, { ComposePaletteRequest } from "./components/bookmind/ComposePalette";
 // SelectionHint was removed — replaced by a permanent ⌘K chip in
 // EditorHeader that's always visible for Pro users without conditional
 // timing, localStorage dismissal, or selection detection.
@@ -213,6 +214,86 @@ function MakeEbookPage() {
     selectedText: "",
     range: null,
   });
+
+  // Compose palette state — triggered by typing "/" at the start of a
+  // line in the editor. The range points at the "/" character so we can
+  // delete it before inserting the generated text.
+  const [composeRequest, setComposeRequest] = useState<ComposePaletteRequest>({
+    open: false,
+    anchorRect: null,
+    range: null,
+  });
+
+  const handleComposeRequest = useCallback(
+    (args: { range: Range; rect: DOMRect }) => {
+      if (!hasBookMind) return;
+      setComposeRequest({
+        open: true,
+        anchorRect: args.rect,
+        range: args.range,
+      });
+    },
+    [hasBookMind],
+  );
+
+  const handleComposeClose = useCallback(() => {
+    setComposeRequest(prev => ({ ...prev, open: false }));
+  }, []);
+
+  // Insert composed text at the cursor position. Deletes the "/" that
+  // triggered the palette first, then inserts the generated text.
+  const handleComposeInsert = useCallback(
+    (text: string) => {
+      const editorEl = document.querySelector('[contenteditable="true"]') as HTMLElement | null;
+      if (editorEl) editorEl.focus();
+
+      // Delete the "/" trigger character. The range points at the text
+      // node containing it. We select it and delete before inserting.
+      const range = composeRequest.range;
+      if (range) {
+        const sel = window.getSelection();
+        if (sel) {
+          // Expand the range to include the "/" character
+          const node = range.startContainer;
+          if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent ?? '';
+            const slashIdx = text.lastIndexOf('/', range.startOffset);
+            if (slashIdx >= 0) {
+              range.setStart(node, slashIdx);
+              range.setEnd(node, slashIdx + 1);
+              sel.removeAllRanges();
+              sel.addRange(range);
+              document.execCommand('delete');
+            }
+          }
+        }
+      }
+
+      // Insert the generated text with a highlight
+      const highlightId = `bm-compose-${Date.now()}`;
+      const escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+      const html = `<span id="${highlightId}" class="bm-edit-highlight">${escaped}</span>`;
+      document.execCommand('insertHTML', false, html);
+
+      // Clean up the highlight span after animation
+      setTimeout(() => {
+        const el = document.getElementById(highlightId);
+        if (el && el.parentNode) {
+          while (el.firstChild) el.parentNode.insertBefore(el.firstChild, el);
+          el.parentNode.removeChild(el);
+          if (editorEl) {
+            editorEl.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        }
+      }, 2200);
+    },
+    [composeRequest.range],
+  );
 
   const handleInlineEditRequest = useCallback(
     (args: { selectedText: string; range: Range; rect: DOMRect }) => {
@@ -2562,6 +2643,7 @@ function MakeEbookPage() {
                   todayWords={writingGoals.todayWords}
                   focus={{ active: focus.active, settings: focus.settings }}
                   onInlineEditRequest={handleInlineEditRequest}
+                  onComposeRequest={handleComposeRequest}
                 />
               </section>
               )}
@@ -2603,6 +2685,13 @@ function MakeEbookPage() {
             request={inlineEditRequest}
             onClose={handleInlineEditClose}
             onAccept={handleInlineEditAccept}
+            bookId={currentBookId}
+            userId={user?.id}
+          />
+          <ComposePalette
+            request={composeRequest}
+            onClose={handleComposeClose}
+            onInsert={handleComposeInsert}
             bookId={currentBookId}
             userId={user?.id}
           />

@@ -63,6 +63,10 @@ interface EditorCanvasProps {
     range: Range;
     rect: DOMRect;
   }) => void;
+  onComposeRequest?: (args: {
+    range: Range;
+    rect: DOMRect;
+  }) => void;
 }
 
 // Run the document.execCommand-based undo/redo on the active contentEditable.
@@ -87,6 +91,7 @@ export default function EditorCanvas({
   todayWords,
   focus,
   onInlineEditRequest,
+  onComposeRequest,
 }: EditorCanvasProps) {
   const chapter = chapters[selectedChapter];
   const sectionLabel =
@@ -161,6 +166,7 @@ export default function EditorCanvas({
             disabled={!!chapter?.locked}
             hideToolbar={focus.active && focus.settings.hideToolbar}
             onInlineEditRequest={onInlineEditRequest}
+            onComposeRequest={onComposeRequest}
           />
         </div>
 

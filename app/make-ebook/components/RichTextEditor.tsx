@@ -41,6 +41,13 @@ interface RichTextEditorProps
     range: Range;
     rect: DOMRect;
   }) => void;
+  // Book Mind compose mode (/). When the user types "/" at the start of
+  // a line (empty block or after a newline), we capture the range and
+  // bounding rect so the consumer can show the ComposePalette.
+  onComposeRequest?: (args: {
+    range: Range;
+    rect: DOMRect;
+  }) => void;
 }
 
 type FormatState = Record<string, boolean>;
@@ -107,6 +114,7 @@ export default function RichTextEditor({
   hasEndnotes = false,
   hideToolbar = false,
   onInlineEditRequest,
+  onComposeRequest,
   ...rest
 }: RichTextEditorProps) {
   const { theme } = useTheme();
@@ -580,6 +588,34 @@ export default function RichTextEditor({
 
   const handleInput = () => {
     emitChange();
+
+    // Detect "/" typed at the start of a line to trigger the compose
+    // palette. We check on input (not keydown) because the character
+    // needs to be in the DOM before we can inspect the surrounding text.
+    if (onComposeRequest) {
+      const sel = window.getSelection();
+      if (sel && sel.isCollapsed && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        const node = range.startContainer;
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent ?? '';
+          const offset = range.startOffset;
+          // Check if the only content on this line is "/" (possibly
+          // preceded by whitespace). This avoids triggering on URLs
+          // or mid-sentence slashes.
+          const beforeCursor = text.slice(0, offset).trimStart();
+          if (beforeCursor === '/') {
+            const rect = range.getBoundingClientRect();
+            if (rect.width === 0 && rect.height > 0) {
+              onComposeRequest({
+                range: range.cloneRange(),
+                rect,
+              });
+            }
+          }
+        }
+      }
+    }
   };
 
   const handleFocus = () => {

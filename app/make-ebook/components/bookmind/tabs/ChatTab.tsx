@@ -35,6 +35,7 @@ import CardRenderer, { tryParseAnalyticalResponse } from "../CardRenderer";
 import CitationPill from "../CitationPill";
 import MessageActions from "../MessageActions";
 import ReadingView from "../ReadingView";
+import MemoryEditor from "../MemoryEditor";
 import { linkCitations } from "../../../utils/citationLinker";
 import type { Chapter } from "../../../types";
 
@@ -378,6 +379,11 @@ export default function ChatTab({
           </p>
         </div>
       )}
+
+      {/* Book Mind memory — collapsible panel showing persistent
+          per-book rules, characters, and decisions. Anything stored
+          here is injected into every Book Mind call. */}
+      <MemoryEditor bookId={bookId} userId={userId} />
 
       {/* Input */}
       <div className="flex-shrink-0 px-3 pb-3 pt-2">
