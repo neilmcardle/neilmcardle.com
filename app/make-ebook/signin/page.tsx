@@ -185,8 +185,10 @@ function SignInContent() {
           {/* Header */}
           <div>
             <h1
-              className="font-serif font-bold text-gray-900 dark:text-white text-balance"
+              className="text-gray-900 dark:text-white text-balance"
               style={{
+                fontFamily: 'var(--font-playfair)',
+                fontWeight: 400,
                 fontSize: 'clamp(1.875rem, 1vw + 1.5rem, 2.5rem)',
                 letterSpacing: '-0.03em',
                 lineHeight: 1.1,
@@ -196,7 +198,7 @@ function SignInContent() {
             </h1>
             <p
               className="mt-3 text-gray-600 dark:text-[#a3a3a3] text-pretty"
-              style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}
+              style={{ fontFamily: 'var(--font-playfair)', lineHeight: 1.55, fontStyle: 'italic' }}
             >
               {sub}
             </p>

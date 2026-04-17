@@ -16,6 +16,44 @@ export interface ProAuthResult {
   user?: { id: string; email?: string };
 }
 
+// ── Per-user daily fair-use cap ───────────────────────────────────────
+//
+// Protects against a single user (malicious or enthusiastic) running up
+// the Anthropic bill. In-memory, resets on cold start — acceptable for
+// hobby tier. Counts API calls (not tokens) across all Book Mind routes.
+//
+// 200 calls/day is generous for legitimate use:
+//   ~80 chat messages + ~40 Cmd-K edits + ~20 compose + ~20 ghost text
+//   + a few analytical generations. A user would have to be actively
+//   trying to hit this limit.
+
+const DAILY_CAP = 200;
+const userUsage = new Map<string, { count: number; resetTime: number }>();
+
+function checkDailyCap(userId: string): { allowed: boolean; message?: string } {
+  const now = Date.now();
+  const entry = userUsage.get(userId);
+
+  if (entry && now < entry.resetTime) {
+    if (entry.count >= DAILY_CAP) {
+      const hoursLeft = Math.ceil((entry.resetTime - now) / (1000 * 60 * 60));
+      return {
+        allowed: false,
+        message: `You've reached the daily Book Mind limit (${DAILY_CAP} calls). Resets in ${hoursLeft} ${hoursLeft === 1 ? 'hour' : 'hours'}.`,
+      };
+    }
+    entry.count++;
+  } else {
+    // New day or first usage — reset
+    userUsage.set(userId, {
+      count: 1,
+      resetTime: now + 24 * 60 * 60 * 1000,
+    });
+  }
+
+  return { allowed: true };
+}
+
 export async function requireProUser(req: NextRequest): Promise<ProAuthResult> {
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -77,6 +115,19 @@ export async function requireProUser(req: NextRequest): Promise<ProAuthResult> {
       response: NextResponse.json(
         { error: 'Book Mind is a Pro feature. Upgrade to access AI-powered book analysis.', requiresUpgrade: true, feature: 'book_mind_ai' },
         { status: 403 },
+      ),
+    };
+  }
+
+  // Fair-use daily cap — checked after Pro is confirmed so Free users
+  // never see the cap message (they see the upgrade prompt instead).
+  const cap = checkDailyCap(user.id);
+  if (!cap.allowed) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: cap.message },
+        { status: 429 },
       ),
     };
   }

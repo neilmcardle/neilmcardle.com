@@ -381,7 +381,10 @@ export default function ChatTab({
                 {/* Welcome message — orients the user on what Book Mind
                     can do, then offers quick actions below. */}
                 <div className="text-center pt-6 pb-3">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  <h3
+                    className="text-base text-gray-900 dark:text-white mb-1"
+                    style={{ fontFamily: 'var(--font-playfair)', fontWeight: 400, letterSpacing: '-0.01em' }}
+                  >
                     Ask anything about your book.
                   </h3>
                   <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed max-w-[260px] mx-auto">
@@ -497,7 +500,7 @@ export default function ChatTab({
             ))}
           </div>
         )}
-        <div className="flex items-center gap-2 rounded-3xl bg-gray-100 dark:bg-[#262626] px-4 py-2.5">
+        <div className="flex items-end gap-2 rounded-xl border border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#1e1e1e] px-3 py-2 focus-within:border-gray-300 dark:focus-within:border-[#444] transition-colors">
           <textarea
             ref={inputRef}
             value={input}
@@ -507,15 +510,15 @@ export default function ChatTab({
               e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
             }}
             onKeyDown={handleKeyDown}
-            placeholder={chapters.length > 0 ? "Ask about your book, or type / for commands…" : "Open a book first…"}
+            placeholder={chapters.length > 0 ? "Ask anything, or type /…" : "Open a book first…"}
             disabled={chapters.length === 0}
             rows={1}
-            className="flex-1 appearance-none bg-transparent border-0 outline-none ring-0 shadow-none text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#888] focus:outline-none focus:ring-0 focus:shadow-none resize-none max-h-[120px] leading-relaxed disabled:opacity-50"
+            className="flex-1 appearance-none bg-transparent border-0 outline-none ring-0 shadow-none text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373] focus:outline-none focus:ring-0 focus:shadow-none resize-none max-h-[120px] leading-relaxed disabled:opacity-50"
           />
           {isLoading ? (
             <button
               onClick={stop}
-              className="flex-shrink-0 w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition-colors"
+              className="flex-shrink-0 w-7 h-7 rounded-lg bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition-colors mb-0.5"
               aria-label="Stop generating"
               title="Stop generating"
             >
@@ -527,11 +530,11 @@ export default function ChatTab({
             <button
               onClick={handleSend}
               disabled={!input.trim() || chapters.length === 0}
-              className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-gray-700 dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex-shrink-0 w-7 h-7 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-gray-700 dark:hover:bg-[#e5e5e5] disabled:opacity-30 disabled:cursor-not-allowed transition-colors mb-0.5"
               aria-label="Send message"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5M5 12l7-7 7 7" />
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12l7-7 7 7" />
               </svg>
             </button>
           )}
