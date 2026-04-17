@@ -61,8 +61,30 @@ export function useCloudSync({
                     bookMap.set(raw.id, normalized);
                   }
                 } else {
-                  // Real conflict — content differs
-                  conflicts.push({ local: existing, cloud: normalized });
+                  // Content differs — auto-resolve obvious cases to avoid
+                  // spamming the user with conflict modals on every login.
+                  //
+                  // "Obvious" means one side is clearly more substantial:
+                  //   - Cloud has 2x+ more chapters → keep cloud
+                  //   - Local has 2x+ more chapters → keep local
+                  //   - One side is essentially empty (<100 words total) → keep the other
+                  //
+                  // Only show the modal when both sides have real, comparable content.
+                  const localWords = existing.chapters.reduce((sum: number, ch: any) =>
+                    sum + (ch.content?.trim().split(/\s+/).filter(Boolean).length ?? 0), 0);
+                  const cloudWords = normalized.chapters.reduce((sum: number, ch: any) =>
+                    sum + (ch.content?.trim().split(/\s+/).filter(Boolean).length ?? 0), 0);
+
+                  if (cloudWords > localWords * 2 || localWords < 100) {
+                    // Cloud is clearly more substantial — take it silently
+                    bookMap.set(raw.id, normalized);
+                  } else if (localWords > cloudWords * 2 || cloudWords < 100) {
+                    // Local is clearly more substantial — keep it
+                    // (already in bookMap)
+                  } else {
+                    // Genuinely ambiguous — show the conflict modal
+                    conflicts.push({ local: existing, cloud: normalized });
+                  }
                 }
               }
             }
