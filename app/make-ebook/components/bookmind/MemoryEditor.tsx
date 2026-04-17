@@ -25,6 +25,7 @@ import {
   addDecision,
 } from "../../utils/bookmindMemory";
 import { loadBookById } from "../../utils/bookLibrary";
+import { useBookMind } from "../../hooks/useBookMind";
 import type { BookMindMemory } from "../../types";
 
 interface MemoryEditorProps {
@@ -37,9 +38,13 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
   const [newRule, setNewRule] = useState("");
   const [newCharName, setNewCharName] = useState("");
   const [newCharDesc, setNewCharDesc] = useState("");
+  const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
   // Force re-render after mutations (localStorage writes don't trigger React state)
   const [version, setVersion] = useState(0);
   const bump = () => setVersion(v => v + 1);
+
+  // Used for auto-generating character descriptions from the manuscript.
+  const { inlineEdit } = useBookMind({ bookId, userId });
 
   if (!bookId || !userId) return null;
 
@@ -76,6 +81,23 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
   const handleRemoveCharacter = (name: string) => {
     removeCharacter(userId, bookId, name);
     bump();
+  };
+
+  const handleGenerateDesc = async () => {
+    const name = newCharName.trim();
+    if (!name) return;
+    setIsGeneratingDesc(true);
+    try {
+      const desc = await inlineEdit({
+        selectedText: name,
+        instruction: `Who is "${name}" in this book? Return ONLY a one-sentence description of their role, personality, or defining trait. No preamble, no quote marks. If the character doesn't appear in the manuscript, say "Not found in the manuscript."`,
+      });
+      if (desc) setNewCharDesc(desc.trim());
+    } catch {
+      setNewCharDesc("Could not generate description.");
+    } finally {
+      setIsGeneratingDesc(false);
+    }
   };
 
   return (
@@ -186,27 +208,39 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
                 ))}
               </ul>
             )}
-            <div className="flex gap-1.5">
-              <input
-                value={newCharName}
-                onChange={e => setNewCharName(e.target.value)}
-                placeholder="Name"
-                className="w-24 text-xs px-2 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
-              />
-              <input
-                value={newCharDesc}
-                onChange={e => setNewCharDesc(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleAddCharacter()}
-                placeholder="Description"
-                className="flex-1 text-xs px-2 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
-              />
-              <button
-                onClick={handleAddCharacter}
-                disabled={!newCharName.trim()}
-                className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors"
-              >
-                Add
-              </button>
+            <div className="space-y-1.5">
+              <div className="flex gap-1.5">
+                <input
+                  value={newCharName}
+                  onChange={e => setNewCharName(e.target.value)}
+                  placeholder="Name"
+                  className="w-24 text-xs px-2 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
+                />
+                <input
+                  value={newCharDesc}
+                  onChange={e => setNewCharDesc(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleAddCharacter()}
+                  placeholder={isGeneratingDesc ? "Generating..." : "Description"}
+                  disabled={isGeneratingDesc}
+                  className="flex-1 text-xs px-2 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373] disabled:opacity-50"
+                />
+                <button
+                  onClick={handleAddCharacter}
+                  disabled={!newCharName.trim()}
+                  className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+              {newCharName.trim() && !newCharDesc.trim() && (
+                <button
+                  onClick={handleGenerateDesc}
+                  disabled={isGeneratingDesc || !newCharName.trim()}
+                  className="text-2xs text-[#4070ff] hover:text-[#3560e6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isGeneratingDesc ? "Generating from manuscript..." : "Auto-generate description from manuscript"}
+                </button>
+              )}
             </div>
           </div>
 

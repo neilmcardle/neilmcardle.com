@@ -388,19 +388,28 @@ export default function ChatTab({
       {/* Input */}
       <div className="flex-shrink-0 px-3 pb-3 pt-2">
         {activeSelectedText && (
-          <div className="flex items-center gap-2 px-1 pb-2">
-            <p className="flex-1 text-xs text-gray-400 dark:text-[#737373] truncate italic">
-              &quot;{activeSelectedText.length > 55 ? activeSelectedText.slice(0, 55) + "…" : activeSelectedText}&quot;
+          <div className="px-1 pb-2">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-2xs font-medium uppercase tracking-wider text-[#4070ff] dark:text-[#4070ff]">
+                Discussing your selection
+              </span>
+              <button
+                onClick={() => setDismissedText(externalSelectedText ?? null)}
+                className="flex items-center gap-1 text-2xs text-gray-400 hover:text-gray-600 dark:hover:text-[#d4d4d4] transition-colors"
+                aria-label="Remove selection context"
+              >
+                <span>Clear</span>
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-[#a3a3a3] italic leading-relaxed line-clamp-2">
+              &quot;{activeSelectedText.length > 120 ? activeSelectedText.slice(0, 120) + "…" : activeSelectedText}&quot;
             </p>
-            <button
-              onClick={() => setDismissedText(externalSelectedText ?? null)}
-              className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-[#d4d4d4] transition-colors"
-              aria-label="Dismiss selection"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <p className="text-2xs text-gray-400 dark:text-[#737373] mt-1">
+              Your next message will be about this passage.
+            </p>
           </div>
         )}
         <div className="flex items-center gap-2 rounded-3xl bg-gray-100 dark:bg-[#262626] px-4 py-2.5">
