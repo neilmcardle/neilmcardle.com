@@ -85,6 +85,10 @@ export default function ChatTab({
 
   const [input, setInput] = useState("");
   const [dismissedText, setDismissedText] = useState<string | null>(null);
+  const [hasSeenFirstResponse, setHasSeenFirstResponse] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return localStorage.getItem('me_bm_first_response') === '1';
+  });
   const [historyOpen, setHistoryOpen] = useState(false);
   const [readingView, setReadingView] = useState<{ open: boolean; content: string }>({
     open: false,
@@ -108,6 +112,21 @@ export default function ChatTab({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // First-response celebration — fires once ever, on the first
+  // completed assistant message. Stored in localStorage so it never
+  // fires again. A small moment of delight on the activation path.
+  useEffect(() => {
+    if (hasSeenFirstResponse) return;
+    const firstAssistant = messages.find(m => m.role === 'assistant' && m.content && m.content.length > 20);
+    if (firstAssistant) {
+      setHasSeenFirstResponse(true);
+      try { localStorage.setItem('me_bm_first_response', '1'); } catch { /* quota */ }
+      toast('Book Mind just read your book.', {
+        description: 'Ask anything, or try the quick actions.',
+      });
+    }
+  }, [messages, hasSeenFirstResponse]);
 
   useEffect(() => {
     setTimeout(() => inputRef.current?.focus(), 260);
@@ -362,9 +381,18 @@ export default function ChatTab({
               </div>
             ) : (
               <>
-                <p className="text-xs text-gray-400 dark:text-[#737373] text-center pb-1">
-                  {chapters.length} chapters · ask anything
-                </p>
+                {/* Welcome message — orients the user on what Book Mind
+                    can do, then offers quick actions below. */}
+                <div className="text-center pt-4 pb-2">
+                  <BookIcon className="w-7 h-7 text-[#4070ff] mx-auto mb-3" />
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                    Book Mind has read your manuscript.
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed max-w-[280px] mx-auto">
+                    {chapters.length} {chapters.length === 1 ? 'chapter' : 'chapters'} loaded. Ask anything, or pick a quick action below.
+                  </p>
+                </div>
+
                 <div className="grid grid-cols-2 gap-1.5">
                   {QUICK_ACTIONS.map(({ action, label, description }) => (
                     <button
@@ -378,6 +406,10 @@ export default function ChatTab({
                     </button>
                   ))}
                 </div>
+
+                <p className="text-2xs text-gray-400 dark:text-[#737373] text-center pt-2 leading-relaxed">
+                  Tip: select text in the editor and press {typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform) ? '\u2318' : 'Ctrl+'}K to edit inline with AI.
+                </p>
               </>
             )}
           </div>

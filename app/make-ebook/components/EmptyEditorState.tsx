@@ -99,9 +99,20 @@ export default function EmptyEditorState({
         <h2 className="text-lg sm:text-2xl md:text-3xl font-serif text-[#222] dark:text-[#f5f5f5] mb-2 sm:mb-3 text-center flex-shrink-0">
           Bring your book from anywhere.
         </h2>
-        <p className="text-sm sm:text-base text-[#888] dark:text-[#a3a3a3] mb-8 sm:mb-12 text-center max-w-xl flex-shrink-0 px-4">
+        <p className="text-sm sm:text-base text-[#888] dark:text-[#a3a3a3] mb-4 sm:mb-6 text-center max-w-xl flex-shrink-0 px-4">
           Wrote it in Word, drafted it in Google Docs, prompted it from an AI — start here by pasting, uploading, or writing fresh.
         </p>
+
+        {/* First-run guidance — shows steps so new users know the path */}
+        <div className="w-full max-w-xl mb-8 sm:mb-12 flex-shrink-0 px-4">
+          <div className="flex items-center gap-6 sm:gap-8 justify-center text-center">
+            <GuidanceStep number={1} label="Add your text" />
+            <GuidanceArrow />
+            <GuidanceStep number={2} label="Open Book Mind" />
+            <GuidanceArrow />
+            <GuidanceStep number={3} label="Export your book" />
+          </div>
+        </div>
 
         {/* Actions — four affordances, Paste is the primary */}
         <div className="w-full max-w-2xl flex-shrink-0">
@@ -208,5 +219,26 @@ function ActionCard({
         {description}
       </span>
     </button>
+  );
+}
+
+function GuidanceStep({ number, label }: { number: number; label: string }) {
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <span className="w-7 h-7 rounded-full bg-gray-100 dark:bg-[#262626] text-[11px] font-bold text-gray-500 dark:text-[#a3a3a3] flex items-center justify-center">
+        {number}
+      </span>
+      <span className="text-[11px] text-gray-500 dark:text-[#a3a3a3] font-medium whitespace-nowrap">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function GuidanceArrow() {
+  return (
+    <svg className="w-4 h-4 text-gray-300 dark:text-[#525252] flex-shrink-0 -mt-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
   );
 }
