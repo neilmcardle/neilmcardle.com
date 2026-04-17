@@ -138,12 +138,29 @@ export default function EditorCanvas({
           focus.active && focus.settings.typewriterMode ? 'typewriter-mode' : '',
         ].filter(Boolean).join(' ')}
       >
-        {/* Undo/redo rail */}
-        <div className="mt-2 mb-3 flex-shrink-0 flex items-start justify-between px-6">
-          <div className="flex items-start gap-2">
+        {/* Undo/redo rail + AI shortcut hints */}
+        <div className="mt-2 mb-3 flex-shrink-0 flex items-center justify-between px-6">
+          <div className="flex items-center gap-2">
             <UndoRedoButton label="Undo" iconSrc="/undo-icon.svg" onClick={() => runEditorCommand('undo')} />
             <UndoRedoButton label="Redo" iconSrc="/redo-icon.svg" onClick={() => runEditorCommand('redo')} />
           </div>
+          {onInlineEditRequest && (
+            <div className="hidden lg:flex items-center gap-2 text-2xs text-gray-400 dark:text-[#737373]">
+              <span className="flex items-center gap-1">
+                <kbd className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#3a3a3a] text-gray-500 dark:text-[#a3a3a3] font-mono text-[10px] leading-none">
+                  {typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform) ? '\u2318K' : 'Ctrl+K'}
+                </kbd>
+                <span>edit with AI</span>
+              </span>
+              <span className="text-gray-300 dark:text-[#3a3a3a]">&middot;</span>
+              <span className="flex items-center gap-1">
+                <kbd className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#3a3a3a] text-gray-500 dark:text-[#a3a3a3] font-mono text-[10px] leading-none">
+                  /
+                </kbd>
+                <span>commands</span>
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Editor + locked banner */}

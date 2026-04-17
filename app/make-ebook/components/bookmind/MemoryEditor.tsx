@@ -106,17 +106,13 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-[#232323] transition-colors"
       >
-        <span className="flex items-center gap-1.5 text-2xs font-medium uppercase tracking-wider text-gray-400 dark:text-[#737373]">
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2a10 10 0 0110 10 10 10 0 01-10 10A10 10 0 012 12 10 10 0 0112 2z" />
-            <path d="M12 8v4l3 2" />
-          </svg>
-          Book Mind knows
-          {hasContent && (
-            <span className="text-gray-300 dark:text-[#525252] font-normal">
-              ({memory.rules.length + Object.keys(memory.characters).length})
-            </span>
-          )}
+        <span className="flex flex-col text-left">
+          <span className="text-2xs font-medium uppercase tracking-wider text-gray-400 dark:text-[#737373]">
+            Book Mind knows
+          </span>
+          <span className="text-2xs font-normal text-gray-300 dark:text-[#525252] normal-case tracking-normal">
+            Set writing rules and add characters
+          </span>
         </span>
         <svg
           className={`w-3 h-3 text-gray-400 dark:text-[#737373] transition-transform ${expanded ? "rotate-180" : ""}`}
@@ -138,7 +134,7 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
             </h4>
             {memory.rules.length === 0 ? (
               <p className="text-xs text-gray-400 dark:text-[#737373] italic mb-2">
-                No rules set. Tell Book Mind things like "no em dashes" or "R. always says sweetness."
+                No rules set. Tell Book Mind things like "no em dashes" or "always use British spelling."
               </p>
             ) : (
               <ul className="space-y-1 mb-2">

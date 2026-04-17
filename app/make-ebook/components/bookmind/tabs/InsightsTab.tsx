@@ -165,7 +165,7 @@ function InsightSection({
         onRefresh ? (
           <button
             onClick={onRefresh}
-            className="flex items-center justify-center gap-2 py-2.5 px-4 w-full rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-medium hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors"
+            className="flex items-center gap-2 py-2 px-4 rounded-lg border border-gray-200 dark:border-[#2f2f2f] text-xs font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-50 dark:hover:bg-[#262626] transition-colors"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
               <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />

@@ -275,13 +275,10 @@ export default function ChatTab({
     deleteSession(sessionId);
   };
 
-  // ─── Header ────────────────────────────────────────────────────────
+  // ─── Header — minimal, no redundant title (the tab bar already
+  //     says "Chat"). Just the history + new-chat actions. ──────────
   const Header = (
-    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#2f2f2f] flex-shrink-0">
-      <div className="flex items-center gap-2">
-        <BookIcon className="w-5 h-5 text-gray-500 dark:text-[#a3a3a3]" />
-        <span className="text-sm font-medium text-gray-900 dark:text-white">Chat</span>
-      </div>
+    <div className="flex items-center justify-end px-3 py-1.5 flex-shrink-0">
       <div className="flex items-center gap-0.5">
         {sortedSessions.length > 0 && (
           <Popover open={historyOpen} onOpenChange={setHistoryOpen}>
@@ -383,13 +380,12 @@ export default function ChatTab({
               <>
                 {/* Welcome message — orients the user on what Book Mind
                     can do, then offers quick actions below. */}
-                <div className="text-center pt-4 pb-2">
-                  <BookIcon className="w-7 h-7 text-[#4070ff] mx-auto mb-3" />
+                <div className="text-center pt-6 pb-3">
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                    Book Mind has read your manuscript.
+                    Ask anything about your book.
                   </h3>
-                  <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed max-w-[280px] mx-auto">
-                    {chapters.length} {chapters.length === 1 ? 'chapter' : 'chapters'} loaded. Ask anything, or pick a quick action below.
+                  <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed max-w-[260px] mx-auto">
+                    Or pick a quick action to get started.
                   </p>
                 </div>
 
@@ -399,17 +395,19 @@ export default function ChatTab({
                       key={action}
                       onClick={() => handleQuickAction(action)}
                       disabled={isLoading}
-                      className="flex flex-col gap-0.5 p-3 rounded-xl bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#303030] transition-colors text-left disabled:opacity-50"
+                      className="group flex items-start gap-2.5 p-3 rounded-xl border border-gray-150 dark:border-[#2f2f2f] hover:border-gray-300 dark:hover:border-[#444] hover:bg-gray-50 dark:hover:bg-[#232323] transition-colors text-left disabled:opacity-50"
                     >
-                      <span className="text-xs font-medium text-gray-900 dark:text-white">{label}</span>
-                      <span className="text-2xs text-gray-500 dark:text-[#737373]">{description}</span>
+                      <div className="flex-1">
+                        <span className="text-xs font-medium text-gray-900 dark:text-white">{label}</span>
+                        <span className="block text-2xs text-gray-500 dark:text-[#737373] mt-0.5">{description}</span>
+                      </div>
+                      <svg className="w-3 h-3 text-gray-300 dark:text-[#525252] group-hover:text-gray-500 dark:group-hover:text-[#a3a3a3] transition-colors mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
                     </button>
                   ))}
                 </div>
 
-                <p className="text-2xs text-gray-400 dark:text-[#737373] text-center pt-2 leading-relaxed">
-                  Tip: select text in the editor and press {typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform) ? '\u2318' : 'Ctrl+'}K to edit inline with AI.
-                </p>
               </>
             )}
           </div>
@@ -447,15 +445,6 @@ export default function ChatTab({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Context transparency strip */}
-      {chapters.length > 0 && (
-        <div className="flex-shrink-0 px-4 py-1.5 border-t border-gray-100 dark:border-[#262626]">
-          <p className="text-2xs text-gray-400 dark:text-[#737373] leading-tight">
-            Reading all {chapters.length} {chapters.length === 1 ? "chapter" : "chapters"}
-            {totalWords > 0 ? ` · ${totalWords.toLocaleString()} words` : ""}
-          </p>
-        </div>
-      )}
 
       {/* Book Mind memory — collapsible panel showing persistent
           per-book rules, characters, and decisions. Anything stored

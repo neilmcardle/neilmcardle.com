@@ -102,9 +102,19 @@ export default function InspectorPanel(props: InspectorPanelProps) {
         onValueChange={(v) => setActive(v as TabKey)}
         className="flex flex-col h-full"
       >
-        {/* Flow mode toggle — sits above the tab bar */}
+        {/* Flow mode toggle — right-aligned with info tooltip */}
         {props.onToggleFlowMode && (
-          <div className="flex-shrink-0 flex items-center justify-between px-4 py-1.5 bg-gray-50 dark:bg-[#181818] border-b border-gray-100 dark:border-[#262626]">
+          <div className="flex-shrink-0 flex items-center justify-end gap-2 px-4 py-1.5 bg-gray-50 dark:bg-[#181818] border-b border-gray-100 dark:border-[#262626]">
+            <span className="group relative">
+              <svg className="w-3 h-3 text-gray-300 dark:text-[#525252] cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span className="absolute top-full right-0 mt-1.5 w-48 px-3 py-2 rounded-lg bg-gray-900 dark:bg-[#2a2a2a] text-white text-[10px] leading-snug shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                Suggests the next sentence as you write. Pauses for 4 seconds at the end of a sentence, then offers a continuation you can accept with Tab.
+              </span>
+            </span>
             <span className="text-2xs text-gray-400 dark:text-[#737373]">Flow mode</span>
             <button
               onClick={props.onToggleFlowMode}
@@ -113,7 +123,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
                   ? "bg-[#4070ff]"
                   : "bg-gray-300 dark:bg-[#3a3a3a]"
               }`}
-              title={props.flowMode ? "Turn off ghost text and annotations" : "Turn on ghost text and craft annotations"}
+              title={props.flowMode ? "Turn off Flow mode" : "Turn on Flow mode"}
               aria-label="Toggle Flow mode"
             >
               <span
