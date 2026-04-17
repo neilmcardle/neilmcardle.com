@@ -58,7 +58,7 @@ export default function LayoutSwitcher({ mode, onChange }: LayoutSwitcherProps) 
               }`}
           >
             <Icon />
-            <span className="hidden xl:inline">{label}</span>
+            <span>{label}</span>
           </button>
         );
       })}

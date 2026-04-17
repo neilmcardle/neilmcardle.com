@@ -32,7 +32,9 @@ import InspectorPanel from "./components/bookmind/InspectorPanel";
 import InlineEditPopover, { InlineEditRequest } from "./components/bookmind/InlineEditPopover";
 import ComposePalette, { ComposePaletteRequest } from "./components/bookmind/ComposePalette";
 import GhostTextOverlay from "./components/bookmind/GhostTextOverlay";
-import MarginAnnotation from "./components/bookmind/MarginAnnotation";
+// MarginAnnotation disabled — keeping the file, removing the import to
+// avoid the unused-import lint warning. Re-enable when we revisit.
+// import MarginAnnotation from "./components/bookmind/MarginAnnotation";
 // SelectionHint was removed — replaced by a permanent ⌘K chip in
 // EditorHeader that's always visible for Pro users without conditional
 // timing, localStorage dismissal, or selection detection.
@@ -2735,13 +2737,16 @@ function MakeEbookPage() {
             userId={user?.id}
             onAccept={handleGhostAccept}
           />
-          <MarginAnnotation
+          {/* MarginAnnotation — disabled for now. The component works but
+              the background Haiku calls add cost without clear user value
+              yet. Keeping the code for when we revisit. */}
+          {/* <MarginAnnotation
             enabled={flowMode && chapters.length > 0}
             bookId={currentBookId}
             userId={user?.id}
             chapterContent={chapters[selectedChapter]?.content ?? ""}
             chapterTitle={chapters[selectedChapter]?.title ?? ""}
-          />
+          /> */}
           {/* Floating shortcut hint — appears briefly below selected
               text on desktop to teach the user that inline AI editing
               exists. Hidden on mobile/tablet (no physical keyboard) and

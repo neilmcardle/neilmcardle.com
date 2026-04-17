@@ -56,8 +56,12 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       return
     }
 
-    // Fetch subscription data
-    const fetchSubscription = async () => {
+    // Fetch subscription data with a single retry. On ~1 in 10 logins
+    // the Supabase auth cookie hasn't fully propagated to the server by
+    // the time this fetch fires, so /api/subscription returns tier=free
+    // for a real Pro user. A 1-second retry catches the race: by the
+    // second attempt the cookie is always ready.
+    const fetchSubscription = async (attempt = 1) => {
       try {
         setData(prev => ({ ...prev, isLoading: true, error: null }))
 
@@ -71,6 +75,19 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
         }
 
         const result = await response.json()
+
+        // If the server returned free but the user IS authenticated,
+        // retry once after a short delay. The cookie race means the
+        // first attempt sometimes misses the session.
+        if (
+          attempt === 1 &&
+          (!result.isPro && result.tier === 'free') &&
+          user?.email
+        ) {
+          console.warn('[subscription] first fetch returned free for authenticated user, retrying in 1s')
+          await new Promise(r => setTimeout(r, 1000))
+          return fetchSubscription(2)
+        }
 
         setData({
           tier: result.tier || 'free',
