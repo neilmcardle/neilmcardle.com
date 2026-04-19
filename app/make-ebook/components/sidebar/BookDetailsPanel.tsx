@@ -271,7 +271,7 @@ export default function BookDetailsPanel({
               const params = new URLSearchParams({ title: title || '', author: author || '' }).toString();
               window.open(`https://coverly.figma.site?${params}`, '_blank', 'noopener,noreferrer');
             }}
-            className="group relative w-full overflow-hidden rounded-xl p-[1px] transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="group relative w-full text-left overflow-hidden rounded-xl p-[1px] transition-all hover:scale-[1.02] active:scale-[0.98]"
             title="Create a professional book cover with Coverly"
           >
             <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 opacity-80 group-hover:opacity-100 transition-opacity" />
@@ -280,13 +280,8 @@ export default function BookDetailsPanel({
                 <img src="/coverly-preview.png" alt="Example cover made with Coverly" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">Need a cover?</p>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white uppercase">
-                    Free
-                  </span>
-                </div>
-                <p className="text-xs text-gray-600 dark:text-[#a3a3a3] leading-tight">Design a professional cover in minutes</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Want something custom?</p>
+                <p className="text-xs text-gray-600 dark:text-[#a3a3a3] leading-tight">Draw and design your own cover in Coverly</p>
                 <div className="flex items-center gap-1 mt-1.5 text-xs font-medium text-orange-600 dark:text-orange-400 group-hover:gap-1.5 transition-all">
                   <span>Open Coverly</span>
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
