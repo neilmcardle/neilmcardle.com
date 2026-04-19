@@ -97,6 +97,7 @@ interface CollapsibleSidebarProps {
   setTagInput: (value: string) => void;
   coverFile: string | null;
   handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  setCoverFile?: (dataUrl: string) => void;
   lockedSections: { bookInfo: boolean; publishing: boolean; tags: boolean; cover: boolean };
 
   // Notes props
@@ -249,6 +250,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               setTagInput={props.setTagInput}
               coverFile={props.coverFile}
               handleCoverChange={props.handleCoverChange}
+              setCoverFile={props.setCoverFile}
               lockedSections={props.lockedSections}
             />
           )}

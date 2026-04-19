@@ -2389,6 +2389,7 @@ function MakeEbookPage() {
               setTagInput={setTagInput}
               coverFile={coverUrl}
               handleCoverChange={handleCoverChange}
+              setCoverFile={setCoverUrl}
               lockedSections={lockedSections}
               sidebarLibraryExpanded={sidebarLibraryExpanded}
               setSidebarLibraryExpanded={setSidebarLibraryExpanded}

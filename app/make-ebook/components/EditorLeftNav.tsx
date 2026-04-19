@@ -99,6 +99,7 @@ export interface EditorLeftNavProps {
   setTagInput: (value: string) => void;
   coverFile: string | null;
   handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  setCoverFile?: (dataUrl: string) => void;
   lockedSections: { bookInfo: boolean; publishing: boolean; tags: boolean; cover: boolean };
 
   // Notes
@@ -189,6 +190,7 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         setTagInput={props.setTagInput}
         coverFile={props.coverFile}
         handleCoverChange={props.handleCoverChange}
+        setCoverFile={props.setCoverFile}
         lockedSections={props.lockedSections}
         sidebarLibraryExpanded={props.sidebarLibraryExpanded}
         setSidebarLibraryExpanded={props.setSidebarLibraryExpanded}

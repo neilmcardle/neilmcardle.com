@@ -5,8 +5,9 @@
 // Having a second set of Save/Export buttons in the sidebar was redundant
 // and confused discoverability per the Phase 3 audit.
 
-import React from 'react';
+import React, { useState } from 'react';
 import { PlusIcon } from '../icons';
+import GenerateCoverModal from './GenerateCoverModal';
 
 interface BookDetailsPanelProps {
   title: string;
@@ -32,6 +33,7 @@ interface BookDetailsPanelProps {
   setTagInput: (value: string) => void;
   coverFile: string | null;
   handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  setCoverFile?: (dataUrl: string) => void;
   lockedSections: { bookInfo: boolean; publishing: boolean; tags: boolean; cover: boolean };
 }
 
@@ -59,9 +61,10 @@ export default function BookDetailsPanel({
   genre, setGenre,
   tags, handleAddTag, handleRemoveTag,
   tagInput, setTagInput,
-  coverFile, handleCoverChange,
+  coverFile, handleCoverChange, setCoverFile,
   lockedSections,
 }: BookDetailsPanelProps) {
+  const [generateOpen, setGenerateOpen] = useState(false);
   return (
     <div data-tour="book-details" className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
       <div className="flex items-center gap-2 py-2 px-2">
@@ -94,6 +97,20 @@ export default function BookDetailsPanel({
             disabled={lockedSections.cover}
             className="w-full text-sm text-[#C0C0C0] file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
           />
+          {setCoverFile && (
+            <button
+              type="button"
+              onClick={() => setGenerateOpen(true)}
+              disabled={lockedSections.cover}
+              className="mt-2 w-full inline-flex items-center justify-center gap-2 py-2 text-sm font-medium rounded bg-[#141413] text-[#faf9f5] hover:bg-[#2a2a28] dark:bg-white dark:text-[#141413] dark:hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Generate a cover from your title, author, and genre"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.7} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+              </svg>
+              Generate cover
+            </button>
+          )}
         </div>
 
         {/* Title */}
@@ -281,6 +298,17 @@ export default function BookDetailsPanel({
           </button>
         </div>
       </div>
+
+      {setCoverFile && (
+        <GenerateCoverModal
+          open={generateOpen}
+          onClose={() => setGenerateOpen(false)}
+          title={title}
+          author={author}
+          genre={genre}
+          onAccept={setCoverFile}
+        />
+      )}
     </div>
   );
 }
