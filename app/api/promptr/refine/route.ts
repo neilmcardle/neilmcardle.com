@@ -103,6 +103,7 @@ export async function POST(req: NextRequest) {
           messages,
           maxTokens: 2048,
           temperature: 0.5,
+          label: "promptr:refine",
         })) {
           controller.enqueue(encoder.encode(delta));
         }

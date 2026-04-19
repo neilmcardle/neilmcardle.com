@@ -111,6 +111,7 @@ export async function POST(req: NextRequest) {
           messages,
           maxTokens: 2048,
           temperature: 0.3,
+          label: "promptr:score",
         })) {
           buffer += delta;
           const lines = buffer.split("\n");

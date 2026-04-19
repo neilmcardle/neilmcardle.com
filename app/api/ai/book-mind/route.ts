@@ -120,6 +120,7 @@ export async function POST(req: NextRequest) {
           messages: body.messages,
           maxTokens: 4096,
           temperature: 0.7,
+          label: `chat:${body.tier ?? 'auto'}${body.deep ? ':deep' : ''}`,
         })) {
           controller.enqueue(sseChunk(delta));
         }

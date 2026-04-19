@@ -120,6 +120,7 @@ export async function POST(req: NextRequest) {
           ],
           maxTokens: 8192,
           temperature: 0.3,
+          label: `analytical:${kind}`,
         })) {
           controller.enqueue(encoder.encode(delta));
         }
