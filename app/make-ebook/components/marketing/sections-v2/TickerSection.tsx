@@ -44,16 +44,21 @@ export default function TickerSection() {
       className="relative overflow-hidden border-y border-black/5 bg-[#f3f1e8] py-6"
     >
       <div
-        className="flex items-center whitespace-nowrap"
-        style={{
-          animation: 'tickerScroll 50s linear infinite',
-          willChange: 'transform',
-        }}
+        className="ticker-track inline-flex items-center whitespace-nowrap"
+        style={{ willChange: 'transform', width: 'max-content' }}
       >
         <Track />
         <Track ariaHidden />
       </div>
       <style>{`
+        .ticker-track {
+          animation: tickerScroll 30s linear infinite;
+        }
+        @media (min-width: 640px) {
+          .ticker-track {
+            animation-duration: 50s;
+          }
+        }
         @keyframes tickerScroll {
           from { transform: translate3d(0, 0, 0); }
           to { transform: translate3d(-50%, 0, 0); }
