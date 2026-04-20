@@ -8,8 +8,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        // The signin page and any auth-mode URLs aren't worth crawling.
-        disallow: ['/signin', '/api/', '/auth/'],
+        // Auth-wall and API routes are thin/private content — skip indexing.
+        disallow: ['/signin', '/update-password', '/auth/', '/api/'],
       },
     ],
     sitemap: `${HOST}/sitemap.xml`,

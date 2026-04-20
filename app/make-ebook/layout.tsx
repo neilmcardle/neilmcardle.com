@@ -1,9 +1,9 @@
 import React from "react";
 import type { Metadata, Viewport } from "next";
 
-const TITLE = "makeEbook — Write the book you've been putting off";
+const TITLE = "makeEbook. Free Browser-Based Ebook Editor & EPUB Creator";
 const DESCRIPTION =
-  "A free, browser-based editor that turns rough drafts into EPUBs ready for Kindle, Kobo, and Apple Books. No install, no credit card.";
+  "Free browser-based ebook editor. Write, format, and export professional EPUBs for Kindle, Kobo, and Apple Books. No install, no credit card.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://makeebook.ink"),
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
         url: "/social-make-ebook.png",
         width: 1200,
         height: 630,
-        alt: "makeEbook — write, format, and export a professional EPUB",
+        alt: "makeEbook. Write, format, and export a professional EPUB.",
       },
     ],
   },
@@ -52,8 +52,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#faf9f5" },
     { media: "(prefers-color-scheme: dark)", color: "#1a1a1a" },
@@ -66,6 +64,7 @@ export const viewport: Viewport = {
 const softwareApplicationSchema = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
+  '@id': 'https://makeebook.ink/#software',
   name: 'makeEbook',
   url: 'https://makeebook.ink',
   description: DESCRIPTION,

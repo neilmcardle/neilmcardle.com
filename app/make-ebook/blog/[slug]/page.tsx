@@ -19,22 +19,38 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const post = getPostBySlug(slug);
   if (!post) return {};
 
+  // When the post has a hero illustration, use it for OG and Twitter cards
+  // so the social preview carries the same visual identity as the post page.
+  const ogImages = post.image
+    ? [{
+        url: post.image,
+        width: 1200,
+        height: 630,
+        alt: post.imageAlt ?? post.title,
+      }]
+    : undefined;
+
   return {
     title: post.title,
     description: post.description,
     keywords: post.keywords,
+    authors: [{ name: "Neil McArdle", url: "https://neilmcardle.com" }],
     openGraph: {
       title: post.title,
       description: post.description,
       type: "article",
       publishedTime: post.date,
+      modifiedTime: post.updatedDate ?? post.date,
+      authors: ["https://neilmcardle.com"],
       url: `https://makeebook.ink/blog/${post.slug}`,
       siteName: "makeEbook",
+      ...(ogImages && { images: ogImages }),
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.description,
+      ...(post.image && { images: [post.image] }),
     },
     alternates: {
       canonical: `https://makeebook.ink/blog/${post.slug}`,
@@ -80,12 +96,50 @@ export default async function BlogPostPage({ params }: PageProps) {
     articleSection: post.category,
   };
 
+  // Breadcrumb schema. Lets Google render a breadcrumb trail under the post
+  // in search results (Home, Blog, Post title).
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://makeebook.ink/' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://makeebook.ink/blog' },
+      { '@type': 'ListItem', position: 3, name: post.title, item: `https://makeebook.ink/blog/${post.slug}` },
+    ],
+  };
+
+  // FAQPage schema. When the post has structured FAQs, we emit JSON-LD so
+  // Google can render them as a rich result. The visible HTML below mirrors
+  // the same data so what users see matches what crawlers read.
+  const faqSchema = post.faqs && post.faqs.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: post.faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: f.a,
+      },
+    })),
+  } : null;
+
   return (
     <div className="relative min-h-screen bg-me-cream text-gray-700">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
       <MarketingNav />
 
       {/* Article */}
@@ -98,6 +152,20 @@ export default async function BlogPostPage({ params }: PageProps) {
           <ArrowLeft className="w-3.5 h-3.5" />
           All posts
         </Link>
+
+        {/* Hero illustration — ink on cream paper, sets the post's visual tone */}
+        {post.image && (
+          <div className="mb-10 -mx-6 sm:mx-0">
+            <div className="aspect-[16/9] bg-[#f8f5ee] rounded-none sm:rounded-xl overflow-hidden flex items-center justify-center">
+              <img
+                src={post.image}
+                alt={post.imageAlt ?? post.title}
+                className="w-full h-full object-contain"
+                loading="eager"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Header */}
         <header className="mb-12">
@@ -145,6 +213,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           className="prose prose-gray max-w-none
             prose-headings:text-gray-900 prose-headings:font-semibold
             prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+            prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
             prose-p:text-gray-700 prose-p:leading-relaxed
             prose-a:text-gray-900 prose-a:underline prose-a:underline-offset-2
             prose-li:text-gray-700
@@ -156,6 +225,23 @@ export default async function BlogPostPage({ params }: PageProps) {
             [&_p]:text-pretty"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
+
+        {/* FAQ — structured, rendered from post.faqs so it matches the JSON-LD */}
+        {post.faqs && post.faqs.length > 0 && (
+          <section className="mt-16 pt-12 border-t border-gray-200">
+            <h2 className="font-serif font-bold text-gray-900 text-2xl mb-8" style={{ letterSpacing: '-0.02em' }}>
+              Frequently asked questions
+            </h2>
+            <dl className="space-y-8">
+              {post.faqs.map((f, i) => (
+                <div key={i}>
+                  <dt className="font-semibold text-gray-900 mb-2">{f.q}</dt>
+                  <dd className="text-gray-700 leading-relaxed text-pretty">{f.a}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
 
         {/* CTA */}
         <div className="mt-20 p-8 sm:p-10 bg-white rounded-2xl border border-gray-200 text-center">

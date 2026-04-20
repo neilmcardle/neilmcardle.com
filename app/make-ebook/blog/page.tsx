@@ -7,8 +7,45 @@ import MarketingFooter from "../components/MarketingFooter";
 export default function BlogIndex() {
   const posts = getAllPosts();
 
+  // Blog + ItemList schema — tells Google this is a collection of posts and
+  // gives each one enough metadata to appear in rich results.
+  const blogSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    '@id': 'https://makeebook.ink/blog#blog',
+    name: 'makeEbook Blog',
+    description:
+      'Guides, tips, and tools for writing, formatting, and self-publishing ebooks.',
+    url: 'https://makeebook.ink/blog',
+    publisher: {
+      '@type': 'Organization',
+      name: 'makeEbook',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://makeebook.ink/make-ebook-logomark.svg',
+      },
+    },
+    blogPost: posts.map((post) => ({
+      '@type': 'BlogPosting',
+      headline: post.title,
+      description: post.description,
+      url: `https://makeebook.ink/blog/${post.slug}`,
+      datePublished: post.date,
+      dateModified: post.updatedDate ?? post.date,
+      author: {
+        '@type': 'Person',
+        name: 'Neil McArdle',
+        url: 'https://neilmcardle.com',
+      },
+    })),
+  };
+
   return (
     <div className="relative min-h-screen bg-me-cream text-gray-700">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }}
+      />
       <MarketingNav />
 
       {/* Header */}
@@ -22,13 +59,13 @@ export default function BlogIndex() {
               lineHeight: 1.02,
             }}
           >
-            Blog
+            Ebook writing &amp; self-publishing guides
           </h1>
           <p
             className="mt-6 text-xl sm:text-2xl text-gray-600 max-w-xl text-pretty"
             style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}
           >
-            Guides, tips, and tools for writing and self-publishing ebooks.
+            Practical guides for writing, formatting, and publishing your first ebook on Kindle, Kobo, and Apple Books.
           </p>
         </div>
       </header>
@@ -40,8 +77,19 @@ export default function BlogIndex() {
             <Link
               key={post.slug}
               href={`/make-ebook/blog/${post.slug}`}
-              className="group block rounded-2xl border border-gray-200 bg-white p-8 hover:border-gray-300 hover:shadow-sm transition-all"
+              className="group block rounded-2xl border border-gray-200 bg-white overflow-hidden hover:border-gray-300 hover:shadow-sm transition-all"
             >
+              {post.image && (
+                <div className="aspect-[16/9] bg-[#f8f5ee] flex items-center justify-center overflow-hidden border-b border-gray-200">
+                  <img
+                    src={post.image}
+                    alt={post.imageAlt ?? post.title}
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              <div className="p-8">
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
                 {post.category}
               </span>
@@ -61,6 +109,7 @@ export default function BlogIndex() {
                   &middot; {post.readingTime}
                 </span>
                 <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+              </div>
               </div>
             </Link>
           ))}

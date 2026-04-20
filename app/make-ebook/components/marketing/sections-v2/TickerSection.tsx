@@ -47,18 +47,18 @@ export default function TickerSection() {
           overflow: hidden;
           border-top: 1px solid rgba(0, 0, 0, 0.05);
           border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-          background: #f3f1e8;
+          background: transparent;
           padding: 1.5rem 0;
         }
         .bm-ticker__track {
           display: inline-flex;
           align-items: center;
           white-space: nowrap;
-          animation: bm-ticker-scroll 30s linear infinite;
+          animation: bm-ticker-scroll 100s linear infinite;
         }
         @media (min-width: 640px) {
           .bm-ticker__track {
-            animation-duration: 50s;
+            animation-duration: 80s;
           }
         }
         .bm-ticker__group {
@@ -69,7 +69,7 @@ export default function TickerSection() {
         .bm-ticker__phrase {
           font-family: Georgia, 'Times New Roman', serif;
           font-style: italic;
-          color: #374151;
+          color: rgba(20, 20, 19, 0.6);
           font-size: 1.25rem;
           letter-spacing: -0.01em;
           padding: 0 1.25rem;

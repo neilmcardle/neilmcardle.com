@@ -22,18 +22,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.8,
     },
-    {
-      url: `${HOST}/book-mind`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${HOST}/signin`,
-      lastModified: now,
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
   ];
 
   const blogPosts: MetadataRoute.Sitemap = getAllPosts().map((post) => ({
