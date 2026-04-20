@@ -135,7 +135,6 @@ export default function MarketingFooter({
 
         <div className="mt-16 pt-8 border-t border-gray-200 flex flex-wrap items-center justify-between gap-4 text-sm text-gray-500">
           <p>&copy; {new Date().getFullYear()} Neil McArdle. All rights reserved.</p>
-          <p className="font-serif italic">Write the book you&rsquo;ve been putting off.</p>
         </div>
 
       </div>
