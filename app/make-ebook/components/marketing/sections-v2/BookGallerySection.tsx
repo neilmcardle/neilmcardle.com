@@ -40,7 +40,7 @@ export default function BookGallerySection() {
         <FadeIn delay={120}>
           <div className="mt-14 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-7 gap-y-8">
             {BOOKS.map((b, i) => (
-              <div key={i} className="group cursor-pointer">
+              <div key={i} className={`group cursor-pointer ${i >= 4 ? 'hidden sm:block' : ''}`}>
                 <div
                   className="relative aspect-[2/3] rounded-[4px] overflow-hidden p-5 flex flex-col justify-center items-center text-center transition-all duration-500 group-hover:-translate-y-2 group-hover:-rotate-1"
                   style={{

@@ -192,8 +192,8 @@ const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSec
             <div className="bg-[#f7f4ea] border border-gray-200 rounded-[20px] overflow-hidden flex flex-col relative shadow-[0_24px_40px_-24px_rgba(20,20,19,.22),0_2px_4px_rgba(20,20,19,.04)]">
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-white/60">
                 <span className="font-mono text-[12px] text-gray-500 font-semibold">9:42</span>
-                <span className="text-[13px] text-gray-500 italic" style={{ fontFamily: 'Georgia, serif' }}>Paperwhite &middot; Libre Baskerville &middot; 11pt</span>
-                <span className="text-[11px] text-gray-400 tracking-[0.12em]">●●●●○ 84%</span>
+                <span className="hidden md:inline text-[13px] text-gray-500 italic" style={{ fontFamily: 'Georgia, serif' }}>Paperwhite &middot; Libre Baskerville &middot; 11pt</span>
+                <span className="hidden md:inline text-[11px] text-gray-400 tracking-[0.12em]">●●●●○ 84%</span>
               </div>
 
               <div className="absolute top-4 right-5 bg-gray-900 text-[#faf9f5] text-[10px] uppercase tracking-[0.12em] px-2.5 py-1 rounded-full flex items-center gap-1.5 z-10">

@@ -15,7 +15,7 @@ export default function FinalCtaSection({ onPrimaryClick }: Props) {
     <section className="relative py-24 sm:py-32 lg:py-40 bg-[#141413] text-[#faf9f5] overflow-hidden text-center">
       <div
         aria-hidden
-        className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 font-serif italic font-bold leading-none pointer-events-none z-0 text-white"
+        className="hidden sm:block absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 font-serif italic font-bold leading-none pointer-events-none z-0 text-white"
         style={{ fontSize: 'min(32vw, 540px)', letterSpacing: '0.05em', opacity: 0.03 }}
       >
         finish.

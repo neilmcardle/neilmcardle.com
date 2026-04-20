@@ -82,12 +82,6 @@ export default function MarketingFooter({
             >
               Built for the writers who finish.
             </p>
-            <p
-              className="mt-4 text-gray-600 max-w-md text-pretty"
-              style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}
-            >
-              makeEbook is made in the open by a single person who wanted Scrivener without the friction.
-            </p>
           </div>
         )}
 

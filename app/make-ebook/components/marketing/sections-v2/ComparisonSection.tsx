@@ -37,7 +37,8 @@ export default function ComparisonSection() {
         </FadeIn>
 
         <FadeIn delay={120}>
-          <div className="mt-14 bg-white border border-gray-200 rounded-[20px] overflow-hidden shadow-[0_24px_40px_-30px_rgba(20,20,19,.2)]">
+          {/* Desktop comparison grid */}
+          <div className="hidden lg:block mt-14 bg-white border border-gray-200 rounded-[20px] overflow-hidden shadow-[0_24px_40px_-30px_rgba(20,20,19,.2)]">
             <div className="grid grid-cols-[2fr_1.2fr_1fr_1fr_1fr] bg-gray-100 border-b border-gray-200 text-[12px] uppercase tracking-[0.16em] font-bold text-gray-500">
               <div className="p-5">Capability</div>
               <div className="p-5 bg-gray-900 text-[#faf9f5] relative">
@@ -58,6 +59,34 @@ export default function ComparisonSection() {
                 <div className="p-5 text-sm text-gray-700">{r.scrivener}</div>
                 <div className="p-5 text-sm text-gray-700">{r.vellum}</div>
                 <div className="p-5 text-sm text-gray-700">{r.word}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile comparison cards */}
+          <div className="lg:hidden mt-10 space-y-4">
+            {ROWS.map((r, i) => (
+              <div key={i} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-[0_8px_24px_-20px_rgba(20,20,19,.2)]">
+                <div className="font-medium text-gray-900">{r.feat}</div>
+                <div className="text-[12px] text-gray-400 mt-0.5 mb-4">{r.sub}</div>
+                <div className="space-y-1.5 text-sm">
+                  <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-md bg-blue-600/[0.04] border border-blue-600/15">
+                    <span className="font-semibold text-gray-900">makeEbook</span>
+                    <span className="text-gray-900 font-semibold">{r.us}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 px-3 py-2">
+                    <span className="text-gray-600">Scrivener</span>
+                    <span className="text-gray-700">{r.scrivener}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 px-3 py-2">
+                    <span className="text-gray-600">Vellum</span>
+                    <span className="text-gray-700">{r.vellum}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 px-3 py-2">
+                    <span className="text-gray-600">Word</span>
+                    <span className="text-gray-700">{r.word}</span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
