@@ -1,45 +1,71 @@
-import Image from 'next/image';
+import Image from "next/image";
+import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-100 relative overflow-hidden">
-      {/* Background gradient matching the make-ebook landing page */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1e2836] via-[#0a0a0a] to-[#1a2230]" />
-
-      <div className="relative flex flex-col items-center justify-center min-h-screen px-6">
-        {/* Logo */}
-        <div className="flex items-center gap-3 mb-16">
+    <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
+      <header className="px-8 sm:px-16 lg:px-24 pt-8 pb-0 max-w-[1100px] mx-auto w-full">
+        <Link href="/" aria-label="Neil McArdle — home">
           <Image
-            src="/make-ebook-logo.svg"
-            alt="MakeEbook"
-            width={32}
-            height={32}
-            className="w-8 h-8 invert"
+            src="/dark-neil-mcardle-logomark.svg"
+            alt="Neil McArdle"
+            width={26}
+            height={26}
+            className="opacity-50 hover:opacity-100 transition-opacity duration-300"
+            style={{ color: "transparent" }}
           />
-          <span className="font-semibold text-lg text-white">makeEbook</span>
-        </div>
+        </Link>
+      </header>
 
-        {/* 404 */}
-        <p className="text-[10rem] sm:text-[12rem] font-bold leading-none text-white/[0.06] select-none -mb-8">
-          404
-        </p>
+      <main className="flex-1 flex items-center px-8 sm:px-16 lg:px-24 max-w-[1100px] mx-auto w-full pb-32">
+        <section className="max-w-[640px]">
+          <p
+            className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/45 mb-6"
+            style={{ fontFamily: "var(--font-inter)" }}
+          >
+            404 · Page not found
+          </p>
 
-        {/* Quote */}
-        <p className="text-xl sm:text-2xl italic text-gray-300 text-center max-w-lg mb-3">
-          &ldquo;Not all those who wander are lost.&rdquo;
-        </p>
-        <p className="text-sm text-gray-500 mb-12">
-          &mdash; J.R.R. Tolkien
-        </p>
+          <h1
+            className="text-[48px] sm:text-[64px] lg:text-[76px] text-white leading-[0.95] mb-8"
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontWeight: 400,
+              letterSpacing: "-0.03em",
+            }}
+          >
+            Not all those<br />who wander are lost.
+          </h1>
 
-        {/* Button */}
-        <a
-          href="/"
-          className="px-8 py-3 text-base font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
-        >
-          Go back home
-        </a>
-      </div>
+          <p
+            className="text-sm text-white/45 mb-12 tracking-wide"
+            style={{ fontFamily: "var(--font-inter)" }}
+          >
+            J.R.R. Tolkien
+          </p>
+
+          <div className="w-full h-px bg-white/[0.08] mb-10" />
+
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors duration-200"
+            style={{ fontFamily: "var(--font-inter)" }}
+          >
+            Back to the homepage
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12h14M13 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </section>
+      </main>
     </div>
   );
 }

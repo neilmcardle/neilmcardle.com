@@ -629,6 +629,32 @@ button:hover .palette-icon {
   animation-delay: 0.5s;
 }
 
+/* AI "thinking" text shimmer — a highlight sweeps left-to-right across
+   the glyphs. Clipping a moving gradient to text produces the classic
+   LLM-output streaming look. Position starts at 200% (gradient shifted
+   to align the bright middle beyond the right edge of visible) and
+   decreases to -200%, which moves the bright spot LEFT to RIGHT across
+   the visible text. CSS's percentage-based background-position can be
+   counter-intuitive — don't swap these without testing. */
+@keyframes thinking-shimmer {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.thinking-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 1)    50%,
+    rgba(255, 255, 255, 0.45) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  animation: thinking-shimmer 2.2s linear infinite;
+}
+
 @keyframes slide-in-from-right {
   from { transform: translateX(100%); opacity: 0; }
   to   { transform: translateX(0);    opacity: 1; }

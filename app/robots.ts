@@ -10,7 +10,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/auth/"],
+        // /portfolio/ is a password-gated in-house portfolio for job
+        // searches. Kept out of search results entirely. The HTML itself
+        // also carries noindex/nofollow as a second line of defence.
+        disallow: ["/api/", "/auth/", "/portfolio/", "/portfolio-unlock"],
       },
     ],
     sitemap: [

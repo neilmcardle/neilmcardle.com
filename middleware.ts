@@ -2,8 +2,21 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const MAKEEBOOK_DOMAIN = 'makeebook.ink';
+const PORTFOLIO_COOKIE = 'nm-portfolio';
 
-export function middleware(request: NextRequest) {
+async function sha256Hex(input: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function portfolioExpectedToken(): Promise<string | null> {
+  const pw = process.env.PORTFOLIO_PASSWORD;
+  const secret = process.env.PORTFOLIO_COOKIE_SECRET;
+  if (!pw || !secret) return null;
+  return sha256Hex(pw + secret);
+}
+
+export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
   const { pathname } = request.nextUrl;
 
@@ -60,6 +73,34 @@ export function middleware(request: NextRequest) {
       `https://${MAKEEBOOK_DOMAIN}${newPath}${search}`,
       301
     );
+  }
+
+  // Portfolio gate — /portfolio and everything under it is password-locked.
+  // Authenticated visitors (valid nm-portfolio cookie) see the SPA; others
+  // see the unlock form via a rewrite so the URL stays /portfolio.
+  if (pathname === '/portfolio' || pathname.startsWith('/portfolio/')) {
+    const expected = await portfolioExpectedToken();
+    const cookie = request.cookies.get(PORTFOLIO_COOKIE)?.value;
+    const authed = expected && cookie === expected;
+
+    if (!authed) {
+      // Block asset fetches before anyone is authenticated
+      if (pathname.includes('.')) {
+        return new NextResponse(null, { status: 404 });
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = '/portfolio-unlock';
+      return NextResponse.rewrite(url);
+    }
+
+    // Authenticated — route SPA deep links (no file extension) to index.html
+    if (!pathname.includes('.')) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/portfolio/index.html';
+      return NextResponse.rewrite(url);
+    }
+    // Asset request — serve static file as-is
+    return NextResponse.next();
   }
 
   return NextResponse.next();
