@@ -1,5 +1,6 @@
 "use client";
 import React, { Suspense, useState, useRef, useLayoutEffect, useEffect, useCallback } from "react";
+import { track } from "@vercel/analytics";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useFeatureAccess } from "@/lib/hooks/useSubscription";
 import { BookToolbar } from "@/components/BookToolbar";
@@ -89,6 +90,24 @@ function MakeEbookPage() {
   // Next/navigation helpers
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!user?.id || typeof window === 'undefined') return;
+    const flagKey = `mf_editor_opened_${user.id}`;
+    if (!localStorage.getItem(flagKey)) {
+      localStorage.setItem(flagKey, '1');
+      track('editor_opened_first_time');
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!searchParams) return;
+    if (searchParams.get('checkout') === 'success') {
+      const type = searchParams.get('type') === 'lifetime' ? 'lifetime' : 'pro';
+      track('checkout_completed', { tier: type });
+      router.replace('/make-ebook');
+    }
+  }, [searchParams, router]);
 
   const {
     chapters,
@@ -902,6 +921,8 @@ function MakeEbookPage() {
   function handlePasteManuscript(text: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
+    const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+    track('manuscript_pasted', { wordCount });
     setShowMarketingPage(false);
     const newChapter: Chapter = {
       id: `chapter-${Date.now()}`,

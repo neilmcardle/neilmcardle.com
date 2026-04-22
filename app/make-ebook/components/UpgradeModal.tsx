@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { track } from '@vercel/analytics';
 import { useSubscription } from '@/lib/hooks/useSubscription';
 import { Sparkles, Cloud, BookOpen, Clock, X, Check } from 'lucide-react';
 
@@ -24,6 +25,12 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
   }, []);
 
   useEffect(() => {
+    if (isOpen) {
+      track('upgrade_clicked', { source: 'modal', feature: feature ?? 'unknown' });
+    }
+  }, [isOpen, feature]);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
       if (e.key === 'Escape') onClose();
@@ -34,6 +41,7 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
   }, [isOpen, onClose]);
 
   const handleCheckout = async (mode: 'subscription' | 'lifetime') => {
+    track('checkout_started', { tier: mode === 'subscription' ? 'pro' : 'lifetime' });
     setCheckoutLoading(true);
     setError(null);
 

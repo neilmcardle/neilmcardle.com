@@ -18,6 +18,7 @@
 // analytical-cache generation.
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { track } from '@vercel/analytics';
 import { Chapter as BookChapter } from '../types';
 import { loadBookById } from '../utils/bookLibrary';
 import { getMemory, formatMemoryForPrompt, isBriefFresh } from '../utils/bookmindMemory';
@@ -386,6 +387,14 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     contextOrOpts?: BookMindContext | SendMessageOpts,
     legacyAction?: BookMindAction,
   ): Promise<string | null> => {
+    if (userId && typeof window !== 'undefined') {
+      const flagKey = `mf_bm_first_sent_${userId}`;
+      if (!localStorage.getItem(flagKey)) {
+        localStorage.setItem(flagKey, '1');
+        track('book_mind_first_message_sent');
+      }
+    }
+
     setIsLoading(true);
     setError(null);
 

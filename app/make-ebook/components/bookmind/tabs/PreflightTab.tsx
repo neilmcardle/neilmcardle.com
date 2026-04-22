@@ -10,7 +10,8 @@
 // loading state. AI checks read from bookmindMemory.analytical, same
 // as InsightsTab and IssuesTab.
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { track } from "@vercel/analytics";
 import { BookRecord } from "../../../types";
 import { BookMindIcon as BookIcon } from "../../BookMindShared";
 
@@ -44,6 +45,10 @@ export default function PreflightTab({ book, coverFile, liveTitle, liveAuthor, l
   const [selectedDisclosure, setSelectedDisclosure] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [addedChapter, setAddedChapter] = useState(false);
+
+  useEffect(() => {
+    track('preflight_viewed', { source: 'tab' });
+  }, []);
 
   if (!book) {
     return <EmptyState message="Open a book to run pre-flight checks." />;

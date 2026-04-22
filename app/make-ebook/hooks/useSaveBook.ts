@@ -1,5 +1,6 @@
 "use client";
 import { useRef } from "react";
+import { track } from "@vercel/analytics";
 import { saveEbookToSupabase } from "@/lib/supabaseEbooks";
 import { Chapter, Endnote, EndnoteReference } from "../types";
 import { exportEpub } from "../utils/exportEpub";
@@ -77,6 +78,17 @@ export function useSaveBook({
   markClean, clearEditorState,
 }: UseSaveBookParams) {
   const isSavingRef = useRef(false);
+
+  function trackExport(format: 'epub' | 'pdf' | 'docx') {
+    track('book_exported', { format });
+    if (user?.id && typeof window !== 'undefined') {
+      const flagKey = `mf_first_export_${user.id}`;
+      if (!localStorage.getItem(flagKey)) {
+        localStorage.setItem(flagKey, '1');
+        track('book_exported_first_time', { format });
+      }
+    }
+  }
 
   function saveVersionSnapshot() {
     saveVersion(title, author, chapters, { blurb, publisher, pubDate, genre, tags });
@@ -179,6 +191,7 @@ export function useSaveBook({
   }
 
   async function handleExportEPUB() {
+    trackExport('epub');
     const migratedChapters = ensureChapterIds(chapters);
     const migratedEndnoteRefs = migrateEndnoteReferences(endnoteReferences, migratedChapters);
 
@@ -225,11 +238,13 @@ export function useSaveBook({
   }
 
   function handleExportPDF() {
+    trackExport('pdf');
     const migratedChapters = ensureChapterIds(chapters);
     exportPdf({ title, author, publisher, chapters: migratedChapters });
   }
 
   async function handleExportDocx() {
+    trackExport('docx');
     const migratedChapters = ensureChapterIds(chapters);
     await exportDocx({ title, author, publisher, chapters: migratedChapters });
   }

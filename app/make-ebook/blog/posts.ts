@@ -47,8 +47,8 @@ export const posts: BlogPost[] = [
       'self-publishing guide',
       'EPUB formatting',
     ],
-    // image: '/blog/how-to-write-an-ebook.png',
-    // imageAlt: 'Ink drawing of a fountain pen mid-stroke with a single ink blot forming below the nib.',
+    image: '/blog/how-to-write-an-ebook.png',
+    imageAlt: 'Ink illustration of an ornate hardcover book with the title How to Write an Ebook: Complete Beginner\'s Guide on the front.',
     content: `
       <p class="lead">Writing an ebook has never been more accessible. Whether you're a first-time author or an experienced writer exploring self-publishing, this guide walks you through every step, from idea to published EPUB.</p>
 

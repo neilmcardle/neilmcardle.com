@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { track } from '@vercel/analytics';
 
 import { useAuth } from '@/lib/hooks/useAuth';
 
@@ -52,11 +53,17 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const featuresRef = useRef<HTMLElement>(null);
   const pricingRef = useRef<HTMLElement>(null);
 
+  useEffect(() => {
+    track('landing_viewed');
+  }, []);
+
   const handleOpenAuth = (mode: 'signin' | 'signup') => {
     router.push(`/make-ebook/signin?mode=${mode}`);
   };
 
   const handleCheckout = async (type: 'pro' | 'lifetime') => {
+    track('upgrade_clicked', { source: 'pricing_card', tier: type });
+    track('checkout_started', { tier: type });
     setCheckoutLoading(type);
     setCheckoutError(null);
     try {
