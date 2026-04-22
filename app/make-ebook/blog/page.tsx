@@ -80,7 +80,7 @@ export default function BlogIndex() {
               className="group block rounded-2xl border border-gray-200 bg-white overflow-hidden hover:border-gray-300 hover:shadow-sm transition-all"
             >
               {post.image && (
-                <div className="aspect-[16/9] bg-[#f8f5ee] flex items-center justify-center overflow-hidden border-b border-gray-200">
+                <div className="aspect-[16/9] bg-me-cream flex items-center justify-center overflow-hidden border-b border-gray-200">
                   <img
                     src={post.image}
                     alt={post.imageAlt ?? post.title}

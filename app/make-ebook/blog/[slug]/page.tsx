@@ -156,7 +156,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         {/* Hero illustration — ink on cream paper, sets the post's visual tone */}
         {post.image && (
           <div className="mb-10 -mx-6 sm:mx-0">
-            <div className="aspect-[16/9] bg-[#f8f5ee] rounded-none sm:rounded-xl overflow-hidden flex items-center justify-center">
+            <div className="aspect-[16/9] bg-me-cream rounded-none sm:rounded-xl overflow-hidden flex items-center justify-center">
               <img
                 src={post.image}
                 alt={post.imageAlt ?? post.title}
