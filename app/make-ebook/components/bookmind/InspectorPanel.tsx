@@ -31,6 +31,10 @@ interface InspectorPanelProps {
   onAddDisclosureChapter?: (content: string) => void;
   flowMode?: boolean;
   onToggleFlowMode?: () => void;
+  // Pro gating: Free users get a Chat-only trial view with a one-message
+  // limit. Pro users get the full four-tab surface.
+  isPro?: boolean;
+  onUpgrade?: () => void;
 }
 
 type TabKey = "chat" | "insights" | "issues" | "preflight";
@@ -78,6 +82,8 @@ const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
 ];
 
 export default function InspectorPanel(props: InspectorPanelProps) {
+  const isPro = props.isPro ?? true;
+  const visibleTabs = isPro ? TABS : TABS.filter(t => t.key === "chat");
   const [active, setActive] = useState<TabKey>("chat");
 
   // Load the full BookRecord for the analytical tabs — they need the
@@ -102,8 +108,27 @@ export default function InspectorPanel(props: InspectorPanelProps) {
         onValueChange={(v) => setActive(v as TabKey)}
         className="flex flex-col h-full"
       >
-        {/* Flow mode toggle — right-aligned with info tooltip */}
-        {props.onToggleFlowMode && (
+        {/* Free-tier trial banner. Shown instead of the Flow mode toggle. */}
+        {!isPro && (
+          <div className="flex-shrink-0 flex items-center justify-between gap-2 px-4 py-2 bg-[#f5f7ff] dark:bg-[#1a1d2e] border-b border-[#d6dcff] dark:border-[#2a2f45]">
+            <div className="flex items-center gap-2 min-w-0">
+              <svg className="w-3.5 h-3.5 text-[#4070ff] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L15 8.5L22 9.5L17 14.5L18.5 22L12 18.5L5.5 22L7 14.5L2 9.5L9 8.5L12 2Z" />
+              </svg>
+              <span className="text-xs text-gray-700 dark:text-[#d4d4d4] truncate">
+                Book Mind trial — one free analysis per book
+              </span>
+            </div>
+            <button
+              onClick={props.onUpgrade}
+              className="flex-shrink-0 text-xs font-semibold text-[#4070ff] hover:text-[#3560e6] transition-colors whitespace-nowrap"
+            >
+              Upgrade
+            </button>
+          </div>
+        )}
+        {/* Flow mode toggle — right-aligned with info tooltip (Pro only) */}
+        {isPro && props.onToggleFlowMode && (
           <div className="flex-shrink-0 flex items-center justify-end gap-2 px-4 py-1.5 bg-gray-50 dark:bg-[#181818] border-b border-gray-100 dark:border-[#262626]">
             <span className="group relative">
               <svg className="w-3 h-3 text-gray-300 dark:text-[#525252] cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -135,7 +160,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
           </div>
         )}
         <TabsList className="flex-shrink-0 h-11 w-full justify-start gap-0 bg-gray-50 dark:bg-[#181818] border-b border-gray-200 dark:border-[#2f2f2f] rounded-none p-0 mt-0">
-          {TABS.map((tab) => (
+          {visibleTabs.map((tab) => (
             <TabsTrigger
               key={tab.key}
               value={tab.key}
@@ -158,6 +183,8 @@ export default function InspectorPanel(props: InspectorPanelProps) {
             selectedChapterIndex={props.selectedChapterIndex}
             selectedText={props.selectedText}
             onNavigateToChapter={props.onNavigateToChapter}
+            trialMode={!isPro}
+            onUpgrade={props.onUpgrade}
           />
         </TabsContent>
         <TabsContent value="insights" className="flex-1 min-h-0 mt-0 outline-none">

@@ -33,6 +33,8 @@ import InspectorPanel from "./components/bookmind/InspectorPanel";
 import InlineEditPopover, { InlineEditRequest } from "./components/bookmind/InlineEditPopover";
 import ComposePalette, { ComposePaletteRequest } from "./components/bookmind/ComposePalette";
 import GhostTextOverlay from "./components/bookmind/GhostTextOverlay";
+import PreflightExportDialog, { ExportFormat } from "./components/PreflightExportDialog";
+import UpgradeModal from "./components/UpgradeModal";
 // MarginAnnotation disabled — keeping the file, removing the import to
 // avoid the unused-import lint warning. Re-enable when we revisit.
 // import MarginAnnotation from "./components/bookmind/MarginAnnotation";
@@ -86,6 +88,11 @@ function MakeEbookPage() {
   // Check if user has Pro access for Cloud Sync
   const hasCloudSync = useFeatureAccess('cloud_sync');
   const hasBookMind = useFeatureAccess('book_mind_ai');
+  const isPro = hasBookMind; // Pro == Book Mind access; reuse the gate
+
+  // Export-time pre-flight dialog state
+  const [preflightFormat, setPreflightFormat] = useState<ExportFormat | null>(null);
+  const [exportUpgradeOpen, setExportUpgradeOpen] = useState(false);
 
   // Next/navigation helpers
   const searchParams = useSearchParams();
@@ -732,7 +739,7 @@ function MakeEbookPage() {
       saveBook.handleSaveBook();
     },
     onExport: () => {
-      saveBook.handleExportEPUB();
+      setPreflightFormat('epub');
     },
     onPreview: () => {
       // ⌘P toggles the right-panel live preview.
@@ -1220,6 +1227,8 @@ function MakeEbookPage() {
                   setSelectedChapter(idx);
                   setMobileBookMindOpen(false);
                 }}
+                isPro={isPro}
+                onUpgrade={() => setExportUpgradeOpen(true)}
               />
             </div>
           </div>
@@ -1531,21 +1540,21 @@ function MakeEbookPage() {
                               </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="start" className="w-44 z-[200]">
-                              <DropdownMenuItem onClick={() => saveBook.handleExportEPUB()} className="flex items-center gap-2 cursor-pointer">
+                              <DropdownMenuItem onClick={() => setPreflightFormat('epub')} className="flex items-center gap-2 cursor-pointer">
                                 <DownloadIcon className="w-4 h-4" />
                                 <div>
                                   <div className="text-sm font-medium">EPUB</div>
                                   <div className="text-xs text-gray-500">Kindle, Kobo, Apple Books</div>
                                 </div>
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={saveBook.handleExportPDF} className="flex items-center gap-2 cursor-pointer">
+                              <DropdownMenuItem onClick={() => setPreflightFormat('pdf')} className="flex items-center gap-2 cursor-pointer">
                                 <DownloadIcon className="w-4 h-4" />
                                 <div>
                                   <div className="text-sm font-medium">PDF</div>
                                   <div className="text-xs text-gray-500">Print & sharing</div>
                                 </div>
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={saveBook.handleExportDocx} className="flex items-center gap-2 cursor-pointer">
+                              <DropdownMenuItem onClick={() => setPreflightFormat('docx')} className="flex items-center gap-2 cursor-pointer">
                                 <DownloadIcon className="w-4 h-4" />
                                 <div>
                                   <div className="text-sm font-medium">Word</div>
@@ -2408,19 +2417,19 @@ function MakeEbookPage() {
                         bookTitle={title}
                       />
                     </div>
-                    {/* Book Mind Button - Mobile (Pro only) */}
-                    {hasBookMind && (
-                      <button
-                        onClick={() => setMobileBookMindOpen(true)}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                        aria-label="Book Mind"
-                        title="Book Mind"
-                      >
-                        <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                      </button>
-                    )}
+                    {/* Book Mind Button - Mobile. Pro users get the full
+                        Inspector; Free users get a one-message trial on
+                        the Chat tab. The Inspector handles the gate. */}
+                    <button
+                      onClick={() => setMobileBookMindOpen(true)}
+                      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      aria-label="Book Mind"
+                      title="Book Mind"
+                    >
+                      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </button>
                     {/* Preview Button */}
                     <button
                       data-tour="mobile-preview"
@@ -2617,9 +2626,9 @@ function MakeEbookPage() {
                   onToggleFocusMode={focus.toggleFocusMode}
                   rightPanelMode={rightPanelMode}
                   onRightPanelModeChange={setRightPanelMode}
-                  onExportEPUB={saveBook.handleExportEPUB}
-                  onExportPDF={saveBook.handleExportPDF}
-                  onExportDocx={saveBook.handleExportDocx}
+                  onExportEPUB={() => setPreflightFormat('epub')}
+                  onExportPDF={() => setPreflightFormat('pdf')}
+                  onExportDocx={() => setPreflightFormat('docx')}
                   hideChrome={focus.active && focus.settings.hideChrome}
                 />
                 <EditorCanvas
@@ -2670,6 +2679,8 @@ function MakeEbookPage() {
               }}
               flowMode={flowMode}
               onToggleFlowMode={handleToggleFlowMode}
+              isPro={isPro}
+              onUpgrade={() => setExportUpgradeOpen(true)}
             />
           )}
         </div>
@@ -2851,6 +2862,26 @@ function MakeEbookPage() {
         onReplaceInChapter={findReplace.replaceInChapter}
         onReplaceAll={findReplace.replaceAll}
         onGoToMatch={findReplace.goToMatch}
+      />
+
+      <PreflightExportDialog
+        open={preflightFormat !== null}
+        format={preflightFormat ?? 'epub'}
+        input={{ title, author, chapters, coverFile: coverUrl, language, genre }}
+        isPro={isPro}
+        onClose={() => setPreflightFormat(null)}
+        onDownload={() => {
+          if (preflightFormat === 'epub') saveBook.handleExportEPUB();
+          else if (preflightFormat === 'pdf') saveBook.handleExportPDF();
+          else if (preflightFormat === 'docx') saveBook.handleExportDocx();
+        }}
+        onUpgrade={() => setExportUpgradeOpen(true)}
+      />
+
+      <UpgradeModal
+        isOpen={exportUpgradeOpen}
+        onClose={() => setExportUpgradeOpen(false)}
+        feature="Amazon KDP pre-flight"
       />
     </>
   );

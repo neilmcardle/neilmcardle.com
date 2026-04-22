@@ -41,6 +41,8 @@ interface EditorRightPanelProps {
   onAddDisclosureChapter?: (content: string) => void;
   flowMode?: boolean;
   onToggleFlowMode?: () => void;
+  isPro?: boolean;
+  onUpgrade?: () => void;
 }
 
 export default function EditorRightPanel({
@@ -60,6 +62,8 @@ export default function EditorRightPanel({
   onAddDisclosureChapter,
   flowMode,
   onToggleFlowMode,
+  isPro,
+  onUpgrade,
 }: EditorRightPanelProps) {
   if (mode === 'none') return null;
 
@@ -82,6 +86,8 @@ export default function EditorRightPanel({
             onAddDisclosureChapter={onAddDisclosureChapter}
             flowMode={flowMode}
             onToggleFlowMode={onToggleFlowMode}
+            isPro={isPro}
+            onUpgrade={onUpgrade}
           />
         </div>
       )}

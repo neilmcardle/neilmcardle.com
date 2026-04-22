@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { useFeatureAccess } from '@/lib/hooks/useSubscription';
 
 // The right-panel modes are internal keys; the user-facing labels can
 // differ (the Inspector tab is still labelled "Book Mind" because that
@@ -39,8 +38,9 @@ const TABS: { mode: Exclude<RightPanelMode, 'none'>; label: string; Icon: React.
 ];
 
 export default function LayoutSwitcher({ mode, onChange }: LayoutSwitcherProps) {
-  const hasBookMind = useFeatureAccess('book_mind_ai');
-  const visibleTabs = hasBookMind ? TABS : TABS.filter(t => t.mode !== 'inspector');
+  // Inspector is visible for everyone — Pro gets the full panel, Free gets
+  // a one-message trial on the Chat tab. The InspectorPanel handles gating.
+  const visibleTabs = TABS;
   return (
     <div className="flex items-center rounded-lg border border-gray-200 dark:border-[#2f2f2f] overflow-hidden bg-gray-50 dark:bg-[#1e1e1e]">
       {visibleTabs.map(({ mode: m, label, Icon }, i) => {

@@ -14,6 +14,7 @@ import React, { useState, useEffect } from "react";
 import { track } from "@vercel/analytics";
 import { BookRecord } from "../../../types";
 import { BookMindIcon as BookIcon } from "../../BookMindShared";
+import { runPreflightChecks } from "../../../utils/preflightChecks";
 
 interface PreflightTabProps {
   book: BookRecord | undefined;
@@ -25,13 +26,6 @@ interface PreflightTabProps {
   liveGenre?: string;
   // Add the disclosure as a new backmatter chapter in the editor
   onAddDisclosureChapter?: (content: string) => void;
-}
-
-interface CheckResult {
-  id: string;
-  label: string;
-  status: "pass" | "warn" | "block";
-  message: string;
 }
 
 const DISCLOSURE_OPTIONS = [
@@ -62,74 +56,9 @@ export default function PreflightTab({ book, coverFile, liveTitle, liveAuthor, l
   const language = liveLanguage ?? book.language;
   const genre = liveGenre ?? book.genre;
 
-  // ── Hard checks (deterministic, instant) ───────────────────────────
-  const totalWords = chapters.reduce((sum, ch) => {
-    return sum + ch.content.trim().split(/\s+/).filter(Boolean).length;
-  }, 0);
-
-  const checks: CheckResult[] = [
-    {
-      id: "word-count",
-      label: "Word count",
-      status: totalWords >= 2500 ? "pass" : "block",
-      message: totalWords >= 2500
-        ? `${totalWords.toLocaleString()} words. Above the 2,500-word KDP minimum.`
-        : `${totalWords.toLocaleString()} words. Amazon requires at least 2,500 words for eBooks.`,
-    },
-    {
-      id: "title",
-      label: "Title",
-      status: title && title.trim() && !["untitled", "pasted manuscript", "untitled book"].includes(title.trim().toLowerCase())
-        ? "pass"
-        : "block",
-      message: title?.trim()
-        ? `"${title}"`
-        : "No title set. Amazon requires a title.",
-    },
-    {
-      id: "author",
-      label: "Author",
-      status: author?.trim() ? "pass" : "block",
-      message: author?.trim()
-        ? `${author}`
-        : "No author name set.",
-    },
-    {
-      id: "cover",
-      label: "Cover image",
-      status: coverFile ? "pass" : "warn",
-      message: coverFile
-        ? "Cover image attached."
-        : "No cover image. Strongly recommended for KDP listings.",
-    },
-    {
-      id: "language",
-      label: "Language",
-      status: language?.trim() ? "pass" : "warn",
-      message: language?.trim()
-        ? `${language}`
-        : "No language set. Recommended for metadata completeness.",
-    },
-    {
-      id: "genre",
-      label: "Genre",
-      status: genre?.trim() ? "pass" : "warn",
-      message: genre?.trim()
-        ? `${genre}`
-        : "No genre set. Helps Amazon categorize your book.",
-    },
-    {
-      id: "chapters",
-      label: "Chapter count",
-      status: chapters.length >= 1 ? "pass" : "block",
-      message: `${chapters.length} ${chapters.length === 1 ? "chapter" : "chapters"}.`,
-    },
-  ];
-
-  const blocks = checks.filter(c => c.status === "block");
-  const warns = checks.filter(c => c.status === "warn");
-  const passes = checks.filter(c => c.status === "pass");
-  const allClear = blocks.length === 0;
+  const { checks, blocks, warns, allClear } = runPreflightChecks({
+    title, author, chapters, coverFile, language, genre,
+  });
 
   const activeDisclosure = DISCLOSURE_OPTIONS.find(d => d.id === selectedDisclosure);
 

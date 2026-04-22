@@ -39,6 +39,7 @@ import MemoryEditor from "../MemoryEditor";
 import { addRule } from "../../../utils/bookmindMemory";
 import { toast } from "sonner";
 import { linkCitations } from "../../../utils/citationLinker";
+import { hasUsedTrial, markTrialUsed } from "../../../utils/bookMindTrial";
 import type { Chapter } from "../../../types";
 
 interface ChatTabProps {
@@ -55,6 +56,10 @@ interface ChatTabProps {
   // responsible for changing the selected chapter and scrolling the
   // editor to the source.
   onNavigateToChapter?: (chapterIndex: number) => void;
+  // Free-tier trial: one message per book, then the input area is
+  // replaced with an upgrade CTA. Pro users get trialMode=false.
+  trialMode?: boolean;
+  onUpgrade?: () => void;
 }
 
 export default function ChatTab({
@@ -67,13 +72,15 @@ export default function ChatTab({
   selectedChapterIndex,
   selectedText: externalSelectedText,
   onNavigateToChapter,
+  trialMode = false,
+  onUpgrade,
 }: ChatTabProps) {
   const {
     messages,
     isLoading,
     error,
-    sendMessage,
-    quickAction,
+    sendMessage: _sendMessage,
+    quickAction: _quickAction,
     clearMessages,
     createSession,
     currentSessionId,
@@ -82,6 +89,34 @@ export default function ChatTab({
     loadSession,
     deleteSession,
   } = useBookMind({ bookId, userId });
+
+  // Trial gate: Free users get one message per book. Pro users pass
+  // through without any gating. Once a trial message completes, the
+  // exhausted flag flips and subsequent calls route to the upgrade CTA.
+  const [trialExhausted, setTrialExhausted] = useState(() => hasUsedTrial(userId, bookId));
+  useEffect(() => {
+    setTrialExhausted(hasUsedTrial(userId, bookId));
+  }, [userId, bookId]);
+
+  const markTrialDone = () => {
+    if (!trialMode) return;
+    markTrialUsed(userId, bookId);
+    setTrialExhausted(true);
+  };
+
+  const sendMessage: typeof _sendMessage = async (...args) => {
+    if (trialMode && trialExhausted) { onUpgrade?.(); return null; }
+    const result = await _sendMessage(...args);
+    markTrialDone();
+    return result;
+  };
+
+  const quickAction: typeof _quickAction = async (...args) => {
+    if (trialMode && trialExhausted) { onUpgrade?.(); return null; }
+    const result = await _quickAction(...args);
+    markTrialDone();
+    return result;
+  };
 
   const [input, setInput] = useState("");
   const [dismissedText, setDismissedText] = useState<string | null>(null);
@@ -454,7 +489,25 @@ export default function ChatTab({
           here is injected into every Book Mind call. */}
       <MemoryEditor bookId={bookId} userId={userId} />
 
-      {/* Input */}
+      {/* Input — replaced with an upgrade CTA when the Free trial is spent */}
+      {trialMode && trialExhausted ? (
+        <div className="flex-shrink-0 px-4 pb-4 pt-3">
+          <div className="rounded-xl border border-[#d6dcff] dark:border-[#2a2f45] bg-[#f5f7ff] dark:bg-[#1a1d2e] px-4 py-4 text-center">
+            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+              You&apos;ve used your free Book Mind analysis
+            </p>
+            <p className="text-xs text-gray-600 dark:text-[#a3a3a3] mb-4 leading-relaxed">
+              Upgrade to Pro for unlimited chat, insights, issues, and the KDP pre-flight check.
+            </p>
+            <button
+              onClick={onUpgrade}
+              className="px-5 py-2 text-sm font-semibold bg-gray-900 dark:bg-white text-white dark:text-[#111] rounded-full hover:bg-gray-800 dark:hover:bg-[#e5e5e5] transition-colors"
+            >
+              Upgrade to Pro
+            </button>
+          </div>
+        </div>
+      ) : (
       <div className="flex-shrink-0 px-3 pb-3 pt-2">
         {activeSelectedText && (
           <div className="px-1 pb-2">
@@ -540,6 +593,7 @@ export default function ChatTab({
           )}
         </div>
       </div>
+      )}
 
       {/* Reading view slide-over */}
       <ReadingView
