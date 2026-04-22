@@ -92,7 +92,7 @@ export default function Homepage() {
               className="text-sm text-white/55 hover:text-white transition-colors duration-200"
               style={{ fontFamily: "var(--font-inter)" }}
             >
-              Available for projects →
+              Available for projects, book a call →
             </a>
           </div>
         </section>
