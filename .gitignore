@@ -3,6 +3,11 @@
 # dependencies
 /node_modules
 
+# non-npm lockfiles (project uses npm; guard against accidental pnpm/yarn installs
+# that would confuse Vercel's package-manager detection)
+pnpm-lock.yaml
+yarn.lock
+
 # next.js
 /.next/
 /out/
