@@ -362,7 +362,6 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           </button>
         </Tooltip>
 
-        {/* Coverly Button */}
       </nav>
 
       {/* Bottom section - Theme Toggle and User */}

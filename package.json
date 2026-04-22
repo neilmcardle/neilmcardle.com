@@ -58,7 +58,6 @@
     "@tiptap/pm": "^3.4.2",
     "@tiptap/react": "^3.4.2",
     "@tiptap/starter-kit": "^3.4.2",
-    "@tldraw/assets": "^4.3.1",
     "@types/dompurify": "^3.0.5",
     "@types/draft-js": "^0.11.18",
     "@types/pg": "^8.15.5",
@@ -101,7 +100,6 @@
     "stripe": "^18.5.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "tldraw": "^4.3.1",
     "uuid": "^13.0.0",
     "vaul": "^0.9.6",
     "zod": "^3.24.1"

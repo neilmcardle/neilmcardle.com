@@ -49,20 +49,6 @@ export default function EbookEditor({ book, setBook, selectedChapterIdx, setSele
         {book.cover && (
           <img src={book.cover} alt="Cover" className="mb-2 max-h-56 rounded" />
         )}
-        {/* Coverly Button - new style */}
-        <button
-          type="button"
-          onClick={() => window.open('https://coverly.figma.site', '_blank', 'noopener,noreferrer')}
-          className="flex items-center gap-2 px-3 py-2 rounded border border-gray-200 dark:border-[#424242] bg-white dark:bg-[#383838] hover:bg-gray-50 dark:hover:bg-[#2f2f2f] text-sm font-medium mb-2"
-          title="Make-ebook cover generator (opens in new tab)"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5 text-[#6C47FF] dark:text-[#B6A7FF]">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M15 3h6v6" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M10 14L21 3" />
-          </svg>
-          <span>Make-ebook cover generator</span>
-        </button>
       </div>
       <div className="mb-4">
         <strong>Chapters</strong>

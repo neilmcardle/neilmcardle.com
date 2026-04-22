@@ -3,6 +3,24 @@ import { useState, useRef, useEffect } from "react";
 
 const DEMO_CONTENT = `<p>The rain hadn't stopped in four days. Somewhere below the eight-hundredth floor, a noodle vendor was still open — his cart a smear of orange light in the grey. Kovacs watched him from the window and wondered if the man dreamed.</p><p>Most people didn't, anymore. Dreams cost something you couldn't buy back.</p><p>He lit a cigarette and pulled up the file. The subject's name was <em>Roy.</em> Manufactured. Retired. Reported.</p><p>Kovacs had stopped believing reports a long time ago.</p>`;
 
+const BOOK_MIND_INSIGHTS = [
+  {
+    tag: "Motif",
+    body: "The four-day rain in the opening never returns. Anchor it in the epilogue for cohesion.",
+    citations: ["Ch. 1", "Epilogue"],
+  },
+  {
+    tag: "Character",
+    body: "Roy is named in Chapter 1 and never reappears. If he's not a red herring, seed a second reference.",
+    citations: ["Ch. 1"],
+  },
+  {
+    tag: "Pacing",
+    body: "Chapter 2's middle repeats the beat of Chapter 1. Consider tightening.",
+    citations: ["Ch. 2"],
+  },
+];
+
 function NavBtn({
   active,
   label,
@@ -63,6 +81,7 @@ export default function PortfolioEditorDemo() {
   const [author, setAuthor] = useState("J. Kovacs");
   const [previewHtml, setPreviewHtml] = useState(DEMO_CONTENT);
   const [hasTyped, setHasTyped] = useState(false);
+  const [rightMode, setRightMode] = useState<"book-mind" | "preview">("book-mind");
   const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -298,63 +317,141 @@ export default function PortfolioEditorDemo() {
         </div>
       </div>
 
-      {/* Col 4: Live preview */}
+      {/* Col 4: Book Mind Inspector (with Preview tab) */}
       <div
         className="w-[232px] flex-shrink-0 flex-col hidden lg:flex"
         style={{ background: "#1e1e1e", borderLeft: "1px solid #2f2f2f" }}
       >
+        {/* Tab header */}
         <div
-          className="px-4 py-3 flex-shrink-0 flex items-center"
+          className="px-3 py-2.5 flex-shrink-0 flex items-center gap-1"
           style={{ borderBottom: "1px solid #2f2f2f" }}
         >
-          <span
-            className="text-[10px] font-semibold uppercase tracking-[0.15em] select-none"
-            style={{ color: "rgba(255,255,255,0.2)" }}
+          <button
+            type="button"
+            onClick={() => setRightMode("book-mind")}
+            className="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap"
+            style={{
+              background: rightMode === "book-mind" ? "rgba(64,112,255,0.14)" : "transparent",
+            }}
           >
-            Preview
-          </span>
+            <span
+              className="text-[10px] font-semibold uppercase tracking-[0.1em]"
+              style={{
+                color: rightMode === "book-mind" ? "#7b9eff" : "rgba(255,255,255,0.35)",
+              }}
+            >
+              Book Mind
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setRightMode("preview")}
+            className="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap"
+            style={{
+              background: rightMode === "preview" ? "rgba(255,255,255,0.06)" : "transparent",
+            }}
+          >
+            <span
+              className="text-[10px] font-semibold uppercase tracking-[0.1em]"
+              style={{
+                color: rightMode === "preview" ? "rgba(255,255,255,0.72)" : "rgba(255,255,255,0.3)",
+              }}
+            >
+              Preview
+            </span>
+          </button>
         </div>
-        <div className="flex-1 p-3 overflow-hidden">
-          <div
-            className="h-full rounded-xl overflow-auto"
-            style={{ background: "#ffffff", padding: "20px 16px" }}
-          >
-            <div
-              style={{
-                fontSize: "8px",
-                fontWeight: 700,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                color: "#bbb",
-                marginBottom: "12px",
-                fontFamily: "Inter, sans-serif",
-              }}
-            >
-              {title}
-            </div>
-            <div
-              style={{
-                fontFamily: 'Georgia, "Times New Roman", serif',
-                fontSize: "12px",
-                fontWeight: 700,
-                color: "#111",
-                marginBottom: "10px",
-                lineHeight: 1.3,
-              }}
-            >
-              The Eighth Tier
-            </div>
-            <div
-              style={{
-                fontFamily: 'Georgia, "Times New Roman", serif',
-                fontSize: "10.5px",
-                color: "#222",
-                lineHeight: "1.85",
-              }}
-              dangerouslySetInnerHTML={{ __html: previewHtml }}
-            />
+
+        {/* Body */}
+        {rightMode === "book-mind" ? (
+          <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2.5">
+            {BOOK_MIND_INSIGHTS.map((insight, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-2 p-3 rounded-xl"
+                style={{ background: "#181818", border: "1px solid #262626" }}
+              >
+                <span
+                  className="self-start px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase tracking-[0.12em]"
+                  style={{
+                    background: "rgba(64,112,255,0.12)",
+                    color: "#7b9eff",
+                  }}
+                >
+                  {insight.tag}
+                </span>
+                <p
+                  className="text-[11px]"
+                  style={{
+                    fontFamily: 'Georgia, "Times New Roman", serif',
+                    color: "rgba(255,255,255,0.72)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {insight.body}
+                </p>
+                <div className="flex flex-wrap items-center gap-1">
+                  {insight.citations.map((c, j) => (
+                    <span
+                      key={j}
+                      className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium"
+                      style={{
+                        background: "rgba(64,112,255,0.10)",
+                        color: "rgba(123,158,255,0.85)",
+                        border: "1px solid rgba(64,112,255,0.14)",
+                      }}
+                    >
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        ) : (
+          <div className="flex-1 p-3 overflow-hidden">
+            <div
+              className="h-full rounded-xl overflow-auto"
+              style={{ background: "#ffffff", padding: "20px 16px" }}
+            >
+              <div
+                style={{
+                  fontSize: "8px",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "#bbb",
+                  marginBottom: "12px",
+                  fontFamily: "Inter, sans-serif",
+                }}
+              >
+                {title}
+              </div>
+              <div
+                style={{
+                  fontFamily: 'Georgia, "Times New Roman", serif',
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  color: "#111",
+                  marginBottom: "10px",
+                  lineHeight: 1.3,
+                }}
+              >
+                The Eighth Tier
+              </div>
+              <div
+                style={{
+                  fontFamily: 'Georgia, "Times New Roman", serif',
+                  fontSize: "10.5px",
+                  color: "#222",
+                  lineHeight: "1.85",
+                }}
+                dangerouslySetInnerHTML={{ __html: previewHtml }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

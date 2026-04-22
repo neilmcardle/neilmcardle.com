@@ -222,6 +222,7 @@ export default function IconAnimator() {
   const [playing,    setPlaying]    = useState(true);
   const [resetKey,   setResetKey]   = useState(0);
   const [panelWidth, setPanelWidth] = useState(256);
+  const [format,     setFormat]     = useState<"css" | "react">("css");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const onPanelResizeStart = (e: React.MouseEvent) => {
@@ -240,41 +241,48 @@ export default function IconAnimator() {
     window.addEventListener("mouseup", onUp);
   };
 
+  // Presets that consume the travel param (y/x displacement). Other
+  // presets (spin, pulse, wiggle, pop, blink, swing, draw, heartbeat)
+  // don't — hiding irrelevant sliders reduces user guesswork.
+  const TRAVEL_PRESETS = ["bounce", "shake", "float"];
+  const SCALE_PRESETS = ["pulse", "pop", "heartbeat"];
+
   const [{
     preset, duration, delay, iterations, direction, fillMode, easing,
     travel, scale,
     color, stroked, strokeWidth, strokeCap, strokeJoin, filled, fillColor,
     shadowEnabled, shadowPreset, shadowColor, shadowOpacity,
     iconSize, previewBg,
-    format,
-  }, setControls] = useControls(() => ({
-    Animation: folder({
-      preset: {
-        label: "Preset",
-        value: "bounce",
-        options: { Bounce:"bounce", Spin:"spin", Pulse:"pulse", Wiggle:"wiggle", Pop:"pop", Shake:"shake", Float:"float", Heartbeat:"heartbeat", Blink:"blink", Swing:"swing", Draw:"draw" },
-      },
-    }),
+  }] = useControls(() => ({
+    preset: {
+      label: "Animation",
+      value: "bounce",
+      options: { Bounce:"bounce", Spin:"spin", Pulse:"pulse", Wiggle:"wiggle", Pop:"pop", Shake:"shake", Float:"float", Heartbeat:"heartbeat", Blink:"blink", Swing:"swing", Draw:"draw" },
+    },
     Timing: folder({
-      duration:   { label: "Duration (s)",  value: 1.2,        min: 0.1,  max: 5,    step: 0.05 },
-      delay:      { label: "Delay (s)",      value: 0,          min: 0,    max: 3,    step: 0.05 },
-      iterations: { label: "Iterations",     value: "infinite", options: { "1×":"1", "2×":"2", "3×":"3", "5×":"5", "∞":"infinite" } },
-      direction:  { label: "Direction",      value: "normal",   options: { Normal:"normal", Reverse:"reverse", Alternate:"alternate", "Alt Reverse":"alternate-reverse" } },
-      fillMode:   { label: "Fill Mode",      value: "none",     options: { None:"none", Forwards:"forwards", Backwards:"backwards", Both:"both" } },
-      easing:     { label: "Easing",         value: "ease-in-out", options: { Ease:"ease", "Ease In":"ease-in", "Ease Out":"ease-out", "Ease In Out":"ease-in-out", Linear:"linear", Spring:"cubic-bezier(0.34,1.56,0.64,1)" } },
+      duration:   { label: "Duration (s)", value: 1.2,          min: 0.1,  max: 5,    step: 0.05 },
+      delay:      { label: "Delay (s)",    value: 0,            min: 0,    max: 3,    step: 0.05 },
+      iterations: { label: "Repeat",       value: "infinite",   options: { "1×":"1", "2×":"2", "3×":"3", "5×":"5", "∞":"infinite" } },
+      easing:     { label: "Easing",       value: "ease-in-out", options: { Ease:"ease", "Ease In":"ease-in", "Ease Out":"ease-out", "Ease In Out":"ease-in-out", Linear:"linear", Spring:"cubic-bezier(0.34,1.56,0.64,1)" } },
     }),
     Motion: folder({
-      travel: { label: "Travel (px)",  value: 16,  min: 2,    max: 48,   step: 1    },
-      scale:  { label: "Scale Peak",   value: 1.25, min: 1.02, max: 2.5,  step: 0.01 },
+      travel: {
+        label: "Distance (px)", value: 16, min: 2, max: 48, step: 1,
+        render: get => TRAVEL_PRESETS.includes(get("preset") as string),
+      },
+      scale: {
+        label: "Scale", value: 1.25, min: 1.02, max: 2.5, step: 0.01,
+        render: get => SCALE_PRESETS.includes(get("preset") as string),
+      },
     }),
-    Style: folder({
-      filled:      { label: "Fill",          value: false   },
-      fillColor:   { label: "Fill Color",    value: "#111111", render: get => get("Style.filled") },
-      stroked:     { label: "Stroke",        value: true },
-      color:       { label: "Stroke Color",  value: "#111111", render: get => get("Style.stroked") },
-      strokeWidth: { label: "Stroke Width",  value: 1.5,    min: 0.25, max: 4,    step: 0.25, render: get => get("Style.stroked") },
-      strokeCap:   { label: "Stroke Cap",    value: "round",  options: { Round:"round", Square:"square", Butt:"butt" }, render: get => get("Style.stroked") },
-      strokeJoin:  { label: "Stroke Join",   value: "round",  options: { Round:"round", Miter:"miter",  Bevel:"bevel" }, render: get => get("Style.stroked") },
+    Appearance: folder({
+      stroked:     { label: "Stroke",       value: true },
+      color:       { label: "Stroke Color", value: "#111111", render: get => get("Appearance.stroked") },
+      strokeWidth: { label: "Stroke Width", value: 1.5,    min: 0.25, max: 4, step: 0.25, render: get => get("Appearance.stroked") },
+      filled:      { label: "Fill",         value: false },
+      fillColor:   { label: "Fill Color",   value: "#111111", render: get => get("Appearance.filled") },
+      iconSize:    { label: "Icon Size (px)", value: 64, min: 16, max: 128, step: 4 },
+      previewBg:   { label: "Background",   value: "#ffffff" },
     }),
     Shadow: folder({
       shadowEnabled: { label: "Enable",  value: false },
@@ -282,13 +290,12 @@ export default function IconAnimator() {
       shadowColor:   { label: "Color",   value: "#000000", render: get => get("Shadow.shadowEnabled") },
       shadowOpacity: { label: "Opacity", value: 0.12, min: 0.02, max: 0.5, step: 0.01, render: get => get("Shadow.shadowEnabled") },
     }, { collapsed: true }),
-    Preview: folder({
-      iconSize:  { label: "Icon Size (px)",  value: 64,        min: 16, max: 128, step: 4 },
-      previewBg: { label: "Background",      value: "#ffffff" },
-    }),
-    Export: folder({
-      format: { label: "Format", value: "css", options: { CSS:"css", React:"react" } },
-    }),
+    Advanced: folder({
+      direction:  { label: "Direction",   value: "normal", options: { Normal:"normal", Reverse:"reverse", Alternate:"alternate", "Alt Reverse":"alternate-reverse" } },
+      fillMode:   { label: "Fill Mode",   value: "none",   options: { None:"none", Forwards:"forwards", Backwards:"backwards", Both:"both" } },
+      strokeCap:  { label: "Stroke Cap",  value: "round",  options: { Round:"round", Square:"square", Butt:"butt" }, render: get => get("Appearance.stroked") },
+      strokeJoin: { label: "Stroke Join", value: "round",  options: { Round:"round", Miter:"miter",  Bevel:"bevel" }, render: get => get("Appearance.stroked") },
+    }, { collapsed: true }),
   }));
 
   const icon = customIcon ? null : (ICONS.find(i => i.id === iconId) ?? ICONS[0]);
@@ -523,8 +530,8 @@ export default function IconAnimator() {
             <div style={{ width: "100%", maxWidth: 560, borderRadius: 16, background: "#fff", boxShadow: SH_SM, overflow: "hidden", flexShrink: 0 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
                 <div style={{ display: "flex", gap: 8 }}>
-                  {["css","react"].map(f => (
-                    <button key={f} onClick={() => setControls({ format: f })} style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.14em", color: format === f ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.25)", fontWeight: format === f ? 600 : 400, cursor: "pointer", background: "none", border: "none", padding: 0 }}>
+                  {(["css","react"] as const).map(f => (
+                    <button key={f} onClick={() => setFormat(f)} style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.14em", color: format === f ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.25)", fontWeight: format === f ? 600 : 400, cursor: "pointer", background: "none", border: "none", padding: 0 }}>
                       {f}
                     </button>
                   ))}
