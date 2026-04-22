@@ -629,6 +629,54 @@ button:hover .palette-icon {
   animation-delay: 0.5s;
 }
 
+/* Racing border highlight for the homepage project cards. On hover a
+   bright arc travels once around the card's perimeter via a rotating
+   conic gradient, masked so only the stroke region shows it. Requires
+   a registered `--trace-angle` so the angle value can actually animate
+   (browsers only interpolate typed custom properties). Modern browsers
+   only — graceful degradation is just "no race, plain border hover". */
+@property --trace-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.project-card-trace::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--trace-angle),
+    transparent 0deg 280deg,
+    rgba(255, 255, 255, 0.25) 310deg,
+    rgba(255, 255, 255, 1)    340deg,
+    rgba(255, 255, 255, 0.25) 352deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+          mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+}
+
+.project-card-trace:hover::after {
+  animation: project-card-trace 5s linear;
+}
+
+@keyframes project-card-trace {
+  0%   { opacity: 1; --trace-angle: 360deg; }
+  95%  { opacity: 1; }
+  100% { opacity: 0; --trace-angle:   0deg; }
+}
+
 /* AI "thinking" text shimmer — a highlight sweeps left-to-right across
    the glyphs. Clipping a moving gradient to text produces the classic
    LLM-output streaming look. Position starts at 200% (gradient shifted

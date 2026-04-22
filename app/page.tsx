@@ -358,7 +358,7 @@ function ProjectCard({ project }: { project: Project }) {
   );
 
   const className =
-    "group block border-2 border-white/30 hover:border-white transition-all duration-300 p-6 sm:p-8";
+    "project-card-trace group relative block border-2 border-white/30 hover:border-white transition-all duration-300 p-6 sm:p-8";
 
   if (project.external) {
     return (
