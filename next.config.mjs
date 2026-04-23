@@ -69,12 +69,13 @@ const nextConfig = {
                   key: 'Content-Security-Policy',
                   value:
                     "default-src 'self'; " +
-                    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; " +
                     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
                     "img-src 'self' data: blob: https:; " +
                     "font-src 'self' data: https://fonts.gstatic.com; " +
-                    "media-src 'self' https://*.mux.com; " +
-                    "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://firebase.googleapis.com https://firestore.googleapis.com https://hhsiuvalashrqtpluxan.supabase.co https://agisftsuzxiwctupgeol.supabase.co https://api.x.ai https://*.mux.com https://inferred.litix.io; " +
+                    "media-src 'self' blob: https://*.mux.com https://*.elevenlabs.io; " +
+                    "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://firebase.googleapis.com https://firestore.googleapis.com https://hhsiuvalashrqtpluxan.supabase.co https://agisftsuzxiwctupgeol.supabase.co https://api.x.ai https://*.mux.com https://inferred.litix.io https://api.elevenlabs.io https://api.us.elevenlabs.io wss://api.elevenlabs.io wss://api.us.elevenlabs.io; " +
+                    "worker-src 'self' blob:; " +
                     "frame-ancestors 'none';",
                 },
                 {
@@ -94,8 +95,11 @@ const nextConfig = {
                   value: 'strict-origin-when-cross-origin',
                 },
                 {
+                  // microphone=(self) allows the ElevenLabs voice agent
+                  // to request the visitor's mic on neilmcardle.com only.
+                  // camera and geolocation remain disabled.
                   key: 'Permissions-Policy',
-                  value: 'camera=(), microphone=(), geolocation=()',
+                  value: 'camera=(), microphone=(self), geolocation=()',
                 },
               ],
             },
