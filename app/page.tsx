@@ -78,11 +78,18 @@ export default function Homepage() {
       <div className="fixed inset-0 pointer-events-none -z-10">
         {RIPPLE_POSITIONS.map((x, i) => {
           const opacity = 0.14 - (i / (RIPPLE_POSITIONS.length - 1)) * 0.11;
+          // Stagger the shimmer peak across lines (~80ms per line) so
+          // the brightness wave sweeps left-to-right in ~1.5s.
+          const delay = i * 0.08;
           return (
             <div
               key={i}
-              className="absolute top-0 bottom-0 w-px bg-white"
-              style={{ left: `${x}%`, opacity }}
+              className="ripple-line absolute top-0 bottom-0 w-px bg-white"
+              style={{
+                left: `${x}%`,
+                ["--ripple-base" as string]: opacity,
+                animationDelay: `${delay}s`,
+              } as React.CSSProperties}
             />
           );
         })}
@@ -151,6 +158,33 @@ export default function Homepage() {
                   Product Designer | UK
                 </p>
               </div>
+              {/* Primary CTA — sits under the title card, separated from
+                  the profile-link row so it reads as an action, not
+                  another identity link. */}
+              <a
+                href="https://www.cal.eu/neilmca"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 mt-6 px-5 py-3 border-2 border-white bg-white text-black hover:bg-transparent hover:text-white transition-all whitespace-nowrap"
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <span>Book a call</span>
+                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M13 5l7 7-7 7" />
+                </svg>
+              </a>
             </div>
 
             <div className="relative lg:row-span-2 max-w-[360px] lg:max-w-none">
@@ -187,12 +221,12 @@ export default function Homepage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 lg:self-end">
+            <div className="flex flex-nowrap gap-2 sm:gap-3 lg:self-end">
               <a
                 href="https://www.linkedin.com/in/neilmcardle/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-2 px-5 py-3 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all"
+                className="group flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-3 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all whitespace-nowrap"
                 style={LINK_BUTTON_STYLE}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -204,7 +238,7 @@ export default function Homepage() {
                 href="https://github.com/neilmcardle"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-2 px-5 py-3 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all"
+                className="group flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-3 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all whitespace-nowrap"
                 style={LINK_BUTTON_STYLE}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -216,40 +250,13 @@ export default function Homepage() {
                 href="https://x.com/BetterNeil"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-2 px-5 py-3 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all"
+                className="group flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-3 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all whitespace-nowrap"
                 style={LINK_BUTTON_STYLE}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
                 <span>X</span>
-              </a>
-              {/* Primary CTA — filled so it reads as an action, not another
-                  profile link. Sits last in the wrap so it stays grouped
-                  with the social links on desktop. */}
-              <a
-                href="https://www.cal.eu/neilmca"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-2 px-5 py-3 border-2 border-white bg-white text-black hover:bg-transparent hover:text-white transition-all"
-                style={{
-                  fontFamily: "var(--font-inter)",
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                <span>Book a call</span>
-                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M13 5l7 7-7 7" />
-                </svg>
               </a>
             </div>
           </div>
