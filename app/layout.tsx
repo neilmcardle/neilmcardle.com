@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/lib/contexts/ThemeContext";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import ClientFooterWrapper from "@/components/ClientFooterWrapper";
+import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";
 
 const TITLE = "Neil McArdle · Product Designer";
@@ -96,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </ThemeProvider>
           </SubscriptionProvider>
         </AuthProvider>
+        <NeilAgent />
         <Analytics />
       </body>
     </html>
