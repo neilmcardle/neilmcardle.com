@@ -191,7 +191,7 @@ function MakeEbookPage() {
   const { lockedSections, setLockedSections, toggleSection } = useLockedSections();
 
   const [tab, setTab] = useState<"setup" | "ai" | "preview" | "library">("setup");
-  const [sidebarView, setSidebarView] = useState<'library' | 'book' | 'chapters' | 'notes' | null>(null);
+  const [sidebarView, setSidebarView] = useState<'library' | 'book' | 'chapters' | null>(null);
   
   // Derived state: panel is open when sidebarView is not null
   const isPanelOpen = sidebarView !== null;
@@ -533,14 +533,12 @@ function MakeEbookPage() {
   const [sidebarLibraryExpanded, setSidebarLibraryExpanded] = useState(true);
   const [sidebarChaptersExpanded, setSidebarChaptersExpanded] = useState(true);
   const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] = useState(false);
-  const [sidebarNotesExpanded, setSidebarNotesExpanded] = useState(false);
 
   // Mobile accordion: only one section open at a time
-  const expandMobileSection = (section: 'library' | 'book' | 'chapters' | 'notes') => {
+  const expandMobileSection = (section: 'library' | 'book' | 'chapters') => {
     setSidebarLibraryExpanded(section === 'library' ? !sidebarLibraryExpanded : false);
     setSidebarBookDetailsExpanded(section === 'book' ? !sidebarBookDetailsExpanded : false);
     setSidebarChaptersExpanded(section === 'chapters' ? !sidebarChaptersExpanded : false);
-    setSidebarNotesExpanded(section === 'notes' ? !sidebarNotesExpanded : false);
   };
 
   // When a sidebar view is opened, ensure its panel is expanded by default
@@ -789,22 +787,6 @@ function MakeEbookPage() {
   const handleToggleChapterLock = useCallback((index: number) => {
     setChapters(prev => prev.map((ch, i) => i === index ? { ...ch, locked: !ch.locked } : ch));
   }, [setChapters]);
-
-  // Outline notes — persisted to localStorage keyed by book ID
-  const [outlineNotes, setOutlineNotesState] = useState('');
-  const currentBookIdForOutline = useRef<string | null>(null);
-
-  useEffect(() => {
-    const id = selectedBookId || 'unsaved';
-    currentBookIdForOutline.current = id;
-    setOutlineNotesState(localStorage.getItem(`makeebook-outline-${id}`) || '');
-  }, [selectedBookId]);
-
-  const setOutlineNotes = useCallback((value: string) => {
-    setOutlineNotesState(value);
-    const id = currentBookIdForOutline.current || 'unsaved';
-    localStorage.setItem(`makeebook-outline-${id}`, value);
-  }, []);
 
   // Restore a version from history
   const handleRestoreVersion = useCallback((restoredChapters: Chapter[], metadata: { blurb?: string; publisher?: string; pubDate?: string; genre?: string; tags?: string[] }) => {
@@ -1972,35 +1954,6 @@ function MakeEbookPage() {
                     )}
                   </div>
 
-                  {/* Notes Section */}
-                  <div className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
-                    <button
-                      onClick={() => expandMobileSection('notes')}
-                      className="flex items-center justify-between py-2 w-full text-left"
-                    >
-                      <div className="flex items-center gap-2">
-                        <svg className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
-                        </svg>
-                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Notes</span>
-                      </div>
-                      {sidebarNotesExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                      )}
-                    </button>
-                    {sidebarNotesExpanded && (
-                      <textarea
-                        value={outlineNotes}
-                        onChange={e => setOutlineNotes(e.target.value)}
-                        placeholder="Plan your chapters, map out your plot, jot down ideas — anything that helps you write."
-                        rows={8}
-                        className="w-full resize-none px-2 py-2 text-sm text-[#333] dark:text-[#d4d4d4] bg-transparent border-0 placeholder:text-gray-300 dark:placeholder:text-[#444] focus:outline-none focus:ring-0 leading-relaxed"
-                      />
-                    )}
-                  </div>
-
                 </div>
               </div>
 
@@ -2332,8 +2285,6 @@ function MakeEbookPage() {
               handleAddChapter={handleAddChapter}
               handleRemoveChapter={handleRemoveChapter}
               handleToggleChapterLock={handleToggleChapterLock}
-              outlineNotes={outlineNotes}
-              setOutlineNotes={setOutlineNotes}
               handleDragStart={handleDragStart}
               handleDragEnter={handleDragEnter}
               handleDragEnd={handleDragEnd}

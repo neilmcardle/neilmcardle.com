@@ -18,8 +18,8 @@ import {
 import { LogOut, CreditCard, Sparkles } from 'lucide-react';
 
 interface SlimSidebarNavProps {
-  activeView: 'library' | 'book' | 'chapters' | 'notes' | null;
-  onViewChange: (view: 'library' | 'book' | 'chapters' | 'notes' | null) => void;
+  activeView: 'library' | 'book' | 'chapters' | null;
+  onViewChange: (view: 'library' | 'book' | 'chapters' | null) => void;
   libraryCount: number;
   chaptersCount: number;
   isPanelOpen: boolean;
@@ -245,7 +245,7 @@ function ThemeToggleButton() {
 
 export default function SlimSidebarNav({ activeView, onViewChange, libraryCount, chaptersCount, isPanelOpen, onLogoClick, onStartTour, onBookMindToggle, isBookMindOpen }: SlimSidebarNavProps) {
   
-  const handleViewClick = (view: 'library' | 'book' | 'chapters' | 'notes') => {
+  const handleViewClick = (view: 'library' | 'book' | 'chapters') => {
     // If clicking the same view and panel is open, close it
     if (activeView === view && isPanelOpen) {
       onViewChange(null);
@@ -343,24 +343,6 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
         </Tooltip>
 
 
-
-        {/* Notes */}
-        <Tooltip text="Notes">
-          <button
-            onClick={() => handleViewClick('notes')}
-            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group outline-none focus:outline-none"
-            aria-label="Notes"
-          >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80 ${activeView === 'notes' && isPanelOpen ? 'bg-[#4070ff]/12' : ''}`}>
-              <svg className={`w-5 h-5 transition-colors ${activeView === 'notes' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-500 dark:text-[#737373]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
-              </svg>
-            </div>
-            <span className={`text-2xs font-medium -mt-2 transition-colors group-hover:opacity-80 ${activeView === 'notes' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-400 dark:text-[#525252]'}`}>
-              Notes
-            </span>
-          </button>
-        </Tooltip>
 
       </nav>
 

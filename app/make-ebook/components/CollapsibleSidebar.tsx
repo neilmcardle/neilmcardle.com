@@ -11,7 +11,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import LibraryPanel from './sidebar/LibraryPanel';
 import BookDetailsPanel from './sidebar/BookDetailsPanel';
 import ChaptersPanel from './sidebar/ChaptersPanel';
-import NotesPanel from './sidebar/NotesPanel';
 
 interface Chapter {
   id: string;
@@ -34,7 +33,7 @@ interface CollapsibleSidebarProps {
   // Panel visibility (always rendered, animated via CSS)
   isPanelOpen: boolean;
   // Active view from slim sidebar
-  activeView: 'library' | 'book' | 'chapters' | 'notes' | null;
+  activeView: 'library' | 'book' | 'chapters' | null;
   // Close handler
   onClose: () => void;
 
@@ -99,10 +98,6 @@ interface CollapsibleSidebarProps {
   handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setCoverFile?: (dataUrl: string) => void;
   lockedSections: { bookInfo: boolean; publishing: boolean; tags: boolean; cover: boolean };
-
-  // Notes props
-  outlineNotes: string;
-  setOutlineNotes: (value: string) => void;
 
   // Expanded state (kept in props for compatibility with existing call sites,
   // though the split panels no longer use these directly — they could be
@@ -276,9 +271,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             />
           )}
 
-          {activeView === 'notes' && (
-            <NotesPanel outlineNotes={props.outlineNotes} setOutlineNotes={props.setOutlineNotes} />
-          )}
         </div>
       </div>
 

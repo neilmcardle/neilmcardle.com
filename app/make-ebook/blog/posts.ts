@@ -176,8 +176,8 @@ export const posts: BlogPost[] = [
       'free ebook software',
       'Vellum vs Atticus',
     ],
-    // image: '/blog/best-ebook-creation-tools.png',
-    // imageAlt: 'Ink drawing of five writing implements arranged in a row: quill, typewriter, fountain pen, stylus, pencil.',
+    image: '/ebook-tools-comparison.png',
+    imageAlt: 'Ink drawing of five writing implements arranged in a row: quill, typewriter, fountain pen, stylus, pencil.',
     content: `
       <p class="lead">Choosing the right ebook creation tool can make the difference between a frustrating process and a smooth path to publication. Here's an honest comparison of the best options available today.</p>
 

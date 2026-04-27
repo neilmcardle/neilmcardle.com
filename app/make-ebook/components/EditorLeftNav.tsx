@@ -32,8 +32,8 @@ interface Book {
 export interface EditorLeftNavProps {
   // Visibility control
   isPanelOpen: boolean;
-  activeView: 'library' | 'book' | 'chapters' | 'notes' | null;
-  onViewChange: (view: 'library' | 'book' | 'chapters' | 'notes' | null) => void;
+  activeView: 'library' | 'book' | 'chapters' | null;
+  onViewChange: (view: 'library' | 'book' | 'chapters' | null) => void;
   onClose: () => void;
 
   // Slim nav: logo, tour, book mind toggle
@@ -102,10 +102,6 @@ export interface EditorLeftNavProps {
   setCoverFile?: (dataUrl: string) => void;
   lockedSections: { bookInfo: boolean; publishing: boolean; tags: boolean; cover: boolean };
 
-  // Notes
-  outlineNotes: string;
-  setOutlineNotes: (value: string) => void;
-
   // Mobile accordion state — passed through for compatibility; the split
   // panels no longer read these, but they're still used by the mobile
   // accordion rendered inline in page.tsx.
@@ -155,8 +151,6 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         handleAddChapter={props.handleAddChapter}
         handleRemoveChapter={props.handleRemoveChapter}
         handleToggleChapterLock={props.handleToggleChapterLock}
-        outlineNotes={props.outlineNotes}
-        setOutlineNotes={props.setOutlineNotes}
         handleDragStart={props.handleDragStart}
         handleDragEnter={props.handleDragEnter}
         handleDragEnd={props.handleDragEnd}
