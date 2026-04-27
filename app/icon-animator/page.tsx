@@ -1,12 +1,21 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import Link from "next/link";
-import { useControls, Leva, LevaPanel, levaStore, folder } from "leva";
+// Icon Animator — vertical scrolling workshop in Promptr's design language.
+//
+// Layout grammar mirrors Promptr: cream background, 48px sticky header
+// (back arrow + dot + tool name), Zilla Slab wordmark hero with Playfair
+// italic subtitle, white cards (16px radius, soft shadow) on cream,
+// inline-styled throughout so the design language matches the other
+// portfolio tools without a component system.
+//
+// All animation logic (keyframes, shadow filters, output generators,
+// SVG sanitiser) is unchanged — only the UI layer has been rebuilt.
+// The Leva floating panel has been replaced with native React controls
+// that live inside an editorial card, organised into Animation, Motion,
+// Appearance, Shadow, and Advanced groups.
 
-// ─── Shadow tokens ───────────────────────────────────────────────────────────
-const SH_SM = "0 0 0 1px rgba(0,0,0,0.06), 0 1px 2px -1px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04)";
-const SH_MD = "0 0 0 1px rgba(0,0,0,0.06), 0 2px 8px -2px rgba(0,0,0,0.08), 0 6px 16px rgba(0,0,0,0.06)";
+import { useState, useRef, useCallback, ReactNode } from "react";
+import Link from "next/link";
 
 // ─── Icon library ────────────────────────────────────────────────────────────
 type IconDef = { id: string; name: string; el: React.ReactNode };
@@ -56,7 +65,6 @@ function makeKeyframes(preset: string, travel: number, scale: number): string {
   }
 }
 
-// ─── Transform origin 9-point map ────────────────────────────────────────────
 const ORIGIN_POINTS = [
   { id: "tl", css: "0% 0%",    label: "Top Left"     },
   { id: "tc", css: "50% 0%",   label: "Top"          },
@@ -190,10 +198,169 @@ function sanitiseSVG(raw: string): { viewBox: string; inner: string } | null {
   return { viewBox: svg.getAttribute("viewBox") ?? "0 0 24 24", inner: svg.innerHTML };
 }
 
-// ─── Transform origin picker ─────────────────────────────────────────────────
+// ─── UI primitives in Promptr's design language ──────────────────────────────
+
+function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+        <span style={{ fontFamily: "var(--font-inter)", fontSize: 12, fontWeight: 500, color: "rgba(0,0,0,0.65)" }}>
+          {label}
+        </span>
+        {hint && (
+          <span style={{ fontFamily: "var(--font-inter)", fontSize: 11, color: "rgba(0,0,0,0.4)", fontVariantNumeric: "tabular-nums" }}>
+            {hint}
+          </span>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Select<T extends string>({ value, onChange, options }: {
+  value: T;
+  onChange: (v: T) => void;
+  options: { label: string; value: T }[];
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value as T)}
+      style={{
+        width: "100%",
+        fontFamily: "var(--font-inter)",
+        fontSize: 13,
+        padding: "8px 10px",
+        background: "rgba(0,0,0,0.03)",
+        border: "1px solid transparent",
+        borderRadius: 8,
+        color: "rgba(0,0,0,0.78)",
+        cursor: "pointer",
+        outline: "none",
+        appearance: "none",
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(0,0,0,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "right 12px center",
+        paddingRight: 28,
+      }}
+    >
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>{o.label}</option>
+      ))}
+    </select>
+  );
+}
+
+function Slider({ value, onChange, min, max, step }: {
+  value: number; onChange: (v: number) => void; min: number; max: number; step: number;
+}) {
+  return (
+    <input
+      type="range"
+      value={value}
+      onChange={(e) => onChange(parseFloat(e.target.value))}
+      min={min}
+      max={max}
+      step={step}
+      style={{
+        width: "100%",
+        accentColor: "#111",
+        cursor: "pointer",
+      }}
+    />
+  );
+}
+
+function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  return (
+    <button
+      onClick={() => onChange(!checked)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100%",
+        background: "transparent",
+        border: "none",
+        padding: 0,
+        cursor: "pointer",
+        fontFamily: "var(--font-inter)",
+        fontSize: 12,
+        fontWeight: 500,
+        color: "rgba(0,0,0,0.65)",
+      }}
+    >
+      <span>{label}</span>
+      <span
+        style={{
+          width: 32,
+          height: 18,
+          borderRadius: 9,
+          background: checked ? "#111" : "rgba(0,0,0,0.12)",
+          position: "relative",
+          transition: "background 0.15s",
+          flexShrink: 0,
+        }}
+      >
+        <span
+          style={{
+            position: "absolute",
+            top: 2,
+            left: checked ? 16 : 2,
+            width: 14,
+            height: 14,
+            borderRadius: "50%",
+            background: "#fff",
+            transition: "left 0.15s",
+            boxShadow: "0 1px 2px rgba(0,0,0,0.2)",
+          }}
+        />
+      </span>
+    </button>
+  );
+}
+
+function ColorSwatch({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <label
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        cursor: "pointer",
+        padding: "6px 10px",
+        background: "rgba(0,0,0,0.03)",
+        borderRadius: 8,
+        fontFamily: "var(--font-inter)",
+        fontSize: 12,
+        color: "rgba(0,0,0,0.65)",
+      }}
+    >
+      <span
+        style={{
+          width: 18,
+          height: 18,
+          borderRadius: 5,
+          background: value,
+          border: "1px solid rgba(0,0,0,0.1)",
+          flexShrink: 0,
+        }}
+      />
+      <span style={{ fontVariantNumeric: "tabular-nums" }}>{value.toUpperCase()}</span>
+      <input
+        type="color"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}
+      />
+    </label>
+  );
+}
+
 function OriginPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 4, width: 72 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,20px)", gap: 4 }}>
       {ORIGIN_POINTS.map(pt => (
         <button
           key={pt.id}
@@ -210,93 +377,97 @@ function OriginPicker({ value, onChange }: { value: string; onChange: (v: string
   );
 }
 
+function Disclosure({ title, open, onToggle, children }: {
+  title: string; open: boolean; onToggle: () => void; children: ReactNode;
+}) {
+  return (
+    <div>
+      <button
+        onClick={onToggle}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "10px 0",
+          background: "transparent",
+          border: "none",
+          borderTop: "1px solid rgba(0,0,0,0.06)",
+          cursor: "pointer",
+          textAlign: "left",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-inter)",
+            fontSize: 11,
+            fontWeight: 500,
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+            color: "rgba(0,0,0,0.45)",
+          }}
+        >
+          {title}
+        </span>
+        <svg
+          width="10" height="6" viewBox="0 0 10 6" fill="none"
+          style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}
+        >
+          <path d="M1 1l4 4 4-4" stroke="rgba(0,0,0,0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "8px 0 16px" }}>{children}</div>}
+    </div>
+  );
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
+const TRAVEL_PRESETS = ["bounce", "shake", "float"];
+const SCALE_PRESETS = ["pulse", "pop", "heartbeat"];
+
 export default function IconAnimator() {
-  const [iconId,     setIconId]     = useState("zap");
+  // Animation
+  const [preset, setPreset] = useState("bounce");
+  const [duration, setDuration] = useState(1.2);
+  const [delay, setDelay] = useState(0);
+  const [iterations, setIterations] = useState("infinite");
+  const [easing, setEasing] = useState("ease-in-out");
+  const [travel, setTravel] = useState(16);
+  const [scale, setScale] = useState(1.25);
+  const [direction, setDirection] = useState("normal");
+  const [fillMode, setFillMode] = useState("none");
+
+  // Appearance
+  const [color, setColor] = useState("#111111");
+  const [stroked, setStroked] = useState(true);
+  const [strokeWidth, setStrokeWidth] = useState(1.5);
+  const [strokeCap, setStrokeCap] = useState("round");
+  const [strokeJoin, setStrokeJoin] = useState("round");
+  const [filled, setFilled] = useState(false);
+  const [fillColor, setFillColor] = useState("#111111");
+  const [iconSize, setIconSize] = useState(64);
+  const [previewBg, setPreviewBg] = useState("#ffffff");
+
+  // Shadow
+  const [shadowEnabled, setShadowEnabled] = useState(false);
+  const [shadowPreset, setShadowPreset] = useState("soft");
+  const [shadowColor, setShadowColor] = useState("#000000");
+  const [shadowOpacity, setShadowOpacity] = useState(0.12);
+
+  // Icon + UI
+  const [iconId, setIconId] = useState("zap");
   const [customIcon, setCustomIcon] = useState<{ viewBox: string; inner: string } | null>(null);
-  const [pasteOpen,  setPasteOpen]  = useState(false);
+  const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteValue, setPasteValue] = useState("");
   const [pasteError, setPasteError] = useState("");
-  const [origin,     setOrigin]     = useState("50% 50%");
-  const [copied,     setCopied]     = useState(false);
-  const [playing,    setPlaying]    = useState(true);
-  const [resetKey,   setResetKey]   = useState(0);
-  const [panelWidth, setPanelWidth] = useState(256);
-  const [format,     setFormat]     = useState<"css" | "react">("css");
+  const [origin, setOrigin] = useState("50% 50%");
+  const [copied, setCopied] = useState(false);
+  const [playing, setPlaying] = useState(true);
+  const [resetKey, setResetKey] = useState(0);
+  const [format, setFormat] = useState<"css" | "react">("css");
+  const [shadowOpen, setShadowOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const onPanelResizeStart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const startX = e.clientX;
-    const startW = panelWidth;
-    const onMove = (ev: MouseEvent) => {
-      const w = Math.max(200, Math.min(520, startW + (startX - ev.clientX)));
-      setPanelWidth(w);
-    };
-    const onUp = () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-  };
-
-  // Presets that consume the travel param (y/x displacement). Other
-  // presets (spin, pulse, wiggle, pop, blink, swing, draw, heartbeat)
-  // don't — hiding irrelevant sliders reduces user guesswork.
-  const TRAVEL_PRESETS = ["bounce", "shake", "float"];
-  const SCALE_PRESETS = ["pulse", "pop", "heartbeat"];
-
-  const [{
-    preset, duration, delay, iterations, direction, fillMode, easing,
-    travel, scale,
-    color, stroked, strokeWidth, strokeCap, strokeJoin, filled, fillColor,
-    shadowEnabled, shadowPreset, shadowColor, shadowOpacity,
-    iconSize, previewBg,
-  }] = useControls(() => ({
-    preset: {
-      label: "Animation",
-      value: "bounce",
-      options: { Bounce:"bounce", Spin:"spin", Pulse:"pulse", Wiggle:"wiggle", Pop:"pop", Shake:"shake", Float:"float", Heartbeat:"heartbeat", Blink:"blink", Swing:"swing", Draw:"draw" },
-    },
-    Timing: folder({
-      duration:   { label: "Duration (s)", value: 1.2,          min: 0.1,  max: 5,    step: 0.05 },
-      delay:      { label: "Delay (s)",    value: 0,            min: 0,    max: 3,    step: 0.05 },
-      iterations: { label: "Repeat",       value: "infinite",   options: { "1×":"1", "2×":"2", "3×":"3", "5×":"5", "∞":"infinite" } },
-      easing:     { label: "Easing",       value: "ease-in-out", options: { Ease:"ease", "Ease In":"ease-in", "Ease Out":"ease-out", "Ease In Out":"ease-in-out", Linear:"linear", Spring:"cubic-bezier(0.34,1.56,0.64,1)" } },
-    }),
-    Motion: folder({
-      travel: {
-        label: "Distance (px)", value: 16, min: 2, max: 48, step: 1,
-        render: get => TRAVEL_PRESETS.includes(get("preset") as string),
-      },
-      scale: {
-        label: "Scale", value: 1.25, min: 1.02, max: 2.5, step: 0.01,
-        render: get => SCALE_PRESETS.includes(get("preset") as string),
-      },
-    }),
-    Appearance: folder({
-      stroked:     { label: "Stroke",       value: true },
-      color:       { label: "Stroke Color", value: "#111111", render: get => get("Appearance.stroked") },
-      strokeWidth: { label: "Stroke Width", value: 1.5,    min: 0.25, max: 4, step: 0.25, render: get => get("Appearance.stroked") },
-      filled:      { label: "Fill",         value: false },
-      fillColor:   { label: "Fill Color",   value: "#111111", render: get => get("Appearance.filled") },
-      iconSize:    { label: "Icon Size (px)", value: 64, min: 16, max: 128, step: 4 },
-      previewBg:   { label: "Background",   value: "#ffffff" },
-    }),
-    Shadow: folder({
-      shadowEnabled: { label: "Enable",  value: false },
-      shadowPreset:  { label: "Style",   value: "soft", options: { Soft:"soft", Dreamy:"dreamy", Sharp:"sharp", Long:"long" }, render: get => get("Shadow.shadowEnabled") },
-      shadowColor:   { label: "Color",   value: "#000000", render: get => get("Shadow.shadowEnabled") },
-      shadowOpacity: { label: "Opacity", value: 0.12, min: 0.02, max: 0.5, step: 0.01, render: get => get("Shadow.shadowEnabled") },
-    }, { collapsed: true }),
-    Advanced: folder({
-      direction:  { label: "Direction",   value: "normal", options: { Normal:"normal", Reverse:"reverse", Alternate:"alternate", "Alt Reverse":"alternate-reverse" } },
-      fillMode:   { label: "Fill Mode",   value: "none",   options: { None:"none", Forwards:"forwards", Backwards:"backwards", Both:"both" } },
-      strokeCap:  { label: "Stroke Cap",  value: "round",  options: { Round:"round", Square:"square", Butt:"butt" }, render: get => get("Appearance.stroked") },
-      strokeJoin: { label: "Stroke Join", value: "round",  options: { Round:"round", Miter:"miter",  Bevel:"bevel" }, render: get => get("Appearance.stroked") },
-    }, { collapsed: true }),
-  }));
 
   const icon = customIcon ? null : (ICONS.find(i => i.id === iconId) ?? ICONS[0]);
   const timing  = preset === "spin" ? "linear" : easing;
@@ -353,199 +524,872 @@ export default function IconAnimator() {
     strokeWidth: stroked ? strokeWidth : 0,
   };
 
+  const showTravel = TRAVEL_PRESETS.includes(preset);
+  const showScale = SCALE_PRESETS.includes(preset);
+
   return (
     <>
       <style>{kf}</style>
-      <Leva hidden />
-
-      <style>{`
-        .ia-panel [class*="leva-"] { font-family: var(--font-inter,-apple-system,BlinkMacSystemFont,sans-serif) !important; }
-        .ia-panel > div:last-child { background: #fff !important; border: none !important; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 2px 8px -2px rgba(0,0,0,0.08), 0 6px 16px rgba(0,0,0,0.04) !important; border-radius: 12px !important; overflow: hidden !important; padding-top: 8px !important; padding-bottom: 16px !important; }
-        .ia-panel [class*="StyledTitle"] { background: transparent !important; color: rgba(0,0,0,0.55) !important; font-size: 10px !important; font-weight: 500 !important; letter-spacing: 0.08em !important; text-transform: uppercase !important; padding-left: 24px !important; }
-        .ia-panel [class*="StyledContent"] { background: transparent !important; }
-        .ia-panel label { color: rgba(0,0,0,0.38) !important; font-weight: 400 !important; font-size: 10px !important; }
-        .ia-panel input[type="text"], .ia-panel input[type="number"], .ia-panel select { background: rgba(0,0,0,0.03) !important; border: none !important; border-radius: 6px !important; color: rgba(0,0,0,0.65) !important; }
-        .ia-panel input:focus { box-shadow: 0 0 0 1px rgba(0,0,0,0.1) !important; }
-        .ia-panel [class*="Indicator"] { background: #b1b1b1 !important; opacity: 1 !important; }
-        .ia-panel [class*="Range"] [class*="Scrubber"] { background: #b1b1b1 !important; opacity: 1 !important; box-shadow: 0 0 0 2px #fff !important; }
-        .ia-panel i > svg { fill: rgba(0,0,0,0.28) !important; transition: fill 0.15s !important; }
-        .ia-panel i:hover > svg { fill: rgba(0,0,0,0.55) !important; }
-        .ia-panel [class*="Chevron"] svg { fill: rgba(0,0,0,0.2) !important; }
-        .ia-panel [class*="StyledWrapper"] { border-color: transparent !important; }
-        .ia-panel [class*="StyledWrapper"]::after { display: none !important; }
-        .ia-panel div[class*="leva-"] input[type="checkbox"] + label { background-color: rgba(0,0,0,0.1) !important; border-radius: 4px !important; margin-left: auto !important; }
-        .ia-panel div[class*="leva-"] input[type="checkbox"]:checked + label { background-color: #111 !important; }
-        .ia-panel div[class*="leva-"] input[type="checkbox"] + label > svg { stroke: #fff !important; }
-        .ia-panel div[class*="leva-"] input[type="checkbox"]:checked + label > svg { display: block !important; }
-        .ia-panel svg[viewBox="0 0 20 20"] { overflow: hidden !important; color: transparent !important; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='rgba(0,0,0,0.35)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'/%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/%3E%3C/svg%3E") no-repeat center / contain !important; }
-        .ia-panel svg[viewBox="0 0 20 20"] path { display: none !important; }
-      `}</style>
-
-      {/* Controls panel — custom container for reliable resize */}
-      <div className="ia-panel" style={{ position: "fixed", top: 60, right: 20, width: panelWidth, zIndex: 200, borderRadius: 12 }}>
-        {/* Resize handle — invisible cursor zone inside left edge */}
-        <div
-          onMouseDown={onPanelResizeStart}
-          style={{ position: "absolute", left: 0, top: 0, width: 10, height: "100%", cursor: "ew-resize", zIndex: 10, borderRadius: "12px 0 0 12px", background: "transparent" }}
-        />
-        <LevaPanel
-          store={levaStore}
-          fill
-          flat
-          titleBar={{ title: "Controls", drag: false, filter: false }}
-          theme={{
-            colors: {
-              elevation1: "#dedede",
-              elevation2: "#fafaf9",
-              elevation3: "rgba(0,0,0,0.1)",
-              accent1: "#b1b1b1",
-              accent2: "#b1b1b1",
-              accent3: "#b1b1b1",
-              highlight1: "rgba(0,0,0,0.6)",
-              highlight2: "rgba(0,0,0,0.38)",
-              highlight3: "#ffffff",
-              folderWidgetColor: "rgba(0,0,0,0.3)",
-              folderTextColor: "rgba(0,0,0,0.55)",
-              vivid1: "#111111",
-              toolTipBackground: "#111111",
-              toolTipText: "#ffffff",
-            },
-            radii: { xs: "4px", sm: "6px", lg: "10px" },
-            shadows: { level1: "none", level2: "none" },
-            fonts: { sans: "var(--font-inter,-apple-system,BlinkMacSystemFont,sans-serif)", mono: "ui-monospace,monospace" },
-            fontSizes: { root: "11px" },
-            fontWeights: { label: "400", folder: "500", button: "500" },
-            sizes: { rootWidth: "100%", controlWidth: "116px", rowHeight: "28px", titleBarHeight: "36px" },
-            borderWidths: { root: "0px", focus: "1px", hover: "0px", active: "0px", folder: "0px" },
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#f8f8f7",
+          fontFamily: "var(--font-inter)",
+        }}
+      >
+        {/* ─── Header ─────────────────────────────────────────────────── */}
+        <header
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
+            height: 48,
+            borderBottom: "1px solid rgba(0,0,0,0.06)",
+            background: "rgba(248,248,247,0.92)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 20px",
           }}
-        />
-      </div>
-
-      <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#f8f8f7", fontFamily: "var(--font-inter)", overflow: "hidden" }}>
-
-        {/* Header */}
-        <header style={{ height: 48, borderBottom: "1px solid rgba(0,0,0,0.06)", background: "rgba(248,248,247,0.92)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", flexShrink: 0 }}>
+        >
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Link href="/" style={{ color: "rgba(0,0,0,0.3)", display: "flex", transition: "color 0.15s" }}
+            <Link
+              href="/"
+              style={{
+                color: "rgba(0,0,0,0.3)",
+                display: "flex",
+                transition: "color 0.15s",
+              }}
+              aria-label="Back to neilmcardle.com"
               onMouseEnter={e => (e.currentTarget.style.color = "rgba(0,0,0,0.7)")}
               onMouseLeave={e => (e.currentTarget.style.color = "rgba(0,0,0,0.3)")}
             >
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="14" height="14" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
+              >
                 <path d="M19 12H5M12 5l-7 7 7 7" />
               </svg>
             </Link>
             <span style={{ color: "rgba(0,0,0,0.12)" }}>·</span>
-            <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(0,0,0,0.7)", letterSpacing: "-0.01em" }}>Icon Animator</span>
+            <span
+              style={{
+                fontFamily: "var(--font-inter)",
+                fontSize: 13,
+                fontWeight: 500,
+                color: "rgba(0,0,0,0.7)",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Icon Animator
+            </span>
           </div>
-          <button onClick={handleCopy} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, padding: "6px 12px", borderRadius: 8, border: "none", cursor: "pointer", background: copied ? "#111" : "#fff", color: copied ? "#fff" : "rgba(0,0,0,0.65)", boxShadow: SH_SM, transition: "all 0.15s" }}>
-            {copied
-              ? <><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>Copied</>
-              : <><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>Copy {format.toUpperCase()}</>
-            }
-          </button>
         </header>
 
-        {/* Body */}
-        <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+        {/* ─── Body ───────────────────────────────────────────────────── */}
+        <main>
 
-          {/* Left: icons + upload */}
-          <aside style={{ width: 176, borderRight: "1px solid rgba(0,0,0,0.06)", overflowY: "auto", padding: "20px 12px", flexShrink: 0 }}>
-
-            <p style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.18em", color: "rgba(0,0,0,0.3)", marginBottom: 8, paddingLeft: 4 }}>Custom SVG</p>
-            <div style={{ display: "flex", gap: 4, marginBottom: 12 }}>
-              <input ref={fileRef} type="file" accept=".svg,image/svg+xml" onChange={handleFile} style={{ display: "none" }} />
-              <button onClick={() => fileRef.current?.click()} style={{ flex: 1, fontSize: 10, padding: "6px 0", borderRadius: 8, border: "none", cursor: "pointer", background: "#fff", color: "rgba(0,0,0,0.5)", boxShadow: SH_SM, transition: "all 0.15s" }}>Upload</button>
-              <button onClick={() => setPasteOpen(v => !v)} style={{ flex: 1, fontSize: 10, padding: "6px 0", borderRadius: 8, border: "none", cursor: "pointer", background: pasteOpen ? "#111" : "#fff", color: pasteOpen ? "#fff" : "rgba(0,0,0,0.5)", boxShadow: SH_SM, transition: "all 0.15s" }}>Paste</button>
-            </div>
-
-            {pasteOpen && (
-              <div style={{ marginBottom: 14 }}>
-                <textarea value={pasteValue} onChange={e => { setPasteValue(e.target.value); setPasteError(""); }} placeholder="<svg>…</svg>" rows={4}
-                  style={{ width: "100%", fontSize: 10, padding: 8, borderRadius: 8, border: "1px solid rgba(0,0,0,0.08)", background: "#fff", color: "rgba(0,0,0,0.7)", fontFamily: "monospace", resize: "none", outline: "none", boxSizing: "border-box" }} />
-                {pasteError && <p style={{ fontSize: 10, color: "#e53e3e", marginTop: 4 }}>{pasteError}</p>}
-                <button onClick={handlePaste} style={{ width: "100%", marginTop: 6, fontSize: 10, padding: "6px 0", borderRadius: 8, border: "none", cursor: "pointer", background: "#111", color: "#fff" }}>Apply</button>
-              </div>
-            )}
-
-            {customIcon && (
-              <div style={{ marginBottom: 14 }}>
-                <p style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.18em", color: "rgba(0,0,0,0.3)", marginBottom: 6, paddingLeft: 4 }}>Loaded</p>
-                <button onClick={() => setIconId("__custom__")} style={{ width: 40, height: 40, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", background: iconId === "__custom__" ? "#111" : "transparent", color: iconId === "__custom__" ? "#fff" : "rgba(0,0,0,0.4)" }}>
-                  <svg viewBox={customIcon.viewBox} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }} dangerouslySetInnerHTML={{ __html: customIcon.inner }} />
-                </button>
-              </div>
-            )}
-
-            {/* Origin picker */}
-            <p style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.18em", color: "rgba(0,0,0,0.3)", marginBottom: 8, paddingLeft: 4, marginTop: 4 }}>Origin</p>
-            <div style={{ paddingLeft: 4, marginBottom: 16 }}>
-              <OriginPicker value={origin} onChange={setOrigin} />
-              <p style={{ fontSize: 9, color: "rgba(0,0,0,0.3)", marginTop: 5 }}>{ORIGIN_POINTS.find(p => p.css === origin)?.label ?? origin}</p>
-            </div>
-
-            <p style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.18em", color: "rgba(0,0,0,0.3)", marginBottom: 8, paddingLeft: 4 }}>Library</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 2 }}>
-              {ICONS.map(ic => (
-                <button key={ic.id} title={ic.name} onClick={() => { setIconId(ic.id); setCustomIcon(null); }}
-                  style={{ width: 40, height: 40, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", transition: "all 0.15s", background: iconId === ic.id && !customIcon ? "#111" : "transparent", color: iconId === ic.id && !customIcon ? "#fff" : "rgba(0,0,0,0.4)" }}
-                  onMouseEnter={e => { if (!(iconId === ic.id && !customIcon)) e.currentTarget.style.background = "rgba(0,0,0,0.04)"; }}
-                  onMouseLeave={e => { if (!(iconId === ic.id && !customIcon)) e.currentTarget.style.background = "transparent"; }}
+          {/* ─── Hero ─────────────────────────────────────────────────── */}
+          <section
+            style={{
+              padding: "64px 24px 40px",
+              maxWidth: 860,
+              margin: "0 auto",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
+              <div style={{ flex: "1 1 320px", minWidth: 0 }}>
+                <h1
+                  style={{
+                    fontFamily: "var(--font-zilla-slab)",
+                    fontWeight: 700,
+                    fontSize: "clamp(40px, 6.5vw, 80px)",
+                    lineHeight: 0.95,
+                    letterSpacing: "-0.03em",
+                    color: "rgba(0,0,0,0.92)",
+                    margin: 0,
+                    overflowWrap: "break-word",
+                    hyphens: "auto",
+                  }}
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18, strokeWidth: 1.5 }}>
-                    {ic.el}
-                  </svg>
-                </button>
-              ))}
-            </div>
-          </aside>
-
-          {/* Center: preview + code */}
-          <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, padding: "32px 40px", overflowY: "auto", backgroundImage: "radial-gradient(rgba(0,0,0,0.055) 1px,transparent 1px)", backgroundSize: "20px 20px" }}>
-
-            {/* Icon card + play/pause */}
-            <div style={{ display: "flex", alignItems: "center", gap: 16, flexShrink: 0 }}>
-            <div style={{ width: iconSize * 2.25, height: iconSize * 2.25, minWidth: 100, minHeight: 100, borderRadius: iconSize * 0.44, background: previewBg, boxShadow: SH_MD, display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s" }}>
-              {customIcon ? (
-                <svg key={animKey} viewBox={customIcon.viewBox} {...svgShared} style={{ width: iconSize, height: iconSize, ...animStyle }} dangerouslySetInnerHTML={{ __html: customIcon.inner }} />
-              ) : (
-                <svg key={animKey} viewBox="0 0 24 24" {...svgShared} style={{ width: iconSize, height: iconSize, ...animStyle }}>
-                  {icon?.el}
-                </svg>
-              )}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <button onClick={() => setPlaying(p => !p)} title={playing ? "Pause" : "Play"} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "none", cursor: "pointer", background: "#fff", color: "rgba(0,0,0,0.45)", boxShadow: SH_SM, transition: "all 0.15s" }}>
-                {playing
-                  ? <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="3" width="5" height="18" rx="1" /><rect x="14" y="3" width="5" height="18" rx="1" /></svg>
-                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3" /></svg>
-                }
-              </button>
-              <button onClick={() => { setPlaying(false); setResetKey(k => k + 1); }} title="Reset" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, border: "none", cursor: "pointer", background: "#fff", color: "rgba(0,0,0,0.45)", boxShadow: SH_SM, transition: "all 0.15s" }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
-              </button>
-            </div>
-            </div>
-
-            {/* Code block */}
-            <div style={{ width: "100%", maxWidth: 560, borderRadius: 16, background: "#fff", boxShadow: SH_SM, overflow: "hidden", flexShrink: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {(["css","react"] as const).map(f => (
-                    <button key={f} onClick={() => setFormat(f)} style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.14em", color: format === f ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.25)", fontWeight: format === f ? 600 : 400, cursor: "pointer", background: "none", border: "none", padding: 0 }}>
-                      {f}
-                    </button>
-                  ))}
-                </div>
-                <button onClick={handleCopy} style={{ fontSize: 10, padding: "3px 10px", borderRadius: 6, border: "none", cursor: "pointer", background: copied ? "#111" : "rgba(0,0,0,0.05)", color: copied ? "#fff" : "rgba(0,0,0,0.45)", transition: "all 0.15s" }}>
-                  {copied ? "Copied" : "Copy"}
-                </button>
+                  Icon Animator
+                </h1>
+                <p
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontWeight: 400,
+                    fontSize: "clamp(20px, 2.8vw, 28px)",
+                    lineHeight: 1.2,
+                    letterSpacing: "-0.015em",
+                    color: "rgba(0,0,0,0.6)",
+                    marginTop: 16,
+                    marginBottom: 0,
+                    fontStyle: "italic",
+                  }}
+                >
+                  A small workshop for moving icons.
+                </p>
+                <p
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: 15,
+                    lineHeight: 1.6,
+                    color: "rgba(0,0,0,0.55)",
+                    marginTop: 18,
+                    marginBottom: 0,
+                    maxWidth: 480,
+                  }}
+                >
+                  Pick a preset, tune the timing, paste your own SVG. Copy the CSS or React snippet when it feels right.
+                </p>
               </div>
-              <pre style={{ margin: 0, padding: "14px 16px", fontSize: 11, lineHeight: 1.75, fontFamily: "monospace", color: "rgba(0,0,0,0.6)", overflowX: "auto", whiteSpace: "pre", maxHeight: 240, overflowY: "auto" }}>
+
+              <div
+                style={{
+                  flex: "0 0 auto",
+                  width: "clamp(240px, 38vw, 360px)",
+                }}
+              >
+                <img
+                  src="/icon-animator.png"
+                  alt="Icon Animator"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    display: "block",
+                    borderRadius: 16,
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    boxShadow:
+                      "0 1px 2px rgba(0,0,0,0.04), 0 8px 24px -12px rgba(0,0,0,0.18)",
+                  }}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* ─── Library ──────────────────────────────────────────────── */}
+          <section style={{ padding: "32px 24px", maxWidth: 860, margin: "0 auto" }}>
+            <div style={{ marginBottom: 16 }}>
+              <h2
+                style={{
+                  fontFamily: "var(--font-playfair)",
+                  fontWeight: 400,
+                  fontSize: 24,
+                  letterSpacing: "-0.015em",
+                  color: "rgba(0,0,0,0.85)",
+                  margin: "0 0 6px",
+                }}
+              >
+                Pick an icon
+              </h2>
+              <p
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: 14,
+                  color: "rgba(0,0,0,0.5)",
+                  margin: 0,
+                }}
+              >
+                Twenty Feather-style essentials, or bring your own SVG.
+              </p>
+            </div>
+
+            <div
+              style={{
+                background: "#fff",
+                border: "1px solid rgba(0,0,0,0.08)",
+                borderRadius: 16,
+                padding: 20,
+                boxShadow: "0 0 0 1px rgba(0,0,0,0.02), 0 1px 4px rgba(0,0,0,0.04)",
+              }}
+            >
+              {/* Custom SVG row */}
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  marginBottom: 16,
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".svg,image/svg+xml"
+                  onChange={handleFile}
+                  style={{ display: "none" }}
+                />
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    padding: "8px 14px",
+                    borderRadius: 10,
+                    border: "1px solid rgba(0,0,0,0.1)",
+                    background: "#fff",
+                    color: "rgba(0,0,0,0.75)",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  Upload SVG
+                </button>
+                <button
+                  onClick={() => setPasteOpen(v => !v)}
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    padding: "8px 14px",
+                    borderRadius: 10,
+                    border: pasteOpen ? "none" : "1px solid rgba(0,0,0,0.1)",
+                    background: pasteOpen ? "#111" : "#fff",
+                    color: pasteOpen ? "#fff" : "rgba(0,0,0,0.75)",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {pasteOpen ? "Close paste" : "Paste SVG"}
+                </button>
+                {customIcon && (
+                  <button
+                    onClick={() => setIconId("__custom__")}
+                    title="Loaded custom SVG"
+                    style={{
+                      width: 36, height: 36, borderRadius: 10,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      border: iconId === "__custom__" ? "none" : "1px solid rgba(0,0,0,0.08)",
+                      cursor: "pointer",
+                      background: iconId === "__custom__" ? "#111" : "#fff",
+                      color: iconId === "__custom__" ? "#fff" : "rgba(0,0,0,0.55)",
+                      marginLeft: "auto",
+                    }}
+                  >
+                    <svg
+                      viewBox={customIcon.viewBox}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{ width: 18, height: 18 }}
+                      dangerouslySetInnerHTML={{ __html: customIcon.inner }}
+                    />
+                  </button>
+                )}
+              </div>
+
+              {pasteOpen && (
+                <div style={{ marginBottom: 16 }}>
+                  <textarea
+                    value={pasteValue}
+                    onChange={e => { setPasteValue(e.target.value); setPasteError(""); }}
+                    placeholder="<svg viewBox='0 0 24 24'>…</svg>"
+                    rows={4}
+                    style={{
+                      width: "100%",
+                      fontSize: 12,
+                      padding: 12,
+                      borderRadius: 10,
+                      border: "1px solid rgba(0,0,0,0.08)",
+                      background: "rgba(0,0,0,0.02)",
+                      color: "rgba(0,0,0,0.75)",
+                      fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                      resize: "vertical",
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                  {pasteError && (
+                    <p style={{ fontFamily: "var(--font-inter)", fontSize: 12, color: "#c53030", marginTop: 6 }}>
+                      {pasteError}
+                    </p>
+                  )}
+                  <button
+                    onClick={handlePaste}
+                    style={{
+                      marginTop: 8,
+                      fontFamily: "var(--font-inter)",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      padding: "8px 16px",
+                      borderRadius: 10,
+                      border: "none",
+                      background: "#111",
+                      color: "#fff",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Apply SVG
+                  </button>
+                </div>
+              )}
+
+              {/* Icon grid */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(48px, 1fr))",
+                  gap: 6,
+                }}
+              >
+                {ICONS.map(ic => {
+                  const active = iconId === ic.id && !customIcon;
+                  return (
+                    <button
+                      key={ic.id}
+                      title={ic.name}
+                      onClick={() => { setIconId(ic.id); setCustomIcon(null); }}
+                      style={{
+                        aspectRatio: "1 / 1",
+                        borderRadius: 10,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        border: "none",
+                        cursor: "pointer",
+                        transition: "all 0.15s",
+                        background: active ? "#111" : "transparent",
+                        color: active ? "#fff" : "rgba(0,0,0,0.5)",
+                      }}
+                      onMouseEnter={e => {
+                        if (!active) e.currentTarget.style.background = "rgba(0,0,0,0.04)";
+                      }}
+                      onMouseLeave={e => {
+                        if (!active) e.currentTarget.style.background = "transparent";
+                      }}
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ width: 20, height: 20, strokeWidth: 1.5 }}
+                      >
+                        {ic.el}
+                      </svg>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
+          {/* ─── Workshop ─────────────────────────────────────────────── */}
+          <section style={{ padding: "32px 24px 24px", maxWidth: 860, margin: "0 auto" }}>
+            <div style={{ marginBottom: 16 }}>
+              <h2
+                style={{
+                  fontFamily: "var(--font-playfair)",
+                  fontWeight: 400,
+                  fontSize: 24,
+                  letterSpacing: "-0.015em",
+                  color: "rgba(0,0,0,0.85)",
+                  margin: "0 0 6px",
+                }}
+              >
+                Refine
+              </h2>
+              <p
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: 14,
+                  color: "rgba(0,0,0,0.5)",
+                  margin: 0,
+                }}
+              >
+                Tune the motion, the look, and the timing until it feels right.
+              </p>
+            </div>
+
+            <div
+              style={{
+                background: "#fff",
+                border: "1px solid rgba(0,0,0,0.08)",
+                borderRadius: 16,
+                overflow: "hidden",
+                boxShadow: "0 0 0 1px rgba(0,0,0,0.02), 0 1px 4px rgba(0,0,0,0.04)",
+              }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "minmax(260px, 360px) 1fr",
+                  gap: 0,
+                }}
+              >
+                {/* Preview column */}
+                <div
+                  style={{
+                    padding: 24,
+                    borderRight: "1px solid rgba(0,0,0,0.06)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 20,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "100%",
+                      aspectRatio: "1 / 1",
+                      maxWidth: 240,
+                      borderRadius: 20,
+                      background: previewBg,
+                      border: "1px solid rgba(0,0,0,0.06)",
+                      boxShadow: "0 0 0 1px rgba(0,0,0,0.02), 0 1px 4px rgba(0,0,0,0.04)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "background 0.2s",
+                    }}
+                  >
+                    {customIcon ? (
+                      <svg
+                        key={animKey}
+                        viewBox={customIcon.viewBox}
+                        {...svgShared}
+                        style={{ width: iconSize, height: iconSize, ...animStyle }}
+                        dangerouslySetInnerHTML={{ __html: customIcon.inner }}
+                      />
+                    ) : (
+                      <svg
+                        key={animKey}
+                        viewBox="0 0 24 24"
+                        {...svgShared}
+                        style={{ width: iconSize, height: iconSize, ...animStyle }}
+                      >
+                        {icon?.el}
+                      </svg>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={() => setPlaying(p => !p)}
+                      title={playing ? "Pause" : "Play"}
+                      style={{
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        width: 36, height: 36, borderRadius: 10,
+                        border: "1px solid rgba(0,0,0,0.1)", cursor: "pointer",
+                        background: "#fff", color: "rgba(0,0,0,0.65)",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      {playing
+                        ? <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="3" width="5" height="18" rx="1" /><rect x="14" y="3" width="5" height="18" rx="1" /></svg>
+                        : <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                      }
+                    </button>
+                    <button
+                      onClick={() => { setPlaying(false); setResetKey(k => k + 1); }}
+                      title="Reset"
+                      style={{
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        width: 36, height: 36, borderRadius: 10,
+                        border: "1px solid rgba(0,0,0,0.1)", cursor: "pointer",
+                        background: "#fff", color: "rgba(0,0,0,0.65)",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Origin picker */}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, width: "100%" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: 11,
+                        fontWeight: 500,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.1em",
+                        color: "rgba(0,0,0,0.45)",
+                      }}
+                    >
+                      Transform origin
+                    </span>
+                    <OriginPicker value={origin} onChange={setOrigin} />
+                    <span style={{ fontFamily: "var(--font-inter)", fontSize: 11, color: "rgba(0,0,0,0.4)" }}>
+                      {ORIGIN_POINTS.find(p => p.css === origin)?.label ?? origin}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Controls column */}
+                <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+                  <Field label="Animation">
+                    <Select
+                      value={preset}
+                      onChange={setPreset}
+                      options={[
+                        { label: "Bounce",    value: "bounce" },
+                        { label: "Spin",      value: "spin" },
+                        { label: "Pulse",     value: "pulse" },
+                        { label: "Wiggle",    value: "wiggle" },
+                        { label: "Pop",       value: "pop" },
+                        { label: "Shake",     value: "shake" },
+                        { label: "Float",     value: "float" },
+                        { label: "Heartbeat", value: "heartbeat" },
+                        { label: "Blink",     value: "blink" },
+                        { label: "Swing",     value: "swing" },
+                        { label: "Draw",      value: "draw" },
+                      ]}
+                    />
+                  </Field>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                    <Field label="Duration" hint={`${duration.toFixed(2)}s`}>
+                      <Slider value={duration} onChange={setDuration} min={0.1} max={5} step={0.05} />
+                    </Field>
+                    <Field label="Delay" hint={`${delay.toFixed(2)}s`}>
+                      <Slider value={delay} onChange={setDelay} min={0} max={3} step={0.05} />
+                    </Field>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                    <Field label="Repeat">
+                      <Select
+                        value={iterations}
+                        onChange={setIterations}
+                        options={[
+                          { label: "1×", value: "1" },
+                          { label: "2×", value: "2" },
+                          { label: "3×", value: "3" },
+                          { label: "5×", value: "5" },
+                          { label: "Infinite", value: "infinite" },
+                        ]}
+                      />
+                    </Field>
+                    <Field label="Easing">
+                      <Select
+                        value={easing}
+                        onChange={setEasing}
+                        options={[
+                          { label: "Ease",        value: "ease" },
+                          { label: "Ease In",     value: "ease-in" },
+                          { label: "Ease Out",    value: "ease-out" },
+                          { label: "Ease In Out", value: "ease-in-out" },
+                          { label: "Linear",      value: "linear" },
+                          { label: "Spring",      value: "cubic-bezier(0.34,1.56,0.64,1)" },
+                        ]}
+                      />
+                    </Field>
+                  </div>
+
+                  {showTravel && (
+                    <Field label="Distance" hint={`${travel}px`}>
+                      <Slider value={travel} onChange={setTravel} min={2} max={48} step={1} />
+                    </Field>
+                  )}
+                  {showScale && (
+                    <Field label="Scale" hint={`${scale.toFixed(2)}×`}>
+                      <Slider value={scale} onChange={setScale} min={1.02} max={2.5} step={0.01} />
+                    </Field>
+                  )}
+
+                  {/* Appearance */}
+                  <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: 16, display: "flex", flexDirection: "column", gap: 14 }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: 11,
+                        fontWeight: 500,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.1em",
+                        color: "rgba(0,0,0,0.45)",
+                      }}
+                    >
+                      Appearance
+                    </span>
+
+                    <Toggle checked={stroked} onChange={setStroked} label="Stroke" />
+                    {stroked && (
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                        <Field label="Stroke colour">
+                          <ColorSwatch value={color} onChange={setColor} />
+                        </Field>
+                        <Field label="Stroke width" hint={`${strokeWidth}`}>
+                          <Slider value={strokeWidth} onChange={setStrokeWidth} min={0.25} max={4} step={0.25} />
+                        </Field>
+                      </div>
+                    )}
+
+                    <Toggle checked={filled} onChange={setFilled} label="Fill" />
+                    {filled && (
+                      <Field label="Fill colour">
+                        <ColorSwatch value={fillColor} onChange={setFillColor} />
+                      </Field>
+                    )}
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                      <Field label="Icon size" hint={`${iconSize}px`}>
+                        <Slider value={iconSize} onChange={setIconSize} min={16} max={128} step={4} />
+                      </Field>
+                      <Field label="Background">
+                        <ColorSwatch value={previewBg} onChange={setPreviewBg} />
+                      </Field>
+                    </div>
+                  </div>
+
+                  {/* Shadow */}
+                  <Disclosure title="Shadow" open={shadowOpen} onToggle={() => setShadowOpen(o => !o)}>
+                    <Toggle checked={shadowEnabled} onChange={setShadowEnabled} label="Enable shadow" />
+                    {shadowEnabled && (
+                      <>
+                        <Field label="Style">
+                          <Select
+                            value={shadowPreset}
+                            onChange={setShadowPreset}
+                            options={[
+                              { label: "Soft",   value: "soft" },
+                              { label: "Dreamy", value: "dreamy" },
+                              { label: "Sharp",  value: "sharp" },
+                              { label: "Long",   value: "long" },
+                            ]}
+                          />
+                        </Field>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                          <Field label="Colour">
+                            <ColorSwatch value={shadowColor} onChange={setShadowColor} />
+                          </Field>
+                          <Field label="Opacity" hint={shadowOpacity.toFixed(2)}>
+                            <Slider value={shadowOpacity} onChange={setShadowOpacity} min={0.02} max={0.5} step={0.01} />
+                          </Field>
+                        </div>
+                      </>
+                    )}
+                  </Disclosure>
+
+                  {/* Advanced */}
+                  <Disclosure title="Advanced" open={advancedOpen} onToggle={() => setAdvancedOpen(o => !o)}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                      <Field label="Direction">
+                        <Select
+                          value={direction}
+                          onChange={setDirection}
+                          options={[
+                            { label: "Normal",      value: "normal" },
+                            { label: "Reverse",     value: "reverse" },
+                            { label: "Alternate",   value: "alternate" },
+                            { label: "Alt Reverse", value: "alternate-reverse" },
+                          ]}
+                        />
+                      </Field>
+                      <Field label="Fill mode">
+                        <Select
+                          value={fillMode}
+                          onChange={setFillMode}
+                          options={[
+                            { label: "None",      value: "none" },
+                            { label: "Forwards",  value: "forwards" },
+                            { label: "Backwards", value: "backwards" },
+                            { label: "Both",      value: "both" },
+                          ]}
+                        />
+                      </Field>
+                    </div>
+                    {stroked && (
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                        <Field label="Stroke cap">
+                          <Select
+                            value={strokeCap}
+                            onChange={setStrokeCap}
+                            options={[
+                              { label: "Round",  value: "round" },
+                              { label: "Square", value: "square" },
+                              { label: "Butt",   value: "butt" },
+                            ]}
+                          />
+                        </Field>
+                        <Field label="Stroke join">
+                          <Select
+                            value={strokeJoin}
+                            onChange={setStrokeJoin}
+                            options={[
+                              { label: "Round", value: "round" },
+                              { label: "Miter", value: "miter" },
+                              { label: "Bevel", value: "bevel" },
+                            ]}
+                          />
+                        </Field>
+                      </div>
+                    )}
+                  </Disclosure>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ─── Code ─────────────────────────────────────────────────── */}
+          <section style={{ padding: "32px 24px", maxWidth: 860, margin: "0 auto" }}>
+            <div style={{ marginBottom: 16 }}>
+              <h2
+                style={{
+                  fontFamily: "var(--font-playfair)",
+                  fontWeight: 400,
+                  fontSize: 24,
+                  letterSpacing: "-0.015em",
+                  color: "rgba(0,0,0,0.85)",
+                  margin: "0 0 6px",
+                }}
+              >
+                Copy the code
+              </h2>
+              <p
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: 14,
+                  color: "rgba(0,0,0,0.5)",
+                  margin: 0,
+                }}
+              >
+                Grab the CSS or React snippet and drop it into your project.
+              </p>
+            </div>
+            <div
+              style={{
+                background: "#fff",
+                border: "1px solid rgba(0,0,0,0.08)",
+                borderRadius: 16,
+                overflow: "hidden",
+                boxShadow: "0 0 0 1px rgba(0,0,0,0.02), 0 1px 4px rgba(0,0,0,0.04)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 16,
+                  padding: "12px 16px",
+                  borderBottom: "1px solid rgba(0,0,0,0.06)",
+                }}
+              >
+                {(["css","react"] as const).map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setFormat(f)}
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: 11,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.14em",
+                      color: format === f ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.3)",
+                      fontWeight: format === f ? 600 : 500,
+                      cursor: "pointer",
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                    }}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+              <pre
+                style={{
+                  margin: 0,
+                  padding: "18px 20px",
+                  fontSize: 12,
+                  lineHeight: 1.7,
+                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                  color: "rgba(0,0,0,0.7)",
+                  overflowX: "auto",
+                  whiteSpace: "pre",
+                  maxHeight: 320,
+                  overflowY: "auto",
+                }}
+              >
                 {output}
               </pre>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  borderTop: "1px solid rgba(0,0,0,0.06)",
+                }}
+              >
+                <span style={{ fontFamily: "var(--font-inter)", fontSize: 12, color: "rgba(0,0,0,0.4)" }}>
+                  {format === "css" ? "Plain CSS — drop into any stylesheet." : "React component — paste your icon paths."}
+                </span>
+                <button
+                  onClick={handleCopy}
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    padding: "8px 16px",
+                    borderRadius: 10,
+                    border: "none",
+                    background: copied ? "#111" : "#111",
+                    color: "#fff",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {copied ? "Copied" : `Copy ${format.toUpperCase()}`}
+                </button>
+              </div>
             </div>
-          </main>
-        </div>
+          </section>
+
+          {/* ─── Footer ───────────────────────────────────────────────── */}
+          <footer
+            style={{
+              padding: "24px 24px 48px",
+              textAlign: "center",
+              fontFamily: "var(--font-inter)",
+              fontSize: 12,
+              color: "rgba(0,0,0,0.35)",
+            }}
+          >
+            Made by{" "}
+            <a
+              href="/"
+              style={{
+                color: "rgba(0,0,0,0.55)",
+                textDecoration: "underline",
+                textUnderlineOffset: 2,
+              }}
+            >
+              Neil McArdle
+            </a>
+          </footer>
+        </main>
+
+        {/* Toast for copy feedback */}
+        {copied && (
+          <div
+            style={{
+              position: "fixed",
+              bottom: 24,
+              left: "50%",
+              transform: "translateX(-50%)",
+              background: "#111",
+              color: "#fff",
+              fontFamily: "var(--font-inter)",
+              fontSize: 13,
+              padding: "10px 16px",
+              borderRadius: 10,
+              boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+              zIndex: 100,
+              pointerEvents: "none",
+            }}
+          >
+            Copied {format.toUpperCase()}
+          </div>
+        )}
       </div>
     </>
   );
