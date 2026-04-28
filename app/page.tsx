@@ -57,6 +57,15 @@ const PROJECTS: Project[] = [
     external: false,
     category: "Tool · AI · UX",
   },
+  {
+    number: "04",
+    title: "Vector Paint",
+    description:
+      "Vector drawing in the browser. Sketch freehand, export SVG, print crisp at any size from sticker to poster.",
+    href: "/vector-paint",
+    external: false,
+    category: "Tool · SVG · Drawing",
+  },
 ];
 
 // Color lives on a className (`text-white`) not inline, so `hover:text-black`

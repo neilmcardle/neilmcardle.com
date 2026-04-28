@@ -20,6 +20,7 @@ const HIDDEN_ROUTES = [
   "/make-ebook",
   "/icon-animator",
   "/promptr",
+  "/vector-paint",
   "/portfolio-unlock",
   "/privacy",
   "/terms",

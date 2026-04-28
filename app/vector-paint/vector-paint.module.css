@@ -1,0 +1,48 @@
+.root {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+  background: #ffffff;
+  color: #000000;
+}
+
+.root :global(input[type="range"]) {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 24px;
+  background: transparent;
+  border-radius: 12px;
+  padding: 0;
+  margin: 0;
+}
+
+.root :global(input[type="range"]::-webkit-slider-thumb) {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border: 2px solid #555;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.root :global(input[type="range"]::-moz-range-thumb) {
+  width: 24px;
+  height: 24px;
+  background: white;
+  border: 2px solid #555;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.root :global(input[type="range"]:focus) {
+  outline: none;
+}
