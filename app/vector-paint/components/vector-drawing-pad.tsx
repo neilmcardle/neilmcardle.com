@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import type { CSSProperties } from "react"
 
 import { useEffect, useRef, useState } from "react"
 import Toolbar from "./toolbar"
@@ -8,6 +9,23 @@ import SizeOpacityPanel from "./size-opacity-panel"
 import SavePanel from "./save-panel"
 import ColorPalette from "./color-palette"
 import PaintbrushHint from "./paintbrush-hint"
+import OrderPanel from "./order-panel"
+import styles from "../vector-paint.module.css"
+import {
+  DEFAULT_PRODUCT_ID,
+  VECTOR_PAINT_PRODUCTS,
+  isProductActive,
+  type VectorPaintProductId,
+} from "@/lib/vector-paint/products"
+
+interface SavedDrawing {
+  name: string
+  data: string
+  format?: VectorPaintProductId
+}
+
+const DEFAULT_FORMAT: VectorPaintProductId = DEFAULT_PRODUCT_ID
+const FORMAT_STORAGE_KEY = "vp_currentFormat"
 
 export default function VectorDrawingPad() {
   const svgCanvasRef = useRef<SVGSVGElement>(null)
@@ -21,7 +39,12 @@ export default function VectorDrawingPad() {
   const [showColorPalette, setShowColorPalette] = useState(false)
   const [showSavePanel, setShowSavePanel] = useState(false)
   const [showHint, setShowHint] = useState(false) // Changed to false to hide the hint by default
-  const [savedDrawings, setSavedDrawings] = useState<Array<{ name: string; data: string }>>([])
+  const [savedDrawings, setSavedDrawings] = useState<Array<SavedDrawing>>([])
+  const [orderingDrawing, setOrderingDrawing] = useState<SavedDrawing | null>(null)
+  const [parentalGatePassed, setParentalGatePassed] = useState(false)
+  const [currentFormat, setCurrentFormat] = useState<VectorPaintProductId>(DEFAULT_FORMAT)
+  const [pendingUndo, setPendingUndo] = useState<{ drawing: SavedDrawing; index: number } | null>(null)
+  const pendingUndoTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [savedHuePosition, setSavedHuePosition] = useState<{ x: number; y: number } | null>(null)
   const [savedSquarePosition, setSavedSquarePosition] = useState<{ x: number; y: number } | null>(null)
 
@@ -51,16 +74,45 @@ export default function VectorDrawingPad() {
     }
   }, [])
 
-  // Load saved drawings from localStorage on component mount
+  // Load saved drawings from localStorage on component mount.
+  // Normalize the format field so legacy entries (saved before the
+  // canvas pivot, when A4 was the default) still resolve to a real
+  // current product id rather than crashing the order panel.
   useEffect(() => {
     const savedDrawingsData = localStorage.getItem("vectorDrawings")
-    if (savedDrawingsData) {
-      try {
-        setSavedDrawings(JSON.parse(savedDrawingsData))
-      } catch (e) {
-        console.error("Failed to load saved drawings:", e)
+    if (!savedDrawingsData) return
+    try {
+      const parsed = JSON.parse(savedDrawingsData) as SavedDrawing[]
+      const normalized = parsed.map((d) => ({
+        ...d,
+        format:
+          d.format && VECTOR_PAINT_PRODUCTS[d.format as VectorPaintProductId]
+            ? (d.format as VectorPaintProductId)
+            : DEFAULT_FORMAT,
+      }))
+      setSavedDrawings(normalized)
+    } catch (e) {
+      console.error("Failed to load saved drawings:", e)
+    }
+  }, [])
+
+  // Hydrate currentFormat from localStorage and stay in sync with the
+  // top-nav dropdown via a window event so both stay aligned without
+  // lifting state into a shared parent client component.
+  useEffect(() => {
+    const stored = localStorage.getItem(FORMAT_STORAGE_KEY) as VectorPaintProductId | null
+    if (stored && VECTOR_PAINT_PRODUCTS[stored] && isProductActive(stored)) {
+      setCurrentFormat(stored)
+    }
+
+    const onChange = (e: Event) => {
+      const id = (e as CustomEvent<VectorPaintProductId>).detail
+      if (id && VECTOR_PAINT_PRODUCTS[id] && isProductActive(id)) {
+        setCurrentFormat(id)
       }
     }
+    window.addEventListener("vp-format-changed", onChange)
+    return () => window.removeEventListener("vp-format-changed", onChange)
   }, [])
 
   // Save drawings to localStorage whenever they change
@@ -328,11 +380,11 @@ export default function VectorDrawingPad() {
     return `Drawing ${n}`
   }
 
-  const saveDrawing = () => {
-    if (!svgCanvasRef.current) return
-    // Inject viewBox + explicit width/height so the saved SVG scales
-    // correctly when rendered into a constrained thumbnail box. The
-    // live canvas has neither (it relies on CSS sizing).
+  // Capture a snapshot of the live SVG canvas as a SavedDrawing.
+  // Inject viewBox + explicit dimensions so the saved SVG renders
+  // correctly inside thumbnail boxes (the live canvas relies on CSS sizing).
+  const captureSnapshot = (): SavedDrawing | null => {
+    if (!svgCanvasRef.current) return null
     const svg = svgCanvasRef.current
     const rect = svg.getBoundingClientRect()
     const w = Math.max(1, Math.round(rect.width))
@@ -343,8 +395,17 @@ export default function VectorDrawingPad() {
     clone.setAttribute("height", String(h))
     clone.removeAttribute("class")
     clone.removeAttribute("style")
-    const svgData = new XMLSerializer().serializeToString(clone)
-    setSavedDrawings([...savedDrawings, { name: nextDrawingName(), data: svgData }])
+    return {
+      name: nextDrawingName(),
+      data: new XMLSerializer().serializeToString(clone),
+      format: currentFormat ?? DEFAULT_FORMAT,
+    }
+  }
+
+  const saveDrawing = () => {
+    const snap = captureSnapshot()
+    if (!snap) return
+    setSavedDrawings([...savedDrawings, snap])
     setShowSavePanel(true)
   }
 
@@ -360,46 +421,63 @@ export default function VectorDrawingPad() {
   }
 
   const loadSavedDrawing = (index: number) => {
-    const confirmLoad = window.confirm("This will overwrite the current canvas. Continue?")
-    if (confirmLoad && svgCanvasRef.current) {
-      const drawing = savedDrawings[index]
-      svgCanvasRef.current.innerHTML = drawing.data
+    if (!svgCanvasRef.current) return
+    const drawing = savedDrawings[index]
+    if (!drawing) return
 
-      // Add to history
-      const newState = svgCanvasRef.current.innerHTML
-      const newHistory = history.slice(0, historyIndex + 1)
-      setHistory([...newHistory, newState])
-      setHistoryIndex(historyIndex + 1)
+    // If the live canvas has strokes, snapshot first so the user
+    // never loses work when opening another drawing. The auto-saved
+    // entry appears in Memory Box with the next default name.
+    let nextSaved = savedDrawings
+    if (svgCanvasRef.current.children.length > 0) {
+      const snap = captureSnapshot()
+      if (snap) nextSaved = [...savedDrawings, snap]
+    }
 
-      alert("Drawing loaded successfully!")
+    svgCanvasRef.current.innerHTML = drawing.data
+    if (nextSaved !== savedDrawings) setSavedDrawings(nextSaved)
+
+    const newState = svgCanvasRef.current.innerHTML
+    const newHistory = history.slice(0, historyIndex + 1)
+    setHistory([...newHistory, newState])
+    setHistoryIndex(historyIndex + 1)
+
+    // Switch the editor to the loaded drawing's format if it has one.
+    if (drawing.format && VECTOR_PAINT_PRODUCTS[drawing.format]) {
+      setCurrentFormat(drawing.format)
+      localStorage.setItem(FORMAT_STORAGE_KEY, drawing.format)
+      window.dispatchEvent(new CustomEvent("vp-format-changed", { detail: drawing.format }))
     }
   }
 
   const deleteSavedDrawing = (index: number) => {
-    if (window.confirm("Are you sure you want to delete this drawing?")) {
-      const newDrawings = [...savedDrawings]
-      newDrawings.splice(index, 1)
-      setSavedDrawings(newDrawings)
-      alert("Drawing deleted successfully!")
-    }
+    const drawingToDelete = savedDrawings[index]
+    if (!drawingToDelete) return
+
+    if (pendingUndoTimer.current) clearTimeout(pendingUndoTimer.current)
+
+    setSavedDrawings((prev) => prev.filter((_, i) => i !== index))
+    setPendingUndo({ drawing: drawingToDelete, index })
+
+    pendingUndoTimer.current = setTimeout(() => {
+      setPendingUndo(null)
+      pendingUndoTimer.current = null
+    }, 5000)
   }
 
-  const exportDrawing = (index: number) => {
-    const drawing = savedDrawings[index]
-    if (!drawing || !drawing.data) {
-      alert("No valid drawing data to export.")
-      return
+  const undoDelete = () => {
+    if (!pendingUndo) return
+    const { drawing, index } = pendingUndo
+    setSavedDrawings((prev) => {
+      const next = [...prev]
+      next.splice(index, 0, drawing)
+      return next
+    })
+    setPendingUndo(null)
+    if (pendingUndoTimer.current) {
+      clearTimeout(pendingUndoTimer.current)
+      pendingUndoTimer.current = null
     }
-
-    const blob = new Blob([drawing.data], { type: "image/svg+xml;charset=utf-8" })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = `${drawing.name || "untitled"}.svg`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
   }
 
   const toggleDrawActive = () => {
@@ -479,21 +557,31 @@ export default function VectorDrawingPad() {
     stopDrawing()
   }
 
+  const activeProduct = VECTOR_PAINT_PRODUCTS[currentFormat]
+  const aspectRatioVar: CSSProperties = {
+    "--vp-ratio": String(activeProduct.aspect.w / activeProduct.aspect.h),
+    "--vp-size-scale": String(activeProduct.sizeScale),
+  } as CSSProperties
+
   return (
-    <div className="relative w-full h-full">
-      <svg
-        ref={svgCanvasRef}
-        className="w-full h-full touch-none bg-white"
-        style={isEraseActive ? { cursor: "pointer" } : undefined}
-        onMouseDown={startDrawing}
-        onMouseMove={moveDrawing}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onTouchCancel={handleTouchEnd}
-      />
+    <div className="relative w-full h-full" style={aspectRatioVar}>
+      <div className={styles.pageWrap}>
+        <div className={styles.page}>
+          <svg
+            ref={svgCanvasRef}
+            className="w-full h-full touch-none bg-white"
+            style={isEraseActive ? { cursor: "pointer" } : undefined}
+            onMouseDown={startDrawing}
+            onMouseMove={moveDrawing}
+            onMouseUp={stopDrawing}
+            onMouseLeave={stopDrawing}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
+          />
+        </div>
+      </div>
 
       {showHint && <PaintbrushHint />}
 
@@ -532,9 +620,61 @@ export default function VectorDrawingPad() {
           savedDrawings={savedDrawings}
           loadSavedDrawing={loadSavedDrawing}
           deleteSavedDrawing={deleteSavedDrawing}
-          exportDrawing={exportDrawing}
           renameSavedDrawing={renameSavedDrawing}
+          onOrderPrint={(index) => setOrderingDrawing(savedDrawings[index])}
           onClose={() => setShowSavePanel(false)}
+        />
+      )}
+
+      {pendingUndo && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: "fixed",
+            bottom: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 80,
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            background: "rgba(20,20,20,0.92)",
+            color: "#ffffff",
+            padding: "10px 12px 10px 16px",
+            borderRadius: 999,
+            boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.18)",
+            fontFamily: "var(--font-inter)",
+            fontSize: 13,
+          }}
+        >
+          <span>Drawing deleted</span>
+          <button
+            onClick={undoDelete}
+            style={{
+              background: "rgba(255,255,255,0.12)",
+              color: "#ffffff",
+              border: "1px solid rgba(255,255,255,0.18)",
+              borderRadius: 999,
+              padding: "5px 12px",
+              fontFamily: "inherit",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Undo
+          </button>
+        </div>
+      )}
+
+      {orderingDrawing && (
+        <OrderPanel
+          drawing={orderingDrawing}
+          productId={orderingDrawing.format ?? DEFAULT_FORMAT}
+          parentalGatePassed={parentalGatePassed}
+          onParentalGatePassed={() => setParentalGatePassed(true)}
+          onClose={() => setOrderingDrawing(null)}
         />
       )}
 

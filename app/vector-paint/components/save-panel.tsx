@@ -1,64 +1,41 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { Trash2, Download, ArchiveRestoreIcon as WindowRestore, X, ShoppingBag, Pencil } from "lucide-react"
+import { useEffect, useRef, useState, type CSSProperties } from "react"
+import {
+  Trash2,
+  ArchiveRestoreIcon as WindowRestore,
+  X,
+  ShoppingBag,
+  Pencil,
+} from "lucide-react"
+import {
+  VECTOR_PAINT_PRODUCTS,
+  type VectorPaintProductId,
+} from "@/lib/vector-paint/products"
+
+interface SavedDrawing {
+  name: string
+  data: string
+  format?: VectorPaintProductId
+}
 
 interface SavePanelProps {
-  savedDrawings: Array<{ name: string; data: string }>
+  savedDrawings: Array<SavedDrawing>
   loadSavedDrawing: (index: number) => void
   deleteSavedDrawing: (index: number) => void
-  exportDrawing: (index: number) => void
   renameSavedDrawing: (index: number, name: string) => void
+  onOrderPrint: (index: number) => void
   onClose: () => void
-}
-
-async function startPrintCheckout(svg: string) {
-  const res = await fetch("/api/vector-paint/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ svg, productId: "a4_print" }),
-  })
-  if (!res.ok) {
-    const { error } = await res.json().catch(() => ({ error: "Checkout failed" }))
-    throw new Error(error || "Checkout failed")
-  }
-  const { url } = await res.json()
-  if (!url) throw new Error("No checkout URL returned")
-  window.location.href = url
-}
-
-const rowButtonStyle = {
-  background: "transparent",
-  border: "none",
-  color: "rgba(0,0,0,0.6)",
-  padding: 6,
-  borderRadius: 6,
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  transition: "background 0.15s, color 0.15s",
-}
-
-const rowLabelStyle = {
-  fontFamily: "var(--font-inter)",
-  fontSize: 10,
-  fontWeight: 500,
-  color: "rgba(0,0,0,0.5)",
-  marginTop: 2,
-  letterSpacing: "0.02em",
 }
 
 export default function SavePanel({
   savedDrawings,
   loadSavedDrawing,
   deleteSavedDrawing,
-  exportDrawing,
   renameSavedDrawing,
+  onOrderPrint,
   onClose,
 }: SavePanelProps) {
-  const [printingIndex, setPrintingIndex] = useState<number | null>(null)
-  const [printError, setPrintError] = useState<string | null>(null)
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [editingValue, setEditingValue] = useState("")
   const editInputRef = useRef<HTMLInputElement | null>(null)
@@ -69,6 +46,14 @@ export default function SavePanel({
       editInputRef.current?.select()
     }
   }, [editingIndex])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && editingIndex === null) onClose()
+    }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [onClose, editingIndex])
 
   const startRename = (index: number) => {
     setEditingIndex(index)
@@ -83,267 +68,396 @@ export default function SavePanel({
 
   const cancelRename = () => setEditingIndex(null)
 
-  const handleOrderPrint = async (index: number) => {
-    setPrintError(null)
-    setPrintingIndex(index)
-    try {
-      await startPrintCheckout(savedDrawings[index].data)
-    } catch (err: any) {
-      setPrintError(err.message ?? "Something went wrong")
-      setPrintingIndex(null)
-    }
-  }
-
   return (
     <div
-      className="fixed left-1/2 transform -translate-x-1/2 z-30"
+      role="dialog"
+      aria-label="Memory Box"
+      aria-modal="true"
       style={{
-        top: 80,
-        background: "#ffffff",
-        border: "1px solid rgba(0,0,0,0.06)",
-        borderRadius: 16,
-        boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.08)",
-        padding: 20,
-        width: "90%",
-        maxWidth: 360,
+        position: "fixed",
+        inset: 0,
+        background: "rgba(20,20,20,0.45)",
+        backdropFilter: "blur(2px)",
+        WebkitBackdropFilter: "blur(2px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+        zIndex: 60,
+        fontFamily: "var(--font-inter)",
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <h3
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 880,
+          maxHeight: "calc(100vh - 48px)",
+          background: "#ffffff",
+          borderRadius: 18,
+          boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 28px 64px rgba(0,0,0,0.18)",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        <header
           style={{
-            fontFamily: "var(--font-inter)",
-            fontSize: 13,
-            fontWeight: 600,
-            color: "rgba(0,0,0,0.85)",
-            letterSpacing: "-0.01em",
-            margin: 0,
-          }}
-        >
-          Memory Box
-        </h3>
-        <button
-          onClick={onClose}
-          aria-label="Close panel"
-          style={{
-            color: "rgba(0,0,0,0.4)",
-            background: "transparent",
-            border: "none",
-            padding: 4,
-            cursor: "pointer",
             display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "20px 28px",
+            borderBottom: "1px solid rgba(0,0,0,0.06)",
           }}
         >
-          <X size={16} />
-        </button>
-      </div>
-
-      {printError && (
-        <div
-          role="alert"
-          style={{
-            fontFamily: "var(--font-inter)",
-            fontSize: 12,
-            color: "rgba(180,40,40,0.9)",
-            background: "rgba(220,60,60,0.06)",
-            border: "1px solid rgba(220,60,60,0.15)",
-            borderRadius: 8,
-            padding: "8px 10px",
-            marginBottom: 12,
-          }}
-        >
-          {printError}
-        </div>
-      )}
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {savedDrawings.length === 0 ? (
-          <p
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: 12,
-              color: "rgba(0,0,0,0.4)",
-              margin: 0,
-              padding: "8px 0",
-            }}
-          >
-            No saved drawings yet.
-          </p>
-        ) : (
-          savedDrawings.map((drawing, index) => (
-            <div
-              key={index}
+          <div>
+            <h2
               style={{
-                background: "#f8f8f7",
-                border: "1px solid rgba(0,0,0,0.04)",
-                borderRadius: 10,
-                padding: "8px 10px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 10,
+                margin: 0,
+                fontSize: 16,
+                fontWeight: 600,
+                color: "rgba(0,0,0,0.85)",
+                letterSpacing: "-0.015em",
               }}
             >
-              <div
-                style={{
-                  width: 48,
-                  height: 36,
-                  flexShrink: 0,
-                  background: "#ffffff",
-                  border: "1px solid rgba(0,0,0,0.06)",
-                  borderRadius: 6,
-                  overflow: "hidden",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <img
-                  src={`data:image/svg+xml;utf8,${encodeURIComponent(drawing.data)}`}
-                  alt=""
-                  style={{
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    objectFit: "contain",
-                    pointerEvents: "none",
-                  }}
-                />
-              </div>
+              Memory Box
+            </h2>
+            <p
+              style={{
+                margin: "2px 0 0 0",
+                fontSize: 12,
+                color: "rgba(0,0,0,0.45)",
+              }}
+            >
+              {savedDrawings.length === 0
+                ? "Saved drawings appear here"
+                : `${savedDrawings.length} ${
+                    savedDrawings.length === 1 ? "drawing" : "drawings"
+                  } saved`}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close panel"
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "rgba(0,0,0,0.5)",
+              padding: 6,
+              borderRadius: 8,
+              cursor: "pointer",
+              display: "flex",
+            }}
+          >
+            <X size={18} />
+          </button>
+        </header>
 
-              <span
-                style={{
-                  fontFamily: "var(--font-inter)",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: "rgba(0,0,0,0.8)",
-                  flexGrow: 1,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {editingIndex === index ? (
-                  <input
-                    ref={editInputRef}
-                    value={editingValue}
-                    onChange={(e) => setEditingValue(e.target.value)}
-                    onBlur={commitRename}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") commitRename()
-                      if (e.key === "Escape") cancelRename()
-                    }}
-                    aria-label={`Rename ${drawing.name}`}
-                    style={{
-                      width: "100%",
-                      fontFamily: "inherit",
-                      fontSize: "inherit",
-                      fontWeight: "inherit",
-                      color: "rgba(0,0,0,0.85)",
-                      background: "rgba(0,0,0,0.04)",
-                      border: "1px solid rgba(0,0,0,0.1)",
-                      borderRadius: 6,
-                      padding: "2px 6px",
-                      outline: "none",
-                    }}
-                  />
-                ) : (
-                  <button
-                    onClick={() => startRename(index)}
-                    title="Click to rename"
-                    style={{
-                      width: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      textAlign: "left",
-                      fontFamily: "inherit",
-                      fontSize: "inherit",
-                      fontWeight: "inherit",
-                      color: "inherit",
-                      background: "transparent",
-                      border: "none",
-                      padding: 0,
-                      cursor: "text",
-                    }}
-                  >
-                    <span
-                      style={{
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        minWidth: 0,
-                      }}
-                    >
-                      {drawing.name}
-                    </span>
-                    <Pencil
-                      size={10}
-                      style={{ color: "rgba(0,0,0,0.35)", flexShrink: 0 }}
-                      aria-hidden="true"
-                    />
-                  </button>
-                )}
-              </span>
-
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <button
-                    onClick={() => loadSavedDrawing(index)}
-                    style={rowButtonStyle}
-                    aria-label={`Load drawing: ${drawing.name}`}
-                    title="Load drawing"
-                  >
-                    <WindowRestore size={14} />
-                  </button>
-                  <span style={rowLabelStyle}>Load</span>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <button
-                    onClick={() => exportDrawing(index)}
-                    style={rowButtonStyle}
-                    aria-label={`Export drawing: ${drawing.name}`}
-                    title="Export as SVG"
-                  >
-                    <Download size={14} />
-                  </button>
-                  <span style={rowLabelStyle}>Export</span>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <button
-                    onClick={() => handleOrderPrint(index)}
-                    disabled={printingIndex !== null}
-                    style={{
-                      ...rowButtonStyle,
-                      opacity: printingIndex === index ? 0.5 : 1,
-                      cursor: printingIndex !== null ? "wait" : "pointer",
-                    }}
-                    aria-label={`Order A4 print of: ${drawing.name}`}
-                    title="Order A4 print (£14.99)"
-                  >
-                    <ShoppingBag size={14} />
-                  </button>
-                  <span style={rowLabelStyle}>
-                    {printingIndex === index ? "..." : "Print"}
-                  </span>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <button
-                    onClick={() => deleteSavedDrawing(index)}
-                    style={rowButtonStyle}
-                    aria-label={`Delete drawing: ${drawing.name}`}
-                    title="Delete drawing"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                  <span style={rowLabelStyle}>Delete</span>
-                </div>
-              </div>
+        <div style={{ padding: 28, overflowY: "auto" }}>
+          {savedDrawings.length === 0 ? (
+            <div
+              style={{
+                padding: "48px 24px",
+                textAlign: "center",
+                color: "rgba(0,0,0,0.5)",
+                fontSize: 13,
+                lineHeight: 1.6,
+              }}
+            >
+              <p style={{ margin: 0, marginBottom: 4, color: "rgba(0,0,0,0.7)" }}>
+                Nothing saved yet.
+              </p>
+              <p style={{ margin: 0 }}>
+                Draw something and tap save — your drawings live here, ready to
+                print, open again, or download.
+              </p>
             </div>
-          ))
-        )}
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+                gap: 18,
+              }}
+            >
+              {savedDrawings.map((drawing, index) => (
+                <DrawingCard
+                  key={index}
+                  index={index}
+                  drawing={drawing}
+                  isEditing={editingIndex === index}
+                  editingValue={editingValue}
+                  editInputRef={editInputRef}
+                  onStartRename={() => startRename(index)}
+                  onChangeRename={setEditingValue}
+                  onCommitRename={commitRename}
+                  onCancelRename={cancelRename}
+                  onLoad={() => loadSavedDrawing(index)}
+                  onPrint={() => onOrderPrint(index)}
+                  onDelete={() => deleteSavedDrawing(index)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
+}
+
+interface DrawingCardProps {
+  index: number
+  drawing: SavedDrawing
+  isEditing: boolean
+  editingValue: string
+  editInputRef: React.RefObject<HTMLInputElement | null>
+  onStartRename: () => void
+  onChangeRename: (v: string) => void
+  onCommitRename: () => void
+  onCancelRename: () => void
+  onLoad: () => void
+  onPrint: () => void
+  onDelete: () => void
+}
+
+function DrawingCard({
+  drawing,
+  isEditing,
+  editingValue,
+  editInputRef,
+  onStartRename,
+  onChangeRename,
+  onCommitRename,
+  onCancelRename,
+  onLoad,
+  onPrint,
+  onDelete,
+}: DrawingCardProps) {
+  const product = drawing.format ? VECTOR_PAINT_PRODUCTS[drawing.format] : undefined
+
+  return (
+    <article
+      style={{
+        background: "#ffffff",
+        border: "1px solid rgba(0,0,0,0.08)",
+        borderRadius: 14,
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        transition: "box-shadow 0.15s, border-color 0.15s",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow =
+          "0 1px 2px rgba(0,0,0,0.04), 0 12px 28px rgba(0,0,0,0.08)"
+        e.currentTarget.style.borderColor = "rgba(0,0,0,0.14)"
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = "none"
+        e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"
+      }}
+    >
+      <div
+        style={{
+          aspectRatio: product
+            ? `${product.aspect.w} / ${product.aspect.h}`
+            : "3 / 4",
+          background: "#f4f3f0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 12,
+        }}
+      >
+        <img
+          src={`data:image/svg+xml;utf8,${encodeURIComponent(drawing.data)}`}
+          alt={drawing.name}
+          style={{
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "contain",
+            background: "#ffffff",
+            boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)",
+          }}
+        />
+      </div>
+
+      <div style={{ padding: "14px 16px 16px" }}>
+        {isEditing ? (
+          <input
+            ref={editInputRef}
+            value={editingValue}
+            onChange={(e) => onChangeRename(e.target.value)}
+            onBlur={onCommitRename}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onCommitRename()
+              if (e.key === "Escape") onCancelRename()
+            }}
+            aria-label={`Rename ${drawing.name}`}
+            style={{
+              width: "100%",
+              fontFamily: "inherit",
+              fontSize: 14,
+              fontWeight: 600,
+              color: "rgba(0,0,0,0.85)",
+              background: "rgba(0,0,0,0.04)",
+              border: "1px solid rgba(0,0,0,0.12)",
+              borderRadius: 8,
+              padding: "6px 10px",
+              outline: "none",
+            }}
+          />
+        ) : (
+          <button
+            onClick={onStartRename}
+            title="Click to rename"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              width: "100%",
+              textAlign: "left",
+              background: "transparent",
+              border: "none",
+              padding: 0,
+              cursor: "text",
+              fontFamily: "inherit",
+            }}
+          >
+            <span
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "rgba(0,0,0,0.85)",
+                letterSpacing: "-0.005em",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                minWidth: 0,
+                flex: 1,
+              }}
+            >
+              {drawing.name}
+            </span>
+            <Pencil size={11} style={{ color: "rgba(0,0,0,0.35)", flexShrink: 0 }} aria-hidden />
+          </button>
+        )}
+
+        {product && (
+          <p
+            style={{
+              margin: "4px 0 14px 0",
+              fontSize: 12,
+              color: "rgba(0,0,0,0.5)",
+            }}
+          >
+            {product.tierLabel} · {product.shortLabel}
+          </p>
+        )}
+        {!product && <div style={{ height: 14 }} />}
+
+        <button
+          onClick={onPrint}
+          style={primaryButtonStyle}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(0,0,0,1)"
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(0,0,0,0.88)"
+          }}
+        >
+          <ShoppingBag size={14} />
+          Print canvas
+        </button>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 6,
+            marginTop: 8,
+          }}
+        >
+          <SecondaryButton onClick={onLoad} icon={<WindowRestore size={13} />} label="Open" />
+          <SecondaryButton
+            onClick={onDelete}
+            icon={<Trash2 size={13} />}
+            label="Delete"
+            danger
+          />
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function SecondaryButton({
+  onClick,
+  icon,
+  label,
+  danger,
+}: {
+  onClick: () => void
+  icon: React.ReactNode
+  label: string
+  danger?: boolean
+}) {
+  const baseColor = danger ? "rgba(180,40,40,0.85)" : "rgba(0,0,0,0.65)"
+  return (
+    <button
+      onClick={onClick}
+      title={label}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 5,
+        background: "transparent",
+        border: "1px solid rgba(0,0,0,0.08)",
+        borderRadius: 8,
+        padding: "6px 8px",
+        fontFamily: "inherit",
+        fontSize: 12,
+        fontWeight: 500,
+        color: baseColor,
+        cursor: "pointer",
+        transition: "background 0.15s, border-color 0.15s",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = danger
+          ? "rgba(220,60,60,0.06)"
+          : "rgba(0,0,0,0.03)"
+        e.currentTarget.style.borderColor = danger
+          ? "rgba(220,60,60,0.2)"
+          : "rgba(0,0,0,0.16)"
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent"
+        e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"
+      }}
+    >
+      {icon}
+      {label}
+    </button>
+  )
+}
+
+const primaryButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 6,
+  width: "100%",
+  background: "rgba(0,0,0,0.88)",
+  color: "#ffffff",
+  border: "none",
+  borderRadius: 10,
+  padding: "10px 14px",
+  fontSize: 13,
+  fontWeight: 600,
+  fontFamily: "inherit",
+  letterSpacing: "-0.005em",
+  cursor: "pointer",
+  transition: "background 0.15s",
 }

@@ -56,6 +56,8 @@ export async function createGelatoOrder(args: {
 
   const dryRun = process.env.GELATO_DRY_RUN === 'true'
 
+  const quantity = Math.max(1, parseInt(args.session.metadata?.quantity ?? '1', 10) || 1)
+
   const body = {
     orderType: 'order',
     orderReferenceId: args.session.id,
@@ -66,7 +68,7 @@ export async function createGelatoOrder(args: {
         itemReferenceId: `${args.session.id}-${args.product.id}`,
         productUid: args.product.gelatoProductUid,
         files: [{ type: 'default', url: args.printFileUrl }],
-        quantity: 1,
+        quantity,
       },
     ],
     shippingAddress: shippingAddressFromSession(args.session),

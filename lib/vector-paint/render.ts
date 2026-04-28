@@ -32,6 +32,8 @@ export async function rasteriseAndUpload(
   svg: string,
   product: VectorPaintProduct
 ): Promise<RenderResult> {
+  // The drawing is created at the product's aspect ratio in the editor,
+  // so width-fit produces the correct pixel dimensions for print.
   const resvg = new Resvg(svg, {
     fitTo: { mode: 'width', value: product.widthPx },
     background: '#ffffff',

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import VectorDrawingPad from "./components/vector-drawing-pad";
+import FormatDropdown from "./components/format-dropdown";
+import OrientationToggle from "./components/orientation-toggle";
 import styles from "./vector-paint.module.css";
 
 export default function VectorPaintPage() {
@@ -54,6 +56,8 @@ export default function VectorPaintPage() {
           >
             Vector Paint
           </span>
+          <FormatDropdown />
+          <OrientationToggle />
         </div>
       </header>
       <div className={styles.canvas}>

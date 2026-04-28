@@ -14,7 +14,33 @@
 .canvas {
   flex: 1;
   position: relative;
+  background: #ebeae7;
+  container-type: size;
+}
+
+.pageWrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  pointer-events: none;
+}
+
+.page {
+  aspect-ratio: var(--vp-ratio, 0.707);
+  width: calc(
+    min(calc(100cqw - 32px), calc((100cqh - 32px) * var(--vp-ratio, 0.707)))
+    * var(--vp-size-scale, 1)
+  );
   background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  pointer-events: auto;
+  transition: width 0.25s ease, aspect-ratio 0.25s ease;
 }
 
 .root :global(input[type="range"]) {
