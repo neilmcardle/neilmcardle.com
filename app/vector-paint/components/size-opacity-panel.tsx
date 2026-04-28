@@ -21,7 +21,9 @@ export default function SizeOpacityPanel({
   const lineWidthInputRef = useRef<HTMLInputElement>(null)
   const opacityInputRef = useRef<HTMLInputElement>(null)
 
-  // Fix for Firefox iOS range inputs
+  // Firefox iOS doesn't fire change events on range inputs from touch.
+  // Translate touchstart/touchmove into the same value updates so the
+  // sliders work there. See https://bugzilla.mozilla.org/show_bug.cgi?id=1576996
   useEffect(() => {
     const isFirefoxiOS =
       navigator.userAgent.includes("FxiOS") ||
@@ -30,39 +32,25 @@ export default function SizeOpacityPanel({
     if (isFirefoxiOS) {
       const handleLineWidthTouch = (e: TouchEvent) => {
         if (!lineWidthInputRef.current) return
-
         const input = lineWidthInputRef.current
         const rect = input.getBoundingClientRect()
         const touch = e.touches[0]
-
-        // Calculate position as percentage of width
         const percentage = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width))
-
-        // Calculate value based on min, max and percentage
         const min = Number(input.min) || 1
         const max = Number(input.max) || 50
         const newValue = min + percentage * (max - min)
-
-        // Update the input value
         setLineWidth(Math.round(newValue))
       }
 
       const handleOpacityTouch = (e: TouchEvent) => {
         if (!opacityInputRef.current) return
-
         const input = opacityInputRef.current
         const rect = input.getBoundingClientRect()
         const touch = e.touches[0]
-
-        // Calculate position as percentage of width
         const percentage = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width))
-
-        // Calculate value based on min, max and percentage
         const min = Number(input.min) || 0.1
         const max = Number(input.max) || 1
         const newValue = min + percentage * (max - min)
-
-        // Update the input value
         setOpacity(Number.parseFloat(newValue.toFixed(1)))
       }
 
@@ -90,36 +78,87 @@ export default function SizeOpacityPanel({
     }
   }, [setLineWidth, setOpacity])
 
-  // Calculate opacity as percentage
   const opacityPercentage = Math.round(opacity * 100)
-
-  // Calculate the percentage for the line width (1-50)
   const lineWidthPercentage = ((lineWidth - 1) / 49) * 100
 
+  const labelStyle = {
+    fontFamily: "var(--font-inter)",
+    fontSize: 12,
+    fontWeight: 500,
+    color: "rgba(0,0,0,0.7)",
+    marginBottom: 6,
+    display: "block" as const,
+  }
+
+  const valueStyle = {
+    fontFamily: "var(--font-inter)",
+    fontSize: 12,
+    color: "rgba(0,0,0,0.4)",
+    fontVariantNumeric: "tabular-nums" as const,
+  }
+
   return (
-    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 p-4 rounded-xl z-40 flex flex-col w-[280px]">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-white text-sm font-medium">Brush Settings</h3>
-        <button onClick={onClose} className="text-white hover:bg-gray-700 rounded-full p-1" aria-label="Close panel">
+    <div
+      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40"
+      style={{
+        background: "#ffffff",
+        border: "1px solid rgba(0,0,0,0.06)",
+        borderRadius: 16,
+        boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.08)",
+        padding: 20,
+        width: 280,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <h3
+          style={{
+            fontFamily: "var(--font-inter)",
+            fontSize: 13,
+            fontWeight: 600,
+            color: "rgba(0,0,0,0.85)",
+            letterSpacing: "-0.01em",
+            margin: 0,
+          }}
+        >
+          Brush Settings
+        </h3>
+        <button
+          onClick={onClose}
+          aria-label="Close panel"
+          style={{
+            color: "rgba(0,0,0,0.4)",
+            background: "transparent",
+            border: "none",
+            padding: 4,
+            cursor: "pointer",
+            display: "flex",
+            transition: "color 0.15s",
+          }}
+        >
           <X size={16} />
         </button>
       </div>
 
-      <span className="text-white mb-2">Brush Size: {lineWidth}</span>
-      <div className="relative mb-4 h-6 flex items-center">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+        <span style={labelStyle}>Brush Size</span>
+        <span style={valueStyle}>{lineWidth}</span>
+      </div>
+      <div className="relative h-6 flex items-center" style={{ marginBottom: 16 }}>
         <div
-          className="absolute h-2 bg-gray-600 rounded-full"
+          className="absolute h-1.5 rounded-full"
           style={{
+            background: "rgba(0,0,0,0.08)",
             width: "calc(100% - 12px)",
-            left: "6px",
-            right: "6px",
+            left: 6,
+            right: 6,
           }}
         />
         <div
-          className="absolute h-2 bg-green-500 rounded-l-full"
+          className="absolute h-1.5 rounded-l-full"
           style={{
+            background: "#111111",
             width: `calc(${lineWidthPercentage}% - 12px)`,
-            left: "6px",
+            left: 6,
             maxWidth: "calc(100% - 24px)",
           }}
         />
@@ -134,21 +173,26 @@ export default function SizeOpacityPanel({
         />
       </div>
 
-      <span className="text-white mb-2">Opacity: {opacityPercentage}%</span>
-      <div className="relative mb-2 h-6 flex items-center">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+        <span style={labelStyle}>Opacity</span>
+        <span style={valueStyle}>{opacityPercentage}%</span>
+      </div>
+      <div className="relative h-6 flex items-center">
         <div
-          className="absolute h-2 bg-gray-600 rounded-full"
+          className="absolute h-1.5 rounded-full"
           style={{
+            background: "rgba(0,0,0,0.08)",
             width: "calc(100% - 12px)",
-            left: "6px",
-            right: "6px",
+            left: 6,
+            right: 6,
           }}
         />
         <div
-          className="absolute h-2 bg-green-500 rounded-l-full"
+          className="absolute h-1.5 rounded-l-full"
           style={{
+            background: "#111111",
             width: `calc(${opacityPercentage}% - 12px)`,
-            left: "6px",
+            left: 6,
             maxWidth: "calc(100% - 24px)",
           }}
         />

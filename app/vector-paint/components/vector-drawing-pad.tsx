@@ -16,6 +16,7 @@ export default function VectorDrawingPad() {
   const [opacity, setOpacity] = useState(1.0)
   const [isDrawing, setIsDrawing] = useState(false)
   const [isDrawActive, setIsDrawActive] = useState(false)
+  const [isEraseActive, setIsEraseActive] = useState(false)
   const [showSizeOpacity, setShowSizeOpacity] = useState(false)
   const [showColorPalette, setShowColorPalette] = useState(false)
   const [showSavePanel, setShowSavePanel] = useState(false)
@@ -30,6 +31,8 @@ export default function VectorDrawingPad() {
 
   const currentPathRef = useRef<SVGPathElement | null>(null)
   const isFirefoxiOS = useRef<boolean>(false)
+  const isErasingRef = useRef(false)
+  const removedDuringEraseRef = useRef(false)
 
   // Check for Firefox on iOS
   useEffect(() => {
@@ -202,9 +205,20 @@ export default function VectorDrawingPad() {
   }
 
   const startDrawing = (e: React.MouseEvent<SVGSVGElement> | React.TouchEvent<SVGSVGElement>, isTouch = false) => {
+    if (isEraseActive) {
+      if (isTouch) e.preventDefault()
+      const coords = getCoordinates(e, isTouch)
+      if (!coords) return
+      isErasingRef.current = true
+      removedDuringEraseRef.current = false
+      if (eraseAtPoint(coords.x, coords.y)) {
+        removedDuringEraseRef.current = true
+      }
+      return
+    }
+
     if (!isDrawActive) return
 
-    // Prevent scrolling on touch devices
     if (isTouch) {
       e.preventDefault()
     }
@@ -232,9 +246,18 @@ export default function VectorDrawingPad() {
   }
 
   const moveDrawing = (e: React.MouseEvent<SVGSVGElement> | React.TouchEvent<SVGSVGElement>, isTouch = false) => {
+    if (isErasingRef.current) {
+      if (isTouch) e.preventDefault()
+      const coords = getCoordinates(e, isTouch)
+      if (!coords) return
+      if (eraseAtPoint(coords.x, coords.y)) {
+        removedDuringEraseRef.current = true
+      }
+      return
+    }
+
     if (!isDrawing || !currentPathRef.current) return
 
-    // Prevent scrolling on touch devices
     if (isTouch) {
       e.preventDefault()
     }
@@ -252,17 +275,17 @@ export default function VectorDrawingPad() {
   }
 
   const stopDrawing = () => {
-    if (isDrawing && svgCanvasRef.current) {
-      // Save to history when drawing stops
-      const newState = svgCanvasRef.current.innerHTML
-
-      // Only save if something changed
-      if (history[historyIndex] !== newState) {
-        // Remove any future history if we're in the middle of the history array
-        const newHistory = history.slice(0, historyIndex + 1)
-        setHistory([...newHistory, newState])
-        setHistoryIndex(historyIndex + 1)
+    if (isErasingRef.current) {
+      isErasingRef.current = false
+      if (removedDuringEraseRef.current) {
+        pushHistory()
+        removedDuringEraseRef.current = false
       }
+      return
+    }
+
+    if (isDrawing && svgCanvasRef.current) {
+      pushHistory()
     }
 
     setIsDrawing(false)
@@ -307,7 +330,20 @@ export default function VectorDrawingPad() {
     }
 
     if (svgCanvasRef.current) {
-      const svgData = new XMLSerializer().serializeToString(svgCanvasRef.current)
+      // Inject viewBox + explicit width/height so the saved SVG scales
+      // correctly when rendered into a constrained thumbnail box. The
+      // live canvas has neither (it relies on CSS sizing).
+      const svg = svgCanvasRef.current
+      const rect = svg.getBoundingClientRect()
+      const w = Math.max(1, Math.round(rect.width))
+      const h = Math.max(1, Math.round(rect.height))
+      const clone = svg.cloneNode(true) as SVGSVGElement
+      clone.setAttribute("viewBox", `0 0 ${w} ${h}`)
+      clone.setAttribute("width", String(w))
+      clone.setAttribute("height", String(h))
+      clone.removeAttribute("class")
+      clone.removeAttribute("style")
+      const svgData = new XMLSerializer().serializeToString(clone)
       setSavedDrawings([...savedDrawings, { name: drawingName, data: svgData }])
       alert("Drawing saved successfully!")
     }
@@ -357,8 +393,61 @@ export default function VectorDrawingPad() {
   }
 
   const toggleDrawActive = () => {
-    setIsDrawActive(!isDrawActive)
+    const next = !isDrawActive
+    setIsDrawActive(next)
+    if (next) setIsEraseActive(false)
     setShowHint(false)
+  }
+
+  const toggleEraseActive = () => {
+    const next = !isEraseActive
+    setIsEraseActive(next)
+    if (next) setIsDrawActive(false)
+  }
+
+  const pushHistory = () => {
+    if (!svgCanvasRef.current) return
+    const newState = svgCanvasRef.current.innerHTML
+    if (history[historyIndex] === newState) return
+    const newHistory = history.slice(0, historyIndex + 1)
+    setHistory([...newHistory, newState])
+    setHistoryIndex(historyIndex + 1)
+  }
+
+  // Erase mode: drag-to-rub interaction with a generous hit tolerance.
+  // Whole-stroke erase only — true partial erase needs geometric path
+  // chopping (Bezier intersections, segment splitting) which is a much
+  // bigger undertaking. Hit-test samples each path along its length;
+  // tolerance scales with stroke width so wide strokes still feel right
+  // and tiny fingers can hit thin strokes.
+  const eraseAtPoint = (x: number, y: number): boolean => {
+    const svg = svgCanvasRef.current
+    if (!svg) return false
+    const tolerance = Math.max(12, lineWidth + 4)
+    const tol2 = tolerance * tolerance
+    const paths = Array.from(svg.querySelectorAll("path"))
+    for (const p of paths) {
+      const path = p as SVGPathElement
+      let length = 0
+      try {
+        length = path.getTotalLength()
+      } catch {
+        continue
+      }
+      if (length === 0) continue
+      const samples = Math.max(2, Math.min(200, Math.ceil(length / 4)))
+      for (let i = 0; i <= samples; i++) {
+        const t = (i / samples) * length
+        const pt = path.getPointAtLength(t)
+        const dx = pt.x - x
+        const dy = pt.y - y
+        if (dx * dx + dy * dy <= tol2) {
+          path.remove()
+          return true
+        }
+      }
+    }
+    return false
   }
 
   // Touch event handlers
@@ -381,10 +470,11 @@ export default function VectorDrawingPad() {
   }
 
   return (
-    <div className="relative w-full h-screen">
+    <div className="relative w-full h-full">
       <svg
         ref={svgCanvasRef}
         className="w-full h-full touch-none bg-white"
+        style={isEraseActive ? { cursor: "pointer" } : undefined}
         onMouseDown={startDrawing}
         onMouseMove={moveDrawing}
         onMouseUp={stopDrawing}
@@ -399,10 +489,12 @@ export default function VectorDrawingPad() {
 
       <Toolbar
         isDrawActive={isDrawActive}
+        isEraseActive={isEraseActive}
         showSizeOpacity={showSizeOpacity}
         showColorPalette={showColorPalette}
         showSavePanel={showSavePanel}
         toggleDrawActive={toggleDrawActive}
+        toggleEraseActive={toggleEraseActive}
         toggleSizeOpacity={() => setShowSizeOpacity(!showSizeOpacity)}
         toggleColorPalette={() => setShowColorPalette(!showColorPalette)}
         toggleSavePanel={() => setShowSavePanel(!showSavePanel)}

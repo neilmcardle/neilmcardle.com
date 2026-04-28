@@ -5,6 +5,23 @@ import type React from "react"
 import { useEffect, useRef, useState } from "react"
 import { X } from "lucide-react"
 
+// Swatches sized for tiny fingers, ordered roughly by hue then black/grey.
+// Bright, high-saturation tones because the audience is kids and the
+// canvas is white. White itself is omitted — invisible on white paper.
+const SWATCHES = [
+  "#ef4444", // red
+  "#f97316", // orange
+  "#fcd34d", // yellow
+  "#4ade80", // green
+  "#38bdf8", // sky
+  "#3b82f6", // blue
+  "#a855f7", // purple
+  "#ec4899", // pink
+  "#92400e", // brown
+  "#6b7280", // grey
+  "#111111", // black
+]
+
 interface ColorPaletteProps {
   drawColor: string
   setDrawColor: (color: string) => void
@@ -232,7 +249,7 @@ export default function ColorPalette({
     ctx.fill()
   }
 
-  const drawInnerColorSquare = (color = pureHueColor) => {
+  const drawInnerColorSquare = (color = pureHueColor, syncFromPosition = true) => {
     const innerSquare = innerColorSquareRef.current
     if (!innerSquare) return
 
@@ -264,12 +281,47 @@ export default function ColorPalette({
 
     innerSquare.style.backgroundImage = `url(${canvas.toDataURL()})`
 
-    // Update the current color based on the square position
-    if (squarePosition.x > 0 || squarePosition.y > 0) {
+    // Skipped when the caller has already set the colour explicitly
+    // (e.g. swatch click) — otherwise we'd overwrite their pick using
+    // the previous square indicator position.
+    if (syncFromPosition && (squarePosition.x > 0 || squarePosition.y > 0)) {
       const newColor = getColorAtPosition(squarePosition.x, squarePosition.y)
       setCurrentColor(newColor)
       setDrawColor(newColor)
     }
+  }
+
+  const hexToRgb = (hex: string): [number, number, number] => [
+    parseInt(hex.slice(1, 3), 16),
+    parseInt(hex.slice(3, 5), 16),
+    parseInt(hex.slice(5, 7), 16),
+  ]
+
+  // Picking a swatch must also move the wheel + saturation/lightness
+  // indicators so the custom picker reflects the chosen colour. For
+  // greys/black the hue is meaningless, so we only sync the wheel
+  // when saturation is non-trivial.
+  const applySwatch = (hex: string) => {
+    const [r, g, b] = hexToRgb(hex)
+    const [h, s, l] = rgbToHsl(r, g, b)
+
+    const newSquarePosition = getPositionInSquare(s, l, 150, 150)
+    setSquarePosition(newSquarePosition)
+    setSaturation(s)
+    setLightness(l)
+
+    let pure = pureHueColor
+    if (s > 0.05 && colorPickerCanvasRef.current) {
+      const radius = colorPickerCanvasRef.current.width / 2
+      setHuePosition(getPositionFromHue(h, radius))
+      const [pr, pg, pb] = hslToRgb(h, 1, 0.5)
+      pure = `rgb(${pr}, ${pg}, ${pb})`
+      setPureHueColor(pure)
+    }
+
+    setCurrentColor(hex)
+    setDrawColor(hex)
+    drawInnerColorSquare(pure, false)
   }
 
   const handleColorPickerClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -348,15 +400,88 @@ export default function ColorPalette({
   }
 
   return (
-    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 p-6 rounded-xl z-30">
-      <div className="flex justify-end mb-2">
+    <div
+      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30"
+      style={{
+        background: "#ffffff",
+        border: "1px solid rgba(0,0,0,0.06)",
+        borderRadius: 16,
+        boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.08)",
+        padding: 20,
+      }}
+    >
+      <div className="flex justify-between items-center" style={{ marginBottom: 12 }}>
+        <h3
+          style={{
+            fontFamily: "var(--font-inter)",
+            fontSize: 13,
+            fontWeight: 600,
+            color: "rgba(0,0,0,0.85)",
+            letterSpacing: "-0.01em",
+            margin: 0,
+          }}
+        >
+          Colour
+        </h3>
         <button
           onClick={handleClose}
-          className="text-white hover:bg-gray-700 rounded-full p-1"
           aria-label="Close colour picker"
+          style={{
+            color: "rgba(0,0,0,0.4)",
+            background: "transparent",
+            border: "none",
+            padding: 4,
+            cursor: "pointer",
+            display: "flex",
+          }}
         >
           <X size={16} />
         </button>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(6, 1fr)",
+          gap: 8,
+          marginBottom: 16,
+        }}
+      >
+        {SWATCHES.map((color) => {
+          const isSelected = currentColor.toLowerCase() === color.toLowerCase()
+          return (
+            <button
+              key={color}
+              onClick={() => applySwatch(color)}
+              aria-label={`Pick colour ${color}`}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: color,
+                border: isSelected ? "2px solid #111111" : "1px solid rgba(0,0,0,0.08)",
+                cursor: "pointer",
+                padding: 0,
+                boxShadow: isSelected ? "0 0 0 2px #ffffff inset" : "none",
+                transition: "border-color 0.15s, box-shadow 0.15s",
+              }}
+            />
+          )
+        })}
+      </div>
+
+      <div
+        style={{
+          fontFamily: "var(--font-inter)",
+          fontSize: 11,
+          fontWeight: 500,
+          color: "rgba(0,0,0,0.4)",
+          letterSpacing: "0.05em",
+          textTransform: "uppercase",
+          marginBottom: 8,
+        }}
+      >
+        Custom
       </div>
 
       <div className="relative w-[280px] h-[280px] rounded-full cursor-pointer">
@@ -399,9 +524,16 @@ export default function ColorPalette({
         </div>
       </div>
 
-      {/* Color preview */}
       <div className="mt-4 flex items-center justify-center">
-        <div className="w-16 h-16 rounded-md border-2 border-white" style={{ backgroundColor: currentColor }} />
+        <div
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: 8,
+            border: "1px solid rgba(0,0,0,0.08)",
+            backgroundColor: currentColor,
+          }}
+        />
       </div>
     </div>
   )
