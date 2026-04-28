@@ -322,31 +322,41 @@ export default function VectorDrawingPad() {
     }
   }
 
-  const saveDrawing = () => {
-    const drawingName = window.prompt("Enter a name for your drawing:")
-    if (!drawingName || savedDrawings.some((d) => d.name === drawingName)) {
-      alert("Invalid or duplicate name. Please try again.")
-      return
-    }
+  const nextDrawingName = () => {
+    let n = savedDrawings.length + 1
+    while (savedDrawings.some((d) => d.name === `Drawing ${n}`)) n++
+    return `Drawing ${n}`
+  }
 
-    if (svgCanvasRef.current) {
-      // Inject viewBox + explicit width/height so the saved SVG scales
-      // correctly when rendered into a constrained thumbnail box. The
-      // live canvas has neither (it relies on CSS sizing).
-      const svg = svgCanvasRef.current
-      const rect = svg.getBoundingClientRect()
-      const w = Math.max(1, Math.round(rect.width))
-      const h = Math.max(1, Math.round(rect.height))
-      const clone = svg.cloneNode(true) as SVGSVGElement
-      clone.setAttribute("viewBox", `0 0 ${w} ${h}`)
-      clone.setAttribute("width", String(w))
-      clone.setAttribute("height", String(h))
-      clone.removeAttribute("class")
-      clone.removeAttribute("style")
-      const svgData = new XMLSerializer().serializeToString(clone)
-      setSavedDrawings([...savedDrawings, { name: drawingName, data: svgData }])
-      alert("Drawing saved successfully!")
-    }
+  const saveDrawing = () => {
+    if (!svgCanvasRef.current) return
+    // Inject viewBox + explicit width/height so the saved SVG scales
+    // correctly when rendered into a constrained thumbnail box. The
+    // live canvas has neither (it relies on CSS sizing).
+    const svg = svgCanvasRef.current
+    const rect = svg.getBoundingClientRect()
+    const w = Math.max(1, Math.round(rect.width))
+    const h = Math.max(1, Math.round(rect.height))
+    const clone = svg.cloneNode(true) as SVGSVGElement
+    clone.setAttribute("viewBox", `0 0 ${w} ${h}`)
+    clone.setAttribute("width", String(w))
+    clone.setAttribute("height", String(h))
+    clone.removeAttribute("class")
+    clone.removeAttribute("style")
+    const svgData = new XMLSerializer().serializeToString(clone)
+    setSavedDrawings([...savedDrawings, { name: nextDrawingName(), data: svgData }])
+    setShowSavePanel(true)
+  }
+
+  const renameSavedDrawing = (index: number, name: string) => {
+    const trimmed = name.trim()
+    if (!trimmed) return
+    setSavedDrawings((prev) => {
+      if (prev.some((d, i) => i !== index && d.name === trimmed)) return prev
+      const next = [...prev]
+      next[index] = { ...next[index], name: trimmed }
+      return next
+    })
   }
 
   const loadSavedDrawing = (index: number) => {
@@ -523,6 +533,7 @@ export default function VectorDrawingPad() {
           loadSavedDrawing={loadSavedDrawing}
           deleteSavedDrawing={deleteSavedDrawing}
           exportDrawing={exportDrawing}
+          renameSavedDrawing={renameSavedDrawing}
           onClose={() => setShowSavePanel(false)}
         />
       )}

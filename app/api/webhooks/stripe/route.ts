@@ -9,6 +9,8 @@ import {
   createUser,
 } from '@/lib/db/users'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getProduct, type VectorPaintProductId } from '@/lib/vector-paint/products'
+import { createGelatoOrder } from '@/lib/vector-paint/gelato'
 
 // Disable body parsing - we need the raw body for signature verification
 export const runtime = 'nodejs'
@@ -260,6 +262,11 @@ async function handleCheckoutSessionCompleted(
 
   console.log(`Checkout completed: ${session.id}, type: ${purchaseType}, customer: ${customerId}`)
 
+  if (purchaseType === 'vector_paint_print') {
+    await handleVectorPaintOrder(session)
+    return
+  }
+
   // 1. Try to find user by supabase_user_id (set when user was authenticated at checkout)
   let user: Awaited<ReturnType<typeof getUserById>>['user'] = null
 
@@ -347,5 +354,28 @@ async function handleCheckoutSessionCompleted(
     console.log(`✅ Pro checkout completed for user ${user.id} — subscription event will follow`)
   } else {
     console.log(`Unrecognized purchase type: ${purchaseType} for session ${session.id}`)
+  }
+}
+
+async function handleVectorPaintOrder(session: Stripe.Checkout.Session) {
+  const productId = session.metadata?.product_id as VectorPaintProductId | undefined
+  const printFileUrl = session.metadata?.print_file_url
+
+  if (!productId || !printFileUrl) {
+    console.error(`Vector Paint order missing metadata on session ${session.id}`)
+    return
+  }
+
+  try {
+    const product = getProduct(productId)
+    const gelatoOrder = await createGelatoOrder({ session, product, printFileUrl })
+    console.log(
+      `Gelato order created: ${gelatoOrder.id} (status: ${gelatoOrder.fulfillmentStatus}) for Stripe session ${session.id}`
+    )
+  } catch (err: any) {
+    console.error(`Vector Paint order failed for session ${session.id}:`, err.message ?? err)
+    // Intentional: don't rethrow — Stripe retries the webhook on 5xx, but a Gelato
+    // failure here means the customer paid and we couldn't fulfil. We need a manual
+    // recovery path (admin tool / alert), not a retry storm. TODO: surface to ops.
   }
 }
