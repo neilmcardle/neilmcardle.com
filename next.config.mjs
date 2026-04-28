@@ -10,6 +10,11 @@ const nextConfig = {
   },
   // Next.js 16 uses Turbopack by default - empty config acknowledges this
   turbopack: {},
+  // @resvg/resvg-js ships native bindings (.node files) that Turbopack
+  // can't bundle into ESM chunks. Marking it external tells Next to
+  // resolve it from node_modules at runtime, which is the canonical
+  // pattern for native server-only modules.
+  serverExternalPackages: ['@resvg/resvg-js'],
   // Exclude pdfjs-dist from webpack bundling to avoid CSS issues (legacy webpack builds)
   webpack: (config, { isServer }) => {
     // Ignore pdfjs-dist CSS imports that cause issues
