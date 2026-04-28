@@ -89,15 +89,6 @@ export default function HeroSection({ onPrimaryClick, onSecondaryClick }: HeroSe
           )}
         </div>
 
-        {/* Tiny line */}
-        <div className="mt-11 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-gray-400">
-          <span>Free forever &middot; No credit card</span>
-          <span className="inline-block w-1 h-1 rounded-full bg-gray-400/50" />
-          <span>EPUB &middot; PDF &middot; DOCX &middot; Kindle &middot; Apple Books &middot; Kobo</span>
-          <span className="inline-block w-1 h-1 rounded-full bg-gray-400/50" />
-          <span>Works offline</span>
-        </div>
-
         {/* Constellation */}
         <Constellation />
       </div>

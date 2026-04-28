@@ -29,11 +29,11 @@ const FORMAT_STORAGE_KEY = "vp_currentFormat"
 
 export default function VectorDrawingPad() {
   const svgCanvasRef = useRef<SVGSVGElement>(null)
-  const [drawColor, setDrawColor] = useState("#000000")
-  const [lineWidth, setLineWidth] = useState(5)
+  const [drawColor, setDrawColor] = useState("#FF69B4")
+  const [lineWidth, setLineWidth] = useState(32)
   const [opacity, setOpacity] = useState(1.0)
   const [isDrawing, setIsDrawing] = useState(false)
-  const [isDrawActive, setIsDrawActive] = useState(false)
+  const [isDrawActive, setIsDrawActive] = useState(true)
   const [isEraseActive, setIsEraseActive] = useState(false)
   const [showSizeOpacity, setShowSizeOpacity] = useState(false)
   const [showColorPalette, setShowColorPalette] = useState(false)
@@ -44,7 +44,9 @@ export default function VectorDrawingPad() {
   const [parentalGatePassed, setParentalGatePassed] = useState(false)
   const [currentFormat, setCurrentFormat] = useState<VectorPaintProductId>(DEFAULT_FORMAT)
   const [pendingUndo, setPendingUndo] = useState<{ drawing: SavedDrawing; index: number } | null>(null)
+  const [undoSecondsLeft, setUndoSecondsLeft] = useState(0)
   const pendingUndoTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const undoTickInterval = useRef<ReturnType<typeof setInterval> | null>(null)
   const [savedHuePosition, setSavedHuePosition] = useState<{ x: number; y: number } | null>(null)
   const [savedSquarePosition, setSavedSquarePosition] = useState<{ x: number; y: number } | null>(null)
 
@@ -434,7 +436,26 @@ export default function VectorDrawingPad() {
       if (snap) nextSaved = [...savedDrawings, snap]
     }
 
-    svgCanvasRef.current.innerHTML = drawing.data
+    // The saved SVG has fixed pixel width/height from when it was drawn.
+    // Force it to scale fluidly so it fits whatever format the editor
+    // is in now, preserving the original aspect ratio (centered, with
+    // letterbox margins if the new canvas has a different aspect).
+    let svgToInsert = drawing.data
+    try {
+      const doc = new DOMParser().parseFromString(drawing.data, "image/svg+xml")
+      const inner = doc.documentElement
+      if (inner.tagName.toLowerCase() === "svg") {
+        inner.setAttribute("width", "100%")
+        inner.setAttribute("height", "100%")
+        inner.setAttribute("preserveAspectRatio", "xMidYMid meet")
+        svgToInsert = new XMLSerializer().serializeToString(inner)
+      }
+    } catch {
+      // Fall back to raw data if parsing fails — better to load the
+      // drawing at its old size than not at all.
+    }
+
+    svgCanvasRef.current.innerHTML = svgToInsert
     if (nextSaved !== savedDrawings) setSavedDrawings(nextSaved)
 
     const newState = svgCanvasRef.current.innerHTML
@@ -448,21 +469,42 @@ export default function VectorDrawingPad() {
       localStorage.setItem(FORMAT_STORAGE_KEY, drawing.format)
       window.dispatchEvent(new CustomEvent("vp-format-changed", { detail: drawing.format }))
     }
+
+    // Close the Memory Box so the user immediately sees the loaded
+    // drawing on the canvas — that's the feedback.
+    setShowSavePanel(false)
   }
 
   const deleteSavedDrawing = (index: number) => {
+    // Block stacked deletes — overwriting pendingUndo would silently
+    // strand the previous drawing with no way to restore it. The UI
+    // disables Delete buttons while the undo toast is up, but the
+    // server-of-truth check stays here in case something slips through.
+    if (pendingUndo) return
+
     const drawingToDelete = savedDrawings[index]
     if (!drawingToDelete) return
 
     if (pendingUndoTimer.current) clearTimeout(pendingUndoTimer.current)
+    if (undoTickInterval.current) clearInterval(undoTickInterval.current)
 
     setSavedDrawings((prev) => prev.filter((_, i) => i !== index))
     setPendingUndo({ drawing: drawingToDelete, index })
+    setUndoSecondsLeft(8)
+
+    undoTickInterval.current = setInterval(() => {
+      setUndoSecondsLeft((s) => Math.max(0, s - 1))
+    }, 1000)
 
     pendingUndoTimer.current = setTimeout(() => {
       setPendingUndo(null)
+      setUndoSecondsLeft(0)
+      if (undoTickInterval.current) {
+        clearInterval(undoTickInterval.current)
+        undoTickInterval.current = null
+      }
       pendingUndoTimer.current = null
-    }, 5000)
+    }, 8000)
   }
 
   const undoDelete = () => {
@@ -474,9 +516,14 @@ export default function VectorDrawingPad() {
       return next
     })
     setPendingUndo(null)
+    setUndoSecondsLeft(0)
     if (pendingUndoTimer.current) {
       clearTimeout(pendingUndoTimer.current)
       pendingUndoTimer.current = null
+    }
+    if (undoTickInterval.current) {
+      clearInterval(undoTickInterval.current)
+      undoTickInterval.current = null
     }
   }
 
@@ -623,13 +670,16 @@ export default function VectorDrawingPad() {
           renameSavedDrawing={renameSavedDrawing}
           onOrderPrint={(index) => setOrderingDrawing(savedDrawings[index])}
           onClose={() => setShowSavePanel(false)}
+          deleteDisabled={pendingUndo !== null}
         />
       )}
 
       {pendingUndo && (
         <div
+          key={`${pendingUndo.index}-${pendingUndo.drawing.name}`}
           role="status"
           aria-live="polite"
+          className={styles.undoToast}
           style={{
             position: "fixed",
             bottom: 24,
@@ -646,15 +696,29 @@ export default function VectorDrawingPad() {
             boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.18)",
             fontFamily: "var(--font-inter)",
             fontSize: 13,
+            overflow: "hidden",
           }}
         >
           <span>Drawing deleted</span>
+          <span
+            aria-hidden
+            style={{
+              fontVariantNumeric: "tabular-nums",
+              color: "rgba(255,255,255,0.65)",
+              fontSize: 12,
+              fontWeight: 500,
+              minWidth: 22,
+              textAlign: "center",
+            }}
+          >
+            {undoSecondsLeft}s
+          </span>
           <button
             onClick={undoDelete}
             style={{
-              background: "rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,0.14)",
               color: "#ffffff",
-              border: "1px solid rgba(255,255,255,0.18)",
+              border: "1px solid rgba(255,255,255,0.22)",
               borderRadius: 999,
               padding: "5px 12px",
               fontFamily: "inherit",
@@ -665,6 +729,19 @@ export default function VectorDrawingPad() {
           >
             Undo
           </button>
+          <span
+            className={styles.undoProgress}
+            aria-hidden
+            style={{
+              position: "absolute",
+              left: 0,
+              bottom: 0,
+              height: 3,
+              width: "100%",
+              background: "rgba(255,255,255,0.85)",
+              transformOrigin: "left center",
+            }}
+          />
         </div>
       )}
 

@@ -18,6 +18,34 @@
   container-type: size;
 }
 
+.undoToast {
+  animation: vpUndoToastIn 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes vpUndoToastIn {
+  from {
+    transform: translate(-50%, 14px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.undoProgress {
+  animation: vpUndoDrain 8s linear forwards;
+}
+
+@keyframes vpUndoDrain {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
 .pageWrap {
   position: absolute;
   inset: 0;

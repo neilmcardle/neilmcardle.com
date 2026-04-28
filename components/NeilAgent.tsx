@@ -3,11 +3,12 @@
 // ElevenLabs ConvAI voice agent — floating "chat with Neil" button.
 // Injects the embed script once per session and renders the custom
 // element. Hidden on the standalone product surfaces (icon-animator,
-// promptr, make-ebook) because they have their own focused UI and
-// don't need a voice agent floating over the workspace. Also hidden
-// on the portfolio gate page.
+// promptr, make-ebook, vector-paint) because they have their own
+// focused UI. Also hidden entirely on product domains like
+// makeebook.ink, which share this Vercel deployment but should not
+// show the portfolio's voice agent.
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const AGENT_ID = "agent_3801kmmjqtf7fr1ahe9meb2vc1eq";
@@ -26,9 +27,21 @@ const HIDDEN_ROUTES = [
   "/terms",
 ];
 
+// Hostnames where the agent should never appear, regardless of route.
+// makeebook.ink shares this Vercel deployment with neilmcardle.com, so
+// the root path on that domain would otherwise show the portfolio agent.
+const HIDDEN_HOSTS = ["makeebook.ink", "www.makeebook.ink"];
+
 export default function NeilAgent() {
   const pathname = usePathname();
+  const [hostHidden, setHostHidden] = useState(false);
+
+  useEffect(() => {
+    setHostHidden(HIDDEN_HOSTS.includes(window.location.hostname));
+  }, []);
+
   const shouldShow =
+    !hostHidden &&
     !!pathname &&
     !HIDDEN_ROUTES.some(
       (r) => pathname === r || pathname.startsWith(`${r}/`),

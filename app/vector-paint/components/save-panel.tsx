@@ -26,6 +26,7 @@ interface SavePanelProps {
   renameSavedDrawing: (index: number, name: string) => void
   onOrderPrint: (index: number) => void
   onClose: () => void
+  deleteDisabled?: boolean
 }
 
 export default function SavePanel({
@@ -35,6 +36,7 @@ export default function SavePanel({
   renameSavedDrawing,
   onOrderPrint,
   onClose,
+  deleteDisabled = false,
 }: SavePanelProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [editingValue, setEditingValue] = useState("")
@@ -197,6 +199,7 @@ export default function SavePanel({
                   onLoad={() => loadSavedDrawing(index)}
                   onPrint={() => onOrderPrint(index)}
                   onDelete={() => deleteSavedDrawing(index)}
+                  deleteDisabled={deleteDisabled}
                 />
               ))}
             </div>
@@ -220,6 +223,7 @@ interface DrawingCardProps {
   onLoad: () => void
   onPrint: () => void
   onDelete: () => void
+  deleteDisabled: boolean
 }
 
 function DrawingCard({
@@ -234,6 +238,7 @@ function DrawingCard({
   onLoad,
   onPrint,
   onDelete,
+  deleteDisabled,
 }: DrawingCardProps) {
   const product = drawing.format ? VECTOR_PAINT_PRODUCTS[drawing.format] : undefined
 
@@ -385,6 +390,8 @@ function DrawingCard({
             icon={<Trash2 size={13} />}
             label="Delete"
             danger
+            disabled={deleteDisabled}
+            disabledTitle="Wait for the previous undo to finish"
           />
         </div>
       </div>
@@ -397,17 +404,22 @@ function SecondaryButton({
   icon,
   label,
   danger,
+  disabled,
+  disabledTitle,
 }: {
   onClick: () => void
   icon: React.ReactNode
   label: string
   danger?: boolean
+  disabled?: boolean
+  disabledTitle?: string
 }) {
   const baseColor = danger ? "rgba(180,40,40,0.85)" : "rgba(0,0,0,0.65)"
   return (
     <button
       onClick={onClick}
-      title={label}
+      disabled={disabled}
+      title={disabled ? disabledTitle ?? label : label}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -421,10 +433,12 @@ function SecondaryButton({
         fontSize: 12,
         fontWeight: 500,
         color: baseColor,
-        cursor: "pointer",
-        transition: "background 0.15s, border-color 0.15s",
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.4 : 1,
+        transition: "background 0.15s, border-color 0.15s, opacity 0.15s",
       }}
       onMouseEnter={(e) => {
+        if (disabled) return
         e.currentTarget.style.background = danger
           ? "rgba(220,60,60,0.06)"
           : "rgba(0,0,0,0.03)"

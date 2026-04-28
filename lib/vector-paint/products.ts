@@ -167,7 +167,7 @@ export const PRODUCT_ORDER: VectorPaintProductId[] = [
   'canvas_large_portrait',
 ]
 
-export const DEFAULT_PRODUCT_ID: VectorPaintProductId = 'canvas_small_portrait'
+export const DEFAULT_PRODUCT_ID: VectorPaintProductId = 'canvas_large_landscape'
 
 /**
  * Find the matching product variant for a given tier + orientation.

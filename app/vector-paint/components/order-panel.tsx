@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { X, Minus, Plus } from "lucide-react"
 import { getProduct, type VectorPaintProductId } from "@/lib/vector-paint/products"
+import WallMockup from "./wall-mockup"
 
 const SHIPPING_MINOR = 499
 const MAX_QUANTITY = 10
@@ -185,6 +186,12 @@ export default function OrderPanel({
             >
               {product.shortLabel} · {Math.round((product.widthPx / product.dpi) * 25.4)} × {Math.round((product.heightPx / product.dpi) * 25.4)} mm
             </p>
+          </div>
+        )}
+
+        {drawing && (
+          <div style={{ marginBottom: 18 }}>
+            <WallMockup product={product} drawingData={drawing.data} />
           </div>
         )}
 
