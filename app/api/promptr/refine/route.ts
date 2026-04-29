@@ -1,16 +1,3 @@
-// Promptr refine endpoint.
-//
-// POST { prompt: string } → a single JSON object at the end of a
-// streamed text response. The model is instructed to emit one valid
-// JSON object (refined + changes). We stream raw text to the client,
-// which accumulates and parses at the end. This is simpler and more
-// robust than interleaving structured deltas — the refined text is
-// typically short enough (< 1500 chars) that end-of-stream parsing
-// doesn't lose any interactivity.
-//
-// Sonnet, because this is editorial rewriting where quality matters
-// more than first-token latency.
-
 import { NextRequest, NextResponse } from "next/server";
 import { streamWithFallback, SystemBlock } from "@/app/api/ai/book-mind/_lib/anthropic";
 import { checkPromptrRateLimit, getClientIp } from "../_lib/rateLimit";
@@ -90,10 +77,7 @@ export async function POST(req: NextRequest) {
     },
   ];
 
-  // Stream raw text deltas to the client as plain text. The client
-  // accumulates and JSON.parses at the end. We don't wrap in SSE
-  // because there's no incremental structure to reveal, and plain text
-  // avoids a second layer of framing.
+  // Client accumulates raw text deltas and JSON.parses at the end.
   const stream = new ReadableStream({
     async start(controller) {
       try {

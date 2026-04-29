@@ -61,7 +61,6 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
       const { url } = await response.json();
 
       if (url) {
-        // Redirect to Stripe Checkout
         window.location.href = url;
       } else {
         throw new Error('No checkout URL returned');

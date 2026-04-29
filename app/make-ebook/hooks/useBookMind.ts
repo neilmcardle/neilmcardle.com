@@ -520,10 +520,8 @@ export function useBookMind(options: UseBookMindOptions = {}) {
               );
             }
           } catch (e) {
-            // Stream protocol errors thrown from inside the try (parsed.error)
-            // propagate so the outer catch can surface them. JSON.parse failures
-            // on malformed chunks are silent — Anthropic's SSE format is stable
-            // enough that real failures arrive as explicit `error` keys.
+            // Propagate explicit stream protocol errors; ignore parse errors on
+            // malformed chunks (real failures arrive as explicit `error` keys).
             if (e instanceof Error && e.message !== 'Unexpected token' && !e.message.includes('JSON')) throw e;
           }
         }

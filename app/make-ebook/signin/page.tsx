@@ -7,11 +7,7 @@ import { Loader2, Mail, CheckCircle, AlertCircle, ArrowRight } from 'lucide-reac
 import MarketingNav from '../components/MarketingNav'
 import MarketingFooter from '../components/MarketingFooter'
 
-// ── Shared shells ──────────────────────────────────────────────────────────
-// Defined outside SignInContent so they keep stable component identity across
-// re-renders. If these lived inside the parent component, every keystroke
-// would rebuild the component tree and inputs would lose focus after each
-// character typed.
+// Defined at module scope so React keeps stable component identity and inputs don't lose focus.
 function PageShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen flex flex-col bg-me-cream dark:bg-me-cream-dark text-gray-700 dark:text-[#d4d4d4]">
@@ -50,9 +46,6 @@ function SignInContent() {
   const [showResetMessage, setShowResetMessage] = useState(false)
   const { signIn, signUp, resetPassword, authError, clearError } = useAuth()
 
-  // Sync URL ?mode= changes into state. The page is already mounted when the
-  // user clicks Sign in / Start writing in the nav, so a route change without a
-  // remount would otherwise leave the form on the previous mode.
   useEffect(() => {
     if (rawMode === 'signin' || rawMode === 'signup' || rawMode === 'reset') {
       setMode(rawMode)
@@ -105,7 +98,6 @@ function SignInContent() {
     }
   }
 
-  // ── Verification / reset success state ───────────────────────────────────────
   if (showVerificationMessage || showResetMessage) {
     return (
       <PageShell>
@@ -162,7 +154,6 @@ function SignInContent() {
     )
   }
 
-  // ── Main form ────────────────────────────────────────────────────────────────
   const headline =
     mode === 'signin' ? 'Welcome back.'
     : mode === 'reset' ? 'Reset your password.'
@@ -182,7 +173,6 @@ function SignInContent() {
     <PageShell>
       <Card>
         <div className="p-8 sm:p-10">
-          {/* Header */}
           <div>
             <h1
               className="text-gray-900 dark:text-white text-balance"
@@ -204,7 +194,6 @@ function SignInContent() {
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             {authError && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">

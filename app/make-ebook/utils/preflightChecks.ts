@@ -1,8 +1,3 @@
-// Deterministic KDP pre-flight checks. Pure — no API calls, no state.
-// Shared between PreflightTab (Inspector surface) and PreflightExportDialog
-// (export-time gate). Returning the raw totals alongside the bucketed lists
-// lets callers show an "X passing, Y warnings" summary without re-counting.
-
 export type CheckStatus = "pass" | "warn" | "block";
 
 export interface CheckResult {

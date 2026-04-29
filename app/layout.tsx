@@ -40,14 +40,12 @@ export const metadata: Metadata = {
     siteName: "Neil McArdle",
     type: "website",
     locale: "en_GB",
-    // images are auto-injected by Next.js from app/opengraph-image.tsx
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
     creator: "@BetterNeil",
-    // images auto-injected from app/opengraph-image.tsx (reused as twitter image)
   },
 };
 
@@ -90,7 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ThemeProvider>
               <div className="min-h-screen flex flex-col">
                 <main className="flex-1">{children}</main>
-                <ClientFooterWrapper /> {/* Use the client-side wrapper */}
+                <ClientFooterWrapper />
               </div>
               <Toaster />
               <SonnerToaster />

@@ -1,26 +1,12 @@
-// Generate a ManuscriptBrief in one streaming call.
-//
-// Called once per book per manuscript-edit cycle, in the background,
-// while the author writes. The brief is the spine of every fast Book
-// Mind interaction: it lets us answer chat questions and run inline
-// edits without re-shipping the whole manuscript on every turn.
-//
-// Streams NDJSON: one JSON object per chapter, separated by newlines.
-// Each line looks like:
-//   {"type":"chapter","summary":{"summary":"...","keyEntities":["R.","Mars"]}}
-// The client parses lines as they arrive so the Inspector status strip
-// can show "indexed 12 of 38 chapters…" while the brief generates.
+// Generate a manuscript brief as one streaming call.
+// Streams NDJSON, one JSON object per chapter, separated by newlines.
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireProUser } from '../_lib/proAuth';
 import { streamWithFallback, SystemBlock } from '../_lib/anthropic';
 
 export const runtime = 'nodejs';
-// Hobby plan caps serverless functions at 60s. Haiku 4.5 completes a
-// 200K-word brief in roughly 30-45s with streaming, so 60s leaves
-// headroom without hitting the ceiling. If a genuinely huge manuscript
-// ever runs over, we'll need to chunk the brief into per-chapter calls
-// (each well under 60s) rather than raise this value.
+// Serverless function timeout cap.
 export const maxDuration = 60;
 
 interface BriefRequest {
@@ -51,8 +37,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No chapters provided' }, { status: 400 });
   }
 
-  // Build the manuscript block. Marked as a prompt-cache breakpoint so a
-  // partial-refresh re-call within 5 minutes pays 10% input cost.
+  // Manuscript block is marked as the prompt-cache breakpoint.
   const manuscriptBlock = body.chapters
     .map((ch, i) => `[CHAPTER ${i + 1}] [${ch.type.toUpperCase()}] ${ch.title || `Chapter ${i + 1}`}\n${ch.content}`)
     .join('\n\n---\n\n');
@@ -92,14 +77,11 @@ ${manuscriptBlock}
 
   const stream = new ReadableStream({
     async start(controller) {
-      // Buffer text deltas across newlines: the model emits NDJSON one
-      // chapter per line, and a single delta may span a line boundary
-      // (or contain multiple lines). We accumulate, split on \n, parse
-      // complete lines, and emit them to the client as they're ready.
+      // Buffer text deltas across newlines so we can re-emit complete NDJSON lines.
       let buffer = '';
       try {
         for await (const delta of streamWithFallback({
-          tier: 'live', // Haiku — brief is information extraction, not editorial judgment
+          tier: 'live',
           systemBlocks,
           messages: [
             { role: 'user', content: 'Index this manuscript now. Begin emitting one JSON line per chapter.' },
@@ -114,11 +96,9 @@ ${manuscriptBlock}
           for (const line of lines) {
             const trimmed = line.trim();
             if (!trimmed) continue;
-            // Re-emit the line verbatim — the client parses NDJSON itself
             controller.enqueue(encoder.encode(trimmed + '\n'));
           }
         }
-        // Flush any trailing line
         const trailing = buffer.trim();
         if (trailing) controller.enqueue(encoder.encode(trailing + '\n'));
       } catch (err) {

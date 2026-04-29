@@ -82,7 +82,6 @@ import { FocusModePanel } from "./components/FocusModePanel";
 import { AmbientPlayer } from "./components/AmbientPlayer";
 
 function MakeEbookPage() {
-  // Auth context for Supabase user
   const { user, signOut, loading: authLoading } = useAuth();
 
   // Check if user has Pro access for Cloud Sync
@@ -752,7 +751,7 @@ function MakeEbookPage() {
     enabled: chapters.length > 0,
   });
 
-  // Mark dirty on content changes (skip when loading a book from library/Supabase)
+  // Mark dirty on content changes (skip while loading a book).
   useEffect(() => {
     if (initialized && chapters.length > 0 && !isLoadingBookRef.current) {
       markDirty();

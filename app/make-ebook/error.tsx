@@ -26,12 +26,10 @@ export default function MakeEbookError({
       <main id="main-content" className="flex-1 flex items-center px-6 sm:px-10 lg:px-16 py-16 sm:py-24">
         <div className="max-w-7xl mx-auto w-full">
           <div className="max-w-3xl">
-            {/* Eyebrow */}
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
               Error &middot; Something went wrong
             </p>
 
-            {/* Headline */}
             <h1
               className="mt-4 font-serif font-bold text-gray-900 text-balance"
               style={SECTION_TIERS.cinematic.title}
@@ -39,7 +37,6 @@ export default function MakeEbookError({
               Even the best drafts have typos.
             </h1>
 
-            {/* Sub */}
             <p
               className="mt-6 text-xl sm:text-2xl text-gray-600 max-w-xl text-pretty"
               style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}
@@ -47,14 +44,12 @@ export default function MakeEbookError({
               Something on this page misbehaved. Your work is safe. Try again, or head back to the editor.
             </p>
 
-            {/* Optional digest for support — quiet, monospaced */}
             {error.digest && (
               <p className="mt-6 font-mono text-xs text-gray-400">
                 Reference: {error.digest}
               </p>
             )}
 
-            {/* CTAs */}
             <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-5">
               <button
                 onClick={reset}

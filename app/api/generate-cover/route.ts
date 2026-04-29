@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// This API route generates book covers using AI
-// Supports OpenAI DALL-E, Grok (xAI), and Google Gemini (Imagen 3) for image generation
+// Cover-image generation route with multiple provider backends.
 
 type AIProvider = "openai" | "grok" | "gemini" | "auto";
 
@@ -9,10 +8,9 @@ interface GenerateCoverRequest {
   prompt: string;
   title?: string;
   author?: string;
-  provider?: AIProvider; // Which AI to use: "openai", "grok", or "auto" (tries both)
+  provider?: AIProvider;
 }
 
-// Generate image using OpenAI DALL-E 3
 async function generateWithOpenAI(prompt: string): Promise<string | null> {
   const apiKey = process.env.OPENAI_API_KEY;
   
@@ -32,7 +30,7 @@ async function generateWithOpenAI(prompt: string): Promise<string | null> {
         model: "dall-e-3",
         prompt: prompt,
         n: 1,
-        size: "1024x1792", // Portrait orientation for book covers (DALL-E 3 supported size)
+        size: "1024x1792",
         quality: "hd",
         style: "vivid",
       }),
@@ -55,17 +53,16 @@ async function generateWithOpenAI(prompt: string): Promise<string | null> {
   }
 }
 
-// Generate image using Grok (xAI)
 async function generateWithGrok(prompt: string): Promise<string | null> {
   const apiKey = process.env.XAI_API_KEY;
-  
+
   if (!apiKey) {
     console.log("Grok API key not configured");
     return null;
   }
 
   try {
-    // xAI Grok image generation endpoint - note: size parameter not supported
+    // size parameter unsupported by this provider
     const response = await fetch("https://api.x.ai/v1/images/generations", {
       method: "POST",
       headers: {
@@ -89,7 +86,6 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
     if (data.data?.[0]?.url) {
       return data.data[0].url;
     }
-    // Some APIs return b64_json instead of url
     if (data.data?.[0]?.b64_json) {
       return `data:image/png;base64,${data.data[0].b64_json}`;
     }
@@ -100,17 +96,15 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
   }
 }
 
-// Generate image using Google Gemini (Imagen 3)
 async function generateWithGemini(prompt: string): Promise<string | null> {
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
-  
+
   if (!apiKey || apiKey === "your-gemini-api-key-here") {
     console.log("Gemini API key not configured");
     return null;
   }
 
   try {
-    // Using Gemini's Imagen 3 model for image generation
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
       {
@@ -126,7 +120,7 @@ async function generateWithGemini(prompt: string): Promise<string | null> {
           ],
           parameters: {
             sampleCount: 1,
-            aspectRatio: "9:16", // Portrait for book covers
+            aspectRatio: "9:16",
             personGeneration: "allow_adult",
           },
         }),
@@ -140,8 +134,7 @@ async function generateWithGemini(prompt: string): Promise<string | null> {
     }
 
     const data = await response.json();
-    
-    // Gemini returns base64 encoded images
+
     if (data.predictions?.[0]?.bytesBase64Encoded) {
       return `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
     }
@@ -165,7 +158,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Build an optimized prompt for book cover generation
     const fullPrompt = [
       "Professional book cover design, high quality, print ready",
       prompt,
@@ -177,7 +169,6 @@ export async function POST(request: NextRequest) {
     let imageUrl: string | null = null;
     let usedProvider: string = "none";
 
-    // Try to generate based on selected provider
     if (provider === "openai") {
       imageUrl = await generateWithOpenAI(fullPrompt);
       usedProvider = "openai";
@@ -188,7 +179,7 @@ export async function POST(request: NextRequest) {
       imageUrl = await generateWithGemini(fullPrompt);
       usedProvider = "gemini";
     } else {
-      // Auto mode: try OpenAI first, then Grok, then Gemini
+      // Auto: try providers in order until one returns an image.
       imageUrl = await generateWithOpenAI(fullPrompt);
       if (imageUrl) {
         usedProvider = "openai";
@@ -205,16 +196,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // If we got an image, return it
     if (imageUrl) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         imageUrl,
         provider: usedProvider,
         success: true,
       });
     }
 
-    // Fallback: Return a placeholder with instructions
+    // Fallback: placeholder image with help text.
     const encodedTitle = encodeURIComponent(title || "Book Title").slice(0, 30);
     const placeholderUrl = `https://placehold.co/1024x1536/1a1a2e/ffffff?text=${encodedTitle}`;
 
@@ -234,7 +224,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Also support GET for testing
 export async function GET() {
   const openaiConfigured = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "your-openai-api-key-here";
   const grokConfigured = !!process.env.XAI_API_KEY;

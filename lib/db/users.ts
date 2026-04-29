@@ -54,12 +54,8 @@ export async function updateUser(id: string, updates: Partial<NewUser>) {
   }
 }
 
-// ===== SUBSCRIPTION HELPER FUNCTIONS =====
-
 /**
- * Get the subscription tier for a user
- * Returns 'pro' for grandfathered users, lifetime access users, and active Pro subscribers
- * Returns 'free' for all other cases
+ * Returns the user's subscription tier.
  */
 export async function getUserSubscriptionTier(userId: string): Promise<'free' | 'pro'> {
   try {
@@ -77,39 +73,31 @@ export async function getUserSubscriptionTier(userId: string): Promise<'free' | 
 
     if (!user) return 'free'
 
-    // Grandfathered users always get Pro (lifetime access)
     if (user.isGrandfathered) return 'pro'
 
-    // Lifetime access users get Pro
     if (user.hasLifetimeAccess) return 'pro'
 
-    // Check if subscription is active and valid
     if (user.subscriptionStatus === 'active' && user.subscriptionTier === 'pro') {
-      // Optionally check if subscription period is still valid
       if (user.subscriptionCurrentPeriodEnd) {
         const now = new Date()
         const periodEnd = new Date(user.subscriptionCurrentPeriodEnd)
         if (periodEnd < now) {
-          // Subscription expired but Stripe hasn't updated status yet
-          // This is a grace period - still allow access
+          // Grace period: status active but period ended.
           console.warn(`User ${userId} subscription expired but status still active`)
         }
       }
       return 'pro'
     }
 
-    // Default to free tier
     return 'free'
   } catch (error) {
     console.error('Error fetching user subscription tier:', error)
-    // Fail safe: return free tier on error
     return 'free'
   }
 }
 
 /**
- * Update user's subscription information
- * Used by Stripe webhook handlers to sync subscription state
+ * Update a user's subscription record.
  */
 export async function updateUserSubscription(
   userId: string,
@@ -126,7 +114,7 @@ export async function updateUserSubscription(
 }
 
 /**
- * Find user by email address
+ * Look up a user by email address.
  */
 export async function getUserByEmail(email: string) {
   try {
@@ -144,8 +132,7 @@ export async function getUserByEmail(email: string) {
 }
 
 /**
- * Find user by Stripe customer ID
- * Used by webhook handlers to identify which user the subscription belongs to
+ * Look up a user by external customer ID.
  */
 export async function getUserByStripeCustomerId(stripeCustomerId: string) {
   try {
@@ -163,8 +150,7 @@ export async function getUserByStripeCustomerId(stripeCustomerId: string) {
 }
 
 /**
- * Check if a user has access to a Pro feature
- * Returns true if user is Pro or grandfathered
+ * Returns true when the user has Pro access.
  */
 export async function userHasProAccess(userId: string): Promise<boolean> {
   const tier = await getUserSubscriptionTier(userId)
@@ -172,8 +158,7 @@ export async function userHasProAccess(userId: string): Promise<boolean> {
 }
 
 /**
- * Grant lifetime access to a user
- * Used by Stripe webhook handlers to process lifetime purchases
+ * Grant lifetime access to a user.
  */
 export async function grantLifetimeAccess(
   userId: string,

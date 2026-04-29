@@ -1,14 +1,3 @@
-// The six micro-lessons — one per rubric dimension.
-//
-// Rendered inside the "How great prompts work" section below the
-// scorecard, and expanded inline when the user clicks "(Why this)" on a
-// scorecard dimension. Kept as data (not prose files) so they're easy
-// to revise without touching markup.
-//
-// Each lesson is structured the same way: a short body (2–3 sentences),
-// a before/after example, and a one-liner "why it matters". The
-// before/after does most of the teaching — the body is the frame.
-
 import type { DimensionKey } from "./rubric";
 
 export interface Lesson {

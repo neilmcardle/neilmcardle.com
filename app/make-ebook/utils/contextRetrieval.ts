@@ -106,18 +106,14 @@ function scoreChapter(
   return score;
 }
 
-// Cheap token estimate. Anthropic counts ~4 chars per token on English
-// prose; we use 4 to budget conservatively. Used to decide when to stop
-// retrieving more chapters. Not exact; never used to bill anything.
+// Cheap token estimate (~4 chars per English token). Approximate; only used
+// for retrieval budgeting.
 export function estimateTokens(text: string): number {
   return Math.ceil(text.length / 4);
 }
 
-// Pick the top-N chapters that match the query, keeping under a token
-// budget. Always includes any chapter scoring above zero, ranked by
-// score, until budget runs out. Returns the chapters with their reason
-// (which entity matched) so the UI can show "reading chapter 14 because
-// it mentions R." in the streaming progress channel.
+// Pick top-N matching chapters under a token budget; returns each chapter
+// with the entity that triggered its match.
 function selectChapters(
   brief: ManuscriptBrief,
   chapters: Chapter[],

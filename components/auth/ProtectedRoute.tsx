@@ -72,7 +72,6 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
   const [quote, setQuote] = useState(LITERARY_QUOTES[0])
 
   useEffect(() => {
-    // Select a random quote on mount
     const randomIndex = Math.floor(Math.random() * LITERARY_QUOTES.length)
     setQuote(LITERARY_QUOTES[randomIndex])
   }, [])
@@ -94,12 +93,10 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
     return <>{children}</>
   }
 
-  // Show custom fallback if provided
   if (fallback) {
     return <>{fallback}</>
   }
 
-  // Default locked state with sign-up prompt
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] relative transition-colors">
 

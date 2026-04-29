@@ -1,14 +1,3 @@
-// Promptr score endpoint.
-//
-// POST { prompt: string } → NDJSON stream. One JSON line per rubric
-// dimension, then one summary line. The client parses incrementally so
-// the scorecard populates card-by-card as the model emits it, which is
-// the main UX moment for the tool.
-//
-// Haiku, because this is the live path and must feel sub-second to
-// first token. Prompt caching isn't useful here (no persistent context),
-// so we just stream straight through.
-
 import { NextRequest, NextResponse } from "next/server";
 import { streamWithFallback, SystemBlock } from "@/app/api/ai/book-mind/_lib/anthropic";
 import { checkPromptrRateLimit, getClientIp } from "../_lib/rateLimit";
@@ -96,11 +85,7 @@ export async function POST(req: NextRequest) {
     },
   ];
 
-  // Buffer text deltas across newlines: the model emits one JSON object
-  // per line, but a single delta can span a line boundary. We accumulate
-  // bytes, split on '\n', and re-emit complete lines only. The buffer
-  // survives across reads until the stream ends or a final newline
-  // arrives.
+  // Buffer deltas across newlines so we only emit complete JSON lines.
   const stream = new ReadableStream({
     async start(controller) {
       let buffer = "";
@@ -122,7 +107,6 @@ export async function POST(req: NextRequest) {
             controller.enqueue(encoder.encode(trimmed + "\n"));
           }
         }
-        // Flush any trailing line
         const trailing = buffer.trim();
         if (trailing) controller.enqueue(encoder.encode(trailing + "\n"));
       } catch (err) {

@@ -13,7 +13,6 @@ export function SecureEmailLink({ className = "" }: SecureEmailLinkProps) {
   const [isRevealed, setIsRevealed] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
 
-  // Email parts are split to prevent scraping
   const emailParts = {
     username: "neil",
     domain: "neilmcardle",

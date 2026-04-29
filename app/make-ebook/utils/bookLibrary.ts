@@ -22,9 +22,7 @@ export function saveBookToLibrary(userId: string, book: Partial<BookRecord>): st
   if (typeof window === "undefined") return "";
   let library = loadBookLibrary(userId);
   const id = book.id || "book-" + Date.now();
-  // Preserve bookmindMemory across saves: prefer the value on the incoming
-  // record (the editor passes it through), otherwise fall back to the
-  // existing on-disk record so the brain doesn't get wiped on a partial save.
+  // Preserve cached memory across partial saves.
   const existing = library.find((b) => b.id === id);
   const bookToSave: BookRecord = {
     id,
@@ -68,8 +66,7 @@ export function removeBookFromLibrary(userId: string, id: string) {
 }
 
 /**
- * Normalize a book from Supabase (snake_case) to the app's camelCase format.
- * Handles both camelCase and snake_case fields so it works with already-normalized data too.
+ * Normalize a remote book record (snake_case) into the app's camelCase shape.
  */
 export function normalizeBookFromSupabase(book: Record<string, unknown>): BookRecord {
   return {

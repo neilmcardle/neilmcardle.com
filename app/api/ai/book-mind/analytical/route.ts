@@ -1,12 +1,4 @@
-// Analytical endpoint — generates a single AnalyticalResponse for one
-// analytical kind (themes, characters, inconsistencies, pacing,
-// wordFrequency). Called in the background on book open (one call per
-// kind), cached in bookmindMemory.analytical so the Inspector tabs
-// open instantly on subsequent visits.
-//
-// Sonnet + prompt caching. The manuscript block is marked ephemeral so
-// back-to-back calls for different kinds within a 5-minute window pay
-// only 10% input cost on the second through fifth call.
+// Analytical endpoint. One call per analytical kind; results cached on the client.
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireProUser } from '../_lib/proAuth';
@@ -98,16 +90,11 @@ export async function POST(req: NextRequest) {
     },
   ];
 
-  // Stream the model's response as plain text. The client accumulates
-  // and JSON.parses at the end, same as the refine endpoint. For
-  // analytical calls the response is typically 2-8KB of JSON, so
-  // end-of-stream parsing is fine.
+  // Stream as plain text; client JSON.parses at the end.
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // Inconsistencies need editorial reasoning (Sonnet). Everything
-        // else (themes, characters, pacing, wordFrequency) is information
-        // extraction that Haiku handles well at ~1/3 the cost.
+        // Inconsistencies need stronger reasoning; other kinds use the live tier.
         const tier = kind === 'inconsistencies' ? 'background' : 'live';
         for await (const delta of streamWithFallback({
           tier,

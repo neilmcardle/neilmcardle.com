@@ -1,14 +1,4 @@
-// Hero section for Promptr — the brand moment.
-//
-// Magazine-style two-column layout: title + copy on the left, the
-// blacksmith illustration on the right as a discrete editorial element
-// (not a ghosted background). On narrow viewports the image moves
-// above the title so it still leads the composition.
-//
-// Typography:
-//   - "Promptr" wordmark in Zilla Slab — the workshop-sign logo
-//   - Italic Playfair subtitle
-//   - Inter body line for the what-it-does
+// Hero section. Two-column layout that collapses on narrow viewports.
 
 export default function Hero() {
   return (

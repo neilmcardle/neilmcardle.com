@@ -1,10 +1,4 @@
-// Canvas-based cover generator. Produces covers that match the 12-book
-// grid on the marketing landing page (BookGallerySection): solid background,
-// left spine line, centered author surname / rule / serif-bold title / rule
-// / "makeEbook" tag.
-//
-// Pure function. Given title, author, genre, and a color pair, returns a
-// PNG data URL the editor can drop straight into the cover field.
+// Canvas-based cover generator. Pure function: returns a PNG data URL.
 
 export interface CoverPalette {
   name: string;      // human-friendly name shown in the swatch picker
@@ -104,7 +98,7 @@ export function generateCoverDataUrl(args: GenerateCoverArgs): string {
   // Rule
   drawRule(ctx, cx, cy + height * 0.085, width * 0.055, fg, 0.5);
 
-  // Genre / makeEbook tag — small caps, wide tracking, 50% opacity
+  // Tag — small caps, wide tracking, 50% opacity
   const tagFont = `600 ${Math.round(height * 0.02)}px "Helvetica Neue", Arial, sans-serif`;
   drawTrackedText(ctx, tag.toUpperCase(), cx, cy + height * 0.12, tagFont, 6, fg, 0.5);
 

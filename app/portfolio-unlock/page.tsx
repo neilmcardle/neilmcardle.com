@@ -1,9 +1,3 @@
-// Password gate for /portfolio. Served by middleware when a visitor
-// without a valid nm-portfolio cookie requests any /portfolio path —
-// the browser URL stays /portfolio via rewrite, so this page only exists
-// as a rewrite target, not a directly-linked route. noindex is belt-and-
-// braces; robots.txt already disallows this path.
-
 import PortfolioUnlockForm from "./PortfolioUnlockForm";
 import type { Metadata } from "next";
 

@@ -7,8 +7,6 @@ type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: Theme;
-  // True when the user is allowed to change theme. Anonymous visitors are
-  // locked to light mode; only signed-in users can switch and persist dark.
   canToggle: boolean;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
@@ -33,14 +31,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  // Apply the correct theme whenever auth resolves or changes.
-  //
-  // Rules:
-  // - While auth is still loading, stay in light mode (safe default).
-  // - Anonymous visitors are always light. Any stale 'dark' value left in
-  //   localStorage from a prior session is cleared on sign-out, so it won't
-  //   leak back in here.
-  // - Signed-in users load their persisted preference, defaulting to light.
   useEffect(() => {
     if (!mounted) return;
 
@@ -53,7 +43,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (!user) {
       setThemeState('light');
       applyThemeClass('light');
-      // Drop any stale preference so the next anonymous visitor is clean.
       try { localStorage.removeItem('theme'); } catch {}
       return;
     }
@@ -65,7 +54,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [mounted, authLoading, user]);
 
   const toggleTheme = () => {
-    // Anonymous visitors cannot toggle. No-op keeps callers simple.
     if (!user) return;
     setThemeState(prevTheme => {
       const newTheme: Theme = prevTheme === 'light' ? 'dark' : 'light';
@@ -84,7 +72,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const canToggle = !!user && !authLoading;
 
-  // Prevent rendering until mounted to avoid hydration mismatch
   if (!mounted) {
     return <>{children}</>;
   }

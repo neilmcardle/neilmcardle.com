@@ -62,7 +62,6 @@ export default function ManageBillingButton({
 
       if (url) {
         console.log('🔵 Redirecting to:', url);
-        // Redirect to Stripe Customer Portal
         window.location.href = url;
       } else {
         console.error('❌ No URL in response');

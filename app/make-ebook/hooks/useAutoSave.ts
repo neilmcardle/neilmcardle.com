@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface AutoSaveOptions {
-  interval?: number; // milliseconds, default 30000 (30 seconds)
+  interval?: number;
   onSave: () => void;
   enabled?: boolean;
 }
@@ -25,28 +25,24 @@ export function useAutoSave({
   
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const onSaveRef = useRef(onSave);
-  
-  // Keep onSave ref updated
+
   useEffect(() => {
     onSaveRef.current = onSave;
   }, [onSave]);
 
-  // Mark content as dirty (changed)
   const markDirty = useCallback(() => {
     setState(prev => ({ ...prev, isDirty: true }));
   }, []);
 
-  // Mark content as clean (saved)
   const markClean = useCallback(() => {
-    setState(prev => ({ 
-      ...prev, 
-      isDirty: false, 
+    setState(prev => ({
+      ...prev,
+      isDirty: false,
       lastSaved: new Date(),
-      isSaving: false 
+      isSaving: false
     }));
   }, []);
 
-  // Trigger a save
   const triggerSave = useCallback(() => {
     if (state.isDirty && enabled) {
       setState(prev => ({ ...prev, isSaving: true }));
@@ -60,18 +56,15 @@ export function useAutoSave({
     }
   }, [state.isDirty, enabled, markClean]);
 
-  // Auto-save timer
   useEffect(() => {
     if (!enabled || !state.isDirty) {
       return;
     }
 
-    // Clear existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
-    // Set new timeout
     timeoutRef.current = setTimeout(() => {
       triggerSave();
     }, interval);
@@ -83,7 +76,6 @@ export function useAutoSave({
     };
   }, [state.isDirty, enabled, interval, triggerSave]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -100,7 +92,6 @@ export function useAutoSave({
   };
 }
 
-// Hook to warn user before leaving with unsaved changes
 export function useUnsavedChangesWarning(isDirty: boolean) {
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {

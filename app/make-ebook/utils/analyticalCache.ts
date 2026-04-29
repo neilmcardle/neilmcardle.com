@@ -1,22 +1,6 @@
-// Background analytical cache generator.
-//
-// Called on book open for Pro users, after the manuscript brief is
-// ready. Checks each analytical kind (themes, characters,
-// inconsistencies, pacing, wordFrequency) and regenerates any whose
-// manuscriptHash doesn't match the current chapters. Fresh entries
-// are skipped, so a second call is essentially free.
-//
-// Each kind fires a separate API call. Calls run sequentially (not in
-// parallel) to benefit from Anthropic's prompt caching: the manuscript
-// block is cached on the first call and subsequent calls within 5
-// minutes pay 10% input cost. Sequential ordering means the cache is
-// always warm for call 2–5.
-//
-// Results are stored in bookmindMemory.analytical via the setAnalytical
-// helper. The Inspector tabs read from there on every render, so the
-// moment a kind completes it's visible in the UI without a separate
-// fetch or re-render trigger — React state flows from localStorage
-// reads in the hook.
+// Background analytical-cache generator. Calls run sequentially so the
+// prompt-cache stays warm between kinds. Results are persisted client-side
+// and consumed by the Inspector tabs on render.
 
 import { BookRecord, AnalyticalResponse } from '../types';
 import {

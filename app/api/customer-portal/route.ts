@@ -7,20 +7,10 @@ import { CookieOptions } from '@supabase/ssr'
 import { getUserById } from '@/lib/db/users'
 
 /**
- * Customer Portal Endpoint
- *
- * Creates a Stripe Customer Portal session
- * Allows Pro users to:
- * - Update payment method
- * - View invoices
- * - Cancel subscription
- * - Update billing details
- *
- * This saves you from building custom subscription management UI
+ * Create a billing portal session for the current user.
  */
 export async function POST(req: NextRequest) {
   try {
-    // Check Stripe configuration and initialize inside handler
     if (!process.env.STRIPE_SECRET_KEY) {
       return NextResponse.json(
         { error: 'Stripe is not configured' },
@@ -34,7 +24,6 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({ error: 'Internal server error' }, { status: 500 })
 
-    // Get authenticated user
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -62,7 +51,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Get user from database
     const { user: dbUser, error: dbError } = await getUserById(user.id)
 
     if (dbError || !dbUser) {
@@ -72,7 +60,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Check if user has a Stripe customer ID
     if (!dbUser.stripeCustomerId) {
       console.log(`❌ User ${user.id} has no Stripe customer ID`);
       return NextResponse.json(
@@ -81,8 +68,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Don't allow grandfathered users to access portal
-    // They have lifetime access and shouldn't be able to cancel
     if (dbUser.isGrandfathered) {
       console.log(`❌ User ${user.id} is grandfathered - cannot access portal`);
       return NextResponse.json(
@@ -91,11 +76,9 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Build app URL for redirect
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     console.log(`🔗 Creating portal session for user ${user.id}, customer ${dbUser.stripeCustomerId}, return URL: ${appUrl}/make-ebook`);
 
-    // Create portal session
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: dbUser.stripeCustomerId,
       return_url: `${appUrl}/make-ebook`,
@@ -110,7 +93,6 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Error creating customer portal session:', error)
 
-    // Handle specific Stripe errors
     if (error.type === 'StripeInvalidRequestError') {
       return NextResponse.json(
         { error: 'Invalid customer. Please contact support.' },

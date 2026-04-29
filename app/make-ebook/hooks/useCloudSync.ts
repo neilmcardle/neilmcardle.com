@@ -20,7 +20,7 @@ export function useCloudSync({
   }[]>([]);
   const [syncMergedMap, setSyncMergedMap] = useState<Map<string, BookRecord> | null>(null);
 
-  // Fetch ebooks from Supabase on login and merge with local library
+  // On login, fetch remote ebooks and merge with the local library.
   useEffect(() => {
     async function fetchAndSyncSupabaseBooks() {
       if (user && user.id) {

@@ -1,15 +1,3 @@
-// Read, write, and invalidate per-book Book Mind memory.
-//
-// Memory lives on the BookRecord (BookRecord.bookmindMemory) inside the
-// existing book library. One source of truth, one localStorage key, one
-// hash to detect when the manuscript has drifted out from under cached
-// analyses. No parallel store, no migrations, no second sync layer.
-//
-// Read paths are synchronous — every Book Mind surface can pull the brief
-// and rules without a network round-trip. Write paths are also synchronous
-// but always go through saveBookToLibrary so the rest of the BookRecord is
-// preserved (cover file, endnotes, etc).
-
 import {
   BookRecord,
   Chapter,
@@ -21,9 +9,6 @@ import {
 } from '../types';
 import { loadBookById, saveBookToLibrary } from './bookLibrary';
 
-// Empty memory shell used when a book has never been touched by Book Mind.
-// Always returned by getMemory rather than undefined so callers can dot
-// into rules / characters / decisions without nullish guards everywhere.
 export function emptyMemory(): BookMindMemory {
   return {
     rules: [],
@@ -32,11 +17,7 @@ export function emptyMemory(): BookMindMemory {
   };
 }
 
-// FNV-1a 32-bit hash. ~1ms even on a 200K-word manuscript; deterministic;
-// no dependencies. Hashes title + content of every chapter. Two
-// manuscripts with the same title and content produce the same hash; any
-// edit changes it. Intentionally not cryptographic — we only need to
-// detect drift, not resist tampering.
+// FNV-1a 32-bit hash. Deterministic; intentionally not cryptographic.
 export function manuscriptHash(chapters: Chapter[]): string {
   const FNV_OFFSET = 0x811c9dc5;
   const FNV_PRIME = 0x01000193;
@@ -48,18 +29,13 @@ export function manuscriptHash(chapters: Chapter[]): string {
       h = Math.imul(h, FNV_PRIME);
     }
   }
-  // Convert to unsigned hex, padded so equal-length comparisons are visually obvious in DevTools.
   return (h >>> 0).toString(16).padStart(8, '0');
 }
 
-// Pull the memory off a book. Returns the empty shell if the book has
-// never been touched by Book Mind, so call sites can always dot into
-// rules / characters / decisions without nullish checks.
 export function getMemory(book: BookRecord | undefined): BookMindMemory {
   if (!book) return emptyMemory();
   if (!book.bookmindMemory) return emptyMemory();
-  // Defensive: legacy memory blobs may be missing newer fields after a
-  // schema bump. Fill in the gaps without overwriting existing data.
+  // Legacy blobs may be missing newer fields; fill gaps without overwriting.
   return {
     brief: book.bookmindMemory.brief,
     analytical: book.bookmindMemory.analytical,
@@ -70,10 +46,6 @@ export function getMemory(book: BookRecord | undefined): BookMindMemory {
   };
 }
 
-// Write a new memory blob for a book. Loads the book fresh, swaps in the
-// new memory, persists via saveBookToLibrary so the rest of the record is
-// preserved exactly. No-op if the book can't be found (e.g. deleted in
-// another tab between read and write).
 export function setMemory(userId: string, bookId: string, memory: BookMindMemory): void {
   if (typeof window === 'undefined') return;
   const book = loadBookById(userId, bookId);
@@ -81,11 +53,7 @@ export function setMemory(userId: string, bookId: string, memory: BookMindMemory
   saveBookToLibrary(userId, { ...book, bookmindMemory: memory });
 }
 
-// Convenience: shallow-merge a partial update into existing memory and
-// persist. Used by every Book Mind surface that needs to flip one field
-// (e.g. brief generator after it finishes, memory editor when the user
-// adds a rule). The merge is one level deep — pass a fully-built brief
-// or analytical entry, not a partial one.
+// Shallow-merges (one level deep) a partial update into existing memory.
 export function patchMemory(
   userId: string,
   bookId: string,
@@ -101,20 +69,11 @@ export function patchMemory(
   saveBookToLibrary(userId, { ...book, bookmindMemory: next });
 }
 
-// ─── Brief helpers ────────────────────────────────────────────────────────
-
-// Is the brief on this book current? True only if it exists AND the
-// hash matches the live chapters. Used to decide whether to kick off a
-// background regeneration on book open.
 export function isBriefFresh(book: BookRecord | undefined): boolean {
   if (!book?.bookmindMemory?.brief) return false;
   return book.bookmindMemory.brief.manuscriptHash === manuscriptHash(book.chapters);
 }
 
-// The brief if fresh; null otherwise. Stale briefs still render in the UI
-// (with a "may be out of date" indicator) — call sites that want strict
-// freshness should use this; call sites that prefer stale-while-revalidate
-// should read book.bookmindMemory.brief directly.
 export function getFreshBrief(book: BookRecord | undefined): ManuscriptBrief | null {
   if (!book) return null;
   if (!isBriefFresh(book)) return null;
@@ -124,8 +83,6 @@ export function getFreshBrief(book: BookRecord | undefined): ManuscriptBrief | n
 export function setBrief(userId: string, bookId: string, brief: ManuscriptBrief): void {
   patchMemory(userId, bookId, { brief });
 }
-
-// ─── Analytical cache helpers ─────────────────────────────────────────────
 
 export type AnalyticalKind = keyof AnalyticalCache;
 
@@ -165,8 +122,6 @@ export function setAnalytical(
   };
   patchMemory(userId, bookId, { analytical: nextAnalytical });
 }
-
-// ─── User-facing memory helpers (rules / characters / decisions) ──────────
 
 export function addRule(userId: string, bookId: string, rule: string): void {
   const book = loadBookById(userId, bookId);
@@ -220,10 +175,6 @@ export function dismissIssue(userId: string, bookId: string, issueId: string): v
   });
 }
 
-// Format the user-facing memory as a system-prompt block. Injected into
-// every Book Mind call so the model never forgets the author's standing
-// rules and decisions. Returns an empty string if there is nothing to
-// remember, so the prompt stays clean for new books.
 export function formatMemoryForPrompt(memory: BookMindMemory): string {
   const parts: string[] = [];
   if (memory.rules.length > 0) {

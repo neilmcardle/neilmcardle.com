@@ -1,35 +1,18 @@
-// Shared Anthropic call helper for every Book Mind API route.
-//
-// Centralises:
-//   - Model selection by tier
-//   - Prompt-cache breakpoints on the manuscript block
-//   - Streaming with text deltas
-//   - Provider fallback chain (Anthropic → Grok → OpenAI on rate limit)
-//   - Error normalization (no raw API payloads escape to the user)
-//
-// Both the brief generator and the chat route call into this helper.
-// The chat route also has its own SSE wrapper around it.
+// Shared model-call helper. Centralises model selection, prompt-cache
+// breakpoints, streaming, and provider fallback.
 
 export type ModelTier = 'live' | 'background';
 
-// Verbose logging is opt-in via env. Set BM_LOG_VERBOSE=1 in .env.local to
-// see per-call cost and performance breakdowns in the terminal. Off by
-// default so prod stays quiet; errors still surface via console.warn
-// regardless of this flag.
+// Opt-in verbose logging via env flag.
 const VERBOSE = process.env.BM_LOG_VERBOSE === '1';
 const log: (...args: unknown[]) => void = VERBOSE ? console.log.bind(console) : () => {};
 
-// Anthropic public pricing per million tokens. Kept in-file so the logger
-// is self-contained. If Anthropic changes prices or we add a model, update
-// here. Cache-write is input × 1.25; cache-read is input × 0.10.
+// Public pricing per million tokens. Update when prices change or a new model lands.
 const MODEL_PRICES: Record<string, { input: number; output: number }> = {
-  // Haiku 4.x
   'claude-haiku-4-5': { input: 1.00, output: 5.00 },
   'claude-haiku-4-5-20251001': { input: 1.00, output: 5.00 },
-  // Sonnet 4.x
   'claude-sonnet-4-6': { input: 3.00, output: 15.00 },
   'claude-sonnet-4-5': { input: 3.00, output: 15.00 },
-  // Opus 4.x
   'claude-opus-4-7': { input: 15.00, output: 75.00 },
   'claude-opus-4-6': { input: 15.00, output: 75.00 },
 };
@@ -42,9 +25,9 @@ function priceFor(model: string): { input: number; output: number } {
 }
 
 interface UsageSnapshot {
-  input: number;         // non-cache input tokens
-  cacheRead: number;     // cache-read input tokens (10% of input price)
-  cacheWrite: number;    // cache-creation input tokens (125% of input price)
+  input: number;
+  cacheRead: number;
+  cacheWrite: number;
   output: number;
 }
 
@@ -72,11 +55,7 @@ function fmtUsd(n: number): string {
   return `$${n.toFixed(4)}`;
 }
 
-// Maps a tier to a concrete model id, with env overrides. Live work
-// (Cmd-K, ghost text, conversational chat) goes to Haiku for speed and
-// rate-limit headroom. Background work (manuscript brief, analytical
-// cache refresh) goes to Sonnet for editorial quality. The user never
-// waits on Sonnet — it runs while they write.
+// Map a tier to a concrete model id, with env overrides.
 export function pickAnthropicModel(tier: ModelTier): string {
   if (tier === 'background') {
     return process.env.ANTHROPIC_MODEL_ANALYTICAL
@@ -88,9 +67,7 @@ export function pickAnthropicModel(tier: ModelTier): string {
     ?? 'claude-haiku-4-5-20251001';
 }
 
-// Anthropic content-block shape. Used to mark the manuscript portion of
-// a system prompt as a prompt-cache breakpoint so subsequent turns within
-// the 5-minute window pay 10% input cost.
+// System content block; cache_control flags an ephemeral prompt-cache breakpoint.
 export interface SystemBlock {
   type: 'text';
   text: string;
@@ -108,14 +85,13 @@ export interface AnthropicCallArgs {
   messages: AnthropicMessage[];
   maxTokens?: number;
   temperature?: number;
-  // Free-text tag so cost logs show which route/action the call came from
-  // e.g. "chat:wide", "brief", "analytical:themes", "promptr:score"
+  // Free-text tag for log lines.
   label?: string;
 }
 
-// Call Anthropic in streaming mode and yield text deltas. Caller
-// consumes the async generator and forwards deltas to its own response
-// stream (SSE for chat, NDJSON for brief, etc).
+/**
+ * Stream text deltas from the upstream model.
+ */
 export async function* streamAnthropicText(args: AnthropicCallArgs): AsyncGenerator<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not set');
@@ -150,9 +126,7 @@ export async function* streamAnthropicText(args: AnthropicCallArgs): AsyncGenera
     }),
   });
 
-  // Time to response headers. High values here (~>1s) usually indicate
-  // Anthropic queueing, not network — useful to distinguish from
-  // time-to-first-token which includes model prefill.
+  // High values here usually indicate upstream queueing rather than network latency.
   const headersMs = Date.now() - t0;
 
   if (!upstream.ok || !upstream.body) {
@@ -189,9 +163,7 @@ export async function* streamAnthropicText(args: AnthropicCallArgs): AsyncGenera
       if (!data) continue;
       try {
         const parsed = JSON.parse(data);
-        // Capture usage from message_start (input + cache tokens) and
-        // message_delta (final output token count). Anthropic reports
-        // output_tokens cumulatively on delta events — we overwrite.
+        // Capture usage from message_start; overwrite output count on delta events.
         if (parsed.type === 'message_start' && parsed.message?.usage) {
           const u = parsed.message.usage;
           usage.input      = u.input_tokens ?? 0;
@@ -213,19 +185,12 @@ export async function* streamAnthropicText(args: AnthropicCallArgs): AsyncGenera
   }
 
   const totalMs = Date.now() - t0;
-  // Output throughput — tokens and chars per second during streaming.
-  // Measured from first token to last, so it reflects model generation
-  // speed rather than including prefill latency. Haiku typically hits
-  // ~80-150 tok/s, Sonnet ~40-80 tok/s. Sustained sub-20 tok/s is a
-  // sign Anthropic is degraded or we're hitting a rate-limit backoff.
+  // Output throughput is measured from first to last token (excludes prefill).
   const streamMs = firstTokenMs ? Math.max(1, totalMs - firstTokenMs) : 0;
   const tokPerSec  = streamMs ? Math.round((usage.output / streamMs) * 1000) : 0;
   const charPerSec = streamMs ? Math.round((outputChars   / streamMs) * 1000) : 0;
 
-  // Slowness flags for quick scanning. Thresholds are empirical, not strict:
-  //   - headers > 1500ms: Anthropic is queueing or rate-limiting
-  //   - TTFB    > 4000ms: model prefill slow (usually large uncached input)
-  //   - total   > 20000ms: probably not a great UX experience
+  // Empirical slowness flags for quick log scanning.
   const flags: string[] = [];
   if (headersMs   > 1500)  flags.push(`slow-headers(${headersMs}ms)`);
   if (firstTokenMs > 4000) flags.push(`slow-ttft(${firstTokenMs}ms)`);
@@ -246,9 +211,6 @@ export async function* streamAnthropicText(args: AnthropicCallArgs): AsyncGenera
     if (usage.cacheRead  > 0) log(`${tag}     cache read:  ${cost.breakdown.cacheRead}`);
     if (usage.cacheWrite > 0) log(`${tag}     cache write: ${cost.breakdown.cacheWrite}`);
     log(`${tag}     output:      ${cost.breakdown.output}`);
-    // Phase timings — reads cleanly left-to-right so you can see where
-    // the latency lives: server wait (headers) → model prefill
-    // (headers → ttft) → streaming (ttft → end).
     const prefillMs = firstTokenMs ? firstTokenMs - headersMs : 0;
     log(`${tag}   phases:`);
     log(`${tag}     request → headers: ${headersMs}ms`);
@@ -257,15 +219,7 @@ export async function* streamAnthropicText(args: AnthropicCallArgs): AsyncGenera
   }
 }
 
-// Provider fallback chain. Tries Anthropic first; on rate limit or
-// network failure, falls back to OpenAI-compatible providers (Grok then
-// OpenAI) using a flattened single-string system prompt — neither of
-// those supports cache breakpoints. The user never sees a raw error;
-// they get the next-best response or, in the worst case, a friendly
-// fallback message.
-//
-// Returns an async iterable of text deltas, same shape as
-// streamAnthropicText, so callers can treat all providers uniformly.
+// Provider fallback chain. Returns an async iterable of text deltas.
 export interface FallbackArgs {
   tier: ModelTier;
   systemBlocks: SystemBlock[];
@@ -281,7 +235,6 @@ export async function* streamWithFallback(args: FallbackArgs): AsyncGenerator<st
   const openaiKey = process.env.OPENAI_API_KEY;
   const tag = args.label ? `[${args.label}]` : '[book-mind]';
 
-  // Try Anthropic first
   if (anthropicKey) {
     try {
       yield* streamAnthropicText({
@@ -296,11 +249,10 @@ export async function* streamWithFallback(args: FallbackArgs): AsyncGenerator<st
     } catch (err) {
       const e = err as Error & { isRateLimit?: boolean };
       console.warn(`${tag} Anthropic call failed, falling back:`, e.message);
-      // Fall through to next provider
     }
   }
 
-  // Flatten system blocks for OpenAI-compatible providers
+  // Fallback providers don't accept structured cache breakpoints; flatten the prompt.
   const flatSystem = args.systemBlocks.map(b => b.text).join('\n\n');
   const openaiMessages = [
     { role: 'system', content: flatSystem },
@@ -387,7 +339,7 @@ async function* streamOpenAICompatible(args: OpenAIArgs): AsyncGenerator<string>
   let buffer = '';
   let firstTokenMs = 0;
   let outputChars = 0;
-  let outputTokens = 0; // OpenAI-compatible SSE rarely reports usage; approximate
+  let outputTokens = 0; // approximated from chars when not reported
 
   while (true) {
     const { done, value } = await reader.read();
@@ -411,7 +363,6 @@ async function* streamOpenAICompatible(args: OpenAIArgs): AsyncGenerator<string>
           outputTokens += Math.ceil(content.length / 4); // rough 4 chars ≈ 1 tok
           yield content;
         }
-        // Some providers (Grok, newer OpenAI) send a final usage object
         if (parsed.usage?.completion_tokens != null) {
           outputTokens = parsed.usage.completion_tokens;
         }

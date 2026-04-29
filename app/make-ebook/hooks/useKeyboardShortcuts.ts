@@ -57,7 +57,6 @@ export function useKeyboardShortcuts({
   }, [handleKeyDown]);
 }
 
-// Predefined shortcuts for the ebook editor
 export function useEditorShortcuts({
   onSave,
   onExport,

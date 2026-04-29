@@ -104,7 +104,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
     }
   };
 
-  // Show billing button only for Pro users with Stripe customer ID (non-grandfathered)
+  // Show billing button only for paying Pro users (non-grandfathered).
   const showBillingButton = tier === 'pro' && !isGrandfathered && stripeCustomerId;
 
   if (loading) {

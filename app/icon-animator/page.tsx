@@ -1,18 +1,6 @@
 "use client";
 
-// Icon Animator — vertical scrolling workshop in Promptr's design language.
-//
-// Layout grammar mirrors Promptr: cream background, 48px sticky header
-// (back arrow + dot + tool name), Zilla Slab wordmark hero with Playfair
-// italic subtitle, white cards (16px radius, soft shadow) on cream,
-// inline-styled throughout so the design language matches the other
-// portfolio tools without a component system.
-//
-// All animation logic (keyframes, shadow filters, output generators,
-// SVG sanitiser) is unchanged — only the UI layer has been rebuilt.
-// The Leva floating panel has been replaced with native React controls
-// that live inside an editorial card, organised into Animation, Motion,
-// Appearance, Shadow, and Advanced groups.
+// Icon animation workshop. Native React controls organised by group.
 
 import { useState, useRef, useCallback, ReactNode } from "react";
 import Link from "next/link";
@@ -198,7 +186,7 @@ function sanitiseSVG(raw: string): { viewBox: string; inner: string } | null {
   return { viewBox: svg.getAttribute("viewBox") ?? "0 0 24 24", inner: svg.innerHTML };
 }
 
-// ─── UI primitives in Promptr's design language ──────────────────────────────
+// ─── UI primitives ───────────────────────────────────────────────────────────
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (

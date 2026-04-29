@@ -58,9 +58,7 @@ export const viewport: Viewport = {
   ],
 };
 
-// SoftwareApplication schema.org JSON-LD — surfaces price + product type in
-// Google search results. Lives in the layout so every page in the makeEbook
-// surface advertises the product to crawlers, not just the landing page.
+// SoftwareApplication schema.org JSON-LD for search engines.
 const softwareApplicationSchema = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',

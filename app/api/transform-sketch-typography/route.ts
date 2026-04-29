@@ -3,7 +3,6 @@ import OpenAI from "openai";
 
 type AIProvider = "auto" | "openai" | "grok";
 
-// Initialize clients lazily
 function getOpenAIClient() {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return null;
@@ -19,7 +18,6 @@ function getGrokClient() {
   });
 }
 
-// Check if providers are configured
 function getProviderStatus() {
   return {
     openai: process.env.OPENAI_API_KEY ? "configured" : "not configured",
@@ -27,7 +25,6 @@ function getProviderStatus() {
   };
 }
 
-// Generate with OpenAI DALL-E (edit mode would need different approach)
 async function generateWithOpenAI(prompt: string): Promise<string | null> {
   const client = getOpenAIClient();
   if (!client) return null;
@@ -37,7 +34,7 @@ async function generateWithOpenAI(prompt: string): Promise<string | null> {
       model: "dall-e-3",
       prompt,
       n: 1,
-      size: "1024x1792", // Portrait for book covers
+      size: "1024x1792",
       quality: "hd",
       style: "vivid",
     });
@@ -49,13 +46,12 @@ async function generateWithOpenAI(prompt: string): Promise<string | null> {
   }
 }
 
-// Generate with Grok
 async function generateWithGrok(prompt: string): Promise<string | null> {
   const client = getGrokClient();
   if (!client) return null;
 
   try {
-    // Grok doesn't support size parameter
+    // size parameter unsupported by this provider
     const response = await client.images.generate({
       model: "grok-2-image",
       prompt: `${prompt}\n\nIMPORTANT: Create a FLAT 2D book cover design. NOT a 3D book mockup. Portrait orientation, taller than wide.`,
@@ -78,7 +74,6 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
   }
 }
 
-// Build sketch transformation prompt
 function buildSketchTransformPrompt(
   sketchDescription: string,
   title: string,
@@ -114,20 +109,16 @@ function buildSketchTransformPrompt(
     .join("\n");
 }
 
-// Parse SVG to understand the sketch content
 function parseSVGContent(svg: string): string {
-  // Extract text content from SVG
   const textMatches = svg.match(/<text[^>]*>([^<]*)<\/text>/gi) || [];
   const texts = textMatches.map((t) =>
     t.replace(/<\/?[^>]+>/g, "").trim()
   );
 
-  // Detect shapes
   const hasRectangles = svg.includes("<rect");
   const hasCircles = svg.includes("<circle") || svg.includes("<ellipse");
   const hasLines = svg.includes("<line") || svg.includes("<path");
 
-  // Build description
   const description = [
     texts.length > 0 ? `Contains text elements: ${texts.join(", ")}` : "",
     hasRectangles ? "Has rectangular/box shapes (possibly layout guides)" : "",
@@ -172,12 +163,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse sketch content if provided
     const sketchDescription = sketch
       ? parseSVGContent(sketch)
       : "A blank canvas for a book cover";
 
-    // Build the transformation prompt
     const fullPrompt = buildSketchTransformPrompt(
       sketchDescription,
       title,
@@ -188,7 +177,6 @@ export async function POST(request: NextRequest) {
     let imageUrl: string | null = null;
     let usedProvider: string = "";
 
-    // Try providers based on selection
     if (provider === "openai" || (provider === "auto" && hasOpenAI)) {
       imageUrl = await generateWithOpenAI(fullPrompt);
       if (imageUrl) usedProvider = "openai";
@@ -199,7 +187,6 @@ export async function POST(request: NextRequest) {
       if (imageUrl) usedProvider = "grok";
     }
 
-    // Fallback
     if (!imageUrl && provider !== "auto") {
       if (provider === "openai" && hasGrok) {
         imageUrl = await generateWithGrok(fullPrompt);

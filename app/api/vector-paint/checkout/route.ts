@@ -5,7 +5,7 @@ import Stripe from 'stripe'
 import { getProduct, isProductActive, type VectorPaintProductId } from '@/lib/vector-paint/products'
 import { rasteriseAndUpload } from '@/lib/vector-paint/render'
 
-// UK only for the first release. Expand once tiered shipping rates are in.
+// UK only for now; expand once tiered shipping rates are in.
 const SHIPPING_COUNTRIES: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[] = ['GB']
 
 const SHIPPING_AMOUNT_MINOR = 499
@@ -40,10 +40,7 @@ export async function POST(req: NextRequest) {
 
     const { url: printFileUrl, objectPath } = await rasteriseAndUpload(svg, product)
 
-    // Vector Paint's canonical home is neilmcardle.com — distinct from
-    // makeEbook.ink which NEXT_PUBLIC_APP_URL points at. We use a dedicated
-    // env var so Stripe's back arrow / success page don't drop the customer
-    // onto the wrong brand.
+    // Use a dedicated origin so checkout return URLs stay on this product.
     const vectorPaintUrl =
       process.env.NEXT_PUBLIC_VECTOR_PAINT_URL ||
       req.nextUrl.origin ||
@@ -59,9 +56,6 @@ export async function POST(req: NextRequest) {
             currency: product.currency,
             unit_amount: product.sellPriceMinor,
             product_data: {
-              // Brand the line item so the customer sees the chain
-              // "neilmcardle.com (merchant) → Vector Paint (product) → canvas size".
-              // Avoids the spook of paying a merchant they don't recognise.
               name: `Vector Paint canvas · ${product.shortLabel}`,
               description: `${product.description} A Vector Paint product by Neil McArdle.`,
               images: [printFileUrl],

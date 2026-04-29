@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// This API route transforms canvas sketches into book covers using AI
-// Supports OpenAI, Grok, and Gemini for image generation
+// Sketch-to-cover transformation route with multiple provider backends.
 
 type AIProvider = "openai" | "grok" | "gemini" | "auto";
 
@@ -13,7 +12,6 @@ interface GenerateFromSketchRequest {
   provider?: AIProvider;
 }
 
-// Generate image using OpenAI DALL-E 3 (with sketch context in prompt)
 async function generateWithOpenAI(prompt: string): Promise<string | null> {
   const apiKey = process.env.OPENAI_API_KEY;
   
@@ -33,7 +31,7 @@ async function generateWithOpenAI(prompt: string): Promise<string | null> {
         model: "dall-e-3",
         prompt: prompt,
         n: 1,
-        size: "1024x1792", // Portrait for book covers
+        size: "1024x1792",
         quality: "hd",
         style: "vivid",
       }),
@@ -53,7 +51,6 @@ async function generateWithOpenAI(prompt: string): Promise<string | null> {
   }
 }
 
-// Generate image using Grok (xAI)
 async function generateWithGrok(prompt: string): Promise<string | null> {
   const apiKey = process.env.XAI_API_KEY;
   
@@ -97,7 +94,6 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
   }
 }
 
-// Generate image using Google Gemini (Imagen 3)
 async function generateWithGemini(prompt: string): Promise<string | null> {
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
   
@@ -107,7 +103,6 @@ async function generateWithGemini(prompt: string): Promise<string | null> {
   }
 
   try {
-    // Using Gemini's Imagen 3 model for image generation
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
       {
@@ -123,7 +118,7 @@ async function generateWithGemini(prompt: string): Promise<string | null> {
           ],
           parameters: {
             sampleCount: 1,
-            aspectRatio: "9:16", // Portrait for book covers
+            aspectRatio: "9:16",
             personGeneration: "allow_adult",
           },
         }),
@@ -137,8 +132,7 @@ async function generateWithGemini(prompt: string): Promise<string | null> {
     }
 
     const data = await response.json();
-    
-    // Gemini returns base64 encoded images
+
     if (data.predictions?.[0]?.bytesBase64Encoded) {
       return `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
     }
@@ -150,9 +144,7 @@ async function generateWithGemini(prompt: string): Promise<string | null> {
   }
 }
 
-// Analyze sketch to create a description (basic implementation)
 function analyzeSketch(svgContent: string): string {
-  // Extract basic info from SVG to enhance the prompt
   const hasText = svgContent.includes("<text") || svgContent.includes("tspan");
   const hasCircle = svgContent.includes("<circle") || svgContent.includes("<ellipse");
   const hasRect = svgContent.includes("<rect");
@@ -183,10 +175,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Analyze the sketch to enhance the prompt
     const sketchDescription = analyzeSketch(sketch);
 
-    // Build the transformation prompt
     const fullPrompt = [
       "Transform this sketch concept into a professional book cover design",
       `The sketch shows ${sketchDescription}`,
@@ -201,7 +191,6 @@ export async function POST(request: NextRequest) {
     let imageUrl: string | null = null;
     let usedProvider: string = "none";
 
-    // Try to generate based on selected provider
     if (provider === "openai") {
       imageUrl = await generateWithOpenAI(fullPrompt);
       usedProvider = "openai";
@@ -212,7 +201,7 @@ export async function POST(request: NextRequest) {
       imageUrl = await generateWithGemini(fullPrompt);
       usedProvider = "gemini";
     } else {
-      // Auto mode: try Gemini first (best for sketch-to-image), then OpenAI, then Grok
+      // Auto: try providers in order until one returns an image.
       imageUrl = await generateWithGemini(fullPrompt);
       if (imageUrl) {
         usedProvider = "gemini";
@@ -229,7 +218,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // If we got an image, return it
     if (imageUrl) {
       return NextResponse.json({ 
         imageUrl,
@@ -238,7 +226,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Fallback placeholder
     const encodedTitle = encodeURIComponent(title || "Sketch").slice(0, 30);
     const placeholderUrl = `https://placehold.co/1024x1536/2d3436/ffffff?text=${encodedTitle}`;
 

@@ -1,9 +1,5 @@
-// The Promptr rubric — the content backbone of the tool.
-//
-// Six dimensions, each scored 0–5 by the model. Total /30, placed into
-// one of four named categories. Every consumer (score endpoint, client
-// renderer, lesson cards) imports from this file so the dimensions are
-// defined exactly once and in one canonical order.
+// Six rubric dimensions, scored 0-5 by the model. Total /30 maps to a
+// named category. All consumers import from here for a canonical order.
 
 export type DimensionKey =
   | "clarity"

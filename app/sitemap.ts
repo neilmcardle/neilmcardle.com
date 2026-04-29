@@ -1,8 +1,6 @@
 import type { MetadataRoute } from "next";
 
-// Personal brand sitemap. makeEbook has its own sitemap at
-// /make-ebook/sitemap.xml (canonical lives on makeebook.ink), so we don't
-// duplicate it here. prototype-lab/ is excluded because it's auth-gated.
+// Sitemap for the personal site. Auth-gated routes are excluded.
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = "https://neilmcardle.com";
   const now = new Date();

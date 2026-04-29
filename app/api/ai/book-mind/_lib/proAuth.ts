@@ -1,10 +1,4 @@
-// Shared Pro-tier auth check for every Book Mind API route.
-//
-// Mirrors the defensive id-then-email lookup used in /api/subscription
-// after the April 2026 DATABASE_URL incident — when an auth UUID drifts
-// from the public.users id (replica desync, partial migration), a fresh
-// email lookup recovers the row before we return a 403 to a real Pro
-// user. See CLAUDE.md "Known non-obvious gotchas" for the history.
+// Shared Pro auth gate for the editorial API routes.
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, CookieOptions } from '@supabase/ssr';
@@ -16,17 +10,7 @@ export interface ProAuthResult {
   user?: { id: string; email?: string };
 }
 
-// ── Per-user daily fair-use cap ───────────────────────────────────────
-//
-// Protects against a single user (malicious or enthusiastic) running up
-// the Anthropic bill. In-memory, resets on cold start — acceptable for
-// hobby tier. Counts API calls (not tokens) across all Book Mind routes.
-//
-// 200 calls/day is generous for legitimate use:
-//   ~80 chat messages + ~40 Cmd-K edits + ~20 compose + ~20 ghost text
-//   + a few analytical generations. A user would have to be actively
-//   trying to hit this limit.
-
+// Per-user daily fair-use cap. In-memory; resets on cold start.
 const DAILY_CAP = 200;
 const userUsage = new Map<string, { count: number; resetTime: number }>();
 
@@ -44,7 +28,6 @@ function checkDailyCap(userId: string): { allowed: boolean; message?: string } {
     }
     entry.count++;
   } else {
-    // New day or first usage — reset
     userUsage.set(userId, {
       count: 1,
       resetTime: now + 24 * 60 * 60 * 1000,
@@ -79,7 +62,6 @@ export async function requireProUser(req: NextRequest): Promise<ProAuthResult> {
     };
   }
 
-  // Defensive id+email fallback. See note in /api/subscription/route.ts.
   let { user: dbUser } = await getUserById(user.id);
   if (!dbUser && user.email) {
     const { user: fallbackUser } = await getUserByEmail(user.email);
@@ -92,9 +74,7 @@ export async function requireProUser(req: NextRequest): Promise<ProAuthResult> {
     }
   }
 
-  // Local dev override: grant Pro when DB is unreachable and the
-  // user matches a known dev email. See /api/subscription for the
-  // same pattern and the reasoning behind it.
+  // Dev-only override for unreachable DB; never runs in production.
   if (!dbUser && process.env.NODE_ENV === 'development') {
     const devProEmails = ['neil@neilmcardle.com', 'neilmcardlemail@gmail.com', 'hello@makeebook.ink'];
     if (user.email && devProEmails.includes(user.email)) {
@@ -119,8 +99,7 @@ export async function requireProUser(req: NextRequest): Promise<ProAuthResult> {
     };
   }
 
-  // Fair-use daily cap — checked after Pro is confirmed so Free users
-  // never see the cap message (they see the upgrade prompt instead).
+  // Daily cap checked after Pro is confirmed.
   const cap = checkDailyCap(user.id);
   if (!cap.allowed) {
     return {

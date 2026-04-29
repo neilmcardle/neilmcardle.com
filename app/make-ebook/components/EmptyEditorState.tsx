@@ -1,11 +1,7 @@
 'use client';
 
-// Empty state shown when the user is signed into the editor but has no
-// book loaded. After the Phase-B positioning pivot, the primary affordance
-// is "bring your book from anywhere" — paste, upload, start fresh, or open
-// library — not "start a new blank book". Reflects the new one-liner:
-// makeEbook is the place where any book becomes shippable, regardless of
-// how it got written. See CLAUDE.md Part 1.
+// Empty state shown when the user is signed in but no book is loaded.
+// Primary affordances: paste, upload, start fresh, or open library.
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';

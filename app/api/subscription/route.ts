@@ -4,10 +4,7 @@ import { CookieOptions } from '@supabase/ssr'
 import { getUserById, getUserByEmail } from '@/lib/db/users'
 
 /**
- * Subscription Data Endpoint
- *
- * Returns current user's subscription information for client-side display.
- * Used by the useSubscription hook.
+ * Returns the current user's subscription state.
  */
 export async function GET(req: NextRequest) {
   try {
@@ -40,17 +37,9 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Primary lookup by auth UUID. Happy path.
     let { user: dbUser } = await getUserById(user.id)
 
-    // Defensive fallback: if the id lookup returned null, try email. This
-    // handles the (rare) case where public.users.id has drifted out of
-    // sync with auth.users.id — from a manual DB edit, a deleted-and-
-    // recreated auth row, or an older auth flow that never wrote through
-    // the current callback. The email is on the validated JWT and
-    // users.email is UNIQUE, so it's a safe second lookup. When the
-    // fallback fires, a warning is logged so the drift shows up in Vercel
-    // runtime logs for later cleanup.
+    // Defensive: fall back to email lookup if the primary lookup misses.
     if (!dbUser && user.email) {
       const { user: fallbackUser } = await getUserByEmail(user.email)
       if (fallbackUser) {
@@ -63,11 +52,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Local dev override: if the DB is unreachable (common when
-    // DATABASE_URL isn't configured for local dev) and the user is
-    // signed in with a known dev email, return Pro without a DB hit.
-    // This ONLY fires in development and ONLY when the DB lookup
-    // has already failed. Production always goes through the DB.
+    // Dev-only override for unreachable DB; never runs in production.
     if (!dbUser && process.env.NODE_ENV === 'development') {
       const devProEmails = ['neil@neilmcardle.com', 'neilmcardlemail@gmail.com', 'hello@makeebook.ink'];
       if (user.email && devProEmails.includes(user.email)) {
@@ -93,10 +78,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Compute tier inline from the dbUser we already have rather than
-    // re-querying via getUserSubscriptionTier — which would hit the same
-    // drift bug the fallback above is defending against. Mirrors the
-    // logic in lib/db/users.ts exactly.
+    // Compute tier from the row we already have to avoid a second lookup.
     let tier: 'free' | 'pro' = 'free'
     if (dbUser.isGrandfathered) {
       tier = 'pro'

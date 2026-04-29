@@ -20,30 +20,26 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
   const { pathname } = request.nextUrl;
 
-  // Redirect www.makeebook.ink to makeebook.ink (SSL cert only covers apex domain)
+  // Apex-only: redirect the www subdomain to the apex.
   if (hostname === `www.${MAKEEBOOK_DOMAIN}`) {
     const url = request.nextUrl.clone();
     url.host = MAKEEBOOK_DOMAIN;
     return NextResponse.redirect(url, 301);
   }
 
-  // Handle makeebook.ink domain
   if (hostname.includes(MAKEEBOOK_DOMAIN)) {
-    // API and auth routes pass through unchanged
     if (pathname.startsWith('/api/') || pathname.startsWith('/auth/')) {
       return NextResponse.next();
     }
 
-    // Sitemap and robots — rewrite to the make-ebook generators so they're
-    // served at the apex (makeebook.ink/sitemap.xml, makeebook.ink/robots.txt).
-    // Must run BEFORE the static-file short-circuit below.
+    // Rewrite sitemap and robots to the editor-product generators so they're
+    // served at the apex. Must run BEFORE the static-file short-circuit below.
     if (pathname === '/sitemap.xml' || pathname === '/robots.txt') {
       const url = request.nextUrl.clone();
       url.pathname = `/make-ebook${pathname}`;
       return NextResponse.rewrite(url);
     }
 
-    // Static files and Next.js internals pass through
     if (
       pathname.startsWith('/_next/') ||
       pathname.startsWith('/favicon') ||
@@ -52,20 +48,17 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // Already on /make-ebook path — pass through
     if (pathname.startsWith('/make-ebook')) {
       return NextResponse.next();
     }
 
-    // Rewrite root and sub-paths to /make-ebook
     const url = request.nextUrl.clone();
     url.pathname = `/make-ebook${pathname === '/' ? '' : pathname}`;
     return NextResponse.rewrite(url);
   }
 
-  // Handle neilmcardle.com — redirect /make-ebook to makeebook.ink
-  // Skip static files (e.g. /make-ebook-logomark.svg) — only redirect route paths
-  // Skip localhost so local dev works without redirecting
+  // Redirect /make-ebook routes off the personal site to the editor product.
+  // Skip static asset paths (those with a file extension) and localhost.
   if (pathname.startsWith('/make-ebook') && !pathname.includes('.') && !hostname.includes('localhost')) {
     const newPath = pathname.replace('/make-ebook', '') || '/';
     const search = request.nextUrl.search;
@@ -75,16 +68,14 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  // Portfolio gate — /portfolio and everything under it is password-locked.
-  // Authenticated visitors (valid nm-portfolio cookie) see the SPA; others
-  // see the unlock form via a rewrite so the URL stays /portfolio.
+  // Gated portfolio: rewrite to the unlock form when not authenticated.
   if (pathname === '/portfolio' || pathname.startsWith('/portfolio/')) {
     const expected = await portfolioExpectedToken();
     const cookie = request.cookies.get(PORTFOLIO_COOKIE)?.value;
     const authed = expected && cookie === expected;
 
     if (!authed) {
-      // Block asset fetches before anyone is authenticated
+      // Block asset fetches before anyone is authenticated.
       if (pathname.includes('.')) {
         return new NextResponse(null, { status: 404 });
       }
@@ -93,13 +84,12 @@ export async function middleware(request: NextRequest) {
       return NextResponse.rewrite(url);
     }
 
-    // Authenticated — route SPA deep links (no file extension) to index.html
+    // Route SPA deep links to index.html.
     if (!pathname.includes('.')) {
       const url = request.nextUrl.clone();
       url.pathname = '/portfolio/index.html';
       return NextResponse.rewrite(url);
     }
-    // Asset request — serve static file as-is
     return NextResponse.next();
   }
 

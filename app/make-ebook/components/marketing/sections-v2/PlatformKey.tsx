@@ -2,9 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 
-// Returns true on macOS. Defaults to true during SSR and first paint so the
-// Mac shortcut renders without a flash for the majority of makeEbook
-// visitors, then swaps to Ctrl on non-Mac once the client mounts.
+// Returns true on macOS. Defaults to true during SSR/first paint to avoid a
+// flash, then swaps to Ctrl on non-Mac once the client mounts.
 export function useIsMac(): boolean {
   const [isMac, setIsMac] = useState(true);
   useEffect(() => {

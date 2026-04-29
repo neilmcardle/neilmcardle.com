@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createUser, getUserById } from '@/lib/db/users'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
-// Helper function to create authenticated Supabase client
 function createSupabaseClient(req: NextRequest, res: NextResponse) {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,15 +30,13 @@ function createSupabaseClient(req: NextRequest, res: NextResponse) {
   )
 }
 
-// Helper function to verify authentication
 async function verifyAuth(supabase: any, userId?: string) {
   const { data: { user }, error } = await supabase.auth.getUser()
-  
+
   if (error || !user) {
     return { authenticated: false, user: null, error: 'Unauthorized' }
   }
 
-  // If a specific user ID is provided, ensure the authenticated user matches
   if (userId && user.id !== userId) {
     return { authenticated: false, user: null, error: 'Access denied: User ID mismatch' }
   }
@@ -53,8 +50,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { id, email, username } = await req.json()
-    
-    // Verify authentication
+
     const auth = await verifyAuth(supabase, id)
     if (!auth.authenticated) {
       return NextResponse.json({ error: auth.error }, { status: 401 }, { headers: response.headers })
@@ -64,12 +60,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 }, { headers: response.headers })
     }
 
-    // Only allow users to create their own user record
     if (auth.user!.id !== id) {
       return NextResponse.json({ error: 'Access denied: Cannot create user record for another user' }, { status: 403 }, { headers: response.headers })
     }
 
-    // Create user in database
     const { user, error } = await createUser({ id, email, username })
     
     if (error) {
@@ -95,7 +89,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Missing user ID' }, { status: 400 }, { headers: response.headers })
     }
 
-    // Verify authentication
     const auth = await verifyAuth(supabase, id)
     if (!auth.authenticated) {
       return NextResponse.json({ error: auth.error }, { status: 401 }, { headers: response.headers })

@@ -1,16 +1,7 @@
 "use client";
 
-// Promptr page — the top-level shell for the prompt workshop tool.
-//
-// Layout grammar mirrors icon-animator: full-viewport standalone tool,
-// own layout.tsx, minimal 48px sticky header (back arrow → "/" + dot
-// separator + tool name + inline action slot), scrollable body below.
-// Inline-styled throughout so the design language matches the other
-// portfolio tools without importing a new component system.
-//
-// State ownership sits here. The two API endpoints (score / refine) are
-// called from this component, streaming results flow into useState, and
-// child components are pure renderers over that state.
+// Top-level shell for the prompt workshop. State lives here; child
+// components are pure renderers over that state.
 
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";

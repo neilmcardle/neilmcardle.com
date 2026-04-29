@@ -1,17 +1,5 @@
-// Book Mind chat endpoint — speed-first.
-//
-// The client sends structured fields (voice block, memory block,
-// retrieved-context block, messages) instead of a pre-built system
-// prompt. The server reassembles those into Anthropic content blocks
-// with a prompt-cache breakpoint on the manuscript portion, picks the
-// right model for the tier, and streams text deltas back as SSE.
-//
-// Tiers map to models:
-//   spotlight / scene → Haiku (live tier, sub-second)
-//   wide              → Haiku by default; "deep" flag escalates to Sonnet
-//
-// Cache breakpoint sits on the retrieved-context block. First call in a
-// 5-minute window pays full input cost; subsequent calls pay 10%.
+// Editorial chat endpoint. Client sends structured prompt sections; the
+// server stitches them, picks a model for the tier, and streams deltas via SSE.
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireProUser } from './_lib/proAuth';
@@ -27,22 +15,16 @@ export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 interface ChatRequest {
-  // Caller-built sections of the system prompt. Server stitches them in
-  // a fixed order: voice → memory → context. Only `context` is marked
-  // as a cache breakpoint.
+  // Voice → memory → context. Only context is marked as a cache breakpoint.
   voice: string;
   memory?: string;
   context: string;
 
-  // Conversation so far. Server appends as-is, no rewriting.
   messages: AnthropicMessage[];
 
-  // Tier picked by the client. Server uses it to choose the model.
   tier: 'spotlight' | 'scene' | 'wide';
 
-  // If true, escalate wide-tier calls to Sonnet for editorial quality.
-  // Otherwise wide stays on Haiku for speed. Spotlight and scene tiers
-  // always use Haiku regardless.
+  // Escalate quality on wide-tier requests.
   deep?: boolean;
 }
 
@@ -78,10 +60,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing system prompt sections' }, { status: 400 });
   }
 
-  // Build the system blocks in order. Voice + memory are small and
-  // change per surface, so they go uncached. Context (which contains
-  // the brief and any retrieved chapters) is large and consistent
-  // across a chat session, so it gets the cache breakpoint.
+  // Voice + memory are small and per-surface (uncached). Context gets the
+  // cache breakpoint because it is large and stable across a session.
   const systemBlocks: SystemBlock[] = [
     { type: 'text', text: body.voice },
   ];
@@ -94,20 +74,15 @@ export async function POST(req: NextRequest) {
     cache_control: { type: 'ephemeral' },
   });
 
-  // Tier → model. Spotlight and scene always Haiku. Wide is Haiku by
-  // default; deep flag escalates to Sonnet.
   const tier: ModelTier = body.tier === 'wide' && body.deep ? 'background' : 'live';
 
-  // Track which model we end up using, in case we want to return it in
-  // metadata later (e.g. transparency strip "answered with Haiku").
   const modelUsed = pickAnthropicModel(tier);
 
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // Emit a one-shot meta line so the client knows what tier+model
-        // this response is coming from. Useful for the transparency
-        // strip and for debugging in DevTools.
+        // Emit a one-shot meta line so the client knows what tier and model
+        // this response is using.
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({ meta: { tier: body.tier, deep: !!body.deep, model: modelUsed } })}\n\n`,

@@ -23,21 +23,11 @@ export interface VectorPaintProduct {
   status: VectorPaintProductStatus
   sellPriceMinor: number
   currency: 'gbp'
-  // Drawing canvas aspect ratio (width / height). Each product uses its
-  // real-world aspect so the editor matches the physical canvas the
-  // customer will receive. Switching size or orientation mid-draw
-  // reshapes the pad; existing strokes keep their pixel coordinates
-  // (may appear shifted, but not stretched).
   aspect: { w: number; h: number }
-  // Visual scale of the editor page relative to the largest product.
-  // Same scale across orientations within a tier — the canvas is the
-  // same physical area, just rotated.
   sizeScale: number
-  // Pixel dimensions of the rendered print file at 300 DPI.
   widthPx: number
   heightPx: number
   dpi: number
-  // Canvas thickness fixed at 4 cm (Thick) for a premium gallery feel.
   thickness: 'thick'
   gelatoProductUid: string
 }
@@ -170,9 +160,7 @@ export const PRODUCT_ORDER: VectorPaintProductId[] = [
 export const DEFAULT_PRODUCT_ID: VectorPaintProductId = 'canvas_large_landscape'
 
 /**
- * Find the matching product variant for a given tier + orientation.
- * Lets the size dropdown and orientation toggle stay independent —
- * each writes a fully-resolved product id to localStorage.
+ * Find the product variant for a given tier + orientation pair.
  */
 export function findProductByTierAndOrientation(
   tier: VectorPaintSizeTier,

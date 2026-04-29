@@ -1,13 +1,7 @@
-// Portfolio unlock endpoint. Validates the submitted password against
-// PORTFOLIO_PASSWORD and sets an HttpOnly cookie whose value is
-// SHA-256(password + PORTFOLIO_COOKIE_SECRET). The middleware checks
-// that hash on each /portfolio/* request — this is not a session
-// mechanism, just a presence-and-integrity check.
-
 import { NextResponse } from "next/server";
 
 const COOKIE_NAME = "nm-portfolio";
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 90; // 90 days — across a job-search cycle
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 90;
 
 async function sha256Hex(input: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));

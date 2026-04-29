@@ -4,7 +4,6 @@ export function SocialFeed() {
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
-        {/* Center the tweet with flex and justify-center */}
         <div className="flex justify-center">
           <div className="w-full max-w-3xl bg-white rounded-xl shadow-lg p-6">
             <div className="flex justify-center">

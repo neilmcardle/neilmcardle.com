@@ -1,9 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getAllPosts } from './blog/posts';
 
-// Canonical host for the makeEbook product. The middleware rewrites
-// makeebook.ink/* to /make-ebook/* internally, so this sitemap is served at
-// makeebook.ink/sitemap.xml even though the file lives under /make-ebook.
+// Canonical host for this product; served at the apex via middleware rewrite.
 const HOST = 'https://makeebook.ink';
 
 export default function sitemap(): MetadataRoute.Sitemap {

@@ -9,7 +9,6 @@ export async function GET(req: NextRequest) {
   if (code) {
     const response = NextResponse.redirect(new URL('/make-ebook', req.url))
     
-    // Create Supabase client with cookie support
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -44,7 +43,6 @@ export async function GET(req: NextRequest) {
         return NextResponse.redirect(new URL('/?error=auth_error', req.url))
       }
 
-      // Securely create user in database on server-side after successful auth
       if (data.user) {
         try {
           const { user: existingUser } = await createUser({
@@ -54,7 +52,7 @@ export async function GET(req: NextRequest) {
           })
           console.log('User created/updated successfully')
         } catch (createError) {
-          // If user already exists, ignore the error - this is expected for returning users
+          // Returning users will already have a row; ignore.
           console.log('User may already exist in database (normal for returning users)')
         }
       }
@@ -66,6 +64,5 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // If no code, redirect to home
   return NextResponse.redirect(new URL('/', req.url))
 }

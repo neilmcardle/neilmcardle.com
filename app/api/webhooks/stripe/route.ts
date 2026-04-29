@@ -12,21 +12,11 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getProduct, type VectorPaintProductId } from '@/lib/vector-paint/products'
 import { createGelatoOrder } from '@/lib/vector-paint/gelato'
 
-// Disable body parsing - we need the raw body for signature verification
+// Raw body required for signature verification.
 export const runtime = 'nodejs'
 
 /**
- * Stripe Webhook Handler
- *
- * Receives events from Stripe and syncs subscription/payment state to the database.
- * Handles both authenticated (pre-existing user) and unauthenticated (new user) checkout flows.
- *
- * Events handled:
- * - customer.subscription.created/updated: Subscription started or renewed
- * - customer.subscription.deleted: Subscription canceled
- * - checkout.session.completed: Payment captured — creates account if user is new
- * - invoice.payment_succeeded: Successful renewal payment
- * - invoice.payment_failed: Failed payment, marks past_due
+ * Webhook handler for subscription and payment events.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -48,7 +38,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No signature provided' }, { status: 400 })
     }
 
-    // Verify webhook signature (CRITICAL for security)
+    // Signature verification is required.
     let event: Stripe.Event
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
@@ -94,21 +84,17 @@ export async function POST(req: NextRequest) {
 }
 
 /**
- * Look up a user by Stripe customer ID with email fallback.
- * For unauthenticated checkouts, stripeCustomerId may not be set on the user yet,
- * so we fall back to fetching the Stripe customer email and looking up by that.
+ * Look up a user by external customer ID, with email fallback.
  */
 async function findUserByCustomerId(customerId: string, stripe: Stripe) {
   const { user } = await getUserByStripeCustomerId(customerId)
   if (user) return { user, error: null }
 
-  // Fallback: retrieve Stripe customer to get email, then look up by email
   try {
     const stripeCustomer = await stripe.customers.retrieve(customerId) as Stripe.Customer
     if (!stripeCustomer.deleted && stripeCustomer.email) {
       const { user: emailUser, error: emailError } = await getUserByEmail(stripeCustomer.email)
       if (emailUser) {
-        // Save customer ID for future lookups
         if (!emailUser.stripeCustomerId) {
           await updateUserSubscription(emailUser.id, { stripeCustomerId: customerId })
         }
@@ -124,8 +110,7 @@ async function findUserByCustomerId(customerId: string, stripe: Stripe) {
 }
 
 /**
- * Handle subscription creation or update.
- * Syncs Stripe subscription state to the database.
+ * Sync subscription state to the database.
  */
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription, stripe: Stripe) {
   const customerId = subscription.customer as string
@@ -138,7 +123,6 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription, strip
     return
   }
 
-  // Don't downgrade grandfathered users
   if (user.isGrandfathered) {
     console.log(`User ${user.id} is grandfathered - keeping Pro access`)
     return
@@ -146,7 +130,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription, strip
 
   const tier: 'free' | 'pro' = subscription.status === 'active' ? 'pro' : 'free'
 
-  // current_period_end moved to SubscriptionItem in Stripe API 2025-08-27.basil
+  // current_period_end is on the subscription item in newer API versions.
   const periodEndRaw = subscription.items?.data[0]?.current_period_end
   let subscriptionCurrentPeriodEnd: Date | undefined
   if (periodEndRaw && typeof periodEndRaw === 'number') {
@@ -174,8 +158,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription, strip
 }
 
 /**
- * Handle subscription cancellation.
- * Downgrades user to free tier (unless grandfathered).
+ * Downgrade the user to the free tier.
  */
 async function handleSubscriptionCanceled(subscription: Stripe.Subscription, stripe: Stripe) {
   const customerId = subscription.customer as string
@@ -188,7 +171,6 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription, str
     return
   }
 
-  // Don't downgrade grandfathered users
   if (user.isGrandfathered) {
     console.log(`User ${user.id} is grandfathered - keeping Pro access despite cancellation`)
     return
@@ -208,18 +190,16 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription, str
 }
 
 /**
- * Handle successful payment.
- * Subscription status is updated by the subscription.updated event.
+ * Handle a successful payment notification.
  */
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string
   console.log(`Payment succeeded for customer: ${customerId}`)
-  // Note: Subscription status is synced by customer.subscription.updated webhook
+  // Subscription status is synced via the subscription.updated event.
 }
 
 /**
- * Handle failed payment.
- * Marks subscription as past_due — Stripe will automatically retry.
+ * Mark a subscription as past_due after a failed payment.
  */
 async function handlePaymentFailed(invoice: Stripe.Invoice, stripe: Stripe) {
   const customerId = invoice.customer as string
@@ -245,11 +225,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice, stripe: Stripe) {
 }
 
 /**
- * Handle checkout session completion.
- *
- * For authenticated users: grants access to their existing account.
- * For unauthenticated users: finds or creates a Supabase account by email,
- * then sends an invite email so they can set a password and access the app.
+ * Grant access on checkout completion.
  */
 async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session,
@@ -267,7 +243,6 @@ async function handleCheckoutSessionCompleted(
     return
   }
 
-  // 1. Try to find user by supabase_user_id (set when user was authenticated at checkout)
   let user: Awaited<ReturnType<typeof getUserById>>['user'] = null
 
   if (supabaseUserId) {
@@ -275,13 +250,11 @@ async function handleCheckoutSessionCompleted(
     user = u
   }
 
-  // 2. Fall back to Stripe customer ID lookup
   if (!user) {
     const { user: u } = await getUserByStripeCustomerId(customerId)
     user = u
   }
 
-  // 3. Fall back to email lookup
   if (!user && email) {
     const { user: u, error: emailError } = await getUserByEmail(email)
     if (emailError) {
@@ -291,14 +264,13 @@ async function handleCheckoutSessionCompleted(
     user = u
   }
 
-  // 4. Create a new user for unauthenticated checkout by a brand-new user
+  // Create a new user record for first-time checkout.
   if (!user && email) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://makeebook.ink'
 
     try {
       const adminClient = createAdminClient()
 
-      // inviteUserByEmail creates the Supabase auth user and sends a setup email
       const { data: inviteData, error: inviteError } =
         await adminClient.auth.admin.inviteUserByEmail(email, {
           redirectTo: `${appUrl}/auth/callback`,
@@ -309,7 +281,6 @@ async function handleCheckoutSessionCompleted(
         return
       }
 
-      // Create the DB user record linked to the new Supabase auth user
       const { user: newUser, error: createError } = await createUser({
         id: inviteData.user.id,
         email: inviteData.user.email!,
@@ -333,12 +304,10 @@ async function handleCheckoutSessionCompleted(
     return
   }
 
-  // 5. Link Stripe customer ID if not already saved
   if (!user.stripeCustomerId && customerId) {
     await updateUserSubscription(user.id, { stripeCustomerId: customerId })
   }
 
-  // 6. Grant access based on purchase type
   if (purchaseType === 'lifetime' && session.payment_status === 'paid') {
     const paymentIntentId = session.payment_intent as string
     const { error: updateError } = await grantLifetimeAccess(user.id, paymentIntentId)
@@ -350,7 +319,7 @@ async function handleCheckoutSessionCompleted(
 
     console.log(`✅ Lifetime access granted to user ${user.id}`)
   } else if (purchaseType === 'pro') {
-    // Pro access is granted by the customer.subscription.created event that follows
+    // Access is granted by the subscription event that follows.
     console.log(`✅ Pro checkout completed for user ${user.id} — subscription event will follow`)
   } else {
     console.log(`Unrecognized purchase type: ${purchaseType} for session ${session.id}`)
@@ -374,8 +343,7 @@ async function handleVectorPaintOrder(session: Stripe.Checkout.Session) {
     )
   } catch (err: any) {
     console.error(`Vector Paint order failed for session ${session.id}:`, err.message ?? err)
-    // Intentional: don't rethrow — Stripe retries the webhook on 5xx, but a Gelato
-    // failure here means the customer paid and we couldn't fulfil. We need a manual
-    // recovery path (admin tool / alert), not a retry storm. TODO: surface to ops.
+    // Don't rethrow: payment succeeded but fulfilment failed; needs a manual recovery path.
+    // TODO: surface to ops.
   }
 }

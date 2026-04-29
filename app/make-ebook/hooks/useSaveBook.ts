@@ -203,8 +203,6 @@ export function useSaveBook({
       return sum + text.trim().split(/\s+/).filter(w => w.length > 0).length;
     }, 0);
 
-    // Typography is fixed to the 'default' preset (exportEpub's own default).
-    // The user-facing picker was cut in Phase 3 — see CLAUDE.md.
     const blob = await exportEpub({
       title, author, blurb, publisher, pubDate, isbn, language, genre, tags,
       coverFile: coverUrl,

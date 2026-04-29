@@ -3,41 +3,34 @@ import OpenAI from "openai";
 
 type AIProvider = "auto" | "openai" | "grok" | "gemini";
 
-// ============================================
-// RATE LIMITING - Protect against API abuse
-// ============================================
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour window
-const MAX_REQUESTS_PER_WINDOW = 10; // Max 10 generations per hour per IP
-const DAILY_LIMIT = 30; // Max 30 generations per day total (all users)
+// Rate limits to protect against abuse.
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 10;
+const DAILY_LIMIT = 30;
 
-// In-memory rate limit store (resets on server restart)
-// For production with multiple instances, use Redis instead
+// In-memory; replace with shared store for multi-instance deployments.
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 let dailyCount = 0;
 let dailyResetTime = Date.now() + 24 * 60 * 60 * 1000;
 
 function checkRateLimit(ip: string): { allowed: boolean; message?: string } {
   const now = Date.now();
-  
-  // Reset daily counter if needed
+
   if (now > dailyResetTime) {
     dailyCount = 0;
     dailyResetTime = now + 24 * 60 * 60 * 1000;
   }
-  
-  // Check daily limit
+
   if (dailyCount >= DAILY_LIMIT) {
-    return { 
-      allowed: false, 
-      message: "Daily generation limit reached. Please try again tomorrow." 
+    return {
+      allowed: false,
+      message: "Daily generation limit reached. Please try again tomorrow."
     };
   }
-  
-  // Check per-IP limit
+
   const record = rateLimitStore.get(ip);
   if (record) {
     if (now > record.resetTime) {
-      // Reset window
       rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
     } else if (record.count >= MAX_REQUESTS_PER_WINDOW) {
       const minutesLeft = Math.ceil((record.resetTime - now) / 60000);
@@ -56,9 +49,6 @@ function checkRateLimit(ip: string): { allowed: boolean; message?: string } {
   return { allowed: true };
 }
 
-// ============================================
-
-// Initialize clients lazily
 function getOpenAIClient() {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return null;
@@ -74,7 +64,6 @@ function getGrokClient() {
   });
 }
 
-// Check if providers are configured
 function getProviderStatus() {
   const geminiKey = process.env.GOOGLE_GEMINI_API_KEY;
   return {
@@ -84,7 +73,7 @@ function getProviderStatus() {
   };
 }
 
-// Helper: Fetch an image URL and convert to base64 data URL (avoids CORS issues)
+// Convert a remote image URL to a base64 data URL to avoid CORS in the browser.
 async function fetchImageAsBase64(imageUrl: string): Promise<string | null> {
   try {
     const response = await fetch(imageUrl);
@@ -102,7 +91,6 @@ async function fetchImageAsBase64(imageUrl: string): Promise<string | null> {
   }
 }
 
-// Generate with OpenAI DALL-E
 async function generateWithOpenAI(prompt: string): Promise<string | null> {
   const client = getOpenAIClient();
   if (!client) return null;
@@ -112,15 +100,14 @@ async function generateWithOpenAI(prompt: string): Promise<string | null> {
       model: "dall-e-3",
       prompt,
       n: 1,
-      size: "1024x1792", // Portrait orientation
+      size: "1024x1792",
       quality: "hd",
       style: "vivid",
     });
 
     const imageUrl = response.data[0]?.url;
     if (!imageUrl) return null;
-    
-    // Fetch and convert to base64 to avoid CORS issues in browser
+
     return await fetchImageAsBase64(imageUrl);
   } catch (error) {
     console.error("OpenAI generation error:", error);
@@ -128,31 +115,27 @@ async function generateWithOpenAI(prompt: string): Promise<string | null> {
   }
 }
 
-// Generate with Grok
 async function generateWithGrok(prompt: string): Promise<string | null> {
   const client = getGrokClient();
   if (!client) return null;
 
   try {
-    // Grok doesn't support size parameter
+    // size parameter unsupported by this provider
     const response = await client.images.generate({
       model: "grok-2-image",
       prompt: prompt,
       n: 1,
     });
 
-    // Check different response formats from Grok
     const imageData = response.data[0];
     if (!imageData) return null;
-    
+
     if ("b64_json" in imageData) {
-      // Already base64, return as data URL
       return `data:image/png;base64,${imageData.b64_json}`;
     } else if ("url" in imageData) {
-      // Fetch and convert to base64 to avoid CORS issues
       return await fetchImageAsBase64(imageData.url as string);
     }
-    
+
     return null;
   } catch (error) {
     console.error("Grok generation error:", error);
@@ -160,7 +143,6 @@ async function generateWithGrok(prompt: string): Promise<string | null> {
   }
 }
 
-// Generate with Google Gemini (Imagen 3)
 async function generateWithGemini(prompt: string): Promise<string | null> {
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
   
@@ -210,7 +192,6 @@ async function generateWithGemini(prompt: string): Promise<string | null> {
   }
 }
 
-// Analyze sketch using Gemini Vision (gemini-2.0-flash)
 async function analyzeSketchWithGemini(sketchBase64: string): Promise<string | null> {
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
   
@@ -220,7 +201,6 @@ async function analyzeSketchWithGemini(sketchBase64: string): Promise<string | n
   }
 
   try {
-    // Extract the base64 data without the data URL prefix
     const base64Data = sketchBase64.replace(/^data:image\/\w+;base64,/, "");
     console.log("Sending sketch to Gemini Vision, base64 length:", base64Data.length);
     
@@ -270,7 +250,6 @@ async function analyzeSketchWithGemini(sketchBase64: string): Promise<string | n
   }
 }
 
-// Analyze sketch using OpenAI GPT-4o Vision
 async function analyzeSketchWithOpenAI(sketchBase64: string): Promise<string | null> {
   const client = getOpenAIClient();
   if (!client) return null;
@@ -303,19 +282,16 @@ async function analyzeSketchWithOpenAI(sketchBase64: string): Promise<string | n
   }
 }
 
-// Build prompt - uses user's prompt directly, adds minimal context
 function buildTypographyPrompt(
   basePrompt: string,
   title: string,
   subtitle?: string,
   author?: string
 ): string {
-  // If user provided a description, use it directly
   if (basePrompt && basePrompt.trim()) {
     return basePrompt.trim();
   }
-  
-  // Fallback: generate based on title if no prompt provided
+
   return `Create a visually striking illustration inspired by the theme: "${title}"${subtitle ? `, with the subtitle "${subtitle}"` : ""}. Portrait orientation.`;
 }
 
@@ -328,13 +304,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    // Get client IP for rate limiting
     const forwardedFor = request.headers.get("x-forwarded-for");
-    const ip = forwardedFor?.split(",")[0]?.trim() || 
-               request.headers.get("x-real-ip") || 
+    const ip = forwardedFor?.split(",")[0]?.trim() ||
+               request.headers.get("x-real-ip") ||
                "unknown";
-    
-    // Check rate limit
+
     const rateLimitResult = checkRateLimit(ip);
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
@@ -382,15 +356,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // If a sketch is provided, analyze it with vision AI
     let enhancedPrompt = prompt || "";
     let sketchAnalyzed = false;
-    
+
     if (sketch) {
       console.log("Sketch received, attempting vision analysis...");
       let sketchDescription: string | null = null;
-      
-      // Try Gemini vision first if configured, otherwise fall back to OpenAI
+
       if (hasGemini) {
         console.log("Trying Gemini vision...");
         sketchDescription = await analyzeSketchWithGemini(sketch);
@@ -409,7 +381,6 @@ export async function POST(request: NextRequest) {
       
       if (sketchDescription) {
         sketchAnalyzed = true;
-        // Use sketch description as the primary prompt with emphasis on matching the sketch
         if (enhancedPrompt.trim()) {
           enhancedPrompt = `${enhancedPrompt}\n\nIMPORTANT: Faithfully reproduce this sketch layout: ${sketchDescription}. Keep the same composition, elements, and arrangement as drawn.`;
         } else {
@@ -421,31 +392,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Build the optimized typography prompt
     const fullPrompt = buildTypographyPrompt(enhancedPrompt, title, subtitle, author);
 
     let imageUrl: string | null = null;
     let usedProvider: string = "";
 
-    // Try providers based on selection
     if (provider === "gemini" || (provider === "auto" && hasGemini)) {
       imageUrl = await generateWithGemini(fullPrompt);
       if (imageUrl) usedProvider = "gemini";
     }
 
-    // Try OpenAI if Gemini didn't work or wasn't selected
     if (!imageUrl && (provider === "openai" || (provider === "auto" && hasOpenAI))) {
       imageUrl = await generateWithOpenAI(fullPrompt);
       if (imageUrl) usedProvider = "openai";
     }
 
-    // Try Grok if neither worked or wasn't selected
     if (!imageUrl && (provider === "grok" || (provider === "auto" && hasGrok))) {
       imageUrl = await generateWithGrok(fullPrompt);
       if (imageUrl) usedProvider = "grok";
     }
 
-    // Fallback to other providers if first choice failed
     if (!imageUrl && provider !== "auto") {
       if (provider === "gemini") {
         if (hasOpenAI) {

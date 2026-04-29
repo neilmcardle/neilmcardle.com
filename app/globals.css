@@ -635,14 +635,14 @@ button:hover .palette-icon {
    that lasts ~2s. The keyframe sits inside a 60s cycle with 97% idle,
    so the effect fires exactly once per minute as a subtle flourish. */
 @keyframes ripple-line-shimmer {
-  0%   { opacity: var(--ripple-base, 0.1); }
+  0%   { opacity: 0.1; }
   0.5% { opacity: 0.5; }
-  1.5% { opacity: var(--ripple-base, 0.1); }
-  100% { opacity: var(--ripple-base, 0.1); }
+  1.5% { opacity: 0.1; }
+  100% { opacity: 0.1; }
 }
 
 .ripple-line {
-  opacity: var(--ripple-base, 0.1);
+  opacity: 0.1;
   animation: ripple-line-shimmer 60s linear infinite;
 }
 

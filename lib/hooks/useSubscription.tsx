@@ -33,16 +33,12 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   })
 
   useEffect(() => {
-    // Wait for auth to settle before making any tier decision. If auth
-    // is still resolving, "not authenticated" actually means "we don't
-    // know yet" — collapsing that to tier='free' causes a race where
-    // downstream consumers (Book Mind redirect, LayoutSwitcher gating,
-    // etc.) briefly see a Pro user as Free and make the wrong call. We
-    // keep isLoading=true until auth has genuinely landed on an answer.
+    // Wait for auth to settle before deciding a tier. While loading,
+    // "not authenticated" really means "unknown", and treating that as
+    // free causes downstream consumers to gate the wrong way.
     if (authLoading) return
 
     if (!isAuthenticated || !user) {
-      // Auth has settled: user is genuinely anonymous. Default to free.
       setData({
         tier: 'free',
         status: null,
@@ -56,11 +52,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       return
     }
 
-    // Fetch subscription data with a single retry. On ~1 in 10 logins
-    // the Supabase auth cookie hasn't fully propagated to the server by
-    // the time this fetch fires, so /api/subscription returns tier=free
-    // for a real Pro user. A 1-second retry catches the race: by the
-    // second attempt the cookie is always ready.
+    // Fetch with a single retry to handle a known auth-cookie race on first load.
     const fetchSubscription = async (attempt = 1) => {
       try {
         setData(prev => ({ ...prev, isLoading: true, error: null }))
@@ -76,9 +68,8 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
         const result = await response.json()
 
-        // If the server returned free but the user IS authenticated,
-        // retry once after a short delay. The cookie race means the
-        // first attempt sometimes misses the session.
+        // Authenticated user but server returned free: retry once for the
+        // cookie race, then accept whatever comes back.
         if (
           attempt === 1 &&
           (!result.isPro && result.tier === 'free') &&
@@ -125,8 +116,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 }
 
 /**
- * Hook to access subscription data
- * Returns subscription tier, status, and grandfathering information
+ * Access the current subscription state.
  */
 export function useSubscription() {
   const context = useContext(SubscriptionContext)
@@ -137,8 +127,7 @@ export function useSubscription() {
 }
 
 /**
- * Helper hook to check if user has Pro access
- * Returns true for Pro subscribers and grandfathered users
+ * Returns true when the user has Pro access.
  */
 export function useIsPro() {
   const { isPro } = useSubscription()
@@ -146,21 +135,18 @@ export function useIsPro() {
 }
 
 /**
- * Helper hook to check if user has access to a specific feature
- * @param feature - Feature name to check (e.g., 'book_mind_ai', 'cloud_sync')
- * @returns true if user has access to the feature
+ * Check whether the current user has access to a specific feature.
+ * @param feature - Feature key to check
+ * @returns true if the feature is available to this user
  */
 export function useFeatureAccess(feature: 'book_mind_ai' | 'cloud_sync' | 'version_history' | 'export_history') {
   const { tier } = useSubscription()
 
-  // Define which features require Pro tier
   const proFeatures = ['book_mind_ai', 'cloud_sync']
 
-  // Check if feature requires Pro
   if (proFeatures.includes(feature)) {
     return tier === 'pro'
   }
 
-  // All other features are available to everyone
   return true
 }

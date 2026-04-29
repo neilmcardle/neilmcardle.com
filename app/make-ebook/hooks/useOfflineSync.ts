@@ -227,11 +227,7 @@ export function useOfflineSync(userId?: string): UseOfflineSyncReturn {
 
         for (const book of booksToSync) {
           try {
-            // Here you would sync to your backend (Supabase)
-            // For now, we just mark as synced locally
-            // await syncBookToServer(book);
-
-            // Mark as synced
+            // TODO: sync to backend. For now, mark as synced locally.
             const updateTx = dbRef.current!.transaction(STORE_NAME, 'readwrite');
             const updateStore = updateTx.objectStore(STORE_NAME);
             updateStore.put({ ...book, needsSync: false });

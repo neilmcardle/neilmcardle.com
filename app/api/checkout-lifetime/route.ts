@@ -7,12 +7,7 @@ import { CookieOptions } from '@supabase/ssr'
 import { getUserById, updateUser } from '@/lib/db/users'
 
 /**
- * Lifetime Checkout Endpoint
- *
- * Creates a Stripe Checkout Session for the one-time lifetime purchase.
- * Works for both authenticated and unauthenticated users:
- * - Authenticated: uses existing Stripe customer, checks for duplicate purchase
- * - Unauthenticated: Stripe collects email during checkout; webhook creates account after payment
+ * Create a checkout session for the one-time lifetime purchase.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -28,7 +23,7 @@ export async function POST(req: NextRequest) {
       apiVersion: '2024-06-20',
     })
 
-    // Try to get authenticated user (optional — unauthenticated checkout is allowed)
+    // Auth is optional here.
     let supabaseUserId: string | null = null
     let existingCustomerId: string | null = null
 
@@ -59,14 +54,12 @@ export async function POST(req: NextRequest) {
         const { user: dbUser } = await getUserById(user.id)
 
         if (dbUser) {
-          // Already has lifetime access — prevent duplicate
           if (dbUser.hasLifetimeAccess) {
             return NextResponse.json({ error: 'You already have lifetime access' }, { status: 400 })
           }
 
           existingCustomerId = dbUser.stripeCustomerId ?? null
 
-          // Create Stripe customer if this user doesn't have one yet
           if (!existingCustomerId) {
             const customer = await stripe.customers.create({
               email: user.email!,
@@ -78,7 +71,7 @@ export async function POST(req: NextRequest) {
         }
       }
     } catch {
-      // User not authenticated — proceed with unauthenticated checkout
+      // No authenticated user; proceed.
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'

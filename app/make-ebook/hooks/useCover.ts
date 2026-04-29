@@ -52,7 +52,7 @@ function compressCoverImage(file: File): Promise<string> {
 
 /**
  * Manages cover image state. Stores covers as compressed base64 data URLs
- * so they persist in localStorage and Supabase across reloads.
+ * so they persist across reloads.
  */
 export function useCover(initialUrl: string | null = null) {
   const [coverUrl, setCoverUrl] = useState<string | null>(initialUrl);

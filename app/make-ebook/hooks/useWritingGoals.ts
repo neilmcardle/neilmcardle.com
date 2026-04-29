@@ -2,10 +2,6 @@
 
 import { useMemo } from 'react';
 
-// Intentionally stripped of streaks, daily targets, and week history. A quiet
-// "N words today" nudge is the only surface this hook needs to feed. The
-// per-day word count is written by useWordStats into localStorage under the
-// `${userId}_makeebook-words-YYYY-MM-DD` key; we just read today's value.
 export interface WritingGoals {
   todayWords: number;
 }

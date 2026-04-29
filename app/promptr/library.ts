@@ -1,9 +1,4 @@
-// The curated prompt library — Promptr's starter set.
-//
-// Hand-written prompts that score well on the rubric and showcase each
-// category. The library is a TS const, not a CMS or DB, so it's edited
-// in one place and shipped with the rest of the code. Adding a prompt
-// is a one-line change; no ops, no approval queue, no moderation.
+// Curated starter prompts.
 //
 // Each entry has a one-sentence description (the "why this works" hook
 // that shows on the library card) and the full prompt body. Prompts

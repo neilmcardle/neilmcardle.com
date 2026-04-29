@@ -5,8 +5,7 @@ import { useAuth } from '@/lib/hooks/useAuth'
 import { Loader2, Mail, CheckCircle, AlertCircle, X, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 
-// Dialog-based modal: uses browser top-layer via showModal() — bypasses all
-// CSS stacking / z-index / position:fixed coordinate issues on iOS Safari.
+// Native dialog (top-layer) avoids stacking/z-index issues on iOS Safari.
 const dialogStyles = `
   dialog[data-auth-modal] {
     border: none;
@@ -65,7 +64,6 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
   const [showResetMessage, setShowResetMessage] = useState(false)
   const { signIn, signUp, resetPassword, authError, clearError } = useAuth()
 
-  // Open / close the native dialog
   useEffect(() => {
     const dialog = dialogRef.current
     if (!dialog) return
@@ -76,13 +74,11 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
     }
   }, [isOpen])
 
-  // Keep mode in sync when modal opens
   useEffect(() => {
     if (isOpen) setMode(defaultMode)
   }, [isOpen, defaultMode])
 
-  // iOS tap-target fix: page scroll offset displaces touch hit-tests on fixed/top-layer
-  // elements. Lock body position to scrollY so offset becomes 0.
+  // iOS hit-test fix: lock body position so scroll offset is 0.
   useEffect(() => {
     if (!isOpen) return
     const scrollY = window.scrollY
@@ -153,12 +149,10 @@ export function AuthModal({ isOpen, onCloseAction, defaultMode = 'signup' }: Aut
     }
   }
 
-  // Clicking the dialog element itself (i.e. the backdrop area) closes it
   const handleDialogClick = (e: React.MouseEvent<HTMLDialogElement>) => {
     if (e.target === dialogRef.current) handleClose()
   }
 
-  // Intercept native ESC so we can run our own close logic
   const handleCancel = (e: React.SyntheticEvent<HTMLDialogElement>) => {
     e.preventDefault()
     handleClose()

@@ -30,13 +30,14 @@ interface ChapterInput {
 	type: string;
 }
 
-// Save ebook and chapters to Supabase
+/**
+ * Save an ebook and its chapters.
+ */
 export async function saveEbookToSupabase(ebook: EbookInput, chapters: ChapterInput[], userId: string) {
 	const supabase = getSupabaseBrowserClient();
 	if (!supabase) throw new Error('Supabase client not initialized');
 
-	// Transform camelCase app fields to snake_case Supabase columns
-	// Generate a stable UUID for non-UUID local IDs
+	// Generate a stable UUID for non-UUID local IDs.
 	const supabaseId = isUuid(ebook.id) ? ebook.id! : uuidv4();
 	const supabaseEbook = {
 		id: supabaseId,
@@ -56,7 +57,6 @@ export async function saveEbookToSupabase(ebook: EbookInput, chapters: ChapterIn
 		updated_at: new Date().toISOString(),
 	};
 
-	// Upsert ebook
 	const { data: ebookData, error: ebookError } = await supabase
 		.from('ebooks')
 		.upsert([supabaseEbook], { onConflict: 'id' })
@@ -65,7 +65,6 @@ export async function saveEbookToSupabase(ebook: EbookInput, chapters: ChapterIn
 
 	if (ebookError) throw ebookError;
 
-	// Upsert chapters
 	if (chapters && chapters.length > 0) {
 		const chaptersWithEbookId = chapters.map((ch, idx) => ({
 			id: isUuid(ch.id) ? ch.id : uuidv4(),
@@ -85,7 +84,9 @@ export async function saveEbookToSupabase(ebook: EbookInput, chapters: ChapterIn
 	return ebookData;
 }
 
-// Fetch all ebooks for a user (with chapters)
+/**
+ * List all ebooks for a user, including chapters.
+ */
 export async function fetchEbooksFromSupabase(userId: string) {
 	const supabase = getSupabaseBrowserClient();
 	if (!supabase) throw new Error('Supabase client not initialized');
@@ -98,17 +99,18 @@ export async function fetchEbooksFromSupabase(userId: string) {
 	return data;
 }
 
-// Delete an ebook and its chapters from Supabase
+/**
+ * Delete an ebook and its chapters.
+ */
 export async function deleteEbookFromSupabase(ebookId: string, userId?: string, bookTitle?: string) {
 	const supabase = getSupabaseBrowserClient();
 	if (!supabase) throw new Error('Supabase client not initialized');
 
 	let targetEbookId = ebookId;
 
-	// If the ID isn't a valid UUID, try to find the book in Supabase by title
+	// Fall back to title lookup if the ID is not a UUID.
 	if (!isUuid(ebookId)) {
 		if (!userId || !bookTitle) {
-			// Local-only book with no way to look up in Supabase — nothing to delete
 			return true;
 		}
 		const { data: foundBooks } = await supabase
@@ -119,13 +121,11 @@ export async function deleteEbookFromSupabase(ebookId: string, userId?: string, 
 			.limit(1);
 
 		if (!foundBooks || foundBooks.length === 0) {
-			// Book doesn't exist in Supabase — nothing to delete
 			return true;
 		}
 		targetEbookId = foundBooks[0].id;
 	}
 
-	// Delete all chapters for this ebook
 	const { error: chaptersError } = await supabase
 		.from('chapters')
 		.delete()
@@ -135,7 +135,6 @@ export async function deleteEbookFromSupabase(ebookId: string, userId?: string, 
 		console.error('Error deleting chapters:', chaptersError);
 	}
 
-	// Delete the ebook itself
 	const { error: ebookError } = await supabase
 		.from('ebooks')
 		.delete()

@@ -1,7 +1,5 @@
-// Utility functions for the make-ebook page
 import { Chapter, EndnoteReference } from "../types";
 
-// Migration function to ensure all chapters have IDs
 export function ensureChapterIds(chapters: Chapter[]): Chapter[] {
   return chapters.map(chapter => ({
     ...chapter,
@@ -9,11 +7,9 @@ export function ensureChapterIds(chapters: Chapter[]): Chapter[] {
   }));
 }
 
-// Migration function to update endnote references with unknown chapter IDs
 export function migrateEndnoteReferences(endnoteRefs: EndnoteReference[], chapters: Chapter[]): EndnoteReference[] {
   return endnoteRefs.map(ref => {
     if (ref.chapterId === 'unknown' || !ref.chapterId) {
-      // Try to find the chapter by context - for now, assign to first content chapter
       const firstContentChapter = chapters.find(ch => ch.type === 'content');
       return {
         ...ref,
@@ -41,7 +37,6 @@ export function plainText(html: string) {
 }
 
 export function getContentChapterNumber(chapters: any[], currentIndex: number) {
-  // Count only content chapters up to and including the current index
   let contentChapterCount = 0;
   for (let i = 0; i <= currentIndex; i++) {
     if (chapters[i]?.type === 'content') {

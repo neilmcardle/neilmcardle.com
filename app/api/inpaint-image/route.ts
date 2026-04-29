@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-// Initialize OpenAI client
 function getOpenAIClient() {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return null;
   return new OpenAI({ apiKey });
 }
 
-// Rate limiting (simple in-memory for demo)
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const MAX_REQUESTS_PER_WINDOW = 5; // Inpainting is expensive, limit more
+// Simple in-memory rate limiting.
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 5;
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 function checkRateLimit(ip: string): { allowed: boolean; message?: string } {
@@ -36,7 +35,7 @@ function checkRateLimit(ip: string): { allowed: boolean; message?: string } {
   return { allowed: true };
 }
 
-// Helper: Fetch an image URL and convert to base64 data URL (avoids CORS issues)
+// Convert a remote image URL to a base64 data URL to avoid CORS in the browser.
 async function fetchImageAsBase64(imageUrl: string): Promise<string | null> {
   try {
     const response = await fetch(imageUrl);
@@ -54,30 +53,24 @@ async function fetchImageAsBase64(imageUrl: string): Promise<string | null> {
   }
 }
 
-// Convert base64 to File for OpenAI API
 async function base64ToFile(base64: string, filename: string): Promise<File> {
   const res = await fetch(base64);
   const blob = await res.blob();
   return new File([blob], filename, { type: "image/png" });
 }
 
-// Resize image to square (required for DALL-E 2)
+// TODO: server-side resize. For now we trust the client to send properly sized images.
 async function resizeToSquare(base64: string, size: number = 1024): Promise<string> {
-  // This runs server-side, so we need to use a different approach
-  // For now, we'll trust the client sends properly sized images
-  // In production, use sharp or similar library
   return base64;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Get client IP for rate limiting
     const forwardedFor = request.headers.get("x-forwarded-for");
-    const ip = forwardedFor?.split(",")[0]?.trim() || 
-               request.headers.get("x-real-ip") || 
+    const ip = forwardedFor?.split(",")[0]?.trim() ||
+               request.headers.get("x-real-ip") ||
                "unknown";
-    
-    // Check rate limit
+
     const rateLimitResult = checkRateLimit(ip);
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
@@ -108,7 +101,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert base64 to Files
     const imageFile = await base64ToFile(image, "image.png");
     const maskFile = await base64ToFile(mask, "mask.png");
 
@@ -117,7 +109,6 @@ export async function POST(request: NextRequest) {
     console.log("Mask size:", maskFile.size);
     console.log("Prompt:", prompt);
 
-    // Call DALL-E 2 image edit (inpainting) API
     const response = await client.images.edit({
       model: "dall-e-2",
       image: imageFile,
@@ -136,7 +127,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch and convert to base64 to avoid CORS issues in browser
     const base64Image = await fetchImageAsBase64(imageUrl);
     if (!base64Image) {
       return NextResponse.json(
@@ -153,8 +143,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: unknown) {
     console.error("Inpainting API error:", error);
-    
-    // Handle specific OpenAI errors
+
     if (error instanceof Error) {
       if (error.message.includes("Invalid image")) {
         return NextResponse.json(

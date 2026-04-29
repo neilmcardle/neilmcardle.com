@@ -1,22 +1,9 @@
-// Shared in-memory rate limiter for Promptr.
-//
-// Lifted from app/api/generate-typography/route.ts, generalised so that
-// the two Promptr routes (score and refine) share a single bucket per IP
-// and one global daily counter. This means a user's combined usage
-// across both endpoints counts against one limit — a refine costs the
-// same as a score, which matches expectations and keeps the rules easy
-// to explain in the UI error message.
-//
-// Storage is in-memory, resets on every Vercel cold start. That's
-// acceptable for a hobby-tier portfolio piece: the downside of a reset
-// is that abusers get another window, but so does everyone else, and
-// nothing persists between requests that's worth protecting. If the
-// tool takes off and the resets become exploitable, move to Upstash
-// Redis behind the same interface — no call sites need to change.
+// Shared in-memory rate limiter; both score/refine routes share the same
+// per-IP bucket and a global daily ceiling. Resets on cold start.
 
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;   // 1 hour rolling window per IP
-const MAX_REQUESTS_PER_WINDOW = 10;            // combined score + refine per IP per hour
-const DAILY_LIMIT = 300;                        // global, across all users, per day
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 10;
+const DAILY_LIMIT = 300;
 
 type IpRecord = { count: number; resetTime: number };
 
@@ -33,14 +20,11 @@ export interface RateLimitResult {
 export function checkPromptrRateLimit(ip: string): RateLimitResult {
   const now = Date.now();
 
-  // Daily window roll-over
   if (now > dailyResetTime) {
     dailyCount = 0;
     dailyResetTime = now + 24 * 60 * 60 * 1000;
   }
 
-  // Global daily ceiling — protects infrastructure from a single bad
-  // actor or a viral moment spinning up a surprise bill.
   if (dailyCount >= DAILY_LIMIT) {
     return {
       allowed: false,
