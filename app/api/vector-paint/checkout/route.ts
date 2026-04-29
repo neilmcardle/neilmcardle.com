@@ -59,8 +59,11 @@ export async function POST(req: NextRequest) {
             currency: product.currency,
             unit_amount: product.sellPriceMinor,
             product_data: {
-              name: product.label,
-              description: product.description,
+              // Brand the line item so the customer sees the chain
+              // "neilmcardle.com (merchant) → Vector Paint (product) → canvas size".
+              // Avoids the spook of paying a merchant they don't recognise.
+              name: `Vector Paint canvas · ${product.shortLabel}`,
+              description: `${product.description} A Vector Paint product by Neil McArdle.`,
               images: [printFileUrl],
             },
           },

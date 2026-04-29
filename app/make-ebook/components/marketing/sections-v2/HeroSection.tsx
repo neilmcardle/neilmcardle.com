@@ -101,10 +101,6 @@ export default function HeroSection({ onPrimaryClick, onSecondaryClick }: HeroSe
 function Constellation() {
   return (
     <div className="relative mt-16 sm:mt-20 pt-14 border-t border-gray-200/80">
-      <span className="absolute -top-2.5 left-0 bg-[#faf9f5] px-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-gray-500">
-        Book Mind &middot; Live analysis of your manuscript
-      </span>
-
       <div className="relative h-[680px] hidden lg:flex items-center justify-center">
         {/* Connecting lines */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none z-[1]" viewBox="0 0 1200 680" preserveAspectRatio="none">
