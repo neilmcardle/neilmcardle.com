@@ -1,14 +1,8 @@
 "use client";
 
-// ComposePalette — slash-command palette triggered by typing "/" at the
-// start of a line in the editor. Opens a small floating menu with
-// compose commands: /draft, /continue, /transition, /describe,
-// /dialogue, /scene break. Selecting a command opens a follow-up input
-// for the instruction, then streams the output inline as draft text.
-//
-// The palette uses the same useBookMind.inlineEdit() path as Cmd-K
-// but with a different voice block (compose mode, not rewrite mode).
-// The output is inserted at the cursor via execCommand('insertHTML').
+// Slash-command palette triggered by "/" at the start of an editor line.
+// Picks a compose command, optionally collects a follow-up instruction,
+// and inserts the result at the cursor.
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -18,8 +12,6 @@ import { toast } from "sonner";
 export interface ComposePaletteRequest {
   open: boolean;
   anchorRect: DOMRect | null;
-  // The "/" character that triggered the palette — we delete it when
-  // the user picks a command so it doesn't linger in the text.
   range: Range | null;
 }
 

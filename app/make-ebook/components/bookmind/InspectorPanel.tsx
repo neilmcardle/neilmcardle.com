@@ -1,10 +1,7 @@
 "use client";
 
-// InspectorPanel — the four-tab right-panel surface.
-//
-// Chat is the default tab. Insights / Issues / Pre-flight read from
-// the analytical cache stored on BookRecord.bookmindMemory. The tab
-// bar is compact and delegates all content rendering to the child tabs.
+// Four-tab right-panel surface. Chat is the default; the analytical
+// tabs read from the per-book cache. Each tab handles its own content.
 
 import React, { useState, useMemo } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -31,8 +28,6 @@ interface InspectorPanelProps {
   onAddDisclosureChapter?: (content: string) => void;
   flowMode?: boolean;
   onToggleFlowMode?: () => void;
-  // Pro gating: Free users get a Chat-only trial view with a one-message
-  // limit. Pro users get the full four-tab surface.
   isPro?: boolean;
   onUpgrade?: () => void;
 }
@@ -86,11 +81,8 @@ export default function InspectorPanel(props: InspectorPanelProps) {
   const visibleTabs = isPro ? TABS : TABS.filter(t => t.key === "chat");
   const [active, setActive] = useState<TabKey>("chat");
 
-  // Load the full BookRecord for the analytical tabs — they need the
-  // bookmindMemory.analytical cache. This reads from localStorage (the
-  // same source of truth the cache generator writes to), so it's always
-  // current. Re-runs on every render, which is fine because localStorage
-  // reads are ~0.1ms and the Inspector doesn't render on every keystroke.
+  // Load the full record for the analytical tabs. Reads are cheap so
+  // re-running on tab switch is fine.
   const book: BookRecord | undefined = useMemo(() => {
     if (!props.bookId || !props.userId) return undefined;
     return loadBookById(props.userId, props.bookId);
@@ -108,7 +100,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
         onValueChange={(v) => setActive(v as TabKey)}
         className="flex flex-col h-full"
       >
-        {/* Free-tier trial banner. Shown instead of the Flow mode toggle. */}
+        {/* Trial banner. Shown instead of the Flow mode toggle. */}
         {!isPro && (
           <div className="flex-shrink-0 flex items-center justify-between gap-2 px-4 py-2 bg-[#f5f7ff] dark:bg-[#1a1d2e] border-b border-[#d6dcff] dark:border-[#2a2f45]">
             <div className="flex items-center gap-2 min-w-0">
@@ -127,7 +119,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
             </button>
           </div>
         )}
-        {/* Flow mode toggle — right-aligned with info tooltip (Pro only) */}
+        {/* Flow mode toggle — right-aligned with info tooltip */}
         {isPro && props.onToggleFlowMode && (
           <div className="flex-shrink-0 flex items-center justify-end gap-2 px-4 py-1.5 bg-gray-50 dark:bg-[#181818] border-b border-gray-100 dark:border-[#262626]">
             <span className="group relative">

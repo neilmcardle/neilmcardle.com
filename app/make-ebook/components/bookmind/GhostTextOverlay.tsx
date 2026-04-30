@@ -1,12 +1,8 @@
 "use client";
 
-// GhostTextOverlay — inline ghost-text sentence completion.
-//
-// Self-contained: reads the caret position and surrounding text
-// directly from the DOM via window.getSelection(). No props needed
-// from RichTextEditor. Fires a Haiku call when the caret sits idle
-// for 2+ seconds at the end of a sentence. Tab accepts, any other
-// key dismisses. Mounted at the page level, gated on Flow mode + Pro.
+// Inline ghost-text sentence completion. Reads caret position from the
+// DOM and fires a continuation request when the caret sits idle at the
+// end of a sentence. Tab accepts, any other key dismisses.
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useBookMind } from "../../hooks/useBookMind";
@@ -93,10 +89,8 @@ export default function GhostTextOverlay({
         abortRef.current = controller;
 
         try {
-          // Call the API directly instead of inlineEdit, because
-        // inlineEdit uses a "rewrite" voice that confuses the model
-        // when asked to continue. This uses a bare fetch with a
-        // continuation-specific system prompt.
+          // Continuation requires a different voice than inlineEdit, so
+          // call the endpoint directly with a continuation-specific prompt.
         const ghostResponse = await fetch('/api/ai/book-mind', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

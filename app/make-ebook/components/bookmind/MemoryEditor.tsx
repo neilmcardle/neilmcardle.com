@@ -1,19 +1,9 @@
 "use client";
 
-// MemoryEditor — the "Book Mind knows" panel.
-//
-// Renders inside the Chat tab as a collapsible section above the input.
-// Shows the persistent per-book memory: rules the author has set,
-// characters they've confirmed, and recent editorial decisions. Each
-// entry is editable inline and deletable. New rules can be added via a
-// small input at the bottom.
-//
-// Memory lives on BookRecord.bookmindMemory and is injected into every
-// Book Mind system prompt, so anything the author stores here shapes
-// every future interaction — chat, Cmd-K, compose, analytical.
-//
-// The editor reads/writes via the bookmindMemory helpers, which persist
-// to localStorage through saveBookToLibrary.
+// Collapsible per-book memory editor: rules, confirmed characters,
+// recent editorial decisions. Anything stored here is injected into
+// every editorial-brain interaction. Reads/writes via the memory
+// helpers which persist through the book library.
 
 import React, { useState } from "react";
 import {

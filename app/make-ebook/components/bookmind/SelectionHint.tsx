@@ -1,16 +1,10 @@
 "use client";
 
-// SelectionHint — a tiny floating badge that appears near the bottom
-// of a text selection to teach the user that ⌘K exists. Shows a small
-// pill with "⌘K" and a pen icon. Disappears forever once the user has
-// pressed ⌘K at least once (tracked in localStorage). Also hides when:
-//   - the selection is cleared
-//   - the InlineEditPopover is open
-//   - the user clicks the badge (which triggers ⌘K for them)
-//
-// The intent is a gentle nudge, not a tooltip barrage. It shows only
-// for Pro users (⌘K is Pro-gated), and only after a selection has been
-// active for 800ms (to avoid flashing on every click-and-drag).
+// Tiny floating badge near a text selection that teaches the user
+// Cmd-K exists. Disappears forever once Cmd-K has been used at least
+// once (tracked in localStorage). Also hides when the selection clears
+// or the inline edit popover is open. Debounces 800ms after a
+// selection settles to avoid flashing on click-and-drag.
 
 import React, { useState, useEffect, useCallback } from "react";
 
@@ -34,21 +28,15 @@ export default function SelectionHint({
     return localStorage.getItem(STORAGE_KEY) === "1";
   });
 
-  // Mark as dismissed permanently once the user has used ⌘K.
   const dismiss = useCallback(() => {
     setDismissed(true);
     try { localStorage.setItem(STORAGE_KEY, "1"); } catch { /* quota */ }
   }, []);
 
-  // Watch for the InlineEditPopover opening — that means the user has
-  // discovered the feature, so dismiss permanently.
   useEffect(() => {
     if (inlineEditOpen) dismiss();
   }, [inlineEditOpen, dismiss]);
 
-  // Show the badge 800ms after a selection settles. Hide when the
-  // selection is cleared. Uses selectionchange for reactivity and a
-  // timeout for debounce.
   useEffect(() => {
     if (!hasBookMind || dismissed || inlineEditOpen) {
       setVisible(false);

@@ -1,18 +1,7 @@
 "use client";
 
-// Per-message action row. Revealed on hover of the message bubble in
-// ChatTab. Keeps the chat surface quiet by default and surfaces
-// affordances only when the user is actually looking at a message.
-//
-// Actions supported:
-//   - Copy: copy message content to clipboard, flash a "Copied" state
-//   - Regenerate: re-run the same prompt with the same context
-//   - Continue: ask for more of the same response
-//   - Open in Reading View: promote a long response to the slide-over
-//
-// All actions are optional props — callers pass in only what makes
-// sense for their message (e.g. no Regenerate for the current message
-// if it's still streaming).
+// Per-message action row. Revealed on hover. All actions are optional
+// props — callers pass in only what makes sense for their message.
 
 import React, { useState } from "react";
 
@@ -41,8 +30,7 @@ export default function MessageActions({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // Clipboard API unavailable (non-HTTPS, old browser) — silently
-      // skip. The UI stays unchanged so nothing breaks.
+      // Clipboard API unavailable; silently skip.
     }
   };
 

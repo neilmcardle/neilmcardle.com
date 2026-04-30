@@ -1,13 +1,9 @@
 "use client";
 
-// InlineEditPopover — the Cmd-K floating prompt bar with branching takes.
-//
-// Fires THREE parallel inlineEdit() calls against Haiku so the user
-// sees up to three alternative rewrites they can cycle through with
-// ⌘↑/↓. Each alternative fills its slot independently as it completes.
-// Tab accepts the active one; Esc cancels. The popover is viewport-
-// aware: it computes available vertical space and constrains itself
-// so the result area scrolls instead of spilling below the screen.
+// Floating prompt bar with branching takes. Fires up to three parallel
+// inlineEdit() calls so the user can cycle through alternative rewrites
+// with Cmd-Up/Down. Tab accepts, Esc cancels. Viewport-aware so the
+// result area scrolls rather than spilling off-screen.
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { createPortal } from "react-dom";

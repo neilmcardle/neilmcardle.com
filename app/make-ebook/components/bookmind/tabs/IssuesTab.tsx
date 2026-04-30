@@ -1,10 +1,8 @@
 "use client";
 
-// IssuesTab — renders inconsistencies, plot holes, and character drift
-// from the analytical cache. Each issue is a tappable card that can
-// jump the editor to the offending passage via a citation pill. Issues
-// the author has dismissed are filtered out via bookmindMemory.
-// dismissedIssueIds and don't reappear on refresh.
+// Renders inconsistencies, plot holes, and character drift from the
+// analytical cache. Dismissed issues are filtered and persist across
+// refreshes.
 
 import React from "react";
 import { BookRecord, AnalyticalCard } from "../../../types";
@@ -42,9 +40,6 @@ export default function IssuesTab({
   const memory = getMemory(book);
   const dismissedIds = new Set(memory.dismissedIssueIds ?? []);
 
-  // Filter out dismissed issues. Each card gets a stable id from its
-  // title + claim hash so dismissals persist across regeneration when
-  // the finding text is identical.
   const allCards = entry?.payload?.cards ?? [];
   const visibleCards = allCards.filter(
     (card, idx) => !dismissedIds.has(issueId(card, idx)),
@@ -53,11 +48,6 @@ export default function IssuesTab({
   const handleDismiss = (card: AnalyticalCard, idx: number) => {
     if (!userId || !book) return;
     dismissIssue(userId, book.id, issueId(card, idx));
-    // Force a re-render by... well, React will re-render on the next
-    // state change. Since we wrote to localStorage, the next time
-    // the component reads getMemory it will see the dismissal. For
-    // an immediate visual update we'd need state here, but the tab
-    // switch already triggers a re-mount. Acceptable for Phase C.
   };
 
   return (

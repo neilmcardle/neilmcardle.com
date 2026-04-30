@@ -1,16 +1,10 @@
 "use client";
 
-// CardRenderer — renders a structured AnalyticalResponse as scannable
-// cards instead of essay markdown. This is how analytical Book Mind
-// actions (themes, characters, inconsistencies, pacing) display in the
-// Inspector tabs: one card per finding, each with a claim, an optional
-// grounding quote, and an optional chapter reference that resolves to
-// a CitationPill.
-//
-// When the model returns plain text instead of a valid AnalyticalResponse
-// (which is the current state until the route enforces structured JSON),
-// the parent falls back to a markdown renderer. CardRenderer is only
-// invoked when the content has successfully parsed into the schema.
+// Renders a structured AnalyticalResponse as scannable cards: one card per
+// finding, each with a claim, an optional grounding quote, and an optional
+// chapter reference resolved to a CitationPill. When the model returns
+// plain text instead of a valid AnalyticalResponse, the parent falls back
+// to a markdown renderer.
 
 import React from "react";
 import { AnalyticalResponse, AnalyticalCard } from "../../types";
@@ -104,9 +98,8 @@ export default function CardRenderer({
   );
 }
 
-// Parse a string as an AnalyticalResponse. Defensive: returns null if the
-// string isn't valid JSON or doesn't match the shape. Used by ChatTab to
-// decide whether to render via CardRenderer or fall back to markdown.
+// Parse a string as an AnalyticalResponse. Returns null if the string
+// isn't valid JSON or doesn't match the shape.
 export function tryParseAnalyticalResponse(text: string): AnalyticalResponse | null {
   if (!text || typeof text !== "string") return null;
   const trimmed = text.trim();

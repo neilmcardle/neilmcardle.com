@@ -1,14 +1,8 @@
 "use client";
 
-// ReadingView — a full slide-over for long Book Mind responses that
-// don't belong in a 360px chat bubble. Analytical outputs (themes,
-// character maps, etc) get promoted here via the "Open in reading
-// view" action on a message. Renders the same content in a generous
-// reading width with serif typography.
-//
-// Uses shadcn's Sheet component from the right, taking roughly 80% of
-// the viewport. Citation pills still work here, so the user can jump
-// into the editor without losing their reading state.
+// Full slide-over for long analytical responses. Renders content in a
+// generous reading width with serif typography. Citation pills still
+// work here so the user can jump into the editor.
 
 import React from "react";
 import {
@@ -41,10 +35,7 @@ export default function ReadingView({
   const structured = tryParseAnalyticalResponse(content);
 
   const handleNavigate = (chapterIndex: number, chapterId?: string) => {
-    // Close the sheet before navigating so the user sees the editor
-    // scroll to the source without the slide-over getting in the way.
     onOpenChange(false);
-    // Defer the navigate so the close animation starts before the scroll.
     setTimeout(() => onNavigate?.(chapterIndex, chapterId), 50);
   };
 

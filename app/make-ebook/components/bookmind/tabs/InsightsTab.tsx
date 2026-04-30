@@ -1,15 +1,8 @@
 "use client";
 
-// InsightsTab — renders pre-computed analytical results: themes,
-// characters, pacing, and word frequency. Each section reads from the
-// bookmindMemory.analytical cache. If the cache is fresh (manuscript
-// hash matches), results appear instantly. Stale entries show a
-// "may be out of date" indicator with a Refresh button. Missing
-// entries show a "Generating..." placeholder while the background
-// analytical cache generator runs.
-//
-// This tab never makes its own API calls. It's a pure reader of cached
-// state. The analytical generator runs in page.tsx on book open.
+// Renders pre-computed analytical results (themes, characters, pacing,
+// word frequency). Pure reader of cached state — never makes its own
+// API calls. Stale entries show a refresh affordance.
 
 import React, { useState } from "react";
 import { BookRecord, AnalyticalResponse, AnalyticalCard } from "../../../types";
@@ -100,6 +93,7 @@ export default function InsightsTab({
                 onRefresh={onRefresh ? () => onRefresh(kind) : undefined}
               />
               {/* Add-to-memory actions for the Characters section */}
+
               {kind === "characters" && characterCards.length > 0 && userId && (
                 <div className="mt-2 flex items-center gap-2">
                   <button

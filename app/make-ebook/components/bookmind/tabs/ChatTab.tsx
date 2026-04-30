@@ -1,21 +1,9 @@
 "use client";
 
-// ChatTab — the new Book Mind chat surface inside InspectorPanel.
-//
-// Replaces BookMindPanel.tsx (which still exists during the migration
-// but is no longer reachable via LayoutSwitcher once the wiring flip
-// lands). Structurally similar to the old panel but with:
-//
-//   - New useBookMind call shape (opts object, no legacy BookMindContext)
-//   - Per-message CitationPill footer (post-stream citation linker)
-//   - Structured CardRenderer for analytical responses (falls back to
-//     formatBookMindMessage markdown if the content isn't structured)
-//   - Per-message MessageActions with Copy / Regenerate / Continue /
-//     Open in Reading View
-//   - ReadingView slide-over for long content
-//   - History popover for session switching (same shape as before)
-//   - Transparency strip at the bottom showing context reach
-//   - Sonner toasts for apply confirmations
+// Chat surface inside the inspector panel. Renders a conversational view
+// with per-message actions, citation footers, structured analytical
+// rendering, history popover, and a reading-view slide-over for long
+// responses.
 
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -51,13 +39,7 @@ interface ChatTabProps {
   chapters: Chapter[];
   selectedChapterIndex: number;
   selectedText?: string;
-  // When Chat wants to jump the editor to a chapter (via a citation
-  // pill), it calls this. The parent (EditorRightPanel → page.tsx) is
-  // responsible for changing the selected chapter and scrolling the
-  // editor to the source.
   onNavigateToChapter?: (chapterIndex: number) => void;
-  // Free-tier trial: one message per book, then the input area is
-  // replaced with an upgrade CTA. Pro users get trialMode=false.
   trialMode?: boolean;
   onUpgrade?: () => void;
 }
@@ -90,9 +72,8 @@ export default function ChatTab({
     deleteSession,
   } = useBookMind({ bookId, userId });
 
-  // Trial gate: Free users get one message per book. Pro users pass
-  // through without any gating. Once a trial message completes, the
-  // exhausted flag flips and subsequent calls route to the upgrade CTA.
+  // Trial gate: one trial message per book. Subsequent calls route to
+  // the upgrade CTA.
   const [trialExhausted, setTrialExhausted] = useState(() => hasUsedTrial(userId, bookId));
   useEffect(() => {
     setTrialExhausted(hasUsedTrial(userId, bookId));
@@ -133,8 +114,6 @@ export default function ChatTab({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Track the last user message per assistant message, so Regenerate
-  // and Continue know which prompt to re-send.
   const activeSelectedText =
     externalSelectedText && externalSelectedText !== dismissedText
       ? externalSelectedText
@@ -148,9 +127,7 @@ export default function ChatTab({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // First-response celebration — fires once ever, on the first
-  // completed assistant message. Stored in localStorage so it never
-  // fires again. A small moment of delight on the activation path.
+  // Fires once on the first completed assistant message.
   useEffect(() => {
     if (hasSeenFirstResponse) return;
     const firstAssistant = messages.find(m => m.role === 'assistant' && m.content && m.content.length > 20);
@@ -167,7 +144,6 @@ export default function ChatTab({
     setTimeout(() => inputRef.current?.focus(), 260);
   }, []);
 
-  // Total word count for the transparency strip at the bottom.
   const totalWords = chapters.reduce((sum, ch) => {
     const words = ch.content.split(/\s+/).filter(Boolean).length;
     return sum + words;
@@ -204,10 +180,6 @@ export default function ChatTab({
     }
   };
 
-  // Regenerate: find the last user message before this assistant
-  // message and re-send it with the same opts. Clears the assistant
-  // message from state first so the user sees the new stream replace
-  // the old one. We re-run by building a new session-like flow.
   const handleRegenerate = async (assistantMsgId: string) => {
     const idx = messages.findIndex(m => m.id === assistantMsgId);
     if (idx <= 0) return;
@@ -215,8 +187,6 @@ export default function ChatTab({
     const lastUser = prior.find(m => m.role === "user");
     if (!lastUser) return;
 
-    // Rebuild messages state up to (but not including) the old
-    // assistant turn, then re-send the user message.
     clearMessages();
     await sendMessage(lastUser.content, {
       selectedChapterIndex,
@@ -236,12 +206,8 @@ export default function ChatTab({
     });
   };
 
-  // Navigation callback passed to CitationPill inside messages and
-  // inside ReadingView. Delegates to the parent which knows how to
-  // change selectedChapter and scroll the editor.
   // Slash-command menu in the chat input. Shows when the user types
-  // "/" as the first character. Selecting a command pre-fills the input
-  // with a descriptive prompt and auto-sends it.
+  // "/" as the first character.
   const showSlashMenu = input.trimStart() === '/' || (input.trimStart().startsWith('/') && input.trimStart().length < 12);
   const SLASH_COMMANDS = [
     { cmd: '/summarize', label: 'Summarize the current chapter', action: 'summarize-chapter' as BookMindAction },
@@ -271,10 +237,6 @@ export default function ChatTab({
     onNavigateToChapter?.(chapterIndex);
   };
 
-  // Save a message's content as a memory rule. Prompts the user via
-  // window.prompt for what specifically to remember (pre-filled with
-  // the first sentence of the message). If they confirm, it's added
-  // to the per-book memory and injected into all future calls.
   const handleRemember = (content: string) => {
     if (!bookId || !userId) return;
     const firstSentence = content.match(/^[^.!?]+[.!?]/)?.[0]?.trim() ?? content.slice(0, 80);
@@ -310,8 +272,6 @@ export default function ChatTab({
     deleteSession(sessionId);
   };
 
-  // ─── Header — minimal, no redundant title (the tab bar already
-  //     says "Chat"). Just the history + new-chat actions. ──────────
   const Header = (
     <div className="flex items-center justify-end px-3 py-1.5 flex-shrink-0">
       <div className="flex items-center gap-0.5">
@@ -413,8 +373,7 @@ export default function ChatTab({
               </div>
             ) : (
               <>
-                {/* Welcome message — orients the user on what Book Mind
-                    can do, then offers quick actions below. */}
+                {/* Welcome message and quick actions. */}
                 <div className="text-center pt-6 pb-3">
                   <h3
                     className="text-base text-gray-900 dark:text-white mb-1"
@@ -484,12 +443,10 @@ export default function ChatTab({
       </div>
 
 
-      {/* Book Mind memory — collapsible panel showing persistent
-          per-book rules, characters, and decisions. Anything stored
-          here is injected into every Book Mind call. */}
+      {/* Per-book memory editor */}
       <MemoryEditor bookId={bookId} userId={userId} />
 
-      {/* Input — replaced with an upgrade CTA when the Free trial is spent */}
+      {/* Input — replaced with an upgrade CTA when the trial is spent */}
       {trialMode && trialExhausted ? (
         <div className="flex-shrink-0 px-4 pb-4 pt-3">
           <div className="rounded-xl border border-[#d6dcff] dark:border-[#2a2f45] bg-[#f5f7ff] dark:bg-[#1a1d2e] px-4 py-4 text-center">
@@ -608,9 +565,8 @@ export default function ChatTab({
   );
 }
 
-// ─── MessageBubble ────────────────────────────────────────────────────
-// Split out so each message owns its own hover state for MessageActions
-// without re-rendering the whole message list on hover.
+// MessageBubble is split out so each message owns its own hover state
+// without re-rendering the whole list.
 
 interface MessageBubbleProps {
   message: BookMindMessage;
@@ -636,16 +592,12 @@ function MessageBubble({
   const isUser = message.role === "user";
   const isAssistant = message.role === "assistant";
 
-  // For assistant messages, try to parse as structured. If that works,
-  // render via CardRenderer. Otherwise render via the existing markdown
-  // helper and append a citation footer.
   const structured = isAssistant ? tryParseAnalyticalResponse(message.content) : null;
   const citationSegments =
     isAssistant && !structured && message.content
       ? linkCitations(message.content, chapters)
       : [];
   const chapterRefs = citationSegments.filter(s => s.type === "chapter");
-  // Dedupe by chapterIndex so the footer shows each chapter only once.
   const uniqueRefs = Array.from(
     new Map(
       chapterRefs

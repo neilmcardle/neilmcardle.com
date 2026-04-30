@@ -1,13 +1,7 @@
 "use client";
 
-// A single citation pill. Shows a chapter reference ("Chapter 14",
-// "Prologue") as a compact clickable badge that navigates the editor
-// to the target chapter and optionally highlights a source passage.
-//
-// The pill is purely a renderer. The navigation happens through a
-// callback passed in by the parent (ChatTab → page.tsx → EditorCanvas),
-// so the pill doesn't know about editor internals. This keeps the
-// component reusable across Chat, ReadingView, InsightsTab cards, etc.
+// A compact clickable chapter reference. Navigation is delegated to the
+// parent via a callback so the pill is reusable across surfaces.
 
 import React from "react";
 
