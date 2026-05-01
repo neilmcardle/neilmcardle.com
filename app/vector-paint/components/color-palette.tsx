@@ -5,9 +5,8 @@ import type React from "react"
 import { useEffect, useRef, useState } from "react"
 import { X } from "lucide-react"
 
-// Swatches sized for tiny fingers, ordered roughly by hue then black/grey.
-// Bright, high-saturation tones because the audience is kids and the
-// canvas is white. White itself is omitted — invisible on white paper.
+// Ordered roughly by hue then black/grey. White is omitted because the
+// canvas is white.
 const SWATCHES = [
   "#ef4444", // red
   "#f97316", // orange
@@ -282,7 +281,7 @@ export default function ColorPalette({
     innerSquare.style.backgroundImage = `url(${canvas.toDataURL()})`
 
     // Skipped when the caller has already set the colour explicitly
-    // (e.g. swatch click) — otherwise we'd overwrite their pick using
+    // (e.g. swatch click), otherwise we'd overwrite their pick using
     // the previous square indicator position.
     if (syncFromPosition && (squarePosition.x > 0 || squarePosition.y > 0)) {
       const newColor = getColorAtPosition(squarePosition.x, squarePosition.y)
@@ -297,10 +296,10 @@ export default function ColorPalette({
     parseInt(hex.slice(5, 7), 16),
   ]
 
-  // Picking a swatch must also move the wheel + saturation/lightness
+  // Picking a swatch also moves the wheel and saturation/lightness
   // indicators so the custom picker reflects the chosen colour. For
-  // greys/black the hue is meaningless, so we only sync the wheel
-  // when saturation is non-trivial.
+  // greys/black the hue is meaningless, so the wheel only syncs when
+  // saturation is non-trivial.
   const applySwatch = (hex: string) => {
     const [r, g, b] = hexToRgb(hex)
     const [h, s, l] = rgbToHsl(r, g, b)

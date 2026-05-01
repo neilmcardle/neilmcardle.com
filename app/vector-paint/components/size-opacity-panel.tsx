@@ -21,9 +21,8 @@ export default function SizeOpacityPanel({
   const lineWidthInputRef = useRef<HTMLInputElement>(null)
   const opacityInputRef = useRef<HTMLInputElement>(null)
 
-  // Firefox iOS doesn't fire change events on range inputs from touch.
-  // Translate touchstart/touchmove into the same value updates so the
-  // sliders work there. See https://bugzilla.mozilla.org/show_bug.cgi?id=1576996
+  // Firefox on iOS doesn't fire change events on range inputs from touch,
+  // so translate touchstart/touchmove into the same value updates.
   useEffect(() => {
     const isFirefoxiOS =
       navigator.userAgent.includes("FxiOS") ||
