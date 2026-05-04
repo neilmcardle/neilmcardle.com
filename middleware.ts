@@ -52,6 +52,12 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
+    // Paid-search landing page lives at the top-level /start route, not under
+    // /make-ebook. Bypass the host rewrite so makeebook.ink/start serves it.
+    if (pathname === '/start' || pathname.startsWith('/start/')) {
+      return NextResponse.next();
+    }
+
     const url = request.nextUrl.clone();
     url.pathname = `/make-ebook${pathname === '/' ? '' : pathname}`;
     return NextResponse.rewrite(url);
