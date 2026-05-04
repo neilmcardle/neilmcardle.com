@@ -20,6 +20,7 @@ const SCRIPT_SRC = "https://unpkg.com/@elevenlabs/convai-widget-embed";
 // "/make-ebook/blog"). Standalone product surfaces and legal pages.
 const HIDDEN_ROUTES = [
   "/make-ebook",
+  "/start",
   "/icon-animator",
   "/promptr",
   "/vector-paint",

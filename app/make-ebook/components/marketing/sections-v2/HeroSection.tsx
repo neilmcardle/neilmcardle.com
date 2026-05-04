@@ -36,7 +36,7 @@ export default function HeroSection({ onPrimaryClick }: HeroSectionProps) {
       <div className="relative max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
         {/* Eyebrow */}
         <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-500">
-          A free, browser-based editor &middot; Made in the open
+          Free to start &middot; No software to install
         </div>
 
         {/* Headline */}
@@ -48,11 +48,11 @@ export default function HeroSection({ onPrimaryClick }: HeroSectionProps) {
             lineHeight: 0.95,
           }}
         >
-          <span className="block">Your manuscript,</span>
-          <span className="block">ready to publish</span>
+          <span className="block">Write and</span>
+          <span className="block">publish your</span>
           <span className="block">
             <em className="font-medium not-italic" style={{ fontStyle: 'italic', fontWeight: 500 }}>
-              as a professional eBook
+              eBook
             </em>
             <span
               aria-hidden
