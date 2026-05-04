@@ -5,7 +5,6 @@ import { ArrowRight } from 'lucide-react';
 
 type HeroSectionProps = {
   onPrimaryClick: () => void;
-  onSecondaryClick?: () => void;
 };
 
 /**
@@ -21,7 +20,7 @@ type HeroSectionProps = {
  *  • Same headline copy, same primary CTA handler contract
  *  • Same Playfair/Georgia type treatment as v1
  */
-export default function HeroSection({ onPrimaryClick, onSecondaryClick }: HeroSectionProps) {
+export default function HeroSection({ onPrimaryClick }: HeroSectionProps) {
   return (
     <section className="relative pt-10 pb-24 sm:pt-14 sm:pb-28 lg:pt-16 lg:pb-32 overflow-hidden">
       {/* Soft tint wash */}
@@ -49,11 +48,11 @@ export default function HeroSection({ onPrimaryClick, onSecondaryClick }: HeroSe
             lineHeight: 0.95,
           }}
         >
-          <span className="block">Write the</span>
-          <span className="block">book you&rsquo;ve been</span>
+          <span className="block">Your manuscript,</span>
+          <span className="block">ready to publish</span>
           <span className="block">
             <em className="font-medium not-italic" style={{ fontStyle: 'italic', fontWeight: 500 }}>
-              putting off
+              as a professional eBook
             </em>
             <span
               aria-hidden
@@ -69,7 +68,7 @@ export default function HeroSection({ onPrimaryClick, onSecondaryClick }: HeroSe
           className="mt-6 sm:mt-7 max-w-xl text-gray-600 text-pretty"
           style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1rem, 1vw + 0.5rem, 1.25rem)', lineHeight: 1.55 }}
         >
-          A distraction-free editor with an AI editorial brain that reads your entire manuscript, catching inconsistencies, rewriting inline, and turning rough drafts into store-ready EPUBs.
+          A distraction-free editor with an AI editorial brain that reads your entire manuscript, catching inconsistencies, rewriting inline, and turning rough drafts into store-ready eBooks.
         </p>
 
         {/* CTAs */}
@@ -81,12 +80,6 @@ export default function HeroSection({ onPrimaryClick, onSecondaryClick }: HeroSe
             Start writing
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
-          {onSecondaryClick && (
-            <button onClick={onSecondaryClick} className="group inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium">
-              See how it thinks
-              <span aria-hidden className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
-            </button>
-          )}
         </div>
 
         {/* Constellation */}

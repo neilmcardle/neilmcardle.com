@@ -6,6 +6,8 @@ import { track } from '@vercel/analytics';
 
 import { useAuth } from '@/lib/hooks/useAuth';
 
+import Image from 'next/image';
+
 import MarketingNav from './MarketingNav';
 import MarketingFooter from './MarketingFooter';
 import VideoLightbox from './marketing/VideoLightbox';
@@ -39,9 +41,16 @@ const USE_V2 = true;
 interface MarketingLandingPageProps {
   onStartWritingAction: () => void;
   libraryCount: number;
+  /**
+   * Strips the marketing nav (Features / Pricing / Blog / Sign in / Start writing)
+   * and replaces it with a logo-only header. Used by the /start landing page so
+   * paid-search traffic has a single action — the hero "Start writing" button —
+   * with no competing nav targets.
+   */
+  hideNav?: boolean;
 }
 
-export default function MarketingLandingPage({ onStartWritingAction, libraryCount }: MarketingLandingPageProps) {
+export default function MarketingLandingPage({ onStartWritingAction, libraryCount, hideNav = false }: MarketingLandingPageProps) {
   const router = useRouter();
   const { user } = useAuth();
 
@@ -90,19 +99,35 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   return (
     <div className="relative min-h-screen bg-me-cream text-gray-700 overflow-x-hidden">
 
-      <MarketingNav
-        onFeaturesClick={() => scrollToSection(featuresRef)}
-        onPricingClick={() => scrollToSection(pricingRef)}
-        onMyBooksClick={onStartWritingAction}
-        libraryCount={libraryCount}
-      />
+      {hideNav ? (
+        <header className="sticky top-0 z-50 bg-transparent">
+          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+            <div className="flex items-center" style={{ height: '4.5rem' }}>
+              <Image
+                src="/make-ebook-logomark.svg"
+                alt="makeEbook"
+                width={120}
+                height={24}
+                className="h-6 w-auto"
+                priority
+              />
+            </div>
+          </div>
+        </header>
+      ) : (
+        <MarketingNav
+          onFeaturesClick={() => scrollToSection(featuresRef)}
+          onPricingClick={() => scrollToSection(pricingRef)}
+          onMyBooksClick={onStartWritingAction}
+          libraryCount={libraryCount}
+        />
+      )}
 
       <main id="main-content">
         {USE_V2 ? (
           <>
             <HeroSectionV2
               onPrimaryClick={startWriting}
-              onSecondaryClick={() => scrollToSection(featuresRef)}
             />
 
             <EditorShowcaseSectionV2 ref={featuresRef} />
