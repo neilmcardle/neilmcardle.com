@@ -74,12 +74,12 @@ const nextConfig = {
                   key: 'Content-Security-Policy',
                   value:
                     "default-src 'self'; " +
-                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net; " +
+                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://www.googletagmanager.com; " +
                     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
                     "img-src 'self' data: blob: https:; " +
                     "font-src 'self' data: https://fonts.gstatic.com; " +
                     "media-src 'self' blob: https://*.mux.com https://*.elevenlabs.io; " +
-                    "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://firebase.googleapis.com https://firestore.googleapis.com https://hhsiuvalashrqtpluxan.supabase.co https://agisftsuzxiwctupgeol.supabase.co https://api.x.ai https://*.mux.com https://inferred.litix.io https://api.elevenlabs.io https://api.us.elevenlabs.io wss://api.elevenlabs.io wss://api.us.elevenlabs.io; " +
+                    "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://firebase.googleapis.com https://firestore.googleapis.com https://hhsiuvalashrqtpluxan.supabase.co https://agisftsuzxiwctupgeol.supabase.co https://api.x.ai https://*.mux.com https://inferred.litix.io https://api.elevenlabs.io https://api.us.elevenlabs.io wss://api.elevenlabs.io wss://api.us.elevenlabs.io https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.co.uk https://googleads.g.doubleclick.net https://stats.g.doubleclick.net; " +
                     "worker-src 'self' blob:; " +
                     "frame-ancestors 'none';",
                 },
