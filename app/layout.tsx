@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import ClientFooterWrapper from "@/components/ClientFooterWrapper";
 import NeilAgent from "@/components/NeilAgent";
+import CookieConsent from "@/components/CookieConsent";
 import { Analytics } from "@vercel/analytics/next";
 
 const TITLE = "Neil McArdle · Product Designer";
@@ -97,20 +98,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </SubscriptionProvider>
         </AuthProvider>
         <NeilAgent />
+        <CookieConsent />
         <Analytics />
 
-        {/* Google Ads (gtag.js) — loads the global tag and creates the
-            window.gtag stub. The signup conversion event itself is fired
-            from useSignupConversion when ?signup=success is present. */}
+        {/* Google Ads (gtag.js) with Consent Mode v2.
+            All ad/analytics signals default to 'denied' for UK GDPR / PECR
+            compliance — gtag loads, but no cookies are set and no
+            attribution data is sent until the user grants consent through
+            the cookie banner. The signup conversion itself is fired from
+            useSignupConversion when ?signup=success is present.
+            The future cookie banner should call setAdsConsent() from
+            lib/consent.ts to flip these to 'granted' on user opt-in. */}
+        <Script id="gtag-consent" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('consent', 'default', {
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              analytics_storage: 'denied',
+              wait_for_update: 500
+            });
+          `}
+        </Script>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-943391250"
           strategy="afterInteractive"
         />
         <Script id="gtag-init" strategy="afterInteractive">
           {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            window.gtag = gtag;
             gtag('js', new Date());
             gtag('config', 'AW-943391250');
           `}

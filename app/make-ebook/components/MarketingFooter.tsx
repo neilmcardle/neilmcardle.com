@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/lib/hooks/useAuth';
+import { openCookieConsent } from '@/components/CookieConsent';
 
 type MarketingFooterProps = {
   /**
@@ -129,6 +130,7 @@ export default function MarketingFooter({
             <ul className="space-y-3 text-gray-600">
               <li><a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 transition-colors">Terms</a></li>
               <li><a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 transition-colors">Privacy</a></li>
+              <li><button onClick={openCookieConsent} className="hover:text-gray-900 transition-colors">Cookie preferences</button></li>
             </ul>
           </div>
         </div>

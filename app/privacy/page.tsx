@@ -76,7 +76,8 @@ export default function PrivacyPage() {
                 We share your personal data only in the following circumstances:
               </p>
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li><strong>Service Providers:</strong> Supabase (database hosting), Vercel (application hosting)</li>
+                <li><strong>Service Providers:</strong> Supabase (database hosting), Vercel (application hosting and analytics)</li>
+                <li><strong>Advertising and Measurement (consent only):</strong> Google LLC, for Google Ads conversion measurement. Only engaged when you grant consent through our cookie banner. See section 10 for details.</li>
                 <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
                 <li><strong>With Your Consent:</strong> Any other sharing only with your explicit permission</li>
               </ul>
@@ -144,16 +145,62 @@ export default function PrivacyPage() {
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Cookies and Tracking</h2>
+
               <p className="text-gray-700 mb-4">
-                We use essential cookies to:
+                We use a small number of cookies and similar technologies. They fall into two
+                categories with different legal bases under PECR (the UK&rsquo;s Privacy and Electronic
+                Communications Regulations) and UK GDPR.
+              </p>
+
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">10.1 Strictly necessary cookies</h3>
+              <p className="text-gray-700 mb-4">
+                These cookies are required for the service to work and are set without consent on
+                the basis of contractual necessity. They cannot be turned off without breaking the
+                service.
               </p>
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li>Maintain your login session</li>
-                <li>Remember your preferences</li>
-                <li>Ensure security of the service</li>
+                <li><strong>Authentication:</strong> Supabase session tokens that keep you signed in</li>
+                <li><strong>Preferences:</strong> Theme choice (light/dark) for signed-in users</li>
+                <li><strong>Security:</strong> CSRF protection and session integrity</li>
               </ul>
+
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">10.2 Advertising and measurement cookies (consent required)</h3>
               <p className="text-gray-700 mb-4">
-                These cookies are necessary for the service to function and are set based on contractual necessity.
+                We use Google Ads conversion tracking to measure the effectiveness of our paid
+                advertising campaigns. The cookies and data this involves are <strong>only set when
+                you grant consent</strong> through the cookie banner. You can withdraw consent at any
+                time and the cookies will be removed.
+              </p>
+              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
+                <li><strong>Provider:</strong> Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA</li>
+                <li><strong>Cookies set on consent:</strong> <code>_gcl_au</code>, <code>_gcl_aw</code>, <code>_gcl_dc</code> (Google Click Identifier — used to attribute a sign-up to the ad you clicked). Typical lifetime: 90 days.</li>
+                <li><strong>Data sent to Google:</strong> Your IP address, browser and device information, the page you visited, and a flag indicating you completed a sign-up. We do not send your email address, manuscript content, or any other identifying account data.</li>
+                <li><strong>Purpose:</strong> Measuring ad campaign effectiveness. We do not use Google&rsquo;s data for retargeting or building advertising profiles.</li>
+                <li><strong>Lawful basis:</strong> Your consent under Regulation 6 of PECR and Article 6(1)(a) UK GDPR.</li>
+                <li><strong>International transfer:</strong> Google processes this data in the United States. Transfers rely on the EU-US Data Privacy Framework and the UK Extension to that framework, in which Google is certified.</li>
+                <li><strong>Google&rsquo;s policy:</strong> See <a href="https://policies.google.com/privacy" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">Google&rsquo;s privacy policy</a> for how they handle the data they receive.</li>
+              </ul>
+
+              <p className="text-gray-700 mb-4">
+                We use Google Consent Mode v2, which means before you grant consent, no cookies are
+                set and no personal identifiers are sent to Google. If you decline, this remains
+                true for the duration of your visit. If you accept, the cookies above are set until
+                they expire or you withdraw consent.
+              </p>
+
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">10.3 Site analytics</h3>
+              <p className="text-gray-700 mb-4">
+                We use Vercel Analytics for aggregate page-view statistics. Vercel Analytics is
+                cookie-less and does not track individuals or use cross-site identifiers. It is
+                set on the basis of legitimate interest (Article 6(1)(f) UK GDPR) for service
+                improvement.
+              </p>
+
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">10.4 Withdrawing consent</h3>
+              <p className="text-gray-700 mb-4">
+                You can withdraw consent for advertising cookies at any time through the cookie
+                banner&rsquo;s settings. You can also clear all cookies for this site through your
+                browser&rsquo;s privacy settings, which will reset all preferences including consent.
               </p>
             </section>
 
