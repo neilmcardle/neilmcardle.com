@@ -46,31 +46,43 @@ export default function CookieConsent() {
       role="dialog"
       aria-modal="false"
       aria-label="Cookie preferences"
-      className="fixed bottom-4 left-4 right-4 sm:bottom-6 sm:left-auto sm:right-6 sm:max-w-md z-[200] bg-white border border-gray-200 rounded-lg shadow-2xl p-5"
+      className="fixed bottom-2 left-2 right-2 sm:bottom-6 sm:left-auto sm:right-6 sm:max-w-md z-[200] bg-white border border-gray-200 rounded-lg shadow-2xl p-3 sm:p-5"
     >
-      <h2 className="text-sm font-semibold text-gray-900 mb-2">Cookie preferences</h2>
-      <p className="text-sm text-gray-700 leading-relaxed">
-        We use essential cookies to keep you signed in. With your consent, we also use Google Ads
-        cookies to measure how well our advertising works. You can change this at any time.{' '}
+      <h2 className="hidden sm:block text-sm font-semibold text-gray-900 mb-2">Cookie preferences</h2>
+      <p className="text-[12px] sm:text-sm text-gray-700 leading-snug sm:leading-relaxed">
+        This site uses cookies to make the app work and to collect analytics.{' '}
         <Link href="/privacy" className="underline text-gray-900 hover:text-gray-700">
           Read more
         </Link>
         .
       </p>
-      <div className="mt-4 grid grid-cols-2 gap-2">
+      <div className="mt-2.5 sm:mt-4 grid grid-cols-2 gap-2">
         <button
           type="button"
           onClick={handleReject}
-          className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+          className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
         >
           Reject
         </button>
         <button
           type="button"
           onClick={handleAccept}
-          className="px-4 py-2 text-sm font-medium text-white bg-gray-900 border border-gray-900 rounded-md hover:bg-gray-800 transition-colors"
+          aria-label="Accept"
+          className="relative overflow-hidden px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-gray-900 border border-gray-900 rounded-md hover:bg-gray-800 transition-colors"
         >
-          Accept
+          {/* Spacer keeps the natural button width and is the only label
+              shown when prefers-reduced-motion is set. */}
+          <span aria-hidden className="motion-safe:invisible">Accept</span>
+          {/* Ticker-tape layer — slides "Accept" right-to-left through the
+              button. Hidden when reduced motion is preferred. Pauses on
+              hover so users can read it before clicking. */}
+          <span
+            aria-hidden
+            className="motion-reduce:hidden absolute inset-y-0 left-0 w-full flex items-center animate-[ticker-accept_8s_linear_infinite] hover:[animation-play-state:paused]"
+          >
+            Accept
+          </span>
+          <style>{`@keyframes ticker-accept { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }`}</style>
         </button>
       </div>
     </div>

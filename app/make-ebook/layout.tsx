@@ -1,6 +1,8 @@
 import React from "react";
 import type { Metadata, Viewport } from "next";
 
+import AdsTracking from "@/components/AdsTracking";
+
 const TITLE = "makeEbook. Free Browser-Based Ebook Editor & EPUB Creator";
 const DESCRIPTION =
   "Free browser-based ebook editor. Write, format, and export professional EPUBs for Kindle, Kobo, and Apple Books. No install, no credit card.";
@@ -124,6 +126,7 @@ export default function MakeEbookLayout({
         Skip to content
       </a>
       {children}
+      <AdsTracking />
     </>
   );
 }

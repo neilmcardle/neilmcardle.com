@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
+import AdsTracking from "@/components/AdsTracking";
 import MarketingLandingPage from "../make-ebook/components/MarketingLandingPage";
 
 // Dedicated landing page for paid-search (Google Ads) traffic. Renders the
@@ -12,10 +13,13 @@ import MarketingLandingPage from "../make-ebook/components/MarketingLandingPage"
 export default function StartPage() {
   const router = useRouter();
   return (
-    <MarketingLandingPage
-      hideNav
-      onStartWritingAction={() => router.push("/make-ebook")}
-      libraryCount={0}
-    />
+    <>
+      <MarketingLandingPage
+        hideNav
+        onStartWritingAction={() => router.push("/make-ebook")}
+        libraryCount={0}
+      />
+      <AdsTracking />
+    </>
   );
 }

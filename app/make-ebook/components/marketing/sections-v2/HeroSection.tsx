@@ -94,6 +94,23 @@ export default function HeroSection({ onPrimaryClick }: HeroSectionProps) {
 function Constellation() {
   return (
     <div className="relative mt-16 sm:mt-20 pt-14 border-t border-gray-200/80">
+      {/* Section intro — gives the constellation context so visitors know
+          they're looking at a Book Mind demo, not a stray novel page. */}
+      <div className="text-center mb-12 sm:mb-16 max-w-3xl mx-auto">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-500">
+          Book Mind, at a glance
+        </div>
+        <h2
+          className="mt-4 font-serif font-bold text-gray-900 text-balance"
+          style={{
+            fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)',
+            letterSpacing: '-0.025em',
+            lineHeight: 1.1,
+          }}
+        >
+          An editorial brain reading every chapter
+        </h2>
+      </div>
       <div className="relative h-[680px] hidden lg:flex items-center justify-center">
         {/* Connecting lines */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none z-[1]" viewBox="0 0 1200 680" preserveAspectRatio="none">
