@@ -80,9 +80,15 @@ import { useFocusMode } from "./hooks/useFocusMode";
 import { useTypewriterMode, useParagraphFocus } from "./hooks/useFocusEffects";
 import { FocusModePanel } from "./components/FocusModePanel";
 import { AmbientPlayer } from "./components/AmbientPlayer";
+import { useSignupConversion } from "@/lib/hooks/useSignupConversion";
 
 function MakeEbookPage() {
   const { user, signOut, loading: authLoading } = useAuth();
+
+  // Fires the Google Ads signup conversion exactly once when the auth
+  // callback redirects here with ?signup=success. No-op on every other
+  // visit (marketing landing, returning users, reloads).
+  useSignupConversion();
 
   // Check if user has Pro access for Cloud Sync
   const hasCloudSync = useFeatureAccess('cloud_sync');

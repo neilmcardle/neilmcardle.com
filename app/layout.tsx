@@ -1,5 +1,6 @@
 import type React from "react";
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import "../styles/immersive.css";
 import "../styles/vendor/draft-js.css";
@@ -97,6 +98,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </AuthProvider>
         <NeilAgent />
         <Analytics />
+
+        {/* Google Ads (gtag.js) — loads the global tag and creates the
+            window.gtag stub. The signup conversion event itself is fired
+            from useSignupConversion when ?signup=success is present. */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-943391250"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', 'AW-943391250');
+          `}
+        </Script>
       </body>
     </html>
   );
