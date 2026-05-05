@@ -93,6 +93,28 @@ export default function SparkPage() {
           + Join the waitlist
         </div>
         <SparkWaitlistForm />
+        <div
+          className="text-white/40 mt-12 mb-4"
+          style={{
+            fontFamily: "var(--font-inter)",
+            fontSize: "0.75rem",
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+          }}
+        >
+          + Building in public
+        </div>
+        <p className="text-white/70 mb-2 max-w-xl"
+          style={{
+            fontFamily: "var(--font-playfair)",
+            fontSize: "0.9375rem",
+            fontWeight: 400,
+            lineHeight: 1.7,
+            fontStyle: "normal",
+          }}
+        >
+          Building Spark in public, evening by evening. <a href="https://x.com/BetterNeil" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">Follow along on X →</a>
+        </p>
       </div>
     </div>
   );
