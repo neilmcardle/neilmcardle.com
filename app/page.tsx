@@ -32,6 +32,15 @@ interface Project {
 const PROJECTS: Project[] = [
   {
     number: "01",
+    title: "Spark",
+    description:
+      "A learning platform built from a spark, to teach designers full-stack engineering. A course built for designers, by a designer, so they can build for themselves.",
+    href: "/spark",
+    external: false,
+    category: "Product · Education · Solo-built",
+  },
+  {
+    number: "02",
     title: "makeEbook",
     description:
       "AI-first eBook creation platform. Conversational writing assistant with multi-turn context, Claude API under the hood, designed and built solo.",
@@ -40,7 +49,7 @@ const PROJECTS: Project[] = [
     category: "Product · AI · Solo-built",
   },
   {
-    number: "02",
+    number: "03",
     title: "Icon Animator",
     description:
       "SVG icon animation presets with copy-ready CSS export. Pick an icon, pick a preset, tune the timing, ship. No install.",
@@ -49,7 +58,7 @@ const PROJECTS: Project[] = [
     category: "Tool · Front-end",
   },
   {
-    number: "03",
+    number: "04",
     title: "Promptr",
     description:
       "A prompt workshop. Rubric-based scoring turns fuzzy prompts into specific ones before you spend tokens running them.",
@@ -58,22 +67,13 @@ const PROJECTS: Project[] = [
     category: "Tool · AI · UX",
   },
   {
-    number: "04",
+    number: "05",
     title: "Vector Paint",
     description:
       "Vector drawing in the browser. Sketch freehand, export SVG, print crisp at any size from sticker to poster.",
     href: "/vector-paint",
     external: false,
     category: "Tool · SVG · Drawing",
-  },
-  {
-    number: "05",
-    title: "Spark",
-    description:
-      "A learning platform built from a spark, to teach designers full-stack engineering. A course built for designers, by a designer, so they can build for themselves.",
-    href: "/spark",
-    external: false,
-    category: "Product · Education · Solo-built",
   },
 ];
 
