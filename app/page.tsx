@@ -66,6 +66,15 @@ const PROJECTS: Project[] = [
     external: false,
     category: "Tool · SVG · Drawing",
   },
+  {
+    number: "05",
+    title: "Spark",
+    description:
+      "A learning platform built from a spark, to teach designers full-stack engineering. A course built for designers, by a designer, so they can build for themselves.",
+    href: "/spark",
+    external: false,
+    category: "Product · Education · Solo-built",
+  },
 ];
 
 // Color lives on a className (`text-white`) not inline, so `hover:text-black`

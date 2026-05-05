@@ -82,6 +82,13 @@ export const prototypeComments = pgTable('prototype_comments', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+export const sparkWaitlist = pgTable('spark_waitlist', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  email: text('email').notNull().unique(),
+  source: text('source'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
 export type EBook = typeof ebooks.$inferSelect
@@ -92,3 +99,5 @@ export type PrototypeVersion = typeof prototypeVersions.$inferSelect
 export type NewPrototypeVersion = typeof prototypeVersions.$inferInsert
 export type PrototypeComment = typeof prototypeComments.$inferSelect
 export type NewPrototypeComment = typeof prototypeComments.$inferInsert
+export type SparkWaitlistEntry = typeof sparkWaitlist.$inferSelect
+export type NewSparkWaitlistEntry = typeof sparkWaitlist.$inferInsert
