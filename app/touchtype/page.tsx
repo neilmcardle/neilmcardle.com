@@ -38,8 +38,8 @@ function row1(layout: "mac" | "win"): KeyDef[] {
 function row3(layout: "mac" | "win"): KeyDef[] {
   return [
     { k: layout === "mac" ? "caps" : "caps lock", code: "CapsLock", cls: "xwide", f: "L5" },
-    { k: "a", f: "L5" }, { k: "s", f: "L4" }, { k: "d", f: "L3" }, { k: "f", f: "L2" }, { k: "g", f: "L2" },
-    { k: "h", f: "R2" }, { k: "j", f: "R2" }, { k: "k", f: "R3" }, { k: "l", f: "R4" },
+    { k: "a", f: "L5" }, { k: "s", f: "L4" }, { k: "d", f: "L3" }, { k: "f", cls: "homing", f: "L2" }, { k: "g", f: "L2" },
+    { k: "h", f: "R2" }, { k: "j", cls: "homing", f: "R2" }, { k: "k", f: "R3" }, { k: "l", f: "R4" },
     { k: ";", f: "R5" }, { k: "'", f: "R5" },
     { k: layout === "mac" ? "⏎" : "enter", code: "Enter", cls: "xwide", f: "R5" },
   ];
@@ -111,6 +111,8 @@ const ADULT_TEXTS: Record<string, string[]> = {
   ],
 };
 
+const PRAISE_WORDS = ["Great!", "Nice!", "Yes!", "Boom!", "Awesome!", "Sweet!", "Wow!", "Cool!"] as const;
+
 // ─── Component ───────────────────────────────────────────────────────────────
 type Mode = "kids" | "adults";
 type Layout = "mac" | "win";
@@ -137,6 +139,8 @@ export default function TouchtypePage() {
   const [streak, setStreak] = useState(0);
   const [doneSet, setDoneSet] = useState<Set<number>>(new Set());
   const [mobileNoticeDismissed, setMobileNoticeDismissed] = useState(false);
+  const [wordPraise, setWordPraise] = useState<string | null>(null);
+  const [showHands, setShowHands] = useState(false);
 
   // Adults state
   const [category, setCategory] = useState<string>("Common words");
@@ -168,12 +172,12 @@ export default function TouchtypePage() {
     return currentText[idx];
   }, [mode, charIdx, adultCharIdx, currentText]);
 
-  // Adults timer tick
+  // Timer tick — runs for both kids and adults so WPM updates live.
   useEffect(() => {
-    if (mode !== "adults" || !startTime) return;
+    if (!startTime) return;
     const id = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(id);
-  }, [mode, startTime]);
+  }, [startTime]);
 
   // ─── Audio ───────────────────────────────────────────────────────────────
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -260,6 +264,12 @@ export default function TouchtypePage() {
 
         if (mode === "kids") {
           happyBeep();
+          if (!startTime) {
+            const t = Date.now();
+            setStartTime(t);
+            setNow(t);
+          }
+          setTotalKeystrokes((t) => t + 1);
           const nextChar = charIdx + 1;
           const item = LESSONS[lessonIdx].items[itemIdx] ?? "";
           setCorrect((c) => c + 1);
@@ -291,6 +301,9 @@ export default function TouchtypePage() {
               }, 1500);
               return;
             }
+            const praise = PRAISE_WORDS[Math.floor(Math.random() * PRAISE_WORDS.length)];
+            setWordPraise(praise);
+            window.setTimeout(() => setWordPraise(null), 900);
             setItemIdx(nextItem);
             setCharIdx(0);
           } else {
@@ -322,6 +335,13 @@ export default function TouchtypePage() {
         if (mode === "kids") {
           sadBeep();
           setStreak(0);
+          if (!startTime) {
+            const t = Date.now();
+            setStartTime(t);
+            setNow(t);
+          }
+          setTotalKeystrokes((t) => t + 1);
+          setErrors((er) => er + 1);
         } else {
           softMiss();
           if (!startTime) {
@@ -342,9 +362,10 @@ export default function TouchtypePage() {
     happyBeep, sadBeep, softHit, softMiss, fanfare, fireKidsConfetti, flashBigMessage,
   ]);
 
-  // ─── Adults stats ────────────────────────────────────────────────────────
+  // ─── Stats (shared between modes) ────────────────────────────────────────
   const elapsedSec = startTime && now ? (now - startTime) / 1000 : 0;
-  const wpm = startTime && elapsedSec > 0 ? Math.round((adultCharIdx / 5) / (elapsedSec / 60)) : 0;
+  const charsForWpm = mode === "kids" ? correct : adultCharIdx;
+  const wpm = startTime && elapsedSec > 0 ? Math.round((charsForWpm / 5) / (elapsedSec / 60)) : 0;
   const acc = totalKeystrokes > 0 ? Math.round(((totalKeystrokes - errors) / totalKeystrokes) * 100) : 100;
 
   const promptChars = useMemo(() => {
@@ -383,6 +404,7 @@ export default function TouchtypePage() {
           </header>
 
           <div className="tt-kids-lessons">
+            <p className="tt-kids-lessons-title">Lessons</p>
             {LESSONS.map((l, i) => {
               const active = i === lessonIdx;
               const done = doneSet.has(i);
@@ -413,9 +435,13 @@ export default function TouchtypePage() {
             </div>
             <div className="tt-kids-stats">
               <div className="tt-kids-stat">⭐ Score: <b>{score}</b></div>
-              <div className="tt-kids-stat">🎯 Correct: <b>{correct}</b></div>
+              <div className="tt-kids-stat">⚡ WPM: <b>{wpm}</b></div>
+              <div className="tt-kids-stat">🎯 Accuracy: <b>{acc}%</b></div>
               <div className="tt-kids-stat">💪 Streak: <b>{streak}</b></div>
             </div>
+            {wordPraise && (
+              <div className="tt-kids-praise" aria-live="polite">{wordPraise}</div>
+            )}
           </div>
 
           <div className="tt-keyboard tt-kids-keyboard">
@@ -444,6 +470,8 @@ export default function TouchtypePage() {
             ))}
           </div>
 
+          {showHands && <KidsHandGuide />}
+
           <div className="tt-kids-legend">
             <span><i style={{ background: "#ff8fb1" }} />L pinky</span>
             <span><i style={{ background: "#ffb86b" }} />L ring</span>
@@ -471,9 +499,17 @@ export default function TouchtypePage() {
               onClick={() => {
                 setLessonIdx(0); setItemIdx(0); setCharIdx(0);
                 setScore(0); setCorrect(0); setStreak(0); setDoneSet(new Set());
+                setStartTime(null); setNow(null); setTotalKeystrokes(0); setErrors(0);
               }}
             >
               🔄 Restart
+            </button>
+            <button
+              className={`hands ${showHands ? "active" : ""}`}
+              onClick={() => setShowHands((v) => !v)}
+              aria-pressed={showHands}
+            >
+              🖐 {showHands ? "Hide hands" : "Show hands"}
             </button>
             <div className="tt-kids-layout-toggle">
               {(["mac", "win"] as Layout[]).map((l) => (
@@ -496,6 +532,7 @@ export default function TouchtypePage() {
                 onClick={() => {
                   setMode(m);
                   if (m === "adults") resetAdults();
+                  setStartTime(null); setNow(null); setTotalKeystrokes(0); setErrors(0);
                 }}
               >
                 {m === "kids" ? "🧒 Kids" : "👤 Adults"}
@@ -538,6 +575,7 @@ export default function TouchtypePage() {
                 onClick={() => {
                   setMode(m);
                   if (m === "adults") resetAdults();
+                  setStartTime(null); setNow(null); setTotalKeystrokes(0); setErrors(0);
                 }}
               >
                 {m}
@@ -733,20 +771,42 @@ export default function TouchtypePage() {
           color: #555;
         }
         .tt-kids-lessons {
-          display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
-          margin: 6px 0;
-          max-width: 92vw;
+          position: fixed;
+          top: 56px;
+          left: 12px;
+          z-index: 150;
+          width: 180px;
+          max-height: calc(100vh - 76px);
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          padding: 12px;
+          background: rgba(255,255,255,0.92);
+          border-radius: 20px;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+        }
+        .tt-kids-lessons-title {
+          font-size: 11px;
+          font-weight: bold;
+          color: #ff5d8f;
+          text-transform: uppercase;
+          letter-spacing: 0.8px;
+          margin: 0 0 2px;
+          padding: 0 4px;
         }
         .tt-kids-pill {
           background: rgba(255,255,255,0.85);
-          border-radius: 20px;
-          padding: 4px 10px;
-          font-size: 12px;
+          border-radius: 14px;
+          padding: 6px 12px;
+          font-size: 13px;
           color: #555;
           cursor: pointer;
           box-shadow: 0 2px 0 #b9c0d4;
           border: none;
           font-family: inherit;
+          text-align: left;
+          width: 100%;
         }
         .tt-kids-pill.active {
           background: #ff5d8f;
@@ -765,6 +825,28 @@ export default function TouchtypePage() {
           text-align: center;
           min-width: 320px;
           max-width: 92vw;
+          position: relative;
+        }
+        .tt-kids-praise {
+          position: absolute;
+          top: -14px;
+          right: -22px;
+          background: #fff;
+          color: #ff5d8f;
+          font-weight: bold;
+          font-size: clamp(16px, 1.6vw, 20px);
+          padding: 8px 16px;
+          border-radius: 18px;
+          box-shadow: 0 4px 0 #ffb3c8, 0 8px 18px rgba(0,0,0,0.08);
+          animation: tt-praise-pop 900ms ease-out forwards;
+          pointer-events: none;
+        }
+        @keyframes tt-praise-pop {
+          0%   { transform: translateY(8px) scale(0.7); opacity: 0; }
+          15%  { transform: translateY(-6px) scale(1.08); opacity: 1; }
+          30%  { transform: translateY(0) scale(1); }
+          80%  { transform: translateY(0) scale(1); opacity: 1; }
+          100% { transform: translateY(-12px) scale(0.95); opacity: 0; }
         }
         .tt-kids-lesson-title {
           font-size: clamp(16px, 1.8vw, 20px);
@@ -902,6 +984,23 @@ export default function TouchtypePage() {
         .tt-kids-keyboard .tt-key[data-finger="R5"] { border-bottom: 4px solid #ff7a7a; }
         .tt-kids-keyboard .tt-key[data-finger="T"]  { border-bottom: 4px solid #888; }
 
+        /* Tactile homing bars on F and J — same nub real keyboards have. */
+        .tt-key.homing { position: relative; }
+        .tt-key.homing::after {
+          content: '';
+          position: absolute;
+          left: 50%;
+          bottom: 6px;
+          transform: translateX(-50%);
+          width: 14px;
+          height: 2px;
+          background: currentColor;
+          opacity: 0.55;
+          border-radius: 2px;
+          pointer-events: none;
+        }
+        .tt-adults-keyboard .tt-key.homing::after { bottom: 4px; width: 10px; }
+
         .tt-kids-legend {
           font-size: 11px; color: #555;
           margin-top: 6px;
@@ -933,6 +1032,29 @@ export default function TouchtypePage() {
         }
         .tt-kids-controls button.restart {
           background: #c084fc; box-shadow: 0 4px 0 #7e22ce;
+        }
+        .tt-kids-controls button.hands {
+          background: #fff; color: #555; box-shadow: 0 4px 0 #b9c0d4;
+        }
+        .tt-kids-controls button.hands.active {
+          background: #4ade80; color: white; box-shadow: 0 4px 0 #16a34a;
+        }
+        .tt-kids-handguide {
+          display: flex;
+          justify-content: center;
+          gap: clamp(40px, 8vw, 100px);
+          margin-top: 8px;
+          pointer-events: none;
+          animation: tt-hands-fade 220ms ease-out;
+        }
+        .tt-kids-handguide img {
+          height: clamp(90px, 14vh, 160px);
+          width: auto;
+          display: block;
+        }
+        @keyframes tt-hands-fade {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
         .tt-kids-layout-toggle {
           display: inline-flex;
@@ -1400,6 +1522,15 @@ function Stat({ label, value }: { label: string; value: string }) {
     <div className="tt-adults-stat">
       <span className="label">{label}</span>
       <span className="value">{value}</span>
+    </div>
+  );
+}
+
+function KidsHandGuide() {
+  return (
+    <div className="tt-kids-handguide" aria-hidden="true">
+      <img src="/left-hand.svg" alt="" />
+      <img src="/right-hand.svg" alt="" />
     </div>
   );
 }
