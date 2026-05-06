@@ -50,6 +50,15 @@ const PROJECTS: Project[] = [
   },
   {
     number: "03",
+    title: "Touchtype",
+    description:
+      "A touch-typing tutor with two modes. A playful course for kids learning their first home row, and a focused practice ground for adults who want to type without looking. Single page, no install.",
+    href: "/touchtype",
+    external: false,
+    category: "Tool · Education · Solo-built",
+  },
+  {
+    number: "04",
     title: "Icon Animator",
     description:
       "SVG icon animation presets with copy-ready CSS export. Pick an icon, pick a preset, tune the timing, ship. No install.",
@@ -58,7 +67,7 @@ const PROJECTS: Project[] = [
     category: "Tool · Front-end",
   },
   {
-    number: "04",
+    number: "05",
     title: "Promptr",
     description:
       "A prompt workshop. Rubric-based scoring turns fuzzy prompts into specific ones before you spend tokens running them.",
@@ -67,7 +76,7 @@ const PROJECTS: Project[] = [
     category: "Tool · AI · UX",
   },
   {
-    number: "05",
+    number: "06",
     title: "Vector Paint",
     description:
       "Vector drawing in the browser. Sketch freehand, export SVG, print crisp at any size from sticker to poster.",

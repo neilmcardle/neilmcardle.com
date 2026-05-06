@@ -24,6 +24,7 @@ const HIDDEN_ROUTES = [
   "/icon-animator",
   "/promptr",
   "/vector-paint",
+  "/touchtype",
   "/portfolio-unlock",
   "/privacy",
   "/terms",
