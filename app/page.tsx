@@ -52,7 +52,7 @@ const PROJECTS: Project[] = [
     number: "03",
     title: "Touchtype",
     description:
-      "A touch-typing tutor with two modes. A playful course for kids learning their first home row, and a focused practice ground for adults who want to type without looking. Single page, no install.",
+      "A touch-typing tutor with two modes. A playful course for kids learning their first home row, and a focused practice ground for adults who want to type without looking. Best on a real keyboard.",
     href: "/touchtype",
     external: false,
     category: "Tool · Education · Solo-built",

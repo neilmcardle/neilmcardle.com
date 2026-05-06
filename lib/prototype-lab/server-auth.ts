@@ -1,54 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { getUserByEmail, getUserById } from '@/lib/db/users'
+import { getUserByEmail } from '@/lib/db/users'
 
-export async function requirePrototypeLabUser(req: NextRequest) {
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return req.cookies.get(name)?.value
-        },
-        set(_name: string, _value: string, _options: CookieOptions) {},
-        remove(_name: string, _options: CookieOptions) {},
-      },
-    }
-  )
+// Prototype Lab is a single-owner internal sandbox with no sign-in.
+// All API calls are scoped to whichever user matches PROTOTYPE_LAB_OWNER_EMAIL.
+export async function requirePrototypeLabUser(_req: NextRequest) {
+  const ownerEmail = process.env.PROTOTYPE_LAB_OWNER_EMAIL
 
-  const {
-    data: { user: authUser },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !authUser) {
+  if (!ownerEmail) {
     return {
       error: NextResponse.json(
-        { error: 'Authentication required to use Prototype Lab.' },
-        { status: 401 }
+        { error: 'PROTOTYPE_LAB_OWNER_EMAIL is not set.' },
+        { status: 503 }
       ),
     }
   }
 
-  let { user: dbUser } = await getUserById(authUser.id)
-
-  if (!dbUser && authUser.email) {
-    const { user: fallbackUser } = await getUserByEmail(authUser.email)
-    dbUser = fallbackUser ?? null
-  }
+  const { user: dbUser } = await getUserByEmail(ownerEmail)
 
   if (!dbUser) {
     return {
       error: NextResponse.json(
-        { error: 'No internal user record found for this account.' },
-        { status: 403 }
+        { error: `No user found for ${ownerEmail}.` },
+        { status: 503 }
       ),
     }
   }
 
-  return {
-    authUser,
-    dbUser,
-  }
+  return { dbUser }
 }

@@ -136,6 +136,7 @@ export default function TouchtypePage() {
   const [correct, setCorrect] = useState(0);
   const [streak, setStreak] = useState(0);
   const [doneSet, setDoneSet] = useState<Set<number>>(new Set());
+  const [mobileNoticeDismissed, setMobileNoticeDismissed] = useState(false);
 
   // Adults state
   const [category, setCategory] = useState<string>("Common words");
@@ -358,6 +359,19 @@ export default function TouchtypePage() {
   // ────────────────────────────────────────────────────────────────────────
   return (
     <div className={`tt-root tt-${mode}`}>
+      {!mobileNoticeDismissed && (
+        <div className="tt-mobile-notice" role="status">
+          <span>Touchtype is built for a physical keyboard. Pop back on desktop for the full thing.</span>
+          <button
+            type="button"
+            className="tt-mobile-notice-close"
+            onClick={() => setMobileNoticeDismissed(true)}
+            aria-label="Dismiss desktop notice"
+          >
+            ×
+          </button>
+        </div>
+      )}
       {mode === "kids" ? (
         // ════════ KIDS UI ════════
         <>
@@ -638,6 +652,38 @@ export default function TouchtypePage() {
       )}
 
       <style jsx global>{`
+        /* Mobile-only notice — Touchtype needs a real keyboard. */
+        .tt-mobile-notice { display: none; }
+        @media (max-width: 820px), (pointer: coarse) {
+          .tt-mobile-notice {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            z-index: 300;
+            padding: 10px 12px 10px 14px;
+            background: rgba(15, 15, 15, 0.92);
+            color: #f5f5f5;
+            border-radius: 12px;
+            font: 500 13px/1.35 system-ui, -apple-system, sans-serif;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+          }
+          .tt-mobile-notice span { flex: 1; }
+          .tt-mobile-notice-close {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 22px;
+            line-height: 1;
+            padding: 0 4px;
+            cursor: pointer;
+          }
+          .tt-mobile-notice-close:hover { color: #fff; }
+        }
+
         /* ─────────────────────── KIDS THEME ─────────────────────── */
         .tt-root.tt-kids {
           font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', system-ui, sans-serif;

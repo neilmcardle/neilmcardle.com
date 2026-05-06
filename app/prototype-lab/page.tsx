@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { FormEvent, useEffect, useMemo, useState } from 'react'
-import { useAuth } from '@/lib/hooks/useAuth'
 import type { PrototypeProjectListItem } from '@/lib/db/prototypes'
 
 type TemplateKey = 'blank-next' | 'experiment-idea'
@@ -37,7 +36,6 @@ function statusTone(status: string) {
 }
 
 export default function PrototypeLabPage() {
-  const { user, loading } = useAuth()
   const [projects, setProjects] = useState<PrototypeProjectListItem[]>([])
   const [fetching, setFetching] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -68,10 +66,8 @@ export default function PrototypeLabPage() {
   }
 
   useEffect(() => {
-    if (user) {
-      void loadProjects()
-    }
-  }, [user])
+    void loadProjects()
+  }, [])
 
   async function handleCreateProject(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -119,31 +115,6 @@ export default function PrototypeLabPage() {
     [projects]
   )
 
-  if (loading) {
-    return <div className="min-h-screen bg-[#f7f7f5] text-zinc-900 p-10">Loading Prototype Lab...</div>
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-[#f7f7f5] text-zinc-900 px-6 py-16">
-        <div className="mx-auto max-w-3xl rounded-[32px] border border-black/10 bg-white p-8 shadow-[0_20px_60px_rgba(0,0,0,0.06)]">
-          <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Prototype Lab</p>
-          <h1 className="mt-4 text-4xl tracking-[-0.04em] text-zinc-950">Sign in to access the internal prototype workspace.</h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600">
-            This V1 is designed as a place where designers can spin up code-based prototypes, keep lightweight
-            version history, and share internal preview links without leaving this stack.
-          </p>
-          <Link
-            href="/make-ebook/signin"
-            className="mt-8 inline-flex rounded-full bg-zinc-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-zinc-800"
-          >
-            Go to sign in
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-[#f7f7f5] text-zinc-900">
       <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-8 lg:px-10">
@@ -160,10 +131,6 @@ export default function PrototypeLabPage() {
           </div>
 
           <div className="grid gap-4 rounded-[28px] border border-black/8 bg-[#fafaf9] p-5">
-            <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Signed in</p>
-              <p className="mt-2 text-sm font-medium text-zinc-950">{user.email}</p>
-            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-3xl border border-black/8 bg-white p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Projects</p>
