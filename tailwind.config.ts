@@ -72,10 +72,38 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+
+        // Kids Academy palette — namespaced so the soft-launch product can be
+        // extracted to its own repo without untangling colour tokens.
+        ka: {
+          brand: {
+            50:  '#EEF2FF',
+            500: '#6366F1',
+            600: '#4F46E5',
+            700: '#4338CA',
+          },
+          year1:   { DEFAULT: '#F97316', light: '#FED7AA' },
+          year2:   { DEFAULT: '#EAB308', light: '#FEF08A' },
+          year3:   { DEFAULT: '#22C55E', light: '#BBF7D0' },
+          year4:   { DEFAULT: '#3B82F6', light: '#BFDBFE' },
+          year5:   { DEFAULT: '#A855F7', light: '#E9D5FF' },
+          year6:   { DEFAULT: '#EF4444', light: '#FEE2E2' },
+          science: { DEFAULT: '#0EA5E9', light: '#E0F2FE' },
+          maths:   { DEFAULT: '#F59E0B', light: '#FEF3C7' },
+          english: { DEFAULT: '#EC4899', light: '#FCE7F3' },
+          history: { DEFAULT: '#8B5CF6', light: '#EDE9FE' },
+          geography: { DEFAULT: '#10B981', light: '#D1FAE5' },
+        },
+      },
+      spacing: {
+        'ka-touch':    '44px',
+        'ka-touch-lg': '56px',
       },
       fontFamily: {
         sans: ["var(--font-inter)"],
         serif: ["var(--font-playfair)"],
+        'ka-display': ["var(--font-ka-display)", "Nunito", "sans-serif"],
+        'ka-body':    ["var(--font-ka-body)", "Inter", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

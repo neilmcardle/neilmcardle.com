@@ -1,0 +1,134 @@
+{
+  "yearGroup": 3,
+  "topics": [
+    {
+      "id": "y3-science-plants",
+      "yearGroup": 3,
+      "subject": "science",
+      "topic": "plants",
+      "title": "Plants",
+      "ncObjectives": [
+        "Identify and describe the functions of different parts of flowering plants: roots, stem/trunk, leaves and flowers",
+        "Explore the requirements of plants for life and growth (air, light, water, nutrients from soil, and room to grow) and how they vary from plant to plant",
+        "Investigate the way in which water is transported within plants",
+        "Explore the part that flowers play in the life cycle of flowering plants, including pollination, seed formation and seed dispersal"
+      ],
+      "estimatedMinutes": 12,
+      "difficultyLevel": 1,
+      "hasAudioSupport": false,
+      "status": "planned"
+    },
+    {
+      "id": "y3-science-rocks",
+      "yearGroup": 3,
+      "subject": "science",
+      "topic": "rocks",
+      "title": "Rocks",
+      "ncObjectives": [
+        "Compare and group together different kinds of rocks on the basis of their appearance and simple physical properties",
+        "Describe in simple terms how fossils are formed when things that have lived are trapped within rock",
+        "Recognise that soils are made from rocks and organic matter"
+      ],
+      "estimatedMinutes": 10,
+      "difficultyLevel": 1,
+      "hasAudioSupport": false,
+      "status": "planned"
+    },
+    {
+      "id": "y3-science-light",
+      "yearGroup": 3,
+      "subject": "science",
+      "topic": "light-and-shadows",
+      "title": "Light and shadows",
+      "ncObjectives": [
+        "Recognise that they need light in order to see things and that dark is the absence of light",
+        "Notice that light is reflected from surfaces",
+        "Recognise that light from the sun can be dangerous and that there are ways to protect their eyes",
+        "Recognise that shadows are formed when the light from a light source is blocked by a solid object",
+        "Find patterns in the way that the size of shadows change"
+      ],
+      "estimatedMinutes": 10,
+      "difficultyLevel": 1,
+      "hasAudioSupport": false,
+      "status": "built"
+    },
+    {
+      "id": "y3-science-forces",
+      "yearGroup": 3,
+      "subject": "science",
+      "topic": "forces-and-magnets",
+      "title": "Forces and magnets",
+      "ncObjectives": [
+        "Compare how things move on different surfaces",
+        "Notice that some forces need contact between two objects, but magnetic forces can act at a distance",
+        "Observe how magnets attract or repel each other and attract some materials and not others",
+        "Compare and group together a variety of everyday materials on the basis of whether they are attracted to a magnet",
+        "Describe magnets as having two poles",
+        "Predict whether two magnets will attract or repel each other, depending on which poles are facing"
+      ],
+      "estimatedMinutes": 12,
+      "difficultyLevel": 2,
+      "hasAudioSupport": false,
+      "status": "planned"
+    },
+    {
+      "id": "y3-science-animals",
+      "yearGroup": 3,
+      "subject": "science",
+      "topic": "animals-including-humans",
+      "title": "Animals, including humans",
+      "ncObjectives": [
+        "Identify that animals, including humans, need the right types and amount of nutrition, and that they cannot make their own food; they get nutrition from what they eat",
+        "Identify that humans and some other animals have skeletons and muscles for support, protection and movement"
+      ],
+      "estimatedMinutes": 12,
+      "difficultyLevel": 1,
+      "hasAudioSupport": false,
+      "status": "planned"
+    },
+    {
+      "id": "y3-maths-times-tables",
+      "yearGroup": 3,
+      "subject": "maths",
+      "topic": "times-tables",
+      "title": "Times tables (3, 4, 8)",
+      "ncObjectives": [
+        "Recall and use multiplication and division facts for the 3, 4 and 8 multiplication tables"
+      ],
+      "estimatedMinutes": 8,
+      "difficultyLevel": 2,
+      "hasAudioSupport": false,
+      "status": "planned"
+    },
+    {
+      "id": "y3-maths-fractions",
+      "yearGroup": 3,
+      "subject": "maths",
+      "topic": "fractions",
+      "title": "Fractions",
+      "ncObjectives": [
+        "Count up and down in tenths; recognise that tenths arise from dividing an object into 10 equal parts and in dividing one-digit numbers or quantities by 10",
+        "Recognise, find and write fractions of a discrete set of objects: unit fractions and non-unit fractions with small denominators"
+      ],
+      "estimatedMinutes": 12,
+      "difficultyLevel": 2,
+      "hasAudioSupport": false,
+      "status": "planned"
+    },
+    {
+      "id": "y3-english-prefixes",
+      "yearGroup": 3,
+      "subject": "english",
+      "topic": "prefixes-and-suffixes",
+      "title": "Prefixes and suffixes",
+      "ncObjectives": [
+        "Use further prefixes and suffixes and understand how to add them",
+        "Spell further homophones"
+      ],
+      "estimatedMinutes": 10,
+      "difficultyLevel": 2,
+      "hasAudioSupport": false,
+      "status": "planned"
+    }
+  ]
+}
