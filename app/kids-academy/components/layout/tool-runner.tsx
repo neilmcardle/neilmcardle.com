@@ -18,7 +18,6 @@ type Props = {
 }
 
 export function ToolRunner({ topic, childProfile }: Props) {
-  const [percentage, setPercentage] = useState(0)
   const [showCelebration, setShowCelebration] = useState(false)
   const startedAt = useRef<number>(Date.now())
 
@@ -31,7 +30,6 @@ export function ToolRunner({ topic, childProfile }: Props) {
 
   function handleProgress(p: number) {
     const next = Math.min(100, Math.max(0, Math.round(p)))
-    setPercentage(next)
     setProgress(topic.id, { percentage: next, status: next >= 100 ? 'completed' : 'in_progress' })
   }
 
@@ -69,19 +67,6 @@ export function ToolRunner({ topic, childProfile }: Props) {
 
   return (
     <>
-      <div
-        className="h-1 bg-slate-200 shrink-0"
-        role="progressbar"
-        aria-valuenow={percentage}
-        aria-valuemin={0}
-        aria-valuemax={100}
-      >
-        <div
-          className="h-full bg-ka-brand-500 transition-[width] duration-500 ease-out"
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
-
       <div className="flex-1 min-h-0 flex flex-col">
         <Tool
           childProfile={childProfile}
