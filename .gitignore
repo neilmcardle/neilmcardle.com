@@ -49,6 +49,9 @@ STRIPE_SETUP.md
 # Spark teaching log (private drafts; polished MDX lessons publish separately)
 spark-teaching-log/
 
+# Kids Academy private planning docs (curriculum, phases, design system, strategy)
+app/kids-academy/docs/
+
 # DS Stores
 .DS_Store
 **/.DS_Store
