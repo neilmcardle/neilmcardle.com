@@ -1072,12 +1072,18 @@ function MuscleScene({
             </text>
           </g>
 
-          {/* Forearm — rotates around the elbow */}
+          {/* Forearm — rotates around the elbow. The motion.g translates AND
+              rotates via animate (no static transform attribute) so motion
+              doesn't clobber the positioning. originX: 0, originY: 0.5 sets the
+              rotation pivot to the element's local (0, 0), which is the elbow. */}
           <motion.g
-            animate={{ rotate: bent ? -120 : 0 }}
+            animate={{
+              rotate: bent ? -120 : 0,
+              x: shoulderX + 160,
+              y: shoulderY,
+            }}
             transition={{ type: 'spring', stiffness: 110, damping: 14 }}
-            style={{ transformOrigin: `${shoulderX + 160}px ${shoulderY}px`, originX: '50%', originY: '50%' }}
-            transform={`translate(${shoulderX + 160} ${shoulderY})`}
+            style={{ originX: 0, originY: 0.5 }}
           >
             <rect x={0} y={-18} width={140} height={36} fill="#fcd34d" stroke="#92400e" strokeWidth={2} rx={18} />
             {/* Hand */}

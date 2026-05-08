@@ -98,7 +98,7 @@
       "estimatedMinutes": 8,
       "difficultyLevel": 2,
       "hasAudioSupport": false,
-      "status": "planned"
+      "status": "built"
     },
     {
       "id": "y3-maths-fractions",
@@ -113,7 +113,7 @@
       "estimatedMinutes": 12,
       "difficultyLevel": 2,
       "hasAudioSupport": false,
-      "status": "planned"
+      "status": "built"
     },
     {
       "id": "y3-english-prefixes",

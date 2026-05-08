@@ -27,6 +27,12 @@ export function ToolCover({ topicId, subject, className = '' }: Props) {
     case 'y3-science-animals':
       inner = <AnimalsCover />
       break
+    case 'y3-maths-times-tables':
+      inner = <TimesTablesCover />
+      break
+    case 'y3-maths-fractions':
+      inner = <FractionsCover />
+      break
   }
 
   return (
@@ -211,6 +217,103 @@ function RocksCover() {
         <ellipse cx={0} cy={0} rx={28} ry={17} fill="#1e293b" stroke="#0f172a" strokeWidth={1.5} />
         <ellipse cx={-6} cy={-3} rx={9} ry={3} fill="#334155" opacity={0.6} />
       </g>
+    </svg>
+  )
+}
+
+function FractionsCover() {
+  // Inline pie wedge helper so the cover stays self-contained.
+  const pie = (cx: number, cy: number, r: number, startDeg: number, endDeg: number) => {
+    const sr = ((startDeg - 90) * Math.PI) / 180
+    const er = ((endDeg - 90) * Math.PI) / 180
+    const x1 = cx + r * Math.cos(sr)
+    const y1 = cy + r * Math.sin(sr)
+    const x2 = cx + r * Math.cos(er)
+    const y2 = cy + r * Math.sin(er)
+    const large = endDeg - startDeg > 180 ? 1 : 0
+    return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`
+  }
+  return (
+    <svg viewBox="0 0 280 140" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
+      <defs>
+        <linearGradient id="cov-frac-bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="#fef3c7" />
+          <stop offset="100%" stopColor="#fde68a" />
+        </linearGradient>
+      </defs>
+      <rect x={0} y={0} width={280} height={140} fill="url(#cov-frac-bg)" />
+
+      {/* Half circle */}
+      <g transform="translate(70, 70)">
+        <path d={pie(0, 0, 32, 0, 180)}   fill="#22c55e" stroke="#1f2937" strokeWidth={2} />
+        <path d={pie(0, 0, 32, 180, 360)} fill="white"   stroke="#1f2937" strokeWidth={2} />
+        <text x={0} y={62} textAnchor="middle" fill="#1f2937" fontSize={18} fontWeight={900}
+              style={{ fontFamily: 'system-ui, sans-serif' }}>
+          1/2
+        </text>
+      </g>
+
+      {/* Three-quarters circle */}
+      <g transform="translate(150, 70)">
+        <path d={pie(0, 0, 32, 0, 90)}   fill="#22c55e" stroke="#1f2937" strokeWidth={2} />
+        <path d={pie(0, 0, 32, 90, 180)} fill="#22c55e" stroke="#1f2937" strokeWidth={2} />
+        <path d={pie(0, 0, 32, 180, 270)} fill="#22c55e" stroke="#1f2937" strokeWidth={2} />
+        <path d={pie(0, 0, 32, 270, 360)} fill="white"   stroke="#1f2937" strokeWidth={2} />
+        <text x={0} y={62} textAnchor="middle" fill="#1f2937" fontSize={18} fontWeight={900}
+              style={{ fontFamily: 'system-ui, sans-serif' }}>
+          3/4
+        </text>
+      </g>
+
+      {/* Third circle */}
+      <g transform="translate(230, 70)">
+        <path d={pie(0, 0, 32, 0, 120)}   fill="#22c55e" stroke="#1f2937" strokeWidth={2} />
+        <path d={pie(0, 0, 32, 120, 240)} fill="white"   stroke="#1f2937" strokeWidth={2} />
+        <path d={pie(0, 0, 32, 240, 360)} fill="white"   stroke="#1f2937" strokeWidth={2} />
+        <text x={0} y={62} textAnchor="middle" fill="#1f2937" fontSize={18} fontWeight={900}
+              style={{ fontFamily: 'system-ui, sans-serif' }}>
+          1/3
+        </text>
+      </g>
+    </svg>
+  )
+}
+
+function TimesTablesCover() {
+  return (
+    <svg viewBox="0 0 280 140" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
+      <defs>
+        <linearGradient id="cov-times-bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="#fef3c7" />
+          <stop offset="100%" stopColor="#fde68a" />
+        </linearGradient>
+      </defs>
+      <rect x={0} y={0} width={280} height={140} fill="url(#cov-times-bg)" />
+
+      {/* Big multiplication on the left */}
+      <text x={75} y={80} textAnchor="middle" fill="#7c2d12" fontSize={36} fontWeight={900}
+            style={{ fontFamily: 'system-ui, sans-serif' }}>
+        3 × 4
+      </text>
+      <text x={75} y={108} textAnchor="middle" fill="#92400e" fontSize={20} fontWeight={800}
+            style={{ fontFamily: 'system-ui, sans-serif' }}>
+        = 12
+      </text>
+
+      {/* Array of 12 dots on the right (3 rows × 4 cols) */}
+      {Array.from({ length: 3 }).map((_, r) =>
+        Array.from({ length: 4 }).map((_, c) => (
+          <circle
+            key={`${r}-${c}`}
+            cx={170 + c * 24}
+            cy={50 + r * 24}
+            r={8}
+            fill="#ef4444"
+            stroke="#7f1d1d"
+            strokeWidth={1.5}
+          />
+        )),
+      )}
     </svg>
   )
 }
