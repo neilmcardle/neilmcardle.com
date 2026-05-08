@@ -41,6 +41,7 @@ make-ebook/components/AuthProvider.tsx.DS_Store
 
 # strategy & config docs (private)
 CLAUDE.md
+DESIGN.md
 SEO-STRATEGY.md
 GOOGLE-ADS-STRATEGY.md
 STRIPE_IMPLEMENTATION.md
@@ -51,6 +52,10 @@ spark-teaching-log/
 
 # Kids Academy private planning docs (curriculum, phases, design system, strategy)
 app/kids-academy/docs/
+
+# Design context & prototype planning (private)
+.impeccable.md
+docs/prototype-lab-v1.md
 
 # DS Stores
 .DS_Store

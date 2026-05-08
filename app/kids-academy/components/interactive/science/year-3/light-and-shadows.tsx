@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, RotateCcw } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowDown, ArrowRight, Check, RotateCcw, Sparkles } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { ToolProps } from '@/app/kids-academy/types/curriculum'
+import { play } from '@/app/kids-academy/lib/sound'
 
 const W = 800
 const H = 480
@@ -14,7 +16,7 @@ const OBJECT_WIDTH = 50
 type Pt = { x: number; y: number }
 type Target = 'light' | 'object'
 
-type StepState = { length: number; tipX: number; objectX: number }
+type StepState = { length: number; tipX: number; objectX: number; lightY: number }
 type Step = {
   key: string
   prompt: string
@@ -26,13 +28,63 @@ type Step = {
 
 const TREE_HOME: Pt = { x: 400, y: GROUND_Y }
 
+// :focus-visible only — keyboard users see an outline; touch and mouse don't.
+// -webkit-tap-highlight-color suppresses iOS's grey-on-tap rectangle that was
+// leaving paint artifacts during rapid drags.
+const TOUCH_TARGET_CLASS =
+  '[outline:none] [-webkit-tap-highlight-color:transparent] focus-visible:[outline:3px_solid_#6366F1] focus-visible:[outline-offset:2px]'
+
+// Pulse the Continue button after a step passes — the button gets a soft indigo
+// halo that ripples outward, on top of a small base shadow. Three keyframes so
+// the loop is seamless (start = end).
+const BTN_BASE_SHADOW = '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+const BTN_PULSE_KEYFRAMES = [
+  `${BTN_BASE_SHADOW}, 0 0 0 0 rgba(99, 102, 241, 0)`,
+  `${BTN_BASE_SHADOW}, 0 0 0 14px rgba(99, 102, 241, 0.45)`,
+  `${BTN_BASE_SHADOW}, 0 0 0 0 rgba(99, 102, 241, 0)`,
+]
+const BTN_REST_SHADOW = `${BTN_BASE_SHADOW}, 0 0 0 0 rgba(99, 102, 241, 0)`
+
+const SPARKLE_POSITIONS = [
+  { x: 150, y: 80 },  { x: 400, y: 60 },  { x: 650, y: 90 },
+  { x: 100, y: 200 }, { x: 700, y: 200 }, { x: 250, y: 290 },
+  { x: 550, y: 290 }, { x: 350, y: 150 }, { x: 450, y: 340 },
+  { x: 200, y: 410 }, { x: 600, y: 410 }, { x: 750, y: 350 },
+]
+
+function SparkleBurst() {
+  return (
+    <g pointerEvents="none">
+      {SPARKLE_POSITIONS.map((pos, i) => (
+        <motion.g
+          key={i}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: [0, 1.4, 0], opacity: [0, 1, 0] }}
+          transition={{ duration: 1, delay: i * 0.04, ease: 'easeOut' }}
+          style={{ x: pos.x, y: pos.y }}
+        >
+          <path
+            d="M0 -16 L4 -4 L16 0 L4 4 L0 16 L-4 4 L-16 0 L-4 -4 Z"
+            fill="white"
+            opacity={0.75}
+          />
+          <path
+            d="M0 -10 L2.5 -2.5 L10 0 L2.5 2.5 L0 10 L-2.5 2.5 L-10 0 L-2.5 -2.5 Z"
+            fill="#fbbf24"
+          />
+        </motion.g>
+      ))}
+    </g>
+  )
+}
+
 const STEPS: Step[] = [
   {
-    key: 'cast',
-    prompt: 'Move the sun to make a shadow.',
-    hint: 'Try dragging the sun to one side.',
-    test: (s) => s.length > 90,
-    startLight: { x: 400, y: 90 },
+    key: 'light',
+    prompt: 'Drag the sun up into the sky.',
+    hint: 'When the sun rises, light fills the world. A shadow appears too.',
+    test: (s) => s.lightY < 200,
+    startLight: { x: 400, y: 460 },
     startObject: TREE_HOME,
   },
   {
@@ -69,10 +121,13 @@ const STEPS: Step[] = [
   },
 ]
 
-function clampLight(p: Pt): Pt {
+// Step 0 is the only step where the sun can sit below the horizon (so it can
+// start in a "set" position the user lifts into the sky). Other steps clamp
+// the sun to the sky region so the shadow geometry stays well-defined.
+function clampLight(p: Pt, allowBelowHorizon: boolean): Pt {
   return {
     x: Math.max(40, Math.min(W - 40, p.x)),
-    y: Math.max(30, Math.min(GROUND_Y - OBJECT_HEIGHT - 50, p.y)),
+    y: Math.max(30, Math.min(allowBelowHorizon ? 460 : GROUND_Y - OBJECT_HEIGHT - 50, p.y)),
   }
 }
 
@@ -83,12 +138,13 @@ function clampObject(p: Pt): Pt {
   }
 }
 
-export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProps) {
+export default function LightAndShadowsTool({ onProgress }: ToolProps) {
   const startedAt = useRef<number>(Date.now())
   const scrollRef = useRef<HTMLDivElement>(null)
   const sectionRefs = useRef<(HTMLElement | null)[]>([])
   const wasMet = useRef<boolean>(false)
   const completedRef = useRef<Set<number>>(new Set())
+  const moduleCompletePlayed = useRef<boolean>(false)
 
   const [light, setLight] = useState<Pt>(STEPS[0].startLight)
   const [object, setObject] = useState<Pt>(STEPS[0].startObject)
@@ -96,8 +152,7 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
   const [unlockedUpTo, setUnlockedUpTo] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
   const [dragging, setDragging] = useState<Target | null>(null)
-  const [focused, setFocused] = useState<Target | null>(null)
-  const [allDone, setAllDone] = useState(false)
+  const [justCompleted, setJustCompleted] = useState<number | null>(null)
 
   const shadowTipX = useMemo(() => {
     const topY = GROUND_Y - OBJECT_HEIGHT
@@ -110,39 +165,60 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
 
   const shadowLength = Math.abs(shadowTipX - object.x)
 
-  // When the active step changes, capture whether the test is currently met,
-  // so we only mark complete on a rising-edge transition (false → true).
+  // Brightness ramps from 0 (sun at y=460, "set") to 1 (sun at y<=250, in the sky).
+  // Used to fade the dark overlay in step 0 so the world lights up as the sun rises.
+  const brightness = Math.max(0, Math.min(1, (460 - light.y) / 210))
+
   useEffect(() => {
     const step = STEPS[activeStep]
     if (!step) return
-    wasMet.current = step.test({ length: shadowLength, tipX: shadowTipX, objectX: object.x })
+    wasMet.current = step.test({
+      length: shadowLength,
+      tipX: shadowTipX,
+      objectX: object.x,
+      lightY: light.y,
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeStep])
 
-  // Edge-detect step completion against the active step only.
   useEffect(() => {
     const step = STEPS[activeStep]
     if (!step) return
-    const meets = step.test({ length: shadowLength, tipX: shadowTipX, objectX: object.x })
+    const meets = step.test({
+      length: shadowLength,
+      tipX: shadowTipX,
+      objectX: object.x,
+      lightY: light.y,
+    })
     if (meets && !wasMet.current && !completedRef.current.has(activeStep)) {
       completedRef.current.add(activeStep)
       setCompletedSteps(Array.from(completedRef.current).sort((a, b) => a - b))
       if (activeStep + 1 > unlockedUpTo) setUnlockedUpTo(activeStep + 1)
     }
     wasMet.current = meets
-  }, [shadowLength, shadowTipX, object.x, activeStep, unlockedUpTo])
+  }, [shadowLength, shadowTipX, object.x, light.y, activeStep, unlockedUpTo])
 
-  // Emit progress and onComplete based on completion count.
   useEffect(() => {
     onProgress(Math.round((completedSteps.length / STEPS.length) * 100))
-    if (completedSteps.length === STEPS.length && !allDone) {
-      setAllDone(true)
-      onComplete({ durationSeconds: Math.round((Date.now() - startedAt.current) / 1000) })
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [completedSteps, allDone])
+  }, [completedSteps])
 
-  // Track which section is in view (driven by snap scrolling).
+  useEffect(() => {
+    const last = completedSteps[completedSteps.length - 1]
+    if (last === undefined) return
+    setJustCompleted(last)
+    play('stepPass')
+    const t = setTimeout(() => setJustCompleted(null), 4000)
+    return () => clearTimeout(t)
+  }, [completedSteps])
+
+  useEffect(() => {
+    if (activeStep === STEPS.length && !moduleCompletePlayed.current) {
+      moduleCompletePlayed.current = true
+      play('moduleComplete')
+    }
+  }, [activeStep])
+
   useEffect(() => {
     const root = scrollRef.current
     if (!root) return
@@ -161,8 +237,6 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
     return () => observer.disconnect()
   }, [unlockedUpTo])
 
-  // When the user advances to a new step, snap the scene to that step's
-  // starting position so the challenge isn't already solved by carryover.
   function jumpToStartFor(stepIndex: number) {
     const s = STEPS[stepIndex]
     if (!s) return
@@ -171,9 +245,7 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
   }
 
   function svgPoint(clientX: number, clientY: number): Pt {
-    const svg = document.activeElement?.closest('svg') as SVGSVGElement | null
-    const fallback = sectionRefs.current[activeStep]?.querySelector('svg') as SVGSVGElement | null
-    const target = svg ?? fallback
+    const target = sectionRefs.current[activeStep]?.querySelector('svg') as SVGSVGElement | null
     if (!target) return { x: 0, y: 0 }
     const rect = target.getBoundingClientRect()
     return {
@@ -185,14 +257,13 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
   function startDrag(target: Target, e: React.PointerEvent<SVGElement>) {
     e.preventDefault()
     setDragging(target)
-    setFocused(target)
     ;(e.currentTarget as Element).setPointerCapture?.(e.pointerId)
   }
 
   function moveDrag(e: React.PointerEvent<SVGElement>) {
     if (!dragging) return
     const p = svgPoint(e.clientX, e.clientY)
-    if (dragging === 'light') setLight(clampLight(p))
+    if (dragging === 'light') setLight(clampLight(p, activeStep === 0))
     else setObject(clampObject(p))
   }
 
@@ -201,8 +272,7 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
     ;(e.currentTarget as Element).releasePointerCapture?.(e.pointerId)
   }
 
-  function handleKey(e: React.KeyboardEvent<SVGElement>) {
-    if (!focused) return
+  function handleKey(e: React.KeyboardEvent<SVGElement>, target: Target) {
     const STEP = 16
     let dx = 0, dy = 0
     if (e.key === 'ArrowLeft')       dx = -STEP
@@ -211,7 +281,7 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
     else if (e.key === 'ArrowDown')  dy = STEP
     else return
     e.preventDefault()
-    if (focused === 'light') setLight(clampLight({ x: light.x + dx, y: light.y + dy }))
+    if (target === 'light') setLight(clampLight({ x: light.x + dx, y: light.y + dy }, activeStep === 0))
     else setObject(clampObject({ x: object.x + dx, y: object.y + dy }))
   }
 
@@ -223,9 +293,16 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
 
   function handleContinue() {
     const next = activeStep + 1
-    if (next >= STEPS.length) return
     if (next > unlockedUpTo) setUnlockedUpTo(next)
-    jumpToStartFor(next)
+    if (next < STEPS.length) {
+      jumpToStartFor(next)
+      play('continueTap')
+    } else if (!moduleCompletePlayed.current) {
+      // Play in the click handler so the gesture context is preserved (iOS
+      // Safari refuses audio that originates from a useEffect after a scroll).
+      moduleCompletePlayed.current = true
+      play('moduleComplete')
+    }
     requestAnimationFrame(() => scrollToStep(next))
   }
 
@@ -233,16 +310,15 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
     completedRef.current = new Set()
     setCompletedSteps([])
     setUnlockedUpTo(0)
-    setAllDone(false)
     setActiveStep(0)
     jumpToStartFor(0)
     startedAt.current = Date.now()
+    moduleCompletePlayed.current = false
     requestAnimationFrame(() => scrollToStep(0))
   }
 
   const visibleSteps = STEPS.slice(0, unlockedUpTo + 1)
-  const currentStepDone = completedSteps.includes(activeStep)
-  const isLast = activeStep === STEPS.length - 1
+  const showSummary = unlockedUpTo >= STEPS.length
 
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-slate-50">
@@ -278,8 +354,7 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
         {visibleSteps.map((step, i) => {
           const done = completedSteps.includes(i)
           const isCurrent = i === activeStep
-          const buttonReady = done && i < STEPS.length - 1
-          const finishReady = done && i === STEPS.length - 1
+          const buttonReady = done
           return (
             <section
               key={step.key}
@@ -313,7 +388,7 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
                 </AnimatePresence>
               </header>
 
-              <div className="flex-1 min-h-0 rounded-3xl border border-slate-200 overflow-hidden shadow-sm bg-gradient-to-b from-sky-200 via-sky-100 to-amber-50">
+              <div className="flex-1 min-h-0 rounded-3xl border border-slate-200 overflow-hidden shadow-sm bg-slate-900">
                 <svg
                   viewBox={`0 0 ${W} ${H}`}
                   preserveAspectRatio="xMidYMid meet"
@@ -321,11 +396,14 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
                   onPointerMove={moveDrag}
                   onPointerUp={endDrag}
                   onPointerCancel={endDrag}
-                  onKeyDown={handleKey}
                   role="img"
                   aria-label="Shadow simulator. Drag the sun or the tree to change the shadow."
                 >
                   <defs>
+                    <linearGradient id={`ka-sky-${i}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%"   stopColor="#bae6fd" />
+                      <stop offset="100%" stopColor="#fef3c7" />
+                    </linearGradient>
                     <linearGradient id={`ka-ground-${i}`} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%"   stopColor="#86efac" />
                       <stop offset="100%" stopColor="#4ade80" />
@@ -337,6 +415,7 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
                     </radialGradient>
                   </defs>
 
+                  <rect x={0} y={0} width={W} height={GROUND_Y} fill={`url(#ka-sky-${i})`} />
                   <rect x={0} y={GROUND_Y} width={W} height={H - GROUND_Y} fill={`url(#ka-ground-${i})`} />
                   <line x1={0} y1={GROUND_Y} x2={W} y2={GROUND_Y} stroke="#16a34a" strokeWidth={2} opacity={0.5} />
 
@@ -362,17 +441,22 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
                       height={OBJECT_HEIGHT + 25}
                       fill="transparent"
                       onPointerDown={(e) => startDrag('object', e)}
-                      onFocus={() => setFocused('object')}
-                      onBlur={() => setFocused(null)}
-                      className="focus:outline-none"
-                      style={{
-                        outline: focused === 'object' && isCurrent ? '3px solid #6366F1' : 'none',
-                        outlineOffset: 2,
-                        borderRadius: 12,
-                      }}
+                      onKeyDown={(e) => handleKey(e, 'object')}
+                      className={TOUCH_TARGET_CLASS}
+                      style={{ borderRadius: 12 }}
                       aria-label="Tree. Drag, or press arrow keys to move."
                     />
                   </g>
+
+                  <rect
+                    x={0}
+                    y={0}
+                    width={W}
+                    height={H}
+                    fill="#020617"
+                    opacity={1 - brightness}
+                    pointerEvents="none"
+                  />
 
                   <g style={{ cursor: dragging === 'light' ? 'grabbing' : 'grab' }}>
                     {Array.from({ length: 8 }).map((_, k) => {
@@ -393,52 +477,108 @@ export default function LightAndShadowsTool({ onProgress, onComplete }: ToolProp
                       r={52}
                       fill="transparent"
                       onPointerDown={(e) => startDrag('light', e)}
-                      onFocus={() => setFocused('light')}
-                      onBlur={() => setFocused(null)}
-                      className="focus:outline-none"
-                      style={{
-                        outline: focused === 'light' && isCurrent ? '3px solid #6366F1' : 'none',
-                        outlineOffset: 2,
-                      }}
+                      onKeyDown={(e) => handleKey(e, 'light')}
+                      className={TOUCH_TARGET_CLASS}
                       aria-label="Sun. Drag, or press arrow keys to move."
                     />
                   </g>
+
+                  {justCompleted === i && <SparkleBurst />}
                 </svg>
               </div>
 
               <div className="shrink-0 pt-3 flex items-center justify-end gap-3">
                 <AnimatePresence>
-                  {done && !finishReady && (
+                  {done && (
                     <motion.span
                       key="passed"
-                      initial={{ opacity: 0, x: 4 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      initial={{ opacity: 0, x: 8, scale: 0.85 }}
+                      animate={{ opacity: 1, x: 0, scale: 1 }}
                       exit={{ opacity: 0 }}
-                      className="font-ka-body text-xs font-semibold text-green-700"
+                      transition={{ type: 'spring', stiffness: 320, damping: 18 }}
+                      className="inline-flex items-center gap-1.5 font-ka-body text-xs font-semibold text-green-700"
                     >
-                      Nice — keep going.
+                      <Check size={14} strokeWidth={3} className="text-ka-year3" />
+                      Got it!
                     </motion.span>
                   )}
                 </AnimatePresence>
-                <button
+                <motion.button
+                  key={`continue-${i}-${justCompleted === i ? 'pulse' : 'rest'}`}
                   type="button"
                   onClick={handleContinue}
                   disabled={!buttonReady}
-                  className={`inline-flex items-center gap-2 h-ka-touch px-6 rounded-full font-ka-display font-bold text-sm shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ka-brand-700 ${
+                  animate={
+                    justCompleted === i
+                      ? {
+                          scale: [1, 1.08, 1],
+                          boxShadow: BTN_PULSE_KEYFRAMES,
+                        }
+                      : { scale: 1, boxShadow: BTN_REST_SHADOW }
+                  }
+                  transition={
+                    justCompleted === i
+                      ? { duration: 1.0, repeat: Infinity, ease: 'easeInOut' }
+                      : { duration: 0.2 }
+                  }
+                  className={`inline-flex items-center gap-2 h-ka-touch px-6 rounded-full font-ka-display font-bold text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ka-brand-700 ${
                     buttonReady
                       ? 'bg-ka-brand-500 text-white hover:bg-ka-brand-600'
-                      : finishReady
-                        ? 'bg-ka-year3 text-white'
-                        : 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                      : 'bg-slate-200 text-slate-500 cursor-not-allowed'
                   }`}
                 >
-                  {finishReady ? 'All five done' : isLast ? 'Finish' : 'Continue'}
+                  Continue
                   {buttonReady && <ArrowDown size={16} strokeWidth={2.5} />}
-                </button>
+                </motion.button>
               </div>
             </section>
           )
         })}
+
+        {showSummary && (
+          <section
+            key="summary"
+            data-step={STEPS.length}
+            ref={(el) => {
+              sectionRefs.current[STEPS.length] = el
+            }}
+            className="snap-start h-full flex flex-col px-4 sm:px-6 pb-4 max-w-5xl mx-auto w-full"
+          >
+            <motion.div
+              className="flex-1 flex flex-col items-center justify-center text-center gap-5 py-8"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <Sparkles className="text-ka-year2" size={56} strokeWidth={2} aria-hidden="true" />
+              <h2 className="font-ka-display text-3xl sm:text-4xl font-extrabold text-slate-900">
+                Brilliant work!
+              </h2>
+              <ul className="text-left max-w-md mx-auto space-y-2 font-ka-body text-sm sm:text-base text-slate-700 list-disc pl-6">
+                <li>Without light, you can&rsquo;t see anything, and there are no shadows.</li>
+                <li>A shadow appears when an object blocks light.</li>
+                <li>A low sun makes a long shadow. A high sun makes a short shadow.</li>
+                <li>The shadow always points away from the sun.</li>
+              </ul>
+            </motion.div>
+            <div className="shrink-0 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3">
+              <button
+                type="button"
+                onClick={handleReset}
+                className="inline-flex items-center justify-center gap-2 h-ka-touch px-5 rounded-full bg-white border border-slate-200 text-slate-700 font-ka-display font-semibold text-sm hover:bg-slate-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ka-brand-500"
+              >
+                <RotateCcw size={14} /> Try again
+              </button>
+              <Link
+                href="/kids-academy/curriculum"
+                className="inline-flex items-center justify-center gap-2 h-ka-touch px-6 rounded-full bg-ka-year3 text-white font-ka-display font-bold text-sm hover:opacity-90 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ka-brand-500"
+              >
+                Back to curriculum
+                <ArrowRight size={16} strokeWidth={2.5} />
+              </Link>
+            </div>
+          </section>
+        )}
       </div>
     </div>
   )
