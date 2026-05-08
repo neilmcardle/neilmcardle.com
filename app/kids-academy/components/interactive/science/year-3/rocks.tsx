@@ -1041,39 +1041,59 @@ function SoilScene({
                   </>
                 )}
 
-                {/* Question button */}
+                {/* Whole-layer tap target — sits above decorations so taps anywhere on the
+                    layer trigger reveal, not just on the "?" button. */}
+                <rect
+                  tabIndex={isCurrent ? 0 : -1}
+                  x={120}
+                  y={layer.y0}
+                  width={W - 240}
+                  height={layer.y1 - layer.y0}
+                  fill="transparent"
+                  onPointerDown={(e) => {
+                    e.preventDefault()
+                    onTap(layer.key)
+                  }}
+                  className={TOUCH_TARGET_CLASS}
+                  style={{ cursor: 'pointer' }}
+                  aria-label={`${isRevealed ? layer.label : 'Soil layer'}. Tap to learn about it.`}
+                />
+
+                {/* Question button — visual hint, also tappable for redundancy. Not in the
+                    keyboard tab order (the layer rect handles that). */}
                 <g transform={`translate(${W - 90}, ${yMid})`}>
                   {!isRevealed ? (
                     <>
                       <circle cx={0} cy={0} r={20} fill="white" stroke="#1f2937" strokeWidth={2} />
                       <text x={0} y={6} textAnchor="middle" fill="#1f2937" fontSize={20} fontWeight={800}
-                            style={{ fontFamily: 'system-ui, sans-serif' }}>
+                            style={{ fontFamily: 'system-ui, sans-serif', pointerEvents: 'none' }}>
                         ?
                       </text>
                     </>
                   ) : (
                     <>
                       <circle cx={0} cy={0} r={20} fill={isActive ? '#22c55e' : '#bbf7d0'} stroke="#15803d" strokeWidth={2} />
-                      <path d="M -7 0 L -2 5 L 8 -5" stroke={isActive ? 'white' : '#15803d'} strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M -7 0 L -2 5 L 8 -5" stroke={isActive ? 'white' : '#15803d'} strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" />
                     </>
                   )}
                   <circle
-                    tabIndex={isCurrent ? 0 : -1}
+                    tabIndex={-1}
                     cx={0}
                     cy={0}
                     r={28}
                     fill="transparent"
                     onPointerDown={(e) => {
                       e.preventDefault()
+                      e.stopPropagation()
                       onTap(layer.key)
                     }}
                     className={TOUCH_TARGET_CLASS}
                     style={{ cursor: 'pointer' }}
-                    aria-label={`${isRevealed ? layer.label : 'Unknown layer'}. Tap to learn.`}
+                    aria-hidden="true"
                   />
                 </g>
 
-                {/* Inline label once revealed */}
+                {/* Inline label once revealed — pointer-events:none so it doesn't block taps. */}
                 {isRevealed && (
                   <text
                     x={140}
@@ -1081,7 +1101,7 @@ function SoilScene({
                     fill={layer.key === 'topsoil' || layer.key === 'bedrock' ? 'white' : '#1f2937'}
                     fontSize={16}
                     fontWeight={800}
-                    style={{ fontFamily: 'system-ui, sans-serif', userSelect: 'none' }}
+                    style={{ fontFamily: 'system-ui, sans-serif', userSelect: 'none', pointerEvents: 'none' }}
                   >
                     {layer.label}
                   </text>
