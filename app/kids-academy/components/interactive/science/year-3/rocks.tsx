@@ -111,7 +111,7 @@ const FOSSIL_STAGES = [
   'A small sea creature dies and falls to the seabed.',
   'Sand and mud cover its body, layer by layer.',
   'The layers harden into rock. The creature is hidden.',
-  'Once the rock wears away. We see the fossil.',
+  'Then, the rock wears away and we see the fossil.',
 ]
 
 const SOIL_LAYERS = [
