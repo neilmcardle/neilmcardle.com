@@ -13,7 +13,8 @@ export const TOOL_REGISTRY: Record<string, ToolComponent> = {
   'y3-science-light':  dynamic(() => import('./science/year-3/light-and-shadows'), { loading }),
   'y3-science-forces': dynamic(() => import('./science/year-3/forces-and-magnets'), { loading }),
   'y3-science-rocks':  dynamic(() => import('./science/year-3/rocks'), { loading }),
-  'y3-science-plants': dynamic(() => import('./science/year-3/plants'), { loading }),
+  'y3-science-plants':  dynamic(() => import('./science/year-3/plants'), { loading }),
+  'y3-science-animals': dynamic(() => import('./science/year-3/animals-including-humans'), { loading }),
 }
 
 export function getTool(toolId: string): ToolComponent | undefined {

@@ -24,6 +24,9 @@ export function ToolCover({ topicId, subject, className = '' }: Props) {
     case 'y3-science-plants':
       inner = <PlantsCover />
       break
+    case 'y3-science-animals':
+      inner = <AnimalsCover />
+      break
   }
 
   return (
@@ -207,6 +210,44 @@ function RocksCover() {
       <g transform="translate(220, 92)">
         <ellipse cx={0} cy={0} rx={28} ry={17} fill="#1e293b" stroke="#0f172a" strokeWidth={1.5} />
         <ellipse cx={-6} cy={-3} rx={9} ry={3} fill="#334155" opacity={0.6} />
+      </g>
+    </svg>
+  )
+}
+
+function AnimalsCover() {
+  return (
+    <svg viewBox="0 0 280 140" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
+      <defs>
+        <linearGradient id="cov-animals-bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="#fef3c7" />
+          <stop offset="100%" stopColor="#fde68a" />
+        </linearGradient>
+      </defs>
+      <rect x={0} y={0} width={280} height={140} fill="url(#cov-animals-bg)" />
+
+      {/* Skull on the left */}
+      <g transform="translate(80, 70)">
+        <ellipse cx={0} cy={0} rx={32} ry={36} fill="#fafafa" stroke="#1f2937" strokeWidth={2} />
+        <circle cx={-10} cy={-2} r={4} fill="#1f2937" />
+        <circle cx={10}  cy={-2} r={4} fill="#1f2937" />
+        <line x1={-7} y1={18} x2={7} y2={18} stroke="#1f2937" strokeWidth={1.5} />
+        <line x1={-5} y1={24} x2={5} y2={24} stroke="#1f2937" strokeWidth={1.5} />
+      </g>
+
+      {/* Apple on the right */}
+      <g transform="translate(180, 75)">
+        <circle cx={0} cy={0} r={26} fill="#ef4444" stroke="#7f1d1d" strokeWidth={2} />
+        <path d="M -6 -22 Q 0 -28 8 -22" stroke="#7f1d1d" strokeWidth={2.5} fill="none" strokeLinecap="round" />
+        <ellipse cx={6} cy={-26} rx={6} ry={3} fill="#16a34a" stroke="#15803d" strokeWidth={1.5} transform="rotate(20 6 -26)" />
+        <ellipse cx={-8} cy={-9} rx={5} ry={3} fill="#fca5a5" opacity={0.7} />
+      </g>
+
+      {/* Bones around the bottom */}
+      <g transform="translate(140, 122)">
+        <rect x={-22} y={-3} width={44} height={6} fill="#fafafa" stroke="#1f2937" strokeWidth={1.5} rx={3} />
+        <circle cx={-22} cy={0} r={5} fill="#fafafa" stroke="#1f2937" strokeWidth={1.5} />
+        <circle cx={22}  cy={0} r={5} fill="#fafafa" stroke="#1f2937" strokeWidth={1.5} />
       </g>
     </svg>
   )
