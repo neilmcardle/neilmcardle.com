@@ -12,6 +12,7 @@ const loading = () => <LoadingSkeleton variant="tool" className="px-6 py-8 max-w
 export const TOOL_REGISTRY: Record<string, ToolComponent> = {
   'y3-science-light':  dynamic(() => import('./science/year-3/light-and-shadows'), { loading }),
   'y3-science-forces': dynamic(() => import('./science/year-3/forces-and-magnets'), { loading }),
+  'y3-science-rocks':  dynamic(() => import('./science/year-3/rocks'), { loading }),
 }
 
 export function getTool(toolId: string): ToolComponent | undefined {
