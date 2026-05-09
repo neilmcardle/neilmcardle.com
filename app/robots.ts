@@ -8,8 +8,16 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        // Keep gated routes out of search results.
-        disallow: ["/api/", "/auth/", "/portfolio/", "/portfolio-unlock"],
+        // Keep gated and in-progress routes out of search results.
+        disallow: [
+          "/api/",
+          "/auth/",
+          "/portfolio/",
+          "/portfolio-unlock",
+          "/cabin",
+          "/kids-academy",
+          "/wepray",
+        ],
       },
     ],
     sitemap: [

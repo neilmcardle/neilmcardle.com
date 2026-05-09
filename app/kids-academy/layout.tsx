@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://neilmcardle.com/kids-academy',
   },
+  robots: { index: false, follow: false },
 }
 
 export default function KidsAcademyLayout({ children }: { children: React.ReactNode }) {

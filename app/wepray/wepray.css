@@ -1,0 +1,276 @@
+/* WePray — quiet editorial. Scoped to .wepray-root. */
+
+.wepray-root {
+  /* Paper + ink */
+  --wp-paper:    #faf7f0;
+  --wp-paper-2:  #f3eee2;
+  --wp-ink:      #1a1612;
+  --wp-ink-soft: #5a5550;
+  --wp-ink-dim:  #8a8276;
+  --wp-rule:     #e8e3d6;
+  --wp-rule-strong: #d6cebd;
+
+  /* Accents */
+  --wp-sage:      #6b8e6f;
+  --wp-sage-deep: #4f6e54;
+  --wp-clay:      #b85c3a;
+  --wp-clay-deep: #8e4326;
+  --wp-gold:      #c08a3e;
+
+  /* Tag tints (low-saturation backgrounds) */
+  --wp-praise-bg:  #f3e9d2;
+  --wp-praise-fg:  #7a5a22;
+  --wp-urgent-bg:  #f0d8cb;
+  --wp-urgent-fg:  #7a3a22;
+  --wp-ongoing-bg: #dde7dd;
+  --wp-ongoing-fg: #3e5a42;
+
+  font-family: var(--font-serif), 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 14, 'SOFT' 50;
+  color: var(--wp-ink);
+  background: var(--wp-paper);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.wepray-root * { box-sizing: border-box; }
+
+/* ============================================================ */
+/* Type                                                          */
+/* ============================================================ */
+
+.wp-h1 {
+  font-family: var(--font-serif), 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 96, 'SOFT' 0, 'wght' 400;
+  font-size: clamp(2rem, 4.5vw, 2.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+.wp-h2 {
+  font-family: var(--font-serif), 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 36, 'SOFT' 30, 'wght' 500;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+
+.wp-eyebrow,
+.wp-label {
+  font-family: var(--font-sans), 'Inter', system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wp-ink-dim);
+  margin: 0;
+}
+
+.wp-lede {
+  font-family: var(--font-serif), 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 18, 'SOFT' 50, 'wght' 400;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--wp-ink);
+}
+
+a.wp-link {
+  color: var(--wp-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--wp-rule-strong);
+  padding-bottom: 1px;
+  transition: border-color 120ms ease;
+}
+a.wp-link:hover { border-color: var(--wp-ink); }
+
+/* ============================================================ */
+/* Cards                                                         */
+/* ============================================================ */
+
+.wp-card {
+  background: #fff;
+  border: 1px solid var(--wp-rule);
+  border-radius: 6px;
+  padding: 1.125rem 1.25rem;
+}
+.wp-card-paper { background: var(--wp-paper-2); border-color: var(--wp-rule-strong); }
+.wp-card-quiet { background: transparent; border-color: var(--wp-rule); }
+
+/* ============================================================ */
+/* Buttons                                                       */
+/* ============================================================ */
+
+.wp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans), 'Inter', system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding: 0.625rem 1rem;
+  background: var(--wp-sage);
+  color: #fff;
+  border: 1px solid var(--wp-sage);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  user-select: none;
+}
+.wp-btn:hover:not(:disabled) { background: var(--wp-sage-deep); border-color: var(--wp-sage-deep); }
+.wp-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.wp-btn-secondary {
+  background: transparent;
+  color: var(--wp-ink);
+  border-color: var(--wp-rule-strong);
+}
+.wp-btn-secondary:hover:not(:disabled) {
+  background: transparent;
+  border-color: var(--wp-ink);
+  color: var(--wp-ink);
+}
+
+.wp-btn-ghost {
+  background: transparent;
+  color: var(--wp-ink-soft);
+  border-color: transparent;
+}
+.wp-btn-ghost:hover:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  color: var(--wp-ink);
+}
+
+.wp-btn-clay {
+  background: var(--wp-clay);
+  border-color: var(--wp-clay);
+  color: #fff;
+}
+.wp-btn-clay:hover:not(:disabled) {
+  background: var(--wp-clay-deep);
+  border-color: var(--wp-clay-deep);
+}
+
+/* ============================================================ */
+/* Inputs                                                        */
+/* ============================================================ */
+
+.wp-input,
+.wp-textarea,
+.wp-select {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-family: var(--font-serif), 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 14, 'SOFT' 50;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--wp-ink);
+  background: #fff;
+  border: 1px solid var(--wp-rule-strong);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.wp-input::placeholder,
+.wp-textarea::placeholder { color: var(--wp-ink-dim); }
+.wp-input:focus,
+.wp-textarea:focus,
+.wp-select:focus {
+  border-color: var(--wp-sage);
+  box-shadow: 0 0 0 3px rgba(107, 142, 111, 0.18);
+}
+
+.wp-textarea { min-height: 6rem; resize: vertical; }
+
+/* ============================================================ */
+/* Tags                                                          */
+/* ============================================================ */
+
+.wp-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--font-sans), 'Inter', system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 999px;
+  background: var(--wp-paper-2);
+  color: var(--wp-ink-soft);
+  border: 1px solid var(--wp-rule);
+}
+.wp-tag-praise  { background: var(--wp-praise-bg);  color: var(--wp-praise-fg);  border-color: transparent; }
+.wp-tag-urgent  { background: var(--wp-urgent-bg);  color: var(--wp-urgent-fg);  border-color: transparent; }
+.wp-tag-ongoing { background: var(--wp-ongoing-bg); color: var(--wp-ongoing-fg); border-color: transparent; }
+
+/* ============================================================ */
+/* Bottom nav                                                    */
+/* ============================================================ */
+
+.wp-bottom-nav {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  background: rgba(250, 247, 240, 0.92);
+  backdrop-filter: saturate(140%) blur(6px);
+  -webkit-backdrop-filter: saturate(140%) blur(6px);
+  border-top: 1px solid var(--wp-rule);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  z-index: 30;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.wp-bottom-nav a {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 0.875rem 0.5rem 1rem;
+  font-family: var(--font-sans), 'Inter', system-ui, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--wp-ink-soft);
+  text-decoration: none;
+}
+.wp-bottom-nav a[data-active="true"] { color: var(--wp-ink); }
+.wp-bottom-nav a[data-active="true"]::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 24px; height: 2px;
+  background: var(--wp-sage);
+  border-radius: 2px;
+}
+
+/* ============================================================ */
+/* Misc                                                          */
+/* ============================================================ */
+
+.wp-toast {
+  position: fixed; left: 50%; top: 1rem; transform: translateX(-50%);
+  z-index: 40;
+  background: #fff;
+  border: 1px solid var(--wp-rule-strong);
+  border-radius: 6px;
+  padding: 0.625rem 0.875rem;
+  font-family: var(--font-sans), 'Inter', system-ui, sans-serif;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 16px rgba(26, 22, 18, 0.06);
+}
+
+.wp-rule {
+  border: 0;
+  border-top: 1px solid var(--wp-rule);
+  margin: 1.5rem 0;
+}
+
+.wp-quiet { color: var(--wp-ink-soft); }
+.wp-dim   { color: var(--wp-ink-dim); }
+
+.wp-serif-italic {
+  font-style: italic;
+  font-variation-settings: 'opsz' 36, 'SOFT' 100, 'wght' 400;
+}
