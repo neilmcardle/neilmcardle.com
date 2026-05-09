@@ -86,10 +86,10 @@ const PROJECTS: Project[] = [
   },
   {
     number: "07",
-    title: "Kids Phonics",
+    title: "Kids Alphabet",
     description:
-      "A phonics game for toddlers. Tap a letter, swipe to the next, finish with a quick quiz. Mobile-first, so it works on tiny fingers.",
-    href: "/kids-phonics/",
+      "An alphabet game for toddlers. Tap a letter, swipe to the next, finish with a quick quiz. Mobile-first, so it works on tiny fingers.",
+    href: "/kids-alphabet/",
     external: true,
     category: "Tool · Education · Solo-built",
   },

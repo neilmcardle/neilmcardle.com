@@ -34,11 +34,11 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-      // Static HTML game lives at public/kids-phonics/index.html. Without
-      // this rewrite, /kids-phonics 404s because Next doesn't auto-resolve
+      // Static HTML game lives at public/kids-alphabet/index.html. Without
+      // this rewrite, /kids-alphabet 404s because Next doesn't auto-resolve
       // index.html from public subdirectories.
-      { source: '/kids-phonics', destination: '/kids-phonics/index.html' },
-      { source: '/kids-phonics/', destination: '/kids-phonics/index.html' },
+      { source: '/kids-alphabet', destination: '/kids-alphabet/index.html' },
+      { source: '/kids-alphabet/', destination: '/kids-alphabet/index.html' },
     ];
   },
   async redirects() {
