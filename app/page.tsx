@@ -32,21 +32,21 @@ interface Project {
 const PROJECTS: Project[] = [
   {
     number: "01",
-    title: "Spark",
-    description:
-      "A learning platform built from a spark, to teach designers full-stack engineering. A course built for designers, by a designer, so they can build for themselves.",
-    href: "/spark",
-    external: false,
-    category: "Product · Education · Solo-built",
-  },
-  {
-    number: "02",
     title: "makeEbook",
     description:
       "AI-first eBook creation platform. Conversational writing assistant with multi-turn context, Claude API under the hood, designed and built solo.",
     href: "https://makeebook.ink",
     external: true,
     category: "Product · AI · Solo-built",
+  },
+  {
+    number: "02",
+    title: "Spark",
+    description:
+      "A learning platform built from a spark, to teach designers full-stack engineering. A course built for designers, by a designer, so they can build for themselves.",
+    href: "/spark",
+    external: false,
+    category: "Product · Education · Solo-built",
   },
   {
     number: "03",
@@ -59,21 +59,21 @@ const PROJECTS: Project[] = [
   },
   {
     number: "04",
-    title: "Icon Animator",
-    description:
-      "SVG icon animation presets with copy-ready CSS export. Pick an icon, pick a preset, tune the timing, ship. No install.",
-    href: "/icon-animator",
-    external: false,
-    category: "Tool · Front-end",
-  },
-  {
-    number: "05",
     title: "Promptr",
     description:
       "A prompt workshop. Rubric-based scoring turns fuzzy prompts into specific ones before you spend tokens running them.",
     href: "/promptr",
     external: false,
     category: "Tool · AI · UX",
+  },
+  {
+    number: "05",
+    title: "Icon Animator",
+    description:
+      "SVG icon animation presets with copy-ready CSS export. Pick an icon, pick a preset, tune the timing, ship. No install.",
+    href: "/icon-animator",
+    external: false,
+    category: "Tool · Front-end",
   },
   {
     number: "06",
@@ -133,7 +133,7 @@ export default function Homepage() {
 
       {/* Year corner */}
       <div
-        className="fixed top-6 right-6 z-10 text-white/40"
+        className="hidden sm:block fixed top-6 right-6 z-10 text-white/40"
         style={{
           fontSize: "0.75rem",
           fontFamily: "var(--font-inter)",
@@ -145,10 +145,10 @@ export default function Homepage() {
         26
       </div>
 
-      <div className="max-w-6xl mx-auto pl-6 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pt-24 lg:pt-12 pb-20">
-        <header className="mb-20">
+      <div className="max-w-6xl mx-auto pl-6 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pt-12 sm:pt-24 lg:pt-12 pb-20">
+        <header className="mb-10 sm:mb-20">
           {/* Eyebrow: logomark + hairline */}
-          <div className="mb-8 flex items-center gap-4">
+          <div className="mb-5 sm:mb-8 flex items-center gap-4">
             <Image
               src="/dark-neil-mcardle-logomark.svg"
               alt="Neil McArdle"
@@ -162,25 +162,25 @@ export default function Homepage() {
 
           {/* Hero grid — photo spans both rows on desktop so the link
               bar in row 2 col 1 aligns to the photo's bottom edge. */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 mb-8 sm:mb-12">
             <div>
               <h1
                 style={{
                   fontFamily: "var(--font-playfair)",
-                  fontSize: "clamp(3rem, 10vw, 4.5rem)",
+                  fontSize: "clamp(2.25rem, 11vw, 4.5rem)",
                   fontWeight: 900,
                   letterSpacing: "-0.03em",
                   lineHeight: "0.9",
                   textTransform: "uppercase",
                   color: "#ffffff",
-                  marginBottom: "1.5rem",
+                  marginBottom: "1.25rem",
                 }}
               >
                 NEIL
                 <br />
                 MCARDLE
               </h1>
-              <div className="border-2 border-white/80 p-6">
+              <div className="border-2 border-white/80 p-4 sm:p-6">
                 <p
                   style={{
                     fontFamily: "var(--font-inter)",
@@ -201,7 +201,7 @@ export default function Homepage() {
                 href="https://www.cal.eu/neilmca"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2 mt-6 px-5 py-3 border-2 border-white bg-white text-black hover:bg-transparent hover:text-white transition-all whitespace-nowrap"
+                className="group inline-flex items-center gap-2 mt-4 sm:mt-6 px-5 py-3 border-2 border-white bg-white text-black hover:bg-transparent hover:text-white transition-all whitespace-nowrap"
                 style={{
                   fontFamily: "var(--font-inter)",
                   fontSize: "0.75rem",
@@ -245,15 +245,6 @@ export default function Homepage() {
                 <span className="thinking-shimmer text-[11px] font-medium tracking-wide">
                   Thinking...
                 </span>
-              </div>
-              <div className="absolute -bottom-4 -right-4 w-32 h-32 border-4 border-white flex items-center justify-center bg-white">
-                <Image
-                  src="/neil-mcardle-logomark.svg"
-                  alt="Neil McArdle mark"
-                  width={64}
-                  height={64}
-                  className="w-16 h-16"
-                />
               </div>
             </div>
 
