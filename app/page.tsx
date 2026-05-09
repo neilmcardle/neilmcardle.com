@@ -84,6 +84,15 @@ const PROJECTS: Project[] = [
     external: false,
     category: "Tool · SVG · Drawing",
   },
+  {
+    number: "07",
+    title: "Kids Phonics",
+    description:
+      "A phonics game for toddlers. Tap a letter, swipe to the next, finish with a quick quiz. Mobile-first, so it works on tiny fingers.",
+    href: "/kids-phonics/",
+    external: true,
+    category: "Tool · Education · Solo-built",
+  },
 ];
 
 // Color lives on a className (`text-white`) not inline, so `hover:text-black`

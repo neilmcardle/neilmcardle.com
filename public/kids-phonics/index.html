@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#7b5cff" />
+<title>Phonics Adventure</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  html, body {
+    height: 100%;
+    overscroll-behavior: none;
+    background: #1a1d2e;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-weight: 800;
+    -webkit-font-smoothing: antialiased;
+    color: white;
+  }
+
+  .scroller {
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+  }
+  .scroller::-webkit-scrollbar { display: none; }
+
+  section {
+    height: 100vh;
+    height: 100dvh;
+    width: 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: calc(2rem + var(--safe-top)) 1.5rem calc(2rem + var(--safe-bottom));
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Top progress bar */
+  .progress {
+    position: fixed;
+    top: var(--safe-top);
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: rgba(255,255,255,0.18);
+    z-index: 100;
+  }
+  .progress > div {
+    height: 100%;
+    width: 0;
+    background: white;
+    border-radius: 0 999px 999px 0;
+    transition: width 0.25s ease-out;
+  }
+
+  /* ===== Welcome ===== */
+  .welcome { background: linear-gradient(135deg, #7b5cff 0%, #ff5cb1 100%); }
+  .welcome h1 {
+    font-size: clamp(2.5rem, 9vw, 5rem);
+    line-height: 1.05;
+    text-align: center;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .welcome p, .quiz-intro p.sub {
+    font-size: clamp(1rem, 3.2vw, 1.4rem);
+    opacity: 0.95;
+    margin-top: 0.75rem;
+    margin-bottom: 2.5rem;
+    text-align: center;
+  }
+  .track-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 420px;
+  }
+  @media (min-width: 720px) {
+    .track-btns { flex-direction: row; max-width: 720px; gap: 1.5rem; }
+  }
+  .track-btn {
+    flex: 1;
+    border: none;
+    border-radius: 28px;
+    padding: 1.6rem 1.4rem;
+    font-family: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 14px 36px rgba(0,0,0,0.25);
+    transition: transform 0.12s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    color: #1a1d2e;
+  }
+  .track-btn:active { transform: scale(0.97); }
+  .track-learn { background: white; }
+  .track-quiz  { background: #fde68a; }
+  .track-emoji { font-size: clamp(2.5rem, 8vw, 3.5rem); line-height: 1; }
+  .track-label { font-size: clamp(1.15rem, 3.6vw, 1.5rem); }
+  .track-sub   { font-size: clamp(0.85rem, 2.4vw, 1rem); opacity: 0.65; font-weight: 700; }
+  .play-btn {
+    width: clamp(140px, 40vw, 200px);
+    height: clamp(140px, 40vw, 200px);
+    border-radius: 50%;
+    border: none;
+    background: white;
+    color: #7b5cff;
+    font-size: clamp(3.5rem, 12vw, 5.5rem);
+    cursor: pointer;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: pulse 2s ease-in-out infinite;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 0.5rem;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    50%     { transform: scale(1.06); box-shadow: 0 25px 80px rgba(0,0,0,0.4); }
+  }
+
+  /* ===== Letter card ===== */
+  .letter-card { color: white; text-align: center; transition: background 0.4s; }
+  .big-letter {
+    font-size: clamp(10rem, 42vw, 20rem);
+    line-height: 0.9;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease;
+    filter: drop-shadow(0 12px 24px rgba(0,0,0,0.25));
+    will-change: transform;
+  }
+  .big-letter:active { transform: scale(0.92); }
+  .big-letter.bounce { animation: bounce 0.5s ease; }
+  @keyframes bounce {
+    0%,100% { transform: scale(1); }
+    30%     { transform: scale(1.15); }
+    60%     { transform: scale(0.95); }
+  }
+  .emoji {
+    font-size: clamp(3.5rem, 14vw, 6.5rem);
+    margin-top: 0.6rem;
+    line-height: 1;
+  }
+  .word {
+    font-size: clamp(1.7rem, 6vw, 3rem);
+    margin-top: 0.4rem;
+  }
+  .hint {
+    margin-top: 1.5rem;
+    font-weight: 700;
+    font-size: clamp(0.9rem, 2.6vw, 1.1rem);
+    opacity: 0.9;
+    color: white;
+  }
+
+  /* ===== Quiz intro & milestone ===== */
+  .quiz-intro { background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%); }
+  .quiz-intro h1 {
+    font-size: clamp(2.5rem, 9vw, 5rem);
+    line-height: 1.05;
+    text-align: center;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .milestone { background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); }
+  .milestone h1 {
+    font-size: clamp(2.5rem, 9vw, 5rem);
+    text-align: center;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .milestone .sub {
+    font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  /* ===== Game ===== */
+  .game { background: #1a1d2e; }
+  .quiz-counter {
+    position: absolute;
+    top: calc(1.25rem + var(--safe-top));
+    font-size: 0.95rem;
+    font-weight: 800;
+    opacity: 0.65;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .game h2 {
+    font-size: clamp(1.5rem, 5vw, 2.4rem);
+    margin-bottom: 0.25rem;
+    text-align: center;
+  }
+  .game .prompt-emoji {
+    font-size: clamp(4.5rem, 18vw, 8.5rem);
+    margin: 1rem 0 0.5rem;
+    line-height: 1;
+    animation: float 2.4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-10px); }
+  }
+  .game p { opacity: 0.85; font-size: 1rem; text-align: center; margin-bottom: 1.5rem; }
+  .game-options {
+    display: flex;
+    gap: clamp(0.6rem, 2vw, 1.2rem);
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+  .game-btn {
+    width: clamp(82px, 24vw, 150px);
+    height: clamp(82px, 24vw, 150px);
+    border: none;
+    border-radius: 24px;
+    font-size: clamp(2.6rem, 10vw, 5rem);
+    font-weight: 800;
+    font-family: inherit;
+    background: white;
+    color: #1a1d2e;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    transition: transform 0.12s, background 0.2s, color 0.2s;
+  }
+  .game-btn:active { transform: scale(0.94); }
+  .game-btn.correct { background: #4ade80; color: white; animation: pop 0.5s; }
+  .game-btn.wrong { background: #f87171; color: white; animation: shake 0.4s; }
+  @keyframes pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.25); }
+    70%  { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-12px); }
+    40%     { transform: translateX(12px); }
+    60%     { transform: translateX(-8px); }
+    80%     { transform: translateX(8px); }
+  }
+
+  /* ===== Celebration ===== */
+  .celebrate { background: linear-gradient(135deg, #fbbf24 0%, #f97316 50%, #ec4899 100%); }
+  .celebrate h1 {
+    font-size: clamp(3rem, 11vw, 6rem);
+    text-align: center;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .celebrate .sub {
+    font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+  .stars { font-size: clamp(3rem, 10vw, 5rem); margin: 1.5rem 0; animation: spin 6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .replay {
+    margin-top: 1rem;
+    padding: 1rem 2.2rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+    font-family: inherit;
+    border: none;
+    border-radius: 999px;
+    background: white;
+    color: #ec4899;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  }
+  .replay:active { transform: scale(0.96); }
+  .milestone .replay { color: #10b981; }
+  .replay.ghost {
+    background: rgba(255,255,255,0.18);
+    color: white;
+    box-shadow: none;
+    margin-top: 0.5rem;
+  }
+
+  /* ===== Hints / next ===== */
+  .scroll-hint {
+    position: absolute;
+    bottom: calc(1.5rem + var(--safe-bottom));
+    font-size: 0.95rem;
+    opacity: 0.85;
+    color: white;
+    text-align: center;
+    animation: bob 1.6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes bob {
+    0%,100% { transform: translateY(0); opacity: 0.6; }
+    50%     { transform: translateY(8px); opacity: 1; }
+  }
+
+  .next-btn {
+    position: absolute;
+    bottom: calc(1.5rem + var(--safe-bottom));
+    padding: 0.85rem 1.7rem;
+    font-size: 1rem;
+    font-weight: 800;
+    font-family: inherit;
+    border: none;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.95);
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+    transition: transform 0.12s;
+  }
+  .next-btn:active { transform: scale(0.96); }
+
+  /* ===== Confetti ===== */
+  .confetti {
+    position: fixed;
+    pointer-events: none;
+    inset: 0;
+    overflow: hidden;
+    z-index: 50;
+  }
+  .confetti span {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    top: -20px;
+    opacity: 0.95;
+    border-radius: 2px;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"><div id="progressBar"></div></div>
+  <main class="scroller" id="scroller"></main>
+
+<script>
+  const letters = [
+    { letter: 'A', sound: 'aah',   word: 'Apple',    emoji: '🍎', color: '#ef4444' },
+    { letter: 'B', sound: 'buh',   word: 'Ball',     emoji: '⚽', color: '#3b82f6' },
+    { letter: 'C', sound: 'kuh',   word: 'Cat',      emoji: '🐱', color: '#8b5cf6' },
+    { letter: 'D', sound: 'duh',   word: 'Dog',      emoji: '🐶', color: '#10b981' },
+    { letter: 'E', sound: 'eh',    word: 'Egg',      emoji: '🥚', color: '#f59e0b' },
+    { letter: 'F', sound: 'fff',   word: 'Fish',     emoji: '🐟', color: '#06b6d4' },
+    { letter: 'G', sound: 'guh',   word: 'Goat',     emoji: '🐐', color: '#84cc16' },
+    { letter: 'H', sound: 'huh',   word: 'Hat',      emoji: '🎩', color: '#ec4899' },
+    { letter: 'I', sound: 'ih',    word: 'Ice',      emoji: '🧊', color: '#0ea5e9' },
+    { letter: 'J', sound: 'juh',   word: 'Jar',      emoji: '🫙', color: '#dc2626' },
+    { letter: 'K', sound: 'kuh',   word: 'Kite',     emoji: '🪁', color: '#7c3aed' },
+    { letter: 'L', sound: 'lll',   word: 'Lion',     emoji: '🦁', color: '#f97316' },
+    { letter: 'M', sound: 'mmm',   word: 'Moon',     emoji: '🌙', color: '#6366f1' },
+    { letter: 'N', sound: 'nnn',   word: 'Nest',     emoji: '🪺', color: '#a855f7' },
+    { letter: 'O', sound: 'ah',    word: 'Octopus',  emoji: '🐙', color: '#e11d48' },
+    { letter: 'P', sound: 'puh',   word: 'Pig',      emoji: '🐷', color: '#f472b6' },
+    { letter: 'Q', sound: 'kwuh',  word: 'Queen',    emoji: '🫅‍♀️', color: '#9333ea' },
+    { letter: 'R', sound: 'rrr',   word: 'Rainbow',  emoji: '🌈', color: '#14b8a6' },
+    { letter: 'S', sound: 'sss',   word: 'Sun',      emoji: '☀️', color: '#eab308' },
+    { letter: 'T', sound: 'tuh',   word: 'Tiger',    emoji: '🐯', color: '#ea580c' },
+    { letter: 'U', sound: 'uh',    word: 'Umbrella', emoji: '☂️', color: '#0891b2' },
+    { letter: 'V', sound: 'vvv',   word: 'Van',      emoji: '🚐', color: '#22c55e' },
+    { letter: 'W', sound: 'wuh',   word: 'Whale',    emoji: '🐳', color: '#0284c7' },
+    { letter: 'X', sound: 'ks',    word: 'X-ray',    emoji: '🩻', color: '#a16207' },
+    { letter: 'Y', sound: 'yuh',   word: 'Yo-yo',    emoji: '🪀', color: '#fbbf24' },
+    { letter: 'Z', sound: 'zzz',   word: 'Zebra',    emoji: '🦓', color: '#475569' }
+  ];
+
+  // ===== DOM helpers =====
+  function el(tag, opts) {
+    opts = opts || {};
+    const e = document.createElement(tag);
+    if (opts.cls)  e.className = opts.cls;
+    if (opts.html) e.innerHTML = opts.html;
+    if (opts.text) e.textContent = opts.text;
+    if (opts.style) Object.assign(e.style, opts.style);
+    if (opts.on) for (const k in opts.on) e.addEventListener(k, opts.on[k]);
+    return e;
+  }
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  const scroller = document.getElementById('scroller');
+
+  // ===== Welcome =====
+  const welcome = el('section', { cls: 'welcome' });
+  welcome.innerHTML = '<h1>Phonics<br/>Adventure 🎉</h1><p>Pick a track to start!</p>';
+  const trackBtns = el('div', { cls: 'track-btns' });
+  const learnBtn = el('button', { cls: 'track-btn track-learn', html: '<span class="track-emoji">🔤</span><span class="track-label">Learn the Letters</span><span class="track-sub">A to Z</span>', on: {
+    click: () => {
+      playTrackChime();
+      const first = scroller.querySelector('.letter-card');
+      if (first) first.scrollIntoView({ behavior: 'auto' });
+    }
+  }});
+  const quizBtn = el('button', { cls: 'track-btn track-quiz', html: '<span class="track-emoji">🎯</span><span class="track-label">Quiz Time</span><span class="track-sub">Find the letter</span>', on: {
+    click: () => {
+      playTrackChime();
+      const first = scroller.querySelector('.quiz-intro');
+      if (first) first.scrollIntoView({ behavior: 'auto' });
+    }
+  }});
+  trackBtns.appendChild(learnBtn);
+  trackBtns.appendChild(quizBtn);
+  welcome.appendChild(trackBtns);
+  scroller.appendChild(welcome);
+
+  // ===== Letter sections =====
+  letters.forEach((l, i) => {
+    const sec = el('section', { cls: 'letter-card', style: { background: l.color } });
+    sec.dataset.letterIndex = i;
+
+    const big = el('div', { cls: 'big-letter', text: l.letter });
+    big.setAttribute('role', 'button');
+    big.setAttribute('aria-label', 'Letter ' + l.letter);
+    big.addEventListener('click', () => {
+      big.classList.remove('bounce');
+      void big.offsetWidth;
+      big.classList.add('bounce');
+    });
+
+    sec.appendChild(big);
+    sec.appendChild(el('div', { cls: 'emoji', text: l.emoji }));
+    sec.appendChild(el('div', { cls: 'word',  text: l.word  }));
+    sec.appendChild(el('div', { cls: 'hint',  text: 'Tap the letter!' }));
+
+    const next = el('button', { cls: 'next-btn', text: 'Next →', on: {
+      click: () => scroller.scrollBy({ top: window.innerHeight, behavior: 'smooth' })
+    }});
+    next.style.color = l.color;
+    sec.appendChild(next);
+
+    scroller.appendChild(sec);
+  });
+
+  // ===== Letters-track milestone =====
+  const lettersDone = el('section', { cls: 'milestone' });
+  lettersDone.innerHTML = '<div class="stars">⭐️🌟⭐️</div><h1>Letters Done!</h1><div class="sub">You know your A B Cs!</div>';
+  const goQuiz = el('button', { cls: 'replay', text: 'Try the Quiz →', on: {
+    click: () => {
+      const first = scroller.querySelector('.quiz-intro');
+      if (first) first.scrollIntoView({ behavior: 'smooth' });
+    }
+  }});
+  const backHomeFromLetters = el('button', { cls: 'replay ghost', text: 'Back to start', on: {
+    click: () => scroller.scrollTo({ top: 0, behavior: 'auto' })
+  }});
+  lettersDone.appendChild(goQuiz);
+  lettersDone.appendChild(backHomeFromLetters);
+  scroller.appendChild(lettersDone);
+
+  // ===== Quiz track =====
+  const quizIntro = el('section', { cls: 'quiz-intro' });
+  quizIntro.innerHTML = '<h1>Quiz Time! 🎯</h1><p class="sub">Find the right letter!</p>';
+  const startQuiz = el('button', { cls: 'play-btn', html: '▶', on: {
+    click: () => {
+      resetQuiz();
+      scroller.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+    }
+  }});
+  startQuiz.setAttribute('aria-label', 'Start quiz');
+  quizIntro.appendChild(startQuiz);
+  scroller.appendChild(quizIntro);
+
+  // 10 quiz questions, evenly sampled across the alphabet
+  const quizTargets = shuffle(letters.slice()).slice(0, 10);
+  quizTargets.forEach((target, qi) => {
+    scroller.appendChild(buildGame(target, qi + 1, quizTargets.length));
+  });
+
+  function buildGame(target, qNum, qTotal) {
+    const others = letters.filter(x => x.letter !== target.letter);
+    shuffle(others);
+    const choices = shuffle([target, others[0], others[1]]);
+
+    const sec = el('section', { cls: 'game' });
+    sec.dataset.gameTarget = target.letter;
+    sec.dataset.gameWord   = target.word;
+    // solved lives on the element so resetQuiz() can clear it
+    sec.dataset.solved = 'false';
+
+    sec.appendChild(el('div', { cls: 'quiz-counter', text: 'Question ' + qNum + ' of ' + qTotal }));
+    sec.appendChild(el('h2', { text: 'Find the letter!' }));
+    sec.appendChild(el('div', { cls: 'prompt-emoji', text: target.emoji }));
+    sec.appendChild(el('p', { text: target.word + ' starts with...' }));
+
+    const opts = el('div', { cls: 'game-options' });
+    choices.forEach(c => {
+      const b = el('button', { cls: 'game-btn', text: c.letter, on: {
+        click: () => {
+          if (sec.dataset.solved === 'true') return;
+          if (c.letter === target.letter) {
+            sec.dataset.solved = 'true';
+            b.classList.add('correct');
+            playSparkle();
+            setTimeout(() => scroller.scrollBy({ top: window.innerHeight, behavior: 'smooth' }), 1200);
+          } else {
+            b.classList.add('wrong');
+            setTimeout(() => b.classList.remove('wrong'), 600);
+          }
+        }
+      }});
+      b.setAttribute('aria-label', 'Letter ' + c.letter);
+      opts.appendChild(b);
+    });
+    sec.appendChild(opts);
+    return sec;
+  }
+
+  function resetQuiz() {
+    scroller.querySelectorAll('.game').forEach(sec => {
+      sec.dataset.solved = 'false';
+      sec.querySelectorAll('.game-btn').forEach(b => {
+        b.classList.remove('correct', 'wrong');
+      });
+    });
+  }
+
+  // ===== Final celebration =====
+  const celebrate = el('section', { cls: 'celebrate' });
+  celebrate.innerHTML = '<div class="stars">⭐️🌟⭐️</div><h1>You did it! 🎉</h1><div class="sub">Quiz complete!</div>';
+  const replay = el('button', { cls: 'replay', text: 'Play again ↻', on: {
+    click: () => {
+      resetQuiz();
+      scroller.scrollTo({ top: 0, behavior: 'auto' });
+    }
+  }});
+  celebrate.appendChild(replay);
+  scroller.appendChild(celebrate);
+
+  // ===== Progress =====
+  const progressBar = document.getElementById('progressBar');
+  function updateProgress() {
+    const sc  = scroller.scrollTop;
+    const max = scroller.scrollHeight - scroller.clientHeight;
+    progressBar.style.width = (max > 0 ? (sc / max) * 100 : 0) + '%';
+  }
+  scroller.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  // ===== Sounds =====
+  // three-tone chime when user picks a track on the welcome screen;
+  // bubble-pop on each new letter or quiz question;
+  // sparkle on a correct quiz answer;
+  // applause when they finish the alphabet or the quiz.
+  const trackChime = new Audio('/kids-phonics/sounds/three-tone-sucess.mp3');
+  const bubblePop  = new Audio('/kids-phonics/sounds/bubble-pop.mp3');
+  const sparkle    = new Audio('/kids-phonics/sounds/sparkle.mp3');
+  const applause   = new Audio('/kids-phonics/sounds/applause-task-done.mp3');
+  trackChime.preload = 'auto';
+  bubblePop.preload  = 'auto';
+  sparkle.preload    = 'auto';
+  applause.preload   = 'auto';
+  function playSound(audio) {
+    try {
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    } catch (e) {}
+  }
+  function playApplause()   { playSound(applause); }
+  function playTrackChime() { playSound(trackChime); }
+  function playBubblePop()  { playSound(bubblePop); }
+  function playSparkle()    { playSound(sparkle); }
+
+  let currentSection = null;
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting && e.intersectionRatio > 0.6) {
+        if (currentSection === e.target) continue;
+        currentSection = e.target;
+
+        const sec = e.target;
+        if (sec.classList.contains('letter-card') || sec.classList.contains('game')) {
+          playBubblePop();
+        } else if (sec.classList.contains('milestone')) {
+          playApplause();
+          launchConfetti();
+        } else if (sec.classList.contains('celebrate')) {
+          playApplause();
+          launchConfetti();
+        }
+      }
+    }
+  }, { root: scroller, threshold: [0, 0.6, 1] });
+
+  document.querySelectorAll('section').forEach(s => io.observe(s));
+
+  function launchConfetti() {
+    const wrap = el('div', { cls: 'confetti' });
+    const colors = ['#fbbf24','#ef4444','#3b82f6','#10b981','#a855f7','#ec4899','#06b6d4'];
+    for (let i = 0; i < 90; i++) {
+      const s = el('span');
+      s.style.left = (Math.random() * 100) + 'vw';
+      s.style.background = colors[Math.floor(Math.random() * colors.length)];
+      s.style.animationDelay = (Math.random() * 1.5) + 's';
+      s.style.animationDuration = (2 + Math.random() * 2.2) + 's';
+      wrap.appendChild(s);
+    }
+    document.body.appendChild(wrap);
+    setTimeout(() => wrap.remove(), 5500);
+  }
+</script>
+</body>
+</html>
