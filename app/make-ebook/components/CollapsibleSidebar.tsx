@@ -11,6 +11,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import LibraryPanel from './sidebar/LibraryPanel';
 import BookDetailsPanel from './sidebar/BookDetailsPanel';
 import ChaptersPanel from './sidebar/ChaptersPanel';
+import SyncConflictBanner from './sidebar/SyncConflictBanner';
+import { BookRecord } from '../types';
 
 interface Chapter {
   id: string;
@@ -53,6 +55,11 @@ interface CollapsibleSidebarProps {
   toggleBookSelection: (id: string) => void;
   toggleSelectAll: () => void;
   handleDeleteSelectedBooks: () => void;
+
+  // Cloud sync conflict resolution — rendered above the library list when
+  // present. Replaces the old blocking modal that fired on every login.
+  syncConflicts: { local: BookRecord; cloud: BookRecord }[];
+  onResolveSyncConflict: (choice: 'local' | 'cloud' | 'both') => void;
 
   // Chapters props
   chapters: Chapter[];
@@ -203,7 +210,12 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         {/* Scrollable content area — exactly one panel is rendered based on activeView */}
         <div className="flex-1 overflow-y-auto px-4 pb-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#C0C0C0] hover:scrollbar-thumb-[#C0C0C0] dark:scrollbar-thumb-[#C0C0C0] dark:hover:scrollbar-thumb-[#C0C0C0]">
           {activeView === 'library' && (
-            <LibraryPanel
+            <>
+              <SyncConflictBanner
+                conflicts={props.syncConflicts}
+                onResolve={props.onResolveSyncConflict}
+              />
+              <LibraryPanel
               libraryBooks={props.libraryBooks}
               selectedBookId={props.selectedBookId}
               setSelectedBookId={props.setSelectedBookId}
@@ -218,6 +230,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               toggleSelectAll={props.toggleSelectAll}
               handleDeleteSelectedBooks={props.handleDeleteSelectedBooks}
             />
+            </>
           )}
 
           {activeView === 'book' && (

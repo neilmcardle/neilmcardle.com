@@ -12,6 +12,7 @@ import React from 'react';
 import SlimSidebarNav from './SlimSidebarNav';
 import CollapsibleSidebar from './CollapsibleSidebar';
 import type { RightPanelMode } from './LayoutSwitcher';
+import type { BookRecord } from '../types';
 
 interface Chapter {
   id: string;
@@ -56,6 +57,10 @@ export interface EditorLeftNavProps {
   toggleBookSelection: (id: string) => void;
   toggleSelectAll: () => void;
   handleDeleteSelectedBooks: () => void;
+
+  // Cloud sync conflicts (replaces the old login-blocking modal)
+  syncConflicts: { local: BookRecord; cloud: BookRecord }[];
+  onResolveSyncConflict: (choice: 'local' | 'cloud' | 'both') => void;
 
   // Chapters
   chapters: Chapter[];
@@ -126,6 +131,7 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         onStartTour={props.onStartTour}
         onBookMindToggle={props.onBookMindToggle}
         isBookMindOpen={props.rightPanelMode === 'inspector'}
+        hasSyncConflicts={props.syncConflicts.length > 0}
       />
 
       <CollapsibleSidebar
@@ -145,6 +151,8 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         toggleBookSelection={props.toggleBookSelection}
         toggleSelectAll={props.toggleSelectAll}
         handleDeleteSelectedBooks={props.handleDeleteSelectedBooks}
+        syncConflicts={props.syncConflicts}
+        onResolveSyncConflict={props.onResolveSyncConflict}
         chapters={props.chapters}
         selectedChapter={props.selectedChapter}
         handleSelectChapter={props.handleSelectChapter}

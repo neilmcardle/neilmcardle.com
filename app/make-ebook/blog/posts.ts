@@ -176,7 +176,7 @@ export const posts: BlogPost[] = [
       'free ebook software',
       'Vellum vs Atticus',
     ],
-    image: '/ebook-tools-comparison.png',
+    image: '/blog/ebook-tools-comparison.png',
     imageAlt: 'Ink drawing of five writing implements arranged in a row: quill, typewriter, fountain pen, stylus, pencil.',
     content: `
       <p class="lead">Choosing the right ebook creation tool can make the difference between a frustrating process and a smooth path to publication. Here's an honest comparison of the best options available today.</p>
@@ -334,8 +334,8 @@ export const posts: BlogPost[] = [
       'Scrivener alternative for Mac',
       'Scrivener alternative for Windows',
     ],
-    // image: '/blog/free-scrivener-alternatives.png',
-    // imageAlt: 'Ink drawing of a single key resting next to an open notebook.',
+    image: '/blog/five-alternatives.png',
+    imageAlt: 'Ink illustration representing five Scrivener alternatives for self-publishing authors.',
     content: `
       <p class="lead">Scrivener is a classic, but it isn't right for everyone. If you're hunting for a simpler, cheaper, or browser-based Scrivener alternative, here are the five best options in 2026, including two that are completely free.</p>
 
@@ -495,8 +495,8 @@ export const posts: BlogPost[] = [
       'ebook cover software',
       'KDP cover dimensions',
     ],
-    // image: '/blog/how-to-create-an-ebook-cover.png',
-    // imageAlt: 'Ink drawing of a small easel holding a closed book, with a thin brush resting beside it.',
+    image: '/blog/how-create-ebook-cover.png',
+    imageAlt: 'Ink drawing of a large, closed leatherbound book standing upright with drawing tools and sketches on the table surrounding it.',
     content: `
       <p class="lead">Your cover does more work than any other piece of your ebook. It's the thumbnail on Amazon, the icon on a reader's shelf, and the image every single potential buyer sees before reading a word. Here's how to design one that earns the click.</p>
 

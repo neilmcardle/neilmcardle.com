@@ -27,6 +27,7 @@ interface SlimSidebarNavProps {
   onStartTour?: () => void;
   onBookMindToggle?: () => void;
   isBookMindOpen?: boolean;
+  hasSyncConflicts?: boolean;
 }
 
 // Tooltip Component
@@ -243,7 +244,7 @@ function ThemeToggleButton() {
   );
 }
 
-export default function SlimSidebarNav({ activeView, onViewChange, libraryCount, chaptersCount, isPanelOpen, onLogoClick, onStartTour, onBookMindToggle, isBookMindOpen }: SlimSidebarNavProps) {
+export default function SlimSidebarNav({ activeView, onViewChange, libraryCount, chaptersCount, isPanelOpen, onLogoClick, onStartTour, onBookMindToggle, isBookMindOpen, hasSyncConflicts }: SlimSidebarNavProps) {
   
   const handleViewClick = (view: 'library' | 'book' | 'chapters') => {
     // If clicking the same view and panel is open, close it
@@ -280,19 +281,25 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
       {/* Navigation Items */}
       <nav className="flex-1 flex flex-col gap-2 w-full px-2 pt-1 overflow-y-auto">
         {/* Library */}
-        <Tooltip text="Library">
+        <Tooltip text={hasSyncConflicts ? 'Library — action needed' : 'Library'}>
           <button
             onClick={() => handleViewClick('library')}
             className="relative flex flex-col items-center w-full py-1.5 rounded-lg group outline-none focus:outline-none"
-            aria-label="Library"
+            aria-label={hasSyncConflicts ? 'Library — action needed' : 'Library'}
           >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80 ${activeView === 'library' && isPanelOpen ? 'bg-[#4070ff]/12' : ''}`}>
+            <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80 ${activeView === 'library' && isPanelOpen ? 'bg-[#4070ff]/12' : ''}`}>
               <svg className={`w-5 h-5 transition-colors ${activeView === 'library' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-500 dark:text-[#737373]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <rect x="4" y="4" width="3" height="16" rx="0.5" />
                 <rect x="10" y="7" width="3" height="13" rx="0.5" />
                 <rect x="16" y="5" width="3" height="15" rx="0.5" />
                 <path d="M3 20h18" />
               </svg>
+              {hasSyncConflicts && (
+                <span
+                  aria-hidden
+                  className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-[#1e1e1e]"
+                />
+              )}
             </div>
             <span className={`text-2xs font-medium -mt-2 transition-colors group-hover:opacity-80 ${activeView === 'library' && isPanelOpen ? 'text-[#4070ff]' : 'text-gray-400 dark:text-[#525252]'}`}>
               Library{libraryCount > 0 ? ` (${libraryCount})` : ''}

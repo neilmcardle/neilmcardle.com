@@ -29,6 +29,7 @@ import { useBookState } from "./hooks/useBookState";
 import { autoFixAllChapters } from "./utils/typographyFixer";
 import RichTextEditor from "./components/RichTextEditor";
 import EditorLeftNav from "./components/EditorLeftNav";
+import SyncConflictBanner from "./components/sidebar/SyncConflictBanner";
 import InspectorPanel from "./components/bookmind/InspectorPanel";
 import InlineEditPopover, { InlineEditRequest } from "./components/bookmind/InlineEditPopover";
 import ComposePalette, { ComposePaletteRequest } from "./components/bookmind/ComposePalette";
@@ -65,7 +66,7 @@ import { loadBookLibrary, saveBookToLibrary, loadBookById } from "./utils/bookLi
 import { ensureAnalyticalCache } from "./utils/analyticalCache";
 import type { AnalyticalKind } from "./utils/bookmindMemory";
 // Extracted utilities & components
-import { formatRelativeTime, getContentChapterNumber } from "./utils/pageUtils";
+import { getContentChapterNumber } from "./utils/pageUtils";
 import { ChapterCapsuleMarker } from "./components/ChapterCapsuleMarker";
 import { HandleDragIcon } from "./components/HandleDragIcon";
 import { MobilePreviewModal, mobileDeviceDimensions } from "./components/MobilePreviewModal";
@@ -1289,6 +1290,9 @@ function MakeEbookPage() {
                         </svg>
                         <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
                         <span className="text-xs text-gray-600 dark:text-gray-400">({libraryBooks.length})</span>
+                        {cloudSync.syncConflicts.length > 0 && (
+                          <span aria-label="Action needed" className="w-2 h-2 rounded-full bg-red-500" />
+                        )}
                       </div>
                       {sidebarLibraryExpanded ? (
                         <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
@@ -1299,6 +1303,10 @@ function MakeEbookPage() {
 
                     {sidebarLibraryExpanded && (
                       <>
+                        <SyncConflictBanner
+                          conflicts={cloudSync.syncConflicts}
+                          onResolve={cloudSync.handleResolveSyncConflict}
+                        />
                         {/* Action buttons */}
                         <div className="flex items-center gap-1 pb-2 mb-1 border-b border-gray-100 dark:border-gray-800">
                           {libraryBooks.length > 0 && (
@@ -2284,6 +2292,8 @@ function MakeEbookPage() {
               toggleBookSelection={library.toggleBookSelection}
               toggleSelectAll={library.toggleSelectAll}
               handleDeleteSelectedBooks={library.handleDeleteSelectedBooks}
+              syncConflicts={cloudSync.syncConflicts}
+              onResolveSyncConflict={cloudSync.handleResolveSyncConflict}
               chapters={chapters}
               selectedChapter={selectedChapter}
               handleSelectChapter={handleSelectChapter}
@@ -2731,50 +2741,10 @@ function MakeEbookPage() {
         onCancel={() => setDialogState(prev => ({ ...prev, open: false }))}
       />
 
-      {/* Sync Conflict Resolution Dialog */}
-      {cloudSync.syncConflicts.length > 0 && cloudSync.syncConflicts[0] && (
-        <div className="fixed inset-0 z-[150] bg-black/30 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl p-6 max-w-md w-full animate-in fade-in zoom-in-95 duration-150">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">Sync Conflict</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              &ldquo;{cloudSync.syncConflicts[0].local.title || 'Untitled'}&rdquo; was edited on this device and another.
-              {cloudSync.syncConflicts.length > 1 && ` (${cloudSync.syncConflicts.length} conflicts)`}
-            </p>
-            <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
-              <div className="p-3 rounded-lg bg-gray-50 dark:bg-[#262626]">
-                <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">This device</p>
-                <p className="text-gray-500 dark:text-gray-400">{cloudSync.syncConflicts[0].local.chapters.length} chapters</p>
-                <p className="text-gray-500 dark:text-gray-400">Saved {formatRelativeTime(cloudSync.syncConflicts[0].local.savedAt)}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-gray-50 dark:bg-[#262626]">
-                <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Cloud</p>
-                <p className="text-gray-500 dark:text-gray-400">{cloudSync.syncConflicts[0].cloud.chapters.length} chapters</p>
-                <p className="text-gray-500 dark:text-gray-400">Saved {formatRelativeTime(cloudSync.syncConflicts[0].cloud.savedAt)}</p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={() => cloudSync.handleResolveSyncConflict('cloud')}
-                className="w-full px-4 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-              >
-                Keep cloud version
-              </button>
-              <button
-                onClick={() => cloudSync.handleResolveSyncConflict('local')}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#2f2f2f] text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-              >
-                Keep this device&apos;s version
-              </button>
-              <button
-                onClick={() => cloudSync.handleResolveSyncConflict('both')}
-                className="w-full px-4 py-2 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-              >
-                Keep both (creates a copy)
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Sync conflict resolution lives inline in the Library panel now —
+          a red dot on the Library sidebar icon flags that action is needed.
+          The old blocking modal was annoying users on every login. See
+          SyncConflictBanner + SlimSidebarNav. */}
 
       {/* Onboarding Tour */}
       <OnboardingTour
