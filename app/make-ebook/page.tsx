@@ -2589,7 +2589,10 @@ function MakeEbookPage() {
                   versionCount={versions.length}
                   exportCount={exportHistory.length}
                   onShowHistory={() => setHistoryModal('versions')}
+                  focusActive={focus.active}
                   onToggleFocusMode={focus.toggleFocusMode}
+                  flowMode={flowMode}
+                  onToggleFlowMode={handleToggleFlowMode}
                   rightPanelMode={rightPanelMode}
                   onRightPanelModeChange={setRightPanelMode}
                   onExportEPUB={() => setPreflightFormat('epub')}
@@ -2643,8 +2646,6 @@ function MakeEbookPage() {
                 setSelectedChapter(chapters.length);
                 toast.success('AI Disclosure chapter added');
               }}
-              flowMode={flowMode}
-              onToggleFlowMode={handleToggleFlowMode}
               isPro={isPro}
               onUpgrade={() => setExportUpgradeOpen(true)}
             />

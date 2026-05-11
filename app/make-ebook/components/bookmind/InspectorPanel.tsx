@@ -26,8 +26,6 @@ interface InspectorPanelProps {
   onNavigateToChapter?: (chapterIndex: number) => void;
   onRefreshAnalytical?: (kind: AnalyticalKind) => void;
   onAddDisclosureChapter?: (content: string) => void;
-  flowMode?: boolean;
-  onToggleFlowMode?: () => void;
   isPro?: boolean;
   onUpgrade?: () => void;
 }
@@ -119,38 +117,8 @@ export default function InspectorPanel(props: InspectorPanelProps) {
             </button>
           </div>
         )}
-        {/* Flow mode toggle — right-aligned with info tooltip */}
-        {isPro && props.onToggleFlowMode && (
-          <div className="flex-shrink-0 flex items-center justify-end gap-2 px-4 py-1.5 bg-gray-50 dark:bg-[#181818] border-b border-gray-100 dark:border-[#262626]">
-            <span className="group relative">
-              <svg className="w-3 h-3 text-gray-300 dark:text-[#525252] cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              <span className="absolute top-full right-0 mt-1.5 w-48 px-3 py-2 rounded-lg bg-gray-900 dark:bg-[#2a2a2a] text-white text-[10px] leading-snug shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                Suggests the next sentence as you write. Pauses for 4 seconds at the end of a sentence, then offers a continuation you can accept with Tab.
-              </span>
-            </span>
-            <span className="text-2xs text-gray-400 dark:text-[#737373]">Flow mode</span>
-            <button
-              onClick={props.onToggleFlowMode}
-              className={`relative w-8 h-4 rounded-full transition-colors ${
-                props.flowMode
-                  ? "bg-[#4070ff]"
-                  : "bg-gray-300 dark:bg-[#3a3a3a]"
-              }`}
-              title={props.flowMode ? "Turn off Flow mode" : "Turn on Flow mode"}
-              aria-label="Toggle Flow mode"
-            >
-              <span
-                className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-transform ${
-                  props.flowMode ? "translate-x-4" : ""
-                }`}
-              />
-            </button>
-          </div>
-        )}
+        {/* Flow mode toggle moved to the editor toolbar's Mode menu —
+            see app/make-ebook/components/ModeMenu.tsx. */}
         <TabsList className="flex-shrink-0 h-11 w-full justify-start gap-0 bg-gray-50 dark:bg-[#181818] border-b border-gray-200 dark:border-[#2f2f2f] rounded-none p-0 mt-0">
           {visibleTabs.map((tab) => (
             <TabsTrigger

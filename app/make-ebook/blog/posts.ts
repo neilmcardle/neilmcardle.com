@@ -599,8 +599,8 @@ export const posts: BlogPost[] = [
       'AI editing tools',
       'AI content editor',
     ],
-    // image: '/blog/ai-manuscript-analysis.png',
-    // imageAlt: 'Ink drawing of a magnifying glass over a page of text with small ticks floating above flagged phrases.',
+    image: '/blog/using-ai-improve-ebook-manuscript.png',
+    imageAlt: 'Ink drawing of a magnifying glass over a page of text with small ticks floating above flagged phrases.',
     content: `
       <p class="lead">AI doesn't replace editors, and it doesn't write books that sell. What it does, when used well, is make you a more disciplined self-editor. Here's a practical guide to using AI on your ebook manuscript without surrendering your voice.</p>
 
@@ -701,8 +701,8 @@ export const posts: BlogPost[] = [
       'offline writing software',
       'best offline writing apps',
     ],
-    // image: '/blog/best-offline-ebook-editors.png',
-    // imageAlt: 'Ink drawing of an aeroplane window view with a notebook on the tray table and a pen resting on it.',
+    image: '/blog/best-offline-ebook-editors.png',
+    imageAlt: 'Ink drawing of an aeroplane window view with a notebook on the tray table and a pen resting on it.',
     content: `
       <p class="lead">Not every writing session happens with reliable internet. Flights, hotel rooms, cabins, co-working spots with flaky wifi. An ebook editor that stops working when your connection drops is a real problem. Here are the best offline ebook editors in 2026.</p>
 
@@ -841,8 +841,8 @@ export const posts: BlogPost[] = [
       'subscription vs one-time payment',
       'writing tools pricing',
     ],
-    // image: '/blog/lifetime-license-vs-subscription.png',
-    // imageAlt: 'Ink drawing of a wax seal being pressed onto a document with a small torn calendar page curling at the corner.',
+    image: '/blog/lifetime-license-vs-subscription.png',
+    imageAlt: 'Ink drawing of a wax seal being pressed onto a document with a small torn calendar page curling at the corner.',
     content: `
       <p class="lead">Subscription software is everywhere, and subscription fatigue is real. For most self-publishing authors, a lifetime license beats a subscription over 24 months. Here's the math, tool by tool, and the cases where subscription is still the right call.</p>
 

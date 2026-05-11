@@ -12,7 +12,7 @@ import { SaveIcon, DownloadIcon } from './icons';
 import AutoSaveIndicator from './AutoSaveIndicator';
 import ChapterNavDropdown from './ChapterNavDropdown';
 import { HistoryButton } from './HistoryPanel';
-import { FocusModeButton } from './FocusModePanel';
+import ModeMenu from './ModeMenu';
 import LayoutSwitcher, { RightPanelMode } from './LayoutSwitcher';
 import { useFeatureAccess } from '@/lib/hooks/useSubscription';
 import {
@@ -50,8 +50,11 @@ export interface EditorHeaderProps {
   exportCount: number;
   onShowHistory: () => void;
 
-  // Focus mode
+  // Writing modes (Focus + Flow, grouped in the Mode menu)
+  focusActive: boolean;
   onToggleFocusMode: () => void;
+  flowMode: boolean;
+  onToggleFlowMode: () => void;
 
   // Right panel mode switcher
   rightPanelMode: RightPanelMode;
@@ -79,7 +82,10 @@ export default function EditorHeader({
   versionCount,
   exportCount,
   onShowHistory,
+  focusActive,
   onToggleFocusMode,
+  flowMode,
+  onToggleFlowMode,
   rightPanelMode,
   onRightPanelModeChange,
   onExportEPUB,
@@ -117,7 +123,12 @@ export default function EditorHeader({
           bookTitle={bookTitle}
         />
         <HistoryButton versionCount={versionCount} exportCount={exportCount} onClickAction={onShowHistory} />
-        <FocusModeButton onClick={onToggleFocusMode} />
+        <ModeMenu
+          focusActive={focusActive}
+          onToggleFocus={onToggleFocusMode}
+          flowMode={flowMode}
+          onToggleFlow={onToggleFlowMode}
+        />
         <LayoutSwitcher mode={rightPanelMode} onChange={onRightPanelModeChange} />
 
         {/* Export pill CTA — the primary action of the whole product. Labelled,

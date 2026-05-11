@@ -14,7 +14,13 @@ interface GhostTextOverlayProps {
   onAccept: (text: string) => void;
 }
 
-const IDLE_MS = 4000;
+// Two-stage reveal so users can discover the feature without us burning
+// AI tokens on every short pause. HINT_MS shows a quiet "AI is poised"
+// pill (no network call). If the user keeps idling past IDLE_MS, the
+// real suggestion request fires and the pill morphs into the existing
+// "Thinking..." popover. Any keystroke or caret move cancels both.
+const HINT_MS = 500;
+const IDLE_MS = 1500;
 const SENTENCE_END = /[.!?]\s*$/;
 
 function getCaretContext(): { rect: DOMRect; textBefore: string; atEnd: boolean } | null {
@@ -49,8 +55,10 @@ export default function GhostTextOverlay({
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [hintVisible, setHintVisible] = useState(false);
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const lastTextRef = useRef("");
 
@@ -58,7 +66,9 @@ export default function GhostTextOverlay({
     setSuggestion(null);
     setPosition(null);
     setGenerating(false);
+    setHintVisible(false);
     if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+    if (hintTimerRef.current) { clearTimeout(hintTimerRef.current); hintTimerRef.current = null; }
     if (abortRef.current) { abortRef.current.abort(); abortRef.current = null; }
   }, []);
 
@@ -70,9 +80,23 @@ export default function GhostTextOverlay({
       // Any activity clears the existing suggestion
       if (suggestion) clear();
 
-      // Reset the idle timer
-      if (timerRef.current) clearTimeout(timerRef.current);
+      // Hide any in-flight discovery hint — it'll re-show below if the
+      // user pauses again at sentence-end.
+      setHintVisible(false);
 
+      // Reset both timers
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+
+      // Stage 1: free, no-network discovery hint near the caret.
+      hintTimerRef.current = setTimeout(() => {
+        const ctx = getCaretContext();
+        if (!ctx || !ctx.atEnd) return;
+        setPosition({ top: ctx.rect.top, left: ctx.rect.right + 2 });
+        setHintVisible(true);
+      }, HINT_MS);
+
+      // Stage 2: the actual AI call.
       timerRef.current = setTimeout(async () => {
         const ctx = getCaretContext();
         if (!ctx || !ctx.atEnd) return;
@@ -142,6 +166,7 @@ export default function GhostTextOverlay({
       document.removeEventListener("selectionchange", handleActivity);
       document.removeEventListener("input", handleActivity, true);
       if (timerRef.current) clearTimeout(timerRef.current);
+      if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     };
   }, [enabled, inlineEdit, clear, suggestion]);
 
@@ -172,7 +197,34 @@ export default function GhostTextOverlay({
     return () => document.removeEventListener("keydown", handleKey, true);
   }, [generating, suggestion, clear]);
 
-  if (!enabled || (!suggestion && !generating) || !position) return null;
+  if (!enabled || !position) return null;
+  if (!suggestion && !generating && !hintVisible) return null;
+
+  // Stage 1: discreet discovery pill — appears at HINT_MS, no network
+  // call yet. Pointer-events disabled so it never gets in the way of
+  // typing or clicking through to the manuscript.
+  if (hintVisible && !generating && !suggestion) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          top: position.top + 28,
+          left: Math.max(24, position.left - 12),
+          zIndex: 800,
+        }}
+        className="pointer-events-none"
+      >
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/95 dark:bg-[#1e1e1e]/95 border border-gray-200 dark:border-[#2f2f2f] shadow-sm backdrop-blur-sm animate-pulse">
+          <svg className="w-3 h-3 text-[#4070ff]" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6L12 2z" />
+          </svg>
+          <span className="text-[10px] font-medium text-gray-500 dark:text-[#a3a3a3] tracking-wide">
+            AI suggestion
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   // Render as a floating card BELOW the caret line, not inline.
   // This avoids the ghost text overlapping existing manuscript text
