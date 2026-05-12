@@ -41,42 +41,15 @@ const PROJECTS: Project[] = [
   },
   {
     number: "02",
-    title: "Spark",
+    title: "DoodleWire",
     description:
-      "A learning platform built from a spark, to teach designers full-stack engineering. A course built for designers, by a designer, so they can build for themselves.",
-    href: "/spark",
+      "Doodle a UI on a blank page. Teach the local recogniser your style and it snaps your strokes into polished wireframe elements. Export clean HTML or React when you are ready. Runs entirely in the browser, no API calls.",
+    href: "/doodlewire",
     external: false,
-    category: "Product · Education · Solo-built",
+    category: "Tool · Drawing · Local-only",
   },
   {
     number: "03",
-    title: "Touchtype",
-    description:
-      "A touch-typing tutor with two modes. A playful course for kids learning their first home row, and a focused practice ground for adults who want to type without looking. Best on a real keyboard.",
-    href: "/touchtype",
-    external: false,
-    category: "Tool · Education · Solo-built",
-  },
-  {
-    number: "04",
-    title: "Promptr",
-    description:
-      "A prompt workshop. Rubric-based scoring turns fuzzy prompts into specific ones before you spend tokens running them.",
-    href: "/promptr",
-    external: false,
-    category: "Tool · AI · UX",
-  },
-  {
-    number: "05",
-    title: "Icon Animator",
-    description:
-      "SVG icon animation presets with copy-ready CSS export. Pick an icon, pick a preset, tune the timing, ship. No install.",
-    href: "/icon-animator",
-    external: false,
-    category: "Tool · Front-end",
-  },
-  {
-    number: "06",
     title: "Vector Paint",
     description:
       "Vector drawing in the browser. Sketch freehand, export SVG, print crisp at any size from sticker to poster.",
@@ -85,13 +58,40 @@ const PROJECTS: Project[] = [
     category: "Tool · SVG · Drawing",
   },
   {
-    number: "07",
-    title: "DoodleWire",
+    number: "04",
+    title: "Icon Animator",
     description:
-      "Doodle a UI on a blank page. Teach the local recogniser your style and it snaps your strokes into polished wireframe elements. Export clean HTML or React when you are ready. Runs entirely in the browser, no API calls.",
-    href: "/doodlewire",
+      "SVG icon animation presets with copy-ready CSS export. Pick an icon, pick a preset, tune the timing, ship. No install.",
+    href: "/icon-animator",
     external: false,
-    category: "Tool · Drawing · Local-only",
+    category: "Tool · Front-end",
+  },
+  {
+    number: "05",
+    title: "Promptr",
+    description:
+      "A prompt workshop. Rubric-based scoring turns fuzzy prompts into specific ones before you spend tokens running them.",
+    href: "/promptr",
+    external: false,
+    category: "Tool · AI · UX",
+  },
+  {
+    number: "06",
+    title: "Spark",
+    description:
+      "A learning platform built from a spark, to teach designers full-stack engineering. A course built for designers, by a designer, so they can build for themselves.",
+    href: "/spark",
+    external: false,
+    category: "Product · Education · Solo-built",
+  },
+  {
+    number: "07",
+    title: "Touchtype",
+    description:
+      "A touch-typing tutor with two modes. A playful course for kids learning their first home row, and a focused practice ground for adults who want to type without looking. Best on a real keyboard.",
+    href: "/touchtype",
+    external: false,
+    category: "Tool · Education · Solo-built",
   },
   {
     number: "08",
