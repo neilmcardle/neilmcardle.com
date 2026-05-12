@@ -1,5 +1,13 @@
 // Shared in-memory rate limiter; both score/refine routes share the same
-// per-IP bucket and a global daily ceiling. Resets on cold start.
+// per-IP bucket and a global daily ceiling. Resets on cold start and is
+// per-lambda-instance on Vercel. Pending Upstash for durable limits.
+
+if (!process.env.UPSTASH_REDIS_REST_URL && process.env.NODE_ENV === 'production') {
+  console.warn(
+    '[promptr rateLimit] UPSTASH_REDIS_REST_URL is unset. Per-IP limits reset on ' +
+    'cold start and are bypassable by rotating IPs. Provision Upstash to fix.'
+  );
+}
 
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 10;

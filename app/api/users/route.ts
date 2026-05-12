@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createUser, getUserById } from '@/lib/db/users'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { checkOrigin } from '@/lib/auth/checkOrigin'
 
 function createSupabaseClient(req: NextRequest, res: NextResponse) {
   return createServerClient(
@@ -45,6 +46,9 @@ async function verifyAuth(supabase: any, userId?: string) {
 }
 
 export async function POST(req: NextRequest) {
+  const originError = checkOrigin(req)
+  if (originError) return originError
+
   const response = NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   const supabase = createSupabaseClient(req, response)
 

@@ -5,11 +5,15 @@ import Stripe from 'stripe'
 import { createServerClient } from '@supabase/ssr'
 import { CookieOptions } from '@supabase/ssr'
 import { getUserById, updateUser } from '@/lib/db/users'
+import { checkOrigin } from '@/lib/auth/checkOrigin'
 
 /**
  * Create a checkout session for the Pro tier.
  */
 export async function POST(req: NextRequest) {
+  const originError = checkOrigin(req)
+  if (originError) return originError
+
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
       return NextResponse.json({ error: 'Stripe is not configured' }, { status: 500 })

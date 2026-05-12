@@ -156,12 +156,12 @@ function Constellation() {
         </div>
 
         {/* Insight cards */}
-        <InsightCard kind="warn" label="Inconsistency" title="Sarah&rsquo;s eyes changed color" body="Chapter 3 describes them as green. Chapter 7 says blue. Want me to show both passages?" className="top-[2%] left-[6%] w-[240px]" rotate={-4} delay={0} />
+        <InsightCard kind="warn" label="Inconsistency" title="Sarah’s eyes changed color" body="Chapter 3 describes them as green. Chapter 7 says blue. Want me to show both passages?" className="top-[2%] left-[6%] w-[240px]" rotate={-4} delay={0} />
         <InsightCard kind="info" label="Theme" title="Recurring motif: light falling" body="Appears 14 times across 5 chapters. Strong pattern. Intentional?" className="top-[18%] right-[4%] w-[240px]" rotate={3} delay={0.4} />
         <InsightCard kind="good" label="Pacing" title="Chapter 7 reads fast" body="58% dialogue vs 23% book-average. Good lift after the slower Chapter 6." className="bottom-[4%] left-[2%] w-[240px]" rotate={2} delay={0.2} />
         <InsightCard kind="warn" label="KDP Pre-flight" title="Missing AI disclosure" body="Amazon requires it if any generative AI was used. Click to add." className="bottom-[2%] right-[8%] w-[240px]" rotate={-3} delay={0.9} />
         <InsightCard kind="info" label="Character" title="Sarah · 247 mentions" body="Introduced Ch 1 · last seen Ch 9" className="top-[44%] left-[-2%] w-[190px]" rotate={1} delay={0.6} />
-        <InsightCard kind="info" label="Memory" title="Rule noted" body="&ldquo;Never use &lsquo;suddenly&rsquo; in narration.&rdquo; Applied across 38 suggestions." className="top-[40%] right-[-2%] w-[200px]" rotate={-2} delay={1.2} />
+        <InsightCard kind="info" label="Memory" title="Rule noted" body="“Never use ‘suddenly’ in narration.” Applied across 38 suggestions." className="top-[40%] right-[-2%] w-[200px]" rotate={-2} delay={1.2} />
       </div>
 
       {/* Mobile stack */}
@@ -173,7 +173,7 @@ function Constellation() {
             The morning light fell across the old manuscript pages&hellip;
           </p>
         </div>
-        <InsightCard kind="warn" label="Inconsistency" title="Sarah&rsquo;s eyes changed color" body="Chapter 3 green, Chapter 7 blue." className="w-full" />
+        <InsightCard kind="warn" label="Inconsistency" title="Sarah’s eyes changed color" body="Chapter 3 green, Chapter 7 blue." className="w-full" />
         <InsightCard kind="info" label="Theme" title="Recurring motif: light falling" body="14 times across 5 chapters." className="w-full" />
         <InsightCard kind="good" label="Pacing" title="Chapter 7 reads fast" body="58% dialogue vs 23% book-average." className="w-full" />
       </div>
@@ -220,8 +220,8 @@ function InsightCard({
         <span className={`w-1.5 h-1.5 rounded-full ${dotColor} ring-4 ${dotRing}`} />
         <span className={`text-[10px] font-bold uppercase tracking-[0.18em] ${labelColor}`}>{label}</span>
       </div>
-      <h4 className="text-[13px] font-semibold text-gray-900 mb-1" style={{ letterSpacing: '-0.01em' }} dangerouslySetInnerHTML={{ __html: title }} />
-      <p className="text-[12px] leading-[1.5] text-gray-500 m-0" style={{ fontFamily: 'Georgia, serif' }} dangerouslySetInnerHTML={{ __html: body }} />
+      <h4 className="text-[13px] font-semibold text-gray-900 mb-1" style={{ letterSpacing: '-0.01em' }}>{title}</h4>
+      <p className="text-[12px] leading-[1.5] text-gray-500 m-0" style={{ fontFamily: 'Georgia, serif' }}>{body}</p>
     </div>
   );
 }

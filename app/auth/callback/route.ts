@@ -20,6 +20,11 @@ export async function GET(req: NextRequest) {
   const code = searchParams.get('code')
 
   if (code) {
+    // The post-auth redirect target is hardcoded to /make-ebook on purpose.
+    // Do NOT introduce a `next` (or similar) query param sourced from the URL
+    // without validating it against an allowlist of internal paths first —
+    // open-redirect bugs in OAuth callbacks let attackers phish session
+    // tokens by bouncing users through your trusted origin to an attacker page.
     const response = NextResponse.redirect(new URL('/make-ebook', req.url))
 
     const supabase = createServerClient(

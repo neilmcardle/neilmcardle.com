@@ -5,11 +5,15 @@ import Stripe from 'stripe'
 import { createServerClient } from '@supabase/ssr'
 import { CookieOptions } from '@supabase/ssr'
 import { getUserById } from '@/lib/db/users'
+import { checkOrigin } from '@/lib/auth/checkOrigin'
 
 /**
  * Create a billing portal session for the current user.
  */
 export async function POST(req: NextRequest) {
+  const originError = checkOrigin(req)
+  if (originError) return originError
+
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
       return NextResponse.json(
@@ -77,7 +81,7 @@ export async function POST(req: NextRequest) {
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    console.log(`🔗 Creating portal session for user ${user.id}, customer ${dbUser.stripeCustomerId}, return URL: ${appUrl}/make-ebook`);
+    console.log(`🔗 Creating portal session for user ${user.id}, return URL: ${appUrl}/make-ebook`);
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: dbUser.stripeCustomerId,

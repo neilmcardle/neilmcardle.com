@@ -85,28 +85,28 @@ export async function POST(req: NextRequest) {
 
 /**
  * Look up a user by external customer ID, with email fallback.
+ * Throws on DB errors so the outer handler returns 500 and Stripe retries.
+ * Returns { user: null } only for genuine absences (legitimate no-op).
  */
 async function findUserByCustomerId(customerId: string, stripe: Stripe) {
-  const { user } = await getUserByStripeCustomerId(customerId)
-  if (user) return { user, error: null }
+  const { user, error } = await getUserByStripeCustomerId(customerId)
+  if (error) throw error
+  if (user) return { user }
 
-  try {
-    const stripeCustomer = await stripe.customers.retrieve(customerId) as Stripe.Customer
-    if (!stripeCustomer.deleted && stripeCustomer.email) {
-      const { user: emailUser, error: emailError } = await getUserByEmail(stripeCustomer.email)
-      if (emailUser) {
-        if (!emailUser.stripeCustomerId) {
-          await updateUserSubscription(emailUser.id, { stripeCustomerId: customerId })
-        }
-        return { user: emailUser, error: null }
+  const stripeCustomer = await stripe.customers.retrieve(customerId) as Stripe.Customer
+  if (!stripeCustomer.deleted && stripeCustomer.email) {
+    const { user: emailUser, error: emailError } = await getUserByEmail(stripeCustomer.email)
+    if (emailError) throw emailError
+    if (emailUser) {
+      if (!emailUser.stripeCustomerId) {
+        const { error: linkError } = await updateUserSubscription(emailUser.id, { stripeCustomerId: customerId })
+        if (linkError) throw linkError
       }
-      return { user: null, error: emailError }
+      return { user: emailUser }
     }
-  } catch (e) {
-    console.error('Failed to look up Stripe customer for email fallback:', e)
   }
 
-  return { user: null, error: null }
+  return { user: null }
 }
 
 /**
@@ -116,10 +116,10 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription, strip
   const customerId = subscription.customer as string
   console.log(`Handling subscription update for customer: ${customerId}`)
 
-  const { user, error } = await findUserByCustomerId(customerId, stripe)
+  const { user } = await findUserByCustomerId(customerId, stripe)
 
-  if (error || !user) {
-    console.error(`User not found for Stripe customer: ${customerId}`)
+  if (!user) {
+    console.warn(`[stripe webhook] No user row for customer ${customerId} on subscription.update; ignoring.`)
     return
   }
 
@@ -149,10 +149,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription, strip
     stripePriceId: subscription.items.data[0]?.price.id,
   })
 
-  if (updateError) {
-    console.error(`Failed to update user ${user.id}:`, updateError)
-    return
-  }
+  if (updateError) throw updateError
 
   console.log(`✅ Subscription updated for user ${user.id}: ${subscription.status} (${tier})`)
 }
@@ -164,10 +161,10 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription, str
   const customerId = subscription.customer as string
   console.log(`Handling subscription cancellation for customer: ${customerId}`)
 
-  const { user, error } = await findUserByCustomerId(customerId, stripe)
+  const { user } = await findUserByCustomerId(customerId, stripe)
 
-  if (error || !user) {
-    console.error(`User not found for Stripe customer: ${customerId}`)
+  if (!user) {
+    console.warn(`[stripe webhook] No user row for customer ${customerId} on subscription.deleted; ignoring.`)
     return
   }
 
@@ -181,10 +178,7 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription, str
     subscriptionTier: 'free',
   })
 
-  if (updateError) {
-    console.error(`Failed to downgrade user ${user.id}:`, updateError)
-    return
-  }
+  if (updateError) throw updateError
 
   console.log(`✅ Subscription canceled for user ${user.id} - downgraded to free`)
 }
@@ -205,10 +199,10 @@ async function handlePaymentFailed(invoice: Stripe.Invoice, stripe: Stripe) {
   const customerId = invoice.customer as string
   console.log(`Payment failed for customer: ${customerId}`)
 
-  const { user, error } = await findUserByCustomerId(customerId, stripe)
+  const { user } = await findUserByCustomerId(customerId, stripe)
 
-  if (error || !user) {
-    console.error(`User not found for Stripe customer: ${customerId}`)
+  if (!user) {
+    console.warn(`[stripe webhook] No user row for customer ${customerId} on invoice.payment_failed; ignoring.`)
     return
   }
 
@@ -216,10 +210,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice, stripe: Stripe) {
     subscriptionStatus: 'past_due',
   })
 
-  if (updateError) {
-    console.error(`Failed to update user ${user.id} payment status:`, updateError)
-    return
-  }
+  if (updateError) throw updateError
 
   console.log(`⚠️ Payment failed for user ${user.id} - marked as past_due`)
 }
@@ -246,21 +237,20 @@ async function handleCheckoutSessionCompleted(
   let user: Awaited<ReturnType<typeof getUserById>>['user'] = null
 
   if (supabaseUserId) {
-    const { user: u } = await getUserById(supabaseUserId)
+    const { user: u, error: idError } = await getUserById(supabaseUserId)
+    if (idError) throw idError
     user = u
   }
 
   if (!user) {
-    const { user: u } = await getUserByStripeCustomerId(customerId)
+    const { user: u, error: custError } = await getUserByStripeCustomerId(customerId)
+    if (custError) throw custError
     user = u
   }
 
   if (!user && email) {
     const { user: u, error: emailError } = await getUserByEmail(email)
-    if (emailError) {
-      console.error(`DB error looking up user by email ${email}:`, emailError)
-      return
-    }
+    if (emailError) throw emailError
     user = u
   }
 
@@ -268,54 +258,41 @@ async function handleCheckoutSessionCompleted(
   if (!user && email) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://makeebook.ink'
 
-    try {
-      const adminClient = createAdminClient()
+    const adminClient = createAdminClient()
 
-      const { data: inviteData, error: inviteError } =
-        await adminClient.auth.admin.inviteUserByEmail(email, {
-          redirectTo: `${appUrl}/auth/callback`,
-        })
-
-      if (inviteError) {
-        console.error(`Failed to invite new user ${email}:`, inviteError)
-        return
-      }
-
-      const { user: newUser, error: createError } = await createUser({
-        id: inviteData.user.id,
-        email: inviteData.user.email!,
+    const { data: inviteData, error: inviteError } =
+      await adminClient.auth.admin.inviteUserByEmail(email, {
+        redirectTo: `${appUrl}/auth/callback`,
       })
 
-      if (createError || !newUser) {
-        console.error(`Failed to create DB record for ${email}:`, createError)
-        return
-      }
+    if (inviteError) throw inviteError
 
-      user = newUser
-      console.log(`✅ New user invited and created: ${user.id} (${email})`)
-    } catch (err) {
-      console.error(`Failed to create user for ${email}:`, err)
-      return
-    }
+    const { user: newUser, error: createError } = await createUser({
+      id: inviteData.user.id,
+      email: inviteData.user.email!,
+    })
+
+    if (createError || !newUser) throw createError ?? new Error(`createUser returned no row for ${email}`)
+
+    user = newUser
+    console.log(`✅ New user invited and created: ${user.id} (${email})`)
   }
 
   if (!user) {
-    console.error(`Could not find or create user for checkout session: ${session.id}`)
+    console.warn(`[stripe webhook] Could not find or create user for checkout session ${session.id} (no email on session); ignoring.`)
     return
   }
 
   if (!user.stripeCustomerId && customerId) {
-    await updateUserSubscription(user.id, { stripeCustomerId: customerId })
+    const { error: linkError } = await updateUserSubscription(user.id, { stripeCustomerId: customerId })
+    if (linkError) throw linkError
   }
 
   if (purchaseType === 'lifetime' && session.payment_status === 'paid') {
     const paymentIntentId = session.payment_intent as string
     const { error: updateError } = await grantLifetimeAccess(user.id, paymentIntentId)
 
-    if (updateError) {
-      console.error(`Failed to grant lifetime access to user ${user.id}:`, updateError)
-      return
-    }
+    if (updateError) throw updateError
 
     console.log(`✅ Lifetime access granted to user ${user.id}`)
   } else if (purchaseType === 'pro') {

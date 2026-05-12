@@ -12,6 +12,7 @@
 // here, both surfaces update — no drift.
 
 import React from 'react';
+import DOMPurify from 'dompurify';
 import type { BookMindAction } from '../hooks/useBookMind';
 
 // Book icon — the same book glyph used throughout Book Mind. Default stroke
@@ -50,13 +51,13 @@ export function ThinkingDots() {
 }
 
 // Very light markdown-to-HTML for Book Mind replies. Bold (**x**) and double
-// newlines become paragraphs. Single newlines become <br/>. Anything else is
-// passed through verbatim. The output is rendered via dangerouslySetInnerHTML
-// by both call sites; the input is trusted because it comes from our own API
-// route.
+// newlines become paragraphs. Single newlines become <br/>. Model output is
+// grounded in user-supplied manuscript text, so prompt-injection can coerce
+// raw HTML into the stream — sanitise before handing to dangerouslySetInnerHTML.
 export function formatBookMindMessage(content: string): string {
   if (!content) return '';
-  return content
+  const escaped = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const html = escaped
     .split(/\n\n+/)
     .map((para) =>
       `<p>${para
@@ -65,6 +66,11 @@ export function formatBookMindMessage(content: string): string {
       }</p>`
     )
     .join('');
+  if (typeof window === 'undefined') return html;
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['p', 'br', 'strong', 'em'],
+    ALLOWED_ATTR: [],
+  });
 }
 
 // Full superset of quick actions. The inline panel renders the first four
