@@ -61,6 +61,14 @@ export default function GhostTextOverlay({
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const lastTextRef = useRef("");
+  // True when the caret sits directly after non-whitespace at suggestion
+  // time. Used at accept time to prepend a single space, since the model
+  // routinely returns its continuation trimmed even when told otherwise.
+  const needsLeadingSpaceRef = useRef(false);
+  // Mirror of `suggestion` so the click handler can still resolve the
+  // value if a click-triggered selectionchange has already cleared state.
+  const suggestionRef = useRef<string | null>(null);
+  useEffect(() => { suggestionRef.current = suggestion; }, [suggestion]);
 
   const clear = useCallback(() => {
     setSuggestion(null);
@@ -105,6 +113,7 @@ export default function GhostTextOverlay({
         const text = ctx.textBefore.slice(-200);
         if (text === lastTextRef.current && suggestion) return;
         lastTextRef.current = text;
+        needsLeadingSpaceRef.current = !/\s$/.test(ctx.textBefore);
 
         setPosition({ top: ctx.rect.top, left: ctx.rect.right + 2 });
         setGenerating(true);
@@ -170,6 +179,19 @@ export default function GhostTextOverlay({
     };
   }, [enabled, inlineEdit, clear, suggestion]);
 
+  // Single accept path: reinstates a leading space when the caret sat
+  // directly after non-whitespace, so the inserted continuation never
+  // glues onto the previous word. Reads from the ref so a stale-by-one-
+  // render closure (e.g. click → selectionchange → clear) still works.
+  const accept = useCallback(() => {
+    const s = suggestionRef.current;
+    if (!s) return;
+    const body = s.replace(/^\s+/, "");
+    const prefix = needsLeadingSpaceRef.current ? " " : "";
+    onAccept(prefix + body);
+    clear();
+  }, [onAccept, clear]);
+
   // Tab accepts, any other typing key dismisses
   useEffect(() => {
     if (!suggestion) return;
@@ -177,15 +199,14 @@ export default function GhostTextOverlay({
       if (e.key === "Tab") {
         e.preventDefault();
         e.stopPropagation();
-        onAccept(suggestion);
-        clear();
+        accept();
       } else if (!["Shift", "Meta", "Control", "Alt", "CapsLock"].includes(e.key)) {
         clear();
       }
     };
     document.addEventListener("keydown", handle, true);
     return () => document.removeEventListener("keydown", handle, true);
-  }, [suggestion, onAccept, clear]);
+  }, [suggestion, accept, clear]);
 
   // Escape or click on the thinking bubble dismisses and cancels the call
   useEffect(() => {
@@ -254,15 +275,23 @@ export default function GhostTextOverlay({
         )}
         {suggestion && (
           <>
-            <p
-              className="text-sm text-gray-700 dark:text-[#d4d4d4] leading-relaxed"
-              style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={accept}
+              aria-label="Insert suggestion"
+              className="group w-full text-left rounded-md -m-1 p-1 transition-colors hover:bg-[#4070ff]/5 dark:hover:bg-[#4070ff]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4070ff]/40 cursor-pointer"
             >
-              {suggestion}
-            </p>
+              <p
+                className="text-sm text-gray-700 dark:text-[#d4d4d4] leading-relaxed"
+                style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+              >
+                {suggestion}
+              </p>
+            </button>
             <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-[#262626]">
               <span className="text-[10px] text-gray-400 dark:text-[#737373]">
-                Press <kbd className="inline-flex items-center px-1 py-0 rounded border border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] font-mono text-[10px] mx-0.5">Tab</kbd> to insert
+                <kbd className="inline-flex items-center px-1 py-0 rounded border border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] font-mono text-[10px] mx-0.5">Tab</kbd> or click to insert
               </span>
               <span className="text-[10px] text-gray-400 dark:text-[#636363]">
                 Flow mode · toggle off in Inspector

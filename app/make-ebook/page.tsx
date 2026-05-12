@@ -354,20 +354,21 @@ function MakeEbookPage() {
       const editorEl = document.querySelector('[contenteditable="true"]') as HTMLElement | null;
       if (editorEl) editorEl.focus();
 
-      // Delete the "/" trigger character. The range points at the text
-      // node containing it. We select it and delete before inserting.
+      // Delete the "/" trigger character — but only if it sits directly
+      // before the caret. Cmd-K can open the palette without a trigger
+      // slash; we must not strip a stray "/" earlier on the line in that
+      // case (e.g. inside a URL).
       const range = composeRequest.range;
       if (range) {
         const sel = window.getSelection();
         if (sel) {
-          // Expand the range to include the "/" character
           const node = range.startContainer;
           if (node.nodeType === Node.TEXT_NODE) {
             const text = node.textContent ?? '';
-            const slashIdx = text.lastIndexOf('/', range.startOffset);
-            if (slashIdx >= 0) {
-              range.setStart(node, slashIdx);
-              range.setEnd(node, slashIdx + 1);
+            const charBefore = range.startOffset > 0 ? text.charAt(range.startOffset - 1) : '';
+            if (charBefore === '/') {
+              range.setStart(node, range.startOffset - 1);
+              range.setEnd(node, range.startOffset);
               sel.removeAllRanges();
               sel.addRange(range);
               document.execCommand('delete');

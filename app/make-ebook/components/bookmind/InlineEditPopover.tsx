@@ -190,10 +190,17 @@ export default function InlineEditPopover({
 
   const handleAccept = useCallback(() => {
     if (!activeResult) return;
-    onAccept(activeResult);
+    // Preserve the leading/trailing whitespace of the original selection.
+    // Models routinely trim output even when not asked to, which leaves the
+    // rewrite glued to the previous word when the selection included a
+    // leading space (e.g. selecting " is bad" \u2192 "is excellent" \u2192 "thisis excellent").
+    const leading = request.selectedText.match(/^\s+/)?.[0] ?? "";
+    const trailing = request.selectedText.match(/\s+$/)?.[0] ?? "";
+    const core = activeResult.replace(/^\s+/, "").replace(/\s+$/, "");
+    onAccept(leading + core + trailing);
     toast.success("Replaced", { description: "Undo with \u2318Z if you change your mind." });
     onClose();
-  }, [activeResult, onAccept, onClose]);
+  }, [activeResult, onAccept, onClose, request.selectedText]);
 
   const handleInputKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -312,15 +319,24 @@ export default function InlineEditPopover({
                     : request.selectedText}
                 </p>
               </div>
-              {/* Rewrite — full contrast */}
-              <div>
-                <p className="text-2xs uppercase tracking-wider text-[#4070ff] dark:text-[#4070ff] font-medium mb-1">
+              {/* Rewrite — full contrast. The whole block is a button: clicking
+                  anywhere inside the suggestion accepts it, mirroring Tab. */}
+              <button
+                type="button"
+                onClick={handleAccept}
+                aria-label="Accept this suggestion"
+                className="group w-full text-left rounded-lg p-2 -m-2 cursor-pointer transition-colors hover:bg-[#4070ff]/5 dark:hover:bg-[#4070ff]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4070ff]/40"
+              >
+                <p className="text-2xs uppercase tracking-wider text-[#4070ff] font-medium mb-1 flex items-center gap-1.5">
                   Suggestion
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] normal-case tracking-normal text-gray-400 dark:text-[#737373]">
+                    click to accept
+                  </span>
                 </p>
                 <p className="text-sm text-gray-800 dark:text-[#f5f5f5] leading-relaxed whitespace-pre-wrap">
                   {activeResult}
                 </p>
-              </div>
+              </button>
             </div>
           )}
 

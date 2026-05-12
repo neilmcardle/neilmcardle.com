@@ -1404,16 +1404,18 @@ export default function RichTextEditor({
           contentEditable={!disabled}
           suppressContentEditableWarning
           onKeyDown={(e) => {
-            // Book Mind Cmd-K inline edit. Only fires when the editor
-            // has a non-empty selection — otherwise the keypress falls
-            // through so browser defaults (bookmarks, address bar) keep
-            // their normal behaviour when the user isn't editing.
-            if (e.key === 'k' && (e.metaKey || e.ctrlKey) && onInlineEditRequest) {
+            // Book Mind Cmd-K. With a non-empty selection it opens the
+            // inline-edit popover; with a collapsed caret it opens the
+            // compose palette at the cursor. The keypress is always
+            // swallowed inside the editor so Chrome's address-bar focus
+            // never grabs it from under the user.
+            if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
               const sel = window.getSelection();
-              if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+              if (sel && sel.rangeCount > 0) {
                 const range = sel.getRangeAt(0);
                 const selectedText = sel.toString().trim();
-                if (selectedText) {
+
+                if (!sel.isCollapsed && selectedText && onInlineEditRequest) {
                   e.preventDefault();
                   e.stopPropagation();
                   onInlineEditRequest({
@@ -1423,7 +1425,26 @@ export default function RichTextEditor({
                   });
                   return;
                 }
+
+                if (sel.isCollapsed && onComposeRequest) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  let rect = range.getBoundingClientRect();
+                  if (rect.height === 0 && range.startContainer.parentElement) {
+                    rect = range.startContainer.parentElement.getBoundingClientRect();
+                  }
+                  onComposeRequest({
+                    range: range.cloneRange(),
+                    rect,
+                  });
+                  return;
+                }
               }
+              // No handler matched but still swallow so the browser
+              // doesn't intercept.
+              e.preventDefault();
+              e.stopPropagation();
+              return;
             }
             if (e.key === 'Tab') {
               e.preventDefault();
