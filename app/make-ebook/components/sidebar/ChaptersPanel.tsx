@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PlusIcon } from '../icons';
 import BinIcon from '../icons/BinIcon';
 import EmptyStateHint from '../EmptyStateHint';
@@ -20,6 +20,10 @@ interface ChaptersPanelProps {
   handleSelectChapter: (index: number) => void;
   handleAddChapter: (type: 'frontmatter' | 'content' | 'backmatter', title?: string) => void;
   handleRemoveChapter: (index: number) => void;
+  // Direct-delete variant: skips the modal in favour of the inline confirm
+  // popover rendered by this component. Falls back to handleRemoveChapter if
+  // omitted, so callers that haven't been updated keep the old behaviour.
+  confirmChapterDelete?: (index: number) => void;
   handleToggleChapterLock?: (index: number) => void;
   handleDragStart: (index: number) => void;
   handleDragEnter: (index: number) => void;
@@ -84,6 +88,7 @@ export default function ChaptersPanel({
   handleSelectChapter,
   handleAddChapter,
   handleRemoveChapter,
+  confirmChapterDelete,
   handleToggleChapterLock,
   handleDragStart,
   handleDragEnter,
@@ -97,6 +102,29 @@ export default function ChaptersPanel({
   getContentChapterNumber,
 }: ChaptersPanelProps) {
   const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
+  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
+
+  // Auto-cancel the inline delete prompt: Escape, 5s timeout, or any click
+  // outside the active confirm cluster.
+  useEffect(() => {
+    if (pendingDeleteIndex === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPendingDeleteIndex(null);
+    };
+    const onPointer = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('[data-chapter-delete-confirm]')) return;
+      setPendingDeleteIndex(null);
+    };
+    const timer = window.setTimeout(() => setPendingDeleteIndex(null), 5000);
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onPointer);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onPointer);
+    };
+  }, [pendingDeleteIndex]);
 
   return (
     <div data-tour="chapters" className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
@@ -256,16 +284,56 @@ export default function ChaptersPanel({
                     </button>
                   )}
                   {chapters.length > 1 && !ch.locked && (
-                    <button
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#2a2a2a] rounded text-gray-600 dark:text-[#a3a3a3]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveChapter(i);
-                      }}
-                      aria-label="Delete chapter"
-                    >
-                      <BinIcon className="w-4 h-4" />
-                    </button>
+                    pendingDeleteIndex === i ? (
+                      <div
+                        data-chapter-delete-confirm
+                        role="group"
+                        aria-label="Confirm chapter deletion"
+                        className="flex items-center gap-0.5 animate-in fade-in zoom-in-95 slide-in-from-right-1 duration-150"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <span className="px-1.5 text-2xs font-medium text-gray-500 dark:text-[#a3a3a3] italic" style={{ fontFamily: 'Georgia, serif' }}>
+                          Delete?
+                        </span>
+                        <button
+                          autoFocus
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            (confirmChapterDelete ?? handleRemoveChapter)(i);
+                            setPendingDeleteIndex(null);
+                          }}
+                          className="p-1 rounded bg-red-600 hover:bg-red-700 text-white transition-colors shadow-sm"
+                          aria-label="Confirm delete"
+                          title="Delete (Enter)"
+                        >
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setPendingDeleteIndex(null); }}
+                          className="p-1 rounded text-gray-500 hover:bg-gray-200 dark:hover:bg-[#2a2a2a] transition-colors"
+                          aria-label="Cancel"
+                          title="Cancel (Esc)"
+                        >
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#2a2a2a] rounded text-gray-600 dark:text-[#a3a3a3]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPendingDeleteIndex(i);
+                        }}
+                        aria-label="Delete chapter"
+                      >
+                        <BinIcon className="w-4 h-4" />
+                      </button>
+                    )
                   )}
                 </div>
               );

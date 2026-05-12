@@ -68,6 +68,7 @@ export interface EditorLeftNavProps {
   handleSelectChapter: (index: number) => void;
   handleAddChapter: (type: 'frontmatter' | 'content' | 'backmatter', title?: string) => void;
   handleRemoveChapter: (index: number) => void;
+  confirmChapterDelete?: (index: number) => void;
   handleToggleChapterLock?: (index: number) => void;
   handleDragStart: (index: number) => void;
   handleDragEnter: (index: number) => void;
@@ -158,6 +159,7 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         handleSelectChapter={props.handleSelectChapter}
         handleAddChapter={props.handleAddChapter}
         handleRemoveChapter={props.handleRemoveChapter}
+        confirmChapterDelete={props.confirmChapterDelete}
         handleToggleChapterLock={props.handleToggleChapterLock}
         handleDragStart={props.handleDragStart}
         handleDragEnter={props.handleDragEnter}
