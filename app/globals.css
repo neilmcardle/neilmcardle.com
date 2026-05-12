@@ -1077,3 +1077,170 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 .spotlight-card:hover::after {
   opacity: 1;
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+ * Homepage project preview animations. White-on-dark SVGs tucked inside
+ * each portfolio card. Each animation loops on its own cycle. Kept here
+ * (rather than in styled-jsx) so the homepage stays a Server Component.
+ * ───────────────────────────────────────────────────────────────────── */
+
+.hpp-frame {
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 16 / 9;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: border-color 220ms ease, background-color 220ms ease;
+}
+.hpp-svg {
+  display: block;
+}
+
+/* Larger preview on desktop where there is room to breathe. */
+@media (min-width: 1024px) {
+  .hpp-frame {
+    max-width: 360px;
+  }
+}
+
+/* On hover-capable devices, the animations stay paused until the card is
+   hovered, so the page feels still until the visitor engages. Touch devices
+   keep the autoplay loop because they have no hover state to trigger from. */
+@media (hover: hover) {
+  .hpp-frame [class*="hpp-"] {
+    animation-play-state: paused;
+  }
+  .project-card-trace:hover .hpp-frame [class*="hpp-"] {
+    animation-play-state: running;
+  }
+  .project-card-trace:hover .hpp-frame {
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+/* makeEbook: lines appear, cursor blinks */
+@keyframes hpp-me-line-in {
+  0%, 100% { stroke-dasharray: 0 200; }
+  10%      { stroke-dasharray: 0 200; }
+  25%      { stroke-dasharray: 200 0; }
+  90%      { stroke-dasharray: 200 0; }
+}
+.hpp-me-line { stroke-dasharray: 0 200; animation: hpp-me-line-in 6s ease-in-out infinite; }
+.hpp-me-l1 { animation-delay: 0s; }
+.hpp-me-l2 { animation-delay: 0.7s; }
+.hpp-me-l3 { animation-delay: 1.4s; }
+.hpp-me-l4 { animation-delay: 2.1s; }
+@keyframes hpp-me-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.hpp-me-cursor { animation: hpp-me-blink 1s steps(2) infinite; }
+
+/* DoodleWire: sketch fades, polished button morphs in */
+@keyframes hpp-dw-sketch {
+  0%, 35%  { opacity: 1; }
+  45%, 95% { opacity: 0; }
+  100%     { opacity: 1; }
+}
+@keyframes hpp-dw-poly {
+  0%, 35%  { opacity: 0; transform: scale(0.96); }
+  45%, 95% { opacity: 1; transform: scale(1); }
+  100%     { opacity: 0; transform: scale(0.96); }
+}
+.hpp-dw-sketch { animation: hpp-dw-sketch 5s ease-in-out infinite; transform-origin: 80px 45px; }
+.hpp-dw-poly   { animation: hpp-dw-poly   5s ease-in-out infinite; transform-origin: 80px 45px; transform-box: fill-box; }
+.hpp-dw-label  { animation: hpp-dw-poly   5s ease-in-out infinite; transform-origin: 80px 45px; transform-box: fill-box; }
+
+/* Vector Paint: stroke draws, nib follows, both reset */
+@keyframes hpp-vp-draw {
+  0%   { stroke-dashoffset: 320; }
+  50%  { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -320; }
+}
+.hpp-vp-stroke {
+  stroke-dasharray: 320;
+  animation: hpp-vp-draw 4.5s ease-in-out infinite;
+}
+@keyframes hpp-vp-nib {
+  0%   { offset-distance: 0%; opacity: 1; }
+  50%  { offset-distance: 100%; opacity: 1; }
+  60%, 100% { offset-distance: 100%; opacity: 0; }
+}
+.hpp-vp-nib {
+  offset-path: path("M20 70 C 40 20, 90 20, 80 60 S 130 80, 140 30");
+  offset-distance: 0%;
+  animation: hpp-vp-nib 4.5s ease-in-out infinite;
+}
+
+/* Icon Animator: cycles through spin → bounce → pulse */
+@keyframes hpp-ia-cycle {
+  0%   { transform: rotate(0deg)   translateY(0)    scale(1); }
+  20%  { transform: rotate(180deg) translateY(0)    scale(1); }
+  30%  { transform: rotate(360deg) translateY(0)    scale(1); }
+  40%  { transform: rotate(360deg) translateY(-6px) scale(1); }
+  50%  { transform: rotate(360deg) translateY(0)    scale(1); }
+  60%  { transform: rotate(360deg) translateY(-3px) scale(1); }
+  70%  { transform: rotate(360deg) translateY(0)    scale(1); }
+  80%  { transform: rotate(360deg) translateY(0)    scale(1.15); }
+  90%  { transform: rotate(360deg) translateY(0)    scale(0.95); }
+  100% { transform: rotate(360deg) translateY(0)    scale(1); }
+}
+.hpp-ia-glyph {
+  transform-origin: 80px 42px;
+  transform-box: fill-box;
+  animation: hpp-ia-cycle 5s ease-in-out infinite;
+}
+
+/* Promptr: score circles fill in sequence */
+@keyframes hpp-pr-fill {
+  0%, 30%   { fill: transparent; }
+  40%, 90%  { fill: currentColor; }
+  100%      { fill: transparent; }
+}
+.hpp-pr-c1 { animation: hpp-pr-fill 5s ease-in-out infinite; animation-delay: 0s; }
+.hpp-pr-c2 { animation: hpp-pr-fill 5s ease-in-out infinite; animation-delay: 0.6s; }
+.hpp-pr-c3 { animation: hpp-pr-fill 5s ease-in-out infinite; animation-delay: 1.2s; }
+
+/* Spark: code lines materialise in sequence (uses the same line-in idea) */
+.hpp-sp-l1, .hpp-sp-l2, .hpp-sp-l3, .hpp-sp-l4 {
+  stroke-dasharray: 0 200;
+  animation: hpp-me-line-in 5s ease-in-out infinite;
+}
+.hpp-sp-l1 { animation-delay: 0s; }
+.hpp-sp-l2 { animation-delay: 0.4s; }
+.hpp-sp-l3 { animation-delay: 0.8s; }
+.hpp-sp-l4 { animation-delay: 1.2s; }
+
+/* Touchtype: keys light up in sequence */
+@keyframes hpp-tt-press {
+  0%, 100% { fill: transparent; stroke: currentColor; }
+  20%, 30% { fill: currentColor; stroke: currentColor; }
+}
+.hpp-tt-key { animation: hpp-tt-press 3.5s ease-in-out infinite; }
+.hpp-tt-k0 { animation-delay: 0s; }
+.hpp-tt-k1 { animation-delay: 0.25s; }
+.hpp-tt-k2 { animation-delay: 0.5s; }
+.hpp-tt-k3 { animation-delay: 0.75s; }
+.hpp-tt-k4 { animation-delay: 1s; }
+.hpp-tt-k5 { animation-delay: 1.25s; }
+.hpp-tt-k6 { animation-delay: 1.5s; }
+
+/* Kids Alphabet: letters fade in/out */
+@keyframes hpp-ka-letter {
+  0%, 25%   { opacity: 0; transform: scale(0.7); }
+  33%, 58%  { opacity: 1; transform: scale(1); }
+  66%, 100% { opacity: 0; transform: scale(1.15); }
+}
+.hpp-ka-letter {
+  opacity: 0;
+  transform-origin: 80px 48px;
+  transform-box: fill-box;
+}
+.hpp-ka-a { animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 0s; }
+.hpp-ka-b { animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 1.5s; }
+.hpp-ka-c { animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 3s; }

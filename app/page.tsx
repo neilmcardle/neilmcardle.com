@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
 
 // Ripple line positions as explicit viewport percentages — ported from
 // the gated /portfolio template so the public homepage shares the same
@@ -22,6 +23,7 @@ const RIPPLE_POSITIONS: number[] = [
 
 interface Project {
   number: string;
+  key: ProjectKey;
   title: string;
   description: string;
   href: string;
@@ -32,6 +34,7 @@ interface Project {
 const PROJECTS: Project[] = [
   {
     number: "01",
+    key: "makeebook",
     title: "makeEbook",
     description:
       "AI-first eBook creation platform. Conversational writing assistant with multi-turn context, Claude API under the hood, designed and built solo.",
@@ -41,6 +44,7 @@ const PROJECTS: Project[] = [
   },
   {
     number: "02",
+    key: "doodlewire",
     title: "DoodleWire",
     description:
       "Doodle a UI on a blank page. Teach the local recogniser your style and it snaps your strokes into polished wireframe elements. Export clean HTML or React when you are ready. Runs entirely in the browser, no API calls.",
@@ -50,6 +54,7 @@ const PROJECTS: Project[] = [
   },
   {
     number: "03",
+    key: "vector-paint",
     title: "Vector Paint",
     description:
       "Vector drawing in the browser. Sketch freehand, export SVG, print crisp at any size from sticker to poster.",
@@ -59,6 +64,7 @@ const PROJECTS: Project[] = [
   },
   {
     number: "04",
+    key: "icon-animator",
     title: "Icon Animator",
     description:
       "SVG icon animation presets with copy-ready CSS export. Pick an icon, pick a preset, tune the timing, ship. No install.",
@@ -68,6 +74,7 @@ const PROJECTS: Project[] = [
   },
   {
     number: "05",
+    key: "promptr",
     title: "Promptr",
     description:
       "A prompt workshop. Rubric-based scoring turns fuzzy prompts into specific ones before you spend tokens running them.",
@@ -77,6 +84,7 @@ const PROJECTS: Project[] = [
   },
   {
     number: "06",
+    key: "spark",
     title: "Spark",
     description:
       "A learning platform built from a spark, to teach designers full-stack engineering. A course built for designers, by a designer, so they can build for themselves.",
@@ -86,6 +94,7 @@ const PROJECTS: Project[] = [
   },
   {
     number: "07",
+    key: "touchtype",
     title: "Touchtype",
     description:
       "A touch-typing tutor with two modes. A playful course for kids learning their first home row, and a focused practice ground for adults who want to type without looking. Best on a real keyboard.",
@@ -95,6 +104,7 @@ const PROJECTS: Project[] = [
   },
   {
     number: "08",
+    key: "kids-alphabet",
     title: "Kids Alphabet",
     description:
       "An alphabet game for toddlers. Tap a letter, swipe to the next, finish with a quick quiz. Mobile-first, so it works on tiny fingers.",
@@ -364,38 +374,45 @@ function ProjectCard({ project }: { project: Project }) {
           <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
-      <h2
-        className="text-white mb-4"
-        style={{
-          fontFamily: "var(--font-playfair)",
-          fontSize: "clamp(2rem, 5vw, 3rem)",
-          fontWeight: 700,
-          letterSpacing: "-0.02em",
-          lineHeight: 1,
-        }}
-      >
-        {project.title}
-      </h2>
-      <p
-        className="text-white/60 max-w-2xl mb-4"
-        style={{
-          fontFamily: "var(--font-inter)",
-          fontSize: "0.875rem",
-          lineHeight: 1.6,
-        }}
-      >
-        {project.description}
-      </p>
-      <div
-        className="text-white/40"
-        style={{
-          fontFamily: "var(--font-inter)",
-          fontSize: "0.6875rem",
-          letterSpacing: "0.15em",
-          textTransform: "uppercase",
-        }}
-      >
-        {project.category}
+      <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-10">
+        <div className="flex-1 min-w-0">
+          <h2
+            className="text-white mb-4"
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: "clamp(2rem, 5vw, 3rem)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              lineHeight: 1,
+            }}
+          >
+            {project.title}
+          </h2>
+          <p
+            className="text-white/60 max-w-2xl mb-4"
+            style={{
+              fontFamily: "var(--font-inter)",
+              fontSize: "0.875rem",
+              lineHeight: 1.6,
+            }}
+          >
+            {project.description}
+          </p>
+          <div
+            className="text-white/40"
+            style={{
+              fontFamily: "var(--font-inter)",
+              fontSize: "0.6875rem",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+            }}
+          >
+            {project.category}
+          </div>
+        </div>
+        <div className="lg:self-center lg:flex-shrink-0">
+          <HomepageProjectPreview k={project.key} />
+        </div>
       </div>
     </>
   );
