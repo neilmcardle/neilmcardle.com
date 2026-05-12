@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "wireframe-dev",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "unset ANTHROPIC_API_KEY ANTHROPIC_BASE_URL; PORT=3000 npm run dev"],
+      "port": 3000
+    }
+  ]
+}

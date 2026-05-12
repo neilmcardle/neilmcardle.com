@@ -86,6 +86,15 @@ const PROJECTS: Project[] = [
   },
   {
     number: "07",
+    title: "DoodleWire",
+    description:
+      "Doodle a UI on a blank page. Teach the local recogniser your style and it snaps your strokes into polished wireframe elements. Export clean HTML or React when you are ready. Runs entirely in the browser, no API calls.",
+    href: "/doodlewire",
+    external: false,
+    category: "Tool · Drawing · Local-only",
+  },
+  {
+    number: "08",
     title: "Kids Alphabet",
     description:
       "An alphabet game for toddlers. Tap a letter, swipe to the next, finish with a quick quiz. Mobile-first, so it works on tiny fingers.",

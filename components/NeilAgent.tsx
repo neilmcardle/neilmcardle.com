@@ -31,6 +31,7 @@ const HIDDEN_ROUTES = [
   "/cabin",
   "/privacy",
   "/terms",
+  "/doodlewire",
 ];
 
 // Hostnames where the agent should never appear, regardless of route.

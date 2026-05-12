@@ -57,6 +57,18 @@ const nextConfig = {
         destination: '/make-ebook',
         permanent: true,
       },
+      // /wireframe was renamed to /doodlewire in 2026-05. Permanent redirect
+      // so any external links or bookmarks resolve to the new home.
+      {
+        source: '/wireframe',
+        destination: '/doodlewire',
+        permanent: true,
+      },
+      {
+        source: '/wireframe/:path*',
+        destination: '/doodlewire/:path*',
+        permanent: true,
+      },
     ];
   },
   async headers() {
