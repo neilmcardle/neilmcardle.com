@@ -7,6 +7,7 @@
 // selection settles to avoid flashing on click-and-drag.
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useIsMac, ModKey } from "../marketing/sections-v2/PlatformKey";
 
 const STORAGE_KEY = "me_cmdk_hint_dismissed";
 
@@ -21,6 +22,7 @@ export default function SelectionHint({
   inlineEditOpen,
   onTriggerCmdK,
 }: SelectionHintProps) {
+  const isMac = useIsMac();
   const [visible, setVisible] = useState(false);
   const [rect, setRect] = useState<DOMRect | null>(null);
   const [dismissed, setDismissed] = useState(() => {
@@ -104,13 +106,13 @@ export default function SelectionHint({
       }}
       className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-900 dark:bg-[#2a2a2a] text-white text-[11px] font-medium shadow-lg hover:bg-gray-700 dark:hover:bg-[#3a3a3a] transition-all animate-in fade-in slide-in-from-bottom-1 duration-200"
       title="Edit selection with Book Mind"
-      aria-label="Edit selection with Book Mind (⌘K)"
+      aria-label={`Edit selection with Book Mind (${isMac ? '⌘K' : 'Ctrl+K'})`}
     >
       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
         <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
         <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
       </svg>
-      <span>⌘K</span>
+      <span><ModKey keyName="K" /></span>
     </button>
   );
 }

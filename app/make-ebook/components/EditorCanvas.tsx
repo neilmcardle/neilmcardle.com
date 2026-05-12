@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { LockIcon } from './icons';
 import RichTextEditor from './RichTextEditor';
 import type { FocusModeSettings } from '../hooks/useFocusMode';
+import { ModKey } from './marketing/sections-v2/PlatformKey';
 
 interface Chapter {
   id: string;
@@ -148,7 +149,7 @@ export default function EditorCanvas({
             <div className="hidden lg:flex items-center gap-2 text-2xs text-gray-400 dark:text-[#737373]">
               <span className="flex items-center gap-1">
                 <kbd className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#3a3a3a] text-gray-500 dark:text-[#a3a3a3] font-mono text-[10px] leading-none">
-                  {typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform) ? '\u2318K' : 'Ctrl+K'}
+                  <ModKey keyName="K" />
                 </kbd>
                 <span>edit with AI</span>
               </span>

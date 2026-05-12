@@ -9,6 +9,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { createPortal } from "react-dom";
 import { useBookMind } from "../../hooks/useBookMind";
 import { toast } from "sonner";
+import { useIsMac } from "../marketing/sections-v2/PlatformKey";
 
 export interface InlineEditRequest {
   open: boolean;
@@ -43,6 +44,9 @@ export default function InlineEditPopover({
   userId,
 }: InlineEditPopoverProps) {
   const { inlineEdit } = useBookMind({ bookId, userId });
+  const isMac = useIsMac();
+  const modKey = isMac ? "⌘" : "Ctrl+";
+  const undoCombo = isMac ? "⌘Z" : "Ctrl+Z";
 
   const [instruction, setInstruction] = useState("");
   const [results, setResults] = useState<(string | null)[]>(
@@ -198,9 +202,9 @@ export default function InlineEditPopover({
     const trailing = request.selectedText.match(/\s+$/)?.[0] ?? "";
     const core = activeResult.replace(/^\s+/, "").replace(/\s+$/, "");
     onAccept(leading + core + trailing);
-    toast.success("Replaced", { description: "Undo with \u2318Z if you change your mind." });
+    toast.success("Replaced", { description: `Undo with ${undoCombo} if you change your mind.` });
     onClose();
-  }, [activeResult, onAccept, onClose, request.selectedText]);
+  }, [activeResult, onAccept, onClose, request.selectedText, undoCombo]);
 
   const handleInputKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -358,7 +362,7 @@ export default function InlineEditPopover({
         <p className="text-2xs text-gray-400 dark:text-[#737373] leading-tight">
           {hasAnyResult ? (
             <>
-              <Kbd>\u2318\u2191\u2193</Kbd> cycle &middot;{" "}
+              <Kbd>{modKey}\u2191\u2193</Kbd> cycle &middot;{" "}
               <Kbd>Tab</Kbd> accept &middot;{" "}
               <Kbd>Esc</Kbd> cancel
             </>

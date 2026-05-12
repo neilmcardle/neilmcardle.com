@@ -8,6 +8,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { createPortal } from "react-dom";
 import { useBookMind } from "../../hooks/useBookMind";
 import { toast } from "sonner";
+import { useIsMac } from "../marketing/sections-v2/PlatformKey";
 
 export interface ComposePaletteRequest {
   open: boolean;
@@ -71,6 +72,11 @@ const COMMANDS: ComposeCommand[] = [
 
 const PALETTE_WIDTH = 320;
 const VIEWPORT_MARGIN = 12;
+const ANCHOR_GAP = 4;
+// Fixed-height portion (header + input row + action bar). The result
+// area takes whatever vertical space is left and scrolls.
+const CHROME_HEIGHT = 130;
+const PALETTE_MAX = 480;
 
 export default function ComposePalette({
   request,
@@ -80,6 +86,8 @@ export default function ComposePalette({
   userId,
 }: ComposePaletteProps) {
   const { inlineEdit } = useBookMind({ bookId, userId });
+  const isMac = useIsMac();
+  const undoCombo = isMac ? "⌘Z" : "Ctrl+Z";
 
   const [filter, setFilter] = useState("");
   const [selectedCommand, setSelectedCommand] = useState<ComposeCommand | null>(null);
@@ -133,14 +141,34 @@ export default function ComposePalette({
     return () => document.removeEventListener("keydown", handle);
   }, [request.open, onClose]);
 
-  // Position
-  const position = useMemo(() => {
-    if (!request.anchorRect) return { top: 0, left: 0 };
+  // Position: anchored below the caret, flips above when there's not
+  // enough room. maxHeight caps the palette so the action bar stays in
+  // view even with a long result.
+  const layout = useMemo(() => {
+    if (!request.anchorRect) return { top: 0, left: 0, maxHeight: PALETTE_MAX };
     const rect = request.anchorRect;
     const vw = typeof window !== "undefined" ? window.innerWidth : 1024;
+    const vh = typeof window !== "undefined" ? window.innerHeight : 768;
+
     let left = rect.left;
     if (left + PALETTE_WIDTH > vw - VIEWPORT_MARGIN) left = vw - PALETTE_WIDTH - VIEWPORT_MARGIN;
-    return { top: rect.bottom + 4, left: Math.max(VIEWPORT_MARGIN, left) };
+    left = Math.max(VIEWPORT_MARGIN, left);
+
+    const spaceBelow = vh - rect.bottom - ANCHOR_GAP - VIEWPORT_MARGIN;
+    const spaceAbove = rect.top - ANCHOR_GAP - VIEWPORT_MARGIN;
+    const minUsable = CHROME_HEIGHT + 60;
+
+    let top: number;
+    let maxHeight: number;
+    if (spaceBelow >= minUsable || spaceBelow >= spaceAbove) {
+      top = rect.bottom + ANCHOR_GAP;
+      maxHeight = Math.min(PALETTE_MAX, spaceBelow);
+    } else {
+      maxHeight = Math.min(PALETTE_MAX, spaceAbove);
+      top = rect.top - ANCHOR_GAP - maxHeight;
+    }
+    maxHeight = Math.max(maxHeight, minUsable);
+    return { top: Math.max(VIEWPORT_MARGIN, top), left, maxHeight };
   }, [request.anchorRect]);
 
   const handleSelectCommand = (cmd: ComposeCommand) => {
@@ -178,7 +206,7 @@ export default function ComposePalette({
   const handleAccept = () => {
     if (!result) return;
     onInsert(result);
-    toast.success("Draft inserted", { description: "Undo with \u2318Z." });
+    toast.success("Draft inserted", { description: `Undo with ${undoCombo}.` });
     onClose();
   };
 
@@ -204,11 +232,11 @@ export default function ComposePalette({
       ref={paletteRef}
       style={{
         position: "fixed",
-        top: position.top,
-        left: position.left,
+        top: layout.top,
+        left: layout.left,
         width: PALETTE_WIDTH,
         zIndex: 1000,
-        maxHeight: 400,
+        maxHeight: layout.maxHeight,
       }}
       className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#2f2f2f] rounded-xl shadow-2xl overflow-hidden flex flex-col"
       role="dialog"
@@ -313,12 +341,14 @@ export default function ComposePalette({
               </p>
               <div className="flex gap-1">
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => { setResult(null); handleGenerate(selectedCommand, instruction); }}
                   className="text-xs px-2.5 py-1 text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white rounded transition-colors"
                 >
                   Try again
                 </button>
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={handleAccept}
                   className="text-xs px-3 py-1 bg-[#4070ff] text-white rounded font-medium hover:bg-[#3560e6] transition-colors"
                 >

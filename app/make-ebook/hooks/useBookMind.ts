@@ -614,10 +614,11 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     selectedText: string;
     surroundingParagraph?: string;
     instruction: string;
-  }): Promise<string | null> => {
+  }): Promise<string> => {
     if (!bookId || !userId) {
-      setError('Inline edit requires a saved book');
-      return null;
+      const msg = 'Save the book first — Book Mind needs a saved book to generate from.';
+      setError(msg);
+      throw new Error(msg);
     }
     const book = loadBookById(userId, bookId);
     const brief = book && isBriefFresh(book) ? book.bookmindMemory!.brief! : null;
@@ -666,10 +667,13 @@ export function useBookMind(options: UseBookMindOptions = {}) {
           } catch { /* skip */ }
         }
       }
+      if (!fullContent) {
+        throw new Error('Book Mind returned no content. Try again.');
+      }
       return fullContent;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Inline edit failed');
-      return null;
+      throw err;
     }
   }, [bookId, userId]);
 

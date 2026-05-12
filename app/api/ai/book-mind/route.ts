@@ -56,23 +56,27 @@ export async function POST(req: NextRequest) {
   if (!body.messages || body.messages.length === 0) {
     return NextResponse.json({ error: 'No messages provided' }, { status: 400 });
   }
-  if (!body.voice || !body.context) {
-    return NextResponse.json({ error: 'Missing system prompt sections' }, { status: 400 });
+  if (!body.voice) {
+    return NextResponse.json({ error: 'Missing voice block' }, { status: 400 });
   }
 
   // Voice + memory are small and per-surface (uncached). Context gets the
   // cache breakpoint because it is large and stable across a session.
+  // Compose-from-scratch flows (Cmd-K with no selection, /draft, /dialogue)
+  // legitimately have no context — voice alone is a valid system prompt.
   const systemBlocks: SystemBlock[] = [
     { type: 'text', text: body.voice },
   ];
   if (body.memory && body.memory.trim()) {
     systemBlocks.push({ type: 'text', text: body.memory });
   }
-  systemBlocks.push({
-    type: 'text',
-    text: body.context,
-    cache_control: { type: 'ephemeral' },
-  });
+  if (body.context && body.context.trim()) {
+    systemBlocks.push({
+      type: 'text',
+      text: body.context,
+      cache_control: { type: 'ephemeral' },
+    });
+  }
 
   const tier: ModelTier = body.tier === 'wide' && body.deep ? 'background' : 'live';
 

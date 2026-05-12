@@ -294,7 +294,7 @@ export default function GhostTextOverlay({
                 <kbd className="inline-flex items-center px-1 py-0 rounded border border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] font-mono text-[10px] mx-0.5">Tab</kbd> or click to insert
               </span>
               <span className="text-[10px] text-gray-400 dark:text-[#636363]">
-                Flow mode · toggle off in Inspector
+                Flow mode · switch off in the Mode menu
               </span>
             </div>
           </>

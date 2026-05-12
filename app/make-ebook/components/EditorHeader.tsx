@@ -15,6 +15,7 @@ import { HistoryButton } from './HistoryPanel';
 import ModeMenu from './ModeMenu';
 import LayoutSwitcher, { RightPanelMode } from './LayoutSwitcher';
 import { useFeatureAccess } from '@/lib/hooks/useSubscription';
+import { useIsMac, ModKey } from './marketing/sections-v2/PlatformKey';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -93,6 +94,7 @@ export default function EditorHeader({
   onExportDocx,
   hideChrome = false,
 }: EditorHeaderProps) {
+  const isMac = useIsMac();
   return (
     <div
       className={`flex items-center justify-between px-6 mb-2 transition-opacity duration-300 ${
@@ -106,7 +108,7 @@ export default function EditorHeader({
           <button
             onClick={onSaveNow}
             className="flex items-center gap-2 h-10 px-3 rounded-lg bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors text-xs font-medium text-gray-700 dark:text-[#d4d4d4]"
-            title="Save now (⌘S)"
+            title={`Save now (${isMac ? '⌘S' : 'Ctrl+S'})`}
           >
             <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
             <span>Save</span>
@@ -198,11 +200,12 @@ export default function EditorHeader({
 // Always visible, no conditional timing or localStorage dismissal.
 function CmdKHint() {
   const hasBookMind = useFeatureAccess('book_mind_ai');
+  const isMac = useIsMac();
   if (!hasBookMind) return null;
   return (
     <div
       className="flex items-center gap-1.5 h-10 px-3 rounded-lg text-xs font-medium text-gray-400 dark:text-[#737373] select-none"
-      title="Select text and press ⌘K to edit with Book Mind"
+      title={`Select text and press ${isMac ? '⌘K' : 'Ctrl+K'} to edit with Book Mind`}
     >
       <svg
         className="w-3.5 h-3.5"
@@ -216,7 +219,7 @@ function CmdKHint() {
         <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
         <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
       </svg>
-      <span className="hidden sm:inline">⌘K</span>
+      <span className="hidden sm:inline"><ModKey keyName="K" /></span>
     </div>
   );
 }

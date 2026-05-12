@@ -354,14 +354,28 @@ function MakeEbookPage() {
       const editorEl = document.querySelector('[contenteditable="true"]') as HTMLElement | null;
       if (editorEl) editorEl.focus();
 
-      // Delete the "/" trigger character — but only if it sits directly
-      // before the caret. Cmd-K can open the palette without a trigger
-      // slash; we must not strip a stray "/" earlier on the line in that
-      // case (e.g. inside a URL).
+      // Restore the caret to where the user invoked compose. Clicking
+      // the Insert button blurs the editor — calling focus() alone
+      // leaves the caret at the element default, not the saved range —
+      // so execCommand('insertHTML') below would either insert in the
+      // wrong place or silently no-op.
       const range = composeRequest.range;
       if (range) {
         const sel = window.getSelection();
         if (sel) {
+          try {
+            sel.removeAllRanges();
+            sel.addRange(range);
+          } catch {
+            // Range detached from DOM (rare — editor re-rendered).
+            // Fall through; insertHTML will land at whatever the
+            // browser considers the current caret.
+          }
+
+          // Delete the "/" trigger character — but only if it sits
+          // directly before the caret. Cmd-K can open the palette
+          // without a trigger slash; we must not strip a stray "/"
+          // earlier on the line (e.g. inside a URL).
           const node = range.startContainer;
           if (node.nodeType === Node.TEXT_NODE) {
             const text = node.textContent ?? '';

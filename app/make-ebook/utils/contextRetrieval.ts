@@ -307,12 +307,17 @@ export function pickContextTier(args: {
 export function renderContextForPrompt(ctx: RetrievedContext): string {
   const sections: string[] = [];
 
-  // Only include the brief if we have retrieved chapters or a
-  // non-spotlight tier. For spotlight (Cmd-K, ghost text) and light
-  // (meta questions), the brief adds tokens without grounding value
-  // since the model already has the specific text it needs.
+  // Include the brief when the model has no other grounding. For
+  // spotlight calls with a real selection (Cmd-K rewrite, ghost text),
+  // the brief just adds tokens — the model already has the specific
+  // text it needs. But for spotlight compose-from-scratch (Cmd-K with
+  // no selection, /draft, /dialogue), the brief is the only thing
+  // anchoring the model to *this* book's characters and setting.
   const includeBrief = ctx.brief && (
-    ctx.tier === 'scene' || ctx.tier === 'wide' || ctx.retrievedChapters.length > 0
+    ctx.tier === 'scene' ||
+    ctx.tier === 'wide' ||
+    ctx.retrievedChapters.length > 0 ||
+    (ctx.tier === 'spotlight' && !ctx.selectedText)
   );
 
   if (includeBrief && ctx.brief) {

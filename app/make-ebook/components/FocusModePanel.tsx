@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { FocusSettings, ColumnWidth, AmbientSound } from "../hooks/useFocusMode";
+import { useIsMac } from "./marketing/sections-v2/PlatformKey";
 
 interface Props {
   settings: FocusSettings;
@@ -207,10 +208,11 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
 
 // ── Entry button for the status bar (when NOT in focus mode) ──────────────────
 export function FocusModeButton({ onClick }: { onClick: () => void }) {
+  const isMac = useIsMac();
   return (
     <button
       onClick={onClick}
-      title="Enter focus mode  ⌘⇧F"
+      title={`Enter focus mode  ${isMac ? '⌘⇧F' : 'Ctrl+Shift+F'}`}
       className="flex items-center gap-1.5 px-3 h-10 rounded-lg bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors group"
     >
       <svg
