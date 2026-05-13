@@ -1157,7 +1157,11 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   25%      { stroke-dasharray: 200 0; }
   90%      { stroke-dasharray: 200 0; }
 }
-.hpp-me-line { stroke-dasharray: 0 200; animation: hpp-me-line-in 6s ease-in-out infinite; }
+/* No static stroke-dasharray / opacity defaults: when the animation is
+   paused or unsupported, the element falls back to its visible end state
+   so the preview never reads as a blank panel. Keyframes still drive the
+   hidden moments during playback. */
+.hpp-me-line { animation: hpp-me-line-in 6s ease-in-out infinite; }
 .hpp-me-l1 { animation-delay: 0s; }
 .hpp-me-l2 { animation-delay: 1s; }
 .hpp-me-l3 { animation-delay: 3.5s; }
@@ -1166,7 +1170,7 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   48%, 55%      { opacity: 0.35; }
   60%, 85%      { opacity: 1; }
 }
-.hpp-me-ghost { opacity: 0; animation: hpp-me-ghost 6s ease-in-out infinite; }
+.hpp-me-ghost { animation: hpp-me-ghost 6s ease-in-out infinite; }
 
 /* DoodleWire: sketch fades, polished button morphs in */
 @keyframes hpp-dw-sketch {
@@ -1234,6 +1238,8 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   0%, 35%, 95%, 100% { opacity: 0; }
   45%, 80%           { opacity: 1; }
 }
+/* Wavy is the static fallback (the "before" state of the rubric). Sharp
+   stays hidden by default so a paused preview reads as the fuzzy prompt. */
 .hpp-pr-wavy  { animation: hpp-pr-wavy-out 5s ease-in-out infinite; }
 .hpp-pr-sharp { opacity: 0; animation: hpp-pr-sharp-in 5s ease-in-out infinite; }
 .hpp-pr-r1 { animation-delay: 0s; }
@@ -1246,8 +1252,8 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   0%, 100% { opacity: 0; }
   12%, 88% { opacity: 1; }
 }
+/* Fallback to fully visible when animation is paused/unsupported. */
 .hpp-sp-sketch, .hpp-sp-code {
-  opacity: 0;
   animation: hpp-sp-pair 5s ease-in-out infinite;
 }
 .hpp-sp-p1 { animation-delay: 0s; }
@@ -1279,6 +1285,9 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   transform-origin: 80px 48px;
   transform-box: fill-box;
 }
-.hpp-ka-a { animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 0s; }
+/* Freeze-frame fallback: when the animation is paused/unsupported, A stays
+   visible so the panel still reads as an alphabet glyph. B and C remain
+   hidden in the rest state so they don't pile on top of A. */
+.hpp-ka-a { opacity: 1; animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 0s; }
 .hpp-ka-b { animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 1.5s; }
 .hpp-ka-c { animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 3s; }

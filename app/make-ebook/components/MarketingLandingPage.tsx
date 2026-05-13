@@ -69,14 +69,20 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
     router.push(`/make-ebook/signin?mode=${mode}`);
   };
 
-  const handleCheckout = async (type: 'pro' | 'lifetime') => {
-    track('upgrade_clicked', { source: 'pricing_card', tier: type });
-    track('checkout_started', { tier: type });
+  const handleCheckout = async (type: 'pro' | 'lifetime', period: 'monthly' | 'yearly' = 'monthly') => {
+    track('upgrade_clicked', { source: 'pricing_card', tier: type, period });
+    track('checkout_started', { tier: type, period });
     setCheckoutLoading(type);
     setCheckoutError(null);
     try {
       const endpoint = type === 'lifetime' ? '/api/checkout-lifetime' : '/api/checkout';
-      const response = await fetch(endpoint, { method: 'POST', credentials: 'include' });
+      const body = type === 'pro' ? JSON.stringify({ period }) : undefined;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        credentials: 'include',
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        body,
+      });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to start checkout');
       if (data.url) window.location.href = data.url;

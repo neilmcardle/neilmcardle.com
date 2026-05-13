@@ -70,7 +70,7 @@ export const PRICING: readonly PricingPlan[] = [
       'Focus mode & ambient sounds',
       'Works offline',
     ],
-    cta: 'Sign Up',
+    cta: 'Start writing free',
     highlighted: false,
     checkoutType: null,
   },
