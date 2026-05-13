@@ -117,16 +117,16 @@ const PROJECTS: Project[] = [
 // Color lives on a className (`text-white`) not inline, so `hover:text-black`
 // can actually win. Inline `color` beats any Tailwind hover variant.
 const LINK_BUTTON_STYLE = {
-  fontFamily: "var(--font-inter)",
+  fontFamily: "var(--font-jetbrains-mono)",
   fontSize: "0.75rem",
-  fontWeight: 600,
-  letterSpacing: "0.1em",
+  fontWeight: 500,
+  letterSpacing: "0.13em",
   textTransform: "uppercase" as const,
 };
 
 export default function Homepage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] relative isolate overflow-hidden">
+    <div className="min-h-screen bg-black relative isolate overflow-hidden">
       {/* Ripple backdrop — vertical hairlines clustered on the left and
           dispersing right. Sits above the black bg but below everything
           else via -z-10 inside the isolated root stacking context. */}
@@ -139,7 +139,7 @@ export default function Homepage() {
           return (
             <div
               key={i}
-              className="ripple-line absolute top-0 bottom-0 w-px bg-white"
+              className="ripple-line absolute top-0 bottom-0 w-px bg-[#fbf9f3]"
               style={{
                 left: `${x}%`,
                 ["--ripple-base" as string]: opacity,
@@ -152,11 +152,11 @@ export default function Homepage() {
 
       {/* Year corner */}
       <div
-        className="hidden sm:block fixed top-6 right-6 z-10 text-white/40"
+        className="hidden sm:block fixed top-6 right-6 z-10 text-[#8a7f70]"
         style={{
           fontSize: "0.75rem",
-          fontFamily: "var(--font-inter)",
-          letterSpacing: "0.05em",
+          fontFamily: "var(--font-jetbrains-mono)",
+          letterSpacing: "0.13em",
         }}
       >
         20
@@ -173,10 +173,9 @@ export default function Homepage() {
               alt="Neil McArdle"
               width={26}
               height={26}
-              className="opacity-50"
               style={{ color: "transparent" }}
             />
-            <div className="flex-1 h-[1px] bg-white/20" />
+            <div className="flex-1 h-[1px] bg-[#8a7f70]/50" />
           </div>
 
           {/* Hero grid — photo spans both rows on desktop so the link
@@ -185,33 +184,37 @@ export default function Homepage() {
             <div>
               <h1
                 style={{
-                  fontFamily: "var(--font-playfair)",
+                  fontFamily: "var(--font-eb-garamond)",
                   fontSize: "clamp(2.25rem, 11vw, 4.5rem)",
-                  fontWeight: 900,
-                  letterSpacing: "-0.03em",
-                  lineHeight: "0.9",
-                  textTransform: "uppercase",
-                  color: "#ffffff",
+                  fontWeight: 800,
+                  // 240 letter-spacing units = 0.2em.
+                  // Compensate for the trailing-space optical drift by
+                  // padding the right edge by the same amount.
+                  letterSpacing: "0.2em",
+                  paddingRight: "0.24em",
+                  lineHeight: "0.95",
+                  textTransform: "none",
+                  color: "#fbf9f3",
                   marginBottom: "1.25rem",
                 }}
               >
                 NEIL
                 <br />
-                MCARDLE
+                McARDLE
               </h1>
-              <div className="border-2 border-white/80 p-4 sm:p-6">
-                <p
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.8125rem",
-                    color: "#ffffff",
-                    lineHeight: "1.6",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  Product Designer | UK
-                </p>
+              <div
+                className="flex gap-12 sm:gap-16"
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.8125rem",
+                  color: "#8a7f70",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.13em",
+                }}
+              >
+                <span>ARTIST</span>
+                <span>|</span>
+                <span>DESIGNER</span>
               </div>
               {/* Primary CTA — sits under the title card, separated from
                   the profile-link row so it reads as an action, not
@@ -220,12 +223,12 @@ export default function Homepage() {
                 href="https://www.cal.eu/neilmca"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2 mt-4 sm:mt-6 px-5 py-3 border-2 border-white bg-white text-black hover:bg-transparent hover:text-white transition-all whitespace-nowrap"
+                className="group inline-flex items-center gap-2 mt-4 sm:mt-6 px-5 py-3 border-2 border-[#fbf9f3] bg-[#fbf9f3] text-black hover:bg-transparent hover:text-[#fbf9f3] transition-all whitespace-nowrap"
                 style={{
-                  fontFamily: "var(--font-inter)",
+                  fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
-                  fontWeight: 600,
-                  letterSpacing: "0.1em",
+                  fontWeight: 500,
+                  letterSpacing: "0.13em",
                   textTransform: "uppercase",
                 }}
               >
@@ -243,7 +246,7 @@ export default function Homepage() {
             </div>
 
             <div className="relative lg:row-span-2 max-w-[360px] lg:max-w-none">
-              <div className="border-4 border-white/80 overflow-hidden aspect-square">
+              <div className="border-4 border-[#8a7f70] overflow-hidden aspect-square">
                 <Image
                   src="/me.png"
                   alt="Neil McArdle"
@@ -260,7 +263,7 @@ export default function Homepage() {
                 className="absolute top-5 left-5 flex items-center gap-2"
                 style={{ fontFamily: "var(--font-inter)" }}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-white/80 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#fbf9f3]/80 animate-pulse" />
                 <span className="thinking-shimmer text-[11px] font-medium tracking-wide">
                   Thinking...
                 </span>
@@ -272,7 +275,7 @@ export default function Homepage() {
                 href="https://www.linkedin.com/in/neilmcardle/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-3 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all whitespace-nowrap"
+                className="group flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-3 border-2 border-[#fbf9f3]/80 text-[#fbf9f3] hover:bg-[#fbf9f3] hover:border-[#fbf9f3] hover:text-black transition-all whitespace-nowrap"
                 style={LINK_BUTTON_STYLE}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -284,7 +287,7 @@ export default function Homepage() {
                 href="https://github.com/neilmcardle"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-3 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all whitespace-nowrap"
+                className="group flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-3 border-2 border-[#fbf9f3]/80 text-[#fbf9f3] hover:bg-[#fbf9f3] hover:border-[#fbf9f3] hover:text-black transition-all whitespace-nowrap"
                 style={LINK_BUTTON_STYLE}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -296,7 +299,7 @@ export default function Homepage() {
                 href="https://x.com/BetterNeil"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-3 border-2 border-white/80 text-white hover:bg-white hover:text-black transition-all whitespace-nowrap"
+                className="group flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-3 border-2 border-[#fbf9f3]/80 text-[#fbf9f3] hover:bg-[#fbf9f3] hover:border-[#fbf9f3] hover:text-black transition-all whitespace-nowrap"
                 style={LINK_BUTTON_STYLE}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -311,16 +314,16 @@ export default function Homepage() {
         <section className="mb-20 mt-16">
           <div className="flex items-center gap-8 mb-12">
             <div
-              className="text-white/40"
+              className="text-[#8a7f70]"
               style={{
                 fontSize: "0.75rem",
-                fontFamily: "var(--font-inter)",
-                letterSpacing: "0.1em",
+                fontFamily: "var(--font-jetbrains-mono)",
+                letterSpacing: "0.13em",
               }}
             >
               + SELECTED WORK
             </div>
-            <div className="flex-1 h-[2px] bg-white/20" />
+            <div className="flex-1 h-[2px] bg-[#8a7f70]/50" />
           </div>
 
           <div className="grid grid-cols-1 gap-4">
@@ -330,16 +333,16 @@ export default function Homepage() {
           </div>
         </section>
 
-        <footer className="pt-12 border-t-2 border-white/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <footer className="pt-12 border-t-2 border-[#8a7f70]/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <p
-            className="text-white/40"
+            className="text-[#8a7f70]"
             style={{ fontFamily: "var(--font-inter)", fontSize: "0.75rem" }}
           >
             © 2026 Neil McArdle
           </p>
           <a
             href="mailto:neil@neilmcardle.com"
-            className="text-white/60 hover:text-white transition-colors"
+            className="text-[#fbf9f3]/70 hover:text-[#fbf9f3] transition-colors"
             style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
           >
             neil@neilmcardle.com
@@ -355,17 +358,17 @@ function ProjectCard({ project }: { project: Project }) {
     <>
       <div className="flex items-start justify-between mb-4 gap-6">
         <div
-          className="text-white/40"
+          className="text-[#8a7f70]"
           style={{
-            fontFamily: "var(--font-inter)",
+            fontFamily: "var(--font-jetbrains-mono)",
             fontSize: "0.75rem",
-            letterSpacing: "0.1em",
+            letterSpacing: "0.13em",
           }}
         >
           {project.number}
         </div>
         <svg
-          className="w-4 h-4 text-white/40 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-all"
+          className="w-4 h-4 text-[#8a7f70] group-hover:text-[#fbf9f3] group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-all"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -377,7 +380,7 @@ function ProjectCard({ project }: { project: Project }) {
       <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-10">
         <div className="flex-1 min-w-0">
           <h2
-            className="text-white mb-4"
+            className="text-[#fbf9f3] mb-4"
             style={{
               fontFamily: "var(--font-playfair)",
               fontSize: "clamp(2rem, 5vw, 3rem)",
@@ -389,7 +392,7 @@ function ProjectCard({ project }: { project: Project }) {
             {project.title}
           </h2>
           <p
-            className="text-white/60 max-w-2xl mb-4"
+            className="text-[#fbf9f3]/70 max-w-2xl mb-4"
             style={{
               fontFamily: "var(--font-inter)",
               fontSize: "0.875rem",
@@ -399,11 +402,11 @@ function ProjectCard({ project }: { project: Project }) {
             {project.description}
           </p>
           <div
-            className="text-white/40"
+            className="text-[#8a7f70]"
             style={{
-              fontFamily: "var(--font-inter)",
+              fontFamily: "var(--font-jetbrains-mono)",
               fontSize: "0.6875rem",
-              letterSpacing: "0.15em",
+              letterSpacing: "0.13em",
               textTransform: "uppercase",
             }}
           >
@@ -418,7 +421,7 @@ function ProjectCard({ project }: { project: Project }) {
   );
 
   const className =
-    "project-card-trace group relative block border-2 border-white/30 hover:border-white transition-all duration-300 p-6 sm:p-8";
+    "project-card-trace group relative block border-2 border-[#8a7f70]/50 hover:border-[#fbf9f3] transition-all duration-300 p-6 sm:p-8";
 
   if (project.external) {
     return (

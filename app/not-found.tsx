@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
+    <div className="min-h-screen bg-black flex flex-col">
       <header className="px-8 sm:px-16 lg:px-24 pt-8 pb-0 max-w-[1100px] mx-auto w-full">
         <Link href="/" aria-label="Neil McArdle — home">
           <Image
@@ -11,7 +11,7 @@ export default function NotFound() {
             alt="Neil McArdle"
             width={26}
             height={26}
-            className="opacity-50 hover:opacity-100 transition-opacity duration-300"
+            className="opacity-80 hover:opacity-100 transition-opacity duration-300"
             style={{ color: "transparent" }}
           />
         </Link>
@@ -20,14 +20,14 @@ export default function NotFound() {
       <main className="flex-1 flex items-center px-8 sm:px-16 lg:px-24 max-w-[1100px] mx-auto w-full pb-32">
         <section className="max-w-[640px]">
           <p
-            className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/45 mb-6"
+            className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#8a7f70] mb-6"
             style={{ fontFamily: "var(--font-inter)" }}
           >
             404 · Page not found
           </p>
 
           <h1
-            className="text-[48px] sm:text-[64px] lg:text-[76px] text-white leading-[0.95] mb-8"
+            className="text-[48px] sm:text-[64px] lg:text-[76px] text-[#fbf9f3] leading-[0.95] mb-8"
             style={{
               fontFamily: "var(--font-playfair)",
               fontWeight: 400,
@@ -38,17 +38,17 @@ export default function NotFound() {
           </h1>
 
           <p
-            className="text-sm text-white/45 mb-12 tracking-wide"
+            className="text-sm text-[#8a7f70] mb-12 tracking-wide"
             style={{ fontFamily: "var(--font-inter)" }}
           >
             J.R.R. Tolkien
           </p>
 
-          <div className="w-full h-px bg-white/[0.08] mb-10" />
+          <div className="w-full h-px bg-[#8a7f70]/30 mb-10" />
 
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors duration-200"
+            className="inline-flex items-center gap-2 text-sm text-[#fbf9f3]/70 hover:text-[#fbf9f3] transition-colors duration-200"
             style={{ fontFamily: "var(--font-inter)" }}
           >
             Back to the homepage

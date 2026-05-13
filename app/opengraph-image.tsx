@@ -47,7 +47,7 @@ export default async function OpenGraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: "#0a0a0a",
+          backgroundColor: "#000000",
           padding: "72px 80px",
         }}
       >
@@ -65,7 +65,7 @@ export default async function OpenGraphImage() {
             viewBox="0 0 241 241"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path d={LOGOMARK_PATH} fill="rgba(255,255,255,0.22)" />
+            <path d={LOGOMARK_PATH} fill="#8a7f70" />
           </svg>
         </div>
 
@@ -86,7 +86,7 @@ export default async function OpenGraphImage() {
                 borderRadius: 999,
                 overflow: "hidden",
                 flexShrink: 0,
-                border: "2px solid rgba(255,255,255,0.12)",
+                border: "2px solid #8a7f70",
               }}
             >
               <img
@@ -104,7 +104,7 @@ export default async function OpenGraphImage() {
                   fontSize: 80,
                   lineHeight: 0.95,
                   letterSpacing: "-0.03em",
-                  color: "#ffffff",
+                  color: "#fbf9f3",
                   display: "flex",
                 }}
               >
@@ -116,7 +116,8 @@ export default async function OpenGraphImage() {
                   fontSize: 28,
                   fontWeight: 300,
                   lineHeight: 1.3,
-                  color: "rgba(255,255,255,0.70)",
+                  color: "#fbf9f3",
+                  opacity: 0.75,
                   display: "flex",
                   marginTop: 14,
                   maxWidth: 620,
@@ -135,7 +136,7 @@ export default async function OpenGraphImage() {
               fontFamily: "InterMedium",
               fontSize: 16,
               fontWeight: 500,
-              color: "rgba(255,255,255,0.40)",
+              color: "#8a7f70",
               letterSpacing: "0.12em",
               textTransform: "uppercase",
               flexShrink: 0,
@@ -146,7 +147,7 @@ export default async function OpenGraphImage() {
                 display: "flex",
                 width: 24,
                 height: 1,
-                backgroundColor: "rgba(255,255,255,0.25)",
+                backgroundColor: "#8a7f70",
               }}
             />
             neilmcardle.com
