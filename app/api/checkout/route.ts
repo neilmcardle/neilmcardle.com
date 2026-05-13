@@ -19,8 +19,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Stripe is not configured' }, { status: 500 })
     }
 
-    if (!process.env.STRIPE_PRO_PRICE_ID) {
-      return NextResponse.json({ error: 'Stripe Pro price not configured' }, { status: 500 })
+    // Body is optional — legacy callers omit it and get monthly. Yearly callers
+    // send { period: 'yearly' }.
+    let period: 'monthly' | 'yearly' = 'monthly'
+    try {
+      const body = await req.json()
+      if (body?.period === 'yearly') period = 'yearly'
+    } catch {
+      // No body or invalid JSON — fall through with monthly.
+    }
+
+    const priceId =
+      period === 'yearly'
+        ? process.env.STRIPE_PRO_YEARLY_PRICE_ID
+        : process.env.STRIPE_PRO_PRICE_ID
+
+    if (!priceId) {
+      return NextResponse.json(
+        { error: `Stripe Pro ${period} price not configured` },
+        { status: 500 }
+      )
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -83,13 +101,14 @@ export async function POST(req: NextRequest) {
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: 'subscription',
       payment_method_types: ['card'],
-      line_items: [{ price: process.env.STRIPE_PRO_PRICE_ID, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${appUrl}/make-ebook?checkout=success`,
       cancel_url: `${appUrl}/make-ebook?checkout=canceled`,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       metadata: {
         purchase_type: 'pro',
+        billing_period: period,
         ...(supabaseUserId ? { supabase_user_id: supabaseUserId } : {}),
       },
     }
@@ -100,7 +119,7 @@ export async function POST(req: NextRequest) {
 
     const session = await stripe.checkout.sessions.create(sessionParams)
 
-    console.log(`✅ Pro checkout session created: ${session.id}`)
+    console.log(`✅ Pro ${period} checkout session created: ${session.id}`)
 
     return NextResponse.json({ url: session.url }, { status: 200 })
   } catch (error: any) {
