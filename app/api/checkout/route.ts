@@ -117,6 +117,16 @@ export async function POST(req: NextRequest) {
       sessionParams.customer = existingCustomerId
     }
 
+    // Trial: env-controlled, default 7 days. Set STRIPE_PRO_TRIAL_DAYS=0
+    // to disable without a code change. Applies to both monthly and yearly.
+    // Stripe collects the card at checkout, charges only after the trial.
+    const trialDays = Number(process.env.STRIPE_PRO_TRIAL_DAYS ?? '7')
+    if (trialDays > 0) {
+      sessionParams.subscription_data = {
+        trial_period_days: trialDays,
+      }
+    }
+
     const session = await stripe.checkout.sessions.create(sessionParams)
 
     console.log(`✅ Pro ${period} checkout session created: ${session.id}`)

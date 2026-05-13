@@ -108,6 +108,9 @@ const PricingSection = forwardRef<HTMLElement, PricingSectionProps>(function Pri
                   >
                     {plan.checkoutType && checkoutLoading === plan.checkoutType ? 'Redirecting\u2026' : plan.cta}
                   </button>
+                  <p className={`mt-3 text-xs text-center ${plan.highlighted ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {isPro ? 'No charge for 7 days \u00b7 Cancel anytime' : 'No credit card needed'}
+                  </p>
                 </div>
               </div>
             );

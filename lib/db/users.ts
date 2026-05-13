@@ -77,7 +77,15 @@ export async function getUserSubscriptionTier(userId: string): Promise<'free' | 
 
     if (user.hasLifetimeAccess) return 'pro'
 
-    if (user.subscriptionStatus === 'active' && user.subscriptionTier === 'pro') {
+    // 'trialing' grants Pro access during the Stripe-managed free trial.
+    // Stripe sends customer.subscription.created with status='trialing' at
+    // checkout completion, then flips to 'active' when the card is charged.
+    const proStatuses: ReadonlyArray<string> = ['active', 'trialing']
+    if (
+      user.subscriptionStatus &&
+      proStatuses.includes(user.subscriptionStatus) &&
+      user.subscriptionTier === 'pro'
+    ) {
       if (user.subscriptionCurrentPeriodEnd) {
         const now = new Date()
         const periodEnd = new Date(user.subscriptionCurrentPeriodEnd)
@@ -104,7 +112,7 @@ export async function updateUserSubscription(
   updates: {
     stripeCustomerId?: string
     stripeSubscriptionId?: string
-    subscriptionStatus?: 'active' | 'canceled' | 'past_due' | 'incomplete'
+    subscriptionStatus?: 'active' | 'trialing' | 'canceled' | 'past_due' | 'incomplete'
     subscriptionTier?: 'free' | 'pro'
     subscriptionCurrentPeriodEnd?: Date
     stripePriceId?: string

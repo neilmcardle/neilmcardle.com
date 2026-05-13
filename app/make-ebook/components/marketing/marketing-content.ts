@@ -89,7 +89,7 @@ export const PRICING: readonly PricingPlan[] = [
       'Project memory across sessions',
       'Cloud sync across devices',
     ],
-    cta: 'Get Pro',
+    cta: 'Start 7-day free trial',
     highlighted: true,
     checkoutType: 'pro',
   },

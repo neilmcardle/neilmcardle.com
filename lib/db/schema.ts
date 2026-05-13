@@ -6,7 +6,7 @@ export const users = pgTable('users', {
   username: text('username'),
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),
-  subscriptionStatus: text('subscription_status').$type<'active' | 'canceled' | 'past_due' | 'incomplete'>(),
+  subscriptionStatus: text('subscription_status').$type<'active' | 'trialing' | 'canceled' | 'past_due' | 'incomplete'>(),
   subscriptionTier: text('subscription_tier').$type<'free' | 'pro'>().default('free').notNull(),
   isGrandfathered: boolean('is_grandfathered').default(false).notNull(),
   subscriptionCurrentPeriodEnd: timestamp('subscription_current_period_end'),

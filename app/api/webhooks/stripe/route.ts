@@ -128,7 +128,10 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription, strip
     return
   }
 
-  const tier: 'free' | 'pro' = subscription.status === 'active' ? 'pro' : 'free'
+  // Both 'active' and 'trialing' grant Pro tier. The card is collected at
+  // checkout, so trialing users have committed to the subscription.
+  const tier: 'free' | 'pro' =
+    subscription.status === 'active' || subscription.status === 'trialing' ? 'pro' : 'free'
 
   // current_period_end is on the subscription item in newer API versions.
   const periodEndRaw = subscription.items?.data[0]?.current_period_end
@@ -143,7 +146,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription, strip
 
   const { error: updateError } = await updateUserSubscription(user.id, {
     stripeSubscriptionId: subscription.id,
-    subscriptionStatus: subscription.status as 'active' | 'canceled' | 'past_due' | 'incomplete',
+    subscriptionStatus: subscription.status as 'active' | 'trialing' | 'canceled' | 'past_due' | 'incomplete',
     subscriptionTier: tier,
     subscriptionCurrentPeriodEnd,
     stripePriceId: subscription.items.data[0]?.price.id,
