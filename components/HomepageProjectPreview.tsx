@@ -51,15 +51,15 @@ function MakeEbookPreview() {
     <svg viewBox="0 0 160 90" width="100%" height="100%" className="hpp-svg">
       {/* Page outline */}
       <rect x="32" y="14" width="96" height="62" rx="2" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.35" />
-      {/* Text lines appearing one by one */}
       <g stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-        <line x1="42" y1="28" x2="78" y2="28" className="hpp-me-line hpp-me-l1" />
-        <line x1="42" y1="38" x2="116" y2="38" className="hpp-me-line hpp-me-l2" />
-        <line x1="42" y1="48" x2="100" y2="48" className="hpp-me-line hpp-me-l3" />
-        <line x1="42" y1="58" x2="92" y2="58" className="hpp-me-line hpp-me-l4" />
+        {/* Typed text — three solid lines, the middle one stops short so
+            the AI ghost completion can land in its tail. */}
+        <line x1="42" y1="30" x2="100" y2="30" className="hpp-me-line hpp-me-l1" />
+        <line x1="42" y1="44" x2="80" y2="44" className="hpp-me-line hpp-me-l2" />
+        {/* Ghost autocomplete: fades in dim, then solidifies as if accepted. */}
+        <line x1="80" y1="44" x2="116" y2="44" className="hpp-me-ghost" />
+        <line x1="42" y1="58" x2="96" y2="58" className="hpp-me-line hpp-me-l3" />
       </g>
-      {/* Blinking cursor */}
-      <rect x="118" y="36" width="2" height="6" fill="currentColor" className="hpp-me-cursor" />
     </svg>
   );
 }
@@ -116,16 +116,17 @@ function IconAnimatorPreview() {
 function PromptrPreview() {
   return (
     <svg viewBox="0 0 160 90" width="100%" height="100%" className="hpp-svg">
-      <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <line x1="34" y1="30" x2="104" y2="30" />
-        <line x1="34" y1="42" x2="92" y2="42" />
-        <line x1="34" y1="54" x2="118" y2="54" />
-      </g>
-      {/* Score circles, filling in sequence */}
-      <g className="hpp-pr-scores">
-        <circle cx="120" cy="30" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" className="hpp-pr-c1" />
-        <circle cx="108" cy="42" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" className="hpp-pr-c2" />
-        <circle cx="132" cy="54" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" className="hpp-pr-c3" />
+      <g stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round">
+        {/* Each row pairs a wavy path with a straight line at the same y.
+            Cross-fade between the two reads as the prompt sharpening. */}
+        <path d="M34 30 Q42 25, 50 30 T66 30 T82 30 T98 30 T114 30" className="hpp-pr-wavy hpp-pr-r1" />
+        <line x1="34" y1="30" x2="118" y2="30" className="hpp-pr-sharp hpp-pr-r1" />
+
+        <path d="M34 45 Q40 41, 46 45 T58 45 T70 45 T82 45 T94 45 T106 45" className="hpp-pr-wavy hpp-pr-r2" />
+        <line x1="34" y1="45" x2="108" y2="45" className="hpp-pr-sharp hpp-pr-r2" />
+
+        <path d="M34 60 Q42 56, 50 60 T66 60 T82 60 T98 60" className="hpp-pr-wavy hpp-pr-r3" />
+        <line x1="34" y1="60" x2="100" y2="60" className="hpp-pr-sharp hpp-pr-r3" />
       </g>
     </svg>
   );
@@ -134,24 +135,24 @@ function PromptrPreview() {
 function SparkPreview() {
   return (
     <svg viewBox="0 0 160 90" width="100%" height="100%" className="hpp-svg">
-      {/* Three "lines of code" with a syntax dot before each */}
-      <g>
-        <circle cx="32" cy="30" r="2" fill="currentColor" />
-        <line x1="40" y1="30" x2="80" y2="30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="hpp-sp-l1" />
-        <line x1="84" y1="30" x2="100" y2="30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5" className="hpp-sp-l1" />
+      {/* Subtle vertical divider between the two halves */}
+      <line x1="80" y1="14" x2="80" y2="76" stroke="currentColor" strokeWidth="0.5" opacity="0.2" />
+
+      {/* Left half — hand-drawn wireframe primitives */}
+      <g stroke="currentColor" fill="none" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="34" y="22" width="36" height="14" rx="2" className="hpp-sp-sketch hpp-sp-p1" />
+        <circle cx="42" cy="52" r="5" className="hpp-sp-sketch hpp-sp-p2" />
+        <line x1="52" y1="52" x2="70" y2="52" strokeWidth="2" className="hpp-sp-sketch hpp-sp-p3" />
       </g>
-      <g>
-        <circle cx="40" cy="44" r="2" fill="currentColor" />
-        <line x1="48" y1="44" x2="74" y2="44" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="hpp-sp-l2" />
-        <line x1="78" y1="44" x2="118" y2="44" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5" className="hpp-sp-l2" />
-      </g>
-      <g>
-        <circle cx="40" cy="58" r="2" fill="currentColor" />
-        <line x1="48" y1="58" x2="92" y2="58" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="hpp-sp-l3" />
-      </g>
-      <g>
-        <circle cx="32" cy="72" r="2" fill="currentColor" />
-        <line x1="40" y1="72" x2="68" y2="72" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="hpp-sp-l4" />
+
+      {/* Right half — matching code lines (token dot + line) */}
+      <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <circle cx="92" cy="30" r="2" fill="currentColor" className="hpp-sp-code hpp-sp-p1" />
+        <line x1="98" y1="30" x2="128" y2="30" className="hpp-sp-code hpp-sp-p1" />
+        <circle cx="92" cy="46" r="2" fill="currentColor" className="hpp-sp-code hpp-sp-p2" />
+        <line x1="98" y1="46" x2="124" y2="46" className="hpp-sp-code hpp-sp-p2" />
+        <circle cx="92" cy="62" r="2" fill="currentColor" className="hpp-sp-code hpp-sp-p3" />
+        <line x1="98" y1="62" x2="118" y2="62" className="hpp-sp-code hpp-sp-p3" />
       </g>
     </svg>
   );
