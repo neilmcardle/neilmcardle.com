@@ -62,7 +62,7 @@ export const PRICING: readonly PricingPlan[] = [
     name: 'Free',
     price: '$0',
     period: '',
-    description: 'The complete editor, free forever',
+    description: 'Write your book. Export it. No card needed.',
     features: [
       'Unlimited local books',
       'EPUB, PDF & DOCX export',
@@ -78,7 +78,7 @@ export const PRICING: readonly PricingPlan[] = [
     name: 'Pro',
     price: '$9',
     period: '/month',
-    description: 'Book Mind, the editorial brain',
+    description: 'An AI editor that reads every chapter and keeps your book safe on Amazon.',
     features: [
       'Everything in Free',
       'Book Mind reads your whole manuscript and catches plot holes, contradictions, and pacing breaks',
@@ -96,12 +96,11 @@ export const PRICING: readonly PricingPlan[] = [
     name: 'Lifetime',
     price: '$149',
     period: ' once',
-    description: 'Pay once, write forever',
+    description: 'For authors planning more than one book. Pay once, never renew.',
     features: [
       'Everything in Pro',
       'Unlimited Book Mind access',
       'All future features included',
-      'Support a one-person team',
     ],
     cta: 'Get Lifetime',
     highlighted: false,
@@ -116,19 +115,23 @@ export type FaqItem = {
 
 export const FAQ: readonly FaqItem[] = [
   {
-    q: 'Can I try it before paying?',
-    a: 'Yes. The Free plan gives you unlimited local books, EPUB & PDF export, and professional typography. No credit card needed.',
+    q: 'Will Amazon delist my book if I write it with AI?',
+    a: 'Not for using AI. Amazon delists books for failing to disclose AI use, or for low-quality output that triggers their spam filter. Pro runs a pre-flight against the patterns Amazon flags (uniform chapter lengths, repetitive phrasing, implausible metadata) and generates the exact disclosure text to paste into KDP. Honest disclosure is what keeps your book live.',
   },
   {
-    q: 'Can I upgrade or cancel anytime?',
-    a: "Absolutely. Upgrade to Pro whenever you\u2019re ready, and cancel with one click. Your books are always yours.",
+    q: 'Is my manuscript private?',
+    a: 'Your draft is yours. Book Mind sends only the relevant chunks of your manuscript to Anthropic at query time, and Anthropic\u2019s API does not train on customer data. Nothing is shared with third parties. On Free, your books live in your browser. On Pro, cloud sync stores them in your account.',
   },
   {
-    q: 'What formats can I export?',
-    a: 'EPUB (for Kindle, Kobo, Apple Books, and all major platforms), PDF, and Word. All publication-ready.',
+    q: 'What if my book is half-written in Word or Google Docs?',
+    a: 'Paste it in or upload a .docx. makeEbook splits the manuscript into chapters automatically, so a Google Doc, a Word file, or a Scrivener compile lands in the editor in seconds. You do not start over.',
   },
   {
-    q: 'Do I need to install anything?',
-    a: 'No. makeEbook runs entirely in your browser and works offline too.',
+    q: 'What is your refund policy?',
+    a: 'Pro: cancel anytime in one click, no charge after that. Lifetime: 30-day full refund, no questions. Either way, your books are yours and you can export them at any point.',
+  },
+  {
+    q: 'Why trust a one-person team with my book?',
+    a: 'Fair question. makeEbook is built by Neil McArdle, working solo. No roadmap dictated by investors, no support tickets routed through a queue, every email reaches the person who wrote the code. The flip side: bigger teams ship faster. The trade is intentional. You can reply to any email and get a real answer.',
   },
 ];

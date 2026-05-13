@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ElementCell } from "./element-cell";
 import { exportAsHtml, exportAsReact } from "./export";
+import { captureWireframePng, defaultPngFilename, downloadDataUrl } from "./exportImage";
 import { LearnMyStyle } from "./learn-my-style";
 import { normalize, rankTemplates } from "./point-cloud-recognizer";
 import { snapToStandard } from "./snap-size";
@@ -47,7 +48,11 @@ export interface WfElement {
 }
 
 type Pt = { x: number; y: number };
-type Stroke = { points: Pt[] };
+// freehand strokes are user annotations / sketches. They render in a softer
+// grey, never trigger recognition, and never appear in exported output.
+type Stroke = { points: Pt[]; freehand?: boolean };
+type Mode = "pen" | "ink" | "eraser" | "snip";
+type SnipRect = { x: number; y: number; w: number; h: number };
 
 const STROKE_WIDTH = 2.5;
 const ERASER_RADIUS = 18;
@@ -70,13 +75,15 @@ export default function WireframeCanvas() {
   const dprRef = useRef(1);
 
   const [elements, setElements] = useState<WfElement[]>([]);
-  const [mode, setMode] = useState<"pen" | "eraser">("pen");
+  const [mode, setMode] = useState<Mode>("pen");
   const [recognizing, setRecognizing] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [size, setSize] = useState({ w: 0, h: 0 });
   // The chrome (top bar, toolbar, pills) is hidden until the user moves the
   // cursor. This is a minimalist gesture: the canvas IS the product, every
-  // bit of UI fades in on demand and back out on idle.
+  // bit of UI fades in on demand and back out on idle. On touch devices
+  // there is no equivalent of cursor idleness, so the chrome stays put.
+  const [isTouch, setIsTouch] = useState(false);
   const [chromeVisible, setChromeVisible] = useState(false);
   // Pointer events stay enabled for the full fade-out duration so a user
   // clicking a half-faded pill still hits the pill rather than the canvas
@@ -87,6 +94,13 @@ export default function WireframeCanvas() {
   // for redraw performance.
   const [strokeRev, setStrokeRev] = useState(0);
   const bumpStrokes = useCallback(() => setStrokeRev((n) => n + 1), []);
+
+  // Marquee crop. Live during drag, persists after release for the user to
+  // confirm download or cancel. Cleared whenever snip mode is exited.
+  const [snipRect, setSnipRect] = useState<SnipRect | null>(null);
+  const [snipDragging, setSnipDragging] = useState(false);
+  const snipStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [snipSaving, setSnipSaving] = useState(false);
 
   // Local recogniser templates. Loaded once on mount and refreshed whenever
   // a new template is saved. Kept in a ref so the recognition path doesn't
@@ -128,9 +142,26 @@ export default function WireframeCanvas() {
     setTemplateCount(all.length);
   }, []);
 
+  // Touch detection. (hover: none) catches phones and tablets reliably; a
+  // hybrid laptop with a touchscreen won't false-positive.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(hover: none) and (pointer: coarse)");
+    setIsTouch(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
   // Chrome auto-hide. Cursor moves → fade in. Idle 2.4s → fade out. Keyboard
   // events count too so power users who hit Enter aren't left in the dark.
+  // On touch devices the chrome stays visible permanently — there's no idle
+  // signal to drive the fade and the toolbar must always be reachable.
   useEffect(() => {
+    if (isTouch) {
+      setChromeVisible(true);
+      return;
+    }
     let idle: ReturnType<typeof setTimeout> | null = null;
     function show() {
       setChromeVisible(true);
@@ -146,7 +177,7 @@ export default function WireframeCanvas() {
       window.removeEventListener("keydown", show);
       if (idle) clearTimeout(idle);
     };
-  }, []);
+  }, [isTouch]);
 
   // Mirror chromeVisible to chromeInteractive, but delay the OFF transition
   // by the fade duration so clicks land during the fade-out.
@@ -180,13 +211,13 @@ export default function WireframeCanvas() {
     const dpr = dprRef.current;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-    ctx.strokeStyle = "#0a0a0a";
     ctx.lineWidth = STROKE_WIDTH;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
     const drawStroke = (s: Stroke) => {
       if (s.points.length === 0) return;
+      ctx.strokeStyle = s.freehand ? "#9ca3af" : "#0a0a0a";
       ctx.beginPath();
       ctx.moveTo(s.points[0].x, s.points[0].y);
       for (let i = 1; i < s.points.length; i++) {
@@ -208,12 +239,19 @@ export default function WireframeCanvas() {
   function startStroke(e: React.PointerEvent) {
     if (recognizing) return;
     (e.target as Element).setPointerCapture?.(e.pointerId);
+    const pt = getPoint(e);
 
     if (mode === "eraser") {
-      eraseAt(getPoint(e));
+      eraseAt(pt);
       return;
     }
-    currentStrokeRef.current = { points: [getPoint(e)] };
+    if (mode === "snip") {
+      snipStartRef.current = pt;
+      setSnipRect({ x: pt.x, y: pt.y, w: 0, h: 0 });
+      setSnipDragging(true);
+      return;
+    }
+    currentStrokeRef.current = { points: [pt], freehand: mode === "ink" };
     redraw();
   }
 
@@ -224,18 +262,68 @@ export default function WireframeCanvas() {
       eraseAt(pt);
       return;
     }
+    if (mode === "snip") {
+      const start = snipStartRef.current;
+      if (!start) return;
+      setSnipRect({
+        x: Math.min(start.x, pt.x),
+        y: Math.min(start.y, pt.y),
+        w: Math.abs(pt.x - start.x),
+        h: Math.abs(pt.y - start.y),
+      });
+      return;
+    }
     if (!currentStrokeRef.current) return;
     currentStrokeRef.current.points.push(pt);
     redraw();
   }
 
   function endStroke() {
-    if (mode === "pen" && currentStrokeRef.current && currentStrokeRef.current.points.length > 1) {
+    if (mode === "snip") {
+      setSnipDragging(false);
+      snipStartRef.current = null;
+      // Tiny accidental clicks shouldn't leave a confirm bar floating.
+      setSnipRect((prev) => (prev && (prev.w < 6 || prev.h < 6) ? null : prev));
+      return;
+    }
+    if (mode !== "eraser" && currentStrokeRef.current && currentStrokeRef.current.points.length > 1) {
       strokesRef.current.push(currentStrokeRef.current);
       bumpStrokes();
     }
     currentStrokeRef.current = null;
     redraw();
+  }
+
+  function changeMode(next: Mode) {
+    if (next !== "snip") {
+      setSnipRect(null);
+      setSnipDragging(false);
+      snipStartRef.current = null;
+    }
+    setMode(next);
+  }
+
+  async function downloadSnip() {
+    if (!snipRect || !containerRef.current) return;
+    setSnipSaving(true);
+    try {
+      const dataUrl = await captureWireframePng(containerRef.current, snipRect);
+      downloadDataUrl(dataUrl, defaultPngFilename());
+      setSnipRect(null);
+      setMode("pen");
+    } catch {
+      // Surface failure quietly via flash — keeps the marquee in place so
+      // the user can retry without redrawing it.
+      setFlash({ kind: "info", text: "Couldn't export the image. Try again." });
+    } finally {
+      setSnipSaving(false);
+    }
+  }
+
+  function cancelSnip() {
+    setSnipRect(null);
+    setSnipDragging(false);
+    snipStartRef.current = null;
   }
 
   function eraseAt(pt: Pt) {
@@ -249,11 +337,19 @@ export default function WireframeCanvas() {
     }
   }
 
+  function removeStrokeAt(index: number) {
+    if (index < 0 || index >= strokesRef.current.length) return;
+    strokesRef.current = strokesRef.current.filter((_, i) => i !== index);
+    bumpStrokes();
+    redraw();
+  }
+
   const runRecognition = useCallback(() => {
     if (inFlightRef.current) return;
-    if (strokesRef.current.length === 0) return;
+    const recognisable = strokesRef.current.filter((s) => !s.freehand);
+    if (recognisable.length === 0) return;
 
-    const strokesAtCall: Stroke[] = strokesRef.current.map((s) => ({
+    const strokesAtCall: Stroke[] = recognisable.map((s) => ({
       points: s.points.slice(),
     }));
 
@@ -279,7 +375,7 @@ export default function WireframeCanvas() {
         templateId: top.template.id,
       };
       recordHit(top.template.id);
-      strokesRef.current = [];
+      strokesRef.current = strokesRef.current.filter((s) => s.freehand);
       setElements((prev) => [...prev, stamped]);
       setFlash({ kind: "local", text: `Matched as ${top.template.type}` });
       bumpStrokes();
@@ -305,6 +401,17 @@ export default function WireframeCanvas() {
     redraw();
   }
 
+  async function saveCanvasImage(): Promise<boolean> {
+    if (!containerRef.current) return false;
+    try {
+      const dataUrl = await captureWireframePng(containerRef.current);
+      downloadDataUrl(dataUrl, defaultPngFilename());
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   function removeElement(id: string) {
     setElements((prev) => prev.filter((e) => e.id !== id));
   }
@@ -313,6 +420,10 @@ export default function WireframeCanvas() {
     setElements((prev) =>
       prev.map((e) => (e.id === id ? { ...e, bbox: { ...e.bbox, x: e.bbox.x + dx, y: e.bbox.y + dy } } : e)),
     );
+  }
+
+  function resizeElement(id: string, bbox: WfElement["bbox"]) {
+    setElements((prev) => prev.map((e) => (e.id === id ? { ...e, bbox } : e)));
   }
 
   function updateLabel(id: string, label: string) {
@@ -346,6 +457,7 @@ export default function WireframeCanvas() {
   }, [runRecognition]);
 
   const pillPos = recognisePillPosition(strokesRef.current);
+  const dotIndices = findDotStrokes(strokesRef.current);
   // strokeRev is read here only to force a re-render when strokes change.
   void strokeRev;
 
@@ -408,7 +520,7 @@ export default function WireframeCanvas() {
         touchAction: "none",
         overscrollBehavior: "none",
         background: "#ffffff",
-        cursor: mode === "pen" ? "crosshair" : "cell",
+        cursor: mode === "eraser" ? "cell" : "crosshair",
         fontFamily: "var(--font-inter, system-ui, sans-serif)",
       }}
     >
@@ -427,6 +539,23 @@ export default function WireframeCanvas() {
         }}
       />
 
+      {snipRect && (
+        <div
+          data-skip-export="1"
+          style={{
+            position: "absolute",
+            left: snipRect.x,
+            top: snipRect.y,
+            width: snipRect.w,
+            height: snipRect.h,
+            border: "1.5px dashed #0a0a0a",
+            background: "rgba(10,10,10,0.04)",
+            pointerEvents: "none",
+            zIndex: 30,
+          }}
+        />
+      )}
+
       {/* Recognised elements layer. Sits above the doodles so the polished
           wireframe is what the user mostly sees. */}
       <div
@@ -441,6 +570,7 @@ export default function WireframeCanvas() {
             key={el.id}
             element={el}
             onMove={(dx, dy) => moveElement(el.id, dx, dy)}
+            onResize={(bbox) => resizeElement(el.id, bbox)}
             onRemove={() => removeElement(el.id)}
             onLabelChange={(label) => updateLabel(el.id, label)}
             onTypeChange={(type) => updateType(el.id, type)}
@@ -459,6 +589,7 @@ export default function WireframeCanvas() {
           chromeVisible is false we also disable all descendant clicks. */}
       <div
         className={chromeInteractive ? "wf-chrome wf-chrome-visible" : "wf-chrome"}
+        data-skip-export="1"
         style={{
           position: "absolute",
           inset: 0,
@@ -473,11 +604,29 @@ export default function WireframeCanvas() {
         />
         <Toolbar
           mode={mode}
-          setMode={setMode}
+          setMode={changeMode}
           onClear={clearAll}
+          onSaveImage={saveCanvasImage}
           onExport={() => setShowExport(true)}
           hasContent={elements.length > 0 || strokesRef.current.length > 0}
         />
+        {dotIndices.map(({ index, x, y }) => (
+          <DotDeleteButton
+            key={`${index}-${x}-${y}`}
+            x={x}
+            y={y}
+            onClick={() => removeStrokeAt(index)}
+          />
+        ))}
+        {snipRect && !snipDragging && snipRect.w >= 6 && snipRect.h >= 6 && (
+          <SnipActionBar
+            rect={snipRect}
+            viewport={size}
+            saving={snipSaving}
+            onCancel={cancelSnip}
+            onDownload={() => void downloadSnip()}
+          />
+        )}
         {recognizing && <ThinkingPill />}
         {!recognizing && pillPos && (
           <RecognisePill
@@ -489,7 +638,12 @@ export default function WireframeCanvas() {
         <FlashPill message={flash} />
       </div>
       {showExport && (
-        <ExportDialog elements={elements} size={size} onClose={() => setShowExport(false)} />
+        <ExportDialog
+          elements={elements}
+          size={size}
+          containerRef={containerRef}
+          onClose={() => setShowExport(false)}
+        />
       )}
       <LearnMyStyle
         open={learnOpen}
@@ -506,9 +660,10 @@ export default function WireframeCanvas() {
 }
 
 function recognisePillPosition(strokes: Stroke[]): { x: number; y: number } | null {
-  if (strokes.length === 0) return null;
+  const recognisable = strokes.filter((s) => !s.freehand);
+  if (recognisable.length === 0) return null;
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (const s of strokes) {
+  for (const s of recognisable) {
     for (const p of s.points) {
       if (p.x < minX) minX = p.x;
       if (p.x > maxX) maxX = p.x;
@@ -602,6 +757,150 @@ function RecognisePill({ x, y, onClick }: RecognisePillProps) {
   );
 }
 
+// A "dot" is a stroke whose bbox is tiny in both dimensions — almost always
+// an accidental click rather than an intentional mark. We surface a small ×
+// next to each so they can be removed without switching to the eraser.
+const DOT_THRESHOLD = 6;
+
+function findDotStrokes(strokes: Stroke[]): { index: number; x: number; y: number }[] {
+  const out: { index: number; x: number; y: number }[] = [];
+  for (let i = 0; i < strokes.length; i++) {
+    const s = strokes[i];
+    if (s.points.length === 0) continue;
+    if (s.freehand) continue;
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const p of s.points) {
+      if (p.x < minX) minX = p.x;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.y > maxY) maxY = p.y;
+    }
+    if (maxX - minX <= DOT_THRESHOLD && maxY - minY <= DOT_THRESHOLD) {
+      out.push({ index: i, x: maxX, y: minY });
+    }
+  }
+  return out;
+}
+
+function DotDeleteButton({ x, y, onClick }: { x: number; y: number; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      aria-label="Delete dot"
+      title="Delete dot"
+      style={{
+        position: "absolute",
+        left: x + 6,
+        top: y - 8,
+        width: 16,
+        height: 16,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#ffffff",
+        color: "#0a0a0a",
+        border: "1px solid rgba(0,0,0,0.2)",
+        borderRadius: 999,
+        padding: 0,
+        fontSize: 11,
+        lineHeight: 1,
+        cursor: "pointer",
+        pointerEvents: "auto",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
+        zIndex: 45,
+      }}
+    >
+      ×
+    </button>
+  );
+}
+
+interface SnipActionBarProps {
+  rect: SnipRect;
+  viewport: { w: number; h: number };
+  saving: boolean;
+  onCancel: () => void;
+  onDownload: () => void;
+}
+
+function SnipActionBar({ rect, viewport, saving, onCancel, onDownload }: SnipActionBarProps) {
+  const BAR_W = 200;
+  const BAR_H = 36;
+  const GAP = 10;
+  // Anchor below the rectangle by default; flip above if it would clip the
+  // bottom edge. Horizontally align to the rectangle's right and clamp.
+  let left = rect.x + rect.w - BAR_W;
+  let top = rect.y + rect.h + GAP;
+  if (top + BAR_H > viewport.h - GAP) top = Math.max(GAP, rect.y - GAP - BAR_H);
+  left = Math.max(GAP, Math.min(left, viewport.w - GAP - BAR_W));
+  return (
+    <div
+      data-skip-export="1"
+      onPointerDown={(e) => e.stopPropagation()}
+      style={{
+        position: "absolute",
+        left,
+        top,
+        width: BAR_W,
+        height: BAR_H,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "flex-end",
+        gap: 4,
+        background: "#0a0a0a",
+        color: "#ffffff",
+        borderRadius: 999,
+        padding: 4,
+        boxShadow: "0 8px 20px rgba(0,0,0,0.22)",
+        pointerEvents: "auto",
+        zIndex: 50,
+      }}
+    >
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onCancel(); }}
+        style={{
+          background: "transparent",
+          border: "none",
+          color: "rgba(255,255,255,0.8)",
+          fontSize: 12,
+          fontWeight: 500,
+          padding: "0 12px",
+          height: 28,
+          borderRadius: 999,
+          cursor: "pointer",
+        }}
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onDownload(); }}
+        disabled={saving}
+        style={{
+          background: "#ffffff",
+          color: "#0a0a0a",
+          border: "none",
+          fontSize: 12,
+          fontWeight: 600,
+          padding: "0 14px",
+          height: 28,
+          borderRadius: 999,
+          cursor: saving ? "default" : "pointer",
+          opacity: saving ? 0.7 : 1,
+        }}
+      >
+        {saving ? "Saving…" : "Download PNG"}
+      </button>
+    </div>
+  );
+}
+
 function aggregateStrokeBbox(strokes: Stroke[]): { x: number; y: number; w: number; h: number } {
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
   for (const s of strokes) {
@@ -626,9 +925,9 @@ function TopBar({ templateCount, onLearn }: TopBarProps) {
     <header
       style={{
         position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
+        top: "env(safe-area-inset-top, 0px)",
+        left: "env(safe-area-inset-left, 0px)",
+        right: "env(safe-area-inset-right, 0px)",
         height: 48,
         display: "flex",
         alignItems: "center",
@@ -760,15 +1059,30 @@ function FlashPill({ message }: { message: FlashMessage | null }) {
 }
 
 interface ToolbarProps {
-  mode: "pen" | "eraser";
-  setMode: (m: "pen" | "eraser") => void;
+  mode: Mode;
+  setMode: (m: Mode) => void;
   onClear: () => void;
+  onSaveImage: () => Promise<boolean>;
   onExport: () => void;
   hasContent: boolean;
 }
 
-function Toolbar({ mode, setMode, onClear, onExport, hasContent }: ToolbarProps) {
+function Toolbar({ mode, setMode, onClear, onSaveImage, onExport, hasContent }: ToolbarProps) {
   const [confirmingClear, setConfirmingClear] = useState(false);
+  const [savingImage, setSavingImage] = useState(false);
+  const [imageSaved, setImageSaved] = useState(false);
+
+  async function handleSaveImage(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (savingImage) return;
+    setSavingImage(true);
+    const ok = await onSaveImage();
+    setSavingImage(false);
+    if (ok) {
+      setImageSaved(true);
+      setTimeout(() => setImageSaved(false), 1400);
+    }
+  }
 
   // Cancel pending-clear if the user clicks anywhere outside the toolbar, or
   // after a short timeout. Both feel like "they changed their mind".
@@ -801,7 +1115,7 @@ function Toolbar({ mode, setMode, onClear, onExport, hasContent }: ToolbarProps)
     <div
       style={{
         position: "absolute",
-        bottom: 24,
+        bottom: "calc(24px + env(safe-area-inset-bottom, 0px))",
         left: "50%",
         transform: "translateX(-50%)",
         display: "flex",
@@ -826,6 +1140,26 @@ function Toolbar({ mode, setMode, onClear, onExport, hasContent }: ToolbarProps)
             <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
             <path d="M2 2l7.586 7.586" />
             <circle cx="11" cy="11" r="2" />
+          </svg>
+        }
+      />
+      <ToolBtn
+        active={mode === "ink"}
+        onClick={() => setMode("ink")}
+        label="Ink (annotations, won't be recognised)"
+        icon={
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0" />
+          </svg>
+        }
+      />
+      <ToolBtn
+        active={mode === "snip"}
+        onClick={() => setMode("snip")}
+        label="Snip (drag to export a region as PNG)"
+        icon={
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 3">
+            <rect x="4" y="4" width="16" height="16" rx="1" />
           </svg>
         }
       />
@@ -886,6 +1220,26 @@ function Toolbar({ mode, setMode, onClear, onExport, hasContent }: ToolbarProps)
                 }}
               >
                 Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveImage}
+                disabled={savingImage}
+                style={{
+                  background: imageSaved ? "#16a34a" : "rgba(255,255,255,0.14)",
+                  border: "none",
+                  color: "#ffffff",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  padding: "0 12px",
+                  height: 24,
+                  borderRadius: 999,
+                  cursor: savingImage ? "default" : "pointer",
+                  opacity: savingImage ? 0.7 : 1,
+                  transition: "background 0.15s, opacity 0.15s",
+                }}
+              >
+                {imageSaved ? "Saved" : savingImage ? "Saving…" : "Save image"}
               </button>
               <button
                 type="button"
@@ -1033,13 +1387,18 @@ function ThinkingPill() {
 interface ExportDialogProps {
   elements: WfElement[];
   size: { w: number; h: number };
+  containerRef: React.RefObject<HTMLDivElement | null>;
   onClose: () => void;
 }
 
-function ExportDialog({ elements, size, onClose }: ExportDialogProps) {
-  const [format, setFormat] = useState<"html" | "react">("html");
-  const code = format === "html" ? exportAsHtml(elements, size) : exportAsReact(elements, size);
+type ExportFormat = "html" | "react" | "image";
+
+function ExportDialog({ elements, size, containerRef, onClose }: ExportDialogProps) {
+  const [format, setFormat] = useState<ExportFormat>("html");
+  const code = format === "html" ? exportAsHtml(elements, size) : format === "react" ? exportAsReact(elements, size) : "";
   const [copied, setCopied] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   async function copy() {
     try {
@@ -1051,10 +1410,25 @@ function ExportDialog({ elements, size, onClose }: ExportDialogProps) {
     }
   }
 
+  async function downloadImage() {
+    if (!containerRef.current) return;
+    setDownloading(true);
+    setDownloadError(null);
+    try {
+      const dataUrl = await captureWireframePng(containerRef.current);
+      downloadDataUrl(dataUrl, defaultPngFilename());
+    } catch {
+      setDownloadError("Couldn't export the image. Try again.");
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   return (
     <div
       role="dialog"
       aria-modal="true"
+      data-skip-export="1"
       onClick={onClose}
       style={{
         position: "absolute",
@@ -1112,42 +1486,91 @@ function ExportDialog({ elements, size, onClose }: ExportDialogProps) {
         <div style={{ display: "flex", gap: 8, padding: "10px 18px", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
           <FormatTab active={format === "html"} onClick={() => setFormat("html")}>HTML / CSS</FormatTab>
           <FormatTab active={format === "react"} onClick={() => setFormat("react")}>React / Tailwind</FormatTab>
+          <FormatTab active={format === "image"} onClick={() => setFormat("image")}>Image (PNG)</FormatTab>
           <div style={{ flex: 1 }} />
-          <button
-            type="button"
-            onClick={copy}
+          {format === "image" ? (
+            <button
+              type="button"
+              onClick={downloadImage}
+              disabled={downloading}
+              style={{
+                padding: "0 14px",
+                height: 32,
+                borderRadius: 999,
+                background: "#0a0a0a",
+                color: "#ffffff",
+                border: "none",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: downloading ? "default" : "pointer",
+                opacity: downloading ? 0.6 : 1,
+                transition: "background 0.15s, opacity 0.15s",
+              }}
+            >
+              {downloading ? "Saving…" : "Download PNG"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={copy}
+              style={{
+                padding: "0 14px",
+                height: 32,
+                borderRadius: 999,
+                background: copied ? "#16a34a" : "#0a0a0a",
+                color: "#ffffff",
+                border: "none",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "background 0.15s",
+              }}
+            >
+              {copied ? "Copied" : "Copy"}
+            </button>
+          )}
+        </div>
+        {format === "image" ? (
+          <div
             style={{
-              padding: "0 14px",
-              height: 32,
-              borderRadius: 999,
-              background: copied ? "#16a34a" : "#0a0a0a",
-              color: "#ffffff",
-              border: "none",
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "background 0.15s",
+              flex: 1,
+              padding: 24,
+              background: "#fafaf9",
+              color: "#0a0a0a",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+              overflow: "auto",
             }}
           >
-            {copied ? "Copied" : "Copy"}
-          </button>
-        </div>
-        <pre
-          style={{
-            flex: 1,
-            margin: 0,
-            padding: 18,
-            background: "#fafaf9",
-            color: "#0a0a0a",
-            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-            fontSize: 12,
-            lineHeight: 1.55,
-            overflow: "auto",
-            whiteSpace: "pre",
-          }}
-        >
-          {code}
-        </pre>
+            <div style={{ fontSize: 13, fontWeight: 600 }}>Save the whole screen as PNG</div>
+            <div style={{ fontSize: 12, color: "rgba(0,0,0,0.6)", lineHeight: 1.55 }}>
+              Captures every element and stroke currently on the canvas. The toolbar, top bar, and
+              this dialog are excluded. Tip — use the Snip tool in the toolbar to capture just a
+              region.
+            </div>
+            {downloadError && (
+              <div style={{ fontSize: 12, color: "#dc2626" }}>{downloadError}</div>
+            )}
+          </div>
+        ) : (
+          <pre
+            style={{
+              flex: 1,
+              margin: 0,
+              padding: 18,
+              background: "#fafaf9",
+              color: "#0a0a0a",
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+              fontSize: 12,
+              lineHeight: 1.55,
+              overflow: "auto",
+              whiteSpace: "pre",
+            }}
+          >
+            {code}
+          </pre>
+        )}
       </div>
     </div>
   );

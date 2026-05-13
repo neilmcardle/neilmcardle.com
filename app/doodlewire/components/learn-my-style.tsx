@@ -120,6 +120,7 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
     <div
       role="dialog"
       aria-modal="true"
+      data-skip-export="1"
       style={{
         position: "fixed",
         inset: 0,

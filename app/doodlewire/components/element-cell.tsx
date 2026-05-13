@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import type { ElementType, WfElement } from "./wireframe-canvas";
 import { renderElement } from "./wireframe-element";
+import { getResizeMode, resizeBbox, type ResizeHandle } from "./snap-size";
 
 interface ElementCellProps {
   element: WfElement;
   onMove: (dx: number, dy: number) => void;
+  onResize: (bbox: WfElement["bbox"]) => void;
   onRemove: () => void;
   onLabelChange: (label: string) => void;
   onTypeChange: (type: ElementType) => void;
@@ -41,6 +43,7 @@ const ALL_TYPES: ElementType[] = [
 export function ElementCell({
   element,
   onMove,
+  onResize,
   onRemove,
   onLabelChange,
   onTypeChange,
@@ -50,8 +53,10 @@ export function ElementCell({
   canBackward,
 }: ElementCellProps) {
   const [dragging, setDragging] = useState(false);
+  const [resizing, setResizing] = useState(false);
   const [thanked, setThanked] = useState(false);
   const [typeMenuOpen, setTypeMenuOpen] = useState(false);
+  const resizeMode = getResizeMode(element.type);
   const typeMenuRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   // The popover sits at fixed viewport coordinates so it can flip above
@@ -133,6 +138,37 @@ export function ElementCell({
     document.addEventListener("pointercancel", onUpDoc);
   }
 
+  function startResize(e: React.PointerEvent, handle: ResizeHandle) {
+    e.stopPropagation();
+    e.preventDefault();
+    setResizing(true);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startBbox = { ...element.bbox };
+
+    function onMoveDoc(ev: PointerEvent) {
+      const next = resizeBbox(element.type, {
+        handle,
+        dx: ev.clientX - startX,
+        dy: ev.clientY - startY,
+        startBbox,
+      });
+      onResize(next);
+    }
+
+    function onUpDoc() {
+      document.removeEventListener("pointermove", onMoveDoc);
+      document.removeEventListener("pointerup", onUpDoc);
+      document.removeEventListener("pointercancel", onUpDoc);
+      setResizing(false);
+    }
+
+    document.addEventListener("pointermove", onMoveDoc);
+    document.addEventListener("pointerup", onUpDoc);
+    document.addEventListener("pointercancel", onUpDoc);
+  }
+
   function handleConfirm(e: React.MouseEvent) {
     e.stopPropagation();
     onFeedback(true);
@@ -156,19 +192,26 @@ export function ElementCell({
         width: element.bbox.w,
         height: element.bbox.h,
         pointerEvents: "auto",
-        cursor: dragging ? "grabbing" : "grab",
+        cursor: dragging ? "grabbing" : resizing ? "default" : "grab",
         touchAction: "none",
-        outline: dragging ? "1.5px dashed rgba(10,10,10,0.4)" : "none",
+        outline: dragging || resizing ? "1.5px dashed rgba(10,10,10,0.4)" : "none",
         outlineOffset: 4,
         transition: "outline-color 0.15s",
       }}
       className="group"
     >
       {renderElement(element, onLabelChange)}
+      <ResizeHandles
+        mode={resizeMode}
+        resizing={resizing}
+        onStart={startResize}
+      />
+
 
       {/* Hover toolbar. Sits above the element so it never obscures the
           component itself. opacity-0 by default, fades in on group hover. */}
       <div
+        data-skip-export="1"
         onPointerDown={(e) => e.stopPropagation()}
         style={{
           position: "absolute",
@@ -268,6 +311,7 @@ export function ElementCell({
       {typeMenuOpen && menuFixed && (
         <div
           ref={typeMenuRef}
+          data-skip-export="1"
           onPointerDown={(e) => e.stopPropagation()}
           style={{
             position: "fixed",
@@ -371,4 +415,94 @@ function ToolBtn({ label, disabled, highlighted, onClick, children }: ToolBtnPro
 
 function Divider() {
   return <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.18)", margin: "0 1px" }} />;
+}
+
+interface ResizeHandlesProps {
+  mode: ReturnType<typeof getResizeMode>;
+  resizing: boolean;
+  onStart: (e: React.PointerEvent, handle: ResizeHandle) => void;
+}
+
+function ResizeHandles({ mode, resizing, onStart }: ResizeHandlesProps) {
+  if (mode === "none") return null;
+  const showE = mode === "flowWidth" || mode === "flowBoth";
+  const showS = mode === "flowBoth";
+  const showSE = mode === "flowBoth" || mode === "centredSquare" || mode === "centredBoth";
+  return (
+    <>
+      {showE && <EdgeHandle axis="x" resizing={resizing} onStart={(e) => onStart(e, "e")} />}
+      {showS && <EdgeHandle axis="y" resizing={resizing} onStart={(e) => onStart(e, "s")} />}
+      {showSE && <CornerHandle resizing={resizing} onStart={(e) => onStart(e, "se")} />}
+    </>
+  );
+}
+
+function EdgeHandle({
+  axis,
+  resizing,
+  onStart,
+}: {
+  axis: "x" | "y";
+  resizing: boolean;
+  onStart: (e: React.PointerEvent) => void;
+}) {
+  const horizontal = axis === "x";
+  return (
+    <button
+      type="button"
+      onPointerDown={onStart}
+      aria-label={horizontal ? "Resize width" : "Resize height"}
+      data-skip-export="1"
+      className="wf-resize-handle group-hover:!opacity-100"
+      style={{
+        position: "absolute",
+        ...(horizontal
+          ? { right: -4, top: "50%", transform: "translate(50%, -50%)", width: 8, height: 28 }
+          : { bottom: -4, left: "50%", transform: "translate(-50%, 50%)", width: 28, height: 8 }),
+        background: "#ffffff",
+        border: "1.5px solid #0a0a0a",
+        borderRadius: 999,
+        padding: 0,
+        cursor: horizontal ? "ew-resize" : "ns-resize",
+        opacity: resizing ? 1 : 0,
+        transition: "opacity 0.15s",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+        zIndex: 10,
+      }}
+    />
+  );
+}
+
+function CornerHandle({
+  resizing,
+  onStart,
+}: {
+  resizing: boolean;
+  onStart: (e: React.PointerEvent) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onPointerDown={onStart}
+      aria-label="Resize"
+      data-skip-export="1"
+      className="wf-resize-handle group-hover:!opacity-100"
+      style={{
+        position: "absolute",
+        right: -6,
+        bottom: -6,
+        width: 12,
+        height: 12,
+        background: "#ffffff",
+        border: "1.5px solid #0a0a0a",
+        borderRadius: 999,
+        padding: 0,
+        cursor: "nwse-resize",
+        opacity: resizing ? 1 : 0,
+        transition: "opacity 0.15s",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+        zIndex: 10,
+      }}
+    />
+  );
 }
