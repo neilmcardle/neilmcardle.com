@@ -246,7 +246,7 @@ export default function Homepage() {
             </div>
 
             <div className="relative lg:row-span-2 max-w-[360px] lg:max-w-none">
-              <div className="border-4 border-[#8a7f70] overflow-hidden aspect-square">
+              <div className="project-card-trace relative border-2 border-[#8a7f70]/50 hover:border-[#fbf9f3] transition-all duration-300 overflow-hidden aspect-square">
                 <Image
                   src="/me.png"
                   alt="Neil McArdle"

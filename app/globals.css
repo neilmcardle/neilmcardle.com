@@ -658,7 +658,7 @@ button:hover .palette-icon {
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  padding: 2px;
+  padding: 3px;
   background: conic-gradient(
     from var(--trace-angle),
     transparent 0deg 280deg,
