@@ -1107,10 +1107,11 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   }
 }
 
-/* On hover-capable devices, the animations stay paused until the card is
-   hovered, so the page feels still until the visitor engages. Touch devices
-   keep the autoplay loop because they have no hover state to trigger from. */
-@media (hover: hover) {
+/* On mouse-driven desktops only, the animations stay paused until the card
+   is hovered. The combined (hover: hover) and (pointer: fine) gate excludes
+   Safari iOS (which lies about hover support for legacy reasons) and any
+   touch device — those keep the autoplay loop. */
+@media (hover: hover) and (pointer: fine) {
   .hpp-frame [class*="hpp-"] {
     animation-play-state: paused;
   }
