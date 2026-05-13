@@ -52,6 +52,17 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
   const [savedThisStep, setSavedThisStep] = useState(false);
   const [resetState, setResetState] = useState<"idle" | "confirming">("idle");
   const [storedCount, setStoredCount] = useState(0);
+  const [isNarrow, setIsNarrow] = useState(false);
+
+  // Stack the two columns and tighten padding on narrow screens (phones).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 640px)");
+    setIsNarrow(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsNarrow(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -126,20 +137,24 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
         inset: 0,
         background: "rgba(10,10,10,0.55)",
         display: "flex",
-        alignItems: "center",
+        alignItems: isNarrow ? "stretch" : "center",
         justifyContent: "center",
         zIndex: 100,
-        padding: 20,
+        padding: isNarrow ? 0 : 20,
+        paddingTop: isNarrow ? "env(safe-area-inset-top, 0px)" : 20,
+        paddingBottom: isNarrow ? "env(safe-area-inset-bottom, 0px)" : 20,
         fontFamily: "var(--font-inter, system-ui, sans-serif)",
+        overflowY: "auto",
       }}
     >
       <div
         style={{
           width: "100%",
           maxWidth: 880,
+          maxHeight: isNarrow ? "none" : "calc(100vh - 40px)",
           background: "#ffffff",
-          borderRadius: 14,
-          boxShadow: "0 24px 60px rgba(0,0,0,0.3)",
+          borderRadius: isNarrow ? 0 : 14,
+          boxShadow: isNarrow ? "none" : "0 24px 60px rgba(0,0,0,0.3)",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
@@ -150,17 +165,18 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "14px 20px",
+            padding: isNarrow ? "12px 14px" : "14px 20px",
             borderBottom: "1px solid rgba(0,0,0,0.08)",
+            gap: 8,
           }}
         >
-          <div>
+          <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 600, fontSize: 14, color: "#0a0a0a" }}>Learn my style</div>
             <div style={{ fontSize: 12, color: "rgba(0,0,0,0.55)", marginTop: 2 }}>
-              {stepIdx + 1} of {STEPS.length} · draw it however you like
+              {stepIdx + 1} of {STEPS.length}{isNarrow ? "" : " · draw it however you like"}
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {storedCount > 0 && (
               <button
                 type="button"
@@ -175,9 +191,12 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
                   borderRadius: 999,
                   cursor: "pointer",
                   transition: "background 0.15s, color 0.15s, border-color 0.15s",
+                  whiteSpace: "nowrap",
                 }}
               >
-                {resetState === "confirming" ? `Yes, forget all ${storedCount}` : `Forget all my drawings (${storedCount})`}
+                {resetState === "confirming"
+                  ? (isNarrow ? `Forget ${storedCount}?` : `Yes, forget all ${storedCount}`)
+                  : (isNarrow ? `Forget (${storedCount})` : `Forget all my drawings (${storedCount})`)}
               </button>
             )}
             <button
@@ -217,20 +236,23 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: isNarrow ? "1fr" : "1fr 1fr",
             gap: 0,
+            flex: 1,
+            minHeight: 0,
           }}
         >
-          {/* Left: preview of the component */}
+          {/* Preview of the component */}
           <div
             style={{
-              padding: 28,
-              borderRight: "1px solid rgba(0,0,0,0.06)",
+              padding: isNarrow ? 16 : 28,
+              borderRight: isNarrow ? "none" : "1px solid rgba(0,0,0,0.06)",
+              borderBottom: isNarrow ? "1px solid rgba(0,0,0,0.06)" : "none",
               background: "#fafaf9",
-              minHeight: 360,
+              minHeight: isNarrow ? 180 : 360,
               display: "flex",
               flexDirection: "column",
-              gap: 16,
+              gap: isNarrow ? 10 : 16,
             }}
           >
             <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(0,0,0,0.5)", letterSpacing: 0.4, textTransform: "uppercase" }}>
@@ -242,9 +264,18 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                overflow: "hidden",
               }}
             >
-              <div style={{ width: step.previewBbox.w, height: step.previewBbox.h, position: "relative" }}>
+              <div
+                style={{
+                  width: step.previewBbox.w,
+                  height: step.previewBbox.h,
+                  position: "relative",
+                  maxWidth: "100%",
+                  flexShrink: 0,
+                }}
+              >
                 {renderElement(
                   {
                     id: "preview",
@@ -258,20 +289,20 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
             <div style={{ fontSize: 13, color: "rgba(0,0,0,0.65)", lineHeight: 1.5 }}>{step.hint}</div>
           </div>
 
-          {/* Right: drawing pad */}
+          {/* Drawing pad */}
           <div
             style={{
-              padding: 28,
+              padding: isNarrow ? 16 : 28,
               display: "flex",
               flexDirection: "column",
-              gap: 16,
-              minHeight: 360,
+              gap: isNarrow ? 10 : 16,
+              minHeight: isNarrow ? 240 : 360,
             }}
           >
             <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(0,0,0,0.5)", letterSpacing: 0.4, textTransform: "uppercase" }}>
               Draw it how you would
             </div>
-            <DrawingPad key={stepIdx} onSave={handleSave} saved={savedThisStep} />
+            <DrawingPad key={stepIdx} onSave={handleSave} saved={savedThisStep} compact={isNarrow} />
           </div>
         </div>
 
@@ -280,9 +311,10 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "14px 20px",
+            padding: isNarrow ? "10px 14px" : "14px 20px",
             borderTop: "1px solid rgba(0,0,0,0.06)",
             background: "#fafaf9",
+            gap: 4,
           }}
         >
           <button
@@ -341,9 +373,10 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
 interface DrawingPadProps {
   onSave: (strokes: { points: { x: number; y: number }[] }[]) => void;
   saved: boolean;
+  compact?: boolean;
 }
 
-function DrawingPad({ onSave, saved }: DrawingPadProps) {
+function DrawingPad({ onSave, saved, compact }: DrawingPadProps) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const strokesRef = useRef<{ points: { x: number; y: number }[] }[]>([]);
@@ -513,9 +546,11 @@ function DrawingPad({ onSave, saved }: DrawingPadProps) {
         >
           {autoSaved ? "Saved" : "Save"}
         </button>
-        <span style={{ fontSize: 11, color: "rgba(0,0,0,0.45)", marginLeft: 4 }}>
-          Save more than one variation if you want.
-        </span>
+        {!compact && (
+          <span style={{ fontSize: 11, color: "rgba(0,0,0,0.45)", marginLeft: 4 }}>
+            Save more than one variation if you want.
+          </span>
+        )}
       </div>
     </div>
   );

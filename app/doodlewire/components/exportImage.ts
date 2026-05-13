@@ -61,6 +61,36 @@ export function downloadDataUrl(dataUrl: string, filename: string) {
   a.remove();
 }
 
+export type SaveResult = "shared" | "downloaded" | "cancelled";
+
+// Save a PNG. On platforms with the Web Share API and file sharing (iOS,
+// Android), pop the native share sheet so the user can pick Save to Photos,
+// Files, Messages, etc. Otherwise fall back to the standard <a download>
+// route. Returns which path actually ran so the caller can show feedback.
+export async function savePng(dataUrl: string, filename: string): Promise<SaveResult> {
+  if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+    try {
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], filename, { type: "image/png" });
+      const canShareFiles =
+        typeof navigator.canShare === "function" ? navigator.canShare({ files: [file] }) : true;
+      if (canShareFiles) {
+        try {
+          await navigator.share({ files: [file], title: "DoodleWire" });
+          return "shared";
+        } catch (err) {
+          if (err instanceof Error && err.name === "AbortError") return "cancelled";
+          // Any other share error: fall through to download.
+        }
+      }
+    } catch {
+      // Blob conversion or canShare check failed: fall through to download.
+    }
+  }
+  downloadDataUrl(dataUrl, filename);
+  return "downloaded";
+}
+
 export function defaultPngFilename(): string {
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, "0");

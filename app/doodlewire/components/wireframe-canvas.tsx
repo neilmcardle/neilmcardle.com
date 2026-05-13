@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ElementCell } from "./element-cell";
 import { exportAsHtml, exportAsReact } from "./export";
-import { captureWireframePng, defaultPngFilename, downloadDataUrl } from "./exportImage";
+import { captureWireframePng, defaultPngFilename, savePng } from "./exportImage";
 import { LearnMyStyle } from "./learn-my-style";
 import { normalize, rankTemplates } from "./point-cloud-recognizer";
 import { snapToStandard } from "./snap-size";
@@ -308,7 +308,13 @@ export default function WireframeCanvas() {
     setSnipSaving(true);
     try {
       const dataUrl = await captureWireframePng(containerRef.current, snipRect);
-      downloadDataUrl(dataUrl, defaultPngFilename());
+      const result = await savePng(dataUrl, defaultPngFilename());
+      if (result === "cancelled") {
+        // Keep marquee + tool so the user can retry the share.
+        return;
+      }
+      if (result === "shared") setFlash({ kind: "local", text: "Image shared" });
+      else setFlash({ kind: "local", text: "Image saved" });
       setSnipRect(null);
       setMode("pen");
     } catch {
@@ -405,9 +411,12 @@ export default function WireframeCanvas() {
     if (!containerRef.current) return false;
     try {
       const dataUrl = await captureWireframePng(containerRef.current);
-      downloadDataUrl(dataUrl, defaultPngFilename());
-      return true;
+      const result = await savePng(dataUrl, defaultPngFilename());
+      if (result === "shared") setFlash({ kind: "local", text: "Image shared" });
+      else if (result === "downloaded") setFlash({ kind: "local", text: "Image saved" });
+      return result !== "cancelled";
     } catch {
+      setFlash({ kind: "info", text: "Couldn't save the image. Try again." });
       return false;
     }
   }
@@ -1399,6 +1408,7 @@ function ExportDialog({ elements, size, containerRef, onClose }: ExportDialogPro
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [downloadDone, setDownloadDone] = useState<"shared" | "downloaded" | null>(null);
 
   async function copy() {
     try {
@@ -1414,9 +1424,14 @@ function ExportDialog({ elements, size, containerRef, onClose }: ExportDialogPro
     if (!containerRef.current) return;
     setDownloading(true);
     setDownloadError(null);
+    setDownloadDone(null);
     try {
       const dataUrl = await captureWireframePng(containerRef.current);
-      downloadDataUrl(dataUrl, defaultPngFilename());
+      const result = await savePng(dataUrl, defaultPngFilename());
+      if (result !== "cancelled") {
+        setDownloadDone(result);
+        setTimeout(() => setDownloadDone(null), 1800);
+      }
     } catch {
       setDownloadError("Couldn't export the image. Try again.");
     } finally {
@@ -1497,7 +1512,7 @@ function ExportDialog({ elements, size, containerRef, onClose }: ExportDialogPro
                 padding: "0 14px",
                 height: 32,
                 borderRadius: 999,
-                background: "#0a0a0a",
+                background: downloadDone ? "#16a34a" : "#0a0a0a",
                 color: "#ffffff",
                 border: "none",
                 fontSize: 12,
@@ -1507,7 +1522,13 @@ function ExportDialog({ elements, size, containerRef, onClose }: ExportDialogPro
                 transition: "background 0.15s, opacity 0.15s",
               }}
             >
-              {downloading ? "Saving…" : "Download PNG"}
+              {downloadDone === "shared"
+                ? "Shared"
+                : downloadDone === "downloaded"
+                  ? "Saved"
+                  : downloading
+                    ? "Saving…"
+                    : "Save image"}
             </button>
           ) : (
             <button
@@ -1545,9 +1566,9 @@ function ExportDialog({ elements, size, containerRef, onClose }: ExportDialogPro
           >
             <div style={{ fontSize: 13, fontWeight: 600 }}>Save the whole screen as PNG</div>
             <div style={{ fontSize: 12, color: "rgba(0,0,0,0.6)", lineHeight: 1.55 }}>
-              Captures every element and stroke currently on the canvas. The toolbar, top bar, and
-              this dialog are excluded. Tip — use the Snip tool in the toolbar to capture just a
-              region.
+              Captures every element and stroke currently on the canvas. On mobile this opens the
+              share sheet so you can save to Photos, Files, or send it. On desktop it downloads a
+              PNG. Tip — use the Snip tool in the toolbar to capture just a region.
             </div>
             {downloadError && (
               <div style={{ fontSize: 12, color: "#dc2626" }}>{downloadError}</div>

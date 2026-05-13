@@ -101,6 +101,7 @@ export const PRICING: readonly PricingPlan[] = [
       'Everything in Pro',
       'Unlimited Book Mind access',
       'All future features included',
+      'A 30-min launch call with Neil',
     ],
     cta: 'Get Lifetime',
     highlighted: false,
