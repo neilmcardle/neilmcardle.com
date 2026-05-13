@@ -92,6 +92,11 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
 
   if (!open) return null;
   const step = STEPS[stepIdx];
+  // On narrow screens, scale the preview element down so tall components
+  // (container, card, image, paragraph…) can't push the drawing pad and its
+  // buttons below the footer. Cap to ~100px tall and ~100% of the cell width.
+  const previewTargetH = isNarrow ? 100 : step.previewBbox.h;
+  const previewScale = isNarrow ? Math.min(1, previewTargetH / step.previewBbox.h) : 1;
 
   function handleSave(strokes: { points: { x: number; y: number }[] }[]) {
     if (strokes.length === 0) return;
@@ -249,10 +254,11 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
               borderRight: isNarrow ? "none" : "1px solid rgba(0,0,0,0.06)",
               borderBottom: isNarrow ? "1px solid rgba(0,0,0,0.06)" : "none",
               background: "#fafaf9",
-              minHeight: isNarrow ? 180 : 360,
+              minHeight: isNarrow ? 0 : 360,
               display: "flex",
               flexDirection: "column",
               gap: isNarrow ? 10 : 16,
+              flexShrink: 0,
             }}
           >
             <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(0,0,0,0.5)", letterSpacing: 0.4, textTransform: "uppercase" }}>
@@ -261,6 +267,7 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
             <div
               style={{
                 flex: 1,
+                minHeight: 0,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -269,21 +276,33 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
             >
               <div
                 style={{
-                  width: step.previewBbox.w,
-                  height: step.previewBbox.h,
+                  width: step.previewBbox.w * previewScale,
+                  height: step.previewBbox.h * previewScale,
                   position: "relative",
                   maxWidth: "100%",
                   flexShrink: 0,
                 }}
               >
-                {renderElement(
-                  {
-                    id: "preview",
-                    type: step.type,
-                    bbox: { x: 0, y: 0, ...step.previewBbox },
-                  } as WfElement,
-                  () => { /* preview labels are not editable */ },
-                )}
+                <div
+                  style={{
+                    width: step.previewBbox.w,
+                    height: step.previewBbox.h,
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    transform: `scale(${previewScale})`,
+                    transformOrigin: "top left",
+                  }}
+                >
+                  {renderElement(
+                    {
+                      id: "preview",
+                      type: step.type,
+                      bbox: { x: 0, y: 0, ...step.previewBbox },
+                    } as WfElement,
+                    () => { /* preview labels are not editable */ },
+                  )}
+                </div>
               </div>
             </div>
             <div style={{ fontSize: 13, color: "rgba(0,0,0,0.65)", lineHeight: 1.5 }}>{step.hint}</div>

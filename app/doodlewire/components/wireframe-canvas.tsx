@@ -102,6 +102,11 @@ export default function WireframeCanvas() {
   const snipStartRef = useRef<{ x: number; y: number } | null>(null);
   const [snipSaving, setSnipSaving] = useState(false);
 
+  // On touch devices, finished captures land here and a preview modal opens
+  // with explicit save / share affordances. Browser auto-download is hostile
+  // on iOS — the file vanishes without ever reaching Photos.
+  const [savedImageUrl, setSavedImageUrl] = useState<string | null>(null);
+
   // Local recogniser templates. Loaded once on mount and refreshed whenever
   // a new template is saved. Kept in a ref so the recognition path doesn't
   // close over a stale value.
@@ -308,6 +313,12 @@ export default function WireframeCanvas() {
     setSnipSaving(true);
     try {
       const dataUrl = await captureWireframePng(containerRef.current, snipRect);
+      if (isTouch) {
+        setSavedImageUrl(dataUrl);
+        setSnipRect(null);
+        setMode("pen");
+        return;
+      }
       const result = await savePng(dataUrl, defaultPngFilename());
       if (result === "cancelled") {
         // Keep marquee + tool so the user can retry the share.
@@ -407,17 +418,27 @@ export default function WireframeCanvas() {
     redraw();
   }
 
-  async function saveCanvasImage(): Promise<boolean> {
-    if (!containerRef.current) return false;
+  async function saveCanvasImage(): Promise<"saved" | "preview" | "cancelled"> {
+    if (!containerRef.current) return "cancelled";
     try {
       const dataUrl = await captureWireframePng(containerRef.current);
+      if (isTouch) {
+        setSavedImageUrl(dataUrl);
+        return "preview";
+      }
       const result = await savePng(dataUrl, defaultPngFilename());
-      if (result === "shared") setFlash({ kind: "local", text: "Image shared" });
-      else if (result === "downloaded") setFlash({ kind: "local", text: "Image saved" });
-      return result !== "cancelled";
+      if (result === "shared") {
+        setFlash({ kind: "local", text: "Image shared" });
+        return "saved";
+      }
+      if (result === "downloaded") {
+        setFlash({ kind: "local", text: "Image saved" });
+        return "saved";
+      }
+      return "cancelled";
     } catch {
       setFlash({ kind: "info", text: "Couldn't save the image. Try again." });
-      return false;
+      return "cancelled";
     }
   }
 
@@ -651,7 +672,19 @@ export default function WireframeCanvas() {
           elements={elements}
           size={size}
           containerRef={containerRef}
+          isTouch={isTouch}
+          onPreviewImage={(dataUrl) => {
+            setSavedImageUrl(dataUrl);
+            setShowExport(false);
+          }}
           onClose={() => setShowExport(false)}
+        />
+      )}
+      {savedImageUrl && (
+        <SavedImagePreview
+          dataUrl={savedImageUrl}
+          filename={defaultPngFilename()}
+          onClose={() => setSavedImageUrl(null)}
         />
       )}
       <LearnMyStyle
@@ -1071,7 +1104,7 @@ interface ToolbarProps {
   mode: Mode;
   setMode: (m: Mode) => void;
   onClear: () => void;
-  onSaveImage: () => Promise<boolean>;
+  onSaveImage: () => Promise<"saved" | "preview" | "cancelled">;
   onExport: () => void;
   hasContent: boolean;
 }
@@ -1085,12 +1118,13 @@ function Toolbar({ mode, setMode, onClear, onSaveImage, onExport, hasContent }: 
     e.stopPropagation();
     if (savingImage) return;
     setSavingImage(true);
-    const ok = await onSaveImage();
+    const result = await onSaveImage();
     setSavingImage(false);
-    if (ok) {
+    if (result === "saved") {
       setImageSaved(true);
       setTimeout(() => setImageSaved(false), 1400);
     }
+    // For "preview", the modal that opens IS the feedback; skip the badge.
   }
 
   // Cancel pending-clear if the user clicks anywhere outside the toolbar, or
@@ -1397,12 +1431,14 @@ interface ExportDialogProps {
   elements: WfElement[];
   size: { w: number; h: number };
   containerRef: React.RefObject<HTMLDivElement | null>;
+  isTouch: boolean;
+  onPreviewImage: (dataUrl: string) => void;
   onClose: () => void;
 }
 
 type ExportFormat = "html" | "react" | "image";
 
-function ExportDialog({ elements, size, containerRef, onClose }: ExportDialogProps) {
+function ExportDialog({ elements, size, containerRef, isTouch, onPreviewImage, onClose }: ExportDialogProps) {
   const [format, setFormat] = useState<ExportFormat>("html");
   const code = format === "html" ? exportAsHtml(elements, size) : format === "react" ? exportAsReact(elements, size) : "";
   const [copied, setCopied] = useState(false);
@@ -1427,6 +1463,10 @@ function ExportDialog({ elements, size, containerRef, onClose }: ExportDialogPro
     setDownloadDone(null);
     try {
       const dataUrl = await captureWireframePng(containerRef.current);
+      if (isTouch) {
+        onPreviewImage(dataUrl);
+        return;
+      }
       const result = await savePng(dataUrl, defaultPngFilename());
       if (result !== "cancelled") {
         setDownloadDone(result);
@@ -1592,6 +1632,139 @@ function ExportDialog({ elements, size, containerRef, onClose }: ExportDialogPro
             {code}
           </pre>
         )}
+      </div>
+    </div>
+  );
+}
+
+interface SavedImagePreviewProps {
+  dataUrl: string;
+  filename: string;
+  onClose: () => void;
+}
+
+// Shown on touch devices after a capture. The browser-download path doesn't
+// land anywhere visible on iOS, so we show the PNG inline with explicit
+// affordances: long-press to save to Photos, or tap Share to use the system
+// share sheet (which has a fresh user-gesture from the button click, so it
+// fires reliably).
+function SavedImagePreview({ dataUrl, filename, onClose }: SavedImagePreviewProps) {
+  const [sharing, setSharing] = useState(false);
+
+  async function share() {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      await savePng(dataUrl, filename);
+    } catch {
+      // Quietly swallow — the user still has the inline image to long-press.
+    } finally {
+      setSharing(false);
+    }
+  }
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      data-skip-export="1"
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(10,10,10,0.78)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 110,
+        padding: "calc(20px + env(safe-area-inset-top, 0px)) 16px calc(20px + env(safe-area-inset-bottom, 0px))",
+        gap: 16,
+        fontFamily: "var(--font-inter, system-ui, sans-serif)",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: "100%",
+          maxHeight: "60vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 14,
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={dataUrl}
+          alt="Doodlewire capture"
+          style={{
+            maxWidth: "100%",
+            maxHeight: "60vh",
+            objectFit: "contain",
+            borderRadius: 10,
+            background: "#ffffff",
+            boxShadow: "0 12px 36px rgba(0,0,0,0.4)",
+          }}
+        />
+        <div
+          style={{
+            fontSize: 13,
+            color: "rgba(255,255,255,0.92)",
+            textAlign: "center",
+            lineHeight: 1.5,
+            padding: "0 12px",
+          }}
+        >
+          Press and hold the image, then choose Save to Photos.
+          <br />
+          Or tap Share for more options.
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            onClick={share}
+            disabled={sharing}
+            style={{
+              background: "#ffffff",
+              color: "#0a0a0a",
+              border: "none",
+              padding: "0 18px",
+              height: 40,
+              borderRadius: 999,
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: sharing ? "default" : "pointer",
+              opacity: sharing ? 0.7 : 1,
+            }}
+          >
+            {sharing ? "Sharing…" : "Share"}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: "transparent",
+              color: "#ffffff",
+              border: "1px solid rgba(255,255,255,0.4)",
+              padding: "0 18px",
+              height: 40,
+              borderRadius: 999,
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            Done
+          </button>
+        </div>
       </div>
     </div>
   );

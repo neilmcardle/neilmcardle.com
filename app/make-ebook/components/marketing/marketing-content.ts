@@ -82,10 +82,10 @@ export const PRICING: readonly PricingPlan[] = [
     features: [
       'Everything in Free',
       'Book Mind reads your whole manuscript and catches plot holes, contradictions, and pacing breaks',
-      'Pre-flight checks against Amazon\u2019s spam filter so your book doesn\u2019t get delisted',
+      'Pre-flight check before KDP upload: word count, title, language, and genre verified',
       'Rewrite any sentence in your voice. See 3 alternatives, pick one',
       'Type \u201c/continue\u201d when you\u2019re stuck. Book Mind writes the next paragraph in your style',
-      'Remembers your characters, world, and decisions across sessions',
+      'Remembers your characters, writing rules, and decisions across sessions',
       'Your draft syncs across laptop, tablet, and phone. Pick up wherever you left off',
     ],
     cta: 'Start 7-day free trial',
