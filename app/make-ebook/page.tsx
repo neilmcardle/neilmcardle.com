@@ -47,6 +47,7 @@ import EditorRightPanel from "./components/EditorRightPanel";
 import EditorCanvas from "./components/EditorCanvas";
 import type { RightPanelMode } from "./components/LayoutSwitcher";
 import EditorHeader from "./components/EditorHeader";
+import TrialBanner from "./components/TrialBanner";
 import ChapterNavDropdown from "./components/ChapterNavDropdown";
 import { useWordStats } from "./hooks/useWordStats";
 import { useWritingGoals } from "./hooks/useWritingGoals";
@@ -1080,6 +1081,7 @@ function MakeEbookPage() {
 
   return (
     <>
+      <TrialBanner />
       {/* Main Content - Full height without header */}
       <div className="bg-white dark:bg-[#1e1e1e] text-[#15161a] dark:text-[#e5e5e5]">
         

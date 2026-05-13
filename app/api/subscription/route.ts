@@ -84,7 +84,10 @@ export async function GET(req: NextRequest) {
       tier = 'pro'
     } else if (dbUser.hasLifetimeAccess) {
       tier = 'pro'
-    } else if (dbUser.subscriptionStatus === 'active' && dbUser.subscriptionTier === 'pro') {
+    } else if (
+      (dbUser.subscriptionStatus === 'active' || dbUser.subscriptionStatus === 'trialing') &&
+      dbUser.subscriptionTier === 'pro'
+    ) {
       tier = 'pro'
     }
 

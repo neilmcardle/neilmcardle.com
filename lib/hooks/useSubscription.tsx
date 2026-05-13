@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from './useAuth'
 
 export type SubscriptionTier = 'free' | 'pro'
-export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'incomplete' | null
+export type SubscriptionStatus = 'active' | 'trialing' | 'canceled' | 'past_due' | 'incomplete' | null
 
 interface SubscriptionData {
   tier: SubscriptionTier
