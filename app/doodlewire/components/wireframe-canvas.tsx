@@ -114,6 +114,9 @@ export default function WireframeCanvas() {
   const templatesRef = useRef<Template[]>([]);
   const [templateCount, setTemplateCount] = useState(0);
   const [learnOpen, setLearnOpen] = useState(false);
+  // First-time-visitor hint inviting users into Learn my style. Survives a
+  // page reload via localStorage so dismissals stick.
+  const [learnHintDismissed, setLearnHintDismissed] = useState(false);
   // Transient flash pill at the top of the canvas. Surfaces what just
   // happened: a local match, an API call, a template deletion, etc.
   const [flash, setFlash] = useState<FlashMessage | null>(null);
@@ -146,7 +149,23 @@ export default function WireframeCanvas() {
     const all = loadTemplates();
     templatesRef.current = all;
     setTemplateCount(all.length);
+    try {
+      if (localStorage.getItem("doodlewire_learn_hint_dismissed") === "1") {
+        setLearnHintDismissed(true);
+      }
+    } catch {
+      // localStorage may be disabled; the hint will just keep showing.
+    }
   }, []);
+
+  function dismissLearnHint() {
+    setLearnHintDismissed(true);
+    try {
+      localStorage.setItem("doodlewire_learn_hint_dismissed", "1");
+    } catch {
+      // Persistent dismissal is best-effort.
+    }
+  }
 
   // Touch detection. (hover: none) catches phones and tablets reliably; a
   // hybrid laptop with a touchscreen won't false-positive.
@@ -504,6 +523,11 @@ export default function WireframeCanvas() {
 
   const pillPos = recognisePillPosition(strokesRef.current);
   const dotIndices = findDotStrokes(strokesRef.current);
+  const showLearnHint =
+    templateCount === 0 &&
+    !learnHintDismissed &&
+    strokesRef.current.length === 0 &&
+    elements.length === 0;
   // strokeRev is read here only to force a re-render when strokes change.
   void strokeRev;
 
@@ -584,6 +608,13 @@ export default function WireframeCanvas() {
           display: "block",
         }}
       />
+
+      {showLearnHint && (
+        <LearnHint
+          onOpen={() => setLearnOpen(true)}
+          onDismiss={dismissLearnHint}
+        />
+      )}
 
       {snipRect && (
         <div
@@ -838,6 +869,71 @@ function findDotStrokes(strokes: Stroke[]): { index: number; x: number; y: numbe
     }
   }
   return out;
+}
+
+function LearnHint({ onOpen, onDismiss }: { onOpen: () => void; onDismiss: () => void }) {
+  return (
+    <div
+      data-skip-export="1"
+      style={{
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none",
+        zIndex: 25,
+      }}
+    >
+      <div
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 2,
+          pointerEvents: "auto",
+        }}
+      >
+        <button
+          type="button"
+          onClick={onOpen}
+          style={{
+            background: "transparent",
+            border: "none",
+            padding: "6px 4px 6px 10px",
+            color: "rgba(0,0,0,0.4)",
+            fontSize: 13,
+            fontWeight: 500,
+            letterSpacing: "0.01em",
+            cursor: "pointer",
+            fontFamily: "inherit",
+          }}
+        >
+          Learn my style
+        </button>
+        <button
+          type="button"
+          onClick={onDismiss}
+          aria-label="Dismiss"
+          title="Dismiss"
+          style={{
+            background: "transparent",
+            border: "none",
+            padding: "4px 8px 4px 4px",
+            color: "rgba(0,0,0,0.3)",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function DotDeleteButton({ x, y, onClick }: { x: number; y: number; onClick: () => void }) {
