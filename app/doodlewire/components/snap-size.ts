@@ -40,26 +40,35 @@ export function getResizeMode(type: ElementType): ResizeMode {
 // Discrete preset sizes per type. Three steps where the type supports a
 // range; one entry where the dimension is fixed. The first and last entries
 // define the min and max for free-drag (⌥ held).
+// Shared S/M/L sizes so similar element families align when stacked together.
+// Form controls (button, input, dropdown) all use FORM_CONTROL_W so a Save
+// button below a text input doesn't drift to a different width step. Content
+// blocks (textarea, paragraph) and layout containers (card, container) each
+// share their own scale for the same reason.
+const FORM_CONTROL_W = [160, 240, 360];
+const CONTENT_W = [240, 360, 520];
+const LAYOUT_W = [280, 400, 520];
+
 const PRESETS: Record<ElementType, { w: number[]; h: number[] }> = {
-  button:    { w: [96, 144, 240],  h: [40] },
-  input:     { w: [180, 280, 360], h: [40] },
-  textarea:  { w: [220, 360, 480], h: [80, 140, 240] },
-  checkbox:  { w: [16, 20, 24],    h: [16, 20, 24] },
-  radio:     { w: [16, 20, 24],    h: [16, 20, 24] },
-  toggle:    { w: [36, 46, 56],    h: [20, 26, 32] },
+  button:    { w: FORM_CONTROL_W, h: [40] },
+  input:     { w: FORM_CONTROL_W, h: [40] },
+  dropdown:  { w: FORM_CONTROL_W, h: [40] },
+  textarea:  { w: CONTENT_W,      h: [80, 140, 240] },
+  paragraph: { w: CONTENT_W,      h: [56, 120, 200] },
+  card:      { w: LAYOUT_W,       h: [160, 240, 320] },
+  container: { w: LAYOUT_W,       h: [120, 240, 360] },
+  checkbox:  { w: [16, 20, 24],   h: [16, 20, 24] },
+  radio:     { w: [16, 20, 24],   h: [16, 20, 24] },
+  toggle:    { w: [36, 46, 56],   h: [20, 26, 32] },
   heading:   { w: [160, 320, 560], h: [44] },
-  paragraph: { w: [240, 360, 520], h: [56, 120, 200] },
   image:     { w: [120, 240, 480], h: [90, 180, 360] },
-  container: { w: [200, 360, 560], h: [120, 240, 360] },
-  card:      { w: [280, 380, 480], h: [160, 240, 320] },
   divider:   { w: [120, 240, 480], h: [2] },
   nav:       { w: [280, 480, 720], h: [48] },
-  avatar:    { w: [32, 48, 64],    h: [32, 48, 64] },
-  icon:      { w: [20, 24, 32],    h: [20, 24, 32] },
-  link:      { w: [60, 120, 220],  h: [24] },
-  badge:     { w: [48, 96, 160],   h: [22] },
-  dropdown:  { w: [160, 240, 320], h: [40] },
-  menu:      { w: [40, 52, 64],    h: [40, 52, 64] },
+  avatar:    { w: [32, 48, 64],   h: [32, 48, 64] },
+  icon:      { w: [20, 24, 32],   h: [20, 24, 32] },
+  link:      { w: [60, 120, 220], h: [24] },
+  badge:     { w: [48, 96, 160],  h: [22] },
+  menu:      { w: [40, 52, 64],   h: [40, 52, 64] },
 };
 
 export type ResizeHandle = "e" | "s" | "se";
@@ -121,76 +130,29 @@ function nearestPreset(options: number[], target: number): number {
 }
 
 // Snap a recognised doodle bbox to a standard, well-proportioned size for
-// its component type. Anchored top-left for flowable elements, centred at
-// the doodle's centroid for icon-like fixed-size elements.
+// its component type. Picks the nearest S/M/L preset rather than a
+// continuous clamp, so recognised elements arrive at the same discrete
+// widths their resize handles snap to and similar families align when
+// stacked. Anchored top-left for flowable elements, centred at the
+// doodle's centroid for icon-like fixed-size elements.
 export function snapToStandard(type: ElementType, bbox: Bbox): Bbox {
+  const presets = PRESETS[type];
+  if (!presets) return bbox;
+  const mode = getResizeMode(type);
   const cx = bbox.x + bbox.w / 2;
   const cy = bbox.y + bbox.h / 2;
-  const drawnMaxDim = Math.max(bbox.w, bbox.h);
 
-  function centred(w: number, h: number): Bbox {
-    return { x: Math.round(cx - w / 2), y: Math.round(cy - h / 2), w, h };
-  }
-
-  // Centred element whose size tracks the user's drawing within a range.
-  // Square aspect: the larger of width or height drives the side. Use
-  // for icon-buttons, avatars, checkboxes, etc.
-  function centredSquare(min: number, max: number): Bbox {
-    const side = Math.round(clamp(drawnMaxDim, min, max));
+  if (mode === "centredSquare") {
+    const drawnMaxDim = Math.max(bbox.w, bbox.h);
+    const side = nearestPreset(presets.w, drawnMaxDim);
     return { x: Math.round(cx - side / 2), y: Math.round(cy - side / 2), w: side, h: side };
   }
 
-  function flow(w: number, h: number): Bbox {
-    return { x: Math.round(bbox.x), y: Math.round(bbox.y), w, h };
-  }
+  const w = nearestPreset(presets.w, Math.round(bbox.w));
+  const h = nearestPreset(presets.h, Math.round(bbox.h));
 
-  function clamp(v: number, lo: number, hi: number) {
-    return Math.max(lo, Math.min(hi, v));
+  if (mode === "centredBoth") {
+    return { x: Math.round(cx - w / 2), y: Math.round(cy - h / 2), w, h };
   }
-
-  switch (type) {
-    case "button":
-      return flow(clamp(Math.round(bbox.w), 96, 240), 40);
-    case "input":
-      return flow(clamp(Math.round(bbox.w), 180, 360), 40);
-    case "textarea":
-      return flow(clamp(Math.round(bbox.w), 220, 480), clamp(Math.round(bbox.h), 80, 240));
-    case "checkbox":
-      return centredSquare(16, 24);
-    case "radio":
-      return centredSquare(16, 24);
-    case "toggle": {
-      const w = Math.round(clamp(bbox.w, 36, 56));
-      const h = Math.round(clamp(w * 0.55, 20, 32));
-      return { x: Math.round(cx - w / 2), y: Math.round(cy - h / 2), w, h };
-    }
-    case "heading":
-      return flow(clamp(Math.round(bbox.w), 160, 560), 44);
-    case "paragraph":
-      return flow(clamp(Math.round(bbox.w), 240, 520), clamp(Math.round(bbox.h), 56, 200));
-    case "image":
-      return flow(clamp(Math.round(bbox.w), 120, 480), clamp(Math.round(bbox.h), 90, 360));
-    case "container":
-      return flow(Math.max(160, Math.round(bbox.w)), Math.max(120, Math.round(bbox.h)));
-    case "card":
-      return flow(clamp(Math.round(bbox.w), 280, 480), clamp(Math.round(bbox.h), 160, 320));
-    case "divider":
-      return flow(clamp(Math.round(bbox.w), 120, 480), 2);
-    case "nav":
-      return flow(clamp(Math.round(bbox.w), 280, 720), 48);
-    case "avatar":
-      return centredSquare(32, 64);
-    case "icon":
-      return centredSquare(20, 32);
-    case "link":
-      return flow(clamp(Math.round(bbox.w), 60, 220), 24);
-    case "badge":
-      return flow(clamp(Math.round(bbox.w), 48, 160), 22);
-    case "dropdown":
-      return flow(clamp(Math.round(bbox.w), 160, 320), 40);
-    case "menu":
-      return centredSquare(40, 64);
-    default:
-      return bbox;
-  }
+  return { x: Math.round(bbox.x), y: Math.round(bbox.y), w, h };
 }

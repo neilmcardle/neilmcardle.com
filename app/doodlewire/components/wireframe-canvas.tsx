@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ElementCell } from "./element-cell";
+import { clusterStrokes } from "./cluster-strokes";
 import { exportAsHtml, exportAsReact } from "./export";
 import { captureWireframePng, defaultPngFilename, savePng } from "./exportImage";
 import { LearnMyStyle } from "./learn-my-style";
@@ -366,42 +367,57 @@ export default function WireframeCanvas() {
     const recognisable = strokesRef.current.filter((s) => !s.freehand);
     if (recognisable.length === 0) return;
 
-    const strokesAtCall: Stroke[] = recognisable.map((s) => ({
-      points: s.points.slice(),
-    }));
+    // Cluster strokes by spatial proximity so each drawn element gets its
+    // own recognition pass. A user who scribbled five buttons in a row no
+    // longer ends up with a single chimeric match.
+    const clusters = clusterStrokes(recognisable);
 
-    // Pure local recognition. Rank every template, accept the closest if
-    // (a) the distance is very tight, or (b) it is below threshold AND the
-    // closest template of a different type is far enough away.
-    const candidateCloud = normalize(strokesAtCall);
-    const ranked = rankTemplates(candidateCloud, templatesRef.current);
-    const top = ranked[0];
-    const runnerUp = ranked.find((r) => r.template.type !== top?.template.type);
-    const veryTight = top && top.distance < LOCAL_MATCH_TIGHT;
-    const closeEnough = top && top.distance < LOCAL_MATCH_THRESHOLD;
-    const decisiveLead = !runnerUp || runnerUp.distance > top!.distance * LOCAL_MATCH_MARGIN;
-    const accept = veryTight || (closeEnough && decisiveLead);
+    const stamped: WfElement[] = [];
+    const matchedStrokes = new Set<Stroke>();
 
-    if (top && accept) {
+    for (const cluster of clusters) {
+      const strokesAtCall: Stroke[] = cluster.map((s) => ({ points: s.points.slice() }));
+      // Pure local recognition. Rank every template, accept the closest if
+      // (a) the distance is very tight, or (b) it is below threshold AND
+      // the closest template of a different type is far enough away.
+      const candidateCloud = normalize(strokesAtCall);
+      const ranked = rankTemplates(candidateCloud, templatesRef.current);
+      const top = ranked[0];
+      const runnerUp = ranked.find((r) => r.template.type !== top?.template.type);
+      const veryTight = top && top.distance < LOCAL_MATCH_TIGHT;
+      const closeEnough = top && top.distance < LOCAL_MATCH_THRESHOLD;
+      const decisiveLead = !runnerUp || runnerUp.distance > top!.distance * LOCAL_MATCH_MARGIN;
+      const accept = veryTight || (closeEnough && decisiveLead);
+      if (!top || !accept) continue;
+
       const bbox = aggregateStrokeBbox(strokesAtCall);
-      const stamped: WfElement = {
-        id: `${Date.now()}-local`,
+      stamped.push({
+        id: `${Date.now()}-${stamped.length}-local`,
         type: top.template.type,
         label: top.template.label,
         bbox: snapToStandard(top.template.type, bbox),
         templateId: top.template.id,
-      };
+      });
       recordHit(top.template.id);
-      strokesRef.current = strokesRef.current.filter((s) => s.freehand);
-      setElements((prev) => [...prev, stamped]);
-      setFlash({ kind: "local", text: `Matched as ${top.template.type}` });
+      for (const s of cluster) matchedStrokes.add(s);
+    }
+
+    if (stamped.length > 0) {
+      strokesRef.current = strokesRef.current.filter((s) => s.freehand || !matchedStrokes.has(s));
+      setElements((prev) => [...prev, ...stamped]);
+      if (stamped.length === 1) {
+        setFlash({ kind: "local", text: `Matched as ${stamped[0].type}` });
+      } else {
+        setFlash({ kind: "local", text: `Matched ${stamped.length} elements` });
+      }
       bumpStrokes();
       redraw();
       return;
     }
 
-    // No confident match. Keep the strokes on the canvas so the user can
-    // either erase or train. The flash points them at the right action.
+    // No confident match anywhere. Keep the strokes on the canvas so the
+    // user can either erase or train. The flash points them at the right
+    // action.
     setFlash({
       kind: "info",
       text: templatesRef.current.length === 0
