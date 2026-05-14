@@ -11,6 +11,11 @@ import {
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getProduct, type VectorPaintProductId } from '@/lib/vector-paint/products'
 import { createGelatoOrder } from '@/lib/vector-paint/gelato'
+import {
+  sendTrialEnding,
+  sendSubscriptionCanceled,
+  sendAbandonedCheckout,
+} from '@/lib/email/makeebook'
 
 // Raw body required for signature verification.
 export const runtime = 'nodejs'
@@ -60,8 +65,16 @@ export async function POST(req: NextRequest) {
         await handleSubscriptionCanceled(event.data.object as Stripe.Subscription, stripe)
         break
 
+      case 'customer.subscription.trial_will_end':
+        await handleTrialWillEnd(event.data.object as Stripe.Subscription, stripe)
+        break
+
       case 'checkout.session.completed':
         await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session, stripe)
+        break
+
+      case 'checkout.session.expired':
+        await handleCheckoutSessionExpired(event.data.object as Stripe.Checkout.Session)
         break
 
       case 'invoice.payment_succeeded':
@@ -184,6 +197,71 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription, str
   if (updateError) throw updateError
 
   console.log(`✅ Subscription canceled for user ${user.id} - downgraded to free`)
+
+  // Send the cancellation email. Failure must not crash the webhook.
+  try {
+    await sendSubscriptionCanceled({ to: user.email })
+  } catch (err) {
+    console.error(`[stripe webhook] cancel email failed for user ${user.id}:`, err)
+  }
+}
+
+/**
+ * Stripe fires trial_will_end ~3 days before the trial converts to paid.
+ * Used to warn the user their card is about to be charged.
+ */
+async function handleTrialWillEnd(subscription: Stripe.Subscription, stripe: Stripe) {
+  const customerId = subscription.customer as string
+  console.log(`Handling trial_will_end for customer: ${customerId}`)
+
+  const { user } = await findUserByCustomerId(customerId, stripe)
+  if (!user) {
+    console.warn(`[stripe webhook] No user row for customer ${customerId} on trial_will_end; ignoring.`)
+    return
+  }
+
+  // trial_end is on the subscription root, in seconds.
+  const trialEndSec = subscription.trial_end
+  if (!trialEndSec) {
+    console.warn(`[stripe webhook] trial_will_end fired but subscription has no trial_end: ${subscription.id}`)
+    return
+  }
+  const trialEndsAt = new Date(trialEndSec * 1000)
+
+  try {
+    await sendTrialEnding({ to: user.email, trialEndsAt })
+    console.log(`✉️  Trial-ending email sent to ${user.email}`)
+  } catch (err) {
+    console.error(`[stripe webhook] trial-ending email failed for user ${user.id}:`, err)
+  }
+}
+
+/**
+ * Stripe fires checkout.session.expired ~24h after a checkout was started
+ * without completion. Sent only if we captured the email on the session.
+ */
+async function handleCheckoutSessionExpired(session: Stripe.Checkout.Session) {
+  const email = session.customer_details?.email
+  if (!email) {
+    console.log(`[stripe webhook] expired session ${session.id} had no email; skipping nudge.`)
+    return
+  }
+
+  // Only nudge Pro trial abandons. Lifetime and Vector Paint flows are
+  // one-shot purchases with different psychology.
+  if (session.metadata?.purchase_type !== 'pro') {
+    console.log(`[stripe webhook] expired session ${session.id} is not pro; skipping nudge.`)
+    return
+  }
+
+  const resumeUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://makeebook.ink'}/make-ebook#pricing`
+
+  try {
+    await sendAbandonedCheckout({ to: email, resumeUrl })
+    console.log(`✉️  Abandoned-checkout email sent to ${email}`)
+  } catch (err) {
+    console.error(`[stripe webhook] abandoned-checkout email failed for ${email}:`, err)
+  }
 }
 
 /**

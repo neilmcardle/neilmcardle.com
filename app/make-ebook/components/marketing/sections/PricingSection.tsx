@@ -1,6 +1,7 @@
 'use client';
 
 import React, { forwardRef, useState } from 'react';
+import Image from 'next/image';
 
 import FadeIn from '../FadeIn';
 import { SECTION_TIERS } from '../sectionTiers';
@@ -85,43 +86,54 @@ const PricingSection = forwardRef<HTMLElement, PricingSectionProps>(function Pri
                   </div>
                 )}
                 <div
-                  className={`relative rounded-2xl p-8 sm:p-10 h-full flex flex-col transition-all duration-300 group-hover:-translate-y-1 ${
-                    plan.highlighted
-                      ? 'bg-[#141413] border border-[#141413] shadow-xl'
-                      : isLifetime
-                        ? 'bg-gradient-to-br from-[#faf5e8] via-[#fdfbf3] to-[#faf5e8]/60 border border-gray-200 shadow-md hover:shadow-lg'
-                        : 'bg-white border border-gray-200 shadow-lg hover:shadow-xl'
+                  className={`relative rounded-2xl p-8 sm:p-10 h-full flex flex-col bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 ${
+                    plan.highlighted ? 'ring-2 ring-blue-600' : ''
                   }`}
                 >
-                  <h3 className={`text-2xl font-semibold mb-2 ${plan.highlighted ? 'text-white' : 'text-gray-900'}`} style={{ letterSpacing: '-0.02em' }}>{plan.name}</h3>
+                  <h3 className="text-2xl font-semibold mb-2 text-gray-900" style={{ letterSpacing: '-0.02em' }}>{plan.name}</h3>
                   {isPro && (
                     <BillingToggle period={billingPeriod} onChange={setBillingPeriod} />
                   )}
                   <div className="mb-1 flex items-baseline gap-1">
-                    <span className={`text-5xl font-bold ${plan.highlighted ? 'text-white' : 'text-gray-900'}`} style={{ letterSpacing: '-0.03em' }}>{displayPrice}</span>
-                    <span className={plan.highlighted ? 'text-gray-400' : 'text-gray-500'}>{displayPeriod}</span>
+                    <span className="text-5xl font-bold text-gray-900" style={{ letterSpacing: '-0.03em' }}>{displayPrice}</span>
+                    <span className="text-gray-500">{displayPeriod}</span>
                   </div>
                   {isPro && billingPeriod === 'yearly' && (
-                    <div className="text-xs font-semibold text-emerald-300">
+                    <div className="text-xs font-semibold text-emerald-700">
                       Save {PRO_ANNUAL_SAVINGS} vs monthly
                     </div>
                   )}
                   {priceMicrocopy && (
-                    <p className={`mt-1 mb-4 text-xs ${plan.highlighted ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <p className="mt-1 mb-4 text-xs text-gray-500">
                       {priceMicrocopy}
                     </p>
                   )}
                   {!priceMicrocopy && <div className="mb-3" />}
-                  <p className={`mb-8 text-pretty ${plan.highlighted ? 'text-gray-300' : 'text-gray-600'}`} style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}>{plan.description}</p>
+                  <p className="mb-8 text-pretty text-gray-600" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}>{plan.description}</p>
                   <ul className="space-y-3 mb-10 flex-1">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <svg className={`w-5 h-5 flex-shrink-0 mt-0.5 ${plan.highlighted ? 'text-blue-400' : 'text-blue-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className={plan.highlighted ? 'text-gray-200' : 'text-gray-700'}>{feature}</span>
-                      </li>
-                    ))}
+                    {plan.features.map((feature, i) => {
+                      // The Lifetime cover-design bullet swaps the tick for
+                      // Neil's avatar so the service nature reads at a glance.
+                      const useNeilAvatar = isLifetime && /cover design/i.test(feature);
+                      return (
+                        <li key={i} className="flex items-start gap-3">
+                          {useNeilAvatar ? (
+                            <Image
+                              src="/me.png"
+                              alt="Neil"
+                              width={20}
+                              height={20}
+                              className="rounded-full w-5 h-5 object-cover flex-shrink-0 mt-0.5"
+                            />
+                          ) : (
+                            <svg className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                          <span className="text-gray-700">{feature}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                   <button
                     onClick={() => {
@@ -132,11 +144,11 @@ const PricingSection = forwardRef<HTMLElement, PricingSectionProps>(function Pri
                       }
                     }}
                     disabled={!!plan.checkoutType && checkoutLoading === plan.checkoutType}
-                    className={`w-full py-3.5 rounded-full font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${plan.highlighted ? 'bg-white text-gray-900 hover:bg-gray-100' : 'bg-gray-900 text-white hover:bg-gray-700'}`}
+                    className={`w-full py-3.5 rounded-full font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isPro ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-900 text-white hover:bg-gray-700'}`}
                   >
                     {plan.checkoutType && checkoutLoading === plan.checkoutType ? 'Redirecting\u2026' : plan.cta}
                   </button>
-                  <p className={`mt-3 text-xs text-center ${plan.highlighted ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <p className="mt-3 text-xs text-center text-gray-500">
                     {buttonMicrocopy}
                   </p>
                 </div>
@@ -258,7 +270,7 @@ function BillingToggle({
     <div
       role="tablist"
       aria-label="Billing period"
-      className="mb-4 inline-flex items-center gap-1 p-1 rounded-full bg-white/10 border border-white/10 self-start"
+      className="mb-4 inline-flex items-center gap-1 p-1 rounded-full bg-gray-100 border border-gray-200 self-start"
     >
       {(['monthly', 'yearly'] as const).map((value) => {
         const active = period === value;
@@ -269,7 +281,7 @@ function BillingToggle({
             aria-selected={active}
             onClick={() => onChange(value)}
             className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
-              active ? 'bg-white text-gray-900' : 'text-gray-400 hover:text-white'
+              active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
             {value === 'monthly' ? 'Monthly' : 'Yearly'}
