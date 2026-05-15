@@ -1,11 +1,11 @@
 "use client";
 
-// Pre-flight gate at export time. Pro users see the KDP checks and are
-// blocked from downloading if any hard check fails. Free users see a
+// Pre-flight check at export time. Pro users see the KDP checks as advisory
+// information; export is never blocked, only informed. Free users see a
 // compact "skipped" strip with an upgrade pitch and can still proceed.
-// Fires `preflight_viewed` with source='export', `preflight_blocked_export`
-// when hard blocks prevent download, and `upgrade_clicked` from the Free
-// upgrade CTA.
+// Fires `preflight_viewed` with source='export', `preflight_blocks_present`
+// when blocking-level issues are detected at export time, and
+// `upgrade_clicked` from the Free upgrade CTA.
 
 import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -46,7 +46,7 @@ export default function PreflightExportDialog({
     if (!open) return;
     track("preflight_viewed", { source: "export", tier: isPro ? "pro" : "free", format });
     if (isPro && blocks.length > 0) {
-      track("preflight_blocked_export", { format, blockCount: blocks.length });
+      track("preflight_blocks_present", { format, blockCount: blocks.length });
     }
   }, [open, isPro, format, blocks.length]);
 
@@ -123,10 +123,10 @@ function ProBody({
   onDownload: () => void;
   onClose: () => void;
 }) {
-  const canDownload = allClear;
+  // Export is never blocked. The checks inform; the author decides.
   let buttonLabel = `Download ${formatLabel}`;
-  if (!canDownload) {
-    buttonLabel = `Fix ${blocks.length} ${blocks.length === 1 ? "issue" : "issues"} to export`;
+  if (blocks.length > 0) {
+    buttonLabel = `Download anyway (${blocks.length} ${blocks.length === 1 ? "issue" : "issues"})`;
   } else if (warns.length > 0) {
     buttonLabel = `Download anyway (${warns.length} ${warns.length === 1 ? "warning" : "warnings"})`;
   }
@@ -157,7 +157,7 @@ function ProBody({
         {blocks.length > 0 && (
           <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40">
             <p className="text-xs font-medium text-red-700 dark:text-red-400">
-              {blocks.length} blocking {blocks.length === 1 ? "issue" : "issues"} must be fixed. Amazon will reject or delist books that fail these checks.
+              {blocks.length} likely {blocks.length === 1 ? "issue" : "issues"} for Amazon KDP. You can still export, but the book may be rejected or delisted until fixed.
             </p>
           </div>
         )}
@@ -188,8 +188,7 @@ function ProBody({
         </button>
         <button
           onClick={() => { onDownload(); onClose(); }}
-          disabled={!canDownload}
-          className="px-5 py-2.5 text-sm font-semibold bg-gray-900 dark:bg-white text-white dark:text-[#111] rounded-full hover:bg-gray-800 dark:hover:bg-[#e5e5e5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-5 py-2.5 text-sm font-semibold bg-gray-900 dark:bg-white text-white dark:text-[#111] rounded-full hover:bg-gray-800 dark:hover:bg-[#e5e5e5] transition-colors"
         >
           {buttonLabel}
         </button>
@@ -218,7 +217,7 @@ function FreeBody({
               Pre-flight check skipped
             </p>
             <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-              Amazon delists eBooks that fail KDP quality checks. Pro users verify word count, metadata, and AI-disclosure compliance before downloading. You can export without the check, but you're flying blind.
+              Amazon delists books that fail KDP requirements. Pro shows a pre-flight check for word count, title, and metadata before you export. You can still export without it.
             </p>
           </div>
         </div>

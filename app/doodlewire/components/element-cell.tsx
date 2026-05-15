@@ -7,6 +7,8 @@ import { getResizeMode, resizeBbox, type ResizeHandle } from "./snap-size";
 
 interface ElementCellProps {
   element: WfElement;
+  selected: boolean;
+  onSelect: () => void;
   onMove: (dx: number, dy: number) => void;
   onResize: (bbox: WfElement["bbox"]) => void;
   onRemove: () => void;
@@ -17,6 +19,11 @@ interface ElementCellProps {
   canForward: boolean;
   canBackward: boolean;
 }
+
+// Pixels of pointer movement before a pointerdown is treated as a drag
+// instead of a tap. Slightly generous so a fingertip stay-put still
+// registers as a tap on touch devices.
+const TAP_DRAG_THRESHOLD = 8;
 
 const ALL_TYPES: ElementType[] = [
   "button",
@@ -42,6 +49,8 @@ const ALL_TYPES: ElementType[] = [
 
 export function ElementCell({
   element,
+  selected,
+  onSelect,
   onMove,
   onResize,
   onRemove,
@@ -113,12 +122,26 @@ export function ElementCell({
   function startDrag(e: React.PointerEvent) {
     e.stopPropagation();
     e.preventDefault();
-    setDragging(true);
 
-    let lastX = e.clientX;
-    let lastY = e.clientY;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    let lastX = startX;
+    let lastY = startY;
+    let movedPastThreshold = false;
 
     function onMoveDoc(ev: PointerEvent) {
+      if (!movedPastThreshold) {
+        const totalDx = ev.clientX - startX;
+        const totalDy = ev.clientY - startY;
+        if (Math.abs(totalDx) <= TAP_DRAG_THRESHOLD && Math.abs(totalDy) <= TAP_DRAG_THRESHOLD) {
+          return;
+        }
+        movedPastThreshold = true;
+        setDragging(true);
+        lastX = ev.clientX;
+        lastY = ev.clientY;
+        return;
+      }
       const dx = ev.clientX - lastX;
       const dy = ev.clientY - lastY;
       lastX = ev.clientX;
@@ -131,6 +154,11 @@ export function ElementCell({
       document.removeEventListener("pointerup", onUpDoc);
       document.removeEventListener("pointercancel", onUpDoc);
       setDragging(false);
+      // Pointer never crossed the drag threshold — treat as a tap and
+      // toggle this element's selection.
+      if (!movedPastThreshold) {
+        onSelect();
+      }
     }
 
     document.addEventListener("pointermove", onMoveDoc);
@@ -194,7 +222,12 @@ export function ElementCell({
         pointerEvents: "auto",
         cursor: dragging ? "grabbing" : resizing ? "default" : "grab",
         touchAction: "none",
-        outline: dragging || resizing ? "1.5px dashed rgba(10,10,10,0.4)" : "none",
+        outline:
+          dragging || resizing
+            ? "1.5px dashed rgba(10,10,10,0.4)"
+            : selected
+              ? "1.5px solid rgba(10,10,10,0.4)"
+              : "none",
         outlineOffset: 4,
         transition: "outline-color 0.15s",
       }}
@@ -204,18 +237,23 @@ export function ElementCell({
       <ResizeHandles
         mode={resizeMode}
         resizing={resizing}
+        selected={selected}
         onStart={startResize}
       />
 
 
-      {/* Hover toolbar. Sits above the element so it never obscures the
-          component itself. opacity-0 by default, fades in on group hover. */}
+      {/* Per-element toolbar. Sits above the element by default but flips
+          below when the element is near the top of the canvas (toolbar is
+          ~34px tall). Visible whenever the element is selected; otherwise
+          fades in on hover. */}
       <div
         data-skip-export="1"
         onPointerDown={(e) => e.stopPropagation()}
         style={{
           position: "absolute",
-          top: -34,
+          ...(element.bbox.y < 48
+            ? { top: "auto", bottom: -34 }
+            : { top: -34, bottom: "auto" }),
           right: 0,
           display: "flex",
           alignItems: "center",
@@ -225,7 +263,7 @@ export function ElementCell({
           color: "#ffffff",
           borderRadius: 999,
           boxShadow: "0 4px 12px rgba(0,0,0,0.18)",
-          opacity: 0,
+          opacity: selected ? 1 : 0,
           transition: "opacity 0.15s",
           pointerEvents: "auto",
         }}
@@ -420,30 +458,32 @@ function Divider() {
 interface ResizeHandlesProps {
   mode: ReturnType<typeof getResizeMode>;
   resizing: boolean;
+  selected: boolean;
   onStart: (e: React.PointerEvent, handle: ResizeHandle) => void;
 }
 
-function ResizeHandles({ mode, resizing, onStart }: ResizeHandlesProps) {
+function ResizeHandles({ mode, resizing, selected, onStart }: ResizeHandlesProps) {
   if (mode === "none") return null;
+  const visible = resizing || selected;
   const showE = mode === "flowWidth" || mode === "flowBoth";
   const showS = mode === "flowBoth";
   const showSE = mode === "flowBoth" || mode === "centredSquare" || mode === "centredBoth";
   return (
     <>
-      {showE && <EdgeHandle axis="x" resizing={resizing} onStart={(e) => onStart(e, "e")} />}
-      {showS && <EdgeHandle axis="y" resizing={resizing} onStart={(e) => onStart(e, "s")} />}
-      {showSE && <CornerHandle resizing={resizing} onStart={(e) => onStart(e, "se")} />}
+      {showE && <EdgeHandle axis="x" visible={visible} onStart={(e) => onStart(e, "e")} />}
+      {showS && <EdgeHandle axis="y" visible={visible} onStart={(e) => onStart(e, "s")} />}
+      {showSE && <CornerHandle visible={visible} onStart={(e) => onStart(e, "se")} />}
     </>
   );
 }
 
 function EdgeHandle({
   axis,
-  resizing,
+  visible,
   onStart,
 }: {
   axis: "x" | "y";
-  resizing: boolean;
+  visible: boolean;
   onStart: (e: React.PointerEvent) => void;
 }) {
   const horizontal = axis === "x";
@@ -456,28 +496,43 @@ function EdgeHandle({
       className="wf-resize-handle group-hover:!opacity-100"
       style={{
         position: "absolute",
+        // Larger touch targets than the visible pill so a fingertip can
+        // grab them reliably. Visual pill is centred inside the hit area.
         ...(horizontal
-          ? { right: -4, top: "50%", transform: "translate(50%, -50%)", width: 8, height: 28 }
-          : { bottom: -4, left: "50%", transform: "translate(-50%, 50%)", width: 28, height: 8 }),
-        background: "#ffffff",
-        border: "1.5px solid #0a0a0a",
-        borderRadius: 999,
+          ? { right: -16, top: "50%", transform: "translate(0, -50%)", width: 32, height: 44 }
+          : { bottom: -16, left: "50%", transform: "translate(-50%, 0)", width: 44, height: 32 }),
+        background: "transparent",
+        border: "none",
+        borderRadius: 0,
         padding: 0,
         cursor: horizontal ? "ew-resize" : "ns-resize",
-        opacity: resizing ? 1 : 0,
+        opacity: visible ? 1 : 0,
         transition: "opacity 0.15s",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
         zIndex: 10,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
-    />
+    >
+      <span
+        style={{
+          display: "block",
+          ...(horizontal ? { width: 8, height: 28 } : { width: 28, height: 8 }),
+          background: "#ffffff",
+          border: "1.5px solid #0a0a0a",
+          borderRadius: 999,
+          boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+        }}
+      />
+    </button>
   );
 }
 
 function CornerHandle({
-  resizing,
+  visible,
   onStart,
 }: {
-  resizing: boolean;
+  visible: boolean;
   onStart: (e: React.PointerEvent) => void;
 }) {
   return (
@@ -489,20 +544,35 @@ function CornerHandle({
       className="wf-resize-handle group-hover:!opacity-100"
       style={{
         position: "absolute",
-        right: -6,
-        bottom: -6,
-        width: 12,
-        height: 12,
-        background: "#ffffff",
-        border: "1.5px solid #0a0a0a",
-        borderRadius: 999,
+        // 32×32 hit area with a 12×12 pill centred inside it.
+        right: -16,
+        bottom: -16,
+        width: 32,
+        height: 32,
+        background: "transparent",
+        border: "none",
+        borderRadius: 0,
         padding: 0,
         cursor: "nwse-resize",
-        opacity: resizing ? 1 : 0,
+        opacity: visible ? 1 : 0,
         transition: "opacity 0.15s",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
         zIndex: 10,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
-    />
+    >
+      <span
+        style={{
+          display: "block",
+          width: 12,
+          height: 12,
+          background: "#ffffff",
+          border: "1.5px solid #0a0a0a",
+          borderRadius: 999,
+          boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+        }}
+      />
+    </button>
   );
 }

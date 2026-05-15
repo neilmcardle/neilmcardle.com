@@ -61,3 +61,9 @@ docs/prototype-lab-v1.md
 # DS Stores
 .DS_Store
 **/.DS_Store
+
+# iOS Capacitor wrapper. The doodlewire iPhone app lives at a sibling path
+# (../doodlewire-app/) but a stale tracked copy was previously committed
+# inside this repo. Ignore the folder name so the wrapper never re-enters
+# git if the user re-clones or moves it back in by accident.
+doodlewire-app/

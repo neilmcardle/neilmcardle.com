@@ -108,6 +108,12 @@ export default function WireframeCanvas() {
   // on iOS — the file vanishes without ever reaching Photos.
   const [savedImageUrl, setSavedImageUrl] = useState<string | null>(null);
 
+  // Touch users have no hover, so the per-element toolbar and resize handles
+  // are reached by tapping the element to select it. Desktop users get the
+  // same model in addition to hover. Tapping the canvas (or starting a
+  // stroke) deselects.
+  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+
   // Local recogniser templates. Loaded once on mount and refreshed whenever
   // a new template is saved. Kept in a ref so the recognition path doesn't
   // close over a stale value.
@@ -264,6 +270,7 @@ export default function WireframeCanvas() {
   function startStroke(e: React.PointerEvent) {
     if (recognizing) return;
     (e.target as Element).setPointerCapture?.(e.pointerId);
+    setSelectedElementId(null);
     const pt = getPoint(e);
 
     if (mode === "eraser") {
@@ -479,6 +486,7 @@ export default function WireframeCanvas() {
 
   function removeElement(id: string) {
     setElements((prev) => prev.filter((e) => e.id !== id));
+    setSelectedElementId((current) => (current === id ? null : current));
   }
 
   function moveElement(id: string, dx: number, dy: number) {
@@ -646,6 +654,10 @@ export default function WireframeCanvas() {
           <ElementCell
             key={el.id}
             element={el}
+            selected={selectedElementId === el.id}
+            onSelect={() =>
+              setSelectedElementId((current) => (current === el.id ? null : el.id))
+            }
             onMove={(dx, dy) => moveElement(el.id, dx, dy)}
             onResize={(bbox) => resizeElement(el.id, bbox)}
             onRemove={() => removeElement(el.id)}
