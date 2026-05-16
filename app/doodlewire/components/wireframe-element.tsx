@@ -2,13 +2,9 @@
 
 import type { WfElement } from "./wireframe-canvas";
 import { EditableLabel } from "./editable-label";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -17,8 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import {
   ArrowDown,
   ArrowLeft,
@@ -133,22 +127,28 @@ export function renderElement(el: WfElement, onLabelChange: (next: string) => vo
       );
     case "checkbox":
       return (
-        <div className="w-full h-full flex items-center justify-center">
-          <Checkbox defaultChecked />
+        <div className="w-full h-full rounded-[20%] border-2 border-foreground/80 bg-background flex items-center justify-center text-foreground">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-[70%] h-[70%]">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
         </div>
       );
     case "radio":
       return (
-        <div className="w-full h-full flex items-center justify-center">
-          <RadioGroup defaultValue="a">
-            <RadioGroupItem value="a" id={`radio-${el.id}`} />
-          </RadioGroup>
+        <div className="w-full h-full rounded-full border-2 border-foreground/80 bg-background flex items-center justify-center">
+          <span className="rounded-full bg-foreground" style={{ width: "50%", height: "50%" }} />
         </div>
       );
     case "toggle":
       return (
-        <div className="w-full h-full flex items-center justify-center">
-          <Switch defaultChecked />
+        <div
+          className="w-full h-full rounded-full bg-foreground flex items-center justify-end"
+          style={{ padding: "8%" }}
+        >
+          <span
+            className="rounded-full bg-background"
+            style={{ aspectRatio: "1 / 1", height: "100%" }}
+          />
         </div>
       );
     case "heading":
@@ -221,19 +221,22 @@ export function renderElement(el: WfElement, onLabelChange: (next: string) => vo
     }
     case "avatar":
       return (
-        <Avatar className="w-full h-full">
-          <AvatarFallback>
-            {el.label ? el.label.slice(0, 2).toUpperCase() : "U"}
-          </AvatarFallback>
-        </Avatar>
+        <div
+          className="w-full h-full rounded-full bg-muted flex items-end justify-center overflow-hidden text-muted-foreground/90"
+          aria-label={el.label ?? "Avatar"}
+        >
+          {/* Person silhouette: small circle for head, large rounded body
+              below. The body extends past the bottom of the SVG viewBox and
+              is clipped by the rounded-full container. */}
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+            <circle cx="12" cy="9" r="4" />
+            <path d="M3 24c0-5 4-9 9-9s9 4 9 9z" />
+          </svg>
+        </div>
       );
     case "icon": {
       const Icon = pickIcon(el.label);
-      return (
-        <div className="w-full h-full flex items-center justify-center text-foreground">
-          <Icon strokeWidth={1.8} className="w-[70%] h-[70%]" />
-        </div>
-      );
+      return <Icon strokeWidth={1.8} className="w-full h-full text-foreground" />;
     }
     case "link":
       return (
@@ -267,13 +270,20 @@ export function renderElement(el: WfElement, onLabelChange: (next: string) => vo
       );
     case "menu":
       return (
-        <Button variant="ghost" size="icon" className="w-full h-full" aria-label="Menu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-1/2 h-1/2">
-            <line x1="4" y1="6" x2="20" y2="6" />
-            <line x1="4" y1="12" x2="20" y2="12" />
-            <line x1="4" y1="18" x2="20" y2="18" />
-          </svg>
-        </Button>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-full h-full text-foreground"
+          aria-label="Menu"
+        >
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="4" y1="12" x2="20" y2="12" />
+          <line x1="4" y1="18" x2="20" y2="18" />
+        </svg>
       );
     default:
       return null;

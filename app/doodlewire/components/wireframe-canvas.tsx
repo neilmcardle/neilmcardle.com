@@ -62,8 +62,12 @@ const ERASER_RADIUS = 18;
 // (2) reasonably close (distance < THRESHOLD) AND the closest template
 //     of a DIFFERENT type is at least MARGIN times further away.
 // This catches genuine matches a strict absolute cap was missing.
-const LOCAL_MATCH_TIGHT = 5;
-const LOCAL_MATCH_THRESHOLD = 11;
+// Thresholds were bumped after adding aspect-ratio penalty to the score:
+// a correct match with slight aspect drift now lands ~1 higher than it
+// did under shape-only scoring. We compensate so the accept rate doesn't
+// drop on legit matches while wrong-aspect candidates get pushed out.
+const LOCAL_MATCH_TIGHT = 6;
+const LOCAL_MATCH_THRESHOLD = 13;
 const LOCAL_MATCH_MARGIN = 1.3;
 
 export default function WireframeCanvas() {
@@ -74,6 +78,9 @@ export default function WireframeCanvas() {
   const currentStrokeRef = useRef<Stroke | null>(null);
   const inFlightRef = useRef(false);
   const dprRef = useRef(1);
+  // Auto-recognise debounce. Cancelled on every new stroke and re-armed on
+  // every stroke completion so recognition only fires after a true pause.
+  const recogniseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [elements, setElements] = useState<WfElement[]>([]);
   const [mode, setMode] = useState<Mode>("pen");
@@ -267,10 +274,18 @@ export default function WireframeCanvas() {
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
+  function cancelScheduledRecognise() {
+    if (recogniseTimerRef.current) {
+      clearTimeout(recogniseTimerRef.current);
+      recogniseTimerRef.current = null;
+    }
+  }
+
   function startStroke(e: React.PointerEvent) {
     if (recognizing) return;
     (e.target as Element).setPointerCapture?.(e.pointerId);
     setSelectedElementId(null);
+    cancelScheduledRecognise();
     const pt = getPoint(e);
 
     if (mode === "eraser") {
@@ -321,6 +336,16 @@ export default function WireframeCanvas() {
     if (mode !== "eraser" && currentStrokeRef.current && currentStrokeRef.current.points.length > 1) {
       strokesRef.current.push(currentStrokeRef.current);
       bumpStrokes();
+      // Auto-recognise on idle. Re-armed on every stroke end and cancelled
+      // on every new stroke start, so the user can draw multiple strokes
+      // in quick succession without recognition firing mid-sketch. Ink
+      // strokes are excluded by runRecognition itself, so this path is
+      // safe regardless of mode.
+      cancelScheduledRecognise();
+      recogniseTimerRef.current = setTimeout(() => {
+        recogniseTimerRef.current = null;
+        runRecognition();
+      }, 1200);
     }
     currentStrokeRef.current = null;
     redraw();
@@ -460,30 +485,6 @@ export default function WireframeCanvas() {
     redraw();
   }
 
-  async function saveCanvasImage(): Promise<"saved" | "preview" | "cancelled"> {
-    if (!containerRef.current) return "cancelled";
-    try {
-      const dataUrl = await captureWireframePng(containerRef.current);
-      if (isTouch) {
-        setSavedImageUrl(dataUrl);
-        return "preview";
-      }
-      const result = await savePng(dataUrl, defaultPngFilename());
-      if (result === "shared") {
-        setFlash({ kind: "local", text: "Image shared" });
-        return "saved";
-      }
-      if (result === "downloaded") {
-        setFlash({ kind: "local", text: "Image saved" });
-        return "saved";
-      }
-      return "cancelled";
-    } catch {
-      setFlash({ kind: "info", text: "Couldn't save the image. Try again." });
-      return "cancelled";
-    }
-  }
-
   function removeElement(id: string) {
     setElements((prev) => prev.filter((e) => e.id !== id));
     setSelectedElementId((current) => (current === id ? null : current));
@@ -509,27 +510,9 @@ export default function WireframeCanvas() {
     );
   }
 
-  // Global Enter shortcut. Fires recognition when there are pending strokes.
-  // Skipped while the user is editing text inside an element.
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key !== "Enter") return;
-      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
-      const target = e.target as HTMLElement | null;
-      if (target) {
-        const tag = target.tagName;
-        if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) return;
-      }
-      if (strokesRef.current.length === 0) return;
-      if (inFlightRef.current) return;
-      e.preventDefault();
-      void runRecognition();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [runRecognition]);
+  // Clean up any pending recognise schedule when the canvas unmounts.
+  useEffect(() => cancelScheduledRecognise, []);
 
-  const pillPos = recognisePillPosition(strokesRef.current);
   const dotIndices = findDotStrokes(strokesRef.current);
   const showLearnHint =
     templateCount === 0 &&
@@ -687,16 +670,14 @@ export default function WireframeCanvas() {
           transition: "opacity 700ms ease",
         }}
       >
-        <TopBar
-          templateCount={templateCount}
-          onLearn={() => setLearnOpen(true)}
-        />
+        <TopBar />
         <Toolbar
           mode={mode}
           setMode={changeMode}
           onClear={clearAll}
-          onSaveImage={saveCanvasImage}
           onExport={() => setShowExport(true)}
+          onLearn={() => setLearnOpen(true)}
+          templateCount={templateCount}
           hasContent={elements.length > 0 || strokesRef.current.length > 0}
         />
         {dotIndices.map(({ index, x, y }) => (
@@ -717,13 +698,6 @@ export default function WireframeCanvas() {
           />
         )}
         {recognizing && <ThinkingPill />}
-        {!recognizing && pillPos && (
-          <RecognisePill
-            x={pillPos.x}
-            y={pillPos.y}
-            onClick={() => void runRecognition()}
-          />
-        )}
         <FlashPill message={flash} />
       </div>
       {showExport && (
@@ -742,7 +716,6 @@ export default function WireframeCanvas() {
       {savedImageUrl && (
         <SavedImagePreview
           dataUrl={savedImageUrl}
-          filename={defaultPngFilename()}
           onClose={() => setSavedImageUrl(null)}
         />
       )}
@@ -757,104 +730,6 @@ export default function WireframeCanvas() {
         }
       `}</style>
     </div>
-  );
-}
-
-function recognisePillPosition(strokes: Stroke[]): { x: number; y: number } | null {
-  const recognisable = strokes.filter((s) => !s.freehand);
-  if (recognisable.length === 0) return null;
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (const s of recognisable) {
-    for (const p of s.points) {
-      if (p.x < minX) minX = p.x;
-      if (p.x > maxX) maxX = p.x;
-      if (p.y < minY) minY = p.y;
-      if (p.y > maxY) maxY = p.y;
-    }
-  }
-  if (!isFinite(minX)) return null;
-  const cx = (minX + maxX) / 2;
-  // Just above the stroke bbox so the pill doesn't obscure the doodle. If the
-  // doodle is near the top of the canvas, drop the pill below it instead.
-  const above = minY - 44;
-  return { x: cx, y: above < 12 ? maxY + 16 : above };
-}
-
-interface RecognisePillProps {
-  x: number;
-  y: number;
-  onClick: () => void;
-}
-
-function RecognisePill({ x, y, onClick }: RecognisePillProps) {
-  return (
-    <button
-      type="button"
-      onPointerDown={(e) => e.stopPropagation()}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      style={{
-        position: "absolute",
-        left: x,
-        top: y,
-        transform: "translate(-50%, 0)",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 8,
-        height: 30,
-        padding: "0 12px 0 10px",
-        background: "#ffffff",
-        color: "#0a0a0a",
-        border: "1.5px solid #0a0a0a",
-        borderRadius: 999,
-        fontSize: 12,
-        fontWeight: 600,
-        cursor: "pointer",
-        pointerEvents: "auto",
-        boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
-        zIndex: 50,
-        animation: "wfPillIn 0.18s cubic-bezier(0.2, 0.8, 0.2, 1)",
-      }}
-    >
-      <span
-        style={{
-          width: 7,
-          height: 7,
-          borderRadius: 999,
-          background: "#16a34a",
-          animation: "wfPillPulse 1.4s ease-in-out infinite",
-        }}
-      />
-      Recognise
-      <kbd
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          padding: "1px 6px",
-          marginLeft: 2,
-          background: "rgba(10,10,10,0.08)",
-          color: "#0a0a0a",
-          borderRadius: 4,
-          fontSize: 10,
-          fontWeight: 600,
-          fontFamily: "inherit",
-        }}
-      >
-        ↵
-      </kbd>
-      <style jsx>{`
-        @keyframes wfPillIn {
-          from { transform: translate(-50%, 6px); opacity: 0; }
-          to { transform: translate(-50%, 0); opacity: 1; }
-        }
-        @keyframes wfPillPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.55; transform: scale(0.85); }
-        }
-      `}</style>
-    </button>
   );
 }
 
@@ -1081,12 +956,21 @@ function aggregateStrokeBbox(strokes: Stroke[]): { x: number; y: number; w: numb
   return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
 }
 
-interface TopBarProps {
-  templateCount: number;
-  onLearn: () => void;
+// True when the app is running inside the Capacitor iOS shell. Capacitor
+// sets `window.Capacitor` before our bundle runs, so this resolves
+// synchronously on first render — no flash of the wrong chrome.
+function isNativeApp(): boolean {
+  if (typeof window === "undefined") return false;
+  const cap = (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+  return cap?.isNativePlatform?.() === true;
 }
 
-function TopBar({ templateCount, onLearn }: TopBarProps) {
+function TopBar() {
+  // On native, the top bar is empty (no back link, no wordmark, no actions),
+  // so we don't render it at all. On the web, it's used to navigate back to
+  // neilmcardle.com — keep that affordance.
+  const isNative = isNativeApp();
+  if (isNative) return null;
   return (
     <header
       style={{
@@ -1117,59 +1001,6 @@ function TopBar({ templateCount, onLearn }: TopBarProps) {
           <path d="M19 12H5M12 5l-7 7 7 7" />
         </svg>
       </Link>
-      <span style={{ color: "rgba(0,0,0,0.18)" }}>·</span>
-      <span
-        style={{
-          fontSize: 13,
-          fontWeight: 500,
-          color: "rgba(0,0,0,0.75)",
-          letterSpacing: "-0.01em",
-        }}
-      >
-        DoodleWire
-      </span>
-      <div style={{ flex: 1 }} />
-      <button
-        type="button"
-        onClick={onLearn}
-        style={{
-          pointerEvents: "auto",
-          background: "transparent",
-          border: "1px solid rgba(0,0,0,0.12)",
-          color: "rgba(0,0,0,0.7)",
-          fontSize: 12,
-          fontWeight: 500,
-          padding: "6px 12px",
-          borderRadius: 999,
-          cursor: "pointer",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-        }}
-      >
-        Learn my style
-        {templateCount > 0 && (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minWidth: 18,
-              height: 18,
-              padding: "0 6px",
-              borderRadius: 999,
-              background: "#0a0a0a",
-              color: "#ffffff",
-              fontSize: 10,
-              fontWeight: 700,
-              lineHeight: 1,
-            }}
-            title={`${templateCount} saved drawing${templateCount === 1 ? "" : "s"}`}
-          >
-            {templateCount}
-          </span>
-        )}
-      </button>
     </header>
   );
 }
@@ -1228,28 +1059,28 @@ interface ToolbarProps {
   mode: Mode;
   setMode: (m: Mode) => void;
   onClear: () => void;
-  onSaveImage: () => Promise<"saved" | "preview" | "cancelled">;
   onExport: () => void;
+  onLearn: () => void;
+  templateCount: number;
   hasContent: boolean;
 }
 
-function Toolbar({ mode, setMode, onClear, onSaveImage, onExport, hasContent }: ToolbarProps) {
+function Toolbar({ mode, setMode, onClear, onExport, onLearn, templateCount, hasContent }: ToolbarProps) {
   const [confirmingClear, setConfirmingClear] = useState(false);
-  const [savingImage, setSavingImage] = useState(false);
-  const [imageSaved, setImageSaved] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsRef = useRef<HTMLDivElement | null>(null);
 
-  async function handleSaveImage(e: React.MouseEvent) {
-    e.stopPropagation();
-    if (savingImage) return;
-    setSavingImage(true);
-    const result = await onSaveImage();
-    setSavingImage(false);
-    if (result === "saved") {
-      setImageSaved(true);
-      setTimeout(() => setImageSaved(false), 1400);
+  // Close the settings menu when tapping elsewhere.
+  useEffect(() => {
+    if (!settingsOpen) return;
+    function onDocDown(e: PointerEvent) {
+      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) {
+        setSettingsOpen(false);
+      }
     }
-    // For "preview", the modal that opens IS the feedback; skip the badge.
-  }
+    document.addEventListener("pointerdown", onDocDown);
+    return () => document.removeEventListener("pointerdown", onDocDown);
+  }, [settingsOpen]);
 
   // Cancel pending-clear if the user clicks anywhere outside the toolbar, or
   // after a short timeout. Both feel like "they changed their mind".
@@ -1297,50 +1128,178 @@ function Toolbar({ mode, setMode, onClear, onSaveImage, onExport, hasContent }: 
         pointerEvents: "auto",
       }}
     >
-      <ToolBtn
-        active={mode === "pen"}
-        onClick={() => setMode("pen")}
-        label="Pen"
-        icon={
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 19l7-7 3 3-7 7-3-3z" />
-            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
-            <path d="M2 2l7.586 7.586" />
-            <circle cx="11" cy="11" r="2" />
-          </svg>
-        }
-      />
-      <ToolBtn
-        active={mode === "ink"}
-        onClick={() => setMode("ink")}
-        label="Ink (annotations, won't be recognised)"
-        icon={
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0" />
-          </svg>
-        }
-      />
-      <ToolBtn
-        active={mode === "snip"}
-        onClick={() => setMode("snip")}
-        label="Snip (drag to export a region as PNG)"
-        icon={
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 3">
-            <rect x="4" y="4" width="16" height="16" rx="1" />
-          </svg>
-        }
-      />
-      <ToolBtn
-        active={mode === "eraser"}
-        onClick={() => setMode("eraser")}
-        label="Eraser"
-        icon={
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 20H8.5L3 14.5a2.83 2.83 0 0 1 0-4L13.5 0 24 10.5 13.5 21" />
-          </svg>
-        }
-      />
-      <div style={{ width: 1, height: 20, background: "rgba(0,0,0,0.08)", margin: "0 4px" }} />
+      {!confirmingClear && (
+        <>
+          <div ref={settingsRef} style={{ position: "relative", display: "inline-flex" }}>
+            <ToolBtn
+              active={settingsOpen}
+              onClick={() => setSettingsOpen((v) => !v)}
+              label="Settings"
+              icon={
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+              }
+            />
+            {settingsOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "calc(100% + 10px)",
+                  left: -4,
+                  minWidth: 220,
+                  background: "#ffffff",
+                  border: "1px solid rgba(0,0,0,0.08)",
+                  borderRadius: 10,
+                  boxShadow: "0 10px 28px rgba(0,0,0,0.16)",
+                  padding: 4,
+                  zIndex: 60,
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSettingsOpen(false);
+                    onLearn();
+                  }}
+                  style={{
+                    width: "100%",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "8px 10px",
+                    background: "transparent",
+                    border: "none",
+                    borderRadius: 6,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#0a0a0a",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = "transparent";
+                  }}
+                >
+                  <span style={{ flex: 1 }}>Learn my style</span>
+                  {templateCount > 0 && (
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        minWidth: 18,
+                        height: 18,
+                        padding: "0 6px",
+                        borderRadius: 999,
+                        background: "#0a0a0a",
+                        color: "#ffffff",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        lineHeight: 1,
+                      }}
+                      title={`${templateCount} saved drawing${templateCount === 1 ? "" : "s"}`}
+                    >
+                      {templateCount}
+                    </span>
+                  )}
+                </button>
+                <div style={{ height: 1, background: "rgba(0,0,0,0.08)", margin: "4px 6px" }} />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSettingsOpen(false);
+                    // Donations on iOS must go through an external web payment;
+                    // Apple rejects donation flows that try to use IAP. window.open
+                    // routes to Safari via the Capacitor WebView automatically, and
+                    // works the same way in a regular browser.
+                    window.open("https://buymeacoffee.com/neilmcardle", "_blank", "noopener");
+                  }}
+                  style={{
+                    width: "100%",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "8px 10px",
+                    background: "transparent",
+                    border: "none",
+                    borderRadius: 6,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#0a0a0a",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = "transparent";
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+                    <line x1="6" y1="1" x2="6" y2="4" />
+                    <line x1="10" y1="1" x2="10" y2="4" />
+                    <line x1="14" y1="1" x2="14" y2="4" />
+                  </svg>
+                  <span style={{ flex: 1 }}>Support development</span>
+                </button>
+              </div>
+            )}
+          </div>
+          <div style={{ width: 1, height: 20, background: "rgba(0,0,0,0.08)", margin: "0 4px" }} />
+          <ToolBtn
+            active={mode === "pen"}
+            onClick={() => setMode("pen")}
+            label="Pen"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                <path d="M2 2l7.586 7.586" />
+                <circle cx="11" cy="11" r="2" />
+              </svg>
+            }
+          />
+          <ToolBtn
+            active={mode === "ink"}
+            onClick={() => setMode("ink")}
+            label="Ink (annotations, won't be recognised)"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 13c1.5-7 3-7 4.5 0s3 7 4.5 0 3-7 4.5 0 3 7 4.5 0" />
+              </svg>
+            }
+          />
+          <ToolBtn
+            active={mode === "snip"}
+            onClick={() => setMode("snip")}
+            label="Snip (drag to export a region as PNG)"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 3">
+                <rect x="4" y="4" width="16" height="16" rx="1" />
+              </svg>
+            }
+          />
+          <ToolBtn
+            active={mode === "eraser"}
+            onClick={() => setMode("eraser")}
+            label="Eraser"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 20H8.5L3 14.5a2.83 2.83 0 0 1 0-4L13.5 0 24 10.5 13.5 21" />
+              </svg>
+            }
+          />
+          <div style={{ width: 1, height: 20, background: "rgba(0,0,0,0.08)", margin: "0 4px" }} />
+        </>
+      )}
       <motion.div
         layout
         transition={{ type: "spring", stiffness: 260, damping: 32, mass: 0.9 }}
@@ -1390,26 +1349,6 @@ function Toolbar({ mode, setMode, onClear, onSaveImage, onExport, hasContent }: 
               </button>
               <button
                 type="button"
-                onClick={handleSaveImage}
-                disabled={savingImage}
-                style={{
-                  background: imageSaved ? "#16a34a" : "rgba(255,255,255,0.14)",
-                  border: "none",
-                  color: "#ffffff",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  padding: "0 12px",
-                  height: 24,
-                  borderRadius: 999,
-                  cursor: savingImage ? "default" : "pointer",
-                  opacity: savingImage ? 0.7 : 1,
-                  transition: "background 0.15s, opacity 0.15s",
-                }}
-              >
-                {imageSaved ? "Saved" : savingImage ? "Saving…" : "Save image"}
-              </button>
-              <button
-                type="button"
                 onClick={(e) => { e.stopPropagation(); handleClearClick(); }}
                 style={{
                   background: "#dc2626",
@@ -1451,27 +1390,35 @@ function Toolbar({ mode, setMode, onClear, onSaveImage, onExport, hasContent }: 
           )}
         </AnimatePresence>
       </motion.div>
-      <button
-        type="button"
-        onClick={onExport}
-        disabled={!hasContent}
-        style={{
-          marginLeft: 4,
-          padding: "0 14px",
-          height: 32,
-          borderRadius: 999,
-          background: hasContent ? "#0a0a0a" : "rgba(0,0,0,0.1)",
-          color: hasContent ? "#ffffff" : "rgba(0,0,0,0.4)",
-          border: "none",
-          fontSize: 12,
-          fontWeight: 600,
-          letterSpacing: "0.02em",
-          cursor: hasContent ? "pointer" : "not-allowed",
-          transition: "background 0.15s",
-        }}
-      >
-        Export
-      </button>
+      {!confirmingClear && (
+        <button
+          type="button"
+          onClick={onExport}
+          disabled={!hasContent}
+          aria-label="Export"
+          title="Export"
+          style={{
+            marginLeft: 4,
+            width: 36,
+            height: 32,
+            borderRadius: 999,
+            background: hasContent ? "#0a0a0a" : "rgba(0,0,0,0.1)",
+            color: hasContent ? "#ffffff" : "rgba(0,0,0,0.4)",
+            border: "none",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: hasContent ? "pointer" : "not-allowed",
+            transition: "background 0.15s",
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" />
+            <polyline points="16 6 12 2 8 6" />
+            <line x1="12" y1="2" x2="12" y2="15" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
@@ -1662,24 +1609,43 @@ function ExportDialog({ elements, size, containerRef, isTouch, onPreviewImage, o
             ×
           </button>
         </div>
-        <div style={{ display: "flex", gap: 8, padding: "10px 18px", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-          <FormatTab active={format === "html"} onClick={() => setFormat("html")}>HTML / CSS</FormatTab>
-          <FormatTab active={format === "react"} onClick={() => setFormat("react")}>React / Tailwind</FormatTab>
-          <FormatTab active={format === "image"} onClick={() => setFormat("image")}>Image (PNG)</FormatTab>
-          <div style={{ flex: 1 }} />
+        {/* Format tabs in their own row. Short single-word labels so they
+            never wrap on a phone. Active tab uses a solid dark fill for
+            unambiguous selected state. */}
+        <div
+          style={{
+            display: "flex",
+            gap: 6,
+            padding: "10px 18px 0",
+          }}
+        >
+          <FormatTab active={format === "html"} onClick={() => setFormat("html")}>HTML</FormatTab>
+          <FormatTab active={format === "react"} onClick={() => setFormat("react")}>React</FormatTab>
+          <FormatTab active={format === "image"} onClick={() => setFormat("image")}>Image</FormatTab>
+        </div>
+        {/* Action row, separated from tabs so the dialog reads top-to-bottom:
+            title → format → primary action → preview. */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            padding: "10px 18px",
+            borderBottom: "1px solid rgba(0,0,0,0.06)",
+          }}
+        >
           {format === "image" ? (
             <button
               type="button"
               onClick={downloadImage}
               disabled={downloading}
               style={{
-                padding: "0 14px",
-                height: 32,
+                padding: "0 16px",
+                height: 36,
                 borderRadius: 999,
                 background: downloadDone ? "#16a34a" : "#0a0a0a",
                 color: "#ffffff",
                 border: "none",
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 600,
                 cursor: downloading ? "default" : "pointer",
                 opacity: downloading ? 0.6 : 1,
@@ -1699,19 +1665,19 @@ function ExportDialog({ elements, size, containerRef, isTouch, onPreviewImage, o
               type="button"
               onClick={copy}
               style={{
-                padding: "0 14px",
-                height: 32,
+                padding: "0 16px",
+                height: 36,
                 borderRadius: 999,
                 background: copied ? "#16a34a" : "#0a0a0a",
                 color: "#ffffff",
                 border: "none",
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 600,
                 cursor: "pointer",
                 transition: "background 0.15s",
               }}
             >
-              {copied ? "Copied" : "Copy"}
+              {copied ? "Copied" : `Copy ${format === "html" ? "HTML" : "React"}`}
             </button>
           )}
         </div>
@@ -1763,30 +1729,15 @@ function ExportDialog({ elements, size, containerRef, isTouch, onPreviewImage, o
 
 interface SavedImagePreviewProps {
   dataUrl: string;
-  filename: string;
   onClose: () => void;
 }
 
 // Shown on touch devices after a capture. The browser-download path doesn't
-// land anywhere visible on iOS, so we show the PNG inline with explicit
-// affordances: long-press to save to Photos, or tap Share to use the system
-// share sheet (which has a fresh user-gesture from the button click, so it
-// fires reliably).
-function SavedImagePreview({ dataUrl, filename, onClose }: SavedImagePreviewProps) {
-  const [sharing, setSharing] = useState(false);
-
-  async function share() {
-    if (sharing) return;
-    setSharing(true);
-    try {
-      await savePng(dataUrl, filename);
-    } catch {
-      // Quietly swallow — the user still has the inline image to long-press.
-    } finally {
-      setSharing(false);
-    }
-  }
-
+// land anywhere visible on iOS, so we show the PNG inline and rely on iOS's
+// native long-press-to-save-image gesture. No Web Share API call — it's
+// unreliable once any await crosses a user-gesture boundary, and the inline
+// long-press flow always works.
+function SavedImagePreview({ dataUrl, onClose }: SavedImagePreviewProps) {
   return (
     <div
       role="dialog"
@@ -1841,48 +1792,23 @@ function SavedImagePreview({ dataUrl, filename, onClose }: SavedImagePreviewProp
           }}
         >
           Press and hold the image, then choose Save to Photos.
-          <br />
-          Or tap Share for more options.
         </div>
         <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-          }}
+          style={{ display: "flex", alignItems: "center" }}
           onClick={(e) => e.stopPropagation()}
         >
           <button
             type="button"
-            onClick={share}
-            disabled={sharing}
+            onClick={onClose}
             style={{
               background: "#ffffff",
               color: "#0a0a0a",
               border: "none",
-              padding: "0 18px",
+              padding: "0 22px",
               height: 40,
               borderRadius: 999,
               fontSize: 14,
               fontWeight: 600,
-              cursor: sharing ? "default" : "pointer",
-              opacity: sharing ? 0.7 : 1,
-            }}
-          >
-            {sharing ? "Sharing…" : "Share"}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              background: "transparent",
-              color: "#ffffff",
-              border: "1px solid rgba(255,255,255,0.4)",
-              padding: "0 18px",
-              height: 40,
-              borderRadius: 999,
-              fontSize: 14,
-              fontWeight: 500,
               cursor: "pointer",
             }}
           >
@@ -1900,16 +1826,17 @@ function FormatTab({ active, onClick, children }: { active: boolean; onClick: ()
       type="button"
       onClick={onClick}
       style={{
-        padding: "6px 12px",
+        padding: "0 14px",
         height: 32,
         borderRadius: 999,
-        background: active ? "rgba(10,10,10,0.06)" : "transparent",
-        color: active ? "#0a0a0a" : "rgba(0,0,0,0.55)",
-        border: "none",
-        fontSize: 12,
+        background: active ? "#0a0a0a" : "transparent",
+        color: active ? "#ffffff" : "rgba(0,0,0,0.6)",
+        border: active ? "none" : "1px solid rgba(0,0,0,0.1)",
+        fontSize: 13,
         fontWeight: 500,
         cursor: "pointer",
-        transition: "background 0.15s",
+        transition: "background 0.15s, color 0.15s, border-color 0.15s",
+        whiteSpace: "nowrap",
       }}
     >
       {children}

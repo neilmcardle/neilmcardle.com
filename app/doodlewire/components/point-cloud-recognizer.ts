@@ -28,6 +28,14 @@ const N_POINTS = 32;
 // Greedy cloud match step. ε in the paper. Smaller = better match, slower.
 const EPSILON = 0.5;
 
+// Aspect-ratio scoring weight. The raw $P distance normalises every shape
+// into a unit square, which means a 3:1 button and a 1:1 card look
+// identical to the cloud matcher. We re-introduce aspect ratio as a
+// penalty on the combined score: |log(candidateAspect / templateAspect)|
+// × ASPECT_WEIGHT, added to the cloud distance. Tunable. Higher = more
+// aggressive separation between rectangle-family elements.
+const ASPECT_WEIGHT = 3.0;
+
 export interface NormalizedCloud {
   points: Pt[];
 }
@@ -176,15 +184,46 @@ export interface MatchResult<T> {
 // Score every template against the candidate, ascending by distance. The
 // caller decides whether a single best match is good enough, plus runs its
 // own ambiguity check by inspecting the runner-up.
+//
+// Distance = greedyCloudMatch (shape) + ASPECT_WEIGHT * |log(aspectRatio
+// candidate / template)|. The aspect term is what stops a 3:1 button doodle
+// from collapsing onto a 1:1 checkbox template, since the cloud matcher
+// itself ignores aspect ratio.
 export function rankTemplates<T extends { cloud: NormalizedCloud }>(
   candidate: NormalizedCloud,
   templates: T[],
 ): MatchResult<T>[] {
   if (templates.length === 0) return [];
-  const ranked = templates.map((t) => ({
-    template: t,
-    distance: greedyCloudMatch(candidate, t.cloud),
-  }));
+  const candAspect = cloudAspectRatio(candidate);
+  const ranked = templates.map((t) => {
+    const shape = greedyCloudMatch(candidate, t.cloud);
+    const aspect = aspectPenalty(candAspect, cloudAspectRatio(t.cloud));
+    return { template: t, distance: shape + ASPECT_WEIGHT * aspect };
+  });
   ranked.sort((a, b) => a.distance - b.distance);
   return ranked;
+}
+
+// Returns width/height of the normalised cloud's bounding box. After
+// normalise() the larger dimension is 1.0 and the smaller is in (0, 1],
+// so the ratio survives normalisation and reflects the original doodle.
+function cloudAspectRatio(cloud: NormalizedCloud): number {
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const p of cloud.points) {
+    if (p.x < minX) minX = p.x;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.y > maxY) maxY = p.y;
+  }
+  const w = maxX - minX;
+  const h = maxY - minY;
+  if (!isFinite(w) || !isFinite(h)) return 1;
+  if (h <= 1e-6) return w <= 1e-6 ? 1 : 1000;
+  if (w <= 1e-6) return 0.001;
+  return w / h;
+}
+
+function aspectPenalty(a: number, b: number): number {
+  if (!isFinite(a) || !isFinite(b) || a <= 0 || b <= 0) return 1.5;
+  return Math.abs(Math.log(a / b));
 }
