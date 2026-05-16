@@ -203,7 +203,7 @@ export default function Homepage() {
                 }}
               >
                 <span>ARTIST</span>
-                <span>|</span>
+                <span>|                                                                                                                                                             </span>
                 <span>DESIGNER</span>
               </div>
               {/* Primary CTA — desktop sits inside the title block under

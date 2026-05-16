@@ -9,6 +9,7 @@ import { exportAsHtml, exportAsReact } from "./export";
 import { captureWireframePng, defaultPngFilename, savePng } from "./exportImage";
 import { LearnMyStyle } from "./learn-my-style";
 import { normalize, rankTemplates } from "./point-cloud-recognizer";
+import { classifyShape } from "./shape-heuristics";
 import { snapToStandard } from "./snap-size";
 import {
   deleteTemplate,
@@ -127,11 +128,8 @@ export default function WireframeCanvas() {
   const templatesRef = useRef<Template[]>([]);
   const [templateCount, setTemplateCount] = useState(0);
   const [learnOpen, setLearnOpen] = useState(false);
-  // First-time-visitor hint inviting users into Learn my style. Survives a
-  // page reload via localStorage so dismissals stick.
-  const [learnHintDismissed, setLearnHintDismissed] = useState(false);
-  // Transient flash pill at the top of the canvas. Surfaces what just
-  // happened: a local match, an API call, a template deletion, etc.
+  // Transient flash pill above the toolbar. Surfaces what just happened:
+  // a local match, a template deletion, an export result, etc.
   const [flash, setFlash] = useState<FlashMessage | null>(null);
 
   // Keep the canvas pixel-perfect on every viewport change.
@@ -156,29 +154,13 @@ export default function WireframeCanvas() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load templates on mount. We no longer auto-open the Learn-my-style
-  // modal: it only opens when the user clicks the top-bar button.
+  // Load templates on mount. Learn my style opens only from the Settings
+  // menu in the toolbar.
   useEffect(() => {
     const all = loadTemplates();
     templatesRef.current = all;
     setTemplateCount(all.length);
-    try {
-      if (localStorage.getItem("doodlewire_learn_hint_dismissed") === "1") {
-        setLearnHintDismissed(true);
-      }
-    } catch {
-      // localStorage may be disabled; the hint will just keep showing.
-    }
   }, []);
-
-  function dismissLearnHint() {
-    setLearnHintDismissed(true);
-    try {
-      localStorage.setItem("doodlewire_learn_hint_dismissed", "1");
-    } catch {
-      // Persistent dismissal is best-effort.
-    }
-  }
 
   // Touch detection. (hover: none) catches phones and tablets reliably; a
   // hybrid laptop with a touchscreen won't false-positive.
@@ -440,9 +422,24 @@ export default function WireframeCanvas() {
       const closeEnough = top && top.distance < LOCAL_MATCH_THRESHOLD;
       const decisiveLead = !runnerUp || runnerUp.distance > top!.distance * LOCAL_MATCH_MARGIN;
       const accept = veryTight || (closeEnough && decisiveLead);
-      if (!top || !accept) continue;
-
       const bbox = aggregateStrokeBbox(strokesAtCall);
+
+      if (!top || !accept) {
+        // No confident trained-template match. Fall back to geometric
+        // classification so an untrained / first-time doodle still
+        // produces something. Heuristic guesses carry no templateId.
+        const guess = classifyShape(strokesAtCall);
+        if (guess) {
+          stamped.push({
+            id: `${Date.now()}-${stamped.length}-geo`,
+            type: guess.type,
+            bbox: snapToStandard(guess.type, bbox),
+          });
+          for (const s of cluster) matchedStrokes.add(s);
+        }
+        continue;
+      }
+
       stamped.push({
         id: `${Date.now()}-${stamped.length}-local`,
         type: top.template.type,
@@ -467,12 +464,12 @@ export default function WireframeCanvas() {
       return;
     }
 
-    // No confident match anywhere. Keep the strokes on the canvas so the
-    // user can either erase or train. The flash points them at the right
-    // action.
+    // Neither templates nor geometry produced anything — the doodle was
+    // too small or degenerate to read. Keep the strokes so the user can
+    // redraw or train, and point them at Learn my style.
     setFlash({
       kind: "info",
-      text: templatesRef.current.length === 0 ? "No drawings yet" : "Not recognised",
+      text: "Couldn't read that",
       action: {
         label: "Learn my style",
         onClick: () => {
@@ -520,11 +517,8 @@ export default function WireframeCanvas() {
   useEffect(() => cancelScheduledRecognise, []);
 
   const dotIndices = findDotStrokes(strokesRef.current);
-  const showLearnHint =
-    templateCount === 0 &&
-    !learnHintDismissed &&
-    strokesRef.current.length === 0 &&
-    elements.length === 0;
+  // Shown whenever the canvas is empty — a friendly nudge to start drawing.
+  const showLearnHint = strokesRef.current.length === 0 && elements.length === 0;
   // strokeRev is read here only to force a re-render when strokes change.
   void strokeRev;
 
@@ -606,12 +600,7 @@ export default function WireframeCanvas() {
         }}
       />
 
-      {showLearnHint && (
-        <LearnHint
-          onOpen={() => setLearnOpen(true)}
-          onDismiss={dismissLearnHint}
-        />
-      )}
+      {showLearnHint && <LearnHint />}
 
       {snipRect && (
         <div
@@ -764,7 +753,9 @@ function findDotStrokes(strokes: Stroke[]): { index: number; x: number; y: numbe
   return out;
 }
 
-function LearnHint({ onOpen, onDismiss }: { onOpen: () => void; onDismiss: () => void }) {
+// Empty-canvas encouragement. Plain, non-interactive grey text — it fades
+// out the moment the user starts drawing (gated by showLearnHint).
+function LearnHint() {
   return (
     <div
       data-skip-export="1"
@@ -778,53 +769,16 @@ function LearnHint({ onOpen, onDismiss }: { onOpen: () => void; onDismiss: () =>
         zIndex: 25,
       }}
     >
-      <div
+      <span
         style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 2,
-          pointerEvents: "auto",
+          color: "rgba(0,0,0,0.32)",
+          fontSize: 15,
+          fontWeight: 500,
+          letterSpacing: "0.01em",
         }}
       >
-        <button
-          type="button"
-          onClick={onOpen}
-          style={{
-            background: "transparent",
-            border: "none",
-            padding: "6px 4px 6px 10px",
-            color: "rgba(0,0,0,0.4)",
-            fontSize: 13,
-            fontWeight: 500,
-            letterSpacing: "0.01em",
-            cursor: "pointer",
-            fontFamily: "inherit",
-          }}
-        >
-          Learn my style
-        </button>
-        <button
-          type="button"
-          onClick={onDismiss}
-          aria-label="Dismiss"
-          title="Dismiss"
-          style={{
-            background: "transparent",
-            border: "none",
-            padding: "4px 8px 4px 4px",
-            color: "rgba(0,0,0,0.3)",
-            cursor: "pointer",
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
+        Doodle away!
+      </span>
     </div>
   );
 }
