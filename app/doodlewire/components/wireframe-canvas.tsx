@@ -1038,9 +1038,12 @@ function FlashPill({ message }: { message: FlashMessage | null }) {
       {message && (
         <motion.div
           key={message.text}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 6 }}
+          // x stays at -50% through every state so the pill is centred;
+          // y animates the slide-in. Centring via a CSS transform here
+          // would be clobbered by Framer Motion's own transform.
+          initial={{ opacity: 0, x: "-50%", y: 8 }}
+          animate={{ opacity: 1, x: "-50%", y: 0 }}
+          exit={{ opacity: 0, x: "-50%", y: 6 }}
           transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
           style={{
             position: "absolute",
@@ -1048,7 +1051,6 @@ function FlashPill({ message }: { message: FlashMessage | null }) {
             // + toolbar height ~40 + a 14 gap), clear of the home indicator.
             bottom: "calc(78px + env(safe-area-inset-bottom, 0px))",
             left: "50%",
-            transform: "translateX(-50%)",
             zIndex: 45,
             // Actionable flashes need taps to reach the button.
             pointerEvents: message.action ? "auto" : "none",
