@@ -234,10 +234,11 @@ export default function WireframeCanvas() {
     setTemplateCount(all.length);
   }, []);
 
-  // Auto-clear the flash pill after a short window.
+  // Auto-clear the flash pill after a short window. Actionable flashes
+  // linger longer so there is time to read the message and tap the button.
   useEffect(() => {
     if (!flash) return;
-    const t = setTimeout(() => setFlash(null), 2400);
+    const t = setTimeout(() => setFlash(null), flash.action ? 7000 : 2400);
     return () => clearTimeout(t);
   }, [flash]);
 
@@ -471,9 +472,14 @@ export default function WireframeCanvas() {
     // action.
     setFlash({
       kind: "info",
-      text: templatesRef.current.length === 0
-        ? "No drawings yet. Open Learn my style to teach the recogniser."
-        : "Not recognised. Open Learn my style to teach this shape.",
+      text: templatesRef.current.length === 0 ? "No drawings yet" : "Not recognised",
+      action: {
+        label: "Learn my style",
+        onClick: () => {
+          setFlash(null);
+          setLearnOpen(true);
+        },
+      },
     });
   }, [redraw, bumpStrokes]);
 
@@ -1010,12 +1016,20 @@ type FlashKind = "local" | "removed" | "info";
 interface FlashMessage {
   kind: FlashKind;
   text: string;
+  // Optional inline action. Renders a tappable button in the pill; an
+  // actionable flash also stays on screen longer and captures pointer
+  // events so the button is reachable.
+  action?: { label: string; onClick: () => void };
 }
 
-const FLASH_COLORS: Record<FlashKind, string> = {
+// Status dot colour per flash kind. The pill itself is always a clean white
+// pill with a thin border — matching the Recognise pill and the rest of the
+// app's chrome — so the dot carries the meaning. Amber (not red) for info:
+// "not recognised" is a gentle heads-up, not a failure.
+const FLASH_DOT: Record<FlashKind, string> = {
   local: "#16a34a",
   removed: "#dc2626",
-  info: "#525252",
+  info: "#f59e0b",
 };
 
 function FlashPill({ message }: { message: FlashMessage | null }) {
@@ -1024,31 +1038,71 @@ function FlashPill({ message }: { message: FlashMessage | null }) {
       {message && (
         <motion.div
           key={message.text}
-          initial={{ opacity: 0, y: -8 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
+          exit={{ opacity: 0, y: 6 }}
           transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
           style={{
             position: "absolute",
-            top: 56,
+            // Sits just above the bottom toolbar (toolbar bottom offset 24
+            // + toolbar height ~40 + a 14 gap), clear of the home indicator.
+            bottom: "calc(78px + env(safe-area-inset-bottom, 0px))",
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 45,
-            pointerEvents: "none",
+            // Actionable flashes need taps to reach the button.
+            pointerEvents: message.action ? "auto" : "none",
             display: "inline-flex",
             alignItems: "center",
-            gap: 8,
-            padding: "6px 12px",
-            background: FLASH_COLORS[message.kind],
-            color: "#ffffff",
+            gap: 9,
+            maxWidth: "min(86vw, 420px)",
+            padding: message.action ? "5px 5px 5px 14px" : "9px 15px",
+            background: "#ffffff",
+            color: "#0a0a0a",
+            border: "1px solid rgba(0,0,0,0.1)",
             borderRadius: 999,
-            fontSize: 12,
-            fontWeight: 600,
-            letterSpacing: "0.01em",
-            boxShadow: "0 6px 16px rgba(0,0,0,0.18)",
+            fontSize: 12.5,
+            fontWeight: 500,
+            lineHeight: 1.35,
+            letterSpacing: "0.005em",
+            boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
           }}
         >
-          {message.text}
+          <span
+            style={{
+              flexShrink: 0,
+              width: 7,
+              height: 7,
+              borderRadius: 999,
+              background: FLASH_DOT[message.kind],
+            }}
+          />
+          <span style={{ whiteSpace: "nowrap" }}>{message.text}</span>
+          {message.action && (
+            <button
+              type="button"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                message.action!.onClick();
+              }}
+              style={{
+                flexShrink: 0,
+                padding: "0 12px",
+                height: 28,
+                background: "#0a0a0a",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: 999,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {message.action.label}
+            </button>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
