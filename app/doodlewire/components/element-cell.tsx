@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ElementType, WfElement } from "./wireframe-canvas";
-import { renderElement } from "./wireframe-element";
+import { ICON_CHOICES, pickIcon, renderElement } from "./wireframe-element";
 import { getResizeMode, resizeBbox, type ResizeHandle } from "./snap-size";
 
 interface ElementCellProps {
@@ -64,32 +64,84 @@ export function ElementCell({
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
   const [thanked, setThanked] = useState(false);
-  const [typeMenuOpen, setTypeMenuOpen] = useState(false);
+  // Which popover is open: the element-type grid, the icon grid, or none.
+  // Only one is ever open, so the positioning and outside-click logic is
+  // shared between them.
+  const [openMenu, setOpenMenu] = useState<"type" | "icon" | null>(null);
   const resizeMode = getResizeMode(element.type);
-  const typeMenuRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const toolbarRef = useRef<HTMLDivElement | null>(null);
+  // Toolbar offset relative to the element wrapper. Computed by clamping
+  // against the viewport so the toolbar never spills off any edge —
+  // a CSS anchor alone can't do this since the element's screen position
+  // and the toolbar's width are both unknown ahead of time.
+  const [toolbarPos, setToolbarPos] = useState<{ left: number; top: number }>({
+    left: 0,
+    top: -38,
+  });
+
+  const positionToolbar = useCallback(() => {
+    const wrap = wrapperRef.current;
+    const bar = toolbarRef.current;
+    if (!wrap || !bar) return;
+    const wr = wrap.getBoundingClientRect();
+    const bw = bar.offsetWidth || 200;
+    const bh = bar.offsetHeight || 30;
+    const GAP = 6;
+    const M = 8; // viewport margin
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // Horizontal: right-align to the element, then clamp into the viewport.
+    let left = wr.width - bw;
+    let screenLeft = wr.left + left;
+    if (screenLeft < M) left += M - screenLeft;
+    screenLeft = wr.left + left;
+    if (screenLeft + bw > vw - M) left -= screenLeft + bw - (vw - M);
+
+    // Vertical: above the element; flip below if that clips the top edge.
+    let top = -bh - GAP;
+    if (wr.top + top < M) top = wr.height + GAP;
+    // If below also clips the bottom, sit it just inside the top margin.
+    if (wr.top + top + bh > vh - M && wr.top - bh - GAP < M) {
+      top = M - wr.top;
+    }
+    setToolbarPos({ left, top });
+  }, []);
+
+  // Reposition whenever the toolbar becomes visible via selection, and on
+  // viewport changes. Hover and drag trigger it through event handlers.
+  useLayoutEffect(() => {
+    if (selected) positionToolbar();
+  }, [selected, element.bbox.x, element.bbox.y, element.bbox.w, element.bbox.h, positionToolbar]);
+
+  useEffect(() => {
+    window.addEventListener("resize", positionToolbar);
+    return () => window.removeEventListener("resize", positionToolbar);
+  }, [positionToolbar]);
   // The popover sits at fixed viewport coordinates so it can flip above
   // or below the cell, and slide horizontally to stay inside the viewport
   // when the cell is near an edge.
   const [menuFixed, setMenuFixed] = useState<{ left: number; top: number } | null>(null);
 
-  // Close the type menu when clicking elsewhere.
+  // Close the open popover when clicking elsewhere.
   useEffect(() => {
-    if (!typeMenuOpen) return;
+    if (!openMenu) return;
     function onDocDown(e: PointerEvent) {
-      if (typeMenuRef.current && !typeMenuRef.current.contains(e.target as Node)) {
-        setTypeMenuOpen(false);
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenu(null);
       }
     }
     document.addEventListener("pointerdown", onDocDown);
     return () => document.removeEventListener("pointerdown", onDocDown);
-  }, [typeMenuOpen]);
+  }, [openMenu]);
 
   // Place the popover so it stays inside the viewport. Prefer above the cell
   // and right-aligned to it; flip below if there is no room above; clamp
   // horizontally when the cell is near a left or right edge.
   useEffect(() => {
-    if (!typeMenuOpen) {
+    if (!openMenu) {
       setMenuFixed(null);
       return;
     }
@@ -117,7 +169,7 @@ export function ElementCell({
       window.removeEventListener("resize", compute);
       window.removeEventListener("scroll", compute, true);
     };
-  }, [typeMenuOpen]);
+  }, [openMenu]);
 
   function startDrag(e: React.PointerEvent) {
     e.stopPropagation();
@@ -146,7 +198,10 @@ export function ElementCell({
       const dy = ev.clientY - lastY;
       lastX = ev.clientX;
       lastY = ev.clientY;
-      if (dx !== 0 || dy !== 0) onMove(dx, dy);
+      if (dx !== 0 || dy !== 0) {
+        onMove(dx, dy);
+        positionToolbar();
+      }
     }
 
     function onUpDoc() {
@@ -213,6 +268,7 @@ export function ElementCell({
     <div
       ref={wrapperRef}
       onPointerDown={startDrag}
+      onPointerEnter={positionToolbar}
       style={{
         position: "absolute",
         left: element.bbox.x,
@@ -242,19 +298,17 @@ export function ElementCell({
       />
 
 
-      {/* Per-element toolbar. Sits above the element by default but flips
-          below when the element is near the top of the canvas (toolbar is
-          ~34px tall). Visible whenever the element is selected; otherwise
-          fades in on hover. */}
+      {/* Per-element toolbar. Position is computed by positionToolbar() so
+          it stays clamped inside the viewport on every edge. Visible
+          whenever the element is selected; otherwise fades in on hover. */}
       <div
+        ref={toolbarRef}
         data-skip-export="1"
         onPointerDown={(e) => e.stopPropagation()}
         style={{
           position: "absolute",
-          ...(element.bbox.y < 48
-            ? { top: "auto", bottom: -34 }
-            : { top: -34, bottom: "auto" }),
-          right: 0,
+          left: toolbarPos.left,
+          top: toolbarPos.top,
           display: "flex",
           alignItems: "center",
           gap: 2,
@@ -274,7 +328,7 @@ export function ElementCell({
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
-            setTypeMenuOpen((v) => !v);
+            setOpenMenu((v) => (v === "type" ? null : "type"));
           }}
           title="Change type"
           aria-label="Change type"
@@ -284,7 +338,7 @@ export function ElementCell({
             gap: 4,
             padding: "0 8px",
             height: 24,
-            background: typeMenuOpen ? "rgba(255,255,255,0.12)" : "transparent",
+            background: openMenu === "type" ? "rgba(255,255,255,0.12)" : "transparent",
             color: "#ffffff",
             border: "none",
             borderRadius: 999,
@@ -300,6 +354,23 @@ export function ElementCell({
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
+        {element.type === "icon" && (
+          <ToolBtn
+            label="Choose icon"
+            active={openMenu === "icon"}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenMenu((v) => (v === "icon" ? null : "icon"));
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </ToolBtn>
+        )}
         <Divider />
         <ToolBtn
           label="Send backward"
@@ -346,9 +417,9 @@ export function ElementCell({
         </ToolBtn>
       </div>
 
-      {typeMenuOpen && menuFixed && (
+      {openMenu === "type" && menuFixed && (
         <div
-          ref={typeMenuRef}
+          ref={menuRef}
           data-skip-export="1"
           onPointerDown={(e) => e.stopPropagation()}
           style={{
@@ -378,7 +449,7 @@ export function ElementCell({
               onClick={(e) => {
                 e.stopPropagation();
                 onTypeChange(t);
-                setTypeMenuOpen(false);
+                setOpenMenu(null);
               }}
               style={{
                 padding: "6px 8px",
@@ -405,6 +476,70 @@ export function ElementCell({
           ))}
         </div>
       )}
+
+      {openMenu === "icon" && menuFixed && (
+        <div
+          ref={menuRef}
+          data-skip-export="1"
+          onPointerDown={(e) => e.stopPropagation()}
+          style={{
+            position: "fixed",
+            left: menuFixed.left,
+            top: menuFixed.top,
+            background: "#ffffff",
+            border: "1px solid rgba(0,0,0,0.1)",
+            borderRadius: 10,
+            boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+            padding: 6,
+            zIndex: 60,
+            display: "grid",
+            gridTemplateColumns: "repeat(6, 1fr)",
+            gap: 2,
+            width: 264,
+            maxHeight: 280,
+            overflowY: "auto",
+            pointerEvents: "auto",
+          }}
+        >
+          {ICON_CHOICES.map(({ name, Icon }) => {
+            const current = pickIcon(element.label) === Icon;
+            return (
+              <button
+                key={name}
+                type="button"
+                title={name}
+                aria-label={name}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLabelChange(name);
+                  setOpenMenu(null);
+                }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  aspectRatio: "1 / 1",
+                  background: current ? "#0a0a0a" : "transparent",
+                  color: current ? "#ffffff" : "#0a0a0a",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                  transition: "background 0.1s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!current) (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)";
+                }}
+                onMouseLeave={(e) => {
+                  if (!current) (e.currentTarget as HTMLElement).style.background = "transparent";
+                }}
+              >
+                <Icon width={17} height={17} strokeWidth={1.8} />
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -412,12 +547,16 @@ export function ElementCell({
 interface ToolBtnProps {
   label: string;
   disabled?: boolean;
+  // Green "confirmed" flash (thumbs-up feedback).
   highlighted?: boolean;
+  // Subtle white background while a paired popover is open.
+  active?: boolean;
   onClick: (e: React.MouseEvent) => void;
   children: React.ReactNode;
 }
 
-function ToolBtn({ label, disabled, highlighted, onClick, children }: ToolBtnProps) {
+function ToolBtn({ label, disabled, highlighted, active, onClick, children }: ToolBtnProps) {
+  const baseBg = highlighted ? "#16a34a" : active ? "rgba(255,255,255,0.12)" : "transparent";
   return (
     <button
       type="button"
@@ -432,7 +571,7 @@ function ToolBtn({ label, disabled, highlighted, onClick, children }: ToolBtnPro
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        background: highlighted ? "#16a34a" : "transparent",
+        background: baseBg,
         color: disabled ? "rgba(255,255,255,0.3)" : "#ffffff",
         border: "none",
         borderRadius: 999,
@@ -440,10 +579,10 @@ function ToolBtn({ label, disabled, highlighted, onClick, children }: ToolBtnPro
         transition: "background 0.15s",
       }}
       onMouseEnter={(e) => {
-        if (!disabled && !highlighted) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)";
+        if (!disabled && !highlighted && !active) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)";
       }}
       onMouseLeave={(e) => {
-        if (!highlighted) (e.currentTarget as HTMLElement).style.background = "transparent";
+        if (!highlighted) (e.currentTarget as HTMLElement).style.background = baseBg;
       }}
     >
       {children}

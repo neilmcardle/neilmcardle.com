@@ -50,7 +50,46 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-function pickIcon(label?: string): LucideIcon {
+// The icons the picker offers. Each `name` is chosen so pickIcon() resolves
+// it back to the same Lucide icon — the picker just writes the name into the
+// element's label, and rendering stays unchanged.
+export const ICON_CHOICES: { name: string; Icon: LucideIcon }[] = [
+  { name: "square", Icon: SquareIcon },
+  { name: "close", Icon: XIcon },
+  { name: "search", Icon: Search },
+  { name: "settings", Icon: Settings },
+  { name: "add", Icon: Plus },
+  { name: "check", Icon: Check },
+  { name: "bell", Icon: Bell },
+  { name: "user", Icon: User },
+  { name: "home", Icon: Home },
+  { name: "heart", Icon: Heart },
+  { name: "star", Icon: Star },
+  { name: "mail", Icon: Mail },
+  { name: "lock", Icon: Lock },
+  { name: "eye", Icon: Eye },
+  { name: "calendar", Icon: Calendar },
+  { name: "clock", Icon: Clock },
+  { name: "arrow-right", Icon: ArrowRight },
+  { name: "arrow-left", Icon: ArrowLeft },
+  { name: "arrow-up", Icon: ArrowUp },
+  { name: "arrow-down", Icon: ArrowDown },
+  { name: "download", Icon: Download },
+  { name: "upload", Icon: Upload },
+  { name: "edit", Icon: Edit },
+  { name: "trash", Icon: Trash2 },
+  { name: "share", Icon: Share2 },
+  { name: "filter", Icon: Filter },
+  { name: "menu", Icon: MenuIcon },
+  { name: "info", Icon: Info },
+  { name: "help", Icon: HelpCircle },
+  { name: "phone", Icon: Phone },
+  { name: "camera", Icon: Camera },
+  { name: "image", Icon: ImageIcon },
+  { name: "bookmark", Icon: Bookmark },
+];
+
+export function pickIcon(label?: string): LucideIcon {
   const l = (label ?? "").toLowerCase().trim();
   if (!l) return SquareIcon;
   if (l === "x" || l === "✕" || l.includes("close") || l.includes("dismiss") || l.includes("cancel")) return XIcon;
