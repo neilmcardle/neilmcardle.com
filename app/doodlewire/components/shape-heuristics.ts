@@ -51,13 +51,13 @@ export function classifyShape(strokes: Stroke[]): ShapeGuess | null {
   }
 
   // 3. Stack of horizontal strokes. Three tidy ones read as a hamburger
-  //    menu; more (or uneven) reads as a paragraph of text lines.
+  //    menu; more (or uneven) reads as a text block.
   const hLines = horizontalStrokeCount(strokes);
   if (hLines >= 3 && strokes.length <= 4 && aspect < 2.2) {
     return { type: "menu", confidence: 0.5 };
   }
   if (hLines >= 2 && strokes.length >= 2 && bbox.h > 36) {
-    return { type: "paragraph", confidence: 0.5 };
+    return { type: "text", confidence: 0.5 };
   }
 
   // 4. Circular — points roughly equidistant from the centroid and the
@@ -78,11 +78,11 @@ function classifyBox(bbox: Bbox, aspect: number, horizontal: boolean): ShapeGues
   const area = bbox.w * bbox.h;
   const longSide = Math.max(bbox.w, bbox.h);
 
-  // Tall box → textarea or container.
+  // Tall box → card if large, otherwise a text block.
   if (!horizontal && aspect < 0.85) {
     return area > 60000
-      ? { type: "container", confidence: 0.45 }
-      : { type: "textarea", confidence: 0.45 };
+      ? { type: "card", confidence: 0.45 }
+      : { type: "text", confidence: 0.45 };
   }
 
   // Small square-ish box → checkbox.

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLayoutEffect, useRef } from "react";
 import type { WfElement } from "./wireframe-canvas";
 import { EditableLabel } from "./editable-label";
 import { Badge } from "@/components/ui/badge";
@@ -18,35 +19,77 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  Battery,
   Bell,
   Bookmark,
   Calendar,
   Camera,
   Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
   Clock,
+  Cloud,
+  Copy,
+  CreditCard,
   Download,
   Edit,
+  ExternalLink,
   Eye,
+  File,
   Filter,
+  Folder,
+  Gift,
+  Globe,
   Heart,
   HelpCircle,
   Home,
   Image as ImageIcon,
   Info,
+  Key,
+  LayoutGrid,
+  Link2,
+  List,
   Lock,
+  LogIn,
+  LogOut,
   Mail,
+  MapPin,
+  Maximize2,
   Menu as MenuIcon,
+  MessageCircle,
+  Minimize2,
+  Moon,
+  MoreHorizontal,
+  MoreVertical,
+  Pause,
   Phone,
+  Play,
   Plus,
+  Printer,
+  RefreshCw,
+  Save,
   Search,
+  Send,
   Settings,
   Share2,
+  Shield,
+  ShoppingCart,
   Square as SquareIcon,
   Star,
+  Sun,
+  Tag,
+  ThumbsDown,
+  ThumbsUp,
   Trash2,
   Upload,
   User,
+  Volume2,
+  VolumeX,
+  Wifi,
   X as XIcon,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 
@@ -87,11 +130,58 @@ export const ICON_CHOICES: { name: string; Icon: LucideIcon }[] = [
   { name: "camera", Icon: Camera },
   { name: "image", Icon: ImageIcon },
   { name: "bookmark", Icon: Bookmark },
+  { name: "chevron-right", Icon: ChevronRight },
+  { name: "chevron-left", Icon: ChevronLeft },
+  { name: "chevron-up", Icon: ChevronUp },
+  { name: "chevron-down", Icon: ChevronDown },
+  { name: "grid", Icon: LayoutGrid },
+  { name: "list", Icon: List },
+  { name: "play", Icon: Play },
+  { name: "pause", Icon: Pause },
+  { name: "volume", Icon: Volume2 },
+  { name: "mute", Icon: VolumeX },
+  { name: "wifi", Icon: Wifi },
+  { name: "battery", Icon: Battery },
+  { name: "location", Icon: MapPin },
+  { name: "tag", Icon: Tag },
+  { name: "link", Icon: Link2 },
+  { name: "copy", Icon: Copy },
+  { name: "save", Icon: Save },
+  { name: "refresh", Icon: RefreshCw },
+  { name: "more", Icon: MoreHorizontal },
+  { name: "more-vertical", Icon: MoreVertical },
+  { name: "send", Icon: Send },
+  { name: "print", Icon: Printer },
+  { name: "folder", Icon: Folder },
+  { name: "file", Icon: File },
+  { name: "credit-card", Icon: CreditCard },
+  { name: "cart", Icon: ShoppingCart },
+  { name: "gift", Icon: Gift },
+  { name: "thumbs-up", Icon: ThumbsUp },
+  { name: "thumbs-down", Icon: ThumbsDown },
+  { name: "message", Icon: MessageCircle },
+  { name: "globe", Icon: Globe },
+  { name: "sun", Icon: Sun },
+  { name: "moon", Icon: Moon },
+  { name: "cloud", Icon: Cloud },
+  { name: "bolt", Icon: Zap },
+  { name: "shield", Icon: Shield },
+  { name: "key", Icon: Key },
+  { name: "log-out", Icon: LogOut },
+  { name: "log-in", Icon: LogIn },
+  { name: "expand", Icon: Maximize2 },
+  { name: "collapse", Icon: Minimize2 },
+  { name: "external", Icon: ExternalLink },
 ];
 
 export function pickIcon(label?: string): LucideIcon {
   const l = (label ?? "").toLowerCase().trim();
   if (!l) return SquareIcon;
+  // Exact match against the named set first — this is what the icon picker
+  // writes, and it covers icons the keyword heuristics below don't know.
+  const exact = ICON_CHOICES.find((c) => c.name === l);
+  if (exact) return exact.Icon;
+  // Keyword heuristics for free-typed labels ("favourite", "log out", etc).
   if (l === "x" || l === "✕" || l.includes("close") || l.includes("dismiss") || l.includes("cancel")) return XIcon;
   if (l.includes("search") || l.includes("magnif") || l.includes("find")) return Search;
   if (l.includes("setting") || l.includes("gear") || l.includes("cog")) return Settings;
@@ -127,7 +217,74 @@ export function pickIcon(label?: string): LucideIcon {
   return SquareIcon;
 }
 
-export function renderElement(el: WfElement, onLabelChange: (next: string) => void) {
+// Heading font size per H1-H6 level. H1 largest, H6 smallest.
+export const HEADING_FONT_PX: Record<number, number> = {
+  1: 34,
+  2: 27,
+  3: 22,
+  4: 19,
+  5: 16,
+  6: 14,
+};
+
+// Clamp an element's level to a valid 1-6 heading level (default 2).
+export function headingLevel(level: number | undefined): number {
+  if (level == null) return 2;
+  return Math.min(6, Math.max(1, Math.round(level)));
+}
+
+// Vertical padding inside the text element, in px (top + bottom each).
+const TEXT_PAD_Y = 8;
+// Minimum text-element height — one comfortable line.
+const TEXT_MIN_H = 40;
+
+// Auto-growing text element. The contentEditable wraps naturally at the
+// element width and on Enter; a layout-effect measures the rendered height
+// and reports it via onAutoHeight so the element's bbox grows and shrinks
+// to fit. No fixed multi-line box — it starts one line and follows content.
+function TextElement({
+  el,
+  onChange,
+  onAutoHeight,
+}: {
+  el: WfElement;
+  onChange: (next: string) => void;
+  onAutoHeight?: (h: number) => void;
+}) {
+  const measureRef = useRef<HTMLDivElement | null>(null);
+
+  useLayoutEffect(() => {
+    const node = measureRef.current;
+    if (!node || !onAutoHeight) return;
+    const measured = Math.max(TEXT_MIN_H, node.scrollHeight + TEXT_PAD_Y * 2);
+    // Only report when it actually changed, otherwise the bbox update would
+    // re-render and re-measure in a loop.
+    if (Math.abs(measured - el.bbox.h) > 0.5) onAutoHeight(measured);
+  });
+
+  return (
+    <div
+      ref={measureRef}
+      className="w-full text-sm leading-relaxed text-foreground"
+      style={{ paddingTop: TEXT_PAD_Y, paddingBottom: TEXT_PAD_Y }}
+    >
+      <EditableLabel
+        value={el.label ?? ""}
+        onChange={onChange}
+        placeholder="Text"
+        multiline
+        as="div"
+        className="block w-full"
+      />
+    </div>
+  );
+}
+
+export function renderElement(
+  el: WfElement,
+  onLabelChange: (next: string) => void,
+  onAutoHeight?: (h: number) => void,
+) {
   const set = onLabelChange;
   switch (el.type) {
     case "button":
@@ -151,19 +308,8 @@ export function renderElement(el: WfElement, onLabelChange: (next: string) => vo
           />
         </div>
       );
-    case "textarea":
-      return (
-        <div className="w-full h-full rounded-md border border-input bg-background p-3 text-sm text-muted-foreground overflow-hidden">
-          <EditableLabel
-            value={el.label ?? "Type here"}
-            onChange={set}
-            placeholder="Type here"
-            multiline
-            as="div"
-            className="block w-full h-full"
-          />
-        </div>
-      );
+    case "text":
+      return <TextElement el={el} onChange={set} onAutoHeight={onAutoHeight} />;
     case "checkbox":
       return (
         <div className="w-full h-full rounded-[20%] border-2 border-foreground/80 bg-background flex items-center justify-center text-foreground">
@@ -190,28 +336,19 @@ export function renderElement(el: WfElement, onLabelChange: (next: string) => vo
           />
         </div>
       );
-    case "heading":
+    case "heading": {
+      const level = headingLevel(el.level);
       return (
-        <h2
+        <div
+          role="heading"
+          aria-level={level}
           className="w-full h-full flex items-center font-semibold tracking-tight text-foreground overflow-hidden"
-          style={{ fontSize: "clamp(18px, 2.2vw, 28px)" }}
+          style={{ fontSize: HEADING_FONT_PX[level] }}
         >
           <EditableLabel value={el.label ?? "Heading"} onChange={set} placeholder="Heading" />
-        </h2>
-      );
-    case "paragraph":
-      return (
-        <div className="w-full h-full text-sm leading-relaxed text-muted-foreground overflow-hidden">
-          <EditableLabel
-            value={el.label ?? ""}
-            onChange={set}
-            placeholder={"Your paragraph here.\nDouble-click to edit."}
-            multiline
-            as="div"
-            className="block w-full"
-          />
         </div>
       );
+    }
     case "image":
       return (
         <div
@@ -225,8 +362,6 @@ export function renderElement(el: WfElement, onLabelChange: (next: string) => vo
           </svg>
         </div>
       );
-    case "container":
-      return <div className="w-full h-full rounded-xl border-2 border-dashed border-border" />;
     case "card":
       return (
         <Card className="w-full h-full">

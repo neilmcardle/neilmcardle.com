@@ -20,10 +20,9 @@ const RESIZE_MODES: Record<ElementType, ResizeMode> = {
   link: "flowWidth",
   badge: "flowWidth",
   dropdown: "flowWidth",
-  textarea: "flowBoth",
-  paragraph: "flowBoth",
+  // Width-resizable; height follows the typed text via auto-grow.
+  text: "flowWidth",
   image: "flowBoth",
-  container: "flowBoth",
   card: "flowBoth",
   checkbox: "centredSquare",
   radio: "centredSquare",
@@ -42,21 +41,18 @@ export function getResizeMode(type: ElementType): ResizeMode {
 // define the min and max for free-drag (⌥ held).
 // Shared S/M/L sizes so similar element families align when stacked together.
 // Form controls (button, input, dropdown) all use FORM_CONTROL_W so a Save
-// button below a text input doesn't drift to a different width step. Content
-// blocks (textarea, paragraph) and layout containers (card, container) each
-// share their own scale for the same reason.
+// button below a text input doesn't drift to a different width step. The
+// text element uses CONTENT_W.
 const FORM_CONTROL_W = [160, 240, 360];
 const CONTENT_W = [240, 360, 520];
-const LAYOUT_W = [280, 400, 520];
 
 const PRESETS: Record<ElementType, { w: number[]; h: number[] }> = {
   button:    { w: FORM_CONTROL_W, h: [40] },
   input:     { w: FORM_CONTROL_W, h: [40] },
   dropdown:  { w: FORM_CONTROL_W, h: [40] },
-  textarea:  { w: CONTENT_W,      h: [80, 140, 240] },
-  paragraph: { w: CONTENT_W,      h: [56, 120, 200] },
-  card:      { w: LAYOUT_W,       h: [160, 240, 320] },
-  container: { w: LAYOUT_W,       h: [120, 240, 360] },
+  // Text starts one line tall (40); height then auto-grows with content.
+  text:      { w: CONTENT_W,      h: [40] },
+  card:      { w: [280, 400, 520], h: [160, 240, 320] },
   checkbox:  { w: [16, 20, 24],   h: [16, 20, 24] },
   radio:     { w: [16, 20, 24],   h: [16, 20, 24] },
   toggle:    { w: [36, 46, 56],   h: [20, 26, 32] },

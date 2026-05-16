@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { ElementType, WfElement } from "./wireframe-canvas";
-import { ICON_CHOICES, pickIcon, renderElement } from "./wireframe-element";
+import { ELEMENT_TYPES, type ElementType, type WfElement } from "./wireframe-canvas";
+import { headingLevel, ICON_CHOICES, pickIcon, renderElement } from "./wireframe-element";
 import { getResizeMode, resizeBbox, type ResizeHandle } from "./snap-size";
 
 interface ElementCellProps {
@@ -14,6 +14,7 @@ interface ElementCellProps {
   onRemove: () => void;
   onLabelChange: (label: string) => void;
   onTypeChange: (type: ElementType) => void;
+  onLevelChange: (level: number) => void;
   onLayer: (direction: "forward" | "backward") => void;
   onFeedback: (correct: boolean) => void;
   canForward: boolean;
@@ -25,27 +26,6 @@ interface ElementCellProps {
 // registers as a tap on touch devices.
 const TAP_DRAG_THRESHOLD = 8;
 
-const ALL_TYPES: ElementType[] = [
-  "button",
-  "input",
-  "textarea",
-  "checkbox",
-  "radio",
-  "toggle",
-  "heading",
-  "paragraph",
-  "image",
-  "container",
-  "card",
-  "divider",
-  "nav",
-  "avatar",
-  "icon",
-  "link",
-  "badge",
-  "dropdown",
-  "menu",
-];
 
 export function ElementCell({
   element,
@@ -56,6 +36,7 @@ export function ElementCell({
   onRemove,
   onLabelChange,
   onTypeChange,
+  onLevelChange,
   onLayer,
   onFeedback,
   canForward,
@@ -64,11 +45,14 @@ export function ElementCell({
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
   const [thanked, setThanked] = useState(false);
-  // Which popover is open: the element-type grid, the icon grid, or none.
-  // Only one is ever open, so the positioning and outside-click logic is
-  // shared between them.
-  const [openMenu, setOpenMenu] = useState<"type" | "icon" | null>(null);
+  // Which popover is open: element-type grid, icon grid, heading-level
+  // grid, or none. Only one is ever open, so the positioning and
+  // outside-click logic is shared between them.
+  const [openMenu, setOpenMenu] = useState<"type" | "icon" | "level" | null>(null);
   const resizeMode = getResizeMode(element.type);
+  // Small elements (icons, checkboxes ~20px) are hard to grab. Extend the
+  // draggable area outward so the effective hit target is at least ~44px.
+  const hitPad = Math.max(0, (44 - Math.min(element.bbox.w, element.bbox.h)) / 2);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
@@ -289,7 +273,23 @@ export function ElementCell({
       }}
       className="group"
     >
-      {renderElement(element, onLabelChange)}
+      {hitPad > 0 && (
+        <div
+          data-skip-export="1"
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: -hitPad,
+          }}
+        />
+      )}
+      {renderElement(element, onLabelChange, (h) => {
+        // The text element auto-grows: apply the measured height as a
+        // height-only resize so the bbox follows the wrapped text.
+        if (Math.abs(h - element.bbox.h) > 0.5) {
+          onResize({ ...element.bbox, h });
+        }
+      })}
       <ResizeHandles
         mode={resizeMode}
         resizing={resizing}
@@ -371,6 +371,20 @@ export function ElementCell({
             </svg>
           </ToolBtn>
         )}
+        {element.type === "heading" && (
+          <ToolBtn
+            label="Heading level"
+            active={openMenu === "level"}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenMenu((v) => (v === "level" ? null : "level"));
+            }}
+          >
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.2 }}>
+              H{headingLevel(element.level)}
+            </span>
+          </ToolBtn>
+        )}
         <Divider />
         <ToolBtn
           label="Send backward"
@@ -441,7 +455,7 @@ export function ElementCell({
             pointerEvents: "auto",
           }}
         >
-          {ALL_TYPES.map((t) => (
+          {ELEMENT_TYPES.map((t) => (
             <button
               key={t}
               type="button"
@@ -535,6 +549,65 @@ export function ElementCell({
                 }}
               >
                 <Icon width={17} height={17} strokeWidth={1.8} />
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {openMenu === "level" && menuFixed && (
+        <div
+          ref={menuRef}
+          data-skip-export="1"
+          onPointerDown={(e) => e.stopPropagation()}
+          style={{
+            position: "fixed",
+            left: menuFixed.left,
+            top: menuFixed.top,
+            background: "#ffffff",
+            border: "1px solid rgba(0,0,0,0.1)",
+            borderRadius: 10,
+            boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+            padding: 4,
+            zIndex: 60,
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 2,
+            width: 264,
+            pointerEvents: "auto",
+          }}
+        >
+          {[1, 2, 3, 4, 5, 6].map((lvl) => {
+            const current = headingLevel(element.level) === lvl;
+            return (
+              <button
+                key={lvl}
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLevelChange(lvl);
+                  setOpenMenu(null);
+                }}
+                style={{
+                  padding: "8px 8px",
+                  background: current ? "#0a0a0a" : "transparent",
+                  color: current ? "#ffffff" : "#0a0a0a",
+                  border: "none",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "background 0.1s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!current) (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)";
+                }}
+                onMouseLeave={(e) => {
+                  if (!current) (e.currentTarget as HTMLElement).style.background = "transparent";
+                }}
+              >
+                H{lvl}
               </button>
             );
           })}

@@ -2,7 +2,7 @@
 // style. Stored in localStorage, capped, and tagged with provenance so the
 // feedback signal can later prune bad ones.
 
-import type { ElementType } from "./wireframe-canvas";
+import { ELEMENT_TYPES, type ElementType } from "./wireframe-canvas";
 import {
   type NormalizedCloud,
   type Stroke,
@@ -48,7 +48,15 @@ export function loadTemplates(): Template[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw) as Template[];
     if (!Array.isArray(parsed)) return [];
-    return parsed;
+    // Drop templates whose type was removed from the app (e.g. the old
+    // textarea / paragraph / container types). They would otherwise keep
+    // matching and stamping elements of a type the editor no longer
+    // supports. Self-heal localStorage when any are dropped.
+    const valid = parsed.filter((t) =>
+      (ELEMENT_TYPES as readonly string[]).includes(t.type),
+    );
+    if (valid.length !== parsed.length) saveTemplates(valid);
+    return valid;
   } catch {
     return [];
   }

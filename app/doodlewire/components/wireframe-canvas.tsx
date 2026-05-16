@@ -18,26 +18,30 @@ import {
   type Template,
 } from "./template-store";
 
-export type ElementType =
-  | "button"
-  | "input"
-  | "textarea"
-  | "checkbox"
-  | "radio"
-  | "toggle"
-  | "heading"
-  | "paragraph"
-  | "image"
-  | "container"
-  | "card"
-  | "divider"
-  | "nav"
-  | "avatar"
-  | "icon"
-  | "link"
-  | "badge"
-  | "dropdown"
-  | "menu";
+// Single runtime source of truth for element types. ElementType is derived
+// from it, and template-store uses it to discard saved templates whose type
+// has since been removed from the app.
+export const ELEMENT_TYPES = [
+  "button",
+  "input",
+  "text",
+  "checkbox",
+  "radio",
+  "toggle",
+  "heading",
+  "image",
+  "card",
+  "divider",
+  "nav",
+  "avatar",
+  "icon",
+  "link",
+  "badge",
+  "dropdown",
+  "menu",
+] as const;
+
+export type ElementType = (typeof ELEMENT_TYPES)[number];
 
 export interface WfElement {
   id: string;
@@ -47,6 +51,9 @@ export interface WfElement {
   // Set when the element came from a local template match. Lets us
   // attribute thumbs-down feedback back to the template so bad ones decay.
   templateId?: string;
+  // Heading level (1-6). Only meaningful for type === "heading"; absent
+  // headings render at level 2.
+  level?: number;
 }
 
 type Pt = { x: number; y: number };
@@ -79,6 +86,19 @@ export default function WireframeCanvas() {
   const currentStrokeRef = useRef<Stroke | null>(null);
   const inFlightRef = useRef(false);
   const dprRef = useRef(1);
+
+  // Vertical scroll. The page is a tall document; strokes and elements are
+  // stored in document coordinates (y can run far below the viewport). The
+  // canvas stays viewport-sized and redraws content offset by scrollY.
+  // scrollYRef is the source of truth for the render path (no stale
+  // closures); scrollY mirrors it for React-rendered layers.
+  const scrollYRef = useRef(0);
+  const [scrollY, setScrollY] = useState(0);
+  // Active pointers, for distinguishing a one-finger draw from a two-finger
+  // pan. A gesture locks to "draw" or "pan" until all fingers lift.
+  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const gestureRef = useRef<"idle" | "draw" | "pan">("idle");
+  const panLastYRef = useRef(0);
   // Auto-recognise debounce. Cancelled on every new stroke and re-armed on
   // every stroke completion so recognition only fires after a true pause.
   const recogniseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -132,6 +152,12 @@ export default function WireframeCanvas() {
   // a local match, a template deletion, an export result, etc.
   const [flash, setFlash] = useState<FlashMessage | null>(null);
 
+  // While a text field is being edited, the canvas content is shifted up
+  // by this many px so the focused element clears the iOS keyboard.
+  const [keyboardShift, setKeyboardShift] = useState(0);
+  const keyboardShiftRef = useRef(0);
+  const editingNodeRef = useRef<HTMLElement | null>(null);
+
   // Keep the canvas pixel-perfect on every viewport change.
   useEffect(() => {
     function resize() {
@@ -160,6 +186,57 @@ export default function WireframeCanvas() {
     const all = loadTemplates();
     templatesRef.current = all;
     setTemplateCount(all.length);
+  }, []);
+
+  // Keyboard-aware shift. When a contentEditable inside the canvas is
+  // focused and the iOS keyboard appears (visualViewport shrinks), shift
+  // the canvas content up so the edited element sits above the keyboard
+  // rather than behind it or the bottom toolbar.
+  useEffect(() => {
+    const container = containerRef.current;
+    const vv = typeof window !== "undefined" ? window.visualViewport : null;
+    if (!container) return;
+
+    function applyShift(v: number) {
+      keyboardShiftRef.current = v;
+      setKeyboardShift(v);
+    }
+
+    function recompute() {
+      const node = editingNodeRef.current;
+      if (!node || !vv) {
+        applyShift(0);
+        return;
+      }
+      const rect = node.getBoundingClientRect();
+      // rect reflects the current shift; add it back for the natural pos.
+      const naturalBottom = rect.bottom + keyboardShiftRef.current;
+      const desired = Math.max(0, Math.round(naturalBottom + 28 - vv.height));
+      applyShift(desired);
+    }
+
+    function onFocusIn(e: FocusEvent) {
+      const t = e.target as HTMLElement | null;
+      if (t && t.isContentEditable) {
+        editingNodeRef.current = t;
+        recompute();
+      }
+    }
+    function onFocusOut() {
+      editingNodeRef.current = null;
+      applyShift(0);
+    }
+
+    container.addEventListener("focusin", onFocusIn);
+    container.addEventListener("focusout", onFocusOut);
+    vv?.addEventListener("resize", recompute);
+    vv?.addEventListener("scroll", recompute);
+    return () => {
+      container.removeEventListener("focusin", onFocusIn);
+      container.removeEventListener("focusout", onFocusOut);
+      vv?.removeEventListener("resize", recompute);
+      vv?.removeEventListener("scroll", recompute);
+    };
   }, []);
 
   // Touch detection. (hover: none) catches phones and tablets reliably; a
@@ -232,6 +309,9 @@ export default function WireframeCanvas() {
     const dpr = dprRef.current;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    // Shift the whole document up by scrollY: strokes are stored in
+    // document coordinates and drawn into a viewport-sized canvas.
+    ctx.translate(0, -scrollYRef.current);
     ctx.lineWidth = STROKE_WIDTH;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -251,10 +331,44 @@ export default function WireframeCanvas() {
     if (currentStrokeRef.current) drawStroke(currentStrokeRef.current);
   }, []);
 
+  // Document-space point — y includes the scroll offset, so strokes and
+  // elements live in a coordinate system independent of how far the page
+  // is scrolled.
   function getPoint(e: React.PointerEvent): Pt {
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top + scrollYRef.current,
+    };
+  }
+
+  // Viewport-space point — no scroll offset. Used by the snip tool, whose
+  // crop region and capture both work in screen coordinates.
+  function getScreenPoint(e: React.PointerEvent): Pt {
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  // Lowest content point, used to bound how far the page can scroll. The
+  // page always allows a screen of blank space below the lowest content so
+  // there is room to draw further down.
+  function maxScrollY(): number {
+    let bottom = 0;
+    for (const el of elements) bottom = Math.max(bottom, el.bbox.y + el.bbox.h);
+    for (const s of strokesRef.current) {
+      for (const p of s.points) bottom = Math.max(bottom, p.y);
+    }
+    return Math.max(0, bottom);
+  }
+
+  function applyScroll(next: number) {
+    const clamped = Math.max(0, Math.min(next, maxScrollY()));
+    if (clamped === scrollYRef.current) return;
+    scrollYRef.current = clamped;
+    setScrollY(clamped);
+    redraw();
   }
 
   function cancelScheduledRecognise() {
@@ -264,21 +378,48 @@ export default function WireframeCanvas() {
     }
   }
 
+  function averagePointerY(): number {
+    let sum = 0;
+    let n = 0;
+    for (const p of pointersRef.current.values()) {
+      sum += p.y;
+      n++;
+    }
+    return n ? sum / n : 0;
+  }
+
   function startStroke(e: React.PointerEvent) {
     if (recognizing) return;
     (e.target as Element).setPointerCapture?.(e.pointerId);
-    setSelectedElementId(null);
-    cancelScheduledRecognise();
-    const pt = getPoint(e);
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-    if (mode === "eraser") {
-      eraseAt(pt);
+    // A second finger turns the gesture into a two-finger pan. Abandon any
+    // draw / snip in progress and switch to scrolling.
+    if (pointersRef.current.size >= 2) {
+      gestureRef.current = "pan";
+      currentStrokeRef.current = null;
+      setSnipRect(null);
+      setSnipDragging(false);
+      snipStartRef.current = null;
+      panLastYRef.current = averagePointerY();
+      redraw();
       return;
     }
+
+    gestureRef.current = "draw";
+    setSelectedElementId(null);
+    cancelScheduledRecognise();
+
     if (mode === "snip") {
-      snipStartRef.current = pt;
-      setSnipRect({ x: pt.x, y: pt.y, w: 0, h: 0 });
+      const sp = getScreenPoint(e);
+      snipStartRef.current = sp;
+      setSnipRect({ x: sp.x, y: sp.y, w: 0, h: 0 });
       setSnipDragging(true);
+      return;
+    }
+    const pt = getPoint(e);
+    if (mode === "eraser") {
+      eraseAt(pt);
       return;
     }
     currentStrokeRef.current = { points: [pt], freehand: mode === "ink" };
@@ -286,21 +427,32 @@ export default function WireframeCanvas() {
   }
 
   function continueStroke(e: React.PointerEvent) {
-    if (e.buttons === 0) return;
-    const pt = getPoint(e);
-    if (mode === "eraser") {
-      eraseAt(pt);
+    if (pointersRef.current.has(e.pointerId)) {
+      pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+    if (gestureRef.current === "pan") {
+      const avgY = averagePointerY();
+      // Fingers moving down reveal content above → scrollY decreases.
+      applyScroll(scrollYRef.current - (avgY - panLastYRef.current));
+      panLastYRef.current = avgY;
       return;
     }
+    if (e.buttons === 0) return;
     if (mode === "snip") {
       const start = snipStartRef.current;
       if (!start) return;
+      const sp = getScreenPoint(e);
       setSnipRect({
-        x: Math.min(start.x, pt.x),
-        y: Math.min(start.y, pt.y),
-        w: Math.abs(pt.x - start.x),
-        h: Math.abs(pt.y - start.y),
+        x: Math.min(start.x, sp.x),
+        y: Math.min(start.y, sp.y),
+        w: Math.abs(sp.x - start.x),
+        h: Math.abs(sp.y - start.y),
       });
+      return;
+    }
+    const pt = getPoint(e);
+    if (mode === "eraser") {
+      eraseAt(pt);
       return;
     }
     if (!currentStrokeRef.current) return;
@@ -308,7 +460,16 @@ export default function WireframeCanvas() {
     redraw();
   }
 
-  function endStroke() {
+  function endStroke(e: React.PointerEvent) {
+    pointersRef.current.delete(e.pointerId);
+    if (gestureRef.current === "pan") {
+      // Stay in pan until every finger lifts — don't resume drawing with a
+      // leftover finger mid-gesture.
+      if (pointersRef.current.size === 0) gestureRef.current = "idle";
+      return;
+    }
+    if (pointersRef.current.size === 0) gestureRef.current = "idle";
+
     if (mode === "snip") {
       setSnipDragging(false);
       snipStartRef.current = null;
@@ -484,6 +645,8 @@ export default function WireframeCanvas() {
     strokesRef.current = [];
     currentStrokeRef.current = null;
     setElements([]);
+    scrollYRef.current = 0;
+    setScrollY(0);
     bumpStrokes();
     redraw();
   }
@@ -511,6 +674,10 @@ export default function WireframeCanvas() {
     setElements((prev) =>
       prev.map((e) => (e.id === id ? { ...e, type, bbox: snapToStandard(type, e.bbox) } : e)),
     );
+  }
+
+  function updateLevel(id: string, level: number) {
+    setElements((prev) => prev.map((e) => (e.id === id ? { ...e, level } : e)));
   }
 
   // Clean up any pending recognise schedule when the canvas unmounts.
@@ -591,12 +758,15 @@ export default function WireframeCanvas() {
         onPointerMove={continueStroke}
         onPointerUp={endStroke}
         onPointerCancel={endStroke}
+        onWheel={(e) => applyScroll(scrollYRef.current + e.deltaY)}
         style={{
           position: "absolute",
           inset: 0,
           width: "100%",
           height: "100%",
           display: "block",
+          transform: `translateY(${-keyboardShift}px)`,
+          transition: "transform 0.2s ease",
         }}
       />
 
@@ -620,12 +790,16 @@ export default function WireframeCanvas() {
       )}
 
       {/* Recognised elements layer. Sits above the doodles so the polished
-          wireframe is what the user mostly sees. */}
+          wireframe is what the user mostly sees. Translated by the scroll
+          offset (elements are in document coordinates) plus any keyboard
+          shift. */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           pointerEvents: "none",
+          transform: `translateY(${-(scrollY + keyboardShift)}px)`,
+          transition: keyboardShift > 0 ? "transform 0.2s ease" : "none",
         }}
       >
         {elements.map((el, i) => (
@@ -641,6 +815,7 @@ export default function WireframeCanvas() {
             onRemove={() => removeElement(el.id)}
             onLabelChange={(label) => updateLabel(el.id, label)}
             onTypeChange={(type) => updateType(el.id, type)}
+            onLevelChange={(level) => updateLevel(el.id, level)}
             onLayer={(direction) => moveLayer(el.id, direction)}
             onFeedback={(correct) => recordFeedback(el.id, correct)}
             canForward={i < elements.length - 1}
@@ -679,7 +854,7 @@ export default function WireframeCanvas() {
           <DotDeleteButton
             key={`${index}-${x}-${y}`}
             x={x}
-            y={y}
+            y={y - scrollY}
             onClick={() => removeStrokeAt(index)}
           />
         ))}

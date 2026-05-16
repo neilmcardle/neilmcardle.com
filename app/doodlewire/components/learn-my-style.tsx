@@ -22,16 +22,14 @@ interface Step {
 const STEPS: Step[] = [
   { type: "button", title: "Button", hint: "A small filled or outlined rectangle.", previewBbox: { w: 140, h: 40 } },
   { type: "input", title: "Text input", hint: "A wider thin rectangle. A field to type into.", previewBbox: { w: 240, h: 40 } },
-  { type: "textarea", title: "Textarea", hint: "A taller rectangle, often with internal lines.", previewBbox: { w: 240, h: 100 } },
+  { type: "text", title: "Text", hint: "A line or two of horizontal strokes for body text.", previewBbox: { w: 240, h: 60 } },
   { type: "heading", title: "Heading", hint: "A short thick bar, or write the word.", previewBbox: { w: 220, h: 40 } },
-  { type: "paragraph", title: "Paragraph", hint: "Short horizontal lines stacked together.", previewBbox: { w: 240, h: 80 } },
   { type: "link", title: "Link", hint: "Underline a short piece of text.", previewBbox: { w: 120, h: 24 } },
   { type: "checkbox", title: "Checkbox", hint: "A small square, with or without a tick.", previewBbox: { w: 24, h: 24 } },
   { type: "radio", title: "Radio", hint: "A small circle, with or without a dot.", previewBbox: { w: 24, h: 24 } },
   { type: "toggle", title: "Toggle", hint: "A pill shape with a circle at one end.", previewBbox: { w: 44, h: 24 } },
   { type: "dropdown", title: "Dropdown", hint: "A rectangle with a small triangle on the right.", previewBbox: { w: 200, h: 40 } },
   { type: "card", title: "Card", hint: "A larger rounded rectangle, often with a shadow.", previewBbox: { w: 240, h: 160 } },
-  { type: "container", title: "Container", hint: "A dashed rectangle holding other things.", previewBbox: { w: 280, h: 180 } },
   { type: "divider", title: "Divider", hint: "A single thin horizontal line.", previewBbox: { w: 240, h: 2 } },
   { type: "image", title: "Image", hint: "A rectangle with an X through it.", previewBbox: { w: 200, h: 140 } },
   { type: "avatar", title: "Avatar", hint: "A small circle, often a profile photo.", previewBbox: { w: 40, h: 40 } },
@@ -93,7 +91,7 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
   if (!open) return null;
   const step = STEPS[stepIdx];
   // On narrow screens, scale the preview element down so tall components
-  // (container, card, image, paragraph…) can't push the drawing pad and its
+  // (card, image, text…) can't push the drawing pad and its
   // buttons below the footer. Cap to ~100px tall and ~100% of the cell width.
   const previewTargetH = isNarrow ? 100 : step.previewBbox.h;
   const previewScale = isNarrow ? Math.min(1, previewTargetH / step.previewBbox.h) : 1;

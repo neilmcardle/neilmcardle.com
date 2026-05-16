@@ -14,8 +14,8 @@ function htmlChild(el: WfElement): string {
       return `<button>${label || "Button"}</button>`;
     case "input":
       return `<input type="text" placeholder="${label || "Placeholder"}" />`;
-    case "textarea":
-      return `<textarea placeholder="${label || ""}"></textarea>`;
+    case "text":
+      return `<p>${label || "Text"}</p>`;
     case "checkbox":
       return `<input type="checkbox" checked />`;
     case "radio":
@@ -24,12 +24,8 @@ function htmlChild(el: WfElement): string {
       return `<label class="wf-toggle"><input type="checkbox" checked /><span></span></label>`;
     case "heading":
       return `<h1>${label || "Heading"}</h1>`;
-    case "paragraph":
-      return `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>`;
     case "image":
       return `<div class="wf-image" role="img" aria-label="${label || "Image"}"></div>`;
-    case "container":
-      return `<div class="wf-container"></div>`;
     case "card":
       return `<div class="wf-card"></div>`;
     case "divider":
@@ -80,15 +76,13 @@ export function exportAsHtml(elements: WfElement[], size: { w: number; h: number
   .wf-cell > * { width: 100%; height: 100%; }
   .wf-button button { background: var(--stroke); color: var(--fill); border: 0; border-radius: 8px; font-weight: 600; cursor: pointer; }
   .wf-input input, .wf-dropdown select { background: var(--fill); border: 1px solid var(--stroke); border-radius: 8px; padding: 0 12px; font: inherit; }
-  .wf-textarea textarea { background: var(--fill); border: 1px solid var(--stroke); border-radius: 8px; padding: 10px 12px; font: inherit; resize: none; }
+  .wf-text p { margin: 0; color: rgba(0,0,0,0.8); line-height: 1.5; }
   .wf-checkbox input, .wf-radio input { margin: 0; }
   .wf-toggle { display: inline-flex; align-items: center; width: 100%; height: 100%; background: var(--stroke); border-radius: 999px; padding: 3px; }
   .wf-toggle input { display: none; }
   .wf-toggle span { margin-left: auto; height: 100%; aspect-ratio: 1/1; background: var(--fill); border-radius: 999px; }
   .wf-heading h1 { margin: 0; font-weight: 700; letter-spacing: -0.02em; }
-  .wf-paragraph p { margin: 0; color: rgba(0,0,0,0.7); line-height: 1.5; }
   .wf-image { background: rgba(0,0,0,0.04); border: 1px solid var(--stroke); border-radius: 6px; background-image: linear-gradient(to top right, transparent calc(50% - 0.5px), var(--stroke) 50%, transparent calc(50% + 0.5px)), linear-gradient(to top left, transparent calc(50% - 0.5px), var(--stroke) 50%, transparent calc(50% + 0.5px)); }
-  .wf-container { border: 1.5px dashed var(--stroke); border-radius: 10px; }
   .wf-card { background: var(--fill); border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); }
   .wf-divider hr { margin: 0; border: 0; border-top: 1px solid var(--stroke); }
   .wf-nav nav { display: flex; align-items: center; gap: 18px; padding: 0 14px; height: 100%; }
@@ -174,9 +168,8 @@ function reactChild(el: WfElement, indent: string, imports: Record<string, Set<s
     case "input":
       addImport(imports, "@/components/ui/input", "Input");
       return `${indent}<Input className="w-full h-full" placeholder="${label || "Placeholder"}" />`;
-    case "textarea":
-      addImport(imports, "@/components/ui/textarea", "Textarea");
-      return `${indent}<Textarea className="w-full h-full resize-none" placeholder="${label || "Type here"}" />`;
+    case "text":
+      return `${indent}<p className="w-full h-full text-sm leading-relaxed text-foreground/80">${label || "Text"}</p>`;
     case "checkbox":
       addImport(imports, "@/components/ui/checkbox", "Checkbox");
       return `${indent}<div className="w-full h-full flex items-center justify-center">\n${indent}  <Checkbox defaultChecked />\n${indent}</div>`;
@@ -189,12 +182,8 @@ function reactChild(el: WfElement, indent: string, imports: Record<string, Set<s
       return `${indent}<div className="w-full h-full flex items-center justify-center">\n${indent}  <Switch defaultChecked />\n${indent}</div>`;
     case "heading":
       return `${indent}<h2 className="w-full h-full flex items-center font-semibold tracking-tight text-2xl">${label || "Heading"}</h2>`;
-    case "paragraph":
-      return `${indent}<p className="w-full h-full text-sm leading-relaxed text-muted-foreground overflow-hidden">${label || "Lorem ipsum dolor sit amet, consectetur adipiscing elit."}</p>`;
     case "image":
       return `${indent}<div role="img" aria-label="${label || "Image"}" className="w-full h-full rounded-md border bg-muted" />`;
-    case "container":
-      return `${indent}<div className="w-full h-full rounded-xl border-2 border-dashed border-border" />`;
     case "card":
       addImport(imports, "@/components/ui/card", "Card");
       addImport(imports, "@/components/ui/card", "CardContent");
