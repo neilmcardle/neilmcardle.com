@@ -1,24 +1,35 @@
 import { toPng } from "html-to-image";
 
+interface CaptureOptions {
+  // Crop the result to this rectangle (screen-space coordinates).
+  region?: { x: number; y: number; w: number; h: number };
+  // Explicit output size. Used for full-page capture, where the document is
+  // taller than the viewport — the caller temporarily expands the canvas and
+  // element layer, then passes the document height here.
+  width?: number;
+  height?: number;
+}
+
 // Captures the wireframe surface as a PNG. Chrome (toolbar, top bar, modal
 // dialogs, hover-only handles) is excluded via data-skip-export markers and
-// a filter pass. If region is provided, the result is cropped to that
-// rectangle (canvas-space coordinates).
+// a filter pass.
 export async function captureWireframePng(
   node: HTMLElement,
-  region?: { x: number; y: number; w: number; h: number },
+  opts: CaptureOptions = {},
 ): Promise<string> {
   const dataUrl = await toPng(node, {
     cacheBust: true,
     pixelRatio: window.devicePixelRatio || 2,
     backgroundColor: "#ffffff",
+    width: opts.width,
+    height: opts.height,
     filter: (n) => {
       if (!(n instanceof HTMLElement)) return true;
       return n.dataset.skipExport !== "1";
     },
   });
-  if (!region) return dataUrl;
-  return cropDataUrl(dataUrl, region, node.getBoundingClientRect());
+  if (!opts.region) return dataUrl;
+  return cropDataUrl(dataUrl, opts.region, node.getBoundingClientRect());
 }
 
 async function cropDataUrl(

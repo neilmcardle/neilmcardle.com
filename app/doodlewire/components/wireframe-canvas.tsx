@@ -63,6 +63,55 @@ type Stroke = { points: Pt[]; freehand?: boolean };
 type Mode = "pen" | "ink" | "eraser" | "snip";
 type SnipRect = { x: number; y: number; w: number; h: number };
 
+// One page of the document. The currently-viewed page's elements/strokes/
+// scroll are held in the live React state (elements, strokesRef, scrollY);
+// pages[] stores every page. On a page switch the live state is snapshotted
+// back into pages[] and the target page is loaded into it.
+interface PageSnapshot {
+  id: string;
+  elements: WfElement[];
+  strokes: Stroke[];
+  scrollY: number;
+}
+
+function makePageId(): string {
+  return `page-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+// The whole document (every page's elements, strokes and scroll) is
+// persisted to localStorage so work survives an app relaunch. Trained
+// recogniser templates persist separately via template-store.
+const DOC_STORAGE_KEY = "doodlewire_document_v1";
+
+function saveDocument(pages: PageSnapshot[], currentPage: number): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      DOC_STORAGE_KEY,
+      JSON.stringify({ pages, currentPage }),
+    );
+  } catch {
+    // Quota exceeded or storage disabled — persistence is best-effort.
+  }
+}
+
+function loadDocument(): { pages: PageSnapshot[]; currentPage: number } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(DOC_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { pages?: PageSnapshot[]; currentPage?: number };
+    if (!parsed || !Array.isArray(parsed.pages) || parsed.pages.length === 0) return null;
+    const cp =
+      typeof parsed.currentPage === "number"
+        ? Math.max(0, Math.min(parsed.currentPage, parsed.pages.length - 1))
+        : 0;
+    return { pages: parsed.pages, currentPage: cp };
+  } catch {
+    return null;
+  }
+}
+
 const STROKE_WIDTH = 2.5;
 const ERASER_RADIUS = 18;
 // Hand-drawn variation is large, so we accept matches in two ways:
@@ -79,10 +128,19 @@ const LOCAL_MATCH_THRESHOLD = 13;
 const LOCAL_MATCH_MARGIN = 1.3;
 
 export default function WireframeCanvas() {
+  // Restore a persisted document on first render (run once via lazy init).
+  const [restored] = useState(() => loadDocument());
+  const restoredPage = restored
+    ? restored.pages[restored.currentPage]
+    : undefined;
+
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const elementsLayerRef = useRef<HTMLDivElement>(null);
 
-  const strokesRef = useRef<Stroke[]>([]);
+  const strokesRef = useRef<Stroke[]>(
+    restoredPage ? [...restoredPage.strokes] : [],
+  );
   const currentStrokeRef = useRef<Stroke | null>(null);
   const inFlightRef = useRef(false);
   const dprRef = useRef(1);
@@ -92,18 +150,31 @@ export default function WireframeCanvas() {
   // canvas stays viewport-sized and redraws content offset by scrollY.
   // scrollYRef is the source of truth for the render path (no stale
   // closures); scrollY mirrors it for React-rendered layers.
-  const scrollYRef = useRef(0);
-  const [scrollY, setScrollY] = useState(0);
+  const scrollYRef = useRef(restoredPage?.scrollY ?? 0);
+  const [scrollY, setScrollY] = useState(restoredPage?.scrollY ?? 0);
   // Active pointers, for distinguishing a one-finger draw from a two-finger
   // pan. A gesture locks to "draw" or "pan" until all fingers lift.
   const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
   const gestureRef = useRef<"idle" | "draw" | "pan">("idle");
-  const panLastYRef = useRef(0);
+  // Two-finger pan locks to a vertical (scroll) or horizontal (page-switch)
+  // axis once it crosses a small threshold.
+  const panStartRef = useRef({ x: 0, y: 0 });
+  const panLastRef = useRef({ x: 0, y: 0 });
+  const panAxisRef = useRef<"none" | "v" | "h">("none");
   // Auto-recognise debounce. Cancelled on every new stroke and re-armed on
   // every stroke completion so recognition only fires after a true pause.
   const recogniseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [elements, setElements] = useState<WfElement[]>([]);
+  const [elements, setElements] = useState<WfElement[]>(
+    restoredPage ? [...restoredPage.elements] : [],
+  );
+  // All pages. pages[currentPage] is kept loosely — the live elements /
+  // strokesRef / scrollY are the source of truth for the current page and
+  // are snapshotted back into pages[] only on a page switch (or save).
+  const [pages, setPages] = useState<PageSnapshot[]>(
+    () => restored?.pages ?? [{ id: makePageId(), elements: [], strokes: [], scrollY: 0 }],
+  );
+  const [currentPage, setCurrentPage] = useState(restored?.currentPage ?? 0);
   const [mode, setMode] = useState<Mode>("pen");
   const [recognizing, setRecognizing] = useState(false);
   const [showExport, setShowExport] = useState(false);
@@ -187,6 +258,21 @@ export default function WireframeCanvas() {
     templatesRef.current = all;
     setTemplateCount(all.length);
   }, []);
+
+  // Persist the whole document on any change, debounced. The current page's
+  // live state (elements / strokesRef / scrollY) is folded into pages[]
+  // before serialising, since pages[currentPage] is otherwise stale.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const full = pages.map((p, i) =>
+        i === currentPage
+          ? { ...p, elements, strokes: strokesRef.current, scrollY: scrollYRef.current }
+          : p,
+      );
+      saveDocument(full, currentPage);
+    }, 800);
+    return () => clearTimeout(t);
+  }, [elements, pages, currentPage, strokeRev, scrollY]);
 
   // Keyboard-aware shift. When a contentEditable inside the canvas is
   // focused and the iOS keyboard appears (visualViewport shrinks), shift
@@ -351,16 +437,16 @@ export default function WireframeCanvas() {
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
-  // Lowest content point, used to bound how far the page can scroll. The
-  // page always allows a screen of blank space below the lowest content so
-  // there is room to draw further down.
+  // How far the page can scroll. Always allows a full screen of blank space
+  // below the lowest content so there is room to scroll down and draw
+  // further — the page extends as content is added lower.
   function maxScrollY(): number {
     let bottom = 0;
     for (const el of elements) bottom = Math.max(bottom, el.bbox.y + el.bbox.h);
     for (const s of strokesRef.current) {
       for (const p of s.points) bottom = Math.max(bottom, p.y);
     }
-    return Math.max(0, bottom);
+    return Math.max(0, bottom) + size.h;
   }
 
   function applyScroll(next: number) {
@@ -378,14 +464,16 @@ export default function WireframeCanvas() {
     }
   }
 
-  function averagePointerY(): number {
-    let sum = 0;
+  function averagePointer(): { x: number; y: number } {
+    let sx = 0;
+    let sy = 0;
     let n = 0;
     for (const p of pointersRef.current.values()) {
-      sum += p.y;
+      sx += p.x;
+      sy += p.y;
       n++;
     }
-    return n ? sum / n : 0;
+    return n ? { x: sx / n, y: sy / n } : { ...panLastRef.current };
   }
 
   function startStroke(e: React.PointerEvent) {
@@ -394,14 +482,18 @@ export default function WireframeCanvas() {
     pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
     // A second finger turns the gesture into a two-finger pan. Abandon any
-    // draw / snip in progress and switch to scrolling.
+    // draw / snip in progress. The pan locks to a vertical (scroll) or
+    // horizontal (page-switch) axis once it crosses a small threshold.
     if (pointersRef.current.size >= 2) {
       gestureRef.current = "pan";
       currentStrokeRef.current = null;
       setSnipRect(null);
       setSnipDragging(false);
       snipStartRef.current = null;
-      panLastYRef.current = averagePointerY();
+      const avg = averagePointer();
+      panStartRef.current = avg;
+      panLastRef.current = avg;
+      panAxisRef.current = "none";
       redraw();
       return;
     }
@@ -431,10 +523,21 @@ export default function WireframeCanvas() {
       pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     }
     if (gestureRef.current === "pan") {
-      const avgY = averagePointerY();
-      // Fingers moving down reveal content above → scrollY decreases.
-      applyScroll(scrollYRef.current - (avgY - panLastYRef.current));
-      panLastYRef.current = avgY;
+      const avg = averagePointer();
+      if (panAxisRef.current === "none") {
+        const dx = avg.x - panStartRef.current.x;
+        const dy = avg.y - panStartRef.current.y;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) > 12) {
+          panAxisRef.current = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
+        }
+      }
+      if (panAxisRef.current === "v") {
+        // Fingers moving down reveal content above → scrollY decreases.
+        applyScroll(scrollYRef.current - (avg.y - panLastRef.current.y));
+      }
+      // Horizontal panning has no live effect — the page switch fires on
+      // release once the swipe distance is known.
+      panLastRef.current = avg;
       return;
     }
     if (e.buttons === 0) return;
@@ -465,7 +568,16 @@ export default function WireframeCanvas() {
     if (gestureRef.current === "pan") {
       // Stay in pan until every finger lifts — don't resume drawing with a
       // leftover finger mid-gesture.
-      if (pointersRef.current.size === 0) gestureRef.current = "idle";
+      if (pointersRef.current.size === 0) {
+        // A horizontal swipe past the threshold switches page.
+        if (panAxisRef.current === "h") {
+          const dx = panLastRef.current.x - panStartRef.current.x;
+          if (dx <= -60) switchToPage(currentPage + 1);
+          else if (dx >= 60) switchToPage(currentPage - 1);
+        }
+        gestureRef.current = "idle";
+        panAxisRef.current = "none";
+      }
       return;
     }
     if (pointersRef.current.size === 0) gestureRef.current = "idle";
@@ -504,11 +616,71 @@ export default function WireframeCanvas() {
     setMode(next);
   }
 
+  // Capture the whole document (not just the viewport) as a PNG. The canvas
+  // bitmap and element layer are temporarily expanded to the full page
+  // height, captured, then restored. Imperative throughout so no React
+  // re-render is needed mid-capture.
+  async function captureFullPage(): Promise<string> {
+    const container = containerRef.current;
+    const canvas = canvasRef.current;
+    const layer = elementsLayerRef.current;
+    if (!container || !canvas) return "";
+
+    let bottom = size.h;
+    for (const el of elements) bottom = Math.max(bottom, el.bbox.y + el.bbox.h);
+    for (const s of strokesRef.current) {
+      for (const p of s.points) bottom = Math.max(bottom, p.y);
+    }
+    const pageH = Math.ceil(bottom + 24);
+    const dpr = dprRef.current;
+
+    const saved = {
+      scroll: scrollYRef.current,
+      cw: canvas.width,
+      ch: canvas.height,
+      csh: canvas.style.height,
+      ct: canvas.style.transform,
+      lt: layer?.style.transform ?? "",
+      ltr: layer?.style.transition ?? "",
+      lh: layer?.style.height ?? "",
+      overflow: container.style.overflow,
+    };
+
+    try {
+      scrollYRef.current = 0;
+      canvas.width = Math.round(size.w * dpr);
+      canvas.height = Math.round(pageH * dpr);
+      canvas.style.height = `${pageH}px`;
+      canvas.style.transform = "translateY(0)";
+      redraw();
+      if (layer) {
+        layer.style.transform = "translateY(0)";
+        layer.style.transition = "none";
+        layer.style.height = `${pageH}px`;
+      }
+      container.style.overflow = "visible";
+      return await captureWireframePng(container, { width: size.w, height: pageH });
+    } finally {
+      scrollYRef.current = saved.scroll;
+      canvas.width = saved.cw;
+      canvas.height = saved.ch;
+      canvas.style.height = saved.csh;
+      canvas.style.transform = saved.ct;
+      if (layer) {
+        layer.style.transform = saved.lt;
+        layer.style.transition = saved.ltr;
+        layer.style.height = saved.lh;
+      }
+      container.style.overflow = saved.overflow;
+      redraw();
+    }
+  }
+
   async function downloadSnip() {
     if (!snipRect || !containerRef.current) return;
     setSnipSaving(true);
     try {
-      const dataUrl = await captureWireframePng(containerRef.current, snipRect);
+      const dataUrl = await captureWireframePng(containerRef.current, { region: snipRect });
       if (isTouch) {
         setSavedImageUrl(dataUrl);
         setSnipRect(null);
@@ -649,6 +821,52 @@ export default function WireframeCanvas() {
     setScrollY(0);
     bumpStrokes();
     redraw();
+  }
+
+  // Snapshot the live current-page state back into pages[]. The arrays are
+  // copied so a stored page never shares a reference with the live state —
+  // otherwise drawing on one page could mutate another's strokes.
+  function snapshotCurrentPage(prev: PageSnapshot[]): PageSnapshot[] {
+    const next = [...prev];
+    next[currentPage] = {
+      ...next[currentPage],
+      elements: [...elements],
+      strokes: [...strokesRef.current],
+      scrollY: scrollYRef.current,
+    };
+    return next;
+  }
+
+  // Load a page's stored state into the live working state. Arrays are
+  // copied for the same isolation reason as snapshotCurrentPage.
+  function loadPage(page: PageSnapshot) {
+    cancelScheduledRecognise();
+    strokesRef.current = [...page.strokes];
+    currentStrokeRef.current = null;
+    scrollYRef.current = page.scrollY;
+    setElements([...page.elements]);
+    setScrollY(page.scrollY);
+    setSelectedElementId(null);
+    bumpStrokes();
+    redraw();
+  }
+
+  function switchToPage(target: number) {
+    if (target === currentPage || target < 0 || target >= pages.length) return;
+    const targetPage = pages[target];
+    setPages(snapshotCurrentPage);
+    setCurrentPage(target);
+    loadPage(targetPage);
+  }
+
+  function addPage() {
+    const newIndex = pages.length;
+    setPages((prev) => [
+      ...snapshotCurrentPage(prev),
+      { id: makePageId(), elements: [], strokes: [], scrollY: 0 },
+    ]);
+    setCurrentPage(newIndex);
+    loadPage({ id: "", elements: [], strokes: [], scrollY: 0 });
   }
 
   function removeElement(id: string) {
@@ -794,6 +1012,7 @@ export default function WireframeCanvas() {
           offset (elements are in document coordinates) plus any keyboard
           shift. */}
       <div
+        ref={elementsLayerRef}
         style={{
           position: "absolute",
           inset: 0,
@@ -824,6 +1043,15 @@ export default function WireframeCanvas() {
         ))}
       </div>
 
+      {(elements.length > 0 || strokesRef.current.length > 0 || scrollY > 0) && (
+        <ScrollHandle
+          scrollY={scrollY}
+          maxScroll={maxScrollY()}
+          viewportH={size.h}
+          onScroll={applyScroll}
+        />
+      )}
+
       {/* Chrome shell. Position absolute to overlay the canvas; pointer
           events stay none on the shell itself so the canvas underneath
           still gets pointer events through empty regions. Children opt
@@ -841,6 +1069,12 @@ export default function WireframeCanvas() {
         }}
       >
         <TopBar />
+        <PageIndicator
+          count={pages.length}
+          current={currentPage}
+          onSelect={switchToPage}
+          onAdd={addPage}
+        />
         <Toolbar
           mode={mode}
           setMode={changeMode}
@@ -874,8 +1108,8 @@ export default function WireframeCanvas() {
         <ExportDialog
           elements={elements}
           size={size}
-          containerRef={containerRef}
           isTouch={isTouch}
+          onCaptureFullPage={captureFullPage}
           onPreviewImage={(dataUrl) => {
             setSavedImageUrl(dataUrl);
             setShowExport(false);
@@ -1160,6 +1394,181 @@ const FLASH_DOT: Record<FlashKind, string> = {
   removed: "#dc2626",
   info: "#f59e0b",
 };
+
+interface ScrollHandleProps {
+  scrollY: number;
+  maxScroll: number;
+  viewportH: number;
+  onScroll: (y: number) => void;
+}
+
+// Visible, one-finger-draggable scroll thumb on the right edge. Two-finger
+// pan still works, but this is the discoverable affordance — and shows how
+// far down the page you are. The hit area is wide for fingertips; the
+// visible bar inside is thin.
+function ScrollHandle({ scrollY, maxScroll, viewportH, onScroll }: ScrollHandleProps) {
+  if (maxScroll <= 0 || viewportH <= 0) return null;
+  const MARGIN_TOP = 60;
+  const MARGIN_BOTTOM = 96;
+  const trackH = Math.max(80, viewportH - MARGIN_TOP - MARGIN_BOTTOM);
+  const docH = maxScroll + viewportH;
+  const thumbH = Math.max(44, (viewportH / docH) * trackH);
+  const thumbTop = (scrollY / maxScroll) * (trackH - thumbH);
+
+  function startDrag(e: React.PointerEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+    const startClientY = e.clientY;
+    const startScroll = scrollY;
+    const span = trackH - thumbH;
+
+    function move(ev: PointerEvent) {
+      if (span <= 0) return;
+      const delta = ((ev.clientY - startClientY) / span) * maxScroll;
+      onScroll(startScroll + delta);
+    }
+    function up() {
+      document.removeEventListener("pointermove", move);
+      document.removeEventListener("pointerup", up);
+      document.removeEventListener("pointercancel", up);
+    }
+    document.addEventListener("pointermove", move);
+    document.addEventListener("pointerup", up);
+    document.addEventListener("pointercancel", up);
+  }
+
+  return (
+    <div
+      data-skip-export="1"
+      style={{
+        position: "absolute",
+        top: MARGIN_TOP,
+        right: "calc(2px + env(safe-area-inset-right, 0px))",
+        width: 28,
+        height: trackH,
+        pointerEvents: "none",
+        zIndex: 35,
+      }}
+    >
+      <div
+        onPointerDown={startDrag}
+        style={{
+          position: "absolute",
+          top: thumbTop,
+          right: 0,
+          width: 28,
+          height: thumbH,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "grab",
+          touchAction: "none",
+          pointerEvents: "auto",
+        }}
+      >
+        <span
+          style={{
+            width: 5,
+            height: "100%",
+            borderRadius: 999,
+            background: "rgba(10,10,10,0.28)",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+interface PageIndicatorProps {
+  count: number;
+  current: number;
+  onSelect: (i: number) => void;
+  onAdd: () => void;
+}
+
+// Top-centre pill: a dot per page (current one filled) plus a + to add a
+// page. Tapping a dot switches page; two-finger horizontal swipe does too.
+function PageIndicator({ count, current, onSelect, onAdd }: PageIndicatorProps) {
+  return (
+    <div
+      data-skip-export="1"
+      style={{
+        position: "absolute",
+        top: "calc(10px + env(safe-area-inset-top, 0px))",
+        left: "50%",
+        transform: "translateX(-50%)",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 2,
+        padding: "5px 8px",
+        background: "#ffffff",
+        border: "1px solid rgba(0,0,0,0.1)",
+        borderRadius: 999,
+        boxShadow: "0 4px 14px rgba(0,0,0,0.1)",
+        pointerEvents: "auto",
+        zIndex: 40,
+      }}
+    >
+      {Array.from({ length: count }).map((_, i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={() => onSelect(i)}
+          aria-label={`Page ${i + 1}`}
+          title={`Page ${i + 1}`}
+          style={{
+            width: 26,
+            height: 26,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "transparent",
+            border: "none",
+            borderRadius: 999,
+            cursor: "pointer",
+            padding: 0,
+          }}
+        >
+          <span
+            style={{
+              width: i === current ? 9 : 7,
+              height: i === current ? 9 : 7,
+              borderRadius: 999,
+              background: i === current ? "#0a0a0a" : "rgba(0,0,0,0.22)",
+              transition: "width 0.15s, height 0.15s, background 0.15s",
+            }}
+          />
+        </button>
+      ))}
+      <div style={{ width: 1, height: 14, background: "rgba(0,0,0,0.1)", margin: "0 3px" }} />
+      <button
+        type="button"
+        onClick={onAdd}
+        aria-label="Add page"
+        title="Add page"
+        style={{
+          width: 26,
+          height: 26,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "transparent",
+          border: "none",
+          borderRadius: 999,
+          cursor: "pointer",
+          padding: 0,
+          color: "#0a0a0a",
+        }}
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </button>
+    </div>
+  );
+}
 
 function FlashPill({ message }: { message: FlashMessage | null }) {
   return (
@@ -1686,17 +2095,23 @@ function ThinkingPill() {
 interface ExportDialogProps {
   elements: WfElement[];
   size: { w: number; h: number };
-  containerRef: React.RefObject<HTMLDivElement | null>;
   isTouch: boolean;
+  onCaptureFullPage: () => Promise<string>;
   onPreviewImage: (dataUrl: string) => void;
   onClose: () => void;
 }
 
 type ExportFormat = "html" | "react" | "image";
 
-function ExportDialog({ elements, size, containerRef, isTouch, onPreviewImage, onClose }: ExportDialogProps) {
+function ExportDialog({ elements, size, isTouch, onCaptureFullPage, onPreviewImage, onClose }: ExportDialogProps) {
   const [format, setFormat] = useState<ExportFormat>("html");
-  const code = format === "html" ? exportAsHtml(elements, size) : format === "react" ? exportAsReact(elements, size) : "";
+  // The exported stage must be tall enough for elements below the fold, so
+  // the code export uses the document height, not the viewport height.
+  const docSize = {
+    w: size.w,
+    h: elements.reduce((m, el) => Math.max(m, el.bbox.y + el.bbox.h), size.h),
+  };
+  const code = format === "html" ? exportAsHtml(elements, docSize) : format === "react" ? exportAsReact(elements, docSize) : "";
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -1713,12 +2128,11 @@ function ExportDialog({ elements, size, containerRef, isTouch, onPreviewImage, o
   }
 
   async function downloadImage() {
-    if (!containerRef.current) return;
     setDownloading(true);
     setDownloadError(null);
     setDownloadDone(null);
     try {
-      const dataUrl = await captureWireframePng(containerRef.current);
+      const dataUrl = await onCaptureFullPage();
       if (isTouch) {
         onPreviewImage(dataUrl);
         return;
