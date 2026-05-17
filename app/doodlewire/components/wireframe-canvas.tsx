@@ -869,6 +869,26 @@ export default function WireframeCanvas() {
     loadPage({ id: "", elements: [], strokes: [], scrollY: 0 });
   }
 
+  // Delete the current page and move to a neighbour. The last page can't
+  // be deleted — there is always at least one.
+  function deleteCurrentPage() {
+    if (pages.length <= 1) return;
+    const remaining = pages.filter((_, i) => i !== currentPage);
+    const newCurrent = currentPage > 0 ? currentPage - 1 : 0;
+    setPages(remaining);
+    setCurrentPage(newCurrent);
+    loadPage(remaining[newCurrent]);
+  }
+
+  // Reset the whole document to a single blank page. Trained recogniser
+  // templates are left alone — those are reset from Learn my style.
+  function clearAllPages() {
+    const blank: PageSnapshot = { id: makePageId(), elements: [], strokes: [], scrollY: 0 };
+    setPages([blank]);
+    setCurrentPage(0);
+    loadPage(blank);
+  }
+
   function removeElement(id: string) {
     setElements((prev) => prev.filter((e) => e.id !== id));
     setSelectedElementId((current) => (current === id ? null : current));
@@ -1081,6 +1101,9 @@ export default function WireframeCanvas() {
           onClear={clearAll}
           onExport={() => setShowExport(true)}
           onLearn={() => setLearnOpen(true)}
+          onDeletePage={deleteCurrentPage}
+          onClearAllPages={clearAllPages}
+          canDeletePage={pages.length > 1}
           templateCount={templateCount}
           hasContent={elements.length > 0 || strokesRef.current.length > 0}
         />
@@ -1480,6 +1503,76 @@ function ScrollHandle({ scrollY, maxScroll, viewportH, onScroll }: ScrollHandleP
   );
 }
 
+// One row in the Settings dropdown. Destructive rows turn red and, once
+// `confirming`, show "Tap again to confirm" instead of their label.
+function SettingsItem({
+  label,
+  icon,
+  badge,
+  destructive,
+  confirming,
+  onClick,
+}: {
+  label: string;
+  icon?: React.ReactNode;
+  badge?: number;
+  destructive?: boolean;
+  confirming?: boolean;
+  onClick: () => void;
+}) {
+  const idleBg = confirming ? "rgba(220,38,38,0.1)" : "transparent";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        width: "100%",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "8px 10px",
+        background: idleBg,
+        border: "none",
+        borderRadius: 6,
+        fontSize: 13,
+        fontWeight: confirming ? 600 : 500,
+        color: confirming || destructive ? "#dc2626" : "#0a0a0a",
+        cursor: "pointer",
+        textAlign: "left",
+      }}
+      onMouseEnter={(e) => {
+        if (!confirming) (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.background = idleBg;
+      }}
+    >
+      {icon}
+      <span style={{ flex: 1 }}>{confirming ? "Tap again to confirm" : label}</span>
+      {badge != null && (
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minWidth: 18,
+            height: 18,
+            padding: "0 6px",
+            borderRadius: 999,
+            background: "#0a0a0a",
+            color: "#ffffff",
+            fontSize: 10,
+            fontWeight: 700,
+            lineHeight: 1,
+          }}
+        >
+          {badge}
+        </span>
+      )}
+    </button>
+  );
+}
+
 interface PageIndicatorProps {
   count: number;
   current: number;
@@ -1655,13 +1748,29 @@ interface ToolbarProps {
   onClear: () => void;
   onExport: () => void;
   onLearn: () => void;
+  onDeletePage: () => void;
+  onClearAllPages: () => void;
+  canDeletePage: boolean;
   templateCount: number;
   hasContent: boolean;
 }
 
-function Toolbar({ mode, setMode, onClear, onExport, onLearn, templateCount, hasContent }: ToolbarProps) {
+function Toolbar({
+  mode,
+  setMode,
+  onClear,
+  onExport,
+  onLearn,
+  onDeletePage,
+  onClearAllPages,
+  canDeletePage,
+  templateCount,
+  hasContent,
+}: ToolbarProps) {
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // A destructive settings entry needs a second tap to confirm.
+  const [pendingConfirm, setPendingConfirm] = useState<"delete-page" | "clear-all" | null>(null);
   const settingsRef = useRef<HTMLDivElement | null>(null);
 
   // Close the settings menu when tapping elsewhere.
@@ -1675,6 +1784,36 @@ function Toolbar({ mode, setMode, onClear, onExport, onLearn, templateCount, has
     document.addEventListener("pointerdown", onDocDown);
     return () => document.removeEventListener("pointerdown", onDocDown);
   }, [settingsOpen]);
+
+  // A pending confirm resets when the menu closes, or after a short pause.
+  useEffect(() => {
+    if (!settingsOpen) setPendingConfirm(null);
+  }, [settingsOpen]);
+  useEffect(() => {
+    if (!pendingConfirm) return;
+    const t = setTimeout(() => setPendingConfirm(null), 4000);
+    return () => clearTimeout(t);
+  }, [pendingConfirm]);
+
+  function handleDeletePage() {
+    if (pendingConfirm === "delete-page") {
+      setPendingConfirm(null);
+      setSettingsOpen(false);
+      onDeletePage();
+    } else {
+      setPendingConfirm("delete-page");
+    }
+  }
+
+  function handleClearAllPages() {
+    if (pendingConfirm === "clear-all") {
+      setPendingConfirm(null);
+      setSettingsOpen(false);
+      onClearAllPages();
+    } else {
+      setPendingConfirm("clear-all");
+    }
+  }
 
   // Cancel pending-clear if the user clicks anywhere outside the toolbar, or
   // after a short timeout. Both feel like "they changed their mind".
@@ -1751,60 +1890,25 @@ function Toolbar({ mode, setMode, onClear, onExport, onLearn, templateCount, has
                   zIndex: 60,
                 }}
               >
-                <button
-                  type="button"
+                <SettingsItem
+                  label="Learn my style"
+                  badge={templateCount > 0 ? templateCount : undefined}
                   onClick={() => {
                     setSettingsOpen(false);
                     onLearn();
                   }}
-                  style={{
-                    width: "100%",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "8px 10px",
-                    background: "transparent",
-                    border: "none",
-                    borderRadius: 6,
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: "#0a0a0a",
-                    cursor: "pointer",
-                    textAlign: "left",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.background = "transparent";
-                  }}
-                >
-                  <span style={{ flex: 1 }}>Learn my style</span>
-                  {templateCount > 0 && (
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        minWidth: 18,
-                        height: 18,
-                        padding: "0 6px",
-                        borderRadius: 999,
-                        background: "#0a0a0a",
-                        color: "#ffffff",
-                        fontSize: 10,
-                        fontWeight: 700,
-                        lineHeight: 1,
-                      }}
-                      title={`${templateCount} saved drawing${templateCount === 1 ? "" : "s"}`}
-                    >
-                      {templateCount}
-                    </span>
-                  )}
-                </button>
-                <div style={{ height: 1, background: "rgba(0,0,0,0.08)", margin: "4px 6px" }} />
-                <button
-                  type="button"
+                />
+                <SettingsItem
+                  label="Support development"
+                  icon={
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+                      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+                      <line x1="6" y1="1" x2="6" y2="4" />
+                      <line x1="10" y1="1" x2="10" y2="4" />
+                      <line x1="14" y1="1" x2="14" y2="4" />
+                    </svg>
+                  }
                   onClick={() => {
                     setSettingsOpen(false);
                     // Donations on iOS must go through an external web payment;
@@ -1813,37 +1917,22 @@ function Toolbar({ mode, setMode, onClear, onExport, onLearn, templateCount, has
                     // works the same way in a regular browser.
                     window.open("https://buymeacoffee.com/neilmcardle", "_blank", "noopener");
                   }}
-                  style={{
-                    width: "100%",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "8px 10px",
-                    background: "transparent",
-                    border: "none",
-                    borderRadius: 6,
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: "#0a0a0a",
-                    cursor: "pointer",
-                    textAlign: "left",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.background = "transparent";
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-                    <line x1="6" y1="1" x2="6" y2="4" />
-                    <line x1="10" y1="1" x2="10" y2="4" />
-                    <line x1="14" y1="1" x2="14" y2="4" />
-                  </svg>
-                  <span style={{ flex: 1 }}>Support development</span>
-                </button>
+                />
+                <div style={{ height: 1, background: "rgba(0,0,0,0.08)", margin: "4px 6px" }} />
+                {canDeletePage && (
+                  <SettingsItem
+                    label="Delete this page"
+                    destructive
+                    confirming={pendingConfirm === "delete-page"}
+                    onClick={handleDeletePage}
+                  />
+                )}
+                <SettingsItem
+                  label="Clear all pages"
+                  destructive
+                  confirming={pendingConfirm === "clear-all"}
+                  onClick={handleClearAllPages}
+                />
               </div>
             )}
           </div>
