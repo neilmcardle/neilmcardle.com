@@ -1214,7 +1214,7 @@ function LearnHint() {
           letterSpacing: "0.01em",
         }}
       >
-        Doodle away!
+        Doodles away!
       </span>
     </div>
   );
