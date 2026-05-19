@@ -187,7 +187,7 @@ export interface MatchResult<T> {
 //
 // Distance = greedyCloudMatch (shape) + ASPECT_WEIGHT * |log(aspectRatio
 // candidate / template)|. The aspect term is what stops a 3:1 button doodle
-// from collapsing onto a 1:1 checkbox template, since the cloud matcher
+// from collapsing onto a 1:1 icon template, since the cloud matcher
 // itself ignores aspect ratio.
 export function rankTemplates<T extends { cloud: NormalizedCloud }>(
   candidate: NormalizedCloud,

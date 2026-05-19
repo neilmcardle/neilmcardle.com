@@ -17,7 +17,7 @@ interface Step {
   previewBbox: { w: number; h: number };
 }
 
-// Every element type the recogniser knows. Drawing all 19 means the user
+// Every element type the recogniser knows. Drawing all 13 means the user
 // can run an entire canvas locally with zero API calls.
 const STEPS: Step[] = [
   { type: "button", title: "Button", hint: "A small filled or outlined rectangle.", previewBbox: { w: 140, h: 40 } },
@@ -25,18 +25,14 @@ const STEPS: Step[] = [
   { type: "text", title: "Text", hint: "A line or two of horizontal strokes for body text.", previewBbox: { w: 240, h: 60 } },
   { type: "heading", title: "Heading", hint: "A short thick bar, or write the word.", previewBbox: { w: 220, h: 40 } },
   { type: "link", title: "Link", hint: "Underline a short piece of text.", previewBbox: { w: 120, h: 24 } },
-  { type: "checkbox", title: "Checkbox", hint: "A small square, with or without a tick.", previewBbox: { w: 24, h: 24 } },
-  { type: "radio", title: "Radio", hint: "A small circle, with or without a dot.", previewBbox: { w: 24, h: 24 } },
   { type: "toggle", title: "Toggle", hint: "A pill shape with a circle at one end.", previewBbox: { w: 44, h: 24 } },
   { type: "dropdown", title: "Dropdown", hint: "A rectangle with a small triangle on the right.", previewBbox: { w: 200, h: 40 } },
   { type: "card", title: "Card", hint: "A larger rounded rectangle, often with a shadow.", previewBbox: { w: 240, h: 160 } },
   { type: "divider", title: "Divider", hint: "A single thin horizontal line.", previewBbox: { w: 240, h: 2 } },
   { type: "image", title: "Image", hint: "A rectangle with an X through it.", previewBbox: { w: 200, h: 140 } },
-  { type: "avatar", title: "Avatar", hint: "A small circle, often a profile photo.", previewBbox: { w: 40, h: 40 } },
   { type: "icon", title: "Icon", hint: "A tiny simple shape: star, gear, X.", previewBbox: { w: 24, h: 24 } },
   { type: "badge", title: "Badge", hint: "A small rounded label.", previewBbox: { w: 80, h: 24 } },
   { type: "nav", title: "Nav", hint: "A row of short labels along the top.", previewBbox: { w: 320, h: 48 } },
-  { type: "menu", title: "Menu", hint: "Three short horizontal lines stacked.", previewBbox: { w: 48, h: 48 } },
 ];
 
 interface LearnMyStyleProps {

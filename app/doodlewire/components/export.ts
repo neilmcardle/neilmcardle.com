@@ -10,16 +10,14 @@ function esc(s: string): string {
 function htmlChild(el: WfElement): string {
   const label = el.label ? esc(el.label) : "";
   switch (el.type) {
-    case "button":
-      return `<button>${label || "Button"}</button>`;
+    case "button": {
+      const cls = el.variant === "secondary" ? ` class="wf-button--secondary"` : "";
+      return `<button${cls}>${label || "Button"}</button>`;
+    }
     case "input":
       return `<input type="text" placeholder="${label || "Placeholder"}" />`;
     case "text":
       return `<p>${label || "Text"}</p>`;
-    case "checkbox":
-      return `<input type="checkbox" checked />`;
-    case "radio":
-      return `<input type="radio" checked />`;
     case "toggle":
       return `<label class="wf-toggle"><input type="checkbox" checked /><span></span></label>`;
     case "heading":
@@ -37,8 +35,6 @@ function htmlChild(el: WfElement): string {
           .map((i) => `<a href="#">${esc(i)}</a>`)
           .join("")
       }</nav>`;
-    case "avatar":
-      return `<div class="wf-avatar" aria-label="Avatar"></div>`;
     case "icon":
       return `<div class="wf-icon" aria-hidden="true"></div>`;
     case "link":
@@ -47,8 +43,6 @@ function htmlChild(el: WfElement): string {
       return `<span class="wf-badge">${label || "Badge"}</span>`;
     case "dropdown":
       return `<select><option>${label || "Select"}</option></select>`;
-    case "menu":
-      return `<button class="wf-menu-btn" aria-label="Menu"><span></span><span></span><span></span></button>`;
     default:
       return "";
   }
@@ -75,9 +69,9 @@ export function exportAsHtml(elements: WfElement[], size: { w: number; h: number
   .wf-cell { position: absolute; }
   .wf-cell > * { width: 100%; height: 100%; }
   .wf-button button { background: var(--stroke); color: var(--fill); border: 0; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  .wf-button button.wf-button--secondary { background: transparent; color: var(--stroke); border: 1.5px solid var(--stroke); }
   .wf-input input, .wf-dropdown select { background: var(--fill); border: 1px solid var(--stroke); border-radius: 8px; padding: 0 12px; font: inherit; }
   .wf-text p { margin: 0; color: rgba(0,0,0,0.8); line-height: 1.5; }
-  .wf-checkbox input, .wf-radio input { margin: 0; }
   .wf-toggle { display: inline-flex; align-items: center; width: 100%; height: 100%; background: var(--stroke); border-radius: 999px; padding: 3px; }
   .wf-toggle input { display: none; }
   .wf-toggle span { margin-left: auto; height: 100%; aspect-ratio: 1/1; background: var(--fill); border-radius: 999px; }
@@ -88,12 +82,9 @@ export function exportAsHtml(elements: WfElement[], size: { w: number; h: number
   .wf-nav nav { display: flex; align-items: center; gap: 18px; padding: 0 14px; height: 100%; }
   .wf-nav a { color: var(--stroke); text-decoration: none; font-weight: 500; opacity: 0.6; }
   .wf-nav a:first-child { opacity: 1; }
-  .wf-avatar { background: rgba(0,0,0,0.08); border-radius: 999px; }
   .wf-icon { width: 70%; height: 70%; margin: 15% auto 0; border: 1.5px solid var(--stroke); border-radius: 4px; }
   .wf-link a { color: var(--stroke); text-decoration: underline; text-underline-offset: 3px; }
   .wf-badge span { display: inline-flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.08); border-radius: 999px; font-size: 11px; font-weight: 600; padding: 0 10px; }
-  .wf-menu-btn { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 22%; padding: 18%; background: transparent; border: 0; cursor: pointer; }
-  .wf-menu-btn span { display: block; height: 2.5px; border-radius: 2px; background: var(--stroke); }
 </style>
 </head>
 <body>
@@ -128,6 +119,8 @@ function pickIconName(label: string): string {
   if (l.includes("search") || l.includes("magnif") || l.includes("find")) return "Search";
   if (l.includes("setting") || l.includes("gear") || l.includes("cog")) return "Settings";
   if (l === "+" || l.includes("plus") || l.includes("add") || l.includes("create")) return "Plus";
+  if (l.includes("checkbox") || l.includes("tickbox")) return "SquareCheck";
+  if (l.includes("radio")) return "CircleDot";
   if (l === "✓" || l.includes("check") || l.includes("tick") || l.includes("done")) return "Check";
   if (l.includes("bell") || l.includes("notif")) return "Bell";
   if (l.includes("user") || l.includes("person") || l.includes("profile") || l.includes("account")) return "User";
@@ -162,21 +155,16 @@ function pickIconName(label: string): string {
 function reactChild(el: WfElement, indent: string, imports: Record<string, Set<string>>): string {
   const label = el.label ?? "";
   switch (el.type) {
-    case "button":
+    case "button": {
       addImport(imports, "@/components/ui/button", "Button");
-      return `${indent}<Button className="w-full h-full">${label || "Button"}</Button>`;
+      const variantAttr = el.variant === "secondary" ? ` variant="outline"` : "";
+      return `${indent}<Button${variantAttr} className="w-full h-full">${label || "Button"}</Button>`;
+    }
     case "input":
       addImport(imports, "@/components/ui/input", "Input");
       return `${indent}<Input className="w-full h-full" placeholder="${label || "Placeholder"}" />`;
     case "text":
       return `${indent}<p className="w-full h-full text-sm leading-relaxed text-foreground/80">${label || "Text"}</p>`;
-    case "checkbox":
-      addImport(imports, "@/components/ui/checkbox", "Checkbox");
-      return `${indent}<div className="w-full h-full flex items-center justify-center">\n${indent}  <Checkbox defaultChecked />\n${indent}</div>`;
-    case "radio":
-      addImport(imports, "@/components/ui/radio-group", "RadioGroup");
-      addImport(imports, "@/components/ui/radio-group", "RadioGroupItem");
-      return `${indent}<div className="w-full h-full flex items-center justify-center">\n${indent}  <RadioGroup defaultValue="a">\n${indent}    <RadioGroupItem value="a" id="r-${el.id}" />\n${indent}  </RadioGroup>\n${indent}</div>`;
     case "toggle":
       addImport(imports, "@/components/ui/switch", "Switch");
       return `${indent}<div className="w-full h-full flex items-center justify-center">\n${indent}  <Switch defaultChecked />\n${indent}</div>`;
@@ -201,10 +189,6 @@ function reactChild(el: WfElement, indent: string, imports: Record<string, Set<s
         .join(`\n${indent}  `);
       return `${indent}<nav className="w-full h-full flex items-center gap-2 px-2">\n${indent}  ${links}\n${indent}</nav>`;
     }
-    case "avatar":
-      addImport(imports, "@/components/ui/avatar", "Avatar");
-      addImport(imports, "@/components/ui/avatar", "AvatarFallback");
-      return `${indent}<Avatar className="w-full h-full">\n${indent}  <AvatarFallback>${label ? label.slice(0, 2).toUpperCase() : "U"}</AvatarFallback>\n${indent}</Avatar>`;
     case "icon": {
       const iconName = pickIconName(label);
       // ImageIcon is the local alias for Lucide's `Image` to avoid a clash
@@ -225,9 +209,6 @@ function reactChild(el: WfElement, indent: string, imports: Record<string, Set<s
       addImport(imports, "@/components/ui/select", "SelectTrigger");
       addImport(imports, "@/components/ui/select", "SelectValue");
       return `${indent}<Select>\n${indent}  <SelectTrigger className="w-full h-full">\n${indent}    <SelectValue placeholder="${label || "Select"}" />\n${indent}  </SelectTrigger>\n${indent}  <SelectContent>\n${indent}    <SelectItem value="a">Option 1</SelectItem>\n${indent}    <SelectItem value="b">Option 2</SelectItem>\n${indent}  </SelectContent>\n${indent}</Select>`;
-    case "menu":
-      addImport(imports, "@/components/ui/button", "Button");
-      return `${indent}<Button variant="ghost" size="icon" className="w-full h-full" aria-label="Menu">\n${indent}  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-1/2 h-1/2">\n${indent}    <line x1="4" y1="6" x2="20" y2="6" />\n${indent}    <line x1="4" y1="12" x2="20" y2="12" />\n${indent}    <line x1="4" y1="18" x2="20" y2="18" />\n${indent}  </svg>\n${indent}</Button>`;
     default:
       return "";
   }

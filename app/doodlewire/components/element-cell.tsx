@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ELEMENT_TYPES, type ElementType, type WfElement } from "./wireframe-canvas";
-import { headingLevel, ICON_CHOICES, pickIcon, renderElement } from "./wireframe-element";
+import { buttonVariant, headingLevel, ICON_CHOICES, pickIcon, renderElement } from "./wireframe-element";
 import { getResizeMode, resizeBbox, type ResizeHandle } from "./snap-size";
 
 interface ElementCellProps {
@@ -15,6 +15,7 @@ interface ElementCellProps {
   onLabelChange: (label: string) => void;
   onTypeChange: (type: ElementType) => void;
   onLevelChange: (level: number) => void;
+  onVariantChange: (variant: "primary" | "secondary") => void;
   onLayer: (direction: "forward" | "backward") => void;
   onFeedback: (correct: boolean) => void;
   canForward: boolean;
@@ -37,6 +38,7 @@ export function ElementCell({
   onLabelChange,
   onTypeChange,
   onLevelChange,
+  onVariantChange,
   onLayer,
   onFeedback,
   canForward,
@@ -48,9 +50,9 @@ export function ElementCell({
   // Which popover is open: element-type grid, icon grid, heading-level
   // grid, or none. Only one is ever open, so the positioning and
   // outside-click logic is shared between them.
-  const [openMenu, setOpenMenu] = useState<"type" | "icon" | "level" | null>(null);
+  const [openMenu, setOpenMenu] = useState<"type" | "icon" | "level" | "variant" | null>(null);
   const resizeMode = getResizeMode(element.type);
-  // Small elements (icons, checkboxes ~20px) are hard to grab. Extend the
+  // Small elements (icons ~20px) are hard to grab. Extend the
   // draggable area outward so the effective hit target is at least ~44px.
   const hitPad = Math.max(0, (44 - Math.min(element.bbox.w, element.bbox.h)) / 2);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -107,7 +109,14 @@ export function ElementCell({
   // The popover sits at fixed viewport coordinates so it can flip above
   // or below the cell, and slide horizontally to stay inside the viewport
   // when the cell is near an edge.
-  const [menuFixed, setMenuFixed] = useState<{ left: number; top: number } | null>(null);
+  // top OR bottom is set, never both — `bottom` anchors the popover by its
+  // own bottom edge (so its rendered height doesn't matter), `top` anchors
+  // by the top edge when we've flipped to below the wrapper.
+  const [menuFixed, setMenuFixed] = useState<{
+    left: number;
+    top: number | null;
+    bottom: number | null;
+  } | null>(null);
 
   // Close the open popover when clicking elsewhere.
   useEffect(() => {
@@ -141,10 +150,17 @@ export function ElementCell({
       let left = r.right - POPOVER_W;
       if (left < GAP) left = GAP;
       if (left + POPOVER_W > vw - GAP) left = Math.max(GAP, vw - GAP - POPOVER_W);
-      let top = r.top - GAP - POPOVER_MAX_H;
-      if (top < GAP) top = r.bottom + GAP;
-      if (top + POPOVER_MAX_H > vh - GAP) top = Math.max(GAP, vh - GAP - POPOVER_MAX_H);
-      setMenuFixed({ left, top });
+      // Prefer placing above with a `bottom` anchor — that way the popover
+      // hugs the wrapper regardless of how tall it actually renders. Fall
+      // back to placing below (anchored by `top`) only when there is no room
+      // above for the worst-case height.
+      if (r.top - GAP - POPOVER_MAX_H >= GAP) {
+        setMenuFixed({ left, top: null, bottom: vh - r.top + GAP });
+      } else {
+        let top = r.bottom + GAP;
+        if (top + POPOVER_MAX_H > vh - GAP) top = Math.max(GAP, vh - GAP - POPOVER_MAX_H);
+        setMenuFixed({ left, top, bottom: null });
+      }
     }
     compute();
     window.addEventListener("resize", compute);
@@ -385,6 +401,20 @@ export function ElementCell({
             </span>
           </ToolBtn>
         )}
+        {element.type === "button" && (
+          <ToolBtn
+            label="Button variant"
+            active={openMenu === "variant"}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenMenu((v) => (v === "variant" ? null : "variant"));
+            }}
+          >
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.2 }}>
+              {buttonVariant(element.variant) === "secondary" ? "2°" : "1°"}
+            </span>
+          </ToolBtn>
+        )}
         <Divider />
         <ToolBtn
           label="Send backward"
@@ -439,7 +469,8 @@ export function ElementCell({
           style={{
             position: "fixed",
             left: menuFixed.left,
-            top: menuFixed.top,
+            top: menuFixed.top ?? undefined,
+            bottom: menuFixed.bottom ?? undefined,
             background: "#ffffff",
             border: "1px solid rgba(0,0,0,0.1)",
             borderRadius: 10,
@@ -499,7 +530,8 @@ export function ElementCell({
           style={{
             position: "fixed",
             left: menuFixed.left,
-            top: menuFixed.top,
+            top: menuFixed.top ?? undefined,
+            bottom: menuFixed.bottom ?? undefined,
             background: "#ffffff",
             border: "1px solid rgba(0,0,0,0.1)",
             borderRadius: 10,
@@ -563,7 +595,8 @@ export function ElementCell({
           style={{
             position: "fixed",
             left: menuFixed.left,
-            top: menuFixed.top,
+            top: menuFixed.top ?? undefined,
+            bottom: menuFixed.bottom ?? undefined,
             background: "#ffffff",
             border: "1px solid rgba(0,0,0,0.1)",
             borderRadius: 10,
@@ -608,6 +641,67 @@ export function ElementCell({
                 }}
               >
                 H{lvl}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {openMenu === "variant" && menuFixed && (
+        <div
+          ref={menuRef}
+          data-skip-export="1"
+          onPointerDown={(e) => e.stopPropagation()}
+          style={{
+            position: "fixed",
+            left: menuFixed.left,
+            top: menuFixed.top ?? undefined,
+            bottom: menuFixed.bottom ?? undefined,
+            background: "#ffffff",
+            border: "1px solid rgba(0,0,0,0.1)",
+            borderRadius: 10,
+            boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+            padding: 4,
+            zIndex: 60,
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: 2,
+            width: 264,
+            pointerEvents: "auto",
+          }}
+        >
+          {(["primary", "secondary"] as const).map((v) => {
+            const current = buttonVariant(element.variant) === v;
+            return (
+              <button
+                key={v}
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onVariantChange(v);
+                  setOpenMenu(null);
+                }}
+                style={{
+                  padding: "8px 8px",
+                  background: current ? "#0a0a0a" : "transparent",
+                  color: current ? "#ffffff" : "#0a0a0a",
+                  border: "none",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  textTransform: "capitalize",
+                  transition: "background 0.1s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!current) (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)";
+                }}
+                onMouseLeave={(e) => {
+                  if (!current) (e.currentTarget as HTMLElement).style.background = "transparent";
+                }}
+              >
+                {v}
               </button>
             );
           })}

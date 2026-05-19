@@ -25,6 +25,7 @@ import {
   Calendar,
   Camera,
   Check,
+  CircleDot,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -77,6 +78,7 @@ import {
   Shield,
   ShoppingCart,
   Square as SquareIcon,
+  SquareCheck,
   Star,
   Sun,
   Tag,
@@ -103,6 +105,8 @@ export const ICON_CHOICES: { name: string; Icon: LucideIcon }[] = [
   { name: "settings", Icon: Settings },
   { name: "add", Icon: Plus },
   { name: "check", Icon: Check },
+  { name: "checkbox", Icon: SquareCheck },
+  { name: "radio", Icon: CircleDot },
   { name: "bell", Icon: Bell },
   { name: "user", Icon: User },
   { name: "home", Icon: Home },
@@ -186,6 +190,8 @@ export function pickIcon(label?: string): LucideIcon {
   if (l.includes("search") || l.includes("magnif") || l.includes("find")) return Search;
   if (l.includes("setting") || l.includes("gear") || l.includes("cog")) return Settings;
   if (l === "+" || l.includes("plus") || l.includes("add") || l.includes("create")) return Plus;
+  if (l.includes("checkbox") || l.includes("tickbox")) return SquareCheck;
+  if (l.includes("radio")) return CircleDot;
   if (l === "✓" || l.includes("check") || l.includes("tick") || l.includes("done")) return Check;
   if (l.includes("bell") || l.includes("notif")) return Bell;
   if (l.includes("user") || l.includes("person") || l.includes("profile") || l.includes("account")) return User;
@@ -231,6 +237,12 @@ export const HEADING_FONT_PX: Record<number, number> = {
 export function headingLevel(level: number | undefined): number {
   if (level == null) return 2;
   return Math.min(6, Math.max(1, Math.round(level)));
+}
+
+// Visual variant for type === "button". Absent or unknown values fall back
+// to "primary" (filled), matching the default new-button look.
+export function buttonVariant(variant: string | undefined): "primary" | "secondary" {
+  return variant === "secondary" ? "secondary" : "primary";
 }
 
 // Vertical padding inside the text element, in px (top + bottom each).
@@ -287,14 +299,20 @@ export function renderElement(
 ) {
   const set = onLabelChange;
   switch (el.type) {
-    case "button":
+    case "button": {
+      const variant = buttonVariant(el.variant);
       return (
-        <Button className="w-full h-full" asChild>
+        <Button
+          variant={variant === "secondary" ? "outline" : "default"}
+          className="w-full h-full"
+          asChild
+        >
           <div>
             <EditableLabel value={el.label ?? "Button"} onChange={set} placeholder="Button" />
           </div>
         </Button>
       );
+    }
     case "input":
       // Input placeholder is shown inside the field. We swap to a styled wrapper
       // around an EditableLabel so the placeholder can be double-click edited.
@@ -310,20 +328,6 @@ export function renderElement(
       );
     case "text":
       return <TextElement el={el} onChange={set} onAutoHeight={onAutoHeight} />;
-    case "checkbox":
-      return (
-        <div className="w-full h-full rounded-[20%] border-2 border-foreground/80 bg-background flex items-center justify-center text-foreground">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-[70%] h-[70%]">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        </div>
-      );
-    case "radio":
-      return (
-        <div className="w-full h-full rounded-full border-2 border-foreground/80 bg-background flex items-center justify-center">
-          <span className="rounded-full bg-foreground" style={{ width: "50%", height: "50%" }} />
-        </div>
-      );
     case "toggle":
       return (
         <div
@@ -393,21 +397,6 @@ export function renderElement(
         </nav>
       );
     }
-    case "avatar":
-      return (
-        <div
-          className="w-full h-full rounded-full bg-muted flex items-end justify-center overflow-hidden text-muted-foreground/90"
-          aria-label={el.label ?? "Avatar"}
-        >
-          {/* Person silhouette: small circle for head, large rounded body
-              below. The body extends past the bottom of the SVG viewBox and
-              is clipped by the rounded-full container. */}
-          <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-            <circle cx="12" cy="9" r="4" />
-            <path d="M3 24c0-5 4-9 9-9s9 4 9 9z" />
-          </svg>
-        </div>
-      );
     case "icon": {
       const Icon = pickIcon(el.label);
       return <Icon strokeWidth={1.8} className="w-full h-full text-foreground" />;
@@ -441,23 +430,6 @@ export function renderElement(
             <SelectItem value="b">Option 2</SelectItem>
           </SelectContent>
         </Select>
-      );
-    case "menu":
-      return (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="w-full h-full text-foreground"
-          aria-label="Menu"
-        >
-          <line x1="4" y1="6" x2="20" y2="6" />
-          <line x1="4" y1="12" x2="20" y2="12" />
-          <line x1="4" y1="18" x2="20" y2="18" />
-        </svg>
       );
     default:
       return null;

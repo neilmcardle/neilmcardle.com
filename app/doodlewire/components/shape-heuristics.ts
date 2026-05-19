@@ -51,21 +51,19 @@ export function classifyShape(strokes: Stroke[]): ShapeGuess | null {
   }
 
   // 3. Stack of horizontal strokes. Three tidy ones read as a hamburger
-  //    menu; more (or uneven) reads as a text block.
+  //    icon; more (or uneven) reads as a text block.
   const hLines = horizontalStrokeCount(strokes);
   if (hLines >= 3 && strokes.length <= 4 && aspect < 2.2) {
-    return { type: "menu", confidence: 0.5 };
+    return { type: "icon", confidence: 0.5 };
   }
   if (hLines >= 2 && strokes.length >= 2 && bbox.h > 36) {
     return { type: "text", confidence: 0.5 };
   }
 
   // 4. Circular — points roughly equidistant from the centroid and the
-  //    box is close to square. Small circle = radio, larger = avatar.
+  //    box is close to square. Reads as a circular icon.
   if (aspect > 0.6 && aspect < 1.7 && radiusVariation(pts, bbox) < 0.1) {
-    return longSide < 70
-      ? { type: "radio", confidence: 0.55 }
-      : { type: "avatar", confidence: 0.6 };
+    return { type: "icon", confidence: 0.5 };
   }
 
   // 5. Everything else is a box. Aspect ratio and size pick the family.
@@ -85,9 +83,9 @@ function classifyBox(bbox: Bbox, aspect: number, horizontal: boolean): ShapeGues
       : { type: "text", confidence: 0.45 };
   }
 
-  // Small square-ish box → checkbox.
+  // Small square-ish box → icon.
   if (longSide < 46 && aspect > 0.7 && aspect < 1.5) {
-    return { type: "checkbox", confidence: 0.5 };
+    return { type: "icon", confidence: 0.5 };
   }
 
   // Wide and thin → input (very wide) or button (moderately wide).

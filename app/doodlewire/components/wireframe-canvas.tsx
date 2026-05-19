@@ -25,20 +25,16 @@ export const ELEMENT_TYPES = [
   "button",
   "input",
   "text",
-  "checkbox",
-  "radio",
   "toggle",
   "heading",
   "image",
   "card",
   "divider",
   "nav",
-  "avatar",
   "icon",
   "link",
   "badge",
   "dropdown",
-  "menu",
 ] as const;
 
 export type ElementType = (typeof ELEMENT_TYPES)[number];
@@ -54,6 +50,10 @@ export interface WfElement {
   // Heading level (1-6). Only meaningful for type === "heading"; absent
   // headings render at level 2.
   level?: number;
+  // Visual variant. Currently used by type === "button" to switch between
+  // a filled "primary" button and an outlined "secondary" button. Absent
+  // buttons render as primary.
+  variant?: "primary" | "secondary";
 }
 
 type Pt = { x: number; y: number };
@@ -918,6 +918,10 @@ export default function WireframeCanvas() {
     setElements((prev) => prev.map((e) => (e.id === id ? { ...e, level } : e)));
   }
 
+  function updateVariant(id: string, variant: "primary" | "secondary") {
+    setElements((prev) => prev.map((e) => (e.id === id ? { ...e, variant } : e)));
+  }
+
   // Clean up any pending recognise schedule when the canvas unmounts.
   useEffect(() => cancelScheduledRecognise, []);
 
@@ -1055,6 +1059,7 @@ export default function WireframeCanvas() {
             onLabelChange={(label) => updateLabel(el.id, label)}
             onTypeChange={(type) => updateType(el.id, type)}
             onLevelChange={(level) => updateLevel(el.id, level)}
+            onVariantChange={(variant) => updateVariant(el.id, variant)}
             onLayer={(direction) => moveLayer(el.id, direction)}
             onFeedback={(correct) => recordFeedback(el.id, correct)}
             canForward={i < elements.length - 1}
@@ -1863,80 +1868,6 @@ function Toolbar({
     >
       {!confirmingClear && (
         <>
-          <div ref={settingsRef} style={{ position: "relative", display: "inline-flex" }}>
-            <ToolBtn
-              active={settingsOpen}
-              onClick={() => setSettingsOpen((v) => !v)}
-              label="Settings"
-              icon={
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                </svg>
-              }
-            />
-            {settingsOpen && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "calc(100% + 10px)",
-                  left: -4,
-                  minWidth: 220,
-                  background: "#ffffff",
-                  border: "1px solid rgba(0,0,0,0.08)",
-                  borderRadius: 10,
-                  boxShadow: "0 10px 28px rgba(0,0,0,0.16)",
-                  padding: 4,
-                  zIndex: 60,
-                }}
-              >
-                <SettingsItem
-                  label="Learn my style"
-                  badge={templateCount > 0 ? templateCount : undefined}
-                  onClick={() => {
-                    setSettingsOpen(false);
-                    onLearn();
-                  }}
-                />
-                <SettingsItem
-                  label="Support development"
-                  icon={
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-                      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-                      <line x1="6" y1="1" x2="6" y2="4" />
-                      <line x1="10" y1="1" x2="10" y2="4" />
-                      <line x1="14" y1="1" x2="14" y2="4" />
-                    </svg>
-                  }
-                  onClick={() => {
-                    setSettingsOpen(false);
-                    // Donations on iOS must go through an external web payment;
-                    // Apple rejects donation flows that try to use IAP. window.open
-                    // routes to Safari via the Capacitor WebView automatically, and
-                    // works the same way in a regular browser.
-                    window.open("https://buymeacoffee.com/neilmcardle", "_blank", "noopener");
-                  }}
-                />
-                <div style={{ height: 1, background: "rgba(0,0,0,0.08)", margin: "4px 6px" }} />
-                {canDeletePage && (
-                  <SettingsItem
-                    label="Delete this page"
-                    destructive
-                    confirming={pendingConfirm === "delete-page"}
-                    onClick={handleDeletePage}
-                  />
-                )}
-                <SettingsItem
-                  label="Clear all pages"
-                  destructive
-                  confirming={pendingConfirm === "clear-all"}
-                  onClick={handleClearAllPages}
-                />
-              </div>
-            )}
-          </div>
-          <div style={{ width: 1, height: 20, background: "rgba(0,0,0,0.08)", margin: "0 4px" }} />
           <ToolBtn
             active={mode === "pen"}
             onClick={() => setMode("pen")}
@@ -2074,33 +2005,109 @@ function Toolbar({
         </AnimatePresence>
       </motion.div>
       {!confirmingClear && (
-        <button
-          type="button"
-          onClick={onExport}
-          disabled={!hasContent}
-          aria-label="Export"
-          title="Export"
-          style={{
-            marginLeft: 4,
-            width: 36,
-            height: 32,
-            borderRadius: 999,
-            background: hasContent ? "#0a0a0a" : "rgba(0,0,0,0.1)",
-            color: hasContent ? "#ffffff" : "rgba(0,0,0,0.4)",
-            border: "none",
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: hasContent ? "pointer" : "not-allowed",
-            transition: "background 0.15s",
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" />
-            <polyline points="16 6 12 2 8 6" />
-            <line x1="12" y1="2" x2="12" y2="15" />
-          </svg>
-        </button>
+        <>
+          <button
+            type="button"
+            onClick={onExport}
+            disabled={!hasContent}
+            aria-label="Export"
+            title="Export"
+            style={{
+              marginLeft: 4,
+              width: 36,
+              height: 32,
+              borderRadius: 999,
+              background: hasContent ? "#0a0a0a" : "rgba(0,0,0,0.1)",
+              color: hasContent ? "#ffffff" : "rgba(0,0,0,0.4)",
+              border: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: hasContent ? "pointer" : "not-allowed",
+              transition: "background 0.15s",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" />
+              <polyline points="16 6 12 2 8 6" />
+              <line x1="12" y1="2" x2="12" y2="15" />
+            </svg>
+          </button>
+          <div style={{ width: 1, height: 20, background: "rgba(0,0,0,0.08)", margin: "0 4px" }} />
+          <div ref={settingsRef} style={{ position: "relative", display: "inline-flex" }}>
+            <ToolBtn
+              active={settingsOpen}
+              onClick={() => setSettingsOpen((v) => !v)}
+              label="Settings"
+              icon={
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+              }
+            />
+            {settingsOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "calc(100% + 10px)",
+                  right: -4,
+                  minWidth: 220,
+                  background: "#ffffff",
+                  border: "1px solid rgba(0,0,0,0.08)",
+                  borderRadius: 10,
+                  boxShadow: "0 10px 28px rgba(0,0,0,0.16)",
+                  padding: 4,
+                  zIndex: 60,
+                }}
+              >
+                <SettingsItem
+                  label="Learn my style"
+                  badge={templateCount > 0 ? templateCount : undefined}
+                  onClick={() => {
+                    setSettingsOpen(false);
+                    onLearn();
+                  }}
+                />
+                <SettingsItem
+                  label="Support development"
+                  icon={
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+                      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+                      <line x1="6" y1="1" x2="6" y2="4" />
+                      <line x1="10" y1="1" x2="10" y2="4" />
+                      <line x1="14" y1="1" x2="14" y2="4" />
+                    </svg>
+                  }
+                  onClick={() => {
+                    setSettingsOpen(false);
+                    // Donations on iOS must go through an external web payment;
+                    // Apple rejects donation flows that try to use IAP. window.open
+                    // routes to Safari via the Capacitor WebView automatically, and
+                    // works the same way in a regular browser.
+                    window.open("https://buymeacoffee.com/neilmcardle", "_blank", "noopener");
+                  }}
+                />
+                <div style={{ height: 1, background: "rgba(0,0,0,0.08)", margin: "4px 6px" }} />
+                {canDeletePage && (
+                  <SettingsItem
+                    label="Delete this page"
+                    destructive
+                    confirming={pendingConfirm === "delete-page"}
+                    onClick={handleDeletePage}
+                  />
+                )}
+                <SettingsItem
+                  label="Clear all pages"
+                  destructive
+                  confirming={pendingConfirm === "clear-all"}
+                  onClick={handleClearAllPages}
+                />
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );

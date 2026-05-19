@@ -24,11 +24,7 @@ const RESIZE_MODES: Record<ElementType, ResizeMode> = {
   text: "flowWidth",
   image: "flowBoth",
   card: "flowBoth",
-  checkbox: "centredSquare",
-  radio: "centredSquare",
-  avatar: "centredSquare",
   icon: "centredSquare",
-  menu: "centredSquare",
   toggle: "centredBoth",
 };
 
@@ -53,18 +49,14 @@ const PRESETS: Record<ElementType, { w: number[]; h: number[] }> = {
   // Text starts one line tall (40); height then auto-grows with content.
   text:      { w: CONTENT_W,      h: [40] },
   card:      { w: [280, 400, 520], h: [160, 240, 320] },
-  checkbox:  { w: [16, 20, 24],   h: [16, 20, 24] },
-  radio:     { w: [16, 20, 24],   h: [16, 20, 24] },
   toggle:    { w: [36, 46, 56],   h: [20, 26, 32] },
   heading:   { w: [160, 320, 560], h: [44] },
   image:     { w: [120, 240, 480], h: [90, 180, 360] },
   divider:   { w: [120, 240, 480], h: [2] },
   nav:       { w: [280, 480, 720], h: [48] },
-  avatar:    { w: [32, 48, 64],   h: [32, 48, 64] },
   icon:      { w: [20, 24, 32],   h: [20, 24, 32] },
   link:      { w: [60, 120, 220], h: [24] },
   badge:     { w: [48, 96, 160],  h: [22] },
-  menu:      { w: [40, 52, 64],   h: [40, 52, 64] },
 };
 
 export type ResizeHandle = "e" | "s" | "se";
