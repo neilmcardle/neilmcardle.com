@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
+import { PAINTINGS } from "./paintings/paintings";
 
 // Ripple line positions as explicit viewport percentages — ported from
 // the gated /portfolio template so the public homepage shares the same
@@ -330,6 +331,96 @@ export default function Homepage() {
           </div>
         </header>
 
+        {/* Paintings teaser — compact social-card style. Backs the ARTIST
+            claim in the hero without taking over the homepage. Links to
+            /paintings for the full statement. */}
+        <section className="mb-20 mt-16">
+          <div className="flex items-center gap-8 mb-10">
+            <div
+              className="text-[#8a7f70]"
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "var(--font-jetbrains-mono)",
+                letterSpacing: "0.13em",
+                textTransform: "uppercase",
+              }}
+            >
+              + Oil Paintings
+            </div>
+            <div className="flex-1 h-[2px] bg-[#8a7f70]/50" />
+          </div>
+          <div className="grid grid-cols-1 gap-4">
+            {PAINTINGS.filter((p) => p.featured).map((p, i) => (
+              <Link
+                key={p.slug}
+                href="/paintings"
+                className="group flex items-center gap-5 sm:gap-6 border-2 border-[#8a7f70]/50 hover:border-[#fbf9f3] transition-all duration-300 p-4 sm:p-5"
+              >
+                <div
+                  className="text-[#8a7f70] flex-shrink-0"
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.13em",
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-[#8a7f70] flex-shrink-0">
+                  <Image
+                    src={p.image}
+                    alt={p.title}
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div
+                    className="flex items-center gap-3 flex-wrap text-[#fbf9f3]/85 text-sm sm:text-[0.9375rem]"
+                    style={{ fontFamily: "var(--font-inter)" }}
+                  >
+                    <span>{p.title}</span>
+                    {p.status === "sold" && (
+                      <span className="flex items-center gap-2">
+                        <span className="inline-block w-2 h-2 rounded-full bg-red-500" aria-hidden />
+                        <span
+                          className="text-[#fbf9f3]/70"
+                          style={{
+                            fontSize: "0.625rem",
+                            fontFamily: "var(--font-jetbrains-mono)",
+                            letterSpacing: "0.13em",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Sold
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    className="text-[#8a7f70] mt-1"
+                    style={{
+                      fontFamily: "var(--font-jetbrains-mono)",
+                      fontSize: "0.6875rem",
+                      letterSpacing: "0.13em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Painting · Oils · On Board
+                  </div>
+                </div>
+                <span
+                  className="text-[#8a7f70] group-hover:text-[#fbf9f3] group-hover:translate-x-1 transition-all flex-shrink-0 text-lg"
+                  aria-hidden
+                >
+                  →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section className="mb-20 mt-16">
           <div className="flex items-center gap-8 mb-12">
             <div
@@ -340,7 +431,7 @@ export default function Homepage() {
                 letterSpacing: "0.13em",
               }}
             >
-              + SELECTED WORK
+              + DIGITAL PRODUCTS
             </div>
             <div className="flex-1 h-[2px] bg-[#8a7f70]/50" />
           </div>
