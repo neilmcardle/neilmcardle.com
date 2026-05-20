@@ -16,7 +16,7 @@ export default function DoodleWirePrivacyPage() {
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">
           Privacy Policy
         </h1>
-        <p className="mt-2 text-sm text-black/45">Last updated: 17 May 2026</p>
+        <p className="mt-2 text-sm text-black/45">Last updated: 20 May 2026</p>
 
         <div className="mt-8 space-y-5 text-[15px] leading-relaxed text-black/75">
           <p>
