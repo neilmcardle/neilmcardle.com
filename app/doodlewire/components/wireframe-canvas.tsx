@@ -742,7 +742,7 @@ export default function WireframeCanvas() {
     const stamped: WfElement[] = [];
     const matchedStrokes = new Set<Stroke>();
 
-    for (const cluster of clusters) {
+    for (const { strokes: cluster, isContainer } of clusters) {
       const strokesAtCall: Stroke[] = cluster.map((s) => ({ points: s.points.slice() }));
       // Pure local recognition. Rank every template, accept the closest if
       // (a) the distance is very tight, or (b) it is below threshold AND
@@ -760,8 +760,11 @@ export default function WireframeCanvas() {
       if (!top || !accept) {
         // No confident trained-template match. Fall back to geometric
         // classification so an untrained / first-time doodle still
-        // produces something. Heuristic guesses carry no templateId.
-        const guess = classifyShape(strokesAtCall);
+        // produces something. A detected container is always a card.
+        // Heuristic guesses carry no templateId.
+        const guess = isContainer
+          ? { type: "card" as ElementType, confidence: 0.6 }
+          : classifyShape(strokesAtCall);
         if (guess) {
           stamped.push({
             id: `${Date.now()}-${stamped.length}-geo`,
