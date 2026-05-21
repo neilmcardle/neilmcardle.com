@@ -68,13 +68,17 @@ interface ResizeArgs {
   startBbox: Bbox;
 }
 
-// Compute the new bbox during a resize drag. Always snaps to the nearest
-// preset — the wireframe stays on a tidy S/M/L step. Flow types are
-// top-left anchored; centred types lock the centre.
+// Minimum side length during a resize so an element can't collapse to
+// nothing (which would make it impossible to grab again).
+const MIN_RESIZE = 8;
+
+// Compute the new bbox during a resize drag. Sizing is continuous — the user
+// can drag an element to any size they like; recognised elements still arrive
+// at a tidy preset via snapToStandard, but from there resizing is free. Flow
+// types are top-left anchored; centred types lock the centre.
 export function resizeBbox(type: ElementType, args: ResizeArgs): Bbox {
   const mode = getResizeMode(type);
   if (mode === "none") return args.startBbox;
-  const presets = PRESETS[type];
   const { handle, dx, dy, startBbox } = args;
   const centred = mode === "centredSquare" || mode === "centredBoth";
   // Centred resize doubles the pointer delta because the opposite edge moves
@@ -92,8 +96,8 @@ export function resizeBbox(type: ElementType, args: ResizeArgs): Bbox {
     targetH = side;
   }
 
-  const w = nearestPreset(presets.w, targetW);
-  const h = nearestPreset(presets.h, targetH);
+  const w = Math.max(MIN_RESIZE, Math.round(targetW));
+  const h = Math.max(MIN_RESIZE, Math.round(targetH));
 
   if (centred) {
     const cx = startBbox.x + startBbox.w / 2;

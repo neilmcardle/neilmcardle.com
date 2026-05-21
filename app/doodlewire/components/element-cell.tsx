@@ -8,7 +8,7 @@ import { getResizeMode, resizeBbox, type ResizeHandle } from "./snap-size";
 interface ElementCellProps {
   element: WfElement;
   selected: boolean;
-  onSelect: () => void;
+  onDeselect: () => void;
   onMove: (dx: number, dy: number) => void;
   onResize: (bbox: WfElement["bbox"]) => void;
   onRemove: () => void;
@@ -31,7 +31,7 @@ const TAP_DRAG_THRESHOLD = 8;
 export function ElementCell({
   element,
   selected,
-  onSelect,
+  onDeselect,
   onMove,
   onResize,
   onRemove,
@@ -209,11 +209,11 @@ export function ElementCell({
       document.removeEventListener("pointerup", onUpDoc);
       document.removeEventListener("pointercancel", onUpDoc);
       setDragging(false);
-      // Pointer never crossed the drag threshold — treat as a tap and
-      // toggle this element's selection.
-      if (!movedPastThreshold) {
-        onSelect();
-      }
+      // A tap (no drag) on the selected element deselects it. This is the
+      // escape hatch when an element fills the screen — there's no empty
+      // canvas left to tap, so tapping the element itself releases it and
+      // lets the user draw on top again.
+      if (!movedPastThreshold) onDeselect();
     }
 
     document.addEventListener("pointermove", onMoveDoc);
@@ -275,7 +275,11 @@ export function ElementCell({
         top: element.bbox.y,
         width: element.bbox.w,
         height: element.bbox.h,
-        pointerEvents: "auto",
+        // Drawing is primary: an unselected element lets pen strokes fall
+        // through to the canvas, so the user can doodle on top of it. It only
+        // captures pointer events (for drag/resize) once selected via a
+        // double-tap on the canvas.
+        pointerEvents: selected ? "auto" : "none",
         cursor: dragging ? "grabbing" : resizing ? "default" : "grab",
         touchAction: "none",
         outline:
@@ -335,7 +339,7 @@ export function ElementCell({
           boxShadow: "0 4px 12px rgba(0,0,0,0.18)",
           opacity: selected ? 1 : 0,
           transition: "opacity 0.15s",
-          pointerEvents: "auto",
+          pointerEvents: selected ? "auto" : "none",
         }}
         className="group-hover:!opacity-100"
       >
@@ -771,9 +775,12 @@ interface ResizeHandlesProps {
 function ResizeHandles({ mode, resizing, selected, onStart }: ResizeHandlesProps) {
   if (mode === "none") return null;
   const visible = resizing || selected;
-  const showE = mode === "flowWidth" || mode === "flowBoth";
-  const showS = mode === "flowBoth";
-  const showSE = mode === "flowBoth" || mode === "centredSquare" || mode === "centredBoth";
+  // Flow types (button, input, heading, …) get full width + height + corner
+  // handles so they can be resized to any size, not just their flow axis.
+  const flow = mode === "flowWidth" || mode === "flowBoth";
+  const showE = flow;
+  const showS = flow;
+  const showSE = flow || mode === "centredSquare" || mode === "centredBoth";
   return (
     <>
       {showE && <EdgeHandle axis="x" visible={visible} onStart={(e) => onStart(e, "e")} />}

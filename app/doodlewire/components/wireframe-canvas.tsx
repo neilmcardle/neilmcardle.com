@@ -4,7 +4,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ElementCell } from "./element-cell";
-import { clusterStrokes } from "./cluster-strokes";
+import { clusterStrokes, type StrokeCluster } from "./cluster-strokes";
 import { exportAsHtml, exportAsReact } from "./export";
 import { captureWireframePng, defaultPngFilename, savePng } from "./exportImage";
 import { LearnMyStyle } from "./learn-my-style";
@@ -82,6 +82,19 @@ function makePageId(): string {
 // persisted to localStorage so work survives an app relaunch. Trained
 // recogniser templates persist separately via template-store.
 const DOC_STORAGE_KEY = "doodlewire_document_v1";
+// Whether recognition fires automatically after an idle pause ("on") or only
+// when the user taps the Recognise button ("off").
+const AUTO_RECOGNISE_KEY = "doodlewire_auto_recognise_v1";
+// Set once the double-tap-to-select hint has been shown, so it appears only
+// the first time the user has elements on the canvas.
+const DBLTAP_HINT_KEY = "doodlewire_dbltap_hint_v1";
+
+// Double-tap gesture window: two pen taps within this time and distance read
+// as a "select an element" gesture rather than two doodles.
+const DOUBLE_TAP_MS = 300;
+const DOUBLE_TAP_DIST = 24;
+// Max pointer travel for a pen gesture to still count as a tap (not a stroke).
+const TAP_MOVE_MAX = 12;
 
 function saveDocument(pages: PageSnapshot[], currentPage: number): void {
   if (typeof window === "undefined") return;
@@ -135,7 +148,11 @@ export default function WireframeCanvas() {
     : undefined;
 
   const containerRef = useRef<HTMLDivElement>(null);
+  // Bottom canvas captures pointer events; the ink canvas sits above the
+  // recognised-elements layer and is where strokes are actually painted, so
+  // live drawing always renders on top of the wireframe boxes.
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const inkCanvasRef = useRef<HTMLCanvasElement>(null);
   const elementsLayerRef = useRef<HTMLDivElement>(null);
 
   const strokesRef = useRef<Stroke[]>(
@@ -164,6 +181,11 @@ export default function WireframeCanvas() {
   // Auto-recognise debounce. Cancelled on every new stroke and re-armed on
   // every stroke completion so recognition only fires after a true pause.
   const recogniseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Double-tap-to-select tracking. tapDownRef records where/when the current
+  // pen gesture began; lastTapRef remembers the previous quick tap so a
+  // second one nearby is read as a select gesture rather than a doodle.
+  const tapDownRef = useRef<{ t: number; x: number; y: number } | null>(null);
+  const lastTapRef = useRef<{ t: number; x: number; y: number; dotPushed: boolean } | null>(null);
 
   const [elements, setElements] = useState<WfElement[]>(
     restoredPage ? [...restoredPage.elements] : [],
@@ -177,6 +199,16 @@ export default function WireframeCanvas() {
   const [currentPage, setCurrentPage] = useState(restored?.currentPage ?? 0);
   const [mode, setMode] = useState<Mode>("pen");
   const [recognizing, setRecognizing] = useState(false);
+  // Recognition mode. When true, recognition fires after an idle pause; when
+  // false the user triggers it explicitly via the Recognise button.
+  const [autoRecognise, setAutoRecognise] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    return window.localStorage.getItem(AUTO_RECOGNISE_KEY) !== "off";
+  });
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(AUTO_RECOGNISE_KEY, autoRecognise ? "on" : "off");
+  }, [autoRecognise]);
   const [showExport, setShowExport] = useState(false);
   const [size, setSize] = useState({ w: 0, h: 0 });
   // The chrome (top bar, toolbar, pills) is hidden until the user moves the
@@ -238,10 +270,13 @@ export default function WireframeCanvas() {
       const rect = el.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       dprRef.current = dpr;
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
+      for (const c of [canvas, inkCanvasRef.current]) {
+        if (!c) continue;
+        c.width = Math.round(rect.width * dpr);
+        c.height = Math.round(rect.height * dpr);
+        c.style.width = `${rect.width}px`;
+        c.style.height = `${rect.height}px`;
+      }
       setSize({ w: rect.width, h: rect.height });
       redraw();
     }
@@ -388,7 +423,7 @@ export default function WireframeCanvas() {
   }, [flash]);
 
   const redraw = useCallback(() => {
-    const canvas = canvasRef.current;
+    const canvas = inkCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -514,8 +549,48 @@ export default function WireframeCanvas() {
       eraseAt(pt);
       return;
     }
+
+    // Double-tap to select. Two quick, near-stationary pen taps; the second,
+    // if it lands on a recognised element, selects it for dragging instead of
+    // drawing. Drawing stays primary — a single tap or any real stroke draws.
+    const now = Date.now();
+    const lt = lastTapRef.current;
+    if (
+      lt &&
+      now - lt.t < DOUBLE_TAP_MS &&
+      Math.hypot(pt.x - lt.x, pt.y - lt.y) < DOUBLE_TAP_DIST
+    ) {
+      lastTapRef.current = null;
+      cancelScheduledRecognise();
+      // Remove the dot the first tap may have left behind.
+      if (lt.dotPushed) {
+        const ss = strokesRef.current;
+        const last = ss[ss.length - 1];
+        if (last && !last.freehand && isDotStroke(last)) ss.pop();
+      }
+      const hit = topElementAt(pt);
+      setSelectedElementId(hit ? hit.id : null);
+      currentStrokeRef.current = null;
+      bumpStrokes();
+      redraw();
+      return;
+    }
+
     currentStrokeRef.current = { points: [pt], freehand: mode === "ink" };
+    tapDownRef.current = { t: now, x: pt.x, y: pt.y };
     redraw();
+  }
+
+  // Topmost recognised element whose bbox contains a document-space point.
+  // Later elements render on top, so iterate from the end.
+  function topElementAt(pt: Pt): WfElement | null {
+    for (let i = elements.length - 1; i >= 0; i--) {
+      const b = elements[i].bbox;
+      if (pt.x >= b.x && pt.x <= b.x + b.w && pt.y >= b.y && pt.y <= b.y + b.h) {
+        return elements[i];
+      }
+    }
+    return null;
   }
 
   function continueStroke(e: React.PointerEvent) {
@@ -589,20 +664,42 @@ export default function WireframeCanvas() {
       setSnipRect((prev) => (prev && (prev.w < 6 || prev.h < 6) ? null : prev));
       return;
     }
-    if (mode !== "eraser" && currentStrokeRef.current && currentStrokeRef.current.points.length > 1) {
-      strokesRef.current.push(currentStrokeRef.current);
+    const cs = currentStrokeRef.current;
+    if (mode !== "eraser" && cs && cs.points.length > 1) {
+      strokesRef.current.push(cs);
       bumpStrokes();
       // Auto-recognise on idle. Re-armed on every stroke end and cancelled
       // on every new stroke start, so the user can draw multiple strokes
       // in quick succession without recognition firing mid-sketch. Ink
       // strokes are excluded by runRecognition itself, so this path is
-      // safe regardless of mode.
-      cancelScheduledRecognise();
-      recogniseTimerRef.current = setTimeout(() => {
-        recogniseTimerRef.current = null;
-        runRecognition();
-      }, 1200);
+      // safe regardless of mode. Skipped entirely in manual mode — the user
+      // triggers recognition with the Recognise button instead.
+      if (autoRecognise) {
+        cancelScheduledRecognise();
+        recogniseTimerRef.current = setTimeout(() => {
+          recogniseTimerRef.current = null;
+          runRecognition();
+        }, 1200);
+      }
     }
+
+    // Remember a quick, near-stationary tap so the next one nearby can be read
+    // as a double-tap select. A wobble tap leaves a dot (points > 1); a still
+    // tap leaves nothing but is still worth remembering.
+    if (cs && (mode === "pen" || mode === "ink") && tapDownRef.current) {
+      const ext = strokeExtent(cs.points);
+      const elapsed = Date.now() - tapDownRef.current.t;
+      lastTapRef.current =
+        elapsed < DOUBLE_TAP_MS && ext.w <= TAP_MOVE_MAX && ext.h <= TAP_MOVE_MAX
+          ? {
+              t: Date.now(),
+              x: tapDownRef.current.x,
+              y: tapDownRef.current.y,
+              dotPushed: cs.points.length > 1,
+            }
+          : null;
+    }
+
     currentStrokeRef.current = null;
     redraw();
   }
@@ -729,16 +826,11 @@ export default function WireframeCanvas() {
     redraw();
   }
 
-  const runRecognition = useCallback(() => {
-    if (inFlightRef.current) return;
-    const recognisable = strokesRef.current.filter((s) => !s.freehand);
-    if (recognisable.length === 0) return;
-
-    // Cluster strokes by spatial proximity so each drawn element gets its
-    // own recognition pass. A user who scribbled five buttons in a row no
-    // longer ends up with a single chimeric match.
-    const clusters = clusterStrokes(recognisable);
-
+  // Recognise a specific set of clusters: rank each against trained templates,
+  // fall back to geometric classification, stamp the elements, and clear the
+  // strokes that were consumed. Shared by auto-recognition (all clusters) and
+  // the per-doodle Recognise buttons (a single cluster).
+  const recogniseClusters = useCallback((clusters: StrokeCluster<Stroke>[]) => {
     const stamped: WfElement[] = [];
     const matchedStrokes = new Set<Stroke>();
 
@@ -790,7 +882,12 @@ export default function WireframeCanvas() {
     if (stamped.length > 0) {
       strokesRef.current = strokesRef.current.filter((s) => s.freehand || !matchedStrokes.has(s));
       setElements((prev) => [...prev, ...stamped]);
-      if (stamped.length === 1) {
+      // First successful recognition: teach the (otherwise hidden) drag
+      // gesture once, since elements no longer grab single taps.
+      if (typeof window !== "undefined" && window.localStorage.getItem(DBLTAP_HINT_KEY) !== "shown") {
+        window.localStorage.setItem(DBLTAP_HINT_KEY, "shown");
+        setFlash({ kind: "info", text: "Double-tap an element to move it" });
+      } else if (stamped.length === 1) {
         setFlash({ kind: "local", text: `Matched as ${stamped[0].type}` });
       } else {
         setFlash({ kind: "local", text: `Matched ${stamped.length} elements` });
@@ -815,6 +912,16 @@ export default function WireframeCanvas() {
       },
     });
   }, [redraw, bumpStrokes]);
+
+  // Recognise everything on the canvas at once. Used by auto-recognition (on
+  // idle) and is the all-in-one path; per-doodle buttons call recogniseClusters
+  // with just their own cluster.
+  const runRecognition = useCallback(() => {
+    if (inFlightRef.current) return;
+    const recognisable = strokesRef.current.filter((s) => !s.freehand);
+    if (recognisable.length === 0) return;
+    recogniseClusters(clusterStrokes(recognisable));
+  }, [recogniseClusters]);
 
   function clearAll() {
     strokesRef.current = [];
@@ -1053,9 +1160,7 @@ export default function WireframeCanvas() {
             key={el.id}
             element={el}
             selected={selectedElementId === el.id}
-            onSelect={() =>
-              setSelectedElementId((current) => (current === el.id ? null : el.id))
-            }
+            onDeselect={() => setSelectedElementId(null)}
             onMove={(dx, dy) => moveElement(el.id, dx, dy)}
             onResize={(bbox) => resizeElement(el.id, bbox)}
             onRemove={() => removeElement(el.id)}
@@ -1070,6 +1175,25 @@ export default function WireframeCanvas() {
           />
         ))}
       </div>
+
+      {/* Ink overlay. Sits above the elements layer so live and committed
+          doodles always render on top of the recognised wireframe boxes.
+          pointerEvents: none so it never intercepts — the bottom canvas
+          handles all gestures, and selected-element handles below stay
+          reachable. */}
+      <canvas
+        ref={inkCanvasRef}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          display: "block",
+          pointerEvents: "none",
+          transform: `translateY(${-keyboardShift}px)`,
+          transition: "transform 0.2s ease",
+        }}
+      />
 
       {(elements.length > 0 || strokesRef.current.length > 0 || scrollY > 0) && (
         <ScrollHandle
@@ -1114,6 +1238,8 @@ export default function WireframeCanvas() {
           canDeletePage={pages.length > 1}
           templateCount={templateCount}
           hasContent={elements.length > 0 || strokesRef.current.length > 0}
+          autoRecognise={autoRecognise}
+          onToggleAutoRecognise={() => setAutoRecognise((v) => !v)}
         />
         {dotIndices.map(({ index, x, y }) => (
           <DotDeleteButton
@@ -1123,6 +1249,21 @@ export default function WireframeCanvas() {
             onClick={() => removeStrokeAt(index)}
           />
         ))}
+        {/* Manual mode: a Recognise button floats beside each separate doodle
+            so the user can convert them one at a time. Hidden in auto mode. */}
+        {!autoRecognise &&
+          clusterStrokes(strokesRef.current.filter((s) => !s.freehand)).map((cluster, i) => {
+            const b = aggregateStrokeBbox(cluster.strokes);
+            if (b.w <= DOT_THRESHOLD && b.h <= DOT_THRESHOLD) return null;
+            return (
+              <ClusterRecogniseButton
+                key={`rec-${i}-${Math.round(b.x)}-${Math.round(b.y)}`}
+                x={b.x + b.w}
+                y={b.y - scrollY}
+                onClick={() => recogniseClusters([cluster])}
+              />
+            );
+          })}
         {snipRect && !snipDragging && snipRect.w >= 6 && snipRect.h >= 6 && (
           <SnipActionBar
             rect={snipRect}
@@ -1172,6 +1313,24 @@ export default function WireframeCanvas() {
 // an accidental click rather than an intentional mark. We surface a small ×
 // next to each so they can be removed without switching to the eraser.
 const DOT_THRESHOLD = 6;
+
+// Width/height span of a set of points. Used to tell a tap from a stroke.
+function strokeExtent(points: Pt[]): { w: number; h: number } {
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const p of points) {
+    if (p.x < minX) minX = p.x;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.y > maxY) maxY = p.y;
+  }
+  if (!isFinite(minX)) return { w: 0, h: 0 };
+  return { w: maxX - minX, h: maxY - minY };
+}
+
+function isDotStroke(stroke: Stroke): boolean {
+  const ext = strokeExtent(stroke.points);
+  return ext.w <= DOT_THRESHOLD && ext.h <= DOT_THRESHOLD;
+}
 
 function findDotStrokes(strokes: Stroke[]): { index: number; x: number; y: number }[] {
   const out: { index: number; x: number; y: number }[] = [];
@@ -1257,6 +1416,51 @@ function DotDeleteButton({ x, y, onClick }: { x: number; y: number; onClick: () 
       }}
     >
       ×
+    </button>
+  );
+}
+
+// Floats beside an un-recognised doodle in manual mode. Tapping it recognises
+// just that doodle's cluster into a wireframe element.
+function ClusterRecogniseButton({ x, y, onClick }: { x: number; y: number; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      data-skip-export="1"
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      aria-label="Recognise this drawing"
+      title="Recognise this drawing"
+      style={{
+        position: "absolute",
+        left: x + 8,
+        top: y - 6,
+        height: 28,
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "0 10px",
+        background: "#0a0a0a",
+        color: "#ffffff",
+        border: "none",
+        borderRadius: 999,
+        fontSize: 11,
+        fontWeight: 600,
+        whiteSpace: "nowrap",
+        cursor: "pointer",
+        pointerEvents: "auto",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+        zIndex: 46,
+      }}
+    >
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="11" height="11" rx="2" />
+        <circle cx="16" cy="16" r="5" />
+      </svg>
+      Recognise
     </button>
   );
 }
@@ -1761,6 +1965,8 @@ interface ToolbarProps {
   canDeletePage: boolean;
   templateCount: number;
   hasContent: boolean;
+  autoRecognise: boolean;
+  onToggleAutoRecognise: () => void;
 }
 
 function Toolbar({
@@ -1774,6 +1980,8 @@ function Toolbar({
   canDeletePage,
   templateCount,
   hasContent,
+  autoRecognise,
+  onToggleAutoRecognise,
 }: ToolbarProps) {
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -1914,6 +2122,55 @@ function Toolbar({
               </svg>
             }
           />
+          <div style={{ width: 1, height: 20, background: "rgba(0,0,0,0.08)", margin: "0 4px" }} />
+          <button
+            type="button"
+            onClick={onToggleAutoRecognise}
+            aria-label={`Auto-gen ${autoRecognise ? "on" : "off"}`}
+            title={`Auto-generate is ${autoRecognise ? "on" : "off"} — tap to turn ${autoRecognise ? "off" : "on"}`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              height: 32,
+              padding: "0 10px",
+              borderRadius: 999,
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              color: "rgba(0,0,0,0.7)",
+              fontSize: 11,
+              fontWeight: 600,
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span>Auto-gen</span>
+            <span
+              aria-hidden="true"
+              style={{
+                position: "relative",
+                width: 30,
+                height: 17,
+                flexShrink: 0,
+                borderRadius: 999,
+                background: autoRecognise ? "#0a0a0a" : "rgba(0,0,0,0.2)",
+                transition: "background 0.15s",
+              }}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  top: 2,
+                  left: autoRecognise ? 15 : 2,
+                  width: 13,
+                  height: 13,
+                  borderRadius: 999,
+                  background: "#ffffff",
+                  transition: "left 0.15s",
+                }}
+              />
+            </span>
+          </button>
           <div style={{ width: 1, height: 20, background: "rgba(0,0,0,0.08)", margin: "0 4px" }} />
         </>
       )}
