@@ -9,7 +9,7 @@ import { exportAsHtml, exportAsReact } from "./export";
 import { captureWireframePng, defaultPngFilename, savePng } from "./exportImage";
 import { LearnMyStyle } from "./learn-my-style";
 import { normalize, rankTemplates } from "./point-cloud-recognizer";
-import { classifyShape } from "./shape-heuristics";
+import { classifyShape, type ShapeGuess } from "./shape-heuristics";
 import { snapToStandard } from "./snap-size";
 import {
   deleteTemplate,
@@ -54,13 +54,16 @@ export interface WfElement {
   // a filled "primary" button and an outlined "secondary" button. Absent
   // buttons render as primary.
   variant?: "primary" | "secondary";
+  // Secondary text. Currently the editable body copy of a card (the title
+  // uses `label`).
+  body?: string;
 }
 
 type Pt = { x: number; y: number };
 // freehand strokes are user annotations / sketches. They render in a softer
 // grey, never trigger recognition, and never appear in exported output.
 type Stroke = { points: Pt[]; freehand?: boolean };
-type Mode = "pen" | "ink" | "eraser" | "snip";
+type Mode = "pen" | "ink" | "eraser" | "snip" | "move";
 type SnipRect = { x: number; y: number; w: number; h: number };
 
 // One page of the document. The currently-viewed page's elements/strokes/
@@ -85,16 +88,9 @@ const DOC_STORAGE_KEY = "doodlewire_document_v1";
 // Whether recognition fires automatically after an idle pause ("on") or only
 // when the user taps the Recognise button ("off").
 const AUTO_RECOGNISE_KEY = "doodlewire_auto_recognise_v1";
-// Set once the double-tap-to-select hint has been shown, so it appears only
-// the first time the user has elements on the canvas.
-const DBLTAP_HINT_KEY = "doodlewire_dbltap_hint_v1";
-
-// Double-tap gesture window: two pen taps within this time and distance read
-// as a "select an element" gesture rather than two doodles.
-const DOUBLE_TAP_MS = 300;
-const DOUBLE_TAP_DIST = 24;
-// Max pointer travel for a pen gesture to still count as a tap (not a stroke).
-const TAP_MOVE_MAX = 12;
+// Set once the move-tool hint has been shown, so it appears only the first
+// time the user has elements on the canvas.
+const MOVE_HINT_KEY = "doodlewire_move_hint_v1";
 
 function saveDocument(pages: PageSnapshot[], currentPage: number): void {
   if (typeof window === "undefined") return;
@@ -181,11 +177,6 @@ export default function WireframeCanvas() {
   // Auto-recognise debounce. Cancelled on every new stroke and re-armed on
   // every stroke completion so recognition only fires after a true pause.
   const recogniseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Double-tap-to-select tracking. tapDownRef records where/when the current
-  // pen gesture began; lastTapRef remembers the previous quick tap so a
-  // second one nearby is read as a select gesture rather than a doodle.
-  const tapDownRef = useRef<{ t: number; x: number; y: number } | null>(null);
-  const lastTapRef = useRef<{ t: number; x: number; y: number; dotPushed: boolean } | null>(null);
 
   const [elements, setElements] = useState<WfElement[]>(
     restoredPage ? [...restoredPage.elements] : [],
@@ -226,6 +217,16 @@ export default function WireframeCanvas() {
   // for redraw performance.
   const [strokeRev, setStrokeRev] = useState(0);
   const bumpStrokes = useCallback(() => setStrokeRev((n) => n + 1), []);
+
+  // Undo/redo history of full-document snapshots (elements + strokes). A
+  // debounced effect records a snapshot once changes settle; restoringRef
+  // stops a restore from recording itself as a new history entry.
+  const historyRef = useRef<{ elements: WfElement[]; strokes: Stroke[] }[]>([]);
+  const historyIdxRef = useRef(-1);
+  const restoringRef = useRef(false);
+  const snapshotTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
 
   // Marquee crop. Live during drag, persists after release for the user to
   // confirm download or cancel. Cleared whenever snip mode is exited.
@@ -452,6 +453,62 @@ export default function WireframeCanvas() {
     if (currentStrokeRef.current) drawStroke(currentStrokeRef.current);
   }, []);
 
+  // --- Undo / redo -----------------------------------------------------
+  const recordSnapshot = useCallback(() => {
+    const snap = {
+      elements: elements.map((e) => ({ ...e, bbox: { ...e.bbox } })),
+      strokes: strokesRef.current.map((s) => ({ ...s, points: s.points.slice() })),
+    };
+    const hist = historyRef.current.slice(0, historyIdxRef.current + 1);
+    hist.push(snap);
+    if (hist.length > 80) hist.shift();
+    historyRef.current = hist;
+    historyIdxRef.current = hist.length - 1;
+    setCanUndo(historyIdxRef.current > 0);
+    setCanRedo(false);
+  }, [elements]);
+
+  // Record a snapshot once edits settle. Skips the change a restore caused.
+  useEffect(() => {
+    if (restoringRef.current) {
+      restoringRef.current = false;
+      return;
+    }
+    if (snapshotTimerRef.current) clearTimeout(snapshotTimerRef.current);
+    snapshotTimerRef.current = setTimeout(() => {
+      snapshotTimerRef.current = null;
+      recordSnapshot();
+    }, 400);
+    return () => {
+      if (snapshotTimerRef.current) clearTimeout(snapshotTimerRef.current);
+    };
+  }, [elements, strokeRev, recordSnapshot]);
+
+  function restoreSnapshot(snap: { elements: WfElement[]; strokes: Stroke[] }) {
+    restoringRef.current = true;
+    setElements(snap.elements.map((e) => ({ ...e, bbox: { ...e.bbox } })));
+    strokesRef.current = snap.strokes.map((s) => ({ ...s, points: s.points.slice() }));
+    setSelectedElementId(null);
+    bumpStrokes();
+    redraw();
+  }
+
+  function undo() {
+    if (historyIdxRef.current <= 0) return;
+    historyIdxRef.current -= 1;
+    restoreSnapshot(historyRef.current[historyIdxRef.current]);
+    setCanUndo(historyIdxRef.current > 0);
+    setCanRedo(true);
+  }
+
+  function redo() {
+    if (historyIdxRef.current >= historyRef.current.length - 1) return;
+    historyIdxRef.current += 1;
+    restoreSnapshot(historyRef.current[historyIdxRef.current]);
+    setCanUndo(true);
+    setCanRedo(historyIdxRef.current < historyRef.current.length - 1);
+  }
+
   // Document-space point — y includes the scroll offset, so strokes and
   // elements live in a coordinate system independent of how far the page
   // is scrolled.
@@ -537,6 +594,11 @@ export default function WireframeCanvas() {
     setSelectedElementId(null);
     cancelScheduledRecognise();
 
+    // Move mode never draws. Element cells handle their own drag/select; a
+    // pointer-down that reaches the canvas is empty space, so selection is
+    // cleared (above) and we stop here.
+    if (mode === "move") return;
+
     if (mode === "snip") {
       const sp = getScreenPoint(e);
       snipStartRef.current = sp;
@@ -550,47 +612,8 @@ export default function WireframeCanvas() {
       return;
     }
 
-    // Double-tap to select. Two quick, near-stationary pen taps; the second,
-    // if it lands on a recognised element, selects it for dragging instead of
-    // drawing. Drawing stays primary — a single tap or any real stroke draws.
-    const now = Date.now();
-    const lt = lastTapRef.current;
-    if (
-      lt &&
-      now - lt.t < DOUBLE_TAP_MS &&
-      Math.hypot(pt.x - lt.x, pt.y - lt.y) < DOUBLE_TAP_DIST
-    ) {
-      lastTapRef.current = null;
-      cancelScheduledRecognise();
-      // Remove the dot the first tap may have left behind.
-      if (lt.dotPushed) {
-        const ss = strokesRef.current;
-        const last = ss[ss.length - 1];
-        if (last && !last.freehand && isDotStroke(last)) ss.pop();
-      }
-      const hit = topElementAt(pt);
-      setSelectedElementId(hit ? hit.id : null);
-      currentStrokeRef.current = null;
-      bumpStrokes();
-      redraw();
-      return;
-    }
-
     currentStrokeRef.current = { points: [pt], freehand: mode === "ink" };
-    tapDownRef.current = { t: now, x: pt.x, y: pt.y };
     redraw();
-  }
-
-  // Topmost recognised element whose bbox contains a document-space point.
-  // Later elements render on top, so iterate from the end.
-  function topElementAt(pt: Pt): WfElement | null {
-    for (let i = elements.length - 1; i >= 0; i--) {
-      const b = elements[i].bbox;
-      if (pt.x >= b.x && pt.x <= b.x + b.w && pt.y >= b.y && pt.y <= b.y + b.h) {
-        return elements[i];
-      }
-    }
-    return null;
   }
 
   function continueStroke(e: React.PointerEvent) {
@@ -683,23 +706,6 @@ export default function WireframeCanvas() {
       }
     }
 
-    // Remember a quick, near-stationary tap so the next one nearby can be read
-    // as a double-tap select. A wobble tap leaves a dot (points > 1); a still
-    // tap leaves nothing but is still worth remembering.
-    if (cs && (mode === "pen" || mode === "ink") && tapDownRef.current) {
-      const ext = strokeExtent(cs.points);
-      const elapsed = Date.now() - tapDownRef.current.t;
-      lastTapRef.current =
-        elapsed < DOUBLE_TAP_MS && ext.w <= TAP_MOVE_MAX && ext.h <= TAP_MOVE_MAX
-          ? {
-              t: Date.now(),
-              x: tapDownRef.current.x,
-              y: tapDownRef.current.y,
-              dotPushed: cs.points.length > 1,
-            }
-          : null;
-    }
-
     currentStrokeRef.current = null;
     redraw();
   }
@@ -710,6 +716,9 @@ export default function WireframeCanvas() {
       setSnipDragging(false);
       snipStartRef.current = null;
     }
+    // Selection is a Move-mode concept — leaving Move clears it so the
+    // floating toolbar/handles don't linger and capture taps while drawing.
+    if (next !== "move") setSelectedElementId(null);
     setMode(next);
   }
 
@@ -854,13 +863,16 @@ export default function WireframeCanvas() {
         // classification so an untrained / first-time doodle still
         // produces something. A detected container is always a card.
         // Heuristic guesses carry no templateId.
-        const guess = isContainer
-          ? { type: "card" as ElementType, confidence: 0.6 }
+        const guess: ShapeGuess | null = isContainer
+          ? { type: "card", confidence: 0.6 }
           : classifyShape(strokesAtCall);
         if (guess) {
           stamped.push({
             id: `${Date.now()}-${stamped.length}-geo`,
             type: guess.type,
+            // Carry the icon label (close/check/menu/radio/checkbox) so the
+            // out-of-the-box recognised glyph renders, not a blank square.
+            label: guess.label,
             bbox: snapToStandard(guess.type, bbox),
           });
           for (const s of cluster) matchedStrokes.add(s);
@@ -882,11 +894,11 @@ export default function WireframeCanvas() {
     if (stamped.length > 0) {
       strokesRef.current = strokesRef.current.filter((s) => s.freehand || !matchedStrokes.has(s));
       setElements((prev) => [...prev, ...stamped]);
-      // First successful recognition: teach the (otherwise hidden) drag
-      // gesture once, since elements no longer grab single taps.
-      if (typeof window !== "undefined" && window.localStorage.getItem(DBLTAP_HINT_KEY) !== "shown") {
-        window.localStorage.setItem(DBLTAP_HINT_KEY, "shown");
-        setFlash({ kind: "info", text: "Double-tap an element to move it" });
+      // First successful recognition: point the user at the Move tool once,
+      // since elements are inert (draw-through) until they switch to it.
+      if (typeof window !== "undefined" && window.localStorage.getItem(MOVE_HINT_KEY) !== "shown") {
+        window.localStorage.setItem(MOVE_HINT_KEY, "shown");
+        setFlash({ kind: "info", text: "Use the Move tool to drag or edit elements" });
       } else if (stamped.length === 1) {
         setFlash({ kind: "local", text: `Matched as ${stamped[0].type}` });
       } else {
@@ -923,15 +935,6 @@ export default function WireframeCanvas() {
     recogniseClusters(clusterStrokes(recognisable));
   }, [recogniseClusters]);
 
-  function clearAll() {
-    strokesRef.current = [];
-    currentStrokeRef.current = null;
-    setElements([]);
-    scrollYRef.current = 0;
-    setScrollY(0);
-    bumpStrokes();
-    redraw();
-  }
 
   // Snapshot the live current-page state back into pages[]. The arrays are
   // copied so a stored page never shares a reference with the live state —
@@ -1018,9 +1021,45 @@ export default function WireframeCanvas() {
     setElements((prev) => prev.map((e) => (e.id === id ? { ...e, label } : e)));
   }
 
+  function updateBody(id: string, body: string) {
+    setElements((prev) => prev.map((e) => (e.id === id ? { ...e, body } : e)));
+  }
+
+  function duplicateElement(id: string) {
+    setElements((prev) => {
+      const idx = prev.findIndex((e) => e.id === id);
+      if (idx === -1) return prev;
+      const orig = prev[idx];
+      const copy: WfElement = {
+        ...orig,
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}-dup`,
+        templateId: undefined,
+        bbox: { ...orig.bbox, x: orig.bbox.x + 16, y: orig.bbox.y + 16 },
+      };
+      const next = [...prev];
+      next.splice(idx + 1, 0, copy);
+      return next;
+    });
+  }
+
   function updateType(id: string, type: ElementType) {
     setElements((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, type, bbox: snapToStandard(type, e.bbox) } : e)),
+      prev.map((e) =>
+        e.id === id
+          ? {
+              // Reset type-specific metadata so a stale value doesn't leak
+              // across a type change — e.g. an icon labelled "cloud" must not
+              // keep showing "cloud" once it becomes a link or text element.
+              ...e,
+              type,
+              label: undefined,
+              body: undefined,
+              level: undefined,
+              variant: undefined,
+              bbox: snapToStandard(type, e.bbox),
+            }
+          : e,
+      ),
     );
   }
 
@@ -1100,7 +1139,7 @@ export default function WireframeCanvas() {
         touchAction: "none",
         overscrollBehavior: "none",
         background: "#ffffff",
-        cursor: mode === "eraser" ? "cell" : "crosshair",
+        cursor: mode === "eraser" ? "cell" : mode === "move" ? "default" : "crosshair",
         fontFamily: "var(--font-inter, system-ui, sans-serif)",
       }}
     >
@@ -1160,11 +1199,16 @@ export default function WireframeCanvas() {
             key={el.id}
             element={el}
             selected={selectedElementId === el.id}
-            onDeselect={() => setSelectedElementId(null)}
+            interactive={mode === "move"}
+            onSelect={() =>
+              setSelectedElementId((current) => (current === el.id ? null : el.id))
+            }
             onMove={(dx, dy) => moveElement(el.id, dx, dy)}
             onResize={(bbox) => resizeElement(el.id, bbox)}
             onRemove={() => removeElement(el.id)}
+            onDuplicate={() => duplicateElement(el.id)}
             onLabelChange={(label) => updateLabel(el.id, label)}
+            onBodyChange={(body) => updateBody(el.id, body)}
             onTypeChange={(type) => updateType(el.id, type)}
             onLevelChange={(level) => updateLevel(el.id, level)}
             onVariantChange={(variant) => updateVariant(el.id, variant)}
@@ -1227,10 +1271,12 @@ export default function WireframeCanvas() {
           onSelect={switchToPage}
           onAdd={addPage}
         />
+        {(canUndo || canRedo) && (
+          <UndoRedoBar canUndo={canUndo} canRedo={canRedo} onUndo={undo} onRedo={redo} />
+        )}
         <Toolbar
           mode={mode}
           setMode={changeMode}
-          onClear={clearAll}
           onExport={() => setShowExport(true)}
           onLearn={() => setLearnOpen(true)}
           onDeletePage={deleteCurrentPage}
@@ -1313,24 +1359,6 @@ export default function WireframeCanvas() {
 // an accidental click rather than an intentional mark. We surface a small ×
 // next to each so they can be removed without switching to the eraser.
 const DOT_THRESHOLD = 6;
-
-// Width/height span of a set of points. Used to tell a tap from a stroke.
-function strokeExtent(points: Pt[]): { w: number; h: number } {
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (const p of points) {
-    if (p.x < minX) minX = p.x;
-    if (p.x > maxX) maxX = p.x;
-    if (p.y < minY) minY = p.y;
-    if (p.y > maxY) maxY = p.y;
-  }
-  if (!isFinite(minX)) return { w: 0, h: 0 };
-  return { w: maxX - minX, h: maxY - minY };
-}
-
-function isDotStroke(stroke: Stroke): boolean {
-  const ext = strokeExtent(stroke.points);
-  return ext.w <= DOT_THRESHOLD && ext.h <= DOT_THRESHOLD;
-}
 
 function findDotStrokes(strokes: Stroke[]): { index: number; x: number; y: number }[] {
   const out: { index: number; x: number; y: number }[] = [];
@@ -1954,10 +1982,62 @@ function FlashPill({ message }: { message: FlashMessage | null }) {
   );
 }
 
+// Secondary toolbar — a small pill sitting just above the primary toolbar,
+// holding undo / redo.
+function UndoRedoBar({
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
+}: {
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
+}) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        // Clears the primary toolbar (bottom 24 + ~40 tall) plus a small gap.
+        bottom: "calc(76px + env(safe-area-inset-bottom, 0px))",
+        left: "50%",
+        transform: "translateX(-50%)",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        background: "#ffffff",
+        border: "1px solid rgba(0,0,0,0.1)",
+        borderRadius: 999,
+        padding: 4,
+        boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.08)",
+        zIndex: 40,
+        pointerEvents: "auto",
+      }}
+    >
+      <ToolBtn onClick={onUndo} disabled={!canUndo} label="Undo"
+        icon={
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 7v6h6" />
+            <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+          </svg>
+        }
+      />
+      <ToolBtn onClick={onRedo} disabled={!canRedo} label="Redo"
+        icon={
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 7v6h-6" />
+            <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+          </svg>
+        }
+      />
+    </div>
+  );
+}
+
 interface ToolbarProps {
   mode: Mode;
   setMode: (m: Mode) => void;
-  onClear: () => void;
   onExport: () => void;
   onLearn: () => void;
   onDeletePage: () => void;
@@ -1972,7 +2052,6 @@ interface ToolbarProps {
 function Toolbar({
   mode,
   setMode,
-  onClear,
   onExport,
   onLearn,
   onDeletePage,
@@ -2048,16 +2127,6 @@ function Toolbar({
     };
   }, [confirmingClear]);
 
-  function handleClearClick() {
-    if (!hasContent) return;
-    if (!confirmingClear) {
-      setConfirmingClear(true);
-      return;
-    }
-    setConfirmingClear(false);
-    onClear();
-  }
-
   return (
     <div
       style={{
@@ -2079,6 +2148,19 @@ function Toolbar({
     >
       {!confirmingClear && (
         <>
+          <ToolBtn
+            active={mode === "move"}
+            onClick={() => setMode("move")}
+            label="Move (drag, resize & edit elements)"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2" />
+                <path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2" />
+                <path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8" />
+                <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+              </svg>
+            }
+          />
           <ToolBtn
             active={mode === "pen"}
             onClick={() => setMode("pen")}
@@ -2123,147 +2205,8 @@ function Toolbar({
             }
           />
           <div style={{ width: 1, height: 20, background: "rgba(0,0,0,0.08)", margin: "0 4px" }} />
-          <button
-            type="button"
-            onClick={onToggleAutoRecognise}
-            aria-label={`Auto-gen ${autoRecognise ? "on" : "off"}`}
-            title={`Auto-generate is ${autoRecognise ? "on" : "off"} — tap to turn ${autoRecognise ? "off" : "on"}`}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              height: 32,
-              padding: "0 10px",
-              borderRadius: 999,
-              border: "none",
-              background: "transparent",
-              cursor: "pointer",
-              color: "rgba(0,0,0,0.7)",
-              fontSize: 11,
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-            }}
-          >
-            <span>Auto-gen</span>
-            <span
-              aria-hidden="true"
-              style={{
-                position: "relative",
-                width: 30,
-                height: 17,
-                flexShrink: 0,
-                borderRadius: 999,
-                background: autoRecognise ? "#0a0a0a" : "rgba(0,0,0,0.2)",
-                transition: "background 0.15s",
-              }}
-            >
-              <span
-                style={{
-                  position: "absolute",
-                  top: 2,
-                  left: autoRecognise ? 15 : 2,
-                  width: 13,
-                  height: 13,
-                  borderRadius: 999,
-                  background: "#ffffff",
-                  transition: "left 0.15s",
-                }}
-              />
-            </span>
-          </button>
-          <div style={{ width: 1, height: 20, background: "rgba(0,0,0,0.08)", margin: "0 4px" }} />
         </>
       )}
-      <motion.div
-        layout
-        transition={{ type: "spring", stiffness: 260, damping: 32, mass: 0.9 }}
-        style={{ display: "inline-flex", alignItems: "center", overflow: "hidden" }}
-      >
-        <AnimatePresence mode="popLayout" initial={false}>
-          {confirmingClear ? (
-            <motion.div
-              key="confirm"
-              data-clear-confirm="1"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                background: "#0a0a0a",
-                color: "#ffffff",
-                borderRadius: 999,
-                padding: "0 4px 0 12px",
-                height: 32,
-                fontSize: 12,
-                fontWeight: 600,
-                whiteSpace: "nowrap",
-                transformOrigin: "left center",
-              }}
-            >
-              <span>Clear all?</span>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); setConfirmingClear(false); }}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  color: "rgba(255,255,255,0.8)",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  padding: "0 10px",
-                  height: 24,
-                  borderRadius: 999,
-                  cursor: "pointer",
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleClearClick(); }}
-                style={{
-                  background: "#dc2626",
-                  border: "none",
-                  color: "#ffffff",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  padding: "0 12px",
-                  height: 24,
-                  borderRadius: 999,
-                  cursor: "pointer",
-                }}
-              >
-                Clear
-              </button>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="bin"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
-              style={{ display: "inline-flex", transformOrigin: "left center" }}
-            >
-              <ToolBtn
-                onClick={handleClearClick}
-                label="Clear"
-                disabled={!hasContent}
-                icon={
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 6h18" />
-                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                  </svg>
-                }
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
       {!confirmingClear && (
         <>
           <button
@@ -2329,6 +2272,59 @@ function Toolbar({
                     onLearn();
                   }}
                 />
+                <button
+                  type="button"
+                  onClick={onToggleAutoRecognise}
+                  aria-label={`Auto-recognise ${autoRecognise ? "on" : "off"}`}
+                  style={{
+                    width: "100%",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "8px 10px",
+                    background: "transparent",
+                    border: "none",
+                    borderRadius: 6,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#0a0a0a",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.05)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = "transparent";
+                  }}
+                >
+                  <span style={{ flex: 1 }}>Auto-recognise</span>
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      position: "relative",
+                      width: 34,
+                      height: 20,
+                      flexShrink: 0,
+                      borderRadius: 999,
+                      background: autoRecognise ? "#0a0a0a" : "rgba(0,0,0,0.2)",
+                      transition: "background 0.15s",
+                    }}
+                  >
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: 2,
+                        left: autoRecognise ? 16 : 2,
+                        width: 16,
+                        height: 16,
+                        borderRadius: 999,
+                        background: "#ffffff",
+                        transition: "left 0.15s",
+                      }}
+                    />
+                  </span>
+                </button>
                 <SettingsItem
                   label="Support development"
                   icon={

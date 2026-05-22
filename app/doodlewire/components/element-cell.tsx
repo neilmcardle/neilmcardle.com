@@ -8,11 +8,17 @@ import { getResizeMode, resizeBbox, type ResizeHandle } from "./snap-size";
 interface ElementCellProps {
   element: WfElement;
   selected: boolean;
-  onDeselect: () => void;
+  // True only in Move mode — the element captures pointer events for
+  // selecting, dragging, resizing and text editing. In other modes it's
+  // inert so the user can draw straight over it.
+  interactive: boolean;
+  onSelect: () => void;
   onMove: (dx: number, dy: number) => void;
   onResize: (bbox: WfElement["bbox"]) => void;
   onRemove: () => void;
+  onDuplicate: () => void;
   onLabelChange: (label: string) => void;
+  onBodyChange: (body: string) => void;
   onTypeChange: (type: ElementType) => void;
   onLevelChange: (level: number) => void;
   onVariantChange: (variant: "primary" | "secondary") => void;
@@ -31,11 +37,14 @@ const TAP_DRAG_THRESHOLD = 8;
 export function ElementCell({
   element,
   selected,
-  onDeselect,
+  interactive,
+  onSelect,
   onMove,
   onResize,
   onRemove,
+  onDuplicate,
   onLabelChange,
+  onBodyChange,
   onTypeChange,
   onLevelChange,
   onVariantChange,
@@ -209,11 +218,9 @@ export function ElementCell({
       document.removeEventListener("pointerup", onUpDoc);
       document.removeEventListener("pointercancel", onUpDoc);
       setDragging(false);
-      // A tap (no drag) on the selected element deselects it. This is the
-      // escape hatch when an element fills the screen — there's no empty
-      // canvas left to tap, so tapping the element itself releases it and
-      // lets the user draw on top again.
-      if (!movedPastThreshold) onDeselect();
+      // A tap (no drag) in Move mode toggles selection — selecting shows the
+      // toolbar/handles; tapping again (or tapping empty canvas) deselects.
+      if (!movedPastThreshold) onSelect();
     }
 
     document.addEventListener("pointermove", onMoveDoc);
@@ -275,11 +282,11 @@ export function ElementCell({
         top: element.bbox.y,
         width: element.bbox.w,
         height: element.bbox.h,
-        // Drawing is primary: an unselected element lets pen strokes fall
-        // through to the canvas, so the user can doodle on top of it. It only
-        // captures pointer events (for drag/resize) once selected via a
-        // double-tap on the canvas.
-        pointerEvents: selected ? "auto" : "none",
+        // Drawing is primary: outside Move mode the element lets pen strokes
+        // fall through to the canvas so the user can doodle on top of it. It
+        // only captures pointer events (select / drag / resize / edit text)
+        // while the Move tool is active.
+        pointerEvents: interactive ? "auto" : "none",
         cursor: dragging ? "grabbing" : resizing ? "default" : "grab",
         touchAction: "none",
         outline:
@@ -303,13 +310,18 @@ export function ElementCell({
           }}
         />
       )}
-      {renderElement(element, onLabelChange, (h) => {
-        // The text element auto-grows: apply the measured height as a
-        // height-only resize so the bbox follows the wrapped text.
-        if (Math.abs(h - element.bbox.h) > 0.5) {
-          onResize({ ...element.bbox, h });
-        }
-      })}
+      {renderElement(
+        element,
+        onLabelChange,
+        (h) => {
+          // The text element auto-grows: apply the measured height as a
+          // height-only resize so the bbox follows the wrapped text.
+          if (Math.abs(h - element.bbox.h) > 0.5) {
+            onResize({ ...element.bbox, h });
+          }
+        },
+        onBodyChange,
+      )}
       <ResizeHandles
         mode={resizeMode}
         resizing={resizing}
@@ -460,6 +472,12 @@ export function ElementCell({
           </svg>
         </ToolBtn>
         <Divider />
+        <ToolBtn label="Duplicate" onClick={(e) => { e.stopPropagation(); onDuplicate(); }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="9" y="9" width="11" height="11" rx="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+        </ToolBtn>
         <ToolBtn label="Delete" onClick={(e) => { e.stopPropagation(); onRemove(); }}>
           <span style={{ fontSize: 14, lineHeight: 1, padding: "0 2px" }}>×</span>
         </ToolBtn>
@@ -775,12 +793,13 @@ interface ResizeHandlesProps {
 function ResizeHandles({ mode, resizing, selected, onStart }: ResizeHandlesProps) {
   if (mode === "none") return null;
   const visible = resizing || selected;
-  // Flow types (button, input, heading, …) get full width + height + corner
-  // handles so they can be resized to any size, not just their flow axis.
-  const flow = mode === "flowWidth" || mode === "flowBoth";
-  const showE = flow;
-  const showS = flow;
-  const showSE = flow || mode === "centredSquare" || mode === "centredBoth";
+  // Resize axes per type: width-flow elements (button, input, dropdown, …)
+  // only stretch horizontally; flowBoth (card, image) get width, height and
+  // corner; centred types resize uniformly from the corner. Sizing within
+  // each axis is free (continuous) — see resizeBbox.
+  const showE = mode === "flowWidth" || mode === "flowBoth";
+  const showS = mode === "flowBoth";
+  const showSE = mode === "flowBoth" || mode === "centredSquare" || mode === "centredBoth";
   return (
     <>
       {showE && <EdgeHandle axis="x" visible={visible} onStart={(e) => onStart(e, "e")} />}

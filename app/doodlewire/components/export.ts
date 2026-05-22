@@ -177,7 +177,7 @@ function reactChild(el: WfElement, indent: string, imports: Record<string, Set<s
       addImport(imports, "@/components/ui/card", "CardContent");
       addImport(imports, "@/components/ui/card", "CardHeader");
       addImport(imports, "@/components/ui/card", "CardTitle");
-      return `${indent}<Card className="w-full h-full">\n${indent}  <CardHeader>\n${indent}    <CardTitle>${label || "Card title"}</CardTitle>\n${indent}  </CardHeader>\n${indent}  <CardContent className="text-sm text-muted-foreground">Card body content.</CardContent>\n${indent}</Card>`;
+      return `${indent}<Card className="w-full h-full">\n${indent}  <CardHeader>\n${indent}    <CardTitle>${label || "Card title"}</CardTitle>\n${indent}  </CardHeader>\n${indent}  <CardContent className="text-sm text-muted-foreground">${el.body || "Card body content."}</CardContent>\n${indent}</Card>`;
     case "divider":
       addImport(imports, "@/components/ui/separator", "Separator");
       return `${indent}<div className="w-full h-full flex items-center"><Separator className="w-full" /></div>`;

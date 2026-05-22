@@ -20,6 +20,10 @@ export interface ShapeGuess {
   // 0..1. Heuristic guesses are never high-confidence; this is mostly used
   // to decide guess-vs-give-up, not to compete with template matches.
   confidence: number;
+  // For type === "icon", the icon-picker name the doodle resolves to (e.g.
+  // "close", "check", "menu", "radio", "checkbox"). pickIcon() maps it to the
+  // actual Lucide glyph. Absent for non-icon guesses.
+  label?: string;
 }
 
 // Classify a single cluster of strokes (one drawn element) by geometry.
@@ -44,29 +48,44 @@ export function classifyShape(strokes: Stroke[]): ShapeGuess | null {
     return { type: "divider", confidence: 0.7 };
   }
 
-  // 2. X / crossed strokes → image placeholder. Two strokes, both roughly
-  //    straight, running opposite diagonals, sharing the same area.
+  // 2. X / crossed strokes. A small one is a close (✕) icon; a large one is
+  //    an image placeholder (the classic box-with-an-X).
   if (strokes.length === 2 && looksLikeX(strokes)) {
-    return { type: "image", confidence: 0.6 };
+    return longSide > 80
+      ? { type: "image", confidence: 0.6 }
+      : { type: "icon", label: "close", confidence: 0.6 };
+  }
+
+  // 2b. Checkmark / tick → check icon. A single stroke that dips to an
+  //     interior low point with both arms rising out of it.
+  if (looksLikeCheck(strokes)) {
+    return { type: "icon", label: "check", confidence: 0.55 };
   }
 
   // 3. Stack of horizontal strokes. Three tidy ones read as a hamburger
-  //    icon; more (or uneven) reads as a text block.
+  //    menu icon; more (or uneven) reads as a text block.
   const hLines = horizontalStrokeCount(strokes);
   if (hLines >= 3 && strokes.length <= 4 && aspect < 2.2) {
-    return { type: "icon", confidence: 0.5 };
+    return { type: "icon", label: "menu", confidence: 0.55 };
   }
   if (hLines >= 2 && strokes.length >= 2 && bbox.h > 36) {
     return { type: "text", confidence: 0.5 };
   }
 
-  // 4. Circular — points roughly equidistant from the centroid and the
-  //    box is close to square. Reads as a circular icon.
+  // 4. Circular — points roughly equidistant from the centroid and the box
+  //    is close to square. Reads as a radio button (circle with a dot).
   if (aspect > 0.6 && aspect < 1.7 && radiusVariation(pts, bbox) < 0.1) {
-    return { type: "icon", confidence: 0.5 };
+    return { type: "icon", label: "radio", confidence: 0.5 };
   }
 
-  // 5. Everything else is a box. Aspect ratio and size pick the family.
+  // 5. Many separate marks usually means the user wrote a word rather than
+  //    drawing a single shape. Hand it back as a heading they can edit,
+  //    instead of forcing it into a box guess.
+  if (strokes.length >= 5) {
+    return { type: "heading", confidence: 0.4 };
+  }
+
+  // 6. Everything else is a box. Aspect ratio and size pick the family.
   return classifyBox(bbox, aspect, horizontal);
 }
 
@@ -83,9 +102,9 @@ function classifyBox(bbox: Bbox, aspect: number, horizontal: boolean): ShapeGues
       : { type: "text", confidence: 0.45 };
   }
 
-  // Small square-ish box → icon.
+  // Small square-ish box → checkbox icon.
   if (longSide < 46 && aspect > 0.7 && aspect < 1.5) {
-    return { type: "icon", confidence: 0.5 };
+    return { type: "icon", label: "checkbox", confidence: 0.5 };
   }
 
   // Wide and thin → input (very wide) or button (moderately wide).
@@ -158,6 +177,32 @@ function looksLikeX(strokes: Stroke[]): boolean {
   const ba = bboxOf(a.points);
   const bb = bboxOf(b.points);
   return rectsOverlap(ba, bb);
+}
+
+// A checkmark/tick: a single open stroke that descends to an interior low
+// point and rises again on both sides (the right arm typically longer). Also
+// accepts a plain "V". Rejects straight lines (low point at an endpoint) and
+// closed shapes.
+function looksLikeCheck(strokes: Stroke[]): boolean {
+  if (strokes.length !== 1) return false;
+  const pts = strokes[0].points;
+  if (pts.length < 3) return false;
+  const bbox = bboxOf(pts);
+  if (bbox.w < 8 || bbox.h < 8) return false;
+  // Index of the lowest (max-y) point.
+  let lowIdx = 0;
+  for (let i = 1; i < pts.length; i++) {
+    if (pts[i].y > pts[lowIdx].y) lowIdx = i;
+  }
+  // The vertex must be interior — a straight diagonal has it at an end.
+  const frac = lowIdx / (pts.length - 1);
+  if (frac < 0.15 || frac > 0.85) return false;
+  const low = pts[lowIdx];
+  const start = pts[0];
+  const end = pts[pts.length - 1];
+  // Both ends rise meaningfully out of the vertex.
+  const minRise = bbox.h * 0.3;
+  return low.y - start.y >= minRise && low.y - end.y >= minRise;
 }
 
 function strokeSlope(s: Stroke): number {

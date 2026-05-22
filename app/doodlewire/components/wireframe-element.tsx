@@ -296,8 +296,10 @@ export function renderElement(
   el: WfElement,
   onLabelChange: (next: string) => void,
   onAutoHeight?: (h: number) => void,
+  onBodyChange?: (next: string) => void,
 ) {
   const set = onLabelChange;
+  const setBody = onBodyChange ?? (() => {});
   switch (el.type) {
     case "button": {
       const variant = buttonVariant(el.variant);
@@ -374,7 +376,14 @@ export function renderElement(
               <EditableLabel value={el.label ?? "Card title"} onChange={set} placeholder="Card title" />
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">Card body content.</CardContent>
+          <CardContent className="text-sm text-muted-foreground">
+            <EditableLabel
+              value={el.body ?? "Card body content."}
+              onChange={setBody}
+              placeholder="Card body content."
+              multiline
+            />
+          </CardContent>
         </Card>
       );
     case "divider":
