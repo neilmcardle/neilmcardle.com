@@ -30,6 +30,9 @@ interface Project {
   href: string;
   external: boolean;
   category: string;
+  // If set, an "Available on the App Store" badge is overlaid on the card
+  // as a separate link to the App Store listing.
+  appStoreUrl?: string;
 }
 
 const PROJECTS: Project[] = [
@@ -52,6 +55,7 @@ const PROJECTS: Project[] = [
     href: "/doodlewire",
     external: false,
     category: "Tool · Drawing · Local-only",
+    appStoreUrl: "https://apps.apple.com/us/app/doodlewire/id6771274835",
   },
   {
     number: "03",
@@ -537,7 +541,7 @@ function ProjectCard({ project }: { project: Project }) {
             {project.title}
           </h2>
           <p
-            className="text-[#fbf9f3]/70 max-w-2xl mb-4"
+            className="text-[#fbf9f3]/70 max-w-2xl"
             style={{
               fontFamily: "var(--font-inter)",
               fontSize: "0.875rem",
@@ -546,17 +550,6 @@ function ProjectCard({ project }: { project: Project }) {
           >
             {project.description}
           </p>
-          <div
-            className="text-[#8a7f70]"
-            style={{
-              fontFamily: "var(--font-jetbrains-mono)",
-              fontSize: "0.6875rem",
-              letterSpacing: "0.13em",
-              textTransform: "uppercase",
-            }}
-          >
-            {project.category}
-          </div>
         </div>
         <div className="lg:self-center lg:flex-shrink-0">
           <HomepageProjectPreview k={project.key} />
@@ -565,24 +558,67 @@ function ProjectCard({ project }: { project: Project }) {
     </>
   );
 
-  const className =
+  // Border + padding + hover sit on the outer wrapper so the link covers the
+  // top content and the footer row (category + optional App Store badge)
+  // lives below as its own row of siblings — that lets the badge be its own
+  // clickable target without nesting an <a> inside an <a>.
+  const wrapperClassName =
     "project-card-trace group relative block border-2 border-[#8a7f70]/50 hover:border-[#fbf9f3] transition-all duration-300 p-6 sm:p-8";
 
-  if (project.external) {
-    return (
-      <a
-        href={project.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={className}
-      >
-        {content}
-      </a>
-    );
-  }
-  return (
-    <Link href={project.href} className={className}>
+  const linkClassName = "block";
+
+  const linkInner = project.external ? (
+    <a
+      href={project.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={linkClassName}
+    >
+      {content}
+    </a>
+  ) : (
+    <Link href={project.href} className={linkClassName}>
       {content}
     </Link>
+  );
+
+  const categoryEl = (
+    <div
+      className="text-[#8a7f70]"
+      style={{
+        fontFamily: "var(--font-jetbrains-mono)",
+        fontSize: "0.6875rem",
+        letterSpacing: "0.13em",
+        textTransform: "uppercase",
+      }}
+    >
+      {project.category}
+    </div>
+  );
+
+  return (
+    <div className={wrapperClassName}>
+      {linkInner}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+        {categoryEl}
+        {project.appStoreUrl && (
+          <a
+            href={project.appStoreUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Download ${project.title} on the App Store`}
+            className="inline-flex shrink-0 transition-opacity hover:opacity-85"
+          >
+            <Image
+              src="/apple-download.png"
+              alt="Download on the App Store"
+              width={132}
+              height={45}
+              priority={false}
+            />
+          </a>
+        )}
+      </div>
+    </div>
   );
 }
