@@ -335,6 +335,28 @@ export default function Homepage() {
           </div>
         </header>
 
+        <section className="mb-20 mt-16">
+          <div className="flex items-center gap-8 mb-12">
+            <div
+              className="text-[#8a7f70]"
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "var(--font-jetbrains-mono)",
+                letterSpacing: "0.13em",
+              }}
+            >
+              + DIGITAL PRODUCTS
+            </div>
+            <div className="flex-1 h-[2px] bg-[#8a7f70]/50" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {PROJECTS.map((p) => (
+              <ProjectCard key={p.number} project={p} />
+            ))}
+          </div>
+        </section>
+
         {/* Paintings teaser — compact social-card style. Backs the ARTIST
             claim in the hero without taking over the homepage. Links to
             /paintings for the full statement. */}
@@ -421,28 +443,6 @@ export default function Homepage() {
                   →
                 </span>
               </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="mb-20 mt-16">
-          <div className="flex items-center gap-8 mb-12">
-            <div
-              className="text-[#8a7f70]"
-              style={{
-                fontSize: "0.75rem",
-                fontFamily: "var(--font-jetbrains-mono)",
-                letterSpacing: "0.13em",
-              }}
-            >
-              + DIGITAL PRODUCTS
-            </div>
-            <div className="flex-1 h-[2px] bg-[#8a7f70]/50" />
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            {PROJECTS.map((p) => (
-              <ProjectCard key={p.number} project={p} />
             ))}
           </div>
         </section>
