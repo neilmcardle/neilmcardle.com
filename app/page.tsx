@@ -207,9 +207,19 @@ export default function Homepage() {
                   letterSpacing: "0.13em",
                 }}
               >
-                <span>ARTIST</span>
+                <a
+                  href="#oil-paintings"
+                  className="hover:text-[#fbf9f3] transition-colors"
+                >
+                  ARTIST
+                </a>
                 <span>|                                                                                                                                                             </span>
-                <span>DESIGNER</span>
+                <a
+                  href="#digital-products"
+                  className="hover:text-[#fbf9f3] transition-colors"
+                >
+                  DESIGNER
+                </a>
               </div>
               {/* Positioning line — names role + audience + outcome in one
                   sentence so cold visitors get what this is and who it serves. */}
@@ -275,41 +285,6 @@ export default function Homepage() {
                 <span>Book Kickoff Call</span>
                 <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M13 5l7 7-7 7" />
-                </svg>
-              </a>
-              {/* Secondary CTA — DoodleWire on the App Store. Sits above the
-                  photo on mobile so the iOS app is discoverable without a
-                  scroll. Subtle styling so it doesn't compete with Book
-                  Kickoff Call above. */}
-              <a
-                href="https://apps.apple.com/us/app/doodlewire/id6771274835"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex w-fit items-center gap-2 mt-10 sm:mt-12 text-[#8a7f70] hover:text-[#fbf9f3] transition-colors"
-                aria-label="Download DoodleWire on the App Store"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                  <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-                </svg>
-                <span
-                  style={{
-                    fontFamily: "var(--font-jetbrains-mono)",
-                    fontSize: "0.6875rem",
-                    letterSpacing: "0.13em",
-                    textTransform: "uppercase",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  <span className="sm:hidden">Get </span>DoodleWire App<span className="hidden sm:inline"> · Wireframe on your phone</span>
-                </span>
-                <svg
-                  className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </a>
             </div>
@@ -381,7 +356,7 @@ export default function Homepage() {
           </div>
         </header>
 
-        <section className="mb-20 mt-16">
+        <section id="digital-products" className="mb-20 mt-16 scroll-mt-12">
           <div className="flex items-center gap-8 mb-12">
             <div
               className="text-[#8a7f70]"
@@ -455,8 +430,14 @@ export default function Homepage() {
                 >
                   Sol0
                 </div>
+                <p
+                  className="text-[#fbf9f3]/80 text-sm mt-1.5"
+                  style={{ fontFamily: "var(--font-inter)", lineHeight: 1.5 }}
+                >
+                  He came to Mars expecting solitude. He found home.
+                </p>
                 <div
-                  className="text-[#8a7f70] mt-1"
+                  className="text-[#8a7f70] mt-2"
                   style={{
                     fontFamily: "var(--font-jetbrains-mono)",
                     fontSize: "0.6875rem",
@@ -464,7 +445,9 @@ export default function Homepage() {
                     textTransform: "uppercase",
                   }}
                 >
-                  Written · Designed · Published
+                  Sci-Fi
+                  <span className="sm:hidden"> · Listen on ElevenReader</span>
+                  <span className="hidden sm:inline"> · Written · Designed · Published</span>
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0 text-[#8a7f70] group-hover:text-[#fbf9f3] transition-colors">
@@ -496,7 +479,7 @@ export default function Homepage() {
         {/* Paintings teaser — compact social-card style. Backs the ARTIST
             claim in the hero without taking over the homepage. Links to
             /paintings for the full statement. */}
-        <section className="mb-20 mt-16">
+        <section id="oil-paintings" className="mb-20 mt-16 scroll-mt-12">
           <div className="flex items-center gap-8 mb-10">
             <div
               className="text-[#8a7f70]"
@@ -743,15 +726,30 @@ function ProjectCard({ project }: { project: Project }) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Download ${project.title} on the App Store`}
-            className="inline-flex shrink-0 transition-opacity hover:opacity-85"
+            className="group/ios inline-flex items-center gap-2 text-[#8a7f70] hover:text-[#fbf9f3] transition-colors shrink-0"
           >
-            <Image
-              src="/apple-download.png"
-              alt="Download on the App Store"
-              width={132}
-              height={45}
-              priority={false}
-            />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+            </svg>
+            <span
+              style={{
+                fontFamily: "var(--font-jetbrains-mono)",
+                fontSize: "0.6875rem",
+                letterSpacing: "0.13em",
+                textTransform: "uppercase",
+              }}
+            >
+              Download the {project.title} App
+            </span>
+            <svg
+              className="w-3 h-3 group-hover/ios:translate-x-0.5 group-hover/ios:-translate-y-0.5 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </a>
         )}
       </div>

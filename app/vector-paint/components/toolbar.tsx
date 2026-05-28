@@ -1,7 +1,7 @@
 "use client"
 
-import { PaintbrushIcon, Eraser, BarChart2, Save, Archive, RotateCcw, Undo, Redo } from "lucide-react"
-import type { CSSProperties } from "react"
+import { PaintbrushIcon, Eraser, BarChart2, Save, Archive, RotateCcw, Undo, Redo, ChevronDown, ChevronUp } from "lucide-react"
+import { useState, type CSSProperties } from "react"
 
 interface ToolbarProps {
   isDrawActive: boolean
@@ -84,6 +84,36 @@ export default function Toolbar({
   canUndo,
   canRedo,
 }: ToolbarProps) {
+  // Collapsed state lets users hide the toolbar when it covers their canvas.
+  // Collapses to a small pill with a chevron-up so it stays one click away.
+  const [collapsed, setCollapsed] = useState(false)
+
+  if (collapsed) {
+    return (
+      <button
+        onClick={() => setCollapsed(false)}
+        aria-label="Show toolbar"
+        className="fixed left-1/2 -translate-x-1/2 z-30"
+        style={{
+          bottom: 24,
+          width: 40,
+          height: 40,
+          borderRadius: 999,
+          background: "#ffffff",
+          border: "1px solid rgba(0,0,0,0.06)",
+          boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "rgba(0,0,0,0.55)",
+          cursor: "pointer",
+        }}
+      >
+        <ChevronUp size={18} />
+      </button>
+    )
+  }
+
   return (
     <div
       className="fixed left-1/2 -translate-x-1/2 z-30"
@@ -95,7 +125,12 @@ export default function Toolbar({
         boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08)",
         padding: "12px 16px",
         display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
         gap: 10,
+        // Hard cap at viewport width minus a margin so the toolbar wraps to a
+        // second row instead of overflowing the screen on iPhone SE.
+        maxWidth: "calc(100vw - 24px)",
       }}
     >
       <div className="flex flex-col items-center">
@@ -176,6 +211,17 @@ export default function Toolbar({
           <RotateCcw size={18} />
         </button>
         <span style={labelStyle}>Reset</span>
+      </div>
+
+      <div className="flex flex-col items-center">
+        <button
+          style={buttonStyle(false)}
+          onClick={() => setCollapsed(true)}
+          aria-label="Hide toolbar"
+        >
+          <ChevronDown size={18} />
+        </button>
+        <span style={labelStyle}>Hide</span>
       </div>
     </div>
   )

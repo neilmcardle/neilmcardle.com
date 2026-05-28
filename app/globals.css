@@ -94,6 +94,7 @@ body {
 
 body {
   overflow: auto;
+  scroll-behavior: smooth;
 }
 
 body, .bg-app {
@@ -1125,10 +1126,24 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   display: block;
 }
 
+/* Glass-tile variant for makeEbook and DoodleWire — square, no surrounding
+   chrome (the SVG handles its own clipped corners), and tighter max-width so
+   the icon reads as an object on the dark page rather than filling the card. */
+.hpp-frame--glass {
+  aspect-ratio: 1 / 1;
+  max-width: 120px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
 /* Larger preview on desktop where there is room to breathe. */
 @media (min-width: 1024px) {
   .hpp-frame {
     max-width: 360px;
+  }
+  .hpp-frame--glass {
+    max-width: 220px;
   }
 }
 
