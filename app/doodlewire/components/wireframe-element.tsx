@@ -360,11 +360,17 @@ export function renderElement(
         <div
           role="img"
           aria-label={el.label ?? "Image"}
-          className="w-full h-full rounded-md border bg-muted relative overflow-hidden"
+          className="w-full h-full rounded-md border-2 border-foreground/55 bg-muted relative overflow-hidden"
         >
-          <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 text-border">
-            <line x1="0" y1="0" x2="100" y2="100" stroke="currentColor" strokeWidth="0.4" vectorEffect="non-scaling-stroke" />
-            <line x1="100" y1="0" x2="0" y2="100" stroke="currentColor" strokeWidth="0.4" vectorEffect="non-scaling-stroke" />
+          <svg
+            width="100%"
+            height="100%"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            className="absolute inset-0 text-foreground/55"
+          >
+            <line x1="0" y1="0" x2="100" y2="100" stroke="currentColor" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+            <line x1="100" y1="0" x2="0" y2="100" stroke="currentColor" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
           </svg>
         </div>
       );

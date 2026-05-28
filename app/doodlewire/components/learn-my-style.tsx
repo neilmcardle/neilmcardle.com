@@ -15,10 +15,17 @@ interface Step {
   hint: string;
   // Nominal size for the preview component. Not used for the saved template.
   previewBbox: { w: number; h: number };
+  // Optional label saved with the trained template. For icon-type steps
+  // this carries the canonical icon name (close, check, add, search…) so
+  // a future drawing matched against this template renders the right
+  // Lucide icon, not a blank square.
+  label?: string;
 }
 
-// Every element type the recogniser knows. Drawing all 13 means the user
-// can run an entire canvas locally with zero API calls.
+// Element types the recogniser knows, plus specific common icons trained
+// under the generic "icon" type with a label. Drawing all of them means a
+// brand-new user can build a real wireframe out of the box, including the
+// icons most apps need (close, tick, add, search).
 const STEPS: Step[] = [
   { type: "button", title: "Button", hint: "A small filled or outlined rectangle.", previewBbox: { w: 140, h: 40 } },
   { type: "input", title: "Text input", hint: "A wider thin rectangle. A field to type into.", previewBbox: { w: 240, h: 40 } },
@@ -30,7 +37,11 @@ const STEPS: Step[] = [
   { type: "card", title: "Card", hint: "A larger rounded rectangle, often with a shadow.", previewBbox: { w: 240, h: 160 } },
   { type: "divider", title: "Divider", hint: "A single thin horizontal line.", previewBbox: { w: 240, h: 2 } },
   { type: "image", title: "Image", hint: "A rectangle with an X through it.", previewBbox: { w: 200, h: 140 } },
-  { type: "icon", title: "Icon", hint: "A tiny simple shape: star, gear, X.", previewBbox: { w: 24, h: 24 } },
+  { type: "icon", title: "Icon", hint: "A tiny simple shape: star, gear, anything.", previewBbox: { w: 28, h: 28 } },
+  { type: "icon", title: "Close (X)", hint: "Two diagonal lines crossing.", previewBbox: { w: 28, h: 28 }, label: "close" },
+  { type: "icon", title: "Tick", hint: "A short tick mark: down then up to the right.", previewBbox: { w: 28, h: 28 }, label: "check" },
+  { type: "icon", title: "Plus", hint: "Two short lines crossing at right angles.", previewBbox: { w: 28, h: 28 }, label: "add" },
+  { type: "icon", title: "Search", hint: "A circle with a short line off its bottom-right.", previewBbox: { w: 28, h: 28 }, label: "search" },
   { type: "badge", title: "Badge", hint: "A small rounded label.", previewBbox: { w: 80, h: 24 } },
   { type: "nav", title: "Nav", hint: "A row of short labels along the top.", previewBbox: { w: 320, h: 48 } },
 ];
@@ -97,6 +108,10 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
     addTemplate({
       type: step.type,
       strokes,
+      // Labelled steps (specific icons like close / check) carry the
+      // canonical label through to the template, so a matched drawing
+      // renders the right glyph rather than a blank square.
+      label: step.label,
       source: "onboarding",
     });
     setSavedThisStep(true);
@@ -299,6 +314,7 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
                     {
                       id: "preview",
                       type: step.type,
+                      label: step.label,
                       bbox: { x: 0, y: 0, ...step.previewBbox },
                     } as WfElement,
                     () => { /* preview labels are not editable */ },

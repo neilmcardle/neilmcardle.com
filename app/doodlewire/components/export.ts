@@ -76,7 +76,7 @@ export function exportAsHtml(elements: WfElement[], size: { w: number; h: number
   .wf-toggle input { display: none; }
   .wf-toggle span { margin-left: auto; height: 100%; aspect-ratio: 1/1; background: var(--fill); border-radius: 999px; }
   .wf-heading h1 { margin: 0; font-weight: 700; letter-spacing: -0.02em; }
-  .wf-image { background: rgba(0,0,0,0.04); border: 1px solid var(--stroke); border-radius: 6px; background-image: linear-gradient(to top right, transparent calc(50% - 0.5px), var(--stroke) 50%, transparent calc(50% + 0.5px)), linear-gradient(to top left, transparent calc(50% - 0.5px), var(--stroke) 50%, transparent calc(50% + 0.5px)); }
+  .wf-image { background: rgba(0,0,0,0.04); border: 2px solid var(--stroke); border-radius: 6px; background-image: linear-gradient(to top right, transparent calc(50% - 1px), var(--stroke) calc(50% - 1px), var(--stroke) calc(50% + 1px), transparent calc(50% + 1px)), linear-gradient(to top left, transparent calc(50% - 1px), var(--stroke) calc(50% - 1px), var(--stroke) calc(50% + 1px), transparent calc(50% + 1px)); }
   .wf-card { background: var(--fill); border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); }
   .wf-divider hr { margin: 0; border: 0; border-top: 1px solid var(--stroke); }
   .wf-nav nav { display: flex; align-items: center; gap: 18px; padding: 0 14px; height: 100%; }

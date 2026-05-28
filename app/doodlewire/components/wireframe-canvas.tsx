@@ -123,18 +123,20 @@ function loadDocument(): { pages: PageSnapshot[]; currentPage: number } | null {
 
 const STROKE_WIDTH = 2.5;
 const ERASER_RADIUS = 18;
-// Hand-drawn variation is large, so we accept matches in two ways:
+// Hand-drawn variation is large, so we accept matches in tiers:
 // (1) very tight match (distance < TIGHT) regardless of runner-up, or
 // (2) reasonably close (distance < THRESHOLD) AND the closest template
-//     of a DIFFERENT type is at least MARGIN times further away.
-// This catches genuine matches a strict absolute cap was missing.
-// Thresholds were bumped after adding aspect-ratio penalty to the score:
-// a correct match with slight aspect drift now lands ~1 higher than it
-// did under shape-only scoring. We compensate so the accept rate doesn't
-// drop on legit matches while wrong-aspect candidates get pushed out.
-const LOCAL_MATCH_TIGHT = 6;
-const LOCAL_MATCH_THRESHOLD = 13;
-const LOCAL_MATCH_MARGIN = 1.3;
+//     of a DIFFERENT type is at least MARGIN times further away, or
+// (3) trained-fallback: distance < FALLBACK — used when neither (1) nor
+//     (2) accepts. A reasonable trained match always beats the geometric
+//     heuristic, because the user explicitly taught us this shape.
+//     Without (3), trained users found the heuristic constantly overriding
+//     their training; loose-but-real matches were being dropped on the
+//     decisive-lead requirement.
+const LOCAL_MATCH_TIGHT = 7;
+const LOCAL_MATCH_THRESHOLD = 18;
+const LOCAL_MATCH_MARGIN = 1.15;
+const LOCAL_MATCH_FALLBACK = 28;
 
 export default function WireframeCanvas() {
   // Restore a persisted document on first render (run once via lazy init).
@@ -859,10 +861,27 @@ export default function WireframeCanvas() {
       const bbox = aggregateStrokeBbox(strokesAtCall);
 
       if (!top || !accept) {
-        // No confident trained-template match. Fall back to geometric
-        // classification so an untrained / first-time doodle still
-        // produces something. A detected container is always a card.
-        // Heuristic guesses carry no templateId.
+        // Soft-accept tier: a reasonable trained match always beats the
+        // geometric heuristic, even if it didn't pass the strict checks.
+        // The user explicitly taught us this shape — respect that over a
+        // best-guess. This is the fix for "the app isn't learning" — without
+        // it, slight redraw variability sent everything to the heuristic.
+        if (top && top.distance < LOCAL_MATCH_FALLBACK) {
+          stamped.push({
+            id: `${Date.now()}-${stamped.length}-local`,
+            type: top.template.type,
+            label: top.template.label,
+            bbox: snapToStandard(top.template.type, bbox),
+            templateId: top.template.id,
+          });
+          recordHit(top.template.id);
+          for (const s of cluster) matchedStrokes.add(s);
+          continue;
+        }
+        // No trained template close at all → geometric classification so
+        // an untrained / first-time doodle still produces something. A
+        // detected container is always a card. Heuristic guesses carry
+        // no templateId.
         const guess: ShapeGuess | null = isContainer
           ? { type: "card", confidence: 0.6 }
           : classifyShape(strokesAtCall);
