@@ -119,11 +119,11 @@ const PROJECTS: Project[] = [
   },
   {
     number: "09",
-    key: "triangles",
-    title: "Triangles",
+    key: "tessera",
+    title: "Tessera",
     description:
-      "A two-player dice game on a hexagonal triangle grid. Roll, claim edges, complete triangles, win the board.",
-    href: "/triangles",
+      "The Triangle Game. A two-player dice game on a hexagonal triangle grid. Roll, claim edges, complete triangles, win the board.",
+    href: "/tessera",
     external: false,
     category: "Game · Solo-built",
   },

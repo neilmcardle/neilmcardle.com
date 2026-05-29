@@ -141,7 +141,7 @@ function playLineSound() {
   if (_soundMuted) return;
   try {
     if (!_lineAudio) {
-      _lineAudio = new Audio("/triangles/line-sound.mp3");
+      _lineAudio = new Audio("/tessera/line-sound.mp3");
       _lineAudio.volume = 0.3;
     }
     _lineAudio.currentTime = 0;
@@ -156,7 +156,7 @@ function playCheerSound() {
   if (_soundMuted) return;
   try {
     if (!_cheerAudio) {
-      _cheerAudio = new Audio("/triangles/game-win-crowd-cheer.mp3");
+      _cheerAudio = new Audio("/tessera/game-win-crowd-cheer.mp3");
       _cheerAudio.volume = 0.7;
     }
     _cheerAudio.currentTime = 0;
@@ -221,7 +221,7 @@ function Die({ value, rolling, prompt, onClick, disabled }) {
   );
 }
 
-export default function TrianglesGame() {
+export default function Tessera() {
   const [size, setSize] = useState(1); // hexagon radius in cells (Small default)
   const board = useMemo(() => buildBoard(size), [size]);
   const { points, edges, triangles } = board;
@@ -241,6 +241,7 @@ export default function TrianglesGame() {
   const [confirmDialog, setConfirmDialog] = useState(null); // { message, onConfirm }
   const [wins, setWins] = useState({ p1: 0, p2: 0 });
   const [muted, setMuted] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const nameOf = (p) =>
     (p === "p1" ? p1Name.trim() : p2Name.trim()) || (p === "p1" ? "Player 1" : "Player 2");
@@ -524,30 +525,27 @@ export default function TrianglesGame() {
     >
       <Link
         href="/"
-        aria-label="Back to homepage"
+        aria-label="Back to neilmcardle.com"
         style={{
           position: "fixed",
-          top: "calc(env(safe-area-inset-top, 0px) + 12px)",
-          left: 12,
+          top: "calc(env(safe-area-inset-top, 0px) + 10px)",
+          left: 10,
           zIndex: 100,
+          width: 36,
+          height: 36,
           display: "inline-flex",
           alignItems: "center",
-          gap: 6,
-          padding: "6px 12px 6px 8px",
+          justifyContent: "center",
           borderRadius: 999,
-          background: "rgba(255,255,255,0.9)",
+          background: "transparent",
           color: COLORS.ink,
-          fontFamily: "'Helvetica Neue',sans-serif",
-          fontSize: 13,
-          fontWeight: 600,
           textDecoration: "none",
-          boxShadow: "0 0 0 1px rgba(43,38,34,0.12), 0 2px 6px rgba(43,38,34,0.08)",
-          backdropFilter: "blur(6px)",
-          WebkitBackdropFilter: "blur(6px)",
+          border: `2px solid ${COLORS.ink}`,
         }}
       >
-        <span aria-hidden style={{ fontSize: 16, lineHeight: 1 }}>←</span>
-        <span>Home</span>
+        <span aria-hidden style={{ fontSize: 18, lineHeight: 1, fontWeight: 700, marginTop: -2 }}>
+          ←
+        </span>
       </Link>
       <style>{`
         @keyframes drawIn { from { stroke-dashoffset: 70; } to { stroke-dashoffset: 0; } }
@@ -614,46 +612,49 @@ export default function TrianglesGame() {
       `}</style>
 
 
-      <button
-        className="btn"
-        onClick={() => { const next = !muted; setMuted(next); setSoundMuted(next); }}
-        title={muted ? "Unmute sounds" : "Mute sounds"}
-        aria-label={muted ? "Unmute sounds" : "Mute sounds"}
+
+      <h1
         style={{
-          position: "absolute",
-          top: 20,
-          right: 20,
-          width: 44,
-          height: 44,
-          padding: 0,
+          margin: "4px 0 14px",
+          letterSpacing: 1,
+          fontWeight: 700,
+          lineHeight: 1,
+          textAlign: "center",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
-          background: muted ? "transparent" : "#ffffff",
-          boxShadow: muted
-            ? `0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`
-            : `0 0 0 2px ${COLORS.ink}, 0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`,
-          zIndex: 10,
+          gap: 6,
         }}
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M4 9 V15 H8 L13 19 V5 L8 9 Z" fill={COLORS.ink} />
-          {muted ? (
-            <>
-              <line x1="16" y1="9" x2="22" y2="15" stroke={COLORS.ink} strokeWidth="2" strokeLinecap="round" />
-              <line x1="22" y1="9" x2="16" y2="15" stroke={COLORS.ink} strokeWidth="2" strokeLinecap="round" />
-            </>
-          ) : (
-            <>
-              <path d="M16 9 Q18 12 16 15" stroke={COLORS.ink} strokeWidth="2" strokeLinecap="round" fill="none" />
-              <path d="M18.5 7 Q22 12 18.5 17" stroke={COLORS.ink} strokeWidth="2" strokeLinecap="round" fill="none" />
-            </>
-          )}
-        </svg>
-      </button>
-
-      <h1 style={{ fontSize: 40, margin: "4px 0 16px", letterSpacing: 1, fontWeight: 700 }}>
-        ▲ Triangles
+        {/* Logomark sits left of the wordmark, sized to match the cap-height. */}
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          <img
+            src="/tessera/logo.svg"
+            alt=""
+            aria-hidden
+            width={56}
+            height={49}
+            style={{ display: "block" }}
+          />
+          <span style={{ fontSize: "clamp(28px, 6vw, 40px)" }}>Tessera</span>
+        </span>
+        <span
+          style={{
+            fontSize: "clamp(10px, 2vw, 12px)",
+            fontWeight: 500,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            opacity: 0.55,
+          }}
+        >
+          The Triangle Game
+        </span>
       </h1>
 
       {/* Scoreboard */}
@@ -668,7 +669,6 @@ export default function TrianglesGame() {
             color={COLORS.p2}
             darkColor={COLORS.p2dark}
             active={turn === "p2"}
-            tag={mode === "cpu" ? "computer" : undefined}
             fillColor={COLORS.p2}
           />
         </div>
@@ -844,6 +844,26 @@ export default function TrianglesGame() {
         >
           {inProgress ? "End game" : "New game"}
         </button>
+        <button
+          className="btn"
+          onClick={() => setSettingsOpen(true)}
+          title="Settings"
+          aria-label="Settings"
+          style={{
+            width: 38,
+            height: 38,
+            padding: 0,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "transparent",
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={COLORS.ink} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </button>
       </div>
 
       {/* Board size — hexagon icons. Stroke-only when unselected, filled
@@ -881,6 +901,156 @@ export default function TrianglesGame() {
           );
         })}
       </div>
+
+      {/* Settings sheet */}
+      {settingsOpen && (
+        <div
+          onClick={() => setSettingsOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(43,38,34,0.45)",
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            zIndex: 200,
+            padding: 16,
+            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-label="Settings"
+            style={{
+              width: "100%",
+              maxWidth: 420,
+              background: "#fbf5e7",
+              border: `2px solid ${COLORS.ink}`,
+              borderRadius: 20,
+              padding: "22px 22px 18px",
+              fontFamily: "'Helvetica Neue',sans-serif",
+              color: COLORS.ink,
+              display: "flex",
+              flexDirection: "column",
+              gap: 18,
+              alignSelf: "center",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.01em" }}>
+                Settings
+              </span>
+              <button
+                onClick={() => setSettingsOpen(false)}
+                aria-label="Close settings"
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 999,
+                  border: `2px solid ${COLORS.ink}`,
+                  background: "transparent",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 700,
+                  fontSize: 14,
+                  color: COLORS.ink,
+                  lineHeight: 1,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Sound toggle */}
+            <SettingRow
+              label="Sound"
+              hint={muted ? "Off" : "On"}
+            >
+              <ToggleSwitch
+                on={!muted}
+                onChange={(v) => { setMuted(!v); setSoundMuted(!v); }}
+              />
+            </SettingRow>
+
+            <div style={{ height: 1, background: "rgba(43,38,34,0.12)" }} />
+
+            {/* Buy me a coffee */}
+            <a
+              href="https://buymeacoffee.com/neilmcardle"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px 14px",
+                borderRadius: 14,
+                border: `2px solid ${COLORS.ink}`,
+                background: "transparent",
+                textDecoration: "none",
+                color: COLORS.ink,
+                fontSize: 15,
+                fontWeight: 700,
+              }}
+            >
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+                <span aria-hidden style={{ fontSize: 18 }}>☕</span>
+                Buy me a coffee
+              </span>
+              <span aria-hidden style={{ fontSize: 14, opacity: 0.6 }}>↗</span>
+            </a>
+
+            <a
+              href="https://neilmcardle.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px 14px",
+                borderRadius: 14,
+                border: `2px solid ${COLORS.ink}`,
+                background: "transparent",
+                textDecoration: "none",
+                color: COLORS.ink,
+                fontSize: 15,
+                fontWeight: 700,
+              }}
+            >
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+                <img
+                  src="/me.png"
+                  alt=""
+                  aria-hidden
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: 999,
+                    objectFit: "cover",
+                    border: `1px solid ${COLORS.ink}`,
+                  }}
+                />
+                More from Neil
+              </span>
+              <span aria-hidden style={{ fontSize: 14, opacity: 0.6 }}>↗</span>
+            </a>
+
+            <div style={{ fontSize: 12, lineHeight: 1.5, opacity: 0.65, textAlign: "center", marginTop: 4 }}>
+              Tessera is free to play.
+              <br />
+              Buying me a coffee is optional, it&apos;s simply to support App Store fees.
+            </div>
+
+            <div style={{ fontSize: 11, lineHeight: 1.5, opacity: 0.5, textAlign: "center", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              Built solo by Neil McArdle · v1.0
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation dialog */}
       {confirmDialog && (
@@ -950,6 +1120,61 @@ export default function TrianglesGame() {
         />
       ))}
     </div>
+  );
+}
+
+// Settings sheet helpers.
+function SettingRow({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <span style={{ fontSize: 15, fontWeight: 700 }}>{label}</span>
+        {hint ? <span style={{ fontSize: 12, opacity: 0.55 }}>{hint}</span> : null}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function ToggleSwitch({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      role="switch"
+      aria-checked={on}
+      onClick={() => onChange(!on)}
+      style={{
+        width: 50,
+        height: 28,
+        borderRadius: 999,
+        border: `2px solid #2b2622`,
+        background: on ? "#2b2622" : "transparent",
+        position: "relative",
+        cursor: "pointer",
+        padding: 0,
+        transition: "background 180ms ease",
+      }}
+    >
+      <span
+        style={{
+          position: "absolute",
+          top: 2,
+          left: on ? 24 : 2,
+          width: 20,
+          height: 20,
+          borderRadius: 999,
+          background: on ? "#fbf5e7" : "#2b2622",
+          transition: "left 180ms ease, background 180ms ease",
+        }}
+      />
+    </button>
   );
 }
 

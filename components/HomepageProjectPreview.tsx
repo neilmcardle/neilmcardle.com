@@ -12,14 +12,14 @@ export type ProjectKey =
   | "spark"
   | "touchtype"
   | "kids-alphabet"
-  | "triangles";
+  | "tessera";
 
 interface PreviewProps {
   k: ProjectKey;
 }
 
 export function HomepageProjectPreview({ k }: PreviewProps) {
-  const isGlass = k === "makeebook" || k === "doodlewire";
+  const isGlass = k === "makeebook" || k === "doodlewire" || k === "tessera";
   return (
     <div
       className={`hpp-frame${isGlass ? " hpp-frame--glass" : ""}`}
@@ -48,23 +48,85 @@ function renderForKey(k: ProjectKey) {
       return <TouchtypePreview />;
     case "kids-alphabet":
       return <KidsAlphabetPreview />;
-    case "triangles":
-      return <TrianglesPreview />;
+    case "tessera":
+      return <TesseraPreview />;
   }
 }
 
-function TrianglesPreview() {
-  // Two equilateral triangles sharing an edge form a rhombus. They pulse
-  // alternately, the way the game fills triangles turn-by-turn. Side length
-  // is 32 with the second triangle reflected across the shared edge so both
-  // are equilateral, not isosceles.
+function TesseraPreview() {
+  // Glass tile design from the product-icon handoff, ts- prefixed ids and
+  // the Tessera logomark paths verbatim from /public/tessera/logo.svg.
+  // Logo native viewBox is 320×280; scaled 1.5× and centered into the 600
+  // square tile (translate 60,90 puts it in the centre).
   return (
-    <svg viewBox="0 0 160 90" width="100%" height="100%" className="hpp-svg">
-      <g stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round">
-        <polygon points="56,31 88,31 72,58.7" fill="currentColor" className="hpp-tr-a" />
-        <polygon points="88,31 104,58.7 72,58.7" fill="currentColor" className="hpp-tr-b" />
-        <polygon points="56,31 88,31 72,58.7" fill="none" />
-        <polygon points="88,31 104,58.7 72,58.7" fill="none" />
+    <svg viewBox="0 0 600 600" width="100%" height="100%" className="hpp-svg">
+      <defs>
+        <linearGradient id="ts-tile" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#1a1a1c" />
+          <stop offset=".55" stopColor="#101012" />
+          <stop offset="1" stopColor="#0a0a0c" />
+        </linearGradient>
+        <radialGradient id="ts-vignette" cx=".5" cy=".5" r=".7">
+          <stop offset=".55" stopColor="#000" stopOpacity="0" />
+          <stop offset="1" stopColor="#000" stopOpacity=".55" />
+        </radialGradient>
+        <filter id="ts-grain" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves={2} seed={11} />
+          <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .25 0" />
+          <feComposite in2="SourceGraphic" operator="in" />
+        </filter>
+        <radialGradient id="ts-pool" cx=".5" cy="1.05" r=".55" fx=".5" fy="1.05">
+          <stop offset="0" stopColor="#8A7F70" stopOpacity="1" />
+          <stop offset=".45" stopColor="#8A7F70" stopOpacity=".55" />
+          <stop offset="1" stopColor="#8A7F70" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="ts-body" gradientUnits="userSpaceOnUse" x1="0" y1="90" x2="0" y2="510">
+          <stop offset="0" stopColor="#0e0d0c" />
+          <stop offset=".5" stopColor="#100f0d" />
+          <stop offset=".85" stopColor="#1f1c15" />
+          <stop offset="1" stopColor="#332d20" />
+        </linearGradient>
+        <linearGradient id="ts-spec" gradientUnits="userSpaceOnUse" x1="0" y1="90" x2="0" y2="300">
+          <stop offset="0" stopColor="#ffffff" stopOpacity=".35" />
+          <stop offset=".4" stopColor="#ffffff" stopOpacity=".1" />
+          <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+        </linearGradient>
+        <mask id="ts-spec-mask">
+          <rect width="600" height="600" fill="url(#ts-spec)" />
+        </mask>
+        <filter id="ts-shadow" x="-20%" y="-15%" width="140%" height="160%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation={6} />
+          <feOffset dy={10} />
+          <feComponentTransfer>
+            <feFuncA type="linear" slope=".55" />
+          </feComponentTransfer>
+          <feMerge>
+            <feMergeNode />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <clipPath id="ts-clip">
+          <rect width="600" height="600" rx="132" ry="132" />
+        </clipPath>
+        <g id="ts-logo">
+          <path d="M225.74,16.26l-65.23,113.25L225.76,16.3s-.02-.03-.02-.05Z" />
+          <path d="M19.86,135.14l130.82.06s0-.05.03-.06H19.86ZM93.98,16.19l65.5,113.31h.03L93.98,16.19Z" />
+          <path d="M150.64,144.74H19.86l130.8.05s-.03-.03-.02-.05Z" />
+          <path d="M160.53,150.48l65.5,113.34.02-.02-65.52-113.33Z" />
+          <path d="M309.49,129.41c-.18,0-.35,0-.51.02L243.44,16.27c1.06-1.65,1.66-3.6,1.66-5.68,0-5.79-4.7-10.5-10.51-10.5-4.03,0-7.54,2.27-9.3,5.6H94.5c-1.74-3.38-5.26-5.7-9.34-5.7-5.81,0-10.51,4.7-10.51,10.5,0,2.11.62,4.08,1.7,5.73L11.02,129.46c-.16-.02-.34-.02-.51-.02-5.79,0-10.51,4.69-10.51,10.5s4.72,10.5,10.51,10.5c.18,0,.35,0,.51-.02l65.39,113.2c-1.07,1.65-1.68,3.6-1.68,5.7,0,5.81,4.7,10.51,10.51,10.51,4.06,0,7.6-2.3,9.34-5.7l130.93.16c1.73,3.39,5.28,5.71,9.34,5.71,5.81,0,10.51-4.7,10.51-10.5,0-2.1-.62-4.06-1.7-5.71v-.02l65.31-113.38c.16.02.34.02.5.02,5.81,0,10.51-4.7,10.51-10.51s-4.7-10.5-10.51-10.5ZM234.03,21.07s.03.02.06.02c.16.02.32.02.5.02s.35,0,.53-.02l65.54,113.15c-.19.27-.35.56-.5.86l-.02.02-130.8.08v-.02c-.14-.3-.32-.59-.51-.88v-.02L234.03,21.07ZM94.5,15.3h130.7c.14.34.34.66.54.96,0,.02,0,.03.02.05l-65.25,113.2h-.02c-.16-.02-.32-.02-.5-.02-.16,0-.32,0-.48.02h-.03L93.98,16.19c.19-.29.37-.58.51-.9ZM84.66,20.99c.16.02.32.02.5.02s.35,0,.53-.02l65.5,113.3v.02c-.19.27-.35.54-.48.83-.03.02-.03.03-.03.06l-130.82-.06c-.16-.3-.32-.61-.51-.9L84.66,20.99ZM85.76,258.83c-.16-.02-.34-.02-.51-.02s-.35,0-.51.02L19.34,145.62c.19-.29.37-.58.51-.88h130.78s0,.03.02.05c.14.3.32.61.53.9l-65.42,113.15ZM226.03,263.82c-.19.27-.35.56-.5.86l-130.93-.16c-.16-.3-.32-.61-.53-.9l65.41-113.15c.16.02.34.02.51.02s.35,0,.51-.02h.02l65.52,113.33-.02.02ZM235.36,259.01c-.16-.02-.34-.02-.5-.02-.18,0-.35,0-.51.02l-65.52-113.33c.19-.29.37-.58.51-.88l.02-.02,130.8-.08v.02c.14.3.32.59.51.88l-65.31,113.41Z" />
+        </g>
+      </defs>
+      <g clipPath="url(#ts-clip)">
+        <rect width="600" height="600" fill="url(#ts-tile)" />
+        <rect width="600" height="600" fill="url(#ts-pool)" />
+        <rect width="600" height="600" fill="url(#ts-vignette)" />
+        <rect width="600" height="600" filter="url(#ts-grain)" />
+        <g filter="url(#ts-shadow)" fill="url(#ts-body)">
+          <use href="#ts-logo" transform="translate(60,90) scale(1.5)" />
+        </g>
+        <g mask="url(#ts-spec-mask)" style={{ mixBlendMode: "screen" }} fill="#ffffff">
+          <use href="#ts-logo" transform="translate(60,90) scale(1.5)" />
+        </g>
       </g>
     </svg>
   );
