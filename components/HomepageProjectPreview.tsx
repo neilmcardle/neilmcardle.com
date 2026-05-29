@@ -11,7 +11,8 @@ export type ProjectKey =
   | "promptr"
   | "spark"
   | "touchtype"
-  | "kids-alphabet";
+  | "kids-alphabet"
+  | "triangles";
 
 interface PreviewProps {
   k: ProjectKey;
@@ -47,7 +48,26 @@ function renderForKey(k: ProjectKey) {
       return <TouchtypePreview />;
     case "kids-alphabet":
       return <KidsAlphabetPreview />;
+    case "triangles":
+      return <TrianglesPreview />;
   }
+}
+
+function TrianglesPreview() {
+  // Two equilateral triangles sharing an edge form a rhombus. They pulse
+  // alternately, the way the game fills triangles turn-by-turn. Side length
+  // is 32 with the second triangle reflected across the shared edge so both
+  // are equilateral, not isosceles.
+  return (
+    <svg viewBox="0 0 160 90" width="100%" height="100%" className="hpp-svg">
+      <g stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round">
+        <polygon points="56,31 88,31 72,58.7" fill="currentColor" className="hpp-tr-a" />
+        <polygon points="88,31 104,58.7 72,58.7" fill="currentColor" className="hpp-tr-b" />
+        <polygon points="56,31 88,31 72,58.7" fill="none" />
+        <polygon points="88,31 104,58.7 72,58.7" fill="none" />
+      </g>
+    </svg>
+  );
 }
 
 function MakeEbookPreview() {

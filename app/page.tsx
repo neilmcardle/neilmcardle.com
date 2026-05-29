@@ -117,6 +117,16 @@ const PROJECTS: Project[] = [
     external: true,
     category: "Tool · Education · Solo-built",
   },
+  {
+    number: "09",
+    key: "triangles",
+    title: "Triangles",
+    description:
+      "A two-player dice game on a hexagonal triangle grid. Roll, claim edges, complete triangles, win the board.",
+    href: "/triangles",
+    external: false,
+    category: "Game · Solo-built",
+  },
 ];
 
 export default function Homepage() {

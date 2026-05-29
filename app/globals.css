@@ -97,6 +97,20 @@ body {
   scroll-behavior: smooth;
 }
 
+/* Icon animator workshop layout. Two-column grid on tablet/desktop so the
+   preview sits beside the controls; stacks vertically on mobile so iPhone
+   SE doesn't overflow with the 260px-min preview column. */
+.ia-workshop-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+@media (min-width: 768px) {
+  .ia-workshop-grid {
+    grid-template-columns: minmax(260px, 360px) 1fr;
+  }
+}
+
 body, .bg-app {
   background: #faf9f5;
   color: #141413;
@@ -1306,3 +1320,12 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 .hpp-ka-a { opacity: 1; animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 0s; }
 .hpp-ka-b { animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 1.5s; }
 .hpp-ka-c { animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 3s; }
+
+/* Triangles: two adjacent triangles share an edge and pulse alternately,
+   like turn-by-turn fills in the game. */
+@keyframes hpp-tr-fill {
+  0%, 100% { fill-opacity: 1; }
+  50%      { fill-opacity: 0.15; }
+}
+.hpp-tr-a { animation: hpp-tr-fill 3s ease-in-out infinite; }
+.hpp-tr-b { animation: hpp-tr-fill 3s ease-in-out infinite; animation-delay: 1.5s; }

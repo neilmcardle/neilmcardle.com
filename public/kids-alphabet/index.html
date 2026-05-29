@@ -28,7 +28,10 @@
     height: 100vh;
     height: 100dvh;
     overflow-y: scroll;
-    scroll-snap-type: y mandatory;
+    /* Proximity (not mandatory) plus smooth behaviour reduces the abrupt
+       full-page snap that some kids report as nauseating. */
+    scroll-snap-type: y proximity;
+    scroll-behavior: smooth;
     scrollbar-width: none;
   }
   .scroller::-webkit-scrollbar { display: none; }
@@ -38,7 +41,6 @@
     height: 100dvh;
     width: 100%;
     scroll-snap-align: start;
-    scroll-snap-stop: always;
     display: flex;
     flex-direction: column;
     align-items: center;

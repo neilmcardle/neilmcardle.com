@@ -905,13 +905,7 @@ export default function IconAnimator() {
                 boxShadow: "0 0 0 1px rgba(0,0,0,0.02), 0 1px 4px rgba(0,0,0,0.04)",
               }}
             >
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "minmax(260px, 360px) 1fr",
-                  gap: 0,
-                }}
-              >
+              <div className="ia-workshop-grid">
                 {/* Preview column */}
                 <div
                   style={{
