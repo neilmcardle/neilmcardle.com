@@ -107,7 +107,7 @@ function playDiceSound() {
     if (!_diceAudioPool) {
       _diceAudioPool = DICE_SOUNDS.map((src) => {
         const a = new Audio(src);
-        a.volume = 0.6;
+        a.volume = 1.0;
         return a;
       });
     }
@@ -125,7 +125,7 @@ function playTurnSound() {
   try {
     if (!_turnAudio) {
       _turnAudio = new Audio(TURN_SOUND);
-      _turnAudio.volume = 0.5;
+      _turnAudio.volume = 1.0;
     }
     _turnAudio.currentTime = 0;
     _turnAudio.play().catch(() => {});
@@ -140,7 +140,7 @@ function playLineSound() {
   try {
     if (!_lineAudio) {
       _lineAudio = new Audio("/triangles/line-sound.mp3");
-      _lineAudio.volume = 0.6;
+      _lineAudio.volume = 0.3;
     }
     _lineAudio.currentTime = 0;
     _lineAudio.play().catch(() => {});
@@ -234,7 +234,8 @@ export default function TrianglesGame() {
   const [budget, setBudget] = useState(0);
   const [rolling, setRolling] = useState(false);
   const [message, setMessage] = useState("");
-  const [confetti, setConfetti] = useState([]);
+  type ConfettiParticle = { id: number; left: number; color: string; delay: number; duration: number };
+  const [confetti, setConfetti] = useState<ConfettiParticle[]>([]);
   const [confirmDialog, setConfirmDialog] = useState(null); // { message, onConfirm }
   const [wins, setWins] = useState({ p1: 0, p2: 0 });
   const [muted, setMuted] = useState(false);
@@ -410,7 +411,27 @@ export default function TrianglesGame() {
   }, [turn, mode, gameOver]);
 
   useEffect(() => {
-    if (!gameOver || winner === "tie") return;
+    if (!gameOver) return;
+    // A tie still gets feedback — neutral confetti in muted ink, plus the
+    // line/turn sounds so the end of the game is unmistakable. No cheer,
+    // no tally bump.
+    if (winner === "tie") {
+      const tieParticles = [];
+      for (let i = 0; i < 24; i++) {
+        tieParticles.push({
+          id: i,
+          left: Math.random() * 100,
+          color: COLORS.ink,
+          delay: Math.random() * 0.2,
+          duration: 2.5 + Math.random() * 0.5,
+        });
+      }
+      setConfetti(tieParticles);
+      playTurnSound();
+      playLineSound();
+      const t = setTimeout(() => setConfetti([]), 3500);
+      return () => clearTimeout(t);
+    }
     // Generate confetti particles
     const particles = [];
     for (let i = 0; i < 40; i++) {
@@ -472,15 +493,21 @@ export default function TrianglesGame() {
   return (
     <div
       style={{
-        minHeight: "100vh",
+        // Lock the play area to the visible viewport on every device so the
+        // game never asks the player to scroll. 100dvh is the dynamic
+        // viewport that excludes mobile browser chrome correctly.
+        height: "100dvh",
+        maxHeight: "100dvh",
+        overflow: "hidden",
         background:
           "radial-gradient(circle at 30% 20%, #f7f1e3 0%, #efe6d3 60%, #e7dcc4 100%)",
         fontFamily: "'Georgia', serif",
         color: COLORS.ink,
-        padding: "24px 16px",
+        padding: "12px 12px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        justifyContent: "center",
         position: "relative",
       }}
     >
@@ -658,7 +685,15 @@ export default function TrianglesGame() {
       {/* Board */}
       <svg
         viewBox={`${minX} ${minY} ${maxX - minX} ${maxY - minY}`}
-        style={{ width: "min(92vw, 460px)", height: "auto", touchAction: "none" }}
+        style={{
+          // Cap by both viewport dimensions so the board fits without
+          // scrolling on short/landscape screens too. The 50vh ceiling
+          // leaves room for header, scores, and the control row.
+          width: "min(92vw, 460px, 50vh)",
+          height: "auto",
+          touchAction: "none",
+          flexShrink: 0,
+        }}
       >
         {/* triangle fills */}
         {triangles.map((t) => {

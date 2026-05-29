@@ -363,17 +363,14 @@ export default function VectorDrawingPad() {
   }
 
   const resetCanvas = () => {
-    if (window.confirm("Are you sure you want to reset the canvas?")) {
-      if (svgCanvasRef.current) {
-        svgCanvasRef.current.innerHTML = ""
-
-        // Add to history
-        const newState = svgCanvasRef.current.innerHTML
-        const newHistory = history.slice(0, historyIndex + 1)
-        setHistory([...newHistory, newState])
-        setHistoryIndex(historyIndex + 1)
-      }
-    }
+    // No native confirm dialog — it's unreliable on some mobile browsers
+    // and the reset is fully undoable via the history stack anyway.
+    if (!svgCanvasRef.current) return
+    svgCanvasRef.current.innerHTML = ""
+    const newState = svgCanvasRef.current.innerHTML
+    const newHistory = history.slice(0, historyIndex + 1)
+    setHistory([...newHistory, newState])
+    setHistoryIndex(historyIndex + 1)
   }
 
   const nextDrawingName = () => {

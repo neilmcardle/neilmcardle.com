@@ -207,7 +207,18 @@ export default function Toolbar({
       </div>
 
       <div className="flex flex-col items-center">
-        <button style={buttonStyle(false)} onClick={resetCanvas} aria-label="Reset">
+        <button
+          style={buttonStyle(false)}
+          onClick={resetCanvas}
+          // iPad inside a touch-action:none root can drop the synthesised
+          // click. touchend fires reliably; preventDefault stops the
+          // follow-up click from double-firing the handler.
+          onTouchEnd={(e) => {
+            e.preventDefault()
+            resetCanvas()
+          }}
+          aria-label="Reset"
+        >
           <RotateCcw size={18} />
         </button>
         <span style={labelStyle}>Reset</span>
