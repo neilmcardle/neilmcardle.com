@@ -74,12 +74,14 @@ function buildBoard(size) {
 }
 
 const COLORS = {
-  p1: "#ed7fbf", // light magenta (darker)
-  p2: "#4dd0e1", // light cyan
-  p1dark: "#d81b60", // dark magenta (for inactive text)
-  p2dark: "#00838f", // dark cyan (for inactive text)
-  p1soft: "rgba(237,127,191,0.18)",
-  p2soft: "rgba(77,208,225,0.25)",
+  // Slightly dark pink and slightly dark sky blue — softer than candy pop,
+  // saturated enough to feel like brand colours.
+  p1: "#d05c92",
+  p2: "#3a96b0",
+  p1dark: "#a04068",
+  p2dark: "#266978",
+  p1soft: "rgba(208,92,146,0.16)",
+  p2soft: "rgba(58,150,176,0.16)",
   ink: "#2b2622",
   ghost: "#d8cfc0",
 };
@@ -315,10 +317,15 @@ export default function TrianglesGame() {
     setBudget(nb);
     const player = turn;
     if (nb <= 0) {
-      playTurnSound();
-      setTurn(player === "p1" ? "p2" : "p1");
-      setDie(null);
-      setMessage("");
+      // Small pause so the final line is read before the turn animation
+      // starts. Without it the dot-slide fires the instant the last edge
+      // is drawn and the player misses what just happened.
+      window.setTimeout(() => {
+        playTurnSound();
+        setTurn(player === "p1" ? "p2" : "p1");
+        setDie(null);
+        setMessage("");
+      }, 350);
     } else {
       setMessage(`${gained ? `Captured ${gained}! ` : ""}${nb} line${nb > 1 ? "s" : ""} left.`);
     }
@@ -399,6 +406,10 @@ export default function TrianglesGame() {
         b--;
         setBudget(b);
       }
+      // Same brief pause used after the human's last line, so the CPU's
+      // closing move is visible before the turn slides back.
+      await new Promise((r) => setTimeout(r, 350));
+      if (cancelled) return;
       playTurnSound();
       setTurn("p1");
       setDie(null);
@@ -835,32 +846,40 @@ export default function TrianglesGame() {
         </button>
       </div>
 
-      {/* Board size */}
+      {/* Board size — hexagon icons. Stroke-only when unselected, filled
+          when selected. The hexagon radius scales with the board size so
+          the icon literally matches what you'll get. */}
       <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
         {[
           { label: "Small", s: 1 },
           { label: "Medium", s: 2 },
           { label: "Large", s: 3 },
-        ].map(({ label, s }) => (
-          <button
-            key={s}
-            className="btn"
-            onClick={() => {
-              if (size === s) return;
-              if (!inProgress) { changeSize(s); } else { requestConfirm(`End current game and start a new ${label} board?`, () => changeSize(s)); }
-            }}
-            style={{
-              background: size === s ? "#ffffff" : "transparent",
-              padding: "6px 12px",
-              fontSize: 13,
-              boxShadow: size === s
-                ? `0 0 0 2px #2b2622, 0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`
-                : `0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`,
-            }}
-          >
-            {label}
-          </button>
-        ))}
+        ].map(({ label, s }) => {
+          const selected = size === s;
+          return (
+            <button
+              key={s}
+              aria-label={label}
+              onClick={() => {
+                if (size === s) return;
+                if (!inProgress) { changeSize(s); } else { requestConfirm(`End current game and start a new ${label} board?`, () => changeSize(s)); }
+              }}
+              style={{
+                // Naked button — the hexagon icon IS the affordance.
+                background: "transparent",
+                border: "none",
+                padding: 4,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "none",
+              }}
+            >
+              <HexIcon s={s} selected={selected} />
+            </button>
+          );
+        })}
       </div>
 
       {/* Confirmation dialog */}
@@ -934,6 +953,35 @@ export default function TrianglesGame() {
   );
 }
 
+// Hexagon icon for the board-size buttons. Stroke-only when not selected,
+// solid fill when selected. Radius scales with board size (1/2/3).
+function HexIcon({ s, selected }: { s: number; selected: boolean }) {
+  const R = s === 1 ? 5 : s === 2 ? 8 : 11;
+  const c = 12;
+  const h = R * Math.sqrt(3) / 2;
+  const points = [
+    [c + R, c],
+    [c + R / 2, c + h],
+    [c - R / 2, c + h],
+    [c - R, c],
+    [c - R / 2, c - h],
+    [c + R / 2, c - h],
+  ]
+    .map(([x, y]) => `${x},${y}`)
+    .join(" ");
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
+      <polygon
+        points={points}
+        fill={selected ? "#2b2622" : "none"}
+        stroke="#2b2622"
+        strokeWidth={2}
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function TallyMarks({ count, color, align = "center" }) {
   // Group into fives (classic 5-bar gate)
   const groups = [];
@@ -971,33 +1019,32 @@ function TallyMarks({ count, color, align = "center" }) {
 }
 
 function Score({ name, onName, val, color, darkColor, active, tag, fillColor }) {
-  const txt = active 
-    ? (fillColor ? COLORS.ink : "#fbf7ef")
-    : (darkColor || color);
-  const bg = active ? (fillColor || color) : "transparent";
-  
+  const fillBg = fillColor || color;
+  const txt = active ? "#ffffff" : (darkColor || color);
+  const bg = active ? fillBg : "transparent";
+
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: "6px 12px",
-        borderRadius: 12,
-        border: "none",
+        justifyContent: "center",
+        gap: 4,
+        padding: "16px 22px",
+        borderRadius: 18,
+        border: `2px solid ${color}`,
         background: bg,
         color: txt,
-        minWidth: 84,
-        transition: "all .2s",
-        transform: active ? "scale(1.06)" : "scale(1)",
-        boxShadow: active
-          ? `0 0 0 2px ${color}, 0 2px 8px rgba(43,38,34,0.08), 0 0 16px ${color}66, inset 0 1px 0 rgba(255,255,255,0.2)`
-          : `0 0 0 2px ${color}, 0 2px 8px rgba(43,38,34,0.08), inset 0 1px 0 rgba(255,255,255,0.3)`,
+        minWidth: 140,
+        transition: "background 180ms ease, color 180ms ease, transform 180ms ease",
+        transform: active ? "scale(1.03)" : "scale(1)",
       }}
     >
       <input
         value={name}
         onChange={(e) => onName(e.target.value)}
+        onFocus={(e) => e.target.select()}
         maxLength={14}
         spellCheck={false}
         aria-label="Player name"
@@ -1006,21 +1053,45 @@ function Score({ name, onName, val, color, darkColor, active, tag, fillColor }) 
         style={{
           background: "transparent",
           border: "none",
-          borderBottom: `1px dashed ${active ? (fillColor ? COLORS.ink : "rgba(251,247,239,0.55)") : color}`,
           outline: "none",
+          boxShadow: "none",
+          // Strip the default iOS/Safari input chrome (the faint inner line
+          // some browsers render even with border:none).
+          WebkitAppearance: "none",
+          appearance: "none",
           textAlign: "center",
           fontFamily: "'Helvetica Neue',sans-serif",
-          fontSize: 12,
-          fontWeight: 600,
+          fontSize: 18,
+          fontWeight: 700,
+          letterSpacing: "-0.01em",
           color: txt,
-          width: 78,
-          padding: "1px 0 2px",
+          width: "100%",
+          padding: 0,
         }}
       />
-      <span style={{ fontFamily: "'Helvetica Neue',sans-serif", fontSize: 9, fontWeight: 600, opacity: 0.7, height: 11, marginTop: 1 }}>
-        {tag || ""}
+      {tag ? (
+        <span
+          style={{
+            fontFamily: "'Helvetica Neue',sans-serif",
+            fontSize: 11,
+            fontWeight: 500,
+            opacity: 0.75,
+          }}
+        >
+          {tag}
+        </span>
+      ) : null}
+      <span
+        style={{
+          fontFamily: "'Helvetica Neue',sans-serif",
+          fontSize: 48,
+          fontWeight: 800,
+          lineHeight: 1,
+          marginTop: 4,
+        }}
+      >
+        {val}
       </span>
-      <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, marginTop: 1 }}>{val}</span>
     </div>
   );
 }
