@@ -19,12 +19,14 @@ interface PreviewProps {
 }
 
 export function HomepageProjectPreview({ k }: PreviewProps) {
+  // Only the three "glass tile" products (makeEbook, DoodleWire, Tessera)
+  // render a preview. The other cards used to host animated SVG illustrations
+  // but those have been retired — return null so the row collapses cleanly
+  // without an empty frame on the right.
   const isGlass = k === "makeebook" || k === "doodlewire" || k === "tessera";
+  if (!isGlass) return null;
   return (
-    <div
-      className={`hpp-frame${isGlass ? " hpp-frame--glass" : ""}`}
-      aria-hidden="true"
-    >
+    <div className="hpp-frame hpp-frame--glass" aria-hidden="true">
       {renderForKey(k)}
     </div>
   );
@@ -56,7 +58,10 @@ function renderForKey(k: ProjectKey) {
 function TesseraPreview() {
   // Glass tile design from the product-icon handoff, ts- prefixed ids and
   // the Tessera logomark paths verbatim from /public/tessera/logo.svg.
-  // Logo native viewBox is 320×280; scaled 1.5× and centered into the 600
+  // Logo native viewBox is 320×280; rendered 1:1 and centered into the 600
+  // tile so visual weight matches makeEbook and DoodleWire previews.
+  // (320×280 art + (600−320)/2 = 140 left, (600−280)/2 = 160 top.)
+  // Was scale 1.5, knocked down by a third to match siblings.
   // square tile (translate 60,90 puts it in the centre).
   return (
     <svg viewBox="0 0 600 600" width="100%" height="100%" className="hpp-svg">
@@ -70,11 +75,6 @@ function TesseraPreview() {
           <stop offset=".55" stopColor="#000" stopOpacity="0" />
           <stop offset="1" stopColor="#000" stopOpacity=".55" />
         </radialGradient>
-        <filter id="ts-grain" x="0" y="0" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves={2} seed={11} />
-          <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .25 0" />
-          <feComposite in2="SourceGraphic" operator="in" />
-        </filter>
         <radialGradient id="ts-pool" cx=".5" cy="1.05" r=".55" fx=".5" fy="1.05">
           <stop offset="0" stopColor="#8A7F70" stopOpacity="1" />
           <stop offset=".45" stopColor="#8A7F70" stopOpacity=".55" />
@@ -120,12 +120,15 @@ function TesseraPreview() {
         <rect width="600" height="600" fill="url(#ts-tile)" />
         <rect width="600" height="600" fill="url(#ts-pool)" />
         <rect width="600" height="600" fill="url(#ts-vignette)" />
-        <rect width="600" height="600" filter="url(#ts-grain)" />
-        <g filter="url(#ts-shadow)" fill="url(#ts-body)">
-          <use href="#ts-logo" transform="translate(60,90) scale(1.5)" />
+        <g className="hpp-logo-body" filter="url(#ts-shadow)" fill="url(#ts-body)">
+          <use href="#ts-logo" transform="translate(140,160) scale(1)" />
         </g>
         <g mask="url(#ts-spec-mask)" style={{ mixBlendMode: "screen" }} fill="#ffffff">
-          <use href="#ts-logo" transform="translate(60,90) scale(1.5)" />
+          <use href="#ts-logo" transform="translate(140,160) scale(1)" />
+        </g>
+        {/* Bright overlay: opacity-faded in on card hover. */}
+        <g className="hpp-logo-bright" fill="#fbf9f3">
+          <use href="#ts-logo" transform="translate(140,160) scale(1)" />
         </g>
       </g>
     </svg>
@@ -148,11 +151,6 @@ function MakeEbookPreview() {
           <stop offset=".55" stopColor="#000" stopOpacity="0" />
           <stop offset="1" stopColor="#000" stopOpacity=".55" />
         </radialGradient>
-        <filter id="mb-grain" x="0" y="0" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves={2} seed={3} />
-          <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .25 0" />
-          <feComposite in2="SourceGraphic" operator="in" />
-        </filter>
         <radialGradient id="mb-pool" cx=".5" cy="1.05" r=".55" fx=".5" fy="1.05">
           <stop offset="0" stopColor="#8A7F70" stopOpacity="1" />
           <stop offset=".45" stopColor="#8A7F70" stopOpacity=".55" />
@@ -193,12 +191,16 @@ function MakeEbookPreview() {
         <rect width="600" height="600" fill="url(#mb-tile)" />
         <rect width="600" height="600" fill="url(#mb-pool)" />
         <rect width="600" height="600" fill="url(#mb-vignette)" />
-        <rect width="600" height="600" filter="url(#mb-grain)" />
-        <g filter="url(#mb-shadow)" fill="url(#mb-body)">
+        <g className="hpp-logo-body" filter="url(#mb-shadow)" fill="url(#mb-body)">
           <use href="#mb-top" transform="translate(167.6,162)" />
           <use href="#mb-bot" transform="translate(167.6,162)" />
         </g>
         <g mask="url(#mb-spec-mask)" style={{ mixBlendMode: "screen" }} fill="#ffffff">
+          <use href="#mb-top" transform="translate(167.6,162)" />
+          <use href="#mb-bot" transform="translate(167.6,162)" />
+        </g>
+        {/* Bright overlay: opacity-faded in on card hover. */}
+        <g className="hpp-logo-bright" fill="#fbf9f3">
           <use href="#mb-top" transform="translate(167.6,162)" />
           <use href="#mb-bot" transform="translate(167.6,162)" />
         </g>
@@ -222,11 +224,6 @@ function DoodleWirePreview() {
           <stop offset=".55" stopColor="#000" stopOpacity="0" />
           <stop offset="1" stopColor="#000" stopOpacity=".55" />
         </radialGradient>
-        <filter id="dw-grain" x="0" y="0" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves={2} seed={7} />
-          <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .25 0" />
-          <feComposite in2="SourceGraphic" operator="in" />
-        </filter>
         <radialGradient id="dw-pool" cx=".5" cy="1.05" r=".55" fx=".5" fy="1.05">
           <stop offset="0" stopColor="#8A7F70" stopOpacity="1" />
           <stop offset=".45" stopColor="#8A7F70" stopOpacity=".55" />
@@ -267,12 +264,16 @@ function DoodleWirePreview() {
         <rect width="600" height="600" fill="url(#dw-tile)" />
         <rect width="600" height="600" fill="url(#dw-pool)" />
         <rect width="600" height="600" fill="url(#dw-vignette)" />
-        <rect width="600" height="600" filter="url(#dw-grain)" />
-        <g filter="url(#dw-shadow)" fill="url(#dw-body)">
+        <g className="hpp-logo-body" filter="url(#dw-shadow)" fill="url(#dw-body)">
           <use href="#dw-top" transform="translate(189.47,201) scale(1.125)" />
           <use href="#dw-bot" transform="translate(189.47,201) scale(1.125)" />
         </g>
         <g mask="url(#dw-spec-mask)" style={{ mixBlendMode: "screen" }} fill="#ffffff">
+          <use href="#dw-top" transform="translate(189.47,201) scale(1.125)" />
+          <use href="#dw-bot" transform="translate(189.47,201) scale(1.125)" />
+        </g>
+        {/* Bright overlay: opacity-faded in on card hover. */}
+        <g className="hpp-logo-bright" fill="#fbf9f3">
           <use href="#dw-top" transform="translate(189.47,201) scale(1.125)" />
           <use href="#dw-bot" transform="translate(189.47,201) scale(1.125)" />
         </g>

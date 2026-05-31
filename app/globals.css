@@ -703,30 +703,9 @@ button:hover .palette-icon {
   100% { opacity: 0; --trace-angle:   0deg; }
 }
 
-/* Auto-loop the racing border across all viewports: sweep ~5s, rest ~4s,
-   staggered per card so the highlight rolls through the grid as a wave.
-   Hover on desktop still triggers the original one-shot trace above
-   (animation cascade lets the hover rule override this). Respect
-   prefers-reduced-motion. */
-@media (prefers-reduced-motion: no-preference) {
-  .project-card-trace::after {
-    animation: project-card-trace-mobile 9s linear infinite;
-  }
-  .project-card-trace:nth-child(2)::after { animation-delay: 1.1s; }
-  .project-card-trace:nth-child(3)::after { animation-delay: 2.2s; }
-  .project-card-trace:nth-child(4)::after { animation-delay: 3.3s; }
-  .project-card-trace:nth-child(5)::after { animation-delay: 4.4s; }
-  .project-card-trace:nth-child(6)::after { animation-delay: 5.5s; }
-  .project-card-trace:nth-child(7)::after { animation-delay: 6.6s; }
-  .project-card-trace:nth-child(8)::after { animation-delay: 7.7s; }
-}
-
-@keyframes project-card-trace-mobile {
-  0%   { opacity: 1; --trace-angle: 360deg; }
-  55%  { opacity: 1; --trace-angle:   0deg; }
-  56%  { opacity: 0; --trace-angle:   0deg; }
-  100% { opacity: 0; --trace-angle:   0deg; }
-}
+/* Auto-loop trace removed. The hover rule above is the only trigger now,
+   so the border lights up only when the user actually engages with a
+   card instead of pulsing constantly. */
 
 /* AI "thinking" text shimmer — a highlight sweeps left-to-right across
    the glyphs. Clipping a moving gradient to text produces the classic
@@ -1161,6 +1140,26 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   }
 }
 
+/* Glass-tile logos brighten to white when the card is hovered. The fill
+   transition replaces the dark body gradient with solid white, lifting
+   the wordmark out of the tile. Only applies on hover-capable pointers
+   so touch devices don't end up stuck in the bright state. */
+/* Bright overlay of the logo, painted in solid #fbf9f3 and stacked on
+   top of the gradient body. Opacity actually interpolates (fill between
+   a paint-server gradient and a solid colour does not, which is why the
+   earlier fill-transition snapped). The card's hover state fades the
+   overlay in over a long, soft curve so it reads as a gradual emergence. */
+.hpp-logo-bright {
+  opacity: 0;
+  transition: opacity 2.2s cubic-bezier(0.16, 0.4, 0.3, 1);
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .project-card-trace:hover .hpp-logo-bright {
+    opacity: 1;
+  }
+}
+
 /* On mouse-driven desktops only, the animations stay paused until the card
    is hovered. The combined (hover: hover) and (pointer: fine) gate excludes
    Safari iOS (which lies about hover support for legacy reasons) and any
@@ -1329,3 +1328,29 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 }
 .hpp-tr-a { animation: hpp-tr-fill 3s ease-in-out infinite; }
 .hpp-tr-b { animation: hpp-tr-fill 3s ease-in-out infinite; animation-delay: 1.5s; }
+
+/* Homepage previews — animations disabled for the non-glass-tile cards
+   (Vector Paint, Icon Animator, Promptr, Spark, Touchtype, Kids Alphabet).
+   Tessera, makeEbook and DoodleWire are static glass tiles already.
+   The opacity tweaks force a single readable resting frame on previews
+   where multiple stacked layers were time-shifted into view by the
+   removed animations. */
+.hpp-vp-stroke,
+.hpp-vp-nib,
+.hpp-ia-glyph,
+.hpp-pr-wavy,
+.hpp-pr-sharp,
+.hpp-sp-sketch,
+.hpp-sp-code,
+.hpp-tt-key,
+.hpp-ka-letter,
+.hpp-ka-a,
+.hpp-ka-b,
+.hpp-ka-c {
+  animation: none !important;
+}
+.hpp-pr-sharp { opacity: 1 !important; }
+.hpp-pr-wavy { display: none; }
+.hpp-vp-nib { display: none; }
+.hpp-ka-letter { opacity: 0; }
+.hpp-ka-a { opacity: 1 !important; transform: scale(1) !important; }

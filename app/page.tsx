@@ -59,6 +59,16 @@ const PROJECTS: Project[] = [
   },
   {
     number: "03",
+    key: "tessera",
+    title: "Tessera",
+    description:
+      "The Triangle Game. A two-player dice game on a hexagonal triangle grid. Roll, claim edges, complete triangles, win the board.",
+    href: "/tessera",
+    external: false,
+    category: "Game · Solo-built",
+  },
+  {
+    number: "04",
     key: "vector-paint",
     title: "Vector Paint",
     description:
@@ -68,7 +78,7 @@ const PROJECTS: Project[] = [
     category: "Tool · SVG · Drawing",
   },
   {
-    number: "04",
+    number: "05",
     key: "icon-animator",
     title: "Icon Animator",
     description:
@@ -78,7 +88,7 @@ const PROJECTS: Project[] = [
     category: "Tool · Front-end",
   },
   {
-    number: "05",
+    number: "06",
     key: "promptr",
     title: "Promptr",
     description:
@@ -88,7 +98,7 @@ const PROJECTS: Project[] = [
     category: "Tool · AI · UX",
   },
   {
-    number: "06",
+    number: "07",
     key: "spark",
     title: "Spark",
     description:
@@ -98,7 +108,7 @@ const PROJECTS: Project[] = [
     category: "Product · Education · Solo-built",
   },
   {
-    number: "07",
+    number: "08",
     key: "touchtype",
     title: "Touchtype",
     description:
@@ -108,7 +118,7 @@ const PROJECTS: Project[] = [
     category: "Tool · Education · Solo-built",
   },
   {
-    number: "08",
+    number: "09",
     key: "kids-alphabet",
     title: "Kids Alphabet",
     description:
@@ -116,16 +126,6 @@ const PROJECTS: Project[] = [
     href: "/kids-alphabet/",
     external: true,
     category: "Tool · Education · Solo-built",
-  },
-  {
-    number: "09",
-    key: "tessera",
-    title: "Tessera",
-    description:
-      "The Triangle Game. A two-player dice game on a hexagonal triangle grid. Roll, claim edges, complete triangles, win the board.",
-    href: "/tessera",
-    external: false,
-    category: "Game · Solo-built",
   },
 ];
 
@@ -412,7 +412,7 @@ export default function Homepage() {
               href="https://elevenreader.io/audiobooks/sol0-audiobook/lDuTf0Co8szKJBdzzAnu"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center gap-5 sm:gap-6 border-2 border-[#8a7f70]/50 hover:border-[#fbf9f3] transition-all duration-300 p-4 sm:p-5"
+              className="group flex items-center gap-5 sm:gap-6 border-2 border-transparent transition-all duration-300 p-4 sm:p-5"
             >
               <div
                 className="text-[#8a7f70] flex-shrink-0"
@@ -455,32 +455,18 @@ export default function Homepage() {
                     textTransform: "uppercase",
                   }}
                 >
-                  Sci-Fi
-                  <span className="sm:hidden"> · Listen on ElevenReader</span>
-                  <span className="hidden sm:inline"> · Written · Designed · Published</span>
+                  Sci-Fi · Listen on ElevenReader
+                  <svg
+                    className="inline-block ml-1 w-3 h-3 align-[-1px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    aria-hidden
+                  >
+                    <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0 text-[#8a7f70] group-hover:text-[#fbf9f3] transition-colors">
-                <span
-                  className="hidden sm:inline whitespace-nowrap"
-                  style={{
-                    fontSize: "0.6875rem",
-                    fontFamily: "var(--font-jetbrains-mono)",
-                    letterSpacing: "0.13em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Listen on ElevenReader
-                </span>
-                <svg
-                  className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                >
-                  <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
               </div>
             </a>
           </div>
@@ -509,7 +495,7 @@ export default function Homepage() {
               <Link
                 key={p.slug}
                 href="/paintings"
-                className="group flex items-center gap-5 sm:gap-6 border-2 border-[#8a7f70]/50 hover:border-[#fbf9f3] transition-all duration-300 p-4 sm:p-5"
+                className="group flex items-center gap-5 sm:gap-6 border-2 border-transparent transition-all duration-300 p-4 sm:p-5"
               >
                 <div
                   className="text-[#8a7f70] flex-shrink-0"
@@ -691,8 +677,12 @@ function ProjectCard({ project }: { project: Project }) {
   // top content and the footer row (category + optional App Store badge)
   // lives below as its own row of siblings — that lets the badge be its own
   // clickable target without nesting an <a> inside an <a>.
+  // Static border removed per design — only the project-card-trace::after
+  // animation appears on hover. Keep border-2 with transparent color so the
+  // box still reserves 2px on each side, preventing layout shift when the
+  // trace overlay paints over the card edge.
   const wrapperClassName =
-    "project-card-trace group relative block border-2 border-[#8a7f70]/50 hover:border-[#fbf9f3] transition-all duration-300 p-6 sm:p-8";
+    "project-card-trace group relative block border-2 border-transparent transition-all duration-300 p-6 sm:p-8";
 
   const linkClassName = "block";
 
@@ -749,7 +739,7 @@ function ProjectCard({ project }: { project: Project }) {
                 textTransform: "uppercase",
               }}
             >
-              Download the {project.title} App
+              Download on iPhone &amp; iPad
             </span>
             <svg
               className="w-3 h-3 group-hover/ios:translate-x-0.5 group-hover/ios:-translate-y-0.5 transition-transform"

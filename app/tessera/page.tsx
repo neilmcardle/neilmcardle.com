@@ -505,14 +505,13 @@ export default function Tessera() {
   return (
     <div
       style={{
-        // Lock the play area to the visible viewport on every device so the
-        // game never asks the player to scroll. 100dvh is the dynamic
-        // viewport that excludes mobile browser chrome correctly.
-        height: "100dvh",
-        maxHeight: "100dvh",
-        overflow: "hidden",
-        background:
-          "radial-gradient(circle at 30% 20%, #f7f1e3 0%, #efe6d3 60%, #e7dcc4 100%)",
+        // Use min-height so the page CAN grow if content exceeds the
+        // viewport on a narrow window. overflow-y:auto lets the user scroll
+        // in that case instead of clipping elements off the top and bottom.
+        // box-sizing:border-box keeps padding inside the height calc.
+        minHeight: "100dvh",
+        boxSizing: "border-box",
+        background: "#f7f1e3",
         fontFamily: "'Georgia', serif",
         color: COLORS.ink,
         padding: "12px 12px",

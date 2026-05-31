@@ -522,7 +522,11 @@ export default function Tessera() {
         background: "#f7f1e3",
         fontFamily: "'Georgia', serif",
         color: COLORS.ink,
-        padding: "calc(env(safe-area-inset-top, 0px) + 12px) calc(env(safe-area-inset-right, 0px) + 12px) calc(env(safe-area-inset-bottom, 0px) + 32px) calc(env(safe-area-inset-left, 0px) + 12px)",
+        // Bottom padding reserves space for the absolutely-positioned bottom
+        // nav (mode + size buttons). The nav owns the safe-area-bottom
+        // itself, so root just needs nav-height clearance. Adjust if nav
+        // grows in height.
+        padding: "calc(env(safe-area-inset-top, 0px) + 12px) calc(env(safe-area-inset-right, 0px) + 12px) calc(env(safe-area-inset-bottom, 0px) + 128px) calc(env(safe-area-inset-left, 0px) + 12px)",
         // Grid layout. Header rows take natural height, board row absorbs
         // remaining space, control rows pin to the bottom. CRITICAL: the
         // board row uses minmax(0, 1fr) instead of bare `1fr`. Bare `1fr`
@@ -536,7 +540,7 @@ export default function Tessera() {
         // every row. Replaces the 1fr "absorber" pattern which dumped all
         // slack into a single gap. Now every element has matching
         // breathing room and nothing crowds the top or bottom edge.
-        gridTemplateRows: "auto auto auto auto auto auto",
+        gridTemplateRows: "auto auto auto auto",
         justifyItems: "center",
         alignContent: "space-evenly",
         position: "relative",
@@ -645,6 +649,23 @@ export default function Tessera() {
         >
           The Triangle Game
         </span>
+        {/* Build marker. Bumped every time meaningful changes ship so you
+            can verify the running simulator/device actually has the new
+            bundle. If you don't see this number on screen, you're looking
+            at a stale install. */}
+        <span
+          style={{
+            fontSize: 9,
+            fontWeight: 500,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            opacity: 0.35,
+            marginLeft: 4,
+          }}
+          aria-hidden
+        >
+          BUILD 3
+        </span>
       </h1>
 
       {/* Scoreboard */}
@@ -691,7 +712,10 @@ export default function Tessera() {
           maxWidth: "min(92vw, 460px)",
           width: "100%",
           height: "auto",
-          touchAction: "none",
+          // touchAction:manipulation lets the OS handle scroll/zoom while
+          // still firing pointer events on children. Setting it to "none"
+          // here was swallowing taps on the line hit-areas in Capacitor.
+          touchAction: "manipulation",
           display: "block",
           justifySelf: "center",
           minHeight: 0,
@@ -721,12 +745,18 @@ export default function Tessera() {
           const interactive = budget > 0 && canHumanAct && !isDrawn && !rolling && !gameOver;
           return (
             <g key={e.key}>
-              {/* hit area */}
+              {/* Hit area. iOS WKWebView under Capacitor has been flaky with
+                  onPointerDown alone, so we belt-and-brace with onClick and
+                  onTouchStart fallbacks. The handler is idempotent — calling
+                  it twice for one tap is harmless because handleEdgeClick
+                  bails on already-drawn edges. */}
               <line
                 x1={A.x} y1={A.y} x2={B.x} y2={B.y}
-                stroke="transparent" strokeWidth={20}
-                style={{ cursor: interactive ? "pointer" : "default", touchAction: "none" }}
+                stroke="transparent" strokeWidth={24}
+                style={{ cursor: interactive ? "pointer" : "default", touchAction: "manipulation" }}
                 onPointerDown={(ev) => { ev.preventDefault(); handleEdgeClick(e.key); }}
+                onTouchStart={(ev) => { ev.preventDefault(); handleEdgeClick(e.key); }}
+                onClick={() => handleEdgeClick(e.key)}
               />
               <line
                 x1={A.x} y1={A.y} x2={B.x} y2={B.y}
@@ -796,7 +826,28 @@ export default function Tessera() {
         </div>
       </div>
 
-      {/* Mode + reset */}
+      {/* Bottom nav. Fixed to the bottom edge of the screen like a native
+          iOS tab bar. Background extends through the home-indicator safe
+          area zone so the cream reads as one continuous surface. */}
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "#f7f1e3",
+          borderTop: "1px solid rgba(43,38,34,0.08)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 6,
+          paddingTop: 8,
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 6px)",
+          paddingLeft: "calc(env(safe-area-inset-left, 0px) + 12px)",
+          paddingRight: "calc(env(safe-area-inset-right, 0px) + 12px)",
+          zIndex: 10,
+        }}
+      >
       <div style={{ display: "flex", gap: 10 }}>
         <button
           className="btn"
@@ -888,6 +939,7 @@ export default function Tessera() {
             </button>
           );
         })}
+      </div>
       </div>
 
       {/* Settings sheet */}
