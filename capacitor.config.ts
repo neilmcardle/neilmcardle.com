@@ -15,7 +15,13 @@ const config: CapacitorConfig = {
   appName: 'Tessera',
   webDir: 'tessera-app/dist',
   ios: {
-    contentInset: 'always',
+    // 'never' lets the WebView fill the entire device screen, including
+    // through the home-indicator safe area zone. With 'always', iOS adds
+    // a content inset INSIDE the WebView so the WebView's viewport is
+    // shorter than the device screen, and any `position:fixed; bottom:0`
+    // element pins to the inset edge rather than the device edge —
+    // leaving a strip of the Capacitor native background visible below.
+    contentInset: 'never',
     backgroundColor: '#f7f1e3',
   },
   // Uncomment for local dev — hot-reload Tessera in the iOS simulator.

@@ -99,6 +99,27 @@ const TURN_SOUND = "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU5L
 let _soundMuted = false;
 function setSoundMuted(v) { _soundMuted = v; }
 
+// ---------- Persistent storage ----------
+// Tessera persists a small amount of state to localStorage so the win tally,
+// player names, and sound preference survive across app launches. Wrapped in
+// try/catch because Capacitor's WKWebView occasionally throws on storage
+// access during cold-start before the page has been "trusted".
+function loadStored<T>(key: string, fallback: T): T {
+  try {
+    const v = localStorage.getItem(key);
+    return v != null ? (JSON.parse(v) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+function saveStored(key: string, value: unknown) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* swallow — non-fatal */
+  }
+}
+
 let _diceAudioPool = null;
 function playDiceSound() {
   if (_soundMuted) return;
@@ -224,8 +245,8 @@ export default function Tessera() {
   const { points, edges, triangles } = board;
 
   const [mode, setMode] = useState("cpu"); // "cpu" | "hotseat"
-  const [p1Name, setP1Name] = useState("Player 1");
-  const [p2Name, setP2Name] = useState("Player 2");
+  const [p1Name, setP1Name] = useState(() => loadStored<string>("tessera.p1Name", "Player 1"));
+  const [p2Name, setP2Name] = useState(() => loadStored<string>("tessera.p2Name", "Player 2"));
   const [drawn, setDrawn] = useState(() => new Map()); // edgeKey -> player
   const [owners, setOwners] = useState(() => new Map()); // triKey -> player
   const [turn, setTurn] = useState("p1");
@@ -236,9 +257,16 @@ export default function Tessera() {
   type ConfettiParticle = { id: number; left: number; color: string; delay: number; duration: number };
   const [confetti, setConfetti] = useState<ConfettiParticle[]>([]);
   const [confirmDialog, setConfirmDialog] = useState(null); // { message, onConfirm }
-  const [wins, setWins] = useState({ p1: 0, p2: 0 });
-  const [muted, setMuted] = useState(false);
+  const [wins, setWins] = useState(() => loadStored<{ p1: number; p2: number }>("tessera.wins", { p1: 0, p2: 0 }));
+  const [muted, setMuted] = useState(() => loadStored<boolean>("tessera.muted", false));
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Persist user-facing prefs whenever they change. Sound mute is also
+  // mirrored into the audio-helper module so playLineSound etc. see it.
+  useEffect(() => { saveStored("tessera.wins", wins); }, [wins]);
+  useEffect(() => { saveStored("tessera.p1Name", p1Name); }, [p1Name]);
+  useEffect(() => { saveStored("tessera.p2Name", p2Name); }, [p2Name]);
+  useEffect(() => { saveStored("tessera.muted", muted); setSoundMuted(muted); }, [muted]);
 
   const nameOf = (p) =>
     (p === "p1" ? p1Name.trim() : p2Name.trim()) || (p === "p1" ? "Player 1" : "Player 2");
@@ -502,57 +530,53 @@ export default function Tessera() {
   return (
     <div
       style={{
-        // Lock the play area to the visible viewport on every device so the
-        // game never asks the player to scroll. 100dvh is the dynamic
-        // viewport that excludes mobile browser chrome correctly.
+        // Root is a flex column: game area on top (flex:1, takes whatever's
+        // available), bottom nav below (natural height, owns its own
+        // safe-area-bottom). This mirrors how UIKit lays out a screen with
+        // a UITabBar — the bar sits flush against the home indicator, and
+        // the content view fills everything above it. No more cream gap.
         height: "100dvh",
         maxHeight: "100dvh",
         overflow: "hidden",
-        // CRITICAL: without border-box the padding (~83px of safe-area-top
-        // + 12 top + 12 bottom) is ADDED to 100dvh, making the element
-        // taller than the viewport, and overflow:hidden clips the bottom —
-        // which is where the dice and buttons live. This was the actual
-        // root cause of the "buttons disappear off the bottom" bug.
         boxSizing: "border-box",
-        // Solid cream, matching the body background in index.html. A radial
-        // gradient was used previously, but it made the safe-area zone at
-        // the bottom of the screen visibly contrast with the content area
-        // (lighter at the edges, darker towards the gradient end). Same
-        // visual trick DoodleWire uses — solid bg = invisible safe area.
         background: "#f7f1e3",
         fontFamily: "'Georgia', serif",
         color: COLORS.ink,
-        // Bottom padding reserves space for the absolutely-positioned bottom
-        // nav (mode + size buttons). The nav owns the safe-area-bottom
-        // itself, so root just needs nav-height clearance. Adjust if nav
-        // grows in height.
-        padding: "calc(env(safe-area-inset-top, 0px) + 12px) calc(env(safe-area-inset-right, 0px) + 12px) calc(env(safe-area-inset-bottom, 0px) + 128px) calc(env(safe-area-inset-left, 0px) + 12px)",
-        // Grid layout. Header rows take natural height, board row absorbs
-        // remaining space, control rows pin to the bottom. CRITICAL: the
-        // board row uses minmax(0, 1fr) instead of bare `1fr`. Bare `1fr`
-        // is shorthand for minmax(auto, 1fr), and the SVG's intrinsic size
-        // from its viewBox makes `auto` huge, which refuses to shrink and
-        // pushes the dice/buttons off the bottom of the viewport.
-        // minmax(0, 1fr) lets the row genuinely fill-or-shrink.
-        display: "grid",
-        // All rows auto-sized, then alignContent: space-evenly distributes
-        // any leftover vertical space EQUALLY above, between, and below
-        // every row. Replaces the 1fr "absorber" pattern which dumped all
-        // slack into a single gap. Now every element has matching
-        // breathing room and nothing crowds the top or bottom edge.
-        gridTemplateRows: "auto auto auto auto",
-        justifyItems: "center",
-        alignContent: "space-evenly",
+        display: "flex",
+        flexDirection: "column",
         position: "relative",
       }}
     >
+      <div
+        style={{
+          // Game area is a flex column. Title + scoreboard sit at the top.
+          // Board is wrapped in a flex:1 centering div so it fills the
+          // available middle space and stays vertically centred. Dice sits
+          // at the bottom of the game area, directly above the nav. No
+          // grid, no 1fr row, no aligncontent guesswork.
+          flex: 1,
+          minHeight: 0,
+          width: "100%",
+          boxSizing: "border-box",
+          // Reserve enough bottom padding for the fixed nav (mode row ~38
+          // + 6 top + 4 bottom + border + safe-area-bottom). Adding the
+          // safe-area inset here keeps the dice fully visible above the
+          // nav on phones with home-indicator zones.
+          padding: "calc(env(safe-area-inset-top, 0px) + 24px) calc(env(safe-area-inset-right, 0px) + 12px) calc(env(safe-area-inset-bottom, 0px) + 80px) calc(env(safe-area-inset-left, 0px) + 12px)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 18,
+          position: "relative",
+        }}
+      >
       {/* No "back" affordance in the native iOS app — the system home gesture is the way out. */}
       <style>{`
         @keyframes drawIn { from { stroke-dashoffset: 70; } to { stroke-dashoffset: 0; } }
         @keyframes wash { from { opacity:0; transform:scale(0.6);} to {opacity:1; transform:scale(1);} }
         .edge-line { stroke-dasharray: 70; animation: drawIn 0.25s ease forwards; }
         .tri-fill { transform-origin: center; transform-box: fill-box; animation: wash 0.3s ease forwards; }
-        .btn { cursor:pointer; border:none; background:transparent; padding:8px 16px; border-radius:10px; font-family:'Helvetica Neue',sans-serif; font-weight:600; font-size:14px; color:${COLORS.ink}; -webkit-appearance:none; appearance:none; box-shadow: 0 0 0 2px ${COLORS.ink}, 0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08); transition:transform .1s, box-shadow .15s; }
+        .btn { cursor:pointer; border:none; background:transparent; padding:6px 14px; border-radius:10px; font-family:'Helvetica Neue',sans-serif; font-weight:600; font-size:14px; color:${COLORS.ink}; -webkit-appearance:none; appearance:none; box-shadow: 0 0 0 2px ${COLORS.ink}, 0 2px 0 0 rgba(43,38,34,0.3), 0 4px 10px rgba(43,38,34,0.1), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08); transition:transform .1s, box-shadow .15s; }
         .btn:hover { transform:translateY(-1px); }
         .btn:active { transform:translateY(2px); box-shadow: 0 0 0 2px ${COLORS.ink}, 0 1px 0 0 rgba(43,38,34,0.2), 0 2px 6px rgba(43,38,34,0.1), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.1); }
         @keyframes dieJiggle {
@@ -619,16 +643,16 @@ export default function Tessera() {
           letterSpacing: 1,
           fontWeight: 700,
           lineHeight: 1,
-          textAlign: "center",
+          textAlign: "left",
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
-          gap: 10,
+          gap: 12,
           flexWrap: "nowrap",
         }}
       >
-        {/* Logomark, wordmark and subtitle on a single row. */}
+        {/* Logomark sits left of a stacked wordmark + subtitle. */}
         <img
           src="logo.svg"
           alt=""
@@ -637,34 +661,19 @@ export default function Tessera() {
           height={32}
           style={{ display: "block", flexShrink: 0 }}
         />
-        <span style={{ fontSize: "clamp(28px, 6vw, 40px)" }}>Tessera</span>
-        <span
-          style={{
-            fontSize: "clamp(10px, 2vw, 12px)",
-            fontWeight: 500,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            opacity: 0.55,
-          }}
-        >
-          The Triangle Game
-        </span>
-        {/* Build marker. Bumped every time meaningful changes ship so you
-            can verify the running simulator/device actually has the new
-            bundle. If you don't see this number on screen, you're looking
-            at a stale install. */}
-        <span
-          style={{
-            fontSize: 9,
-            fontWeight: 500,
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            opacity: 0.35,
-            marginLeft: 4,
-          }}
-          aria-hidden
-        >
-          BUILD 3
+        <span style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <span style={{ fontSize: "clamp(28px, 6vw, 40px)", lineHeight: 1 }}>Tessera</span>
+          <span
+            style={{
+              fontSize: "clamp(10px, 2vw, 12px)",
+              fontWeight: 500,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              opacity: 0.7,
+            }}
+          >
+            The Triangle Game
+          </span>
         </span>
       </h1>
 
@@ -704,12 +713,16 @@ export default function Tessera() {
         </svg>
       </div>
 
-      {/* Board */}
+      {/* Board wrapper. flex:1 lets it absorb whatever vertical space is
+          left between the scoreboard above and the dice below, centring
+          the SVG inside. */}
+      <div style={{ flex: 1, minHeight: 0, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <svg
         viewBox={`${minX} ${minY} ${maxX - minX} ${maxY - minY}`}
         preserveAspectRatio="xMidYMid meet"
         style={{
           maxWidth: "min(92vw, 460px)",
+          maxHeight: "100%",
           width: "100%",
           height: "auto",
           // touchAction:manipulation lets the OS handle scroll/zoom while
@@ -778,6 +791,7 @@ export default function Tessera() {
         ))}
 
       </svg>
+      </div>
 
       {/* Controls */}
       <div style={{ display: "flex", alignItems: "center", gap: 16, justifyContent: "center" }}>
@@ -826,26 +840,33 @@ export default function Tessera() {
         </div>
       </div>
 
-      {/* Bottom nav. Fixed to the bottom edge of the screen like a native
-          iOS tab bar. Background extends through the home-indicator safe
-          area zone so the cream reads as one continuous surface. */}
+      </div>
+
+      {/* Bottom nav. Sits at the literal bottom edge of the screen — the
+          safe-area-inset-bottom padding has been removed at the user's
+          request, so the home-indicator pill iOS draws will overlap the
+          size hex icons. Not Apple HIG-compliant but matches the requested
+          look. */}
       <div
         style={{
-          position: "absolute",
+          // position:fixed anchors the nav to the viewport's literal bottom
+          // edge, bypassing any flex container that might be miscalculating
+          // its height. zIndex keeps it above the game canvas.
+          position: "fixed",
           left: 0,
           right: 0,
           bottom: 0,
+          zIndex: 50,
           background: "#f7f1e3",
           borderTop: "1px solid rgba(43,38,34,0.08)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           gap: 6,
-          paddingTop: 8,
-          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 6px)",
+          paddingTop: 6,
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 4px)",
           paddingLeft: "calc(env(safe-area-inset-left, 0px) + 12px)",
           paddingRight: "calc(env(safe-area-inset-right, 0px) + 12px)",
-          zIndex: 10,
         }}
       >
       <div style={{ display: "flex", gap: 10 }}>
@@ -908,38 +929,6 @@ export default function Tessera() {
         </button>
       </div>
 
-      {/* Board size — naked hex icons. */}
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        {[
-          { label: "Small", s: 1 },
-          { label: "Medium", s: 2 },
-          { label: "Large", s: 3 },
-        ].map(({ label, s }) => {
-          const selected = size === s;
-          return (
-            <button
-              key={s}
-              aria-label={label}
-              onClick={() => {
-                if (size === s) return;
-                if (!inProgress) { changeSize(s); } else { requestConfirm(`End current game and start a new ${label} board?`, () => changeSize(s)); }
-              }}
-              style={{
-                background: "transparent",
-                border: "none",
-                padding: 4,
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "none",
-              }}
-            >
-              <HexIcon s={s} selected={selected} />
-            </button>
-          );
-        })}
-      </div>
       </div>
 
       {/* Settings sheet */}
@@ -1013,6 +1002,75 @@ export default function Tessera() {
                 on={!muted}
                 onChange={(v) => { setMuted(!v); setSoundMuted(!v); }}
               />
+            </SettingRow>
+
+            <div style={{ height: 1, background: "rgba(43,38,34,0.12)" }} />
+
+            {/* Board size — moved here from the bottom nav so the nav stays a
+                single compact row of mode buttons. The hex icons preview the
+                resulting board shape; tap to change. */}
+            <SettingRow
+              label="Board size"
+              hint={size === 1 ? "Small" : size === 2 ? "Medium" : "Large"}
+            >
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                {[
+                  { label: "Small", s: 1 },
+                  { label: "Medium", s: 2 },
+                  { label: "Large", s: 3 },
+                ].map(({ label, s }) => {
+                  const selected = size === s;
+                  return (
+                    <button
+                      key={s}
+                      aria-label={label}
+                      onClick={() => {
+                        if (size === s) return;
+                        if (!inProgress) { changeSize(s); } else { requestConfirm(`End current game and start a new ${label} board?`, () => changeSize(s)); }
+                      }}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        padding: 4,
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "none",
+                      }}
+                    >
+                      <HexIcon s={s} selected={selected} />
+                    </button>
+                  );
+                })}
+              </div>
+            </SettingRow>
+
+            <div style={{ height: 1, background: "rgba(43,38,34,0.12)" }} />
+
+            {/* Reset tally — wipes the persisted win counter for both
+                players. Confirmation prevents accidental taps. */}
+            <SettingRow label="Win tally">
+              <button
+                onClick={() => {
+                  if (wins.p1 === 0 && wins.p2 === 0) return;
+                  requestConfirm("Reset the win tally for both players?", () => setWins({ p1: 0, p2: 0 }));
+                }}
+                style={{
+                  background: "transparent",
+                  border: `2px solid ${COLORS.ink}`,
+                  borderRadius: 10,
+                  padding: "6px 12px",
+                  fontFamily: "'Helvetica Neue',sans-serif",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: COLORS.ink,
+                  cursor: "pointer",
+                  opacity: wins.p1 === 0 && wins.p2 === 0 ? 0.35 : 1,
+                }}
+              >
+                Reset
+              </button>
             </SettingRow>
 
             <div style={{ height: 1, background: "rgba(43,38,34,0.12)" }} />
