@@ -1354,3 +1354,24 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 .hpp-vp-nib { display: none; }
 .hpp-ka-letter { opacity: 0; }
 .hpp-ka-a { opacity: 1 !important; transform: scale(1) !important; }
+
+/* Homepage typography: kill single-word widows. text-wrap: pretty fixes the
+   last line of body prose; balance evens out short headings. Scoped to the
+   home-prose container so it does not drift into the product pages. */
+.home-prose p,
+.home-prose li {
+  text-wrap: pretty;
+}
+.home-prose h1,
+.home-prose h2,
+.home-prose h3 {
+  text-wrap: balance;
+}
+
+/* neilmcardle.com personal-site (dark) palette as CSS variables, for the few
+   inline style={{ color }} usages on the homepage and paintings page that
+   can't reference Tailwind theme colors. Mirrors cream/tan in tailwind.config. */
+:root {
+  --cream: #fbf9f3;
+  --tan: #8a7f70;
+}

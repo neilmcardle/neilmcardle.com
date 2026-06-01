@@ -1,7 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
-import { PAINTINGS } from "./paintings/paintings";
+
+// Destination for the Subscribe buttons — the live Stripe Payment Link for the
+// Design and Build Subscription (£6,995/mo). Hosted checkout keeps the promise
+// of "email, payment, you're in, two minutes" with no backend.
+const SUBSCRIBE_URL = "https://buy.stripe.com/aFa5kFcdv3Te4dX9VKfIs00";
+
+// Sol0 links. The audiobook is live on ElevenReader. The ebook (made with
+// makeEbook) is not published yet — likely Amazon KDP. Paste the listing URL
+// into SOL0_EBOOK_URL to light up the "Read the ebook" action; until then it
+// stays hidden so there is no dead link.
+const SOL0_AUDIOBOOK_URL =
+  "https://elevenreader.io/audiobooks/sol0-audiobook/lDuTf0Co8szKJBdzzAnu";
+const SOL0_EBOOK_URL = "";
 
 // Ripple line positions as explicit viewport percentages — ported from
 // the gated /portfolio template so the public homepage shares the same
@@ -59,16 +71,6 @@ const PROJECTS: Project[] = [
   },
   {
     number: "03",
-    key: "tessera",
-    title: "Tessera",
-    description:
-      "The Triangle Game. A two-player dice game on a hexagonal triangle grid. Roll, claim edges, complete triangles, win the board.",
-    href: "/tessera",
-    external: false,
-    category: "Game · Solo-built",
-  },
-  {
-    number: "04",
     key: "vector-paint",
     title: "Vector Paint",
     description:
@@ -78,7 +80,7 @@ const PROJECTS: Project[] = [
     category: "Tool · SVG · Drawing",
   },
   {
-    number: "05",
+    number: "04",
     key: "icon-animator",
     title: "Icon Animator",
     description:
@@ -88,7 +90,7 @@ const PROJECTS: Project[] = [
     category: "Tool · Front-end",
   },
   {
-    number: "06",
+    number: "05",
     key: "promptr",
     title: "Promptr",
     description:
@@ -98,7 +100,7 @@ const PROJECTS: Project[] = [
     category: "Tool · AI · UX",
   },
   {
-    number: "07",
+    number: "06",
     key: "spark",
     title: "Spark",
     description:
@@ -108,7 +110,7 @@ const PROJECTS: Project[] = [
     category: "Product · Education · Solo-built",
   },
   {
-    number: "08",
+    number: "07",
     key: "touchtype",
     title: "Touchtype",
     description:
@@ -117,15 +119,110 @@ const PROJECTS: Project[] = [
     external: false,
     category: "Tool · Education · Solo-built",
   },
+];
+
+// Lighter projects, kept off the main proof grid so Work reads as premium
+// software, but still visible for range.
+const ALSO_BUILT: {
+  number: string;
+  title: string;
+  description: string;
+  href: string;
+  external: boolean;
+  category: string;
+}[] = [
   {
-    number: "09",
-    key: "kids-alphabet",
+    number: "01",
+    title: "Tessera",
+    description:
+      "The Triangle Game. A two-player dice game on a hexagonal triangle grid.",
+    href: "/tessera",
+    external: false,
+    category: "Game",
+  },
+  {
+    number: "02",
     title: "Kids Alphabet",
     description:
-      "An alphabet game for toddlers. Tap a letter, swipe to the next, finish with a quick quiz. Mobile-first, so it works on tiny fingers.",
+      "An alphabet game for toddlers. Tap a letter, swipe, finish with a quick quiz.",
     href: "/kids-alphabet/",
     external: true,
-    category: "Tool · Education · Solo-built",
+    category: "Game · Education",
+  },
+];
+
+const STEPS: { n: string; title: string; body: string }[] = [
+  {
+    n: "01",
+    title: "Subscribe",
+    body: "Pick the plan and you're in.",
+  },
+  {
+    n: "02",
+    title: "Request",
+    body: "List your requests. I work through them one at a time.",
+  },
+  {
+    n: "03",
+    title: "Receive",
+    body: "Shipped, working, live. Days, not months.",
+  },
+];
+
+const CAPABILITIES: {
+  heading: string;
+  note: string;
+  items: string[];
+}[] = [
+  {
+    heading: "Design",
+    note: "From identity to interface.",
+    items: [
+      "Branding",
+      "UI design",
+      "Landing pages",
+      "Websites",
+      "AI chat and AI product design",
+    ],
+  },
+  {
+    heading: "Build",
+    note: "Working products, not handoffs.",
+    items: ["Web apps, shipped to your domain", "iOS apps"],
+  },
+];
+
+const PLAN_FEATURES: string[] = [
+  "One active request at a time",
+  "Design and build, by one person",
+  "Shipped in days, not months",
+  "Pause or cancel anytime",
+];
+
+const FAQS: { q: string; a: string }[] = [
+  {
+    q: "Can one person really design and build a whole product?",
+    a: "Yes. Everything in the work above was built this way, solo, start to finish.",
+  },
+  {
+    q: "Do you only design, or do you build too?",
+    a: "Both. That's the whole point. The design and the working product come from the same hands.",
+  },
+  {
+    q: "How does a request work?",
+    a: "Send it however's easiest. A Loom, a Google Doc, a sketch. No forms, no intake call. I get on with it.",
+  },
+  {
+    q: "What if I need changes?",
+    a: "Revisions are part of it. I keep going until it's right.",
+  },
+  {
+    q: "One request at a time?",
+    a: "Yes. It keeps the work fast and focused. Big builds get broken into a sequence of requests. Add the next one the moment the last ships.",
+  },
+  {
+    q: "What if I run out of things to build?",
+    a: "Pause your plan. Your billing freezes and picks up where it left off when you're ready.",
   },
 ];
 
@@ -144,7 +241,7 @@ export default function Homepage() {
           return (
             <div
               key={i}
-              className="ripple-line absolute top-0 bottom-0 w-px bg-[#fbf9f3]"
+              className="ripple-line absolute top-0 bottom-0 w-px bg-cream"
               style={{
                 left: `${x}%`,
                 ["--ripple-base" as string]: opacity,
@@ -157,7 +254,7 @@ export default function Homepage() {
 
       {/* Year corner */}
       <div
-        className="hidden sm:block fixed top-6 right-6 z-10 text-[#8a7f70]"
+        className="hidden sm:block fixed top-6 right-6 z-10 text-tan"
         style={{
           fontSize: "0.75rem",
           fontFamily: "var(--font-jetbrains-mono)",
@@ -169,7 +266,7 @@ export default function Homepage() {
         26
       </div>
 
-      <div className="max-w-6xl mx-auto pl-6 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pt-12 sm:pt-24 lg:pt-12 pb-20">
+      <div className="home-prose max-w-6xl mx-auto pl-6 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pt-12 sm:pt-24 lg:pt-12 pb-20">
         <header className="mb-10 sm:mb-20">
           {/* Eyebrow: logomark + hairline */}
           <div className="mb-5 sm:mb-8 flex items-center gap-4">
@@ -180,7 +277,7 @@ export default function Homepage() {
               height={26}
               style={{ color: "transparent" }}
             />
-            <div className="flex-1 h-[1px] bg-[#8a7f70]/50" />
+            <div className="flex-1 h-[1px] bg-tan/50" />
           </div>
 
           {/* Hero grid — photo spans both rows on desktop so the link
@@ -199,7 +296,7 @@ export default function Homepage() {
                   paddingRight: "0.24em",
                   lineHeight: "0.95",
                   textTransform: "none",
-                  color: "#fbf9f3",
+                  color: "var(--cream)",
                   marginBottom: "1.25rem",
                 }}
               >
@@ -207,50 +304,59 @@ export default function Homepage() {
                 <br />
                 McARDLE
               </h1>
-              <div
-                className="flex gap-12 sm:gap-16"
+              {/* Section nav — WORK / PRICING / ART. ART links out to the
+                  paintings page; the artist identity lives there now so the
+                  homepage stays a single sales argument. */}
+              <nav
+                aria-label="Primary"
+                className="flex gap-8 sm:gap-10"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.8125rem",
-                  color: "#8a7f70",
+                  color: "var(--tan)",
                   textTransform: "uppercase",
                   letterSpacing: "0.13em",
                 }}
               >
-                <a
-                  href="#oil-paintings"
-                  className="hover:text-[#fbf9f3] transition-colors"
-                >
-                  ARTIST
+                <a href="#work" className="inline-block py-2 -my-2 hover:text-cream transition-colors">
+                  WORK
                 </a>
-                <span>|                                                                                                                                                             </span>
-                <a
-                  href="#digital-products"
-                  className="hover:text-[#fbf9f3] transition-colors"
-                >
-                  DESIGNER
+                <a href="#pricing" className="inline-block py-2 -my-2 hover:text-cream transition-colors">
+                  PRICING
                 </a>
-              </div>
-              {/* Positioning line — names role + audience + outcome in one
-                  sentence so cold visitors get what this is and who it serves. */}
+                <Link href="/paintings" className="inline-block py-2 -my-2 hover:text-cream transition-colors">
+                  ART
+                </Link>
+              </nav>
+              {/* Positioning block — the value prop now leads with the offer
+                  (design + build subscription) not the job title. */}
               <p
-                className="mt-4 sm:mt-6 text-[#fbf9f3]/85"
+                className="mt-4 sm:mt-6 text-cream"
                 style={{
                   fontFamily: "var(--font-inter)",
-                  fontSize: "clamp(0.9375rem, 1.2vw, 1.125rem)",
-                  lineHeight: 1.5,
+                  fontSize: "clamp(1.0625rem, 1.6vw, 1.375rem)",
+                  lineHeight: 1.45,
+                  fontWeight: 500,
                 }}
               >
-                Solo product designer shipping for founders.
+                Your high quality, quick, digital designer and builder.
+              </p>
+              <p
+                className="mt-3 text-cream/70 max-w-md"
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "clamp(0.9375rem, 1.2vw, 1.0625rem)",
+                  lineHeight: 1.55,
+                }}
+              >
+                Monthly subscription, pause or cancel anytime.
               </p>
               {/* Mobile-only CTA — sits above the photo on mobile so the
                   action is visible without scrolling. Hidden on lg+ where
                   the desktop sibling below renders instead. */}
               <a
-                href="https://www.cal.eu/neilmca"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex lg:hidden items-center gap-2 mt-4 sm:mt-6 px-5 py-3 border-2 border-[#fbf9f3]/80 text-[#fbf9f3] hover:bg-[#fbf9f3] hover:border-[#fbf9f3] hover:text-black transition-all whitespace-nowrap self-start"
+                href="#pricing"
+                className="group inline-flex lg:hidden items-center gap-2 mt-5 sm:mt-6 px-5 py-3 border-2 border-cream/80 text-cream hover:bg-cream hover:border-cream hover:text-black transition-colors whitespace-nowrap self-start"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
@@ -259,25 +365,17 @@ export default function Homepage() {
                   textTransform: "uppercase",
                 }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                <span>Book Kickoff Call</span>
-                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <span>See pricing</span>
+                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M13 5l7 7-7 7" />
                 </svg>
               </a>
               {/* Primary CTA (desktop) — sits inside the title block under
-                  the positioning line. Hidden on mobile; the lg:hidden copy
+                  the positioning copy. Hidden on mobile; the lg:hidden copy
                   above renders instead. */}
               <a
-                href="https://www.cal.eu/neilmca"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group hidden lg:inline-flex items-center gap-2 mt-4 sm:mt-6 px-5 py-3 border-2 border-[#fbf9f3]/80 text-[#fbf9f3] hover:bg-[#fbf9f3] hover:border-[#fbf9f3] hover:text-black transition-all whitespace-nowrap"
+                href="#pricing"
+                className="group hidden lg:inline-flex items-center gap-2 mt-5 sm:mt-6 px-5 py-3 border-2 border-cream/80 text-cream hover:bg-cream hover:border-cream hover:text-black transition-colors whitespace-nowrap"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
@@ -286,21 +384,15 @@ export default function Homepage() {
                   textTransform: "uppercase",
                 }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                <span>Book Kickoff Call</span>
-                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <span>See pricing</span>
+                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M13 5l7 7-7 7" />
                 </svg>
               </a>
             </div>
 
             <div className="relative max-w-[360px] lg:max-w-none">
-              <div className="project-card-trace relative border-2 border-[#8a7f70]/50 hover:border-[#fbf9f3] transition-all duration-300 overflow-hidden aspect-square">
+              <div className="project-card-trace relative border-2 border-tan/50 hover:border-cream transition-colors duration-300 overflow-hidden aspect-square">
                 <Image
                   src="/me.png"
                   alt="Neil McArdle"
@@ -316,7 +408,7 @@ export default function Homepage() {
                   className="absolute top-5 left-5 flex items-center gap-2"
                   style={{ fontFamily: "var(--font-inter)" }}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#fbf9f3]/80 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-cream/80 animate-pulse" />
                   <span className="thinking-shimmer text-[11px] font-medium tracking-wide">
                     Thinking...
                   </span>
@@ -332,7 +424,7 @@ export default function Homepage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="LinkedIn"
-                    className="text-[#fbf9f3] hover:text-[#8a7f70] transition-colors"
+                    className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
@@ -343,7 +435,7 @@ export default function Homepage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="GitHub"
-                    className="text-[#fbf9f3] hover:text-[#8a7f70] transition-colors"
+                    className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
@@ -354,7 +446,7 @@ export default function Homepage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="X"
-                    className="text-[#fbf9f3] hover:text-[#8a7f70] transition-colors"
+                    className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -366,20 +458,128 @@ export default function Homepage() {
           </div>
         </header>
 
-        <section id="digital-products" className="mb-20 mt-16 scroll-mt-12">
-          <div className="flex items-center gap-8 mb-12">
-            <div
-              className="text-[#8a7f70]"
-              style={{
-                fontSize: "0.75rem",
-                fontFamily: "var(--font-jetbrains-mono)",
-                letterSpacing: "0.13em",
-              }}
-            >
-              + DIGITAL PRODUCTS
+        {/* Pain — a two-panel contrast: the usual studio grind, muted, vs the
+            subscription, brighter and heavier. Hairline divider between them. */}
+        <section className="mb-24 mt-8">
+          <div className="relative isolate grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border-2 border-tan/40 bg-black">
+            {/* Decorative background: warm aurora blobs plus a grain texture,
+                clipped to the card and pinned behind the panels. The glow pools
+                on the right so the "With me" side feels lit. pointer-events-none
+                so it never intercepts the panel content. */}
+            <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+              <div className="absolute -top-24 -right-16 w-[28rem] h-[28rem] rounded-full bg-cream/[0.07] blur-3xl" />
+              <div className="absolute -bottom-32 right-[8%] w-[24rem] h-[24rem] rounded-full bg-tan/25 blur-3xl" />
+              <div className="absolute top-[15%] -left-24 w-[22rem] h-[22rem] rounded-full bg-tan/10 blur-3xl" />
             </div>
-            <div className="flex-1 h-[2px] bg-[#8a7f70]/50" />
+            <div className="relative p-8 sm:p-10 lg:p-12 border-b-2 lg:border-b-0 lg:border-r-2 border-tan/40">
+              <div
+                className="text-tan mb-5"
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.6875rem",
+                  letterSpacing: "0.13em",
+                  textTransform: "uppercase",
+                }}
+              >
+                The usual studio
+              </div>
+              <p
+                className="text-cream/60"
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "clamp(1rem, 1.6vw, 1.1875rem)",
+                  lineHeight: 1.6,
+                }}
+              >
+                Hiring a design studio will be months of forms, calls, scoping
+                sessions and drawing up contracts, before any work gets done,
+                and then they hand you a Figma file that you still can't ship.
+              </p>
+            </div>
+            <div className="relative p-8 sm:p-10 lg:p-12 bg-cream/[0.02]">
+              <div
+                className="text-cream mb-5"
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.6875rem",
+                  letterSpacing: "0.13em",
+                  textTransform: "uppercase",
+                }}
+              >
+                With me
+              </div>
+              <p
+                className="text-cream"
+                style={{
+                  fontFamily: "var(--font-playfair)",
+                  fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
+                  lineHeight: 1.25,
+                  fontWeight: 600,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Subscribe, request and approve. That's it.
+              </p>
+            </div>
           </div>
+        </section>
+
+        {/* How it works */}
+        <section id="how" className="mb-24 scroll-mt-12">
+          <SectionHeader label="How it works" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10">
+            {STEPS.map((s) => (
+              <div key={s.n}>
+                <div
+                  className="text-tan mb-4"
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.13em",
+                  }}
+                >
+                  {s.n}
+                </div>
+                <h3
+                  className="text-cream mb-3"
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontSize: "1.5rem",
+                    fontWeight: 700,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {s.title}
+                </h3>
+                <p
+                  className="text-cream/70"
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: "0.9375rem",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {s.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Work — the portfolio reframed as proof, not product catalogue. */}
+        <section id="work" className="mb-24 scroll-mt-12">
+          <SectionHeader label="Work" />
+          <p
+            className="text-cream/70 max-w-2xl mb-12 -mt-4"
+            style={{
+              fontFamily: "var(--font-inter)",
+              fontSize: "0.9375rem",
+              lineHeight: 1.6,
+            }}
+          >
+            Things I have shipped on my own. This is the bar your product gets
+            built to.
+          </p>
 
           <div className="grid grid-cols-1 gap-4">
             {PROJECTS.map((p) => (
@@ -388,13 +588,12 @@ export default function Homepage() {
           </div>
         </section>
 
-        {/* Authored — books and audiobooks. Currently a single card pointing
-            externally to ElevenReader; promote to its own page when Parts 2-3
-            land. */}
-        <section className="mb-20 mt-16">
-          <div className="flex items-center gap-8 mb-10">
-            <div
-              className="text-[#8a7f70]"
+        {/* Also built — lighter projects relocated out of the proof grid so
+            Work reads as premium software, kept here for range. */}
+        <section className="mb-24">
+          <div className="flex items-center gap-8 mb-8">
+            <h2
+              className="text-tan"
               style={{
                 fontSize: "0.75rem",
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -402,52 +601,45 @@ export default function Homepage() {
                 textTransform: "uppercase",
               }}
             >
-              + Books
-            </div>
-            <div className="flex-1 h-[2px] bg-[#8a7f70]/50" />
+              + Also built
+            </h2>
+            <div className="flex-1 h-[2px] bg-tan/50" />
           </div>
+          <div className="grid grid-cols-1 gap-2">
+            {ALSO_BUILT.map((p) => (
+              <AlsoBuiltRow key={p.number} item={p} />
+            ))}
+          </div>
+        </section>
 
-          <div className="grid grid-cols-1 gap-4">
-            <a
-              href="https://elevenreader.io/audiobooks/sol0-audiobook/lDuTf0Co8szKJBdzzAnu"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-5 sm:gap-6 border-2 border-transparent transition-all duration-300 p-4 sm:p-5"
-            >
+        {/* Capabilities — the scope boundary, curated to read as premium
+            product and software work. Sits before Pricing so the offer is
+            defined, then priced. */}
+        <section id="scope" className="mb-24 scroll-mt-12">
+          <SectionHeader label="What I make" />
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {CAPABILITIES.map((col, i) => (
               <div
-                className="text-[#8a7f70] flex-shrink-0"
-                style={{
-                  fontFamily: "var(--font-jetbrains-mono)",
-                  fontSize: "0.75rem",
-                  letterSpacing: "0.13em",
-                }}
+                key={col.heading}
+                className={
+                  i === 1
+                    ? "mt-10 pt-10 border-t-2 md:mt-0 md:pt-0 md:border-t-0 md:pl-12 md:border-l-2 border-tan/40"
+                    : "md:pr-12"
+                }
               >
-                01
-              </div>
-              <div className="relative h-14 sm:h-16 aspect-[2/3] rounded-sm overflow-hidden border border-[#8a7f70] flex-shrink-0">
-                <Image
-                  src="/books/sol0-part-one.png"
-                  alt="Sol0 — Part 1 of 3 cover"
-                  fill
-                  className="object-cover"
-                  sizes="64px"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div
-                  className="text-[#fbf9f3]/85 text-sm sm:text-[0.9375rem]"
-                  style={{ fontFamily: "var(--font-inter)" }}
+                <h3
+                  className="text-cream mb-1.5"
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontSize: "1.75rem",
+                    fontWeight: 700,
+                    letterSpacing: "-0.01em",
+                  }}
                 >
-                  Sol0
-                </div>
+                  {col.heading}
+                </h3>
                 <p
-                  className="text-[#fbf9f3]/80 text-sm mt-1.5"
-                  style={{ fontFamily: "var(--font-inter)", lineHeight: 1.5 }}
-                >
-                  He came to Mars expecting solitude. He found home.
-                </p>
-                <div
-                  className="text-[#8a7f70] mt-2"
+                  className="text-tan mb-6"
                   style={{
                     fontFamily: "var(--font-jetbrains-mono)",
                     fontSize: "0.6875rem",
@@ -455,30 +647,312 @@ export default function Homepage() {
                     textTransform: "uppercase",
                   }}
                 >
-                  Sci-Fi · Listen on ElevenReader
-                  <svg
-                    className="inline-block ml-1 w-3 h-3 align-[-1px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    aria-hidden
-                  >
-                    <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
+                  {col.note}
+                </p>
+                <ul className="space-y-3">
+                  {col.items.map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-baseline gap-3 text-cream/85"
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: "1rem",
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      <span className="text-tan flex-shrink-0">—</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </a>
+            ))}
           </div>
         </section>
 
-        {/* Paintings teaser — compact social-card style. Backs the ARTIST
-            claim in the hero without taking over the homepage. Links to
-            /paintings for the full statement. */}
-        <section id="oil-paintings" className="mb-20 mt-16 scroll-mt-12">
-          <div className="flex items-center gap-8 mb-10">
+        {/* Pricing — one price, public, no call. The Subscribe CTA points at
+            SUBSCRIBE_URL (swap for a Stripe Payment Link). */}
+        <section id="pricing" className="mb-24 scroll-mt-12">
+          <SectionHeader label="Pricing" />
+          <div className="relative isolate max-w-2xl mx-auto rounded-2xl border-2 border-tan/40 overflow-hidden bg-black">
+            {/* Warm glow pooling top-right, same family as the comparison card
+                so the priced moment feels lit, not flat. */}
             <div
-              className="text-[#8a7f70]"
+              className="pointer-events-none absolute -z-10 -top-24 -right-20 w-80 h-80 rounded-full bg-cream/[0.06] blur-3xl"
+              aria-hidden="true"
+            />
+            <div className="p-8 sm:p-10">
+              {/* Header: plan name + pause pill */}
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3
+                    className="text-cream"
+                    style={{
+                      fontFamily: "var(--font-playfair)",
+                      fontSize: "1.75rem",
+                      fontWeight: 700,
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    Monthly
+                  </h3>
+                  <p
+                    className="mt-1.5 text-tan"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "0.875rem",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    One designer, start to finish. No account managers, no
+                    handoffs.
+                  </p>
+                </div>
+                <span
+                  className="shrink-0 rounded-full border border-tan/40 px-3 py-1.5 text-tan"
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.625rem",
+                    letterSpacing: "0.13em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Pause anytime
+                </span>
+              </div>
+
+              {/* Dotted divider */}
+              <div className="my-7 border-t border-dashed border-tan/40" />
+
+              {/* Price */}
+              <div className="flex items-end flex-wrap gap-x-3 gap-y-1">
+                <span
+                  className="text-cream leading-none"
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontSize: "clamp(2.75rem, 8vw, 4rem)",
+                    fontWeight: 700,
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  £6,995
+                </span>
+                <span
+                  className="text-tan mb-1.5"
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.875rem",
+                    letterSpacing: "0.08em",
+                  }}
+                >
+                  /month
+                </span>
+                <span
+                  className="text-tan mb-2"
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.625rem",
+                    letterSpacing: "0.13em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Inc. VAT
+                </span>
+              </div>
+
+              {/* Included panel — labelled inner surface, the centrepiece. */}
+              <div className="relative mt-8 rounded-xl border border-tan/30 bg-cream/[0.02] p-6 sm:p-7">
+                <span
+                  className="absolute -top-2 left-5 bg-black px-2 text-tan"
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.625rem",
+                    letterSpacing: "0.13em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Included
+                </span>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3.5">
+                  {PLAN_FEATURES.map((f) => (
+                    <li
+                      key={f}
+                      className="flex items-start gap-2.5 text-cream/85"
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: "0.9375rem",
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      <svg
+                        className="w-4 h-4 mt-0.5 flex-shrink-0 text-tan"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        aria-hidden="true"
+                      >
+                        <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* CTA — full width, inverts on hover like the rest of the site. */}
+              <a
+                href={SUBSCRIBE_URL}
+                className="group mt-8 flex w-full items-center justify-center gap-2 rounded-xl px-8 py-4 bg-cream text-black border-2 border-cream hover:bg-transparent hover:text-cream transition-colors"
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.8125rem",
+                  fontWeight: 500,
+                  letterSpacing: "0.13em",
+                  textTransform: "uppercase",
+                }}
+              >
+                <span>Subscribe</span>
+                <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M13 5l7 7-7 7" />
+                </svg>
+              </a>
+              <p
+                className="mt-3 text-center text-tan"
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.6875rem",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                Email, payment, you&apos;re in. Two minutes.
+              </p>
+
+              {/* Risk reversal */}
+              <p
+                className="mt-6 pt-5 border-t border-tan/20 text-cream/70"
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "0.875rem",
+                  lineHeight: 1.6,
+                }}
+              >
+                Try it for a week. If it&apos;s not for you, cancel. No call to
+                book, no notice to give.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* About — solo as a feature, the Brett play. */}
+        <section id="about" className="mb-24 scroll-mt-12 max-w-2xl">
+          <SectionHeader label="About" />
+          <h3
+            className="text-cream mb-5 -mt-2"
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
+            }}
+          >
+            One designer, on purpose.
+          </h3>
+          <p
+            className="text-cream/75"
+            style={{
+              fontFamily: "var(--font-inter)",
+              fontSize: "1.0625rem",
+              lineHeight: 1.6,
+            }}
+          >
+            You hire me, you get me. No process to sit through, no meetings on
+            the calendar. That&apos;s why it stays fast and the product stays
+            coherent.
+          </p>
+        </section>
+
+        {/* FAQ */}
+        <section id="faq" className="mb-24 scroll-mt-12">
+          <SectionHeader label="FAQ" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+            {FAQS.map((item) => (
+              <div key={item.q}>
+                <h3
+                  className="text-cream mb-2"
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {item.q}
+                </h3>
+                <p
+                  className="text-cream/70"
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: "0.9375rem",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {item.a}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="mb-24 text-center">
+          <h2
+            className="text-cream mb-4"
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: "clamp(2rem, 6vw, 3.25rem)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.05,
+            }}
+          >
+            Got something to ship?
+          </h2>
+          <p
+            className="text-cream/70 mb-8"
+            style={{
+              fontFamily: "var(--font-inter)",
+              fontSize: "1.0625rem",
+              lineHeight: 1.5,
+            }}
+          >
+            Start today. Two minutes to your first request.
+          </p>
+          <a
+            href={SUBSCRIBE_URL}
+            className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-cream text-black border-2 border-cream hover:bg-transparent hover:text-cream transition-colors"
+            style={{
+              fontFamily: "var(--font-jetbrains-mono)",
+              fontSize: "0.8125rem",
+              fontWeight: 500,
+              letterSpacing: "0.13em",
+              textTransform: "uppercase",
+            }}
+          >
+            <span>Subscribe</span>
+            <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M13 5l7 7-7 7" />
+            </svg>
+          </a>
+        </section>
+
+        {/* Also — books survive as a quiet personal note below the funnel.
+            Paintings now live on their own page, linked as ART in the nav. */}
+        <section className="mb-20">
+          <div className="flex items-center gap-8 mb-10">
+            <h2
+              className="text-tan"
               style={{
                 fontSize: "0.75rem",
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -486,61 +960,72 @@ export default function Homepage() {
                 textTransform: "uppercase",
               }}
             >
-              + Oil Paintings
-            </div>
-            <div className="flex-1 h-[2px] bg-[#8a7f70]/50" />
+              + I make books too
+            </h2>
+            <div className="flex-1 h-[2px] bg-tan/50" />
           </div>
+
           <div className="grid grid-cols-1 gap-4">
-            {PAINTINGS.filter((p) => p.featured).map((p, i) => (
-              <Link
-                key={p.slug}
-                href="/paintings"
-                className="group flex items-center gap-5 sm:gap-6 border-2 border-transparent transition-all duration-300 p-4 sm:p-5"
+            <div className="flex items-start gap-5 sm:gap-6 p-4 sm:p-5">
+              <div
+                className="text-tan flex-shrink-0"
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.75rem",
+                  letterSpacing: "0.13em",
+                  paddingTop: "0.25rem",
+                }}
               >
-                <div
-                  className="text-[#8a7f70] flex-shrink-0"
-                  style={{
-                    fontFamily: "var(--font-jetbrains-mono)",
-                    fontSize: "0.75rem",
-                    letterSpacing: "0.13em",
-                  }}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </div>
-                <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-[#8a7f70] flex-shrink-0">
-                  <Image
-                    src={p.image}
-                    alt={p.title}
-                    fill
-                    className="object-cover"
-                    sizes="64px"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div
-                    className="flex items-center gap-3 flex-wrap text-[#fbf9f3]/85 text-sm sm:text-[0.9375rem]"
+                01
+              </div>
+              <a
+                href={SOL0_AUDIOBOOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Sol0 on ElevenReader"
+                className="group relative h-20 sm:h-24 aspect-[2/3] rounded-sm overflow-hidden border border-tan flex-shrink-0"
+              >
+                <Image
+                  src="/books/sol0-part-one.png"
+                  alt="Sol0 — Part One of Three cover"
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  sizes="96px"
+                />
+              </a>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <span
+                    className="text-cream/85 text-sm sm:text-[0.9375rem]"
                     style={{ fontFamily: "var(--font-inter)" }}
                   >
-                    <span>{p.title}</span>
-                    {p.status === "sold" && (
-                      <span className="flex items-center gap-2">
-                        <span className="inline-block w-2 h-2 rounded-full bg-red-500" aria-hidden />
-                        <span
-                          className="text-[#fbf9f3]/70"
-                          style={{
-                            fontSize: "0.625rem",
-                            fontFamily: "var(--font-jetbrains-mono)",
-                            letterSpacing: "0.13em",
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          Sold
-                        </span>
-                      </span>
-                    )}
-                  </div>
-                  <div
-                    className="text-[#8a7f70] mt-1"
+                    Sol0
+                  </span>
+                  <span
+                    className="text-tan"
+                    style={{
+                      fontFamily: "var(--font-jetbrains-mono)",
+                      fontSize: "0.625rem",
+                      letterSpacing: "0.13em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Part One of Three
+                  </span>
+                </div>
+                <p
+                  className="text-cream/80 text-sm mt-1.5"
+                  style={{ fontFamily: "var(--font-inter)", lineHeight: 1.5 }}
+                >
+                  He came to Mars expecting solitude. He found home.
+                </p>
+
+                <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+                  <a
+                    href={SOL0_AUDIOBOOK_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group/link inline-flex items-center py-2 -my-2 text-tan hover:text-cream transition-colors"
                     style={{
                       fontFamily: "var(--font-jetbrains-mono)",
                       fontSize: "0.6875rem",
@@ -548,23 +1033,69 @@ export default function Homepage() {
                       textTransform: "uppercase",
                     }}
                   >
-                    Painting · Oils · On Board
-                  </div>
+                    Listen on ElevenReader
+                    <svg
+                      className="ml-1 w-3 h-3 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      aria-hidden
+                    >
+                      <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </a>
+
+                  {SOL0_EBOOK_URL && (
+                    <a
+                      href={SOL0_EBOOK_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/link inline-flex items-center py-2 -my-2 text-tan hover:text-cream transition-colors"
+                      style={{
+                        fontFamily: "var(--font-jetbrains-mono)",
+                        fontSize: "0.6875rem",
+                        letterSpacing: "0.13em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Read the ebook
+                      <svg
+                        className="ml-1 w-3 h-3 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={1.5}
+                        aria-hidden
+                      >
+                        <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </a>
+                  )}
                 </div>
-                <span
-                  className="text-[#8a7f70] group-hover:text-[#fbf9f3] group-hover:translate-x-1 transition-all flex-shrink-0 text-lg"
-                  aria-hidden
+
+                <a
+                  href="https://makeebook.ink"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-3 py-1 -my-1 text-tan hover:text-cream transition-colors"
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.625rem",
+                    letterSpacing: "0.13em",
+                    textTransform: "uppercase",
+                  }}
                 >
-                  →
-                </span>
-              </Link>
-            ))}
+                  Made with makeEbook
+                </a>
+              </div>
+            </div>
           </div>
         </section>
 
-        <footer className="pt-12 border-t-2 border-[#8a7f70]/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <footer className="pt-12 border-t-2 border-tan/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <p
-            className="text-[#8a7f70]"
+            className="text-tan"
             style={{ fontFamily: "var(--font-inter)", fontSize: "0.75rem" }}
           >
             © 2026 Neil McArdle
@@ -575,7 +1106,7 @@ export default function Homepage() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
-              className="text-[#8a7f70] hover:text-[#fbf9f3] transition-colors"
+              className="inline-flex p-2 -m-2 text-tan hover:text-cream transition-colors"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
@@ -586,7 +1117,7 @@ export default function Homepage() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
-              className="text-[#8a7f70] hover:text-[#fbf9f3] transition-colors"
+              className="inline-flex p-2 -m-2 text-tan hover:text-cream transition-colors"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
@@ -597,7 +1128,7 @@ export default function Homepage() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X"
-              className="text-[#8a7f70] hover:text-[#fbf9f3] transition-colors"
+              className="inline-flex p-2 -m-2 text-tan hover:text-cream transition-colors"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -606,7 +1137,7 @@ export default function Homepage() {
           </div>
           <a
             href="mailto:neil@neilmcardle.com"
-            className="text-[#fbf9f3]/70 hover:text-[#fbf9f3] transition-colors"
+            className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
             style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
           >
             neil@neilmcardle.com
@@ -617,12 +1148,114 @@ export default function Homepage() {
   );
 }
 
+function SectionHeader({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-8 mb-12">
+      <h2
+        className="text-tan"
+        style={{
+          fontSize: "0.75rem",
+          fontFamily: "var(--font-jetbrains-mono)",
+          letterSpacing: "0.13em",
+          textTransform: "uppercase",
+        }}
+      >
+        + {label}
+      </h2>
+      <div className="flex-1 h-[2px] bg-tan/50" />
+    </div>
+  );
+}
+
+function AlsoBuiltRow({
+  item,
+}: {
+  item: {
+    number: string;
+    title: string;
+    description: string;
+    href: string;
+    external: boolean;
+    category: string;
+  };
+}) {
+  const inner = (
+    <>
+      <span
+        className="text-tan flex-shrink-0"
+        style={{
+          fontFamily: "var(--font-jetbrains-mono)",
+          fontSize: "0.75rem",
+          letterSpacing: "0.13em",
+          paddingTop: "0.15rem",
+        }}
+      >
+        {item.number}
+      </span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline gap-3 flex-wrap">
+          <span
+            className="text-cream"
+            style={{ fontFamily: "var(--font-inter)", fontSize: "0.9375rem" }}
+          >
+            {item.title}
+          </span>
+          <span
+            className="text-tan"
+            style={{
+              fontFamily: "var(--font-jetbrains-mono)",
+              fontSize: "0.625rem",
+              letterSpacing: "0.13em",
+              textTransform: "uppercase",
+            }}
+          >
+            {item.category}
+          </span>
+        </div>
+        <p
+          className="text-cream/60 mt-1"
+          style={{
+            fontFamily: "var(--font-inter)",
+            fontSize: "0.875rem",
+            lineHeight: 1.5,
+          }}
+        >
+          {item.description}
+        </p>
+      </div>
+      <svg
+        className="w-4 h-4 mt-0.5 flex-shrink-0 text-tan group-hover:text-cream group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-[color,transform]"
+        aria-hidden="true"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={1.5}
+      >
+        <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </>
+  );
+
+  const cls =
+    "group flex items-start gap-5 p-4 sm:p-5 rounded-xl border-2 border-transparent hover:border-tan/40 transition-colors";
+
+  return item.external ? (
+    <a href={item.href} target="_blank" rel="noopener noreferrer" className={cls}>
+      {inner}
+    </a>
+  ) : (
+    <Link href={item.href} className={cls}>
+      {inner}
+    </Link>
+  );
+}
+
 function ProjectCard({ project }: { project: Project }) {
   const content = (
     <>
       <div className="flex items-start justify-between mb-4 gap-6">
         <div
-          className="text-[#8a7f70]"
+          className="text-tan"
           style={{
             fontFamily: "var(--font-jetbrains-mono)",
             fontSize: "0.75rem",
@@ -632,7 +1265,8 @@ function ProjectCard({ project }: { project: Project }) {
           {project.number}
         </div>
         <svg
-          className="w-4 h-4 text-[#8a7f70] group-hover:text-[#fbf9f3] group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-all"
+          className="w-4 h-4 text-tan group-hover:text-cream group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-[color,transform]"
+          aria-hidden="true"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -643,8 +1277,8 @@ function ProjectCard({ project }: { project: Project }) {
       </div>
       <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-10">
         <div className="flex-1 min-w-0">
-          <h2
-            className="text-[#fbf9f3] mb-4"
+          <h3
+            className="text-cream mb-4"
             style={{
               fontFamily: "var(--font-playfair)",
               fontSize: "clamp(2rem, 5vw, 3rem)",
@@ -654,9 +1288,9 @@ function ProjectCard({ project }: { project: Project }) {
             }}
           >
             {project.title}
-          </h2>
+          </h3>
           <p
-            className="text-[#fbf9f3]/70 max-w-2xl"
+            className="text-cream/70 max-w-2xl"
             style={{
               fontFamily: "var(--font-inter)",
               fontSize: "0.875rem",
@@ -682,7 +1316,7 @@ function ProjectCard({ project }: { project: Project }) {
   // box still reserves 2px on each side, preventing layout shift when the
   // trace overlay paints over the card edge.
   const wrapperClassName =
-    "project-card-trace group relative block border-2 border-transparent transition-all duration-300 p-6 sm:p-8";
+    "project-card-trace group relative block border-2 border-transparent rounded-2xl transition-colors duration-300 p-6 sm:p-8";
 
   const linkClassName = "block";
 
@@ -703,7 +1337,7 @@ function ProjectCard({ project }: { project: Project }) {
 
   const categoryEl = (
     <div
-      className="text-[#8a7f70]"
+      className="text-tan"
       style={{
         fontFamily: "var(--font-jetbrains-mono)",
         fontSize: "0.6875rem",
@@ -726,7 +1360,7 @@ function ProjectCard({ project }: { project: Project }) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Download ${project.title} on the App Store`}
-            className="group/ios inline-flex items-center gap-2 text-[#8a7f70] hover:text-[#fbf9f3] transition-colors shrink-0"
+            className="group/ios inline-flex items-center gap-2 text-tan hover:text-cream transition-colors shrink-0"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
               <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />

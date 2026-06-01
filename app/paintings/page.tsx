@@ -28,7 +28,7 @@ export default function ArtPage() {
           <div className="mb-5 sm:mb-8 flex items-center gap-4">
             <Link
               href="/"
-              className="text-[#8a7f70] hover:text-[#fbf9f3] transition-colors"
+              className="inline-block py-2 -my-2 text-tan hover:text-cream transition-colors"
               style={{
                 fontSize: "0.75rem",
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -38,7 +38,7 @@ export default function ArtPage() {
             >
               ← Back
             </Link>
-            <div className="flex-1 h-[1px] bg-[#8a7f70]/50" />
+            <div className="flex-1 h-[1px] bg-tan/50" />
             <Link href="/" aria-label="Neil McArdle — home">
               <Image
                 src="/dark-neil-mcardle-logomark.svg"
@@ -53,7 +53,7 @@ export default function ArtPage() {
           {/* Hero */}
           <div className="max-w-3xl">
             <div
-              className="text-[#8a7f70] mb-6"
+              className="text-tan mb-6"
               style={{
                 fontSize: "0.75rem",
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -71,7 +71,7 @@ export default function ArtPage() {
                 letterSpacing: "0.2em",
                 paddingRight: "0.24em",
                 lineHeight: "0.95",
-                color: "#fbf9f3",
+                color: "var(--cream)",
                 marginBottom: "1.75rem",
                 textTransform: "uppercase",
               }}
@@ -81,7 +81,7 @@ export default function ArtPage() {
               then pixels
             </h1>
             <p
-              className="text-[#fbf9f3]/70 max-w-2xl"
+              className="text-cream/70 max-w-2xl"
               style={{
                 fontFamily: "var(--font-inter)",
                 fontSize: "1rem",
@@ -95,11 +95,49 @@ export default function ArtPage() {
           </div>
         </header>
 
+        {/* Commissions — deliberately quiet. Available, but framed as the
+            occasional sideline it is, not a service with a price and a CTA. */}
+        <section className="mb-16">
+          <div className="flex items-center gap-8 mb-8">
+            <h2
+              className="text-tan"
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "var(--font-jetbrains-mono)",
+                letterSpacing: "0.13em",
+                textTransform: "uppercase",
+              }}
+            >
+              + Commissions
+            </h2>
+            <div className="flex-1 h-[2px] bg-tan/50" />
+          </div>
+          <p
+            className="text-cream/70 max-w-2xl"
+            style={{
+              fontFamily: "var(--font-inter)",
+              fontSize: "0.9375rem",
+              lineHeight: 1.7,
+            }}
+          >
+            Painting isn&apos;t the day job anymore, so I only take one or two
+            commissions a year, in oils, in my own time. If something here
+            resonates and you have a piece in mind,{" "}
+            <a
+              href="mailto:neil@neilmcardle.com?subject=Painting%20commission"
+              className="text-cream underline decoration-tan underline-offset-4 hover:decoration-cream transition-colors"
+            >
+              write to me
+            </a>{" "}
+            and we&apos;ll see if it&apos;s a fit. No rush, no hard sell.
+          </p>
+        </section>
+
         {/* Featured paintings: alternating layout for visual rhythm */}
         <section className="mb-20">
           <div className="flex items-center gap-8 mb-12">
-            <div
-              className="text-[#8a7f70]"
+            <h2
+              className="text-tan"
               style={{
                 fontSize: "0.75rem",
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -108,8 +146,8 @@ export default function ArtPage() {
               }}
             >
               + Selected paintings
-            </div>
-            <div className="flex-1 h-[2px] bg-[#8a7f70]/50" />
+            </h2>
+            <div className="flex-1 h-[2px] bg-tan/50" />
           </div>
 
           <div className="flex flex-col gap-20 sm:gap-28">
@@ -119,16 +157,16 @@ export default function ArtPage() {
           </div>
         </section>
 
-        <footer className="pt-12 border-t-2 border-[#8a7f70]/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <footer className="pt-12 border-t-2 border-tan/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <p
-            className="text-[#8a7f70]"
+            className="text-tan"
             style={{ fontFamily: "var(--font-inter)", fontSize: "0.75rem" }}
           >
             © 2026 Neil McArdle
           </p>
           <a
             href="mailto:neil@neilmcardle.com"
-            className="text-[#fbf9f3]/70 hover:text-[#fbf9f3] transition-colors"
+            className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
             style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
           >
             neil@neilmcardle.com
@@ -155,7 +193,7 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
     >
       <div className={reverse ? "lg:order-2" : ""}>
         <figure
-          className="relative border-2 border-[#8a7f70]/50 overflow-hidden"
+          className="relative border-2 border-tan/50 overflow-hidden"
           style={{ aspectRatio: aspect }}
         >
           <Image
@@ -171,7 +209,7 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
           <div className="mt-3 flex items-center gap-2">
             <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500" aria-hidden />
             <span
-              className="text-[#fbf9f3]/80"
+              className="text-cream/80"
               style={{
                 fontSize: "0.6875rem",
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -187,7 +225,7 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
 
       <div>
         <div
-          className="text-[#8a7f70] mb-4"
+          className="text-tan mb-4"
           style={{
             fontSize: "0.6875rem",
             fontFamily: "var(--font-jetbrains-mono)",
@@ -198,8 +236,8 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
           {yearLine}
         </div>
 
-        <h2
-          className="text-[#fbf9f3] mb-5"
+        <h3
+          className="text-cream mb-5"
           style={{
             fontFamily: "var(--font-eb-garamond)",
             fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
@@ -209,7 +247,7 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
           }}
         >
           {painting.title}
-        </h2>
+        </h3>
 
         <dl className="mb-6 space-y-1.5">
           <MetaRow label="Medium" value={painting.medium} />
@@ -223,7 +261,7 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
               return (
                 <blockquote
                   key={i}
-                  className="border-l-4 border-[#8a7f70] pl-5 py-1 text-[#fbf9f3]/90 italic"
+                  className="border-l-4 border-tan pl-5 py-1 text-cream/90 italic"
                   style={{
                     fontFamily: "var(--font-eb-garamond)",
                     fontSize: "1.0625rem",
@@ -237,7 +275,7 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
             return (
               <p
                 key={i}
-                className="text-[#fbf9f3]/75"
+                className="text-cream/75"
                 style={{
                   fontFamily: "var(--font-inter)",
                   fontSize: "0.9375rem",
@@ -258,7 +296,7 @@ function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-3">
       <dt
-        className="text-[#8a7f70] w-[7.5rem] flex-shrink-0 whitespace-nowrap"
+        className="text-tan w-[7.5rem] flex-shrink-0 whitespace-nowrap"
         style={{
           fontSize: "0.6875rem",
           fontFamily: "var(--font-jetbrains-mono)",
@@ -270,7 +308,7 @@ function MetaRow({ label, value }: { label: string; value: string }) {
         {label}
       </dt>
       <dd
-        className="text-[#fbf9f3]/85"
+        className="text-cream/85"
         style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
       >
         {value}

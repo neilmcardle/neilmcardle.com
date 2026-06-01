@@ -26,6 +26,11 @@ const config = {
         '3xs': ['0.6875rem', { lineHeight: '1rem' }],  // 11px — footers, captions
       },
       colors: {
+        // neilmcardle.com personal-site (dark) palette — homepage + paintings.
+        // Distinct from the makeEbook marketing cream below.
+        cream: '#fbf9f3',   // primary light text / surfaces on black
+        tan:   '#8a7f70',   // muted labels, borders, hairlines
+
         // Marketing brand surface — used by the public-facing landing, blog,
         // signin, and shared marketing nav. Distinct from the editor's
         // dark-mode panels and the e-reader paper palette.
