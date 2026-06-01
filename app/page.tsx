@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
+import { NeilVoiceAgent } from "@/components/NeilVoiceAgent";
 
 // Destination for the Subscribe buttons — the live Stripe Payment Link for the
 // Design and Build Subscription (£6,995/mo). Hosted checkout keeps the promise
@@ -199,6 +200,21 @@ const PLAN_FEATURES: string[] = [
   "Pause or cancel anytime",
 ];
 
+const TESTIMONIALS: { quote: string; name: string; org: string }[] = [
+  {
+    quote:
+      "Neil turned work around at a pace I'd never seen from a studio, and it landed right the first time. The quality spoke for itself.",
+    name: "Dan Roberts",
+    org: "Dan Roberts Group",
+  },
+  {
+    quote:
+      "I handed over a rough brief and got back something far better than I'd pictured, far faster than I expected. Genuinely high-quality work.",
+    name: "Guy Sanderson",
+    org: "Gatewick House & Gardens",
+  },
+];
+
 const FAQS: { q: string; a: string }[] = [
   {
     q: "Can one person really design and build a whole product?",
@@ -339,7 +355,8 @@ export default function Homepage() {
                   fontWeight: 500,
                 }}
               >
-                High quality digital design, delivered fast.
+                Digital design and build, by one person. Live in days, not
+                months.
               </p>
               <p
                 className="mt-3 text-cream/70 max-w-md"
@@ -630,6 +647,67 @@ export default function Homepage() {
                   ))}
                 </ul>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Praise — real client quotes sit immediately before the price so the
+            objection-handling happens before the number lands. */}
+        <section id="praise" className="mb-24 scroll-mt-12">
+          <SectionHeader label="Praise" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {TESTIMONIALS.map((t) => (
+              <figure
+                key={t.name}
+                className="relative rounded-2xl border-2 border-tan/40 bg-cream/[0.02] p-8 sm:p-10"
+              >
+                <span
+                  className="absolute top-4 left-6 text-tan/30 select-none"
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontSize: "4rem",
+                    lineHeight: 1,
+                  }}
+                  aria-hidden="true"
+                >
+                  &ldquo;
+                </span>
+                <blockquote
+                  className="relative text-cream"
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontSize: "clamp(1.25rem, 2.4vw, 1.625rem)",
+                    lineHeight: 1.35,
+                    fontWeight: 500,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {t.quote}
+                </blockquote>
+                <figcaption className="mt-6 flex flex-col gap-1">
+                  <span
+                    className="text-cream"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "0.9375rem",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {t.name}
+                  </span>
+                  <span
+                    className="text-tan"
+                    style={{
+                      fontFamily: "var(--font-jetbrains-mono)",
+                      fontSize: "0.6875rem",
+                      letterSpacing: "0.13em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {t.org}
+                  </span>
+                </figcaption>
+              </figure>
             ))}
           </div>
         </section>
@@ -1132,6 +1210,8 @@ export default function Homepage() {
           </a>
         </footer>
       </div>
+
+      <NeilVoiceAgent />
     </div>
   );
 }
