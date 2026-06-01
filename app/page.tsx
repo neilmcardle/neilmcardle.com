@@ -339,7 +339,7 @@ export default function Homepage() {
                   fontWeight: 500,
                 }}
               >
-                Your high quality, quick, digital designer and builder.
+                High quality digital design, delivered fast.
               </p>
               <p
                 className="mt-3 text-cream/70 max-w-md"
