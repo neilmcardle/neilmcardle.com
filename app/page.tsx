@@ -458,9 +458,51 @@ export default function Homepage() {
           </div>
         </header>
 
+        {/* How it works */}
+        <section id="how" className="mb-24 mt-8 scroll-mt-12">
+          <SectionHeader label="How it works" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10">
+            {STEPS.map((s) => (
+              <div key={s.n}>
+                <div
+                  className="text-tan mb-4"
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.13em",
+                  }}
+                >
+                  {s.n}
+                </div>
+                <h3
+                  className="text-cream mb-3"
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontSize: "1.5rem",
+                    fontWeight: 700,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {s.title}
+                </h3>
+                <p
+                  className="text-cream/70"
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: "0.9375rem",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {s.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Pain — a two-panel contrast: the usual studio grind, muted, vs the
             subscription, brighter and heavier. Hairline divider between them. */}
-        <section className="mb-24 mt-8">
+        <section className="mb-24">
           <div className="relative isolate grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border-2 border-tan/40 bg-black">
             {/* Decorative background: warm aurora blobs plus a grain texture,
                 clipped to the card and pinned behind the panels. The glow pools
@@ -524,90 +566,12 @@ export default function Homepage() {
           </div>
         </section>
 
-        {/* How it works */}
-        <section id="how" className="mb-24 scroll-mt-12">
-          <SectionHeader label="How it works" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10">
-            {STEPS.map((s) => (
-              <div key={s.n}>
-                <div
-                  className="text-tan mb-4"
-                  style={{
-                    fontFamily: "var(--font-jetbrains-mono)",
-                    fontSize: "0.75rem",
-                    letterSpacing: "0.13em",
-                  }}
-                >
-                  {s.n}
-                </div>
-                <h3
-                  className="text-cream mb-3"
-                  style={{
-                    fontFamily: "var(--font-playfair)",
-                    fontSize: "1.5rem",
-                    fontWeight: 700,
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {s.title}
-                </h3>
-                <p
-                  className="text-cream/70"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.9375rem",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {s.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Work — the portfolio reframed as proof, not product catalogue. */}
         <section id="work" className="mb-24 scroll-mt-12">
           <SectionHeader label="Work" />
-          <p
-            className="text-cream/70 max-w-2xl mb-12 -mt-4"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "0.9375rem",
-              lineHeight: 1.6,
-            }}
-          >
-            Things I have shipped on my own. This is the bar your product gets
-            built to.
-          </p>
-
           <div className="grid grid-cols-1 gap-4">
             {PROJECTS.map((p) => (
               <ProjectCard key={p.number} project={p} />
-            ))}
-          </div>
-        </section>
-
-        {/* Also built — lighter projects relocated out of the proof grid so
-            Work reads as premium software, kept here for range. */}
-        <section className="mb-24">
-          <div className="flex items-center gap-8 mb-8">
-            <h2
-              className="text-tan"
-              style={{
-                fontSize: "0.75rem",
-                fontFamily: "var(--font-jetbrains-mono)",
-                letterSpacing: "0.13em",
-                textTransform: "uppercase",
-              }}
-            >
-              + Also built
-            </h2>
-            <div className="flex-1 h-[2px] bg-tan/50" />
-          </div>
-          <div className="grid grid-cols-1 gap-2">
-            {ALSO_BUILT.map((p) => (
-              <AlsoBuiltRow key={p.number} item={p} />
             ))}
           </div>
         </section>
@@ -947,6 +911,30 @@ export default function Homepage() {
           </a>
         </section>
 
+        {/* Also built — games relocated out of the proof grid, grouped with
+            the books strip as a quiet "more" area at the foot of the page. */}
+        <section className="mb-12">
+          <div className="flex items-center gap-8 mb-8">
+            <h2
+              className="text-tan"
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "var(--font-jetbrains-mono)",
+                letterSpacing: "0.13em",
+                textTransform: "uppercase",
+              }}
+            >
+              + Also built
+            </h2>
+            <div className="flex-1 h-[2px] bg-tan/50" />
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            {ALSO_BUILT.map((p) => (
+              <AlsoBuiltRow key={p.number} item={p} />
+            ))}
+          </div>
+        </section>
+
         {/* Also — books survive as a quiet personal note below the funnel.
             Paintings now live on their own page, linked as ART in the nav. */}
         <section className="mb-20">
@@ -960,7 +948,7 @@ export default function Homepage() {
                 textTransform: "uppercase",
               }}
             >
-              + I make books too
+              + I make ebooks too
             </h2>
             <div className="flex-1 h-[2px] bg-tan/50" />
           </div>

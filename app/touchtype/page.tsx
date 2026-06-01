@@ -118,7 +118,7 @@ type Mode = "kids" | "adults";
 type Layout = "mac" | "win";
 
 export default function TouchtypePage() {
-  const [mode, setMode] = useState<Mode>("kids");
+  const [mode, setMode] = useState<Mode>("adults");
   const [layout, setLayout] = useState<Layout>("mac");
 
   useEffect(() => {
