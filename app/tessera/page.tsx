@@ -136,16 +136,26 @@ function playTurnSound() {
   }
 }
 
-let _lineAudio: HTMLAudioElement | null = null;
+// A single Audio element can't overlap with itself: a stroke landing while
+// the previous one is still playing would restart it (or be dropped by a
+// pending play() promise). Rotate through a small pool of voices so rapid,
+// consecutive strokes each get their own playback and never cut each other off.
+let _lineVoices: HTMLAudioElement[] | null = null;
+let _lineVoiceIdx = 0;
 function playLineSound() {
   if (_soundMuted) return;
   try {
-    if (!_lineAudio) {
-      _lineAudio = new Audio("/tessera/line-sound.mp3");
-      _lineAudio.volume = 0.3;
+    if (!_lineVoices) {
+      _lineVoices = Array.from({ length: 4 }, () => {
+        const a = new Audio("/tessera/board-line-sound.m4a");
+        a.volume = 0.7;
+        return a;
+      });
     }
-    _lineAudio.currentTime = 0;
-    _lineAudio.play().catch(() => {});
+    const a = _lineVoices[_lineVoiceIdx];
+    _lineVoiceIdx = (_lineVoiceIdx + 1) % _lineVoices.length;
+    a.currentTime = 0;
+    a.play().catch(() => {});
   } catch (e) {
     // audio not available; ignore
   }
