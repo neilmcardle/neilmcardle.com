@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
-import { NeilVoiceAgent } from "@/components/NeilVoiceAgent";
 
 // Destination for the Subscribe buttons, the live Stripe Payment Link for the
 // digital design and build subscription (£5,000/mo + VAT, price
@@ -1501,8 +1500,6 @@ export default function Homepage() {
           </a>
         </footer>
       </div>
-
-      <NeilVoiceAgent />
     </div>
   );
 }

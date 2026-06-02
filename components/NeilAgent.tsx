@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const AGENT_ID = "agent_3801kmmjqtf7fr1ahe9meb2vc1eq";
-const VOICE_ID = "Rni4NyZRvnv6RI6vRMqC";
 const SCRIPT_SRC = "https://unpkg.com/@elevenlabs/convai-widget-embed";
 
 // Routes where the voice agent should NOT appear. Matches either an
@@ -69,5 +68,5 @@ export default function NeilAgent() {
   if (!shouldShow) return null;
 
   // @ts-expect-error — custom element not in React's JSX types; runtime-only
-  return <elevenlabs-convai agent-id={AGENT_ID} override-voice-id={VOICE_ID} />;
+  return <elevenlabs-convai agent-id={AGENT_ID} />;
 }
