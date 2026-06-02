@@ -1184,7 +1184,7 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   .project-card-trace:hover .hpp-frame [class*="hpp-"] {
     animation-play-state: running;
   }
-  .project-card-trace:hover .hpp-frame {
+  .project-card-trace:hover .hpp-frame:not(.hpp-frame--glass) {
     border-color: rgba(255, 255, 255, 0.22);
     background: rgba(255, 255, 255, 0.04);
   }

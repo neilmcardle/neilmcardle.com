@@ -324,7 +324,7 @@ export default function Homepage() {
   const ctaHref = AVAILABILITY.open ? SUBSCRIBE_URL : WAITLIST_URL;
 
   return (
-    <div className="min-h-screen bg-black relative isolate overflow-hidden">
+    <div className="min-h-screen bg-[rgb(15,15,17)] relative isolate overflow-hidden">
       {/* Ripple backdrop — vertical hairlines clustered on the left and
           dispersing right. Sits above the black bg but below everything
           else via -z-10 inside the isolated root stacking context. */}
