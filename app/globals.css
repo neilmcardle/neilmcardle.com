@@ -698,9 +698,9 @@ button:hover .palette-icon {
 }
 
 @keyframes project-card-trace {
-  0%   { opacity: 1; --trace-angle: 360deg; }
+  0%   { opacity: 1; --trace-angle:   0deg; }
   95%  { opacity: 1; }
-  100% { opacity: 0; --trace-angle:   0deg; }
+  100% { opacity: 0; --trace-angle: 360deg; }
 }
 
 /* Auto-loop trace removed. The hover rule above is the only trigger now,
@@ -1103,6 +1103,19 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
  * (rather than in styled-jsx) so the homepage stays a Server Component.
  * ───────────────────────────────────────────────────────────────────── */
 
+/* Glass-tile background, lifted from the product-card logo tiles: a dark
+   vertical gradient, a warm tan pool glowing up from the bottom centre, and a
+   vignette darkening the edges. Reused on the comparison and testimonial cards
+   so they share the same material as the product tiles. Layer order matches the
+   SVG: vignette on top, pool in the middle, base gradient at the bottom. */
+.glass-tile-bg {
+  background-color: #0a0a0c;
+  background-image:
+    radial-gradient(75% 75% at 50% 50%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%),
+    radial-gradient(60% 55% at 50% 105%, rgba(138, 127, 112, 0.85) 0%, rgba(138, 127, 112, 0.5) 45%, rgba(138, 127, 112, 0) 100%),
+    linear-gradient(180deg, #1a1a1c 0%, #101012 55%, #0a0a0c 100%);
+}
+
 .hpp-frame {
   width: 100%;
   max-width: 220px;
@@ -1140,21 +1153,21 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   }
 }
 
-/* Glass-tile logos brighten to white when the card is hovered. The fill
-   transition replaces the dark body gradient with solid white, lifting
-   the wordmark out of the tile. Only applies on hover-capable pointers
-   so touch devices don't end up stuck in the bright state. */
-/* Bright overlay of the logo, painted in solid #fbf9f3 and stacked on
-   top of the gradient body. Opacity actually interpolates (fill between
-   a paint-server gradient and a solid colour does not, which is why the
-   earlier fill-transition snapped). The card's hover state fades the
-   overlay in over a long, soft curve so it reads as a gradual emergence. */
+/* Bright overlay of the logo, painted in solid #fbf9f3 and stacked on top of
+   the gradient body. White by default so touch devices, which have no hover to
+   trigger a brighten, read the wordmark clearly. On hover-capable desktops it
+   starts dark and emerges to white on card hover, restoring the gradual
+   brighten animation. The (hover: hover) and (pointer: fine) gate excludes
+   iOS Safari, which lies about hover support. */
 .hpp-logo-bright {
-  opacity: 0;
-  transition: opacity 2.2s cubic-bezier(0.16, 0.4, 0.3, 1);
+  opacity: 1;
   pointer-events: none;
 }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
+  .hpp-logo-bright {
+    opacity: 0;
+    transition: opacity 2.2s cubic-bezier(0.16, 0.4, 0.3, 1);
+  }
   .project-card-trace:hover .hpp-logo-bright {
     opacity: 1;
   }

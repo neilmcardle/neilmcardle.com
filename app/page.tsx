@@ -3,10 +3,28 @@ import Link from "next/link";
 import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
 import { NeilVoiceAgent } from "@/components/NeilVoiceAgent";
 
-// Destination for the Subscribe buttons — the live Stripe Payment Link for the
-// Design and Build Subscription (£6,995/mo). Hosted checkout keeps the promise
-// of "email, payment, you're in, two minutes" with no backend.
-const SUBSCRIBE_URL = "https://buy.stripe.com/aFa5kFcdv3Te4dX9VKfIs00";
+// Destination for the Subscribe buttons, the live Stripe Payment Link for the
+// digital design and build subscription (£5,000/mo + VAT, price
+// price_1TdomGQgnBfGbp9Oy6ukuZX4). Hosted checkout keeps the promise of
+// "email, payment, you're in, two minutes" with no backend.
+const SUBSCRIBE_URL = "https://buy.stripe.com/9B600l7XfblGdOxgk8fIs01";
+
+// Where the CTA points when the slot is full. A plain mailto waitlist keeps it
+// honest and backend-free.
+const WAITLIST_URL = "mailto:neil@neilmcardle.com?subject=Join%20the%20waitlist";
+
+// Single editable price. Quoted ex-VAT because the buyer is a business that
+// reclaims it. Raise once two case studies and a waitlist exist.
+const PRICE = { amount: "£5,000", suffix: "+ VAT" } as const;
+
+// Availability is real scarcity, one client at a time. Toggle `open` by hand
+// when the slot is taken; the hero, pricing and final CTA all read from here so
+// they never drift. Only ever set `open: true` when the slot is genuinely open.
+const AVAILABILITY = {
+  open: true,
+  openLine: "One client at a time. One slot open now.",
+  fullLine: "One client at a time. Currently full, join the waitlist.",
+} as const;
 
 // Sol0 links. The audiobook is live on ElevenReader. The ebook (made with
 // makeEbook) is not published yet — likely Amazon KDP. Paste the listing URL
@@ -110,16 +128,6 @@ const PROJECTS: Project[] = [
     external: false,
     category: "Product · Education · Solo-built",
   },
-  {
-    number: "07",
-    key: "touchtype",
-    title: "Touchtype",
-    description:
-      "A touch-typing tutor with two modes. A playful course for kids learning their first home row, and a focused practice ground for adults who want to type without looking. Best on a real keyboard.",
-    href: "/touchtype",
-    external: false,
-    category: "Tool · Education · Solo-built",
-  },
 ];
 
 // Lighter projects, kept off the main proof grid so Work reads as premium
@@ -150,24 +158,81 @@ const ALSO_BUILT: {
     external: true,
     category: "Game · Education",
   },
+  {
+    number: "03",
+    title: "Touchtype",
+    description:
+      "A touch-typing tutor with two modes. A playful course for kids learning their first home row, and a focused practice ground for adults who want to type without looking. Best on a real keyboard.",
+    href: "/touchtype",
+    external: false,
+    category: "Tool · Education · Solo-built",
+  },
 ];
 
 const STEPS: { n: string; title: string; body: string }[] = [
   {
     n: "01",
     title: "Subscribe",
-    body: "Pick the plan and you're in.",
+    body: "Subscribe and the slot is yours. Two minutes, no call to book.",
   },
   {
     n: "02",
     title: "Request",
-    body: "List your requests. I work through them one at a time.",
+    body: "Drop requests in however suits you, a Loom, a doc, a sketch. I work them one at a time, in priority order. No intake meeting, no forms.",
   },
   {
     n: "03",
     title: "Receive",
-    body: "Shipped, working, live. Days, not months.",
+    body: "Shipped, working, live on your domain. Most requests land in 2 to 4 working days. You review async and add the next one.",
   },
+];
+
+// The spine of the pitch: why one client, why async. The Avis line is the
+// honest reason for async and lends product gravitas in the same breath.
+const WHY_ONE: { title: string; body: string }[] = [
+  {
+    title: "Only your backlog.",
+    body: "Most design subscriptions run a queue of thirty-plus clients and rotate between them. I don't. I take one. Your requests never sit behind a stranger's.",
+  },
+  {
+    title: "Async by design.",
+    body: "By day I'm a senior digital product designer at Avis Budget Group, so I work with you in focused blocks around it. No standing calls, no status meetings. You send work when it suits you and it's waiting when you're back.",
+  },
+  {
+    title: "Design matches build.",
+    body: "The person who designs it is the person who ships it. No handoff, no “the dev interpreted it differently,” no Figma file gathering dust.",
+  },
+];
+
+// Selected client work, only the projects that can be shown publicly. No
+// invented outcomes; these are real engagements with testimonials on the page.
+const CLIENT_WORK: {
+  client: string;
+  discipline: string;
+  year: string;
+  body: string;
+}[] = [
+  {
+    client: "Dan Roberts Group",
+    discipline: "Branding",
+    year: "2015",
+    body: "Logo and brand identity for the fitness coach and his training business.",
+  },
+  {
+    client: "Gatewick House & Gardens",
+    discipline: "Brand identity + signage",
+    year: "2025",
+    body: "Identity and wayfinding signage for a historic house and gardens.",
+  },
+];
+
+// Clients and experience strip, the minimalist CV device. Names and discipline
+// only, no confidential artefacts. Avis and Banner of Truth are listed by name.
+const CLIENTS: { name: string; note: string }[] = [
+  { name: "Avis Budget Group", note: "Product design" },
+  { name: "Banner of Truth", note: "Book covers + illustration" },
+  { name: "Dan Roberts Group", note: "Branding · 2015" },
+  { name: "Gatewick House & Gardens", note: "Brand identity + signage · 2025" },
 ];
 
 const CAPABILITIES: {
@@ -181,22 +246,22 @@ const CAPABILITIES: {
     items: [
       "Branding",
       "UI design",
-      "Landing pages",
-      "Websites",
-      "AI chat and AI product design",
+      "Landing pages and marketing sites",
+      "AI chat and AI product interfaces",
     ],
   },
   {
     heading: "Build",
-    note: "Working products, not handoffs.",
+    note: "Working product, not handoffs.",
     items: ["Web apps, shipped to your domain", "iOS apps"],
   },
 ];
 
 const PLAN_FEATURES: string[] = [
-  "One active request at a time",
-  "Design and build, by one person",
-  "Shipped in days, not months",
+  "One active request at a time, worked in priority order",
+  "Design and build, by one person, start to finish",
+  "Shipped to your domain in days, not months",
+  "Async only, no calls, no meetings",
   "Pause or cancel anytime",
 ];
 
@@ -225,24 +290,40 @@ const FAQS: { q: string; a: string }[] = [
     a: "Both. That's the whole point. The design and the working product come from the same hands.",
   },
   {
+    q: "How fast is it?",
+    a: "Most requests ship in 2 to 4 working days. Because I take one client at a time, your work isn't sitting behind anyone else's.",
+  },
+  {
     q: "How does a request work?",
-    a: "Send it however's easiest. A Loom, a Google Doc, a sketch. No forms, no intake call. I get on with it.",
+    a: "Send it however's easiest, a Loom, a doc, a sketch. No forms, no intake call. I get on with it.",
+  },
+  {
+    q: "Do we need to get on calls?",
+    a: "No. It's async by design. That's what keeps it fast and keeps the time going into the work instead of meetings.",
   },
   {
     q: "What if I need changes?",
     a: "Revisions are part of it. I keep going until it's right.",
   },
   {
-    q: "One request at a time?",
-    a: "Yes. It keeps the work fast and focused. Big builds get broken into a sequence of requests. Add the next one the moment the last ships.",
+    q: "One request at a time, isn't that slow?",
+    a: "It's the opposite. One focused request, shipped, then the next. Big builds get broken into a sequence, each piece live in days. Nothing stalls in a pile.",
   },
   {
     q: "What if I run out of things to build?",
-    a: "Pause your plan. Your billing freezes and picks up where it left off when you're ready.",
+    a: "Pause the plan. Billing freezes and picks up where it left off when you're ready.",
   },
 ];
 
 export default function Homepage() {
+  // One source of truth for the scarcity line and the primary action, so the
+  // hero, pricing and final CTA stay in sync when the slot toggles.
+  const slotLine = AVAILABILITY.open
+    ? AVAILABILITY.openLine
+    : AVAILABILITY.fullLine;
+  const ctaLabel = AVAILABILITY.open ? "Claim the slot" : "Join the waitlist";
+  const ctaHref = AVAILABILITY.open ? SUBSCRIBE_URL : WAITLIST_URL;
+
   return (
     <div className="min-h-screen bg-black relative isolate overflow-hidden">
       {/* Ripple backdrop — vertical hairlines clustered on the left and
@@ -340,6 +421,9 @@ export default function Homepage() {
                 <a href="#pricing" className="inline-block py-2 -my-2 hover:text-cream transition-colors">
                   PRICING
                 </a>
+                <a href="#about" className="inline-block py-2 -my-2 hover:text-cream transition-colors">
+                  ABOUT
+                </a>
                 <Link href="/paintings" className="inline-block py-2 -my-2 hover:text-cream transition-colors">
                   ART
                 </Link>
@@ -355,8 +439,7 @@ export default function Homepage() {
                   fontWeight: 500,
                 }}
               >
-                Digital design and build, by one person. Live in days, not
-                months.
+                Digital design and build, on subscription.
               </p>
               <p
                 className="mt-3 text-cream/70 max-w-md"
@@ -366,14 +449,16 @@ export default function Homepage() {
                   lineHeight: 1.55,
                 }}
               >
-                Monthly subscription, pause or cancel anytime.
+                I take on one client at a time and ship working product to your
+                domain. Fast, async, no calls. Design and code from the same
+                hands, so nothing gets lost in translation.
               </p>
               {/* Mobile-only CTA — sits above the photo on mobile so the
                   action is visible without scrolling. Hidden on lg+ where
                   the desktop sibling below renders instead. */}
               <a
                 href="#pricing"
-                className="group inline-flex lg:hidden items-center gap-2 mt-5 sm:mt-6 px-5 py-3 border-2 border-cream/80 text-cream hover:bg-cream hover:border-cream hover:text-black transition-colors whitespace-nowrap self-start"
+                className="project-card-trace group relative inline-flex lg:hidden items-center gap-2 mt-5 sm:mt-6 px-5 py-3 rounded-2xl border-2 border-transparent text-emerald-400 transition-colors duration-300 whitespace-nowrap self-start"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
@@ -382,7 +467,7 @@ export default function Homepage() {
                   textTransform: "uppercase",
                 }}
               >
-                <span>See pricing</span>
+                <span>{ctaLabel}</span>
                 <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M13 5l7 7-7 7" />
                 </svg>
@@ -392,7 +477,7 @@ export default function Homepage() {
                   above renders instead. */}
               <a
                 href="#pricing"
-                className="group hidden lg:inline-flex items-center gap-2 mt-5 sm:mt-6 px-5 py-3 border-2 border-cream/80 text-cream hover:bg-cream hover:border-cream hover:text-black transition-colors whitespace-nowrap"
+                className="project-card-trace group relative hidden lg:inline-flex items-center gap-2 mt-5 sm:mt-6 px-5 py-3 rounded-2xl border-2 border-transparent text-emerald-400 transition-colors duration-300 whitespace-nowrap"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
@@ -401,11 +486,43 @@ export default function Homepage() {
                   textTransform: "uppercase",
                 }}
               >
-                <span>See pricing</span>
+                <span>{ctaLabel}</span>
                 <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M13 5l7 7-7 7" />
                 </svg>
               </a>
+
+              {/* Availability is the real lever on the price. Reads from the
+                  single AVAILABILITY source so it never contradicts itself. */}
+              <p
+                className="mt-5 flex items-center gap-2.5 text-tan"
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.6875rem",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
+              >
+                <span
+                  className={
+                    AVAILABILITY.open
+                      ? "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"
+                      : "w-1.5 h-1.5 rounded-full bg-tan/60"
+                  }
+                  aria-hidden="true"
+                />
+                {slotLine}
+              </p>
+              <p
+                className="mt-3 text-cream/55 max-w-md"
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "0.875rem",
+                  lineHeight: 1.55,
+                }}
+              >
+                Built for founders who'd rather ship than sit in scoping calls.
+              </p>
             </div>
 
             <div className="relative max-w-[360px] lg:max-w-none">
@@ -475,8 +592,69 @@ export default function Homepage() {
           </div>
         </header>
 
+        {/* Why this exists — the anti-studio contrast. Sets the problem before
+            the process. */}
+        <section className="mb-24 mt-8">
+          <SectionHeader label="Why this exists" />
+          <div className="relative grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border-2 border-tan/40 glass-tile-bg">
+            <div className="relative p-8 sm:p-10 lg:p-12 border-b-2 lg:border-b-0 lg:border-r-2 border-tan/40">
+              <div
+                className="text-tan mb-5"
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.6875rem",
+                  letterSpacing: "0.13em",
+                  textTransform: "uppercase",
+                }}
+              >
+                The usual way
+              </div>
+              <p
+                className="text-cream/60"
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "clamp(1rem, 1.6vw, 1.1875rem)",
+                  lineHeight: 1.6,
+                }}
+              >
+                Hire a studio and you get months of forms, calls, scoping decks
+                and contracts before anyone touches the work, then a Figma file
+                you still can't ship. Hire in-house and you're recruiting for a
+                quarter. Either way you're managing people instead of shipping
+                product.
+              </p>
+            </div>
+            <div className="relative p-8 sm:p-10 lg:p-12 bg-cream/[0.02]">
+              <div
+                className="text-cream mb-5"
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.6875rem",
+                  letterSpacing: "0.13em",
+                  textTransform: "uppercase",
+                }}
+              >
+                With me
+              </div>
+              <p
+                className="text-cream"
+                style={{
+                  fontFamily: "var(--font-playfair)",
+                  fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
+                  lineHeight: 1.25,
+                  fontWeight: 600,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Subscribe. Send the request. Approve the working thing when it
+                lands. That's the whole relationship.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* How it works */}
-        <section id="how" className="mb-24 mt-8 scroll-mt-12">
+        <section id="how" className="mb-24 scroll-mt-12">
           <SectionHeader label="How it works" />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10">
             {STEPS.map((s) => (
@@ -517,75 +695,187 @@ export default function Homepage() {
           </div>
         </section>
 
-        {/* Pain — a two-panel contrast: the usual studio grind, muted, vs the
-            subscription, brighter and heavier. Hairline divider between them. */}
-        <section className="mb-24">
-          <div className="relative isolate grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border-2 border-tan/40 bg-black">
-            {/* Decorative background: warm aurora blobs plus a grain texture,
-                clipped to the card and pinned behind the panels. The glow pools
-                on the right so the "With me" side feels lit. pointer-events-none
-                so it never intercepts the panel content. */}
-            <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
-              <div className="absolute -top-24 -right-16 w-[28rem] h-[28rem] rounded-full bg-cream/[0.07] blur-3xl" />
-              <div className="absolute -bottom-32 right-[8%] w-[24rem] h-[24rem] rounded-full bg-tan/25 blur-3xl" />
-              <div className="absolute top-[15%] -left-24 w-[22rem] h-[22rem] rounded-full bg-tan/10 blur-3xl" />
-            </div>
-            <div className="relative p-8 sm:p-10 lg:p-12 border-b-2 lg:border-b-0 lg:border-r-2 border-tan/40">
+        {/* Why one client at a time — the differentiator and the spine of the
+            pitch. The Avis line makes the async claim honest and credible. */}
+        <section id="why-one" className="mb-24 scroll-mt-12">
+          <SectionHeader label="Why one client at a time" />
+          <h3
+            className="text-cream mb-10 -mt-2 max-w-2xl"
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
+            }}
+          >
+            I take one client at a time. You get my full focus.
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-10">
+            {WHY_ONE.map((point, i) => (
               <div
-                className="text-tan mb-5"
-                style={{
-                  fontFamily: "var(--font-jetbrains-mono)",
-                  fontSize: "0.6875rem",
-                  letterSpacing: "0.13em",
-                  textTransform: "uppercase",
-                }}
+                key={point.title}
+                className="pt-6 border-t-2 border-tan/40"
               >
-                The usual studio
+                <div
+                  className="text-tan mb-4"
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.13em",
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h4
+                  className="text-cream mb-3"
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontSize: "1.375rem",
+                    fontWeight: 700,
+                    letterSpacing: "-0.01em",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {point.title}
+                </h4>
+                <p
+                  className="text-cream/70"
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: "0.9375rem",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {point.body}
+                </p>
               </div>
-              <p
-                className="text-cream/60"
-                style={{
-                  fontFamily: "var(--font-inter)",
-                  fontSize: "clamp(1rem, 1.6vw, 1.1875rem)",
-                  lineHeight: 1.6,
-                }}
-              >
-                Hiring a design studio will be months of forms, calls, scoping
-                sessions and drawing up contracts, before any work gets done,
-                and then they hand you a Figma file that you still can't ship.
-              </p>
-            </div>
-            <div className="relative p-8 sm:p-10 lg:p-12 bg-cream/[0.02]">
-              <div
-                className="text-cream mb-5"
-                style={{
-                  fontFamily: "var(--font-jetbrains-mono)",
-                  fontSize: "0.6875rem",
-                  letterSpacing: "0.13em",
-                  textTransform: "uppercase",
-                }}
-              >
-                With me
-              </div>
-              <p
-                className="text-cream"
-                style={{
-                  fontFamily: "var(--font-playfair)",
-                  fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
-                  lineHeight: 1.25,
-                  fontWeight: 600,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                Subscribe, request and approve. That's it.
-              </p>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* Work — the portfolio reframed as proof, not product catalogue. */}
+        {/* Work — client outcomes first, self-built products second as proof of
+            shipping velocity. Design credibility from clients, build credibility
+            from the products below. */}
         <section id="work" className="mb-24 scroll-mt-12">
           <SectionHeader label="Work" />
+
+          {/* Selected client work — only what can be shown publicly. */}
+          <h3
+            className="text-cream mb-6"
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: "1.5rem",
+              fontWeight: 700,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            Selected client work
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-16">
+            {CLIENT_WORK.map((c) => (
+              <div
+                key={c.client}
+                className="rounded-2xl border-2 border-tan/40 bg-cream/[0.02] p-7 sm:p-8"
+              >
+                <div
+                  className="text-tan mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1"
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.6875rem",
+                    letterSpacing: "0.13em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  <span>{c.discipline}</span>
+                  <span className="text-tan/50">·</span>
+                  <span>{c.year}</span>
+                </div>
+                <h4
+                  className="text-cream mb-3"
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontSize: "clamp(1.375rem, 2.6vw, 1.75rem)",
+                    fontWeight: 700,
+                    letterSpacing: "-0.01em",
+                    lineHeight: 1.15,
+                  }}
+                >
+                  {c.client}
+                </h4>
+                <p
+                  className="text-cream/70"
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: "0.9375rem",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {c.body}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Clients and experience — the minimalist CV strip. Names and
+              discipline only, no confidential artefacts. */}
+          <div className="mb-16">
+            <h3
+              className="text-tan mb-5"
+              style={{
+                fontFamily: "var(--font-jetbrains-mono)",
+                fontSize: "0.6875rem",
+                letterSpacing: "0.13em",
+                textTransform: "uppercase",
+              }}
+            >
+              Clients and experience
+            </h3>
+            <ul className="border-t border-tan/25">
+              {CLIENTS.map((c) => (
+                <li
+                  key={c.name}
+                  className="flex items-baseline justify-between gap-4 py-3.5 border-b border-tan/25"
+                >
+                  <span
+                    className="text-cream"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "1rem",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {c.name}
+                  </span>
+                  <span
+                    className="text-tan text-right shrink-0"
+                    style={{
+                      fontFamily: "var(--font-jetbrains-mono)",
+                      fontSize: "0.6875rem",
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {c.note}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Built solo — proof of build velocity. Honestly labelled: these are
+              my own products, not client work. */}
+          <h3
+            className="text-cream mb-8"
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: "1.5rem",
+              fontWeight: 700,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            Built solo
+          </h3>
           <div className="grid grid-cols-1 gap-4">
             {PROJECTS.map((p) => (
               <ProjectCard key={p.number} project={p} />
@@ -659,7 +949,7 @@ export default function Homepage() {
             {TESTIMONIALS.map((t) => (
               <figure
                 key={t.name}
-                className="relative rounded-2xl border-2 border-tan/40 bg-cream/[0.02] p-8 sm:p-10"
+                className="relative rounded-2xl border-2 border-tan/40 glass-tile-bg p-8 sm:p-10"
               >
                 <span
                   className="absolute top-4 left-6 text-tan/30 select-none"
@@ -746,12 +1036,11 @@ export default function Homepage() {
                       lineHeight: 1.5,
                     }}
                   >
-                    One designer, start to finish. No account managers, no
-                    handoffs.
+                    One client at a time. When the slot's yours, it's yours.
                   </p>
                 </div>
                 <span
-                  className="shrink-0 rounded-full border border-tan/40 px-3 py-1.5 text-tan"
+                  className="shrink-0 rounded-full bg-tan px-3 py-1.5 text-black"
                   style={{
                     fontFamily: "var(--font-jetbrains-mono)",
                     fontSize: "0.625rem",
@@ -777,7 +1066,7 @@ export default function Homepage() {
                     letterSpacing: "-0.02em",
                   }}
                 >
-                  £6,995
+                  {PRICE.amount}
                 </span>
                 <span
                   className="text-tan mb-1.5"
@@ -798,7 +1087,7 @@ export default function Homepage() {
                     textTransform: "uppercase",
                   }}
                 >
-                  Inc. VAT
+                  {PRICE.suffix}
                 </span>
               </div>
 
@@ -844,8 +1133,8 @@ export default function Homepage() {
 
               {/* CTA — full width, inverts on hover like the rest of the site. */}
               <a
-                href={SUBSCRIBE_URL}
-                className="group mt-8 flex w-full items-center justify-center gap-2 rounded-xl px-8 py-4 bg-cream text-black border-2 border-cream hover:bg-transparent hover:text-cream transition-colors"
+                href={ctaHref}
+                className="group mt-8 flex w-full items-center justify-center gap-2 rounded-xl px-8 py-4 bg-emerald-400 text-black border-2 border-emerald-400 hover:bg-transparent hover:text-emerald-400 transition-colors"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.8125rem",
@@ -854,7 +1143,7 @@ export default function Homepage() {
                   textTransform: "uppercase",
                 }}
               >
-                <span>Subscribe</span>
+                <span>{ctaLabel}</span>
                 <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M13 5l7 7-7 7" />
                 </svg>
@@ -887,7 +1176,7 @@ export default function Homepage() {
         </section>
 
         {/* About — solo as a feature, the Brett play. */}
-        <section id="about" className="mb-24 scroll-mt-12 max-w-2xl">
+        <section id="about" className="mb-24 scroll-mt-12">
           <SectionHeader label="About" />
           <h3
             className="text-cream mb-5 -mt-2"
@@ -909,9 +1198,11 @@ export default function Homepage() {
               lineHeight: 1.6,
             }}
           >
-            You hire me, you get me. No process to sit through, no meetings on
-            the calendar. That&apos;s why it stays fast and the product stays
-            coherent.
+            You hire me, you get me. No account managers, no process to sit
+            through, no meetings on the calendar. I design it and I build it,
+            which is why it stays fast and the product stays coherent. I take one
+            client at a time, so the work always has my full attention, not a
+            slice of it.
           </p>
         </section>
 
@@ -969,11 +1260,11 @@ export default function Homepage() {
               lineHeight: 1.5,
             }}
           >
-            Start today. Two minutes to your first request.
+            {slotLine} Two minutes to your first request.
           </p>
           <a
-            href={SUBSCRIBE_URL}
-            className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-cream text-black border-2 border-cream hover:bg-transparent hover:text-cream transition-colors"
+            href={ctaHref}
+            className="project-card-trace group relative inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl border-2 border-transparent text-emerald-400 transition-colors duration-300"
             style={{
               fontFamily: "var(--font-jetbrains-mono)",
               fontSize: "0.8125rem",
@@ -982,14 +1273,14 @@ export default function Homepage() {
               textTransform: "uppercase",
             }}
           >
-            <span>Subscribe</span>
+            <span>{ctaLabel}</span>
             <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14M13 5l7 7-7 7" />
             </svg>
           </a>
         </section>
 
-        {/* Also built — games relocated out of the proof grid, grouped with
+        {/* Built for my kids — the games and kid-facing tools, grouped with
             the books strip as a quiet "more" area at the foot of the page. */}
         <section className="mb-12">
           <div className="flex items-center gap-8 mb-8">
@@ -1002,7 +1293,7 @@ export default function Homepage() {
                 textTransform: "uppercase",
               }}
             >
-              + Also built
+              + Built for my kids
             </h2>
             <div className="flex-1 h-[2px] bg-tan/50" />
           </div>
@@ -1026,7 +1317,7 @@ export default function Homepage() {
                 textTransform: "uppercase",
               }}
             >
-              + I make ebooks too
+              + My eBooks and Audiobooks
             </h2>
             <div className="flex-1 h-[2px] bg-tan/50" />
           </div>
@@ -1076,7 +1367,7 @@ export default function Homepage() {
                       textTransform: "uppercase",
                     }}
                   >
-                    Part One of Three
+                    Sci-fi Novel
                   </span>
                 </div>
                 <p
