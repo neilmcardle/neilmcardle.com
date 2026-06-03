@@ -986,32 +986,6 @@ export default function Tessera() {
 
             <div style={{ height: 1, background: "rgba(43,38,34,0.12)" }} />
 
-            {/* Buy me a coffee */}
-            <a
-              href="https://buymeacoffee.com/neilmcardle"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "12px 14px",
-                borderRadius: 14,
-                border: `2px solid ${COLORS.ink}`,
-                background: "transparent",
-                textDecoration: "none",
-                color: COLORS.ink,
-                fontSize: 15,
-                fontWeight: 700,
-              }}
-            >
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-                <span aria-hidden style={{ fontSize: 18 }}>☕</span>
-                Buy me a coffee
-              </span>
-              <span aria-hidden style={{ fontSize: 14, opacity: 0.6 }}>↗</span>
-            </a>
-
             <a
               href="https://neilmcardle.com"
               target="_blank"
@@ -1049,9 +1023,7 @@ export default function Tessera() {
             </a>
 
             <div style={{ fontSize: 12, lineHeight: 1.5, opacity: 0.65, textAlign: "center", marginTop: 4 }}>
-              Tessera is free to play.
-              <br />
-              Buying me a coffee is optional, it&apos;s simply to support App Store fees.
+              Tessera is free to play, with no ads.
             </div>
 
             <div style={{ fontSize: 11, lineHeight: 1.5, opacity: 0.5, textAlign: "center", letterSpacing: "0.08em", textTransform: "uppercase" }}>

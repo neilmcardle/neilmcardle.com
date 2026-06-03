@@ -697,6 +697,12 @@ button:hover .palette-icon {
   animation: project-card-trace 5s linear;
 }
 
+/* The hero CTA uses the same trace but wants punch, not ambience: a quick,
+   ease-out sweep that fires the moment the pointer lands. */
+.project-card-trace.cta-trace-fast:hover::after {
+  animation: project-card-trace 3.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @keyframes project-card-trace {
   0%   { opacity: 1; --trace-angle:   0deg; }
   95%  { opacity: 1; }

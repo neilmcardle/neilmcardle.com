@@ -68,25 +68,6 @@ export default function TesseraPrivacy() {
         </p>
 
         <h2 style={{ fontSize: 20, fontWeight: 700, marginTop: 40, marginBottom: 8 }}>
-          The optional tip jar
-        </h2>
-        <p>
-          Tessera includes a &ldquo;Buy me a coffee&rdquo; link in Settings.
-          Tapping it opens an external page on{" "}
-          <a
-            href="https://buymeacoffee.com/neilmcardle"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#2b2622", textDecoration: "underline" }}
-          >
-            buymeacoffee.com
-          </a>
-          . Any payment is handled entirely by Buy Me a Coffee under their
-          own privacy policy. Tessera itself receives no information about
-          who tipped, how much, or whether anything was sent at all.
-        </p>
-
-        <h2 style={{ fontSize: 20, fontWeight: 700, marginTop: 40, marginBottom: 8 }}>
           Contact
         </h2>
         <p>

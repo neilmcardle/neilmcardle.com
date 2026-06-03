@@ -556,7 +556,7 @@ export default function Homepage() {
                   above renders instead. */}
               <a
                 href="#pricing"
-                className="project-card-trace group relative hidden lg:order-5 lg:inline-flex items-center gap-2 mt-5 sm:mt-6 px-5 py-3 rounded-2xl border-2 border-transparent text-emerald-400 transition-colors duration-300 whitespace-nowrap"
+                className="project-card-trace cta-trace-fast group relative hidden lg:order-5 lg:inline-flex self-start items-center gap-2 mt-5 sm:mt-6 px-5 py-3 rounded-2xl border-2 border-transparent text-emerald-400 transition-colors duration-300 whitespace-nowrap"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",

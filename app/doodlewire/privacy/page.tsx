@@ -28,12 +28,6 @@ export default function DoodleWirePrivacyPage() {
             local storage. It is never uploaded to any server. DoodleWire has
             no account system, no analytics, and no tracking.
           </p>
-          <p>
-            The only network feature is an optional &ldquo;Support
-            development&rdquo; link, which opens an external Buy Me a Coffee
-            page in your browser. Any payment made there is handled entirely by
-            Buy Me a Coffee under their own privacy policy.
-          </p>
           <p>DoodleWire requests no device permissions.</p>
           <p>
             If you have any questions about this policy, contact{" "}

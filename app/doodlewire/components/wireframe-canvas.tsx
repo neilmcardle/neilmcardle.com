@@ -2344,26 +2344,6 @@ function Toolbar({
                     />
                   </span>
                 </button>
-                <SettingsItem
-                  label="Support development"
-                  icon={
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-                      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-                      <line x1="6" y1="1" x2="6" y2="4" />
-                      <line x1="10" y1="1" x2="10" y2="4" />
-                      <line x1="14" y1="1" x2="14" y2="4" />
-                    </svg>
-                  }
-                  onClick={() => {
-                    setSettingsOpen(false);
-                    // Donations on iOS must go through an external web payment;
-                    // Apple rejects donation flows that try to use IAP. window.open
-                    // routes to Safari via the Capacitor WebView automatically, and
-                    // works the same way in a regular browser.
-                    window.open("https://buymeacoffee.com/neilmcardle", "_blank", "noopener");
-                  }}
-                />
                 <div style={{ height: 1, background: "rgba(0,0,0,0.08)", margin: "4px 6px" }} />
                 {canDeletePage && (
                   <SettingsItem

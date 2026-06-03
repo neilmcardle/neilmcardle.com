@@ -74,8 +74,7 @@ export default function TesseraSupport() {
 
         <p style={{ marginTop: 48, fontSize: 14, opacity: 0.75 }}>
           I try to reply within a day or two. The game is free and there
-          are no ads — if Tessera made your evening, the tip jar in
-          Settings is the nicest way to say thanks.
+          are no ads.
         </p>
 
         <p style={{ marginTop: 48, fontSize: 12, opacity: 0.5 }}>
