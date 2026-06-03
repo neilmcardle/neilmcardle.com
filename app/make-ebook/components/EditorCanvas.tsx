@@ -7,7 +7,6 @@
 // keystroke.
 
 import React from 'react';
-import Image from 'next/image';
 import { LockIcon } from './icons';
 import RichTextEditor from './RichTextEditor';
 import type { FocusModeSettings } from '../hooks/useFocusMode';
@@ -70,16 +69,6 @@ interface EditorCanvasProps {
   }) => void;
 }
 
-// Run the document.execCommand-based undo/redo on the active contentEditable.
-// Lives as a module-scope helper so the JSX stays readable and both buttons
-// share one implementation.
-function runEditorCommand(command: 'undo' | 'redo') {
-  const el = document.querySelector('[contenteditable="true"]') as HTMLElement | null;
-  if (!el) return;
-  el.focus();
-  document.execCommand(command);
-}
-
 export default function EditorCanvas({
   chapters,
   selectedChapter,
@@ -139,13 +128,9 @@ export default function EditorCanvas({
           focus.active && focus.settings.typewriterMode ? 'typewriter-mode' : '',
         ].filter(Boolean).join(' ')}
       >
-        {/* Undo/redo rail + AI shortcut hints */}
-        <div className="mt-2 mb-3 flex-shrink-0 flex items-center justify-between px-6">
-          <div className="flex items-center gap-2">
-            <UndoRedoButton label="Undo" iconSrc="/undo-icon.svg" onClick={() => runEditorCommand('undo')} />
-            <UndoRedoButton label="Redo" iconSrc="/redo-icon.svg" onClick={() => runEditorCommand('redo')} />
-          </div>
-          {onInlineEditRequest && (
+        {/* AI shortcut hints. Undo/redo moved into the formatting toolbar. */}
+        {onInlineEditRequest && (
+          <div className="mt-2 mb-3 flex-shrink-0 flex items-center justify-end px-6">
             <div className="hidden lg:flex items-center gap-2 text-2xs text-gray-400 dark:text-[#737373]">
               <span className="flex items-center gap-1">
                 <kbd className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#3a3a3a] text-gray-500 dark:text-[#a3a3a3] font-mono text-[10px] leading-none">
@@ -161,8 +146,8 @@ export default function EditorCanvas({
                 <span>commands</span>
               </span>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Editor + locked banner */}
         <div className="flex-1 min-h-0">
@@ -218,25 +203,5 @@ export default function EditorCanvas({
         </div>
       </div>
     </>
-  );
-}
-
-function UndoRedoButton({ label, iconSrc, onClick }: { label: string; iconSrc: string; onClick: () => void }) {
-  return (
-    <div className="flex flex-col items-center">
-      <button title={`${label} content changes`} type="button" className="hover:opacity-70 transition-opacity" onClick={onClick}>
-        <div className="bg-white dark:bg-[#262626] rounded-full p-2">
-          <Image
-            src={iconSrc}
-            alt={label}
-            width={16}
-            height={16}
-            className="w-4 h-4 dark:invert"
-            style={{ borderRadius: '0', boxShadow: 'none' }}
-          />
-        </div>
-      </button>
-      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">{label}</span>
-    </div>
   );
 }

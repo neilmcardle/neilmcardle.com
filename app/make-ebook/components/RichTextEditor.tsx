@@ -891,6 +891,36 @@ export default function RichTextEditor({
       }`}>
         {/* Sleek horizontal toolbar */}
         <div className="flex items-center px-6 py-2 gap-1 overflow-x-auto overflow-y-visible scrollbar-hide">
+          {/* Undo / Redo — co-located with the formatting controls so editing
+              actions live in one place (was an orphaned rail above the editor). */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => { focusEditor(); document.execCommand('undo'); }}
+              title="Undo"
+              aria-label="Undo"
+              type="button"
+              disabled={disabled}
+              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4] active:scale-95 transition-transform touch-manipulation"
+            >
+              <img src="/undo-icon.svg" alt="" aria-hidden="true" className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+            </button>
+            <button
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => { focusEditor(); document.execCommand('redo'); }}
+              title="Redo"
+              aria-label="Redo"
+              type="button"
+              disabled={disabled}
+              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4] active:scale-95 transition-transform touch-manipulation"
+            >
+              <img src="/redo-icon.svg" alt="" aria-hidden="true" className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+
           {/* Format buttons (B, I, U, S) */}
           <div className="flex items-center gap-0.5 flex-shrink-0">
             {INLINE.map(b => (
@@ -899,6 +929,8 @@ export default function RichTextEditor({
                 onMouseDown={e => e.preventDefault()}
                 onClick={() => applyInlineOrAlign(b.cmd)}
                 title={b.title}
+                aria-label={b.title}
+                aria-pressed={!!formats[b.cmd]}
                 type="button"
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-transform touch-manipulation ${
@@ -915,25 +947,33 @@ export default function RichTextEditor({
           {/* Divider */}
           <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
-          {/* Headings (P, H1, H2, H3) */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
-            {HEADINGS.map(h => (
-              <button
-                key={h.level}
-                onMouseDown={e => e.preventDefault()}
-                onClick={() => applyHeading(h.level)}
-                title={h.title}
-                type="button"
-                disabled={disabled}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-95 transition-transform touch-manipulation ${
-                  formats[`heading${h.level}`]
-                    ? 'bg-[#4070ff]/15 dark:bg-[#4070ff]/20 text-[#4070ff]'
-                    : 'bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]'
-                }`}
-              >
-                {h.label}
-              </button>
-            ))}
+          {/* Paragraph style — a segmented single-select. Rendered as one
+              connected control (not separate pills) so the highlighted item
+              reads as "the current style" rather than a toggle that's stuck on.
+              This is why "P" looking active no longer implies a hidden state. */}
+          <div role="group" aria-label="Paragraph style" className="flex items-center gap-0.5 flex-shrink-0 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] p-0.5">
+            {HEADINGS.map(h => {
+              const active = !!formats[`heading${h.level}`];
+              return (
+                <button
+                  key={h.level}
+                  onMouseDown={e => e.preventDefault()}
+                  onClick={() => applyHeading(h.level)}
+                  title={h.title}
+                  aria-label={h.title}
+                  aria-pressed={active}
+                  type="button"
+                  disabled={disabled}
+                  className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold transition-colors touch-manipulation ${
+                    active
+                      ? 'bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-500 dark:text-[#a3a3a3] hover:text-gray-700 dark:hover:text-[#d4d4d4]'
+                  }`}
+                >
+                  {h.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Divider */}
@@ -944,7 +984,9 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => applyInlineOrAlign('justifyLeft')}
-              title="Left Align"
+              title="Align left"
+              aria-label="Align left"
+              aria-pressed={!!formats['justifyLeft']}
               type="button"
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
@@ -953,12 +995,14 @@ export default function RichTextEditor({
                   : 'bg-gray-100 dark:bg-[#1e1e1e]'
               }`}
             >
-              <img src="/left-align-icon.svg" alt="Left" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyLeft'] ? 'invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)' : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+              <img src="/left-align-icon.svg" alt="" aria-hidden="true" className="w-4 h-4" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyLeft'] ? 'invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)' : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
             </button>
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => applyInlineOrAlign('justifyCenter')}
-              title="Center Align"
+              title="Align center"
+              aria-label="Align center"
+              aria-pressed={!!formats['justifyCenter']}
               type="button"
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
@@ -967,12 +1011,14 @@ export default function RichTextEditor({
                   : 'bg-gray-100 dark:bg-[#1e1e1e]'
               }`}
             >
-              <img src="/centrally-align-icon.svg" alt="Center" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyCenter'] ? 'invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)' : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+              <img src="/centrally-align-icon.svg" alt="" aria-hidden="true" className="w-4 h-4" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyCenter'] ? 'invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)' : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
             </button>
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => applyInlineOrAlign('justifyRight')}
-              title="Right Align"
+              title="Align right"
+              aria-label="Align right"
+              aria-pressed={!!formats['justifyRight']}
               type="button"
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
@@ -981,7 +1027,7 @@ export default function RichTextEditor({
                   : 'bg-gray-100 dark:bg-[#1e1e1e]'
               }`}
             >
-              <img src="/right-align-icon.svg" alt="Right" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyRight'] ? 'invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)' : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+              <img src="/right-align-icon.svg" alt="" aria-hidden="true" className="w-4 h-4" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyRight'] ? 'invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)' : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
             </button>
           </div>
 
@@ -1020,6 +1066,7 @@ export default function RichTextEditor({
                 }
               }}
               title="Outdent"
+              aria-label="Outdent"
               type="button"
               disabled={disabled}
               className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-600 dark:text-[#d4d4d4] active:scale-95 transition-transform touch-manipulation"
@@ -1055,6 +1102,7 @@ export default function RichTextEditor({
                 document.execCommand('insertText', false, '\u2003\u2003');
               }}
               title="Indent"
+              aria-label="Indent"
               type="button"
               disabled={disabled}
               className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-600 dark:text-[#d4d4d4] active:scale-95 transition-transform touch-manipulation"
@@ -1073,32 +1121,35 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={handleEndnoteClick}
-              title="Insert Endnote"
+              title="Insert endnote"
+              aria-label="Insert endnote"
               type="button"
               disabled={disabled || !onCreateEndnote}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-95 transition-transform touch-manipulation disabled:opacity-50"
             >
-              <Image src="/endnote-icon.svg" alt="Endnote" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+              <Image src="/endnote-icon.svg" alt="" aria-hidden="true" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={handleLinkClick}
-              title="Insert Link"
+              title="Insert link"
+              aria-label="Insert link"
               type="button"
               disabled={disabled}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
             >
-              <Image src="/link-icon.svg" alt="Link" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+              <Image src="/link-icon.svg" alt="" aria-hidden="true" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={handleAnchorClick}
-              title="Insert Anchor"
+              title="Insert anchor"
+              aria-label="Insert anchor"
               type="button"
               disabled={disabled}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
             >
-              <Image src="/anchor-icon.svg" alt="Anchor" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+              <Image src="/anchor-icon.svg" alt="" aria-hidden="true" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
           </div>
 
@@ -1109,12 +1160,13 @@ export default function RichTextEditor({
           <button
             onMouseDown={e => e.preventDefault()}
             onClick={handleImageButtonClick}
-            title="Insert Image"
+            title="Insert image"
+            aria-label="Insert image"
             type="button"
             disabled={disabled}
             className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
           >
-            <img src="/image-icon.svg" alt="Image" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+            <img src="/image-icon.svg" alt="" aria-hidden="true" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
           </button>
 
           {/* Clear formatting button */}
@@ -1127,11 +1179,12 @@ export default function RichTextEditor({
               refreshStates();
             }}
             title="Remove all formatting (bold, italic, etc.)"
+            aria-label="Remove all formatting"
             type="button"
             disabled={disabled}
             className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
           >
-            <img src="/clear-erase-icon.svg" alt="Clear" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+            <img src="/clear-erase-icon.svg" alt="" aria-hidden="true" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
           </button>
         </div>
       </div>}

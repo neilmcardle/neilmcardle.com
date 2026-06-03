@@ -58,8 +58,8 @@ export default function ModeMenu({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          title={anyActive ? `${activeCount} mode${activeCount > 1 ? 's' : ''} active` : 'Writing modes'}
-          aria-label={anyActive ? `Writing modes — ${activeCount} active` : 'Writing modes'}
+          title={anyActive ? `Writing modes (${activeCount} on)` : 'Focus and writing modes'}
+          aria-label={anyActive ? `Writing modes, ${activeCount} on` : 'Focus and writing modes'}
           className={`flex items-center gap-1.5 px-3 h-10 rounded-lg transition-colors group ${
             anyActive
               ? 'bg-[#4070ff]/10 dark:bg-[#4070ff]/15'
@@ -88,7 +88,7 @@ export default function ModeMenu({
                 : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4]'
             }`}
           >
-            Mode{anyActive ? ` (${activeCount})` : ''}
+            Focus{anyActive && activeCount > 1 ? ` (${activeCount})` : ''}
           </span>
         </button>
       </DropdownMenuTrigger>

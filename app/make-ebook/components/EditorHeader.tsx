@@ -11,11 +11,9 @@ import React from 'react';
 import { SaveIcon, DownloadIcon } from './icons';
 import AutoSaveIndicator from './AutoSaveIndicator';
 import ChapterNavDropdown from './ChapterNavDropdown';
-import { HistoryButton } from './HistoryPanel';
 import ModeMenu from './ModeMenu';
 import LayoutSwitcher, { RightPanelMode } from './LayoutSwitcher';
-import { useFeatureAccess } from '@/lib/hooks/useSubscription';
-import { useIsMac, ModKey } from './marketing/sections-v2/PlatformKey';
+import { useIsMac } from './marketing/sections-v2/PlatformKey';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -116,15 +114,17 @@ export default function EditorHeader({
         )}
       </div>
 
-      {/* ── Right cluster: navigation, tools, and the primary Export CTA ── */}
-      <div className="flex items-center gap-3">
+      {/* ── Right cluster: navigation, tools, and the primary Export CTA ──
+           Hierarchy: navigation + view tools read as a quiet group; the dark
+           Export pill is the single primary action. Low-frequency History
+           lives in the overflow menu so it stops competing for attention. */}
+      <div className="flex items-center gap-2">
         <ChapterNavDropdown
           chapters={chapters}
           selectedChapter={selectedChapter}
           onChapterSelect={onChapterSelect}
           bookTitle={bookTitle}
         />
-        <HistoryButton versionCount={versionCount} exportCount={exportCount} onClickAction={onShowHistory} />
         <ModeMenu
           focusActive={focusActive}
           onToggleFocus={onToggleFocusMode}
@@ -132,6 +132,37 @@ export default function EditorHeader({
           onToggleFlow={onToggleFlowMode}
         />
         <LayoutSwitcher mode={rightPanelMode} onChange={onRightPanelModeChange} />
+
+        {/* Overflow — low-frequency actions that shouldn't rival Export */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              title="More"
+              aria-label="More actions"
+              className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
+              </svg>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="bottom" align="end" sideOffset={8} className="w-60">
+            <DropdownMenuItem onClick={onShowHistory} className="flex items-center justify-between gap-2 cursor-pointer">
+              <span className="flex items-center gap-2">
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-sm">Version & export history</span>
+              </span>
+              {versionCount + exportCount > 0 && (
+                <span className="text-xs text-gray-400 tabular-nums">{versionCount + exportCount}</span>
+              )}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Separator so the primary action reads apart from the tools */}
+        <span className="w-px h-6 bg-gray-200 dark:bg-[#2f2f2f] mx-1" aria-hidden="true" />
 
         {/* Export pill CTA — the primary action of the whole product. Labelled,
             prominent, anchored to the far right. This is intentional per the
@@ -191,35 +222,6 @@ export default function EditorHeader({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </div>
-  );
-}
-
-// Persistent ⌘K discoverability chip. Sits in the toolbar alongside
-// History, Focus Mode, and LayoutSwitcher. Only renders for Pro users.
-// Always visible, no conditional timing or localStorage dismissal.
-function CmdKHint() {
-  const hasBookMind = useFeatureAccess('book_mind_ai');
-  const isMac = useIsMac();
-  if (!hasBookMind) return null;
-  return (
-    <div
-      className="flex items-center gap-1.5 h-10 px-3 rounded-lg text-xs font-medium text-gray-400 dark:text-[#737373] select-none"
-      title={`Select text and press ${isMac ? '⌘K' : 'Ctrl+K'} to edit with Book Mind`}
-    >
-      <svg
-        className="w-3.5 h-3.5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={1.8}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-      </svg>
-      <span className="hidden sm:inline"><ModKey keyName="K" /></span>
     </div>
   );
 }
