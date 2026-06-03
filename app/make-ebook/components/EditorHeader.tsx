@@ -137,7 +137,7 @@ export default function EditorHeader({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              title="More"
+              title="More actions"
               aria-label="More actions"
               className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors"
             >
