@@ -1206,7 +1206,7 @@ export default function Homepage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            <div className="flex items-start gap-5 sm:gap-6 p-4 sm:p-5">
+            <div className="soft-card rounded-[1.25rem] flex items-start gap-5 sm:gap-6 p-5 sm:p-6">
               <div
                 className="text-gold flex-shrink-0"
                 style={{
@@ -1224,13 +1224,13 @@ export default function Homepage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Sol0 on ElevenReader"
-                className="group relative h-20 sm:h-24 aspect-[2/3] rounded-md overflow-hidden border border-white/10 flex-shrink-0"
+                className="relative h-20 sm:h-24 aspect-[2/3] rounded-md overflow-hidden border border-white/10 flex-shrink-0 transition-[transform,box-shadow] duration-300 ease-out hover:scale-[1.06] hover:-rotate-[4deg] hover:shadow-[0_14px_28px_-10px_rgba(0,0,0,0.75)]"
               >
                 <Image
                   src="/books/sol0-part-one.png"
                   alt="Sol0 — Part One of Three cover"
                   fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="object-cover"
                   sizes="96px"
                 />
               </a>
