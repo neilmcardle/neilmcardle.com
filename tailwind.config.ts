@@ -30,6 +30,11 @@ const config = {
         // Distinct from the makeEbook marketing cream below.
         cream: '#fbf9f3',   // primary light text / surfaces on black
         tan:   '#8a7f70',   // muted labels, borders, hairlines
+        // Soft-UI warm accent (CTAs, section icons, numbers). Mirrors the
+        // --gold CSS vars in globals.css.
+        gold:          '#d8b46a',
+        'gold-bright': '#f0d091',
+        'gold-deep':   '#b8923f',
 
         // Marketing brand surface — used by the public-facing landing, blog,
         // signin, and shared marketing nav. Distinct from the editor's

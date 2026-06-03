@@ -315,7 +315,7 @@ export default function Homepage() {
   // on mobile so the face is above the fold, and the large copy in the right
   // grid column on desktop. Only one is visible per breakpoint.
   const photoCard = (
-    <div className="project-card-trace relative border-2 border-tan/50 hover:border-cream transition-colors duration-300 overflow-hidden aspect-square">
+    <div className="soft-card relative overflow-hidden aspect-square rounded-[1.75rem]">
       <Image
         src="/me.png"
         alt="Neil McArdle"
@@ -403,7 +403,7 @@ export default function Homepage() {
               height={26}
               style={{ color: "transparent" }}
             />
-            <div className="flex-1 h-[1px] bg-tan/50" />
+            <div className="flex-1 h-px bg-tan/30" />
           </div>
 
           {/* Hero grid — photo spans both rows on desktop so the link
@@ -495,38 +495,42 @@ export default function Homepage() {
                   a solid fill gives a clear, large tap target instead. */}
               <a
                 href="#pricing"
-                className="order-6 lg:hidden group inline-flex items-center gap-2 mt-5 px-6 py-3.5 rounded-2xl bg-emerald-400 text-black active:bg-emerald-500 transition-colors whitespace-nowrap self-start"
+                className="gold-btn order-6 lg:hidden group inline-flex items-center gap-3 mt-5 pl-6 pr-2.5 py-2.5 rounded-full whitespace-nowrap self-start"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
-                  fontWeight: 500,
-                  letterSpacing: "0.13em",
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
                   textTransform: "uppercase",
                 }}
               >
                 <span>{ctaLabel}</span>
-                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M13 5l7 7-7 7" />
-                </svg>
+                <span className="gold-btn-badge w-7 h-7">
+                  <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M13 5l7 7-7 7" />
+                  </svg>
+                </span>
               </a>
               {/* Primary CTA (desktop) — sits inside the title block under
                   the positioning copy. Hidden on mobile; the lg:hidden copy
                   above renders instead. */}
               <a
                 href="#pricing"
-                className="project-card-trace cta-trace-fast group relative hidden lg:order-5 lg:inline-flex self-start items-center gap-2 mt-5 sm:mt-6 px-5 py-3 rounded-2xl border-2 border-transparent text-emerald-400 transition-colors duration-300 whitespace-nowrap"
+                className="gold-btn group relative hidden lg:order-5 lg:inline-flex self-start items-center gap-3 mt-5 sm:mt-6 pl-6 pr-2.5 py-2.5 rounded-full whitespace-nowrap"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
-                  fontWeight: 500,
-                  letterSpacing: "0.13em",
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
                   textTransform: "uppercase",
                 }}
               >
                 <span>{ctaLabel}</span>
-                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M13 5l7 7-7 7" />
-                </svg>
+                <span className="gold-btn-badge w-7 h-7">
+                  <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M13 5l7 7-7 7" />
+                  </svg>
+                </span>
               </a>
 
               {/* Availability is the real lever on the price. Reads from the
@@ -572,8 +576,8 @@ export default function Homepage() {
             the process. */}
         <section className="mb-24 mt-8">
           <SectionHeader label="Why this exists" />
-          <div className="relative grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border-2 border-tan/40 glass-tile-bg">
-            <div className="relative p-8 sm:p-10 lg:p-12 border-b-2 lg:border-b-0 lg:border-r-2 border-tan/40">
+          <div className="soft-card relative grid grid-cols-1 lg:grid-cols-2 rounded-[1.5rem] overflow-hidden">
+            <div className="relative p-8 sm:p-10 lg:p-12 border-b lg:border-b-0 lg:border-r border-white/10">
               <div
                 className="text-tan mb-5"
                 style={{
@@ -632,15 +636,23 @@ export default function Homepage() {
         {/* How it works */}
         <section id="how" className="mb-24 scroll-mt-12">
           <SectionHeader label="How it works" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10">
-            {STEPS.map((s) => (
-              <div key={s.n}>
+          <div className="soft-card grid grid-cols-1 sm:grid-cols-3 rounded-[1.5rem] overflow-hidden">
+            {STEPS.map((s, i) => (
+              <div
+                key={s.n}
+                className={`relative p-8 sm:p-10 lg:p-12 border-white/10 ${
+                  i < STEPS.length - 1
+                    ? "border-b sm:border-b-0 sm:border-r"
+                    : ""
+                }`}
+              >
                 <div
-                  className="text-tan mb-4"
+                  className="text-gold mb-4"
                   style={{
                     fontFamily: "var(--font-jetbrains-mono)",
                     fontSize: "0.75rem",
                     letterSpacing: "0.13em",
+                    fontWeight: 600,
                   }}
                 >
                   {s.n}
@@ -687,11 +699,15 @@ export default function Homepage() {
           >
             I take one client at a time. You get my full focus.
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-10">
-            {WHY_ONE.map((point) => (
+          <div className="soft-card grid grid-cols-1 md:grid-cols-3 rounded-[1.5rem] overflow-hidden">
+            {WHY_ONE.map((point, i) => (
               <div
                 key={point.title}
-                className="pt-6 border-t-2 border-tan/40"
+                className={`relative p-8 sm:p-10 lg:p-12 border-white/10 ${
+                  i < WHY_ONE.length - 1
+                    ? "border-b md:border-b-0 md:border-r"
+                    : ""
+                }`}
               >
                 <h4
                   className="text-cream mb-3"
@@ -742,7 +758,7 @@ export default function Homepage() {
             {CLIENT_WORK.map((c) => (
               <div
                 key={c.client}
-                className="rounded-2xl border-2 border-tan/40 bg-cream/[0.02] p-7 sm:p-8"
+                className="soft-card rounded-[1.25rem] p-7 sm:p-8"
               >
                 <div
                   className="text-tan mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1"
@@ -854,15 +870,13 @@ export default function Homepage() {
             defined, then priced. */}
         <section id="scope" className="mb-24 scroll-mt-12">
           <SectionHeader label="What I make" />
-          <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="soft-card grid grid-cols-1 md:grid-cols-2 rounded-[1.5rem] overflow-hidden">
             {CAPABILITIES.map((col, i) => (
               <div
                 key={col.heading}
-                className={
-                  i === 1
-                    ? "mt-10 pt-10 border-t-2 md:mt-0 md:pt-0 md:border-t-0 md:pl-12 md:border-l-2 border-tan/40"
-                    : "md:pr-12"
-                }
+                className={`relative p-8 sm:p-10 lg:p-12 border-white/10 ${
+                  i === 0 ? "border-b md:border-b-0 md:border-r" : ""
+                }`}
               >
                 <h3
                   className="text-cream mb-1.5"
@@ -897,7 +911,7 @@ export default function Homepage() {
                         lineHeight: 1.5,
                       }}
                     >
-                      <span className="text-tan flex-shrink-0">—</span>
+                      <span className="text-gold flex-shrink-0">—</span>
                       <span>{item}</span>
                     </li>
                   ))}
@@ -915,10 +929,10 @@ export default function Homepage() {
             {TESTIMONIALS.map((t) => (
               <figure
                 key={t.name}
-                className="relative rounded-2xl border-2 border-tan/40 glass-tile-bg p-8 sm:p-10"
+                className="soft-card relative rounded-[1.5rem] p-8 sm:p-10"
               >
                 <span
-                  className="absolute top-4 left-6 text-tan/30 select-none"
+                  className="absolute top-4 left-6 text-gold/40 select-none"
                   style={{
                     fontFamily: "var(--font-playfair)",
                     fontSize: "4rem",
@@ -972,11 +986,11 @@ export default function Homepage() {
             SUBSCRIBE_URL (swap for a Stripe Payment Link). */}
         <section id="pricing" className="mb-24 scroll-mt-12">
           <SectionHeader label="Pricing" />
-          <div className="relative isolate max-w-2xl mx-auto rounded-2xl border-2 border-tan/40 overflow-hidden bg-black">
-            {/* Warm glow pooling top-right, same family as the comparison card
-                so the priced moment feels lit, not flat. */}
+          <div className="soft-card relative isolate max-w-2xl mx-auto rounded-[1.75rem] overflow-hidden">
+            {/* Warm gold glow pooling top-right so the priced moment feels lit,
+                not flat — the accent that anchors the whole soft-UI palette. */}
             <div
-              className="pointer-events-none absolute -z-10 -top-24 -right-20 w-80 h-80 rounded-full bg-cream/[0.06] blur-3xl"
+              className="pointer-events-none absolute -z-10 -top-24 -right-20 w-80 h-80 rounded-full bg-gold/[0.10] blur-3xl"
               aria-hidden="true"
             />
             <div className="p-8 sm:p-10">
@@ -1006,7 +1020,7 @@ export default function Homepage() {
                   </p>
                 </div>
                 <span
-                  className="shrink-0 rounded-full bg-tan px-3 py-1.5 text-black"
+                  className="shrink-0 rounded-full px-3 py-1.5 text-gold border border-gold/30 bg-gold/10"
                   style={{
                     fontFamily: "var(--font-jetbrains-mono)",
                     fontSize: "0.625rem",
@@ -1019,7 +1033,7 @@ export default function Homepage() {
               </div>
 
               {/* Dotted divider */}
-              <div className="my-7 border-t border-dashed border-tan/40" />
+              <div className="my-7 border-t border-dashed border-white/15" />
 
               {/* Price */}
               <div className="flex items-end flex-wrap gap-x-3 gap-y-1">
@@ -1058,9 +1072,9 @@ export default function Homepage() {
               </div>
 
               {/* Included panel — labelled inner surface, the centrepiece. */}
-              <div className="relative mt-8 rounded-xl border border-tan/30 bg-cream/[0.02] p-6 sm:p-7">
+              <div className="soft-inset relative mt-8 rounded-[1rem] p-6 sm:p-7">
                 <span
-                  className="absolute -top-2 left-5 bg-black px-2 text-tan"
+                  className="absolute -top-2 left-5 bg-[#1a1a1d] px-2 text-gold"
                   style={{
                     fontFamily: "var(--font-jetbrains-mono)",
                     fontSize: "0.625rem",
@@ -1082,7 +1096,7 @@ export default function Homepage() {
                       }}
                     >
                       <svg
-                        className="w-4 h-4 mt-0.5 flex-shrink-0 text-tan"
+                        className="w-4 h-4 mt-0.5 flex-shrink-0 text-gold"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -1100,19 +1114,21 @@ export default function Homepage() {
               {/* CTA — full width, inverts on hover like the rest of the site. */}
               <a
                 href={ctaHref}
-                className="group mt-8 flex w-full items-center justify-center gap-2 rounded-xl px-8 py-4 bg-emerald-400 text-black border-2 border-emerald-400 hover:bg-transparent hover:text-emerald-400 transition-colors"
+                className="gold-btn group mt-8 flex w-full items-center justify-center gap-3 rounded-full px-8 py-4"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.8125rem",
-                  fontWeight: 500,
+                  fontWeight: 600,
                   letterSpacing: "0.13em",
                   textTransform: "uppercase",
                 }}
               >
                 <span>{ctaLabel}</span>
-                <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M13 5l7 7-7 7" />
-                </svg>
+                <span className="gold-btn-badge w-7 h-7">
+                  <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M13 5l7 7-7 7" />
+                  </svg>
+                </span>
               </a>
               <p
                 className="mt-3 text-center text-tan"
@@ -1230,26 +1246,34 @@ export default function Homepage() {
           </p>
           <a
             href={ctaHref}
-            className="project-card-trace group relative inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl border-2 border-transparent text-emerald-400 transition-colors duration-300"
+            className="gold-btn group relative inline-flex items-center justify-center gap-3 pl-8 pr-2.5 py-3.5 rounded-full"
             style={{
               fontFamily: "var(--font-jetbrains-mono)",
               fontSize: "0.8125rem",
-              fontWeight: 500,
+              fontWeight: 600,
               letterSpacing: "0.13em",
               textTransform: "uppercase",
             }}
           >
             <span>{ctaLabel}</span>
-            <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M13 5l7 7-7 7" />
-            </svg>
+            <span className="gold-btn-badge w-8 h-8">
+              <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M13 5l7 7-7 7" />
+              </svg>
+            </span>
           </a>
         </section>
 
         {/* Built for my kids — the games and kid-facing tools, grouped with
             the books strip as a quiet "more" area at the foot of the page. */}
         <section className="mb-12">
-          <div className="flex items-center gap-8 mb-8">
+          <div className="flex items-center gap-4 mb-8">
+            <span className="icon-chip w-9 h-9">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M7 12h4M9 10v4M15 11.5h.01M17.5 13h.01" />
+                <path d="M17.5 6h-11A4.5 4.5 0 002 10.5v.5l1.2 5.3A2.4 2.4 0 005.6 18c.9 0 1.7-.5 2.1-1.3L8.4 15h7.2l.7 1.7c.4.8 1.2 1.3 2.1 1.3a2.4 2.4 0 002.4-1.7L22 11v-.5A4.5 4.5 0 0017.5 6z" />
+              </svg>
+            </span>
             <h2
               className="text-tan"
               style={{
@@ -1259,9 +1283,9 @@ export default function Homepage() {
                 textTransform: "uppercase",
               }}
             >
-              + Built for my kids
+              Built for my kids
             </h2>
-            <div className="flex-1 h-[2px] bg-tan/50" />
+            <div className="flex-1 h-px bg-tan/30" />
           </div>
           <div className="grid grid-cols-1 gap-2">
             {ALSO_BUILT.map((p) => (
@@ -1273,7 +1297,13 @@ export default function Homepage() {
         {/* Also — books survive as a quiet personal note below the funnel.
             Paintings now live on their own page, linked as ART in the nav. */}
         <section className="mb-20">
-          <div className="flex items-center gap-8 mb-10">
+          <div className="flex items-center gap-4 mb-10">
+            <span className="icon-chip w-9 h-9">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 5.5A2.5 2.5 0 016.5 3H12v16H6.5A2.5 2.5 0 004 21.5z" />
+                <path d="M20 5.5A2.5 2.5 0 0017.5 3H12v16h5.5a2.5 2.5 0 012.5 2.5z" />
+              </svg>
+            </span>
             <h2
               className="text-tan"
               style={{
@@ -1283,19 +1313,20 @@ export default function Homepage() {
                 textTransform: "uppercase",
               }}
             >
-              + My eBooks and Audiobooks
+              My eBooks and Audiobooks
             </h2>
-            <div className="flex-1 h-[2px] bg-tan/50" />
+            <div className="flex-1 h-px bg-tan/30" />
           </div>
 
           <div className="grid grid-cols-1 gap-4">
             <div className="flex items-start gap-5 sm:gap-6 p-4 sm:p-5">
               <div
-                className="text-tan flex-shrink-0"
+                className="text-gold flex-shrink-0"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
                   letterSpacing: "0.13em",
+                  fontWeight: 600,
                   paddingTop: "0.25rem",
                 }}
               >
@@ -1306,7 +1337,7 @@ export default function Homepage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Sol0 on ElevenReader"
-                className="group relative h-20 sm:h-24 aspect-[2/3] rounded-sm overflow-hidden border border-tan flex-shrink-0"
+                className="group relative h-20 sm:h-24 aspect-[2/3] rounded-md overflow-hidden border border-white/10 flex-shrink-0"
               >
                 <Image
                   src="/books/sol0-part-one.png"
@@ -1416,7 +1447,7 @@ export default function Homepage() {
           </div>
         </section>
 
-        <footer className="pt-12 border-t-2 border-tan/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <footer className="pt-12 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <p
             className="text-tan"
             style={{ fontFamily: "var(--font-inter)", fontSize: "0.75rem" }}
@@ -1480,9 +1511,92 @@ export default function Homepage() {
   );
 }
 
+// Per-section glyph for the gold icon chip beside each section title, matching
+// the soft-UI sheet (lightbulb for "why", gear for process, etc.). Falls back
+// to a small plus mark so a new section without a mapped icon still renders.
+function SectionIcon({ label }: { label: string }) {
+  const common = {
+    width: 16,
+    height: 16,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.6,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true,
+  };
+  switch (label) {
+    case "Why this exists":
+      return (
+        <svg {...common}>
+          <path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.5.4.5.7.5 1.1v.5h6v-.5c0-.4 0-.7.5-1.1A6 6 0 0012 3z" />
+        </svg>
+      );
+    case "How it works":
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.6 1.6 0 00-1-1.5 1.6 1.6 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H3a2 2 0 110-4h.1a1.6 1.6 0 001.5-1 1.6 1.6 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.6 1.6 0 001.8.3H9a1.6 1.6 0 001-1.5V3a2 2 0 114 0v.1a1.6 1.6 0 001 1.5 1.6 1.6 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8V9a1.6 1.6 0 001.5 1H21a2 2 0 110 4h-.1a1.6 1.6 0 00-1.5 1z" />
+        </svg>
+      );
+    case "Why one client at a time":
+    case "About":
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="8" r="3.2" />
+          <path d="M5.5 20a6.5 6.5 0 0113 0" />
+        </svg>
+      );
+    case "Work":
+      return (
+        <svg {...common}>
+          <rect x="3" y="7" width="18" height="13" rx="2" />
+          <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" />
+        </svg>
+      );
+    case "What I make":
+      return (
+        <svg {...common}>
+          <path d="M12 3l8 4.5-8 4.5-8-4.5L12 3z" />
+          <path d="M4 12l8 4.5 8-4.5M4 16.5l8 4.5 8-4.5" />
+        </svg>
+      );
+    case "Praise":
+      return (
+        <svg {...common}>
+          <path d="M9 10c0-2-1.5-3-3-3v4c0 1.5 1 2.5 2.5 3M18 10c0-2-1.5-3-3-3v4c0 1.5 1 2.5 2.5 3" />
+        </svg>
+      );
+    case "Pricing":
+      return (
+        <svg {...common}>
+          <path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0l-6.2-6.2a2 2 0 01-.6-1.4V5a2 2 0 012-2h7.6a2 2 0 011.4.6l6.2 6.2a2 2 0 010 2.6z" />
+          <circle cx="8" cy="8" r="1.2" />
+        </svg>
+      );
+    case "FAQ":
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M9.5 9.5a2.5 2.5 0 014.5 1.5c0 1.5-2 2-2 3.5M12 17.5h.01" />
+        </svg>
+      );
+    default:
+      return (
+        <svg {...common}>
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      );
+  }
+}
+
 function SectionHeader({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-8 mb-12">
+    <div className="flex items-center gap-4 mb-12">
+      <span className="icon-chip w-9 h-9">
+        <SectionIcon label={label} />
+      </span>
       <h2
         className="text-tan"
         style={{
@@ -1492,9 +1606,9 @@ function SectionHeader({ label }: { label: string }) {
           textTransform: "uppercase",
         }}
       >
-        + {label}
+        {label}
       </h2>
-      <div className="flex-1 h-[2px] bg-tan/50" />
+      <div className="flex-1 h-px bg-tan/30" />
     </div>
   );
 }
@@ -1514,11 +1628,12 @@ function AlsoBuiltRow({
   const inner = (
     <>
       <span
-        className="text-tan flex-shrink-0"
+        className="text-gold flex-shrink-0"
         style={{
           fontFamily: "var(--font-jetbrains-mono)",
           fontSize: "0.75rem",
           letterSpacing: "0.13em",
+          fontWeight: 600,
           paddingTop: "0.15rem",
         }}
       >
@@ -1556,7 +1671,7 @@ function AlsoBuiltRow({
         </p>
       </div>
       <svg
-        className="w-4 h-4 mt-0.5 flex-shrink-0 text-tan group-hover:text-cream group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-[color,transform]"
+        className="w-4 h-4 mt-0.5 flex-shrink-0 text-gold group-hover:text-gold-bright group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-[color,transform]"
         aria-hidden="true"
         fill="none"
         viewBox="0 0 24 24"
@@ -1569,7 +1684,7 @@ function AlsoBuiltRow({
   );
 
   const cls =
-    "group flex items-start gap-5 p-4 sm:p-5 rounded-xl border-2 border-transparent hover:border-tan/40 transition-colors";
+    "group flex items-start gap-5 p-4 sm:p-5 rounded-xl border border-transparent hover:border-gold/30 hover:bg-white/[0.025] transition-colors";
 
   return item.external ? (
     <a href={item.href} target="_blank" rel="noopener noreferrer" className={cls}>
@@ -1589,11 +1704,12 @@ function ProjectCard({ project }: { project: Project }) {
   const inner = (
     <>
       <span
-        className="text-tan flex-shrink-0"
+        className="text-gold flex-shrink-0"
         style={{
           fontFamily: "var(--font-jetbrains-mono)",
           fontSize: "0.75rem",
           letterSpacing: "0.13em",
+          fontWeight: 600,
           paddingTop: "0.15rem",
         }}
       >
@@ -1631,7 +1747,7 @@ function ProjectCard({ project }: { project: Project }) {
         </p>
       </div>
       <svg
-        className="w-4 h-4 mt-0.5 flex-shrink-0 text-tan group-hover:text-cream group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-[color,transform]"
+        className="w-4 h-4 mt-0.5 flex-shrink-0 text-gold group-hover:text-gold-bright group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-[color,transform]"
         aria-hidden="true"
         fill="none"
         viewBox="0 0 24 24"
@@ -1644,7 +1760,7 @@ function ProjectCard({ project }: { project: Project }) {
   );
 
   const rowCls =
-    "group flex items-start gap-5 p-4 sm:p-5 rounded-xl border-2 border-transparent hover:border-tan/40 transition-colors";
+    "group flex items-start gap-5 p-4 sm:p-5 rounded-xl border border-transparent hover:border-gold/30 hover:bg-white/[0.025] transition-colors";
 
   const row = project.external ? (
     <a href={project.href} target="_blank" rel="noopener noreferrer" className={rowCls}>
