@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { type ProjectKey } from "@/components/HomepageProjectPreview";
 import ProfileCard from "@/components/ProfileCard";
+import TestimonialDrawer from "@/components/TestimonialDrawer";
 
 // Destination for the Subscribe buttons, the live Stripe Payment Link for the
 // digital design and build subscription (£5,000/mo + VAT, price
@@ -702,11 +703,13 @@ export default function Homepage() {
               // Each client's testimonial sits directly beneath their work card.
               const testimonial = TESTIMONIALS.find((t) => t.org === c.client);
               return (
-              <div key={c.client} className="flex flex-col gap-4">
+              <div key={c.client} className="flex flex-col">
               {/* Layered "tucked" card: the outer soft-card is the frame; an inset
                   image sits at the top and peeks out behind a second raised panel
-                  that overlaps it and carries the text on a solid, legible surface. */}
-              <div className="soft-card group rounded-[1.5rem] p-3 sm:p-3.5">
+                  that overlaps it and carries the text on a solid, legible surface.
+                  Sits above the testimonial drawer (z-10) so the drawer tucks
+                  behind its bottom edge. */}
+              <div className="soft-card group relative z-10 rounded-[1.5rem] p-3 sm:p-3.5">
                 {/* Inset image — framed inside the outer border, peeking out the
                     top behind the panel below. */}
                 <div className="relative aspect-[3/2] rounded-[1.05rem] overflow-hidden border border-white/10">
@@ -772,56 +775,14 @@ export default function Homepage() {
                   </p>
                 </div>
               </div>
-              {/* Matching testimonial, directly beneath the work card. */}
+              {/* Matching testimonial — a collapsible drawer tucked behind the
+                  work card above; the handle pulls the quote down. */}
               {testimonial && (
-                <figure className="soft-card relative rounded-[1.5rem] p-7 sm:p-8">
-                  <span
-                    className="absolute top-4 left-6 text-gold/40 select-none"
-                    style={{
-                      fontFamily: "var(--font-playfair)",
-                      fontSize: "4rem",
-                      lineHeight: 1,
-                    }}
-                    aria-hidden="true"
-                  >
-                    &ldquo;
-                  </span>
-                  <blockquote
-                    className="relative text-cream"
-                    style={{
-                      fontFamily: "var(--font-playfair)",
-                      fontSize: "clamp(1.125rem, 2vw, 1.375rem)",
-                      lineHeight: 1.35,
-                      fontWeight: 500,
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    {testimonial.quote}
-                  </blockquote>
-                  <figcaption className="mt-5 flex flex-col gap-1">
-                    <span
-                      className="text-cream"
-                      style={{
-                        fontFamily: "var(--font-inter)",
-                        fontSize: "0.9375rem",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {testimonial.name}
-                    </span>
-                    <span
-                      className="text-tan"
-                      style={{
-                        fontFamily: "var(--font-jetbrains-mono)",
-                        fontSize: "0.6875rem",
-                        letterSpacing: "0.13em",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {testimonial.org}
-                    </span>
-                  </figcaption>
-                </figure>
+                <TestimonialDrawer
+                  quote={testimonial.quote}
+                  name={testimonial.name}
+                  org={testimonial.org}
+                />
               )}
               </div>
               );
