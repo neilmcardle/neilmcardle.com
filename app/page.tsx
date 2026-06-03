@@ -194,20 +194,22 @@ const WHY_ONE: { title: string; body: string }[] = [
 const CLIENT_WORK: {
   client: string;
   discipline: string;
-  year: string;
   body: string;
+  // Background image filling the card behind the content, peeking out above the
+  // panel. 1200x800 (3:2).
+  image: string;
 }[] = [
   {
     client: "Dan Roberts Group",
     discipline: "Branding",
-    year: "2015",
-    body: "Logo and brand identity for the fitness coach and his training business.",
+    body: "Logo design for the fitness coach and his training business.",
+    image: "/nuksoo-canvas.png",
   },
   {
     client: "Gatewick House & Gardens",
-    discipline: "Brand identity + signage",
-    year: "2025",
-    body: "Identity and wayfinding signage for a historic house and gardens.",
+    discipline: "Branding",
+    body: "Logo design and signage for a historic house & gardens.",
+    image: "/gatewick-canvas.png",
   },
 ];
 
@@ -259,7 +261,7 @@ const TESTIMONIALS: { quote: string; name: string; org: string }[] = [
   },
   {
     quote:
-      "I handed over a rough brief and got back something far better than I'd pictured, far faster than I expected. Genuinely high-quality work.",
+      "I handed over a rough brief and got something far better than I'd pictured, and faster than I expected.",
     name: "Guy Sanderson",
     org: "Gatewick House & Gardens",
   },
@@ -695,49 +697,135 @@ export default function Homepage() {
           >
             Selected client work
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-16">
-            {CLIENT_WORK.map((c) => (
-              <div
-                key={c.client}
-                className="soft-card rounded-[1.25rem] p-7 sm:p-8"
-              >
-                <div
-                  className="text-tan mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1"
-                  style={{
-                    fontFamily: "var(--font-jetbrains-mono)",
-                    fontSize: "0.6875rem",
-                    letterSpacing: "0.13em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  <span>{c.discipline}</span>
-                  <span className="text-tan/50">·</span>
-                  <span>{c.year}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-16 items-start">
+            {CLIENT_WORK.map((c) => {
+              // Each client's testimonial sits directly beneath their work card.
+              const testimonial = TESTIMONIALS.find((t) => t.org === c.client);
+              return (
+              <div key={c.client} className="flex flex-col gap-4">
+              {/* Layered "tucked" card: the outer soft-card is the frame; an inset
+                  image sits at the top and peeks out behind a second raised panel
+                  that overlaps it and carries the text on a solid, legible surface. */}
+              <div className="soft-card group rounded-[1.5rem] p-3 sm:p-3.5">
+                {/* Inset image — framed inside the outer border, peeking out the
+                    top behind the panel below. */}
+                <div className="relative aspect-[3/2] rounded-[1.05rem] overflow-hidden border border-white/10">
+                  {/* Blurred ambient backdrop — a soft version of the brand image. */}
+                  <Image
+                    src={c.image}
+                    alt=""
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover scale-110 blur-[3px]"
+                  />
+                  {/* Film grain — clipped to the image, leaving the panel clean. */}
+                  <div className="img-grain absolute inset-0 pointer-events-none" aria-hidden="true" />
+                  {/* Pocket: the crisp brand image on a single card, peeking from
+                      behind the panel below. */}
+                  <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+                    <div className="soft-card absolute left-1/2 bottom-0 h-[88%] w-[56%] -translate-x-1/2 translate-y-[16%] origin-bottom rotate-[5deg] rounded-2xl overflow-hidden">
+                      <Image
+                        src={c.image}
+                        alt=""
+                        fill
+                        sizes="(max-width: 768px) 60vw, 30vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <h4
-                  className="text-cream mb-3"
-                  style={{
-                    fontFamily: "var(--font-playfair)",
-                    fontSize: "clamp(1.375rem, 2.6vw, 1.75rem)",
-                    fontWeight: 700,
-                    letterSpacing: "-0.01em",
-                    lineHeight: 1.15,
-                  }}
-                >
-                  {c.client}
-                </h4>
-                <p
-                  className="text-cream/70"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.9375rem",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {c.body}
-                </p>
+                {/* Foreground panel — raised, opaque, overlaps the image so it
+                    hides its lower portion and the image reads as tucked behind. */}
+                <div className="soft-card relative z-10 -mt-12 rounded-[1.15rem] p-6 sm:p-7 shadow-[0_-10px_24px_-10px_rgba(0,0,0,0.7)]">
+                  <div
+                    className="text-tan mb-3"
+                    style={{
+                      fontFamily: "var(--font-jetbrains-mono)",
+                      fontSize: "0.6875rem",
+                      letterSpacing: "0.13em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {c.discipline}
+                  </div>
+                  <h4
+                    className="text-cream mb-3"
+                    style={{
+                      fontFamily: "var(--font-playfair)",
+                      fontSize: "clamp(1.375rem, 2.6vw, 1.75rem)",
+                      fontWeight: 700,
+                      letterSpacing: "-0.01em",
+                      lineHeight: 1.15,
+                    }}
+                  >
+                    {c.client}
+                  </h4>
+                  <p
+                    className="text-cream/70"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "0.9375rem",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {c.body}
+                  </p>
+                </div>
               </div>
-            ))}
+              {/* Matching testimonial, directly beneath the work card. */}
+              {testimonial && (
+                <figure className="soft-card relative rounded-[1.5rem] p-7 sm:p-8">
+                  <span
+                    className="absolute top-4 left-6 text-gold/40 select-none"
+                    style={{
+                      fontFamily: "var(--font-playfair)",
+                      fontSize: "4rem",
+                      lineHeight: 1,
+                    }}
+                    aria-hidden="true"
+                  >
+                    &ldquo;
+                  </span>
+                  <blockquote
+                    className="relative text-cream"
+                    style={{
+                      fontFamily: "var(--font-playfair)",
+                      fontSize: "clamp(1.125rem, 2vw, 1.375rem)",
+                      lineHeight: 1.35,
+                      fontWeight: 500,
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    {testimonial.quote}
+                  </blockquote>
+                  <figcaption className="mt-5 flex flex-col gap-1">
+                    <span
+                      className="text-cream"
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: "0.9375rem",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {testimonial.name}
+                    </span>
+                    <span
+                      className="text-tan"
+                      style={{
+                        fontFamily: "var(--font-jetbrains-mono)",
+                        fontSize: "0.6875rem",
+                        letterSpacing: "0.13em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {testimonial.org}
+                    </span>
+                  </figcaption>
+                </figure>
+              )}
+              </div>
+              );
+            })}
           </div>
 
           {/* Clients and experience now lives in the bottom sheet of the hero
@@ -816,67 +904,6 @@ export default function Homepage() {
                   ))}
                 </ul>
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Praise — real client quotes sit immediately before the price so the
-            objection-handling happens before the number lands. */}
-        <section id="praise" className="mb-24 scroll-mt-12">
-          <SectionHeader label="Praise" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {TESTIMONIALS.map((t) => (
-              <figure
-                key={t.name}
-                className="soft-card relative rounded-[1.5rem] p-8 sm:p-10"
-              >
-                <span
-                  className="absolute top-4 left-6 text-gold/40 select-none"
-                  style={{
-                    fontFamily: "var(--font-playfair)",
-                    fontSize: "4rem",
-                    lineHeight: 1,
-                  }}
-                  aria-hidden="true"
-                >
-                  &ldquo;
-                </span>
-                <blockquote
-                  className="relative text-cream"
-                  style={{
-                    fontFamily: "var(--font-playfair)",
-                    fontSize: "clamp(1.25rem, 2.4vw, 1.625rem)",
-                    lineHeight: 1.35,
-                    fontWeight: 500,
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {t.quote}
-                </blockquote>
-                <figcaption className="mt-6 flex flex-col gap-1">
-                  <span
-                    className="text-cream"
-                    style={{
-                      fontFamily: "var(--font-inter)",
-                      fontSize: "0.9375rem",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {t.name}
-                  </span>
-                  <span
-                    className="text-tan"
-                    style={{
-                      fontFamily: "var(--font-jetbrains-mono)",
-                      fontSize: "0.6875rem",
-                      letterSpacing: "0.13em",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {t.org}
-                  </span>
-                </figcaption>
-              </figure>
             ))}
           </div>
         </section>
