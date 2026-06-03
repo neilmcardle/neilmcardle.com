@@ -644,17 +644,6 @@ button:hover .palette-icon {
   animation-delay: 0.5s;
 }
 
-@keyframes ripple-line-shimmer {
-  0%   { opacity: 0.05; }
-  30%  { opacity: 0.2; }
-  100% { opacity: 0.02; }
-}
-
-.ripple-line {
-  opacity: 0.02;
-  animation: ripple-line-shimmer 1s linear forwards;
-}
-
 /* Racing border highlight for the homepage project cards. On hover a
    bright arc travels once around the card's perimeter via a rotating
    conic gradient, masked so only the stroke region shows it. Requires

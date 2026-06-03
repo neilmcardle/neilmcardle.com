@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
+import { type ProjectKey } from "@/components/HomepageProjectPreview";
 
 // Destination for the Subscribe buttons, the live Stripe Payment Link for the
 // digital design and build subscription (£5,000/mo + VAT, price
@@ -36,25 +36,6 @@ const AVAILABILITY = {
 const SOL0_AUDIOBOOK_URL =
   "https://elevenreader.io/audiobooks/sol0-audiobook/lDuTf0Co8szKJBdzzAnu";
 const SOL0_EBOOK_URL = "";
-
-// Ripple line positions as explicit viewport percentages — ported from
-// the gated /portfolio template so the public homepage shares the same
-// signature backdrop. Tune numbers here to re-rhythm the pattern.
-const RIPPLE_POSITIONS: number[] = [
-  0, 0.6, 1.3, 2.1,
-  4.8, 6.9,
-  11.2, 13.4,
-  19.7,
-  25.3, 27.9,
-  36.5,
-  45.8,
-  54.6, 57.1,
-  66.8,
-  75.4,
-  83.9,
-  90.2,
-  95.5,
-];
 
 interface Project {
   number: string;
@@ -397,29 +378,6 @@ export default function Homepage() {
 
   return (
     <div className="min-h-screen bg-[rgb(15,15,17)] relative isolate overflow-hidden">
-      {/* Ripple backdrop — vertical hairlines clustered on the left and
-          dispersing right. Sits above the black bg but below everything
-          else via -z-10 inside the isolated root stacking context. */}
-      <div className="fixed inset-0 pointer-events-none -z-10">
-        {RIPPLE_POSITIONS.map((x, i) => {
-          const opacity = 0.14 - (i / (RIPPLE_POSITIONS.length - 1)) * 0.11;
-          // Stagger the shimmer peak across lines (~80ms per line) so
-          // the brightness wave sweeps left-to-right in ~1.5s.
-          const delay = i * 0.08;
-          return (
-            <div
-              key={i}
-              className="ripple-line absolute top-0 bottom-0 w-px bg-cream"
-              style={{
-                left: `${x}%`,
-                ["--ripple-base" as string]: opacity,
-                animationDelay: `${delay}s`,
-              } as React.CSSProperties}
-            />
-          );
-        })}
-      </div>
-
       {/* Year corner */}
       <div
         className="hidden sm:block fixed top-6 right-6 z-10 text-tan"
@@ -730,21 +688,11 @@ export default function Homepage() {
             I take one client at a time. You get my full focus.
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-10">
-            {WHY_ONE.map((point, i) => (
+            {WHY_ONE.map((point) => (
               <div
                 key={point.title}
                 className="pt-6 border-t-2 border-tan/40"
               >
-                <div
-                  className="text-tan mb-4"
-                  style={{
-                    fontFamily: "var(--font-jetbrains-mono)",
-                    fontSize: "0.75rem",
-                    letterSpacing: "0.13em",
-                  }}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </div>
                 <h4
                   className="text-cream mb-3"
                   style={{
@@ -894,7 +842,7 @@ export default function Homepage() {
           >
             Built solo
           </h3>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-2">
             {PROJECTS.map((p) => (
               <ProjectCard key={p.number} project={p} />
             ))}
@@ -1635,142 +1583,117 @@ function AlsoBuiltRow({
 }
 
 function ProjectCard({ project }: { project: Project }) {
-  const content = (
+  // Minimal row, matching the "Built for my kids" list (AlsoBuiltRow): number,
+  // title + category tag inline, description, and a hover arrow. The logo
+  // previews were dropped in this redesign.
+  const inner = (
     <>
-      <div className="flex items-start justify-between mb-4 gap-6">
-        <div
-          className="text-tan"
-          style={{
-            fontFamily: "var(--font-jetbrains-mono)",
-            fontSize: "0.75rem",
-            letterSpacing: "0.13em",
-          }}
-        >
-          {project.number}
-        </div>
-        <svg
-          className="w-4 h-4 text-tan group-hover:text-cream group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-[color,transform]"
-          aria-hidden="true"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-      <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-10">
-        <div className="flex-1 min-w-0">
-          <h3
-            className="text-cream mb-4"
-            style={{
-              fontFamily: "var(--font-playfair)",
-              fontSize: "clamp(2rem, 5vw, 3rem)",
-              fontWeight: 700,
-              letterSpacing: "-0.02em",
-              lineHeight: 1,
-            }}
+      <span
+        className="text-tan flex-shrink-0"
+        style={{
+          fontFamily: "var(--font-jetbrains-mono)",
+          fontSize: "0.75rem",
+          letterSpacing: "0.13em",
+          paddingTop: "0.15rem",
+        }}
+      >
+        {project.number}
+      </span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline gap-3 flex-wrap">
+          <span
+            className="text-cream"
+            style={{ fontFamily: "var(--font-inter)", fontSize: "0.9375rem" }}
           >
             {project.title}
-          </h3>
-          <p
-            className="text-cream/70 max-w-2xl"
+          </span>
+          <span
+            className="text-tan"
             style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "0.875rem",
-              lineHeight: 1.6,
+              fontFamily: "var(--font-jetbrains-mono)",
+              fontSize: "0.625rem",
+              letterSpacing: "0.13em",
+              textTransform: "uppercase",
             }}
           >
-            {project.description}
-          </p>
+            {project.category}
+          </span>
         </div>
-        <div className="lg:self-center lg:flex-shrink-0">
-          <HomepageProjectPreview k={project.key} />
-        </div>
+        <p
+          className="text-cream/70 mt-1"
+          style={{
+            fontFamily: "var(--font-inter)",
+            fontSize: "0.875rem",
+            lineHeight: 1.5,
+          }}
+        >
+          {project.description}
+        </p>
       </div>
+      <svg
+        className="w-4 h-4 mt-0.5 flex-shrink-0 text-tan group-hover:text-cream group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-[color,transform]"
+        aria-hidden="true"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={1.5}
+      >
+        <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
     </>
   );
 
-  // Border + padding + hover sit on the outer wrapper so the link covers the
-  // top content and the footer row (category + optional App Store badge)
-  // lives below as its own row of siblings — that lets the badge be its own
-  // clickable target without nesting an <a> inside an <a>.
-  // Static border removed per design — only the project-card-trace::after
-  // animation appears on hover. Keep border-2 with transparent color so the
-  // box still reserves 2px on each side, preventing layout shift when the
-  // trace overlay paints over the card edge.
-  const wrapperClassName =
-    "project-card-trace group relative block border-2 border-transparent rounded-2xl transition-colors duration-300 p-6 sm:p-8";
+  const rowCls =
+    "group flex items-start gap-5 p-4 sm:p-5 rounded-xl border-2 border-transparent hover:border-tan/40 transition-colors";
 
-  const linkClassName = "block";
-
-  const linkInner = project.external ? (
-    <a
-      href={project.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={linkClassName}
-    >
-      {content}
+  const row = project.external ? (
+    <a href={project.href} target="_blank" rel="noopener noreferrer" className={rowCls}>
+      {inner}
     </a>
   ) : (
-    <Link href={project.href} className={linkClassName}>
-      {content}
+    <Link href={project.href} className={rowCls}>
+      {inner}
     </Link>
   );
 
-  const categoryEl = (
-    <div
-      className="text-tan"
-      style={{
-        fontFamily: "var(--font-jetbrains-mono)",
-        fontSize: "0.6875rem",
-        letterSpacing: "0.13em",
-        textTransform: "uppercase",
-      }}
-    >
-      {project.category}
-    </div>
-  );
+  if (!project.appStoreUrl) return row;
 
+  // DoodleWire is the only Built-solo project live on the App Store. Keep the
+  // store link as a compact secondary CTA below the row, indented under the
+  // text column, so it stays its own clickable target (no nested <a>).
   return (
-    <div className={wrapperClassName}>
-      {linkInner}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-        {categoryEl}
-        {project.appStoreUrl && (
-          <a
-            href={project.appStoreUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Download ${project.title} on the App Store`}
-            className="group/ios inline-flex items-center gap-2 text-tan hover:text-cream transition-colors shrink-0"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-            </svg>
-            <span
-              style={{
-                fontFamily: "var(--font-jetbrains-mono)",
-                fontSize: "0.6875rem",
-                letterSpacing: "0.13em",
-                textTransform: "uppercase",
-              }}
-            >
-              Download on iPhone &amp; iPad
-            </span>
-            <svg
-              className="w-3 h-3 group-hover/ios:translate-x-0.5 group-hover/ios:-translate-y-0.5 transition-transform"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            >
-              <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
-        )}
-      </div>
+    <div>
+      {row}
+      <a
+        href={project.appStoreUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Download ${project.title} on the App Store`}
+        className="group/ios -mt-2 ml-[3.25rem] sm:ml-[3.5rem] mb-1 inline-flex items-center gap-2 text-tan hover:text-cream transition-colors"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+        </svg>
+        <span
+          style={{
+            fontFamily: "var(--font-jetbrains-mono)",
+            fontSize: "0.625rem",
+            letterSpacing: "0.13em",
+            textTransform: "uppercase",
+          }}
+        >
+          Download on iPhone &amp; iPad
+        </span>
+        <svg
+          className="w-3 h-3 group-hover/ios:translate-x-0.5 group-hover/ios:-translate-y-0.5 transition-transform"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
+          <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </a>
     </div>
   );
 }
