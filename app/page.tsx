@@ -21,6 +21,10 @@ const PRICE = { amount: "£5,000", suffix: "+ VAT" } as const;
 // they never drift. Only ever set `open: true` when the slot is genuinely open.
 const AVAILABILITY = {
   open: true,
+  // Short status for the hero pill badge.
+  openBadge: "One slot open now",
+  fullBadge: "Currently full",
+  // Fuller line used in the final CTA sentence.
   openLine: "One client at a time. One slot open now.",
   fullLine: "One client at a time. Currently full, join the waitlist.",
 } as const;
@@ -320,8 +324,76 @@ export default function Homepage() {
   const slotLine = AVAILABILITY.open
     ? AVAILABILITY.openLine
     : AVAILABILITY.fullLine;
+  const slotBadge = AVAILABILITY.open
+    ? AVAILABILITY.openBadge
+    : AVAILABILITY.fullBadge;
   const ctaLabel = AVAILABILITY.open ? "Claim the slot" : "Join the waitlist";
   const ctaHref = AVAILABILITY.open ? SUBSCRIBE_URL : WAITLIST_URL;
+
+  // The portrait card, rendered twice: a smaller copy pulled up near the name
+  // on mobile so the face is above the fold, and the large copy in the right
+  // grid column on desktop. Only one is visible per breakpoint.
+  const photoCard = (
+    <div className="project-card-trace relative border-2 border-tan/50 hover:border-cream transition-colors duration-300 overflow-hidden aspect-square">
+      <Image
+        src="/me.png"
+        alt="Neil McArdle"
+        width={600}
+        height={600}
+        className="w-full h-full object-cover grayscale contrast-125"
+        priority
+      />
+      {/* "Thinking..." label — LLM streaming aesthetic, a nod to the AI work. */}
+      <div
+        className="absolute top-5 left-5 flex items-center gap-2"
+        style={{ fontFamily: "var(--font-inter)" }}
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-cream/80 animate-pulse" />
+        <span className="thinking-shimmer text-[11px] font-medium tracking-wide">
+          Thinking...
+        </span>
+      </div>
+      {/* Social icons — floated bottom-right over the photo. */}
+      <div
+        className="absolute bottom-5 right-5 flex items-center gap-5"
+        style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }}
+      >
+        <a
+          href="https://www.linkedin.com/in/neilmcardle/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="LinkedIn"
+          className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
+          </svg>
+        </a>
+        <a
+          href="https://github.com/neilmcardle"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHub"
+          className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+          </svg>
+        </a>
+        <a
+          href="https://x.com/BetterNeil"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="X"
+          className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[rgb(15,15,17)] relative isolate overflow-hidden">
@@ -379,8 +451,14 @@ export default function Homepage() {
           {/* Hero grid — photo spans both rows on desktop so the link
               bar in row 2 col 1 aligns to the photo's bottom edge. */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 mb-8 sm:mb-12">
-            <div>
+            {/* Left column is a flex-col so the hero can reorder per breakpoint
+                via `order`. Mobile (base order-*): name, nav, portrait, headline,
+                availability, CTA, then the explanation/buyer line below the fold.
+                Desktop (lg:order-*) remaps to the original sequence and the
+                portrait moves to the right grid column. */}
+            <div className="flex flex-col">
               <h1
+                className="order-1 lg:order-1"
                 style={{
                   fontFamily: "var(--font-eb-garamond)",
                   fontSize: "clamp(2.25rem, 11vw, 4.5rem)",
@@ -400,12 +478,12 @@ export default function Homepage() {
                 <br />
                 McARDLE
               </h1>
-              {/* Section nav — WORK / PRICING / ART. ART links out to the
-                  paintings page; the artist identity lives there now so the
-                  homepage stays a single sales argument. */}
+              {/* Section nav — WORK / PRICING only. ABOUT was dropped (the
+                  section stays, it just isn't a nav target) and ART moved to the
+                  footer so the homepage stays a single, leak-free sales argument. */}
               <nav
                 aria-label="Primary"
-                className="flex gap-8 sm:gap-10"
+                className="order-2 lg:order-2 flex gap-8 sm:gap-10"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.8125rem",
@@ -420,17 +498,19 @@ export default function Homepage() {
                 <a href="#pricing" className="inline-block py-2 -my-2 hover:text-cream transition-colors">
                   PRICING
                 </a>
-                <a href="#about" className="inline-block py-2 -my-2 hover:text-cream transition-colors">
-                  ABOUT
-                </a>
-                <Link href="/paintings" className="inline-block py-2 -my-2 hover:text-cream transition-colors">
-                  ART
-                </Link>
               </nav>
+
+              {/* Mobile-only portrait — pulled up near the name so the face is
+                  visible above the fold on phones. Hidden on lg, where the right
+                  grid column renders the large copy instead. */}
+              <div className="order-3 lg:hidden mt-6 w-full max-w-[260px]">
+                {photoCard}
+              </div>
+
               {/* Positioning block — the value prop now leads with the offer
                   (design + build subscription) not the job title. */}
               <p
-                className="mt-4 sm:mt-6 text-cream"
+                className="order-4 lg:order-3 mt-4 sm:mt-6 text-cream"
                 style={{
                   fontFamily: "var(--font-inter)",
                   fontSize: "clamp(1.0625rem, 1.6vw, 1.375rem)",
@@ -441,7 +521,7 @@ export default function Homepage() {
                 Digital design and build, on subscription.
               </p>
               <p
-                className="mt-3 text-cream/70 max-w-md"
+                className="order-7 lg:order-4 mt-5 lg:mt-3 text-cream/70 max-w-md"
                 style={{
                   fontFamily: "var(--font-inter)",
                   fontSize: "clamp(0.9375rem, 1.2vw, 1.0625rem)",
@@ -452,12 +532,12 @@ export default function Homepage() {
                 domain. Fast, async, no calls. Design and code from the same
                 hands, so nothing gets lost in translation.
               </p>
-              {/* Mobile-only CTA — sits above the photo on mobile so the
-                  action is visible without scrolling. Hidden on lg+ where
-                  the desktop sibling below renders instead. */}
+              {/* Mobile-only CTA — a filled green button. Touch has no hover, so
+                  the desktop hover-trace would leave it looking like a text link;
+                  a solid fill gives a clear, large tap target instead. */}
               <a
                 href="#pricing"
-                className="project-card-trace group relative inline-flex lg:hidden items-center gap-2 mt-5 sm:mt-6 px-5 py-3 rounded-2xl border-2 border-transparent text-emerald-400 transition-colors duration-300 whitespace-nowrap self-start"
+                className="order-6 lg:hidden group inline-flex items-center gap-2 mt-5 px-6 py-3.5 rounded-2xl bg-emerald-400 text-black active:bg-emerald-500 transition-colors whitespace-nowrap self-start"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
@@ -476,7 +556,7 @@ export default function Homepage() {
                   above renders instead. */}
               <a
                 href="#pricing"
-                className="project-card-trace group relative hidden lg:inline-flex items-center gap-2 mt-5 sm:mt-6 px-5 py-3 rounded-2xl border-2 border-transparent text-emerald-400 transition-colors duration-300 whitespace-nowrap"
+                className="project-card-trace group relative hidden lg:order-5 lg:inline-flex items-center gap-2 mt-5 sm:mt-6 px-5 py-3 rounded-2xl border-2 border-transparent text-emerald-400 transition-colors duration-300 whitespace-nowrap"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
@@ -494,7 +574,7 @@ export default function Homepage() {
               {/* Availability is the real lever on the price. Reads from the
                   single AVAILABILITY source so it never contradicts itself. */}
               <p
-                className="mt-5 flex items-center gap-2.5 text-tan"
+                className="order-5 lg:order-6 mt-5 self-start inline-flex items-center gap-2.5 rounded-full border border-tan/30 px-3.5 py-2 text-tan lg:border-0 lg:rounded-none lg:px-0 lg:py-0"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.6875rem",
@@ -510,10 +590,10 @@ export default function Homepage() {
                   }
                   aria-hidden="true"
                 />
-                {slotLine}
+                {slotBadge}
               </p>
               <p
-                className="mt-3 text-cream/55 max-w-md"
+                className="order-8 lg:order-7 mt-3 text-cream/70 max-w-md"
                 style={{
                   fontFamily: "var(--font-inter)",
                   fontSize: "0.875rem",
@@ -524,70 +604,9 @@ export default function Homepage() {
               </p>
             </div>
 
-            <div className="relative max-w-[360px] lg:max-w-none">
-              <div className="project-card-trace relative border-2 border-tan/50 hover:border-cream transition-colors duration-300 overflow-hidden aspect-square">
-                <Image
-                  src="/me.png"
-                  alt="Neil McArdle"
-                  width={600}
-                  height={600}
-                  className="w-full h-full object-cover grayscale contrast-125"
-                  priority
-                />
-                {/* "Thinking..." label — LLM streaming aesthetic, a nod to
-                    the AI work. Pulsing dot + shimmering text, transparent
-                    so it floats over the photo. */}
-                <div
-                  className="absolute top-5 left-5 flex items-center gap-2"
-                  style={{ fontFamily: "var(--font-inter)" }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-cream/80 animate-pulse" />
-                  <span className="thinking-shimmer text-[11px] font-medium tracking-wide">
-                    Thinking...
-                  </span>
-                </div>
-                {/* Social icons — floated bottom-right over the photo.
-                    Light shadow so they stay legible on any tone. */}
-                <div
-                  className="absolute bottom-5 right-5 flex items-center gap-5"
-                  style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }}
-                >
-                  <a
-                    href="https://www.linkedin.com/in/neilmcardle/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="LinkedIn"
-                    className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
-                    </svg>
-                  </a>
-                  <a
-                    href="https://github.com/neilmcardle"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="GitHub"
-                    className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                    </svg>
-                  </a>
-                  <a
-                    href="https://x.com/BetterNeil"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="X"
-                    className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            </div>
+            {/* Desktop portrait — hidden on mobile, where the copy above renders
+                a smaller copy near the name instead. */}
+            <div className="hidden lg:block relative">{photoCard}</div>
           </div>
         </header>
 
@@ -609,7 +628,7 @@ export default function Homepage() {
                 The usual way
               </div>
               <p
-                className="text-cream/60"
+                className="text-cream/70"
                 style={{
                   fontFamily: "var(--font-inter)",
                   fontSize: "clamp(1rem, 1.6vw, 1.1875rem)",
@@ -1491,13 +1510,22 @@ export default function Homepage() {
               </svg>
             </a>
           </div>
-          <a
-            href="mailto:neil@neilmcardle.com"
-            className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
-            style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
-          >
-            neil@neilmcardle.com
-          </a>
+          <div className="flex items-center gap-5">
+            <Link
+              href="/paintings"
+              className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
+              style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
+            >
+              Paintings
+            </Link>
+            <a
+              href="mailto:neil@neilmcardle.com"
+              className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
+              style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
+            >
+              neil@neilmcardle.com
+            </a>
+          </div>
         </footer>
       </div>
     </div>
@@ -1569,7 +1597,7 @@ function AlsoBuiltRow({
           </span>
         </div>
         <p
-          className="text-cream/60 mt-1"
+          className="text-cream/70 mt-1"
           style={{
             fontFamily: "var(--font-inter)",
             fontSize: "0.875rem",
