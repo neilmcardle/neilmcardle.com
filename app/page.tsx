@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { type ProjectKey } from "@/components/HomepageProjectPreview";
+import ProfileCard from "@/components/ProfileCard";
 
 // Destination for the Subscribe buttons, the live Stripe Payment Link for the
 // digital design and build subscription (£5,000/mo + VAT, price
@@ -214,9 +215,9 @@ const CLIENT_WORK: {
 // only, no confidential artefacts. Avis and Banner of Truth are listed by name.
 const CLIENTS: { name: string; note: string }[] = [
   { name: "Avis Budget Group", note: "Product design" },
-  { name: "Banner of Truth", note: "Book covers + illustration" },
-  { name: "Dan Roberts Group", note: "Branding · 2015" },
-  { name: "Gatewick House & Gardens", note: "Brand identity + signage · 2025" },
+  { name: "Banner of Truth", note: "Visual design" },
+  { name: "Dan Roberts Group", note: "Branding" },
+  { name: "Gatewick House & Gardens", note: "Branding" },
 ];
 
 const CAPABILITIES: {
@@ -314,67 +315,7 @@ export default function Homepage() {
   // The portrait card, rendered twice: a smaller copy pulled up near the name
   // on mobile so the face is above the fold, and the large copy in the right
   // grid column on desktop. Only one is visible per breakpoint.
-  const photoCard = (
-    <div className="soft-card relative overflow-hidden aspect-square rounded-[1.75rem]">
-      <Image
-        src="/me.png"
-        alt="Neil McArdle"
-        width={600}
-        height={600}
-        className="w-full h-full object-cover grayscale contrast-125"
-        priority
-      />
-      {/* "Thinking..." label — LLM streaming aesthetic, a nod to the AI work. */}
-      <div
-        className="absolute top-5 left-5 flex items-center gap-2"
-        style={{ fontFamily: "var(--font-inter)" }}
-      >
-        <span className="w-1.5 h-1.5 rounded-full bg-cream/80 animate-pulse" />
-        <span className="thinking-shimmer text-[11px] font-medium tracking-wide">
-          Thinking...
-        </span>
-      </div>
-      {/* Social icons — floated bottom-right over the photo. */}
-      <div
-        className="absolute bottom-5 right-5 flex items-center gap-5"
-        style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }}
-      >
-        <a
-          href="https://www.linkedin.com/in/neilmcardle/"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="LinkedIn"
-          className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
-          </svg>
-        </a>
-        <a
-          href="https://github.com/neilmcardle"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="GitHub"
-          className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-          </svg>
-        </a>
-        <a
-          href="https://x.com/BetterNeil"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="X"
-          className="inline-flex p-2 -m-2 text-cream hover:text-tan transition-colors"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-          </svg>
-        </a>
-      </div>
-    </div>
-  );
+  const photoCard = <ProfileCard clients={CLIENTS} />;
 
   return (
     <div className="min-h-screen bg-[rgb(15,15,17)] relative isolate overflow-hidden">
@@ -461,7 +402,7 @@ export default function Homepage() {
               {/* Mobile-only portrait — pulled up near the name so the face is
                   visible above the fold on phones. Hidden on lg, where the right
                   grid column renders the large copy instead. */}
-              <div className="order-3 lg:hidden mt-6 w-full max-w-[260px]">
+              <div className="order-3 lg:hidden mt-6 w-full max-w-[440px]">
                 {photoCard}
               </div>
 
@@ -516,7 +457,7 @@ export default function Homepage() {
                   above renders instead. */}
               <a
                 href="#pricing"
-                className="gold-btn group relative hidden lg:order-5 lg:inline-flex self-start items-center gap-3 mt-5 sm:mt-6 pl-6 pr-2.5 py-2.5 rounded-full whitespace-nowrap"
+                className="gold-btn gold-btn-trace group relative hidden lg:order-5 lg:inline-flex self-start items-center gap-3 mt-5 sm:mt-6 pl-6 pr-2.5 py-2.5 rounded-full whitespace-nowrap"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
@@ -799,51 +740,9 @@ export default function Homepage() {
             ))}
           </div>
 
-          {/* Clients and experience — the minimalist CV strip. Names and
-              discipline only, no confidential artefacts. */}
-          <div className="mb-16">
-            <h3
-              className="text-tan mb-5"
-              style={{
-                fontFamily: "var(--font-jetbrains-mono)",
-                fontSize: "0.6875rem",
-                letterSpacing: "0.13em",
-                textTransform: "uppercase",
-              }}
-            >
-              Clients and experience
-            </h3>
-            <ul className="border-t border-tan/25">
-              {CLIENTS.map((c) => (
-                <li
-                  key={c.name}
-                  className="flex items-baseline justify-between gap-4 py-3.5 border-b border-tan/25"
-                >
-                  <span
-                    className="text-cream"
-                    style={{
-                      fontFamily: "var(--font-inter)",
-                      fontSize: "1rem",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {c.name}
-                  </span>
-                  <span
-                    className="text-tan text-right shrink-0"
-                    style={{
-                      fontFamily: "var(--font-jetbrains-mono)",
-                      fontSize: "0.6875rem",
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {c.note}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Clients and experience now lives in the bottom sheet of the hero
+              portrait card (ProfileCard), raised via the toggle chip, so it is
+              no longer duplicated as a strip here. */}
 
           {/* Built solo — proof of build velocity. Honestly labelled: these are
               my own products, not client work. */}
@@ -1114,7 +1013,7 @@ export default function Homepage() {
               {/* CTA — full width, inverts on hover like the rest of the site. */}
               <a
                 href={ctaHref}
-                className="gold-btn group mt-8 flex w-full items-center justify-center gap-3 rounded-full px-8 py-4"
+                className="gold-btn gold-btn-trace group mt-8 flex w-full items-center justify-center gap-3 rounded-full px-8 py-4"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.8125rem",
@@ -1246,7 +1145,7 @@ export default function Homepage() {
           </p>
           <a
             href={ctaHref}
-            className="gold-btn group relative inline-flex items-center justify-center gap-3 pl-8 pr-2.5 py-3.5 rounded-full"
+            className="gold-btn gold-btn-trace group relative inline-flex items-center justify-center gap-3 pl-8 pr-2.5 py-3.5 rounded-full"
             style={{
               fontFamily: "var(--font-jetbrains-mono)",
               fontSize: "0.8125rem",
