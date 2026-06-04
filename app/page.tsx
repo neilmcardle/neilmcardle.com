@@ -256,7 +256,7 @@ const PLAN_FEATURES: string[] = [
 const TESTIMONIALS: { quote: string; name: string; org: string }[] = [
   {
     quote:
-      "Neil turned work around at a pace I'd never seen from a studio, and it landed right the first time. The quality spoke for itself.",
+      "Neil is a talented designer who has an impressive work ethic.  He has assisted on number of key design projects for our brand and he over-delivers each and every time! Neil is a delight to work with and I can't recommend him enough.",
     name: "Dan Roberts",
     org: "Dan Roberts Group",
   },
