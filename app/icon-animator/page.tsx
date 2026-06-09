@@ -53,6 +53,29 @@ function makeKeyframes(preset: string, travel: number, scale: number): string {
   }
 }
 
+// ─── Easing helpers ──────────────────────────────────────────────────────────
+type Bezier = [number, number, number, number];
+
+// CSS keyword timing functions resolved to their cubic-bezier control points,
+// so the curve editor can render and edit any starting easing.
+const KEYWORD_BEZIER: Record<string, Bezier> = {
+  ease:          [0.25, 0.1, 0.25, 1],
+  "ease-in":     [0.42, 0, 1, 1],
+  "ease-out":    [0, 0, 0.58, 1],
+  "ease-in-out": [0.42, 0, 0.58, 1],
+  linear:        [0, 0, 1, 1],
+};
+
+function parseBezier(s: string): Bezier | null {
+  const m = /cubic-bezier\(\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*\)/.exec(s);
+  if (!m) return null;
+  return [parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3]), parseFloat(m[4])];
+}
+
+function resolveBezier(easing: string): Bezier {
+  return KEYWORD_BEZIER[easing] ?? parseBezier(easing) ?? KEYWORD_BEZIER.ease;
+}
+
 const ORIGIN_POINTS = [
   { id: "tl", css: "0% 0%",    label: "Top Left"     },
   { id: "tc", css: "50% 0%",   label: "Top"          },
@@ -409,6 +432,70 @@ function Disclosure({ title, open, onToggle, children }: {
   );
 }
 
+function BezierEditor({ value, onChange }: { value: Bezier; onChange: (v: Bezier) => void }) {
+  const [x1, y1, x2, y2] = value;
+  const W = 200, H = 200, pad = 28;
+  // Frame the graph so overshoot (>1) and anticipation (<0) stay visible.
+  const lo = Math.min(0, 1, y1, y2);
+  const hi = Math.max(0, 1, y1, y2);
+  const m = (hi - lo) * 0.14 || 0.1;
+  const yLo = lo - m, yHi = hi + m;
+  const sx = (x: number) => pad + x * (W - 2 * pad);
+  const sy = (y: number) => pad + ((yHi - y) / (yHi - yLo)) * (H - 2 * pad);
+  const set = (i: number) => (v: number) => {
+    const next = [...value] as Bezier;
+    next[i] = v;
+    onChange(next);
+  };
+  const curve = `M ${sx(0)} ${sy(0)} C ${sx(x1)} ${sy(y1)} ${sx(x2)} ${sy(y2)} ${sx(1)} ${sy(1)}`;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        style={{
+          width: "100%",
+          maxWidth: 220,
+          alignSelf: "center",
+          background: "rgba(0,0,0,0.02)",
+          borderRadius: 12,
+          border: "1px solid rgba(0,0,0,0.06)",
+        }}
+      >
+        {/* unit box (0..1 in both axes) */}
+        <rect x={sx(0)} y={sy(1)} width={sx(1) - sx(0)} height={sy(0) - sy(1)}
+          fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth={1} />
+        {/* control handles */}
+        <line x1={sx(0)} y1={sy(0)} x2={sx(x1)} y2={sy(y1)} stroke="rgba(0,0,0,0.18)" strokeWidth={1} strokeDasharray="3 3" />
+        <line x1={sx(1)} y1={sy(1)} x2={sx(x2)} y2={sy(y2)} stroke="rgba(0,0,0,0.18)" strokeWidth={1} strokeDasharray="3 3" />
+        {/* curve */}
+        <path d={curve} fill="none" stroke="#111" strokeWidth={2} strokeLinecap="round" />
+        {/* endpoints */}
+        <circle cx={sx(0)} cy={sy(0)} r={3} fill="rgba(0,0,0,0.4)" />
+        <circle cx={sx(1)} cy={sy(1)} r={3} fill="rgba(0,0,0,0.4)" />
+        {/* control points */}
+        <circle cx={sx(x1)} cy={sy(y1)} r={4} fill="#111" />
+        <circle cx={sx(x2)} cy={sy(y2)} r={4} fill="#fff" stroke="#111" strokeWidth={2} />
+      </svg>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <Field label="x1" hint={x1.toFixed(2)}>
+          <Slider value={x1} onChange={set(0)} min={0} max={1} step={0.01} />
+        </Field>
+        <Field label="y1" hint={y1.toFixed(2)}>
+          <Slider value={y1} onChange={set(1)} min={-1} max={2} step={0.01} />
+        </Field>
+        <Field label="x2" hint={x2.toFixed(2)}>
+          <Slider value={x2} onChange={set(2)} min={0} max={1} step={0.01} />
+        </Field>
+        <Field label="y2" hint={y2.toFixed(2)}>
+          <Slider value={y2} onChange={set(3)} min={-1} max={2} step={0.01} />
+        </Field>
+      </div>
+    </div>
+  );
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 const TRAVEL_PRESETS = ["bounce", "shake", "float"];
 const SCALE_PRESETS = ["pulse", "pop", "heartbeat"];
@@ -420,6 +507,7 @@ export default function IconAnimator() {
   const [delay, setDelay] = useState(0);
   const [iterations, setIterations] = useState("infinite");
   const [easing, setEasing] = useState("ease-in-out");
+  const [bezier, setBezier] = useState<Bezier>([1, -0.4, 0.35, 0.95]);
   const [travel, setTravel] = useState(16);
   const [scale, setScale] = useState(1.25);
   const [direction, setDirection] = useState("normal");
@@ -458,7 +546,11 @@ export default function IconAnimator() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const icon = customIcon ? null : (ICONS.find(i => i.id === iconId) ?? ICONS[0]);
-  const timing  = preset === "spin" ? "linear" : easing;
+  // "custom" drives the timing function straight from the bezier editor;
+  // any other value (keyword or named cubic-bezier) seeds the editor's curve.
+  const easingValue = easing === "custom" ? `cubic-bezier(${bezier.map(n => +n.toFixed(2)).join(",")})` : easing;
+  const curveBezier: Bezier = easing === "custom" ? bezier : resolveBezier(easing);
+  const timing  = preset === "spin" ? "linear" : easingValue;
   const kf      = makeKeyframes(preset, travel, scale);
   const delayStr = delay > 0 ? ` ${delay}s` : "";
   const iterStr  = iterations !== "infinite" ? ` ${iterations}` : " infinite";
@@ -466,7 +558,7 @@ export default function IconAnimator() {
   const fillStr  = fillMode !== "none" ? ` ${fillMode}` : "";
 
   const shadowFilter = shadowEnabled ? makeShadowFilter(shadowPreset, shadowColor, shadowOpacity) : "none";
-  const animKey = `${preset}-${duration}-${delay}-${iterations}-${direction}-${fillMode}-${easing}-${resetKey}`;
+  const animKey = `${preset}-${duration}-${delay}-${iterations}-${direction}-${fillMode}-${easingValue}-${resetKey}`;
 
   const animStyle: React.CSSProperties = {
     animation: `ia-${preset} ${duration}s ${timing}${delayStr}${iterStr}${dirStr}${fillStr}`,
@@ -476,7 +568,7 @@ export default function IconAnimator() {
     ...(preset === "draw" && stroked ? { strokeDasharray: 1000, strokeDashoffset: 1000 } : {}),
   };
 
-  const params: BuildParams = { preset, duration, delay, iterations, direction, fillMode, easing, color, stroked, strokeWidth, strokeCap, strokeJoin, filled, fillColor, transformOrigin: origin, travel, scale, shadowFilter };
+  const params: BuildParams = { preset, duration, delay, iterations, direction, fillMode, easing: easingValue, color, stroked, strokeWidth, strokeCap, strokeJoin, filled, fillColor, transformOrigin: origin, travel, scale, shadowFilter };
   const output = format === "react" ? buildReact(params) : buildCSS(params);
 
   const handleCopy = () => {
@@ -1063,10 +1155,19 @@ export default function IconAnimator() {
                           { label: "Ease In Out", value: "ease-in-out" },
                           { label: "Linear",      value: "linear" },
                           { label: "Spring",      value: "cubic-bezier(0.34,1.56,0.64,1)" },
+                          { label: "Anticipate",  value: "cubic-bezier(1,-0.4,0.35,0.95)" },
+                          { label: "Custom",      value: "custom" },
                         ]}
                       />
                     </Field>
                   </div>
+
+                  <Field label="Easing curve" hint={preset === "spin" ? "linear (spin)" : easingValue}>
+                    <BezierEditor
+                      value={curveBezier}
+                      onChange={(v) => { setEasing("custom"); setBezier(v); }}
+                    />
+                  </Field>
 
                   {showTravel && (
                     <Field label="Distance" hint={`${travel}px`}>
