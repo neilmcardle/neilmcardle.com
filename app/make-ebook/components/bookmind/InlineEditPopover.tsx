@@ -197,7 +197,7 @@ export default function InlineEditPopover({
     // Preserve the leading/trailing whitespace of the original selection.
     // Models routinely trim output even when not asked to, which leaves the
     // rewrite glued to the previous word when the selection included a
-    // leading space (e.g. selecting " is bad" \u2192 "is excellent" \u2192 "thisis excellent").
+    // leading space (e.g. selecting " is bad" → "is excellent" → "thisis excellent").
     const leading = request.selectedText.match(/^\s+/)?.[0] ?? "";
     const trailing = request.selectedText.match(/\s+$/)?.[0] ?? "";
     const core = activeResult.replace(/^\s+/, "").replace(/\s+$/, "");
@@ -240,7 +240,7 @@ export default function InlineEditPopover({
           Editing
         </p>
         <p className="text-xs text-gray-500 dark:text-[#a3a3a3] italic truncate">
-          &ldquo;{request.selectedText.length > 80 ? request.selectedText.slice(0, 80) + "\u2026" : request.selectedText}&rdquo;
+          &ldquo;{request.selectedText.length > 80 ? request.selectedText.slice(0, 80) + "…" : request.selectedText}&rdquo;
         </p>
       </div>
 
@@ -256,7 +256,7 @@ export default function InlineEditPopover({
             value={instruction}
             onChange={(e) => setInstruction(e.target.value)}
             onKeyDown={handleInputKey}
-            placeholder="Make this tighter, rewrite as dialogue, add sensory detail\u2026"
+            placeholder="Make this tighter, rewrite as dialogue, add sensory detail…"
             rows={1}
             disabled={isLoading}
             className="flex-1 bg-transparent border-none outline-none text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373] resize-none leading-relaxed disabled:opacity-50"
@@ -278,7 +278,7 @@ export default function InlineEditPopover({
           {(hasAnyResult || isLoading) && numAlternatives > 1 && (
             <div className="px-4 pt-3 pb-1 flex items-center gap-3">
               <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium">
-                {isLoading && !hasAnyResult ? "Generating 3 alternatives\u2026" : "Alternatives"}
+                {isLoading && !hasAnyResult ? "Generating 3 alternatives…" : "Alternatives"}
               </p>
               <div className="flex items-center gap-1.5">
                 {results.map((r, i) => (
@@ -293,7 +293,7 @@ export default function InlineEditPopover({
                           ? "bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#a3a3a3] hover:bg-gray-300 dark:hover:bg-[#3a3a3a]"
                           : "bg-gray-100 dark:bg-[#262626] text-gray-300 dark:text-[#525252]"
                     }`}
-                    title={r !== null ? `Alternative ${i + 1}` : "Generating\u2026"}
+                    title={r !== null ? `Alternative ${i + 1}` : "Generating…"}
                   >
                     {r !== null ? i + 1 : (
                       <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-[#525252] animate-pulse" />
@@ -319,7 +319,7 @@ export default function InlineEditPopover({
                 </p>
                 <p className="text-xs text-gray-400 dark:text-[#636363] leading-relaxed line-through decoration-gray-300 dark:decoration-[#525252]">
                   {request.selectedText.length > 300
-                    ? request.selectedText.slice(0, 300) + "\u2026"
+                    ? request.selectedText.slice(0, 300) + "…"
                     : request.selectedText}
                 </p>
               </div>
@@ -351,7 +351,7 @@ export default function InlineEditPopover({
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2" />
                 <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
               </svg>
-              Rewriting\u2026
+              Rewriting…
             </div>
           )}
         </div>
@@ -359,10 +359,14 @@ export default function InlineEditPopover({
 
       {/* Action bar — pinned at the bottom, always visible */}
       <div className="px-3 py-2 border-t border-gray-100 dark:border-[#262626] bg-gray-50 dark:bg-[#181818] flex items-center justify-between gap-2 flex-shrink-0">
-        <p className="text-2xs text-gray-400 dark:text-[#737373] leading-tight">
+        <p className="text-2xs text-gray-400 dark:text-[#737373] leading-tight min-w-0 truncate">
           {hasAnyResult ? (
             <>
-              <Kbd>{modKey}\u2191\u2193</Kbd> cycle &middot;{" "}
+              {numAlternatives > 1 && (
+                <>
+                  <Kbd>{modKey}↑↓</Kbd> cycle &middot;{" "}
+                </>
+              )}
               <Kbd>Tab</Kbd> accept &middot;{" "}
               <Kbd>Esc</Kbd> cancel
             </>
@@ -373,14 +377,14 @@ export default function InlineEditPopover({
             </>
           )}
         </p>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           {hasAnyResult && (
             <>
               {numAlternatives < MAX_ALTERNATIVES && (
                 <button
                   onClick={handleMoreTakes}
                   disabled={isLoading}
-                  className="px-2.5 py-1 text-xs font-medium text-[#4070ff] hover:text-[#3560e6] rounded transition-colors disabled:opacity-50"
+                  className="px-2.5 py-1 text-xs font-medium text-[#4070ff] border border-[#4070ff]/30 hover:bg-[#4070ff]/5 dark:hover:bg-[#4070ff]/10 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
                 >
                   More takes
                 </button>
@@ -388,14 +392,14 @@ export default function InlineEditPopover({
               <button
                 onClick={handleRegenerate}
                 disabled={isLoading}
-                className="px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] rounded transition-colors disabled:opacity-50"
+                className="px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-[#a3a3a3] border border-gray-200 dark:border-[#3a3a3a] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
               >
                 Try again
               </button>
               <button
                 onClick={handleAccept}
                 disabled={!activeResult}
-                className="px-3 py-1 text-xs font-medium bg-[#4070ff] text-white hover:bg-[#3560e6] rounded transition-colors disabled:opacity-50"
+                className="px-3 py-1 text-xs font-medium bg-[#4070ff] text-white hover:bg-[#3560e6] rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
               >
                 Accept
               </button>
@@ -405,7 +409,7 @@ export default function InlineEditPopover({
             <button
               onClick={() => handleSubmit()}
               disabled={!instruction.trim()}
-              className="px-3 py-1 text-xs font-medium bg-[#4070ff] text-white hover:bg-[#3560e6] rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-xs font-medium bg-[#4070ff] text-white hover:bg-[#3560e6] rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
             >
               Rewrite
             </button>

@@ -14,13 +14,12 @@ interface GhostTextOverlayProps {
   onAccept: (text: string) => void;
 }
 
-// Two-stage reveal so users can discover the feature without us burning
-// AI tokens on every short pause. HINT_MS shows a quiet "AI is poised"
-// pill (no network call). If the user keeps idling past IDLE_MS, the
-// real suggestion request fires and the pill morphs into the existing
-// "Thinking..." popover. Any keystroke or caret move cancels both.
+// Discovery-first reveal so we never burn AI tokens on a pause alone.
+// HINT_MS shows a quiet "AI suggestion" pill (no network call). The pill
+// stays put until the user clicks it; only then does the real request
+// fire and the pill morphs into the "Thinking..." popover. Any keystroke
+// or caret move dismisses the pill without ever calling the model.
 const HINT_MS = 500;
-const IDLE_MS = 1500;
 const SENTENCE_END = /[.!?]\s*$/;
 
 function getCaretContext(): { rect: DOMRect; textBefore: string; atEnd: boolean } | null {
@@ -50,17 +49,20 @@ export default function GhostTextOverlay({
   userId,
   onAccept,
 }: GhostTextOverlayProps) {
-  const { inlineEdit } = useBookMind({ bookId, userId });
+  useBookMind({ bookId, userId });
 
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const [generating, setGenerating] = useState(false);
   const [hintVisible, setHintVisible] = useState(false);
 
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const lastTextRef = useRef("");
+  // Caret context captured at the moment the hint pill appears. Clicking
+  // the pill steals focus and collapses the selection, so we cannot re-read
+  // the DOM at click time — we generate from this snapshot instead.
+  const pendingCtxRef = useRef<{ textBefore: string } | null>(null);
   // True when the caret sits directly after non-whitespace at suggestion
   // time. Used at accept time to prepend a single space, since the model
   // routinely returns its continuation trimmed even when told otherwise.
@@ -75,9 +77,72 @@ export default function GhostTextOverlay({
     setPosition(null);
     setGenerating(false);
     setHintVisible(false);
-    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+    pendingCtxRef.current = null;
     if (hintTimerRef.current) { clearTimeout(hintTimerRef.current); hintTimerRef.current = null; }
     if (abortRef.current) { abortRef.current.abort(); abortRef.current = null; }
+  }, []);
+
+  // Fires the actual continuation request from the caret snapshot taken
+  // when the hint pill appeared. Invoked only by clicking the pill.
+  const generate = useCallback(async () => {
+    const ctx = pendingCtxRef.current;
+    if (!ctx) return;
+
+    const text = ctx.textBefore.slice(-200);
+    lastTextRef.current = text;
+    needsLeadingSpaceRef.current = !/\s$/.test(ctx.textBefore);
+
+    setHintVisible(false);
+    setGenerating(true);
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      // Continuation requires a different voice than inlineEdit, so call
+      // the endpoint directly with a continuation-specific prompt.
+      const ghostResponse = await fetch('/api/ai/book-mind', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        signal: controller.signal,
+        body: JSON.stringify({
+          voice: 'Continue with one sentence, max 20 words. Match the voice exactly. No preamble. Start with a space. No em dashes.',
+          context: `=== TEXT SO FAR ===\n${ctx.textBefore.slice(-800)}\n=== END ===`,
+          messages: [{ role: 'user', content: 'Continue from here.' }],
+          tier: 'spotlight',
+        }),
+      });
+      if (!ghostResponse.ok || !ghostResponse.body || controller.signal.aborted) return;
+      const reader = ghostResponse.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+      let result = '';
+      outer: while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split('\n');
+        buf = lines.pop() ?? '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const d = line.slice(6).trim();
+          if (d === '[DONE]') break outer;
+          try {
+            const p = JSON.parse(d);
+            if (p.content) result += p.content;
+          } catch { /* skip */ }
+        }
+      }
+      if (controller.signal.aborted) return;
+      if (result.trim()) {
+        setSuggestion(result.trim());
+      }
+    } catch {
+      // Silent — ghost text is best-effort
+    } finally {
+      if (!controller.signal.aborted) setGenerating(false);
+    }
   }, []);
 
   // Listen for selection changes and input events to detect idle caret
@@ -89,84 +154,22 @@ export default function GhostTextOverlay({
       if (suggestion) clear();
 
       // Hide any in-flight discovery hint — it'll re-show below if the
-      // user pauses again at sentence-end.
+      // user pauses again at sentence-end. Drop the stale caret snapshot.
       setHintVisible(false);
+      pendingCtxRef.current = null;
 
-      // Reset both timers
-      if (timerRef.current) clearTimeout(timerRef.current);
       if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
 
-      // Stage 1: free, no-network discovery hint near the caret.
+      // The only timer left is the free, no-network discovery hint. The
+      // model is never called until the user clicks the pill, so the pill
+      // simply sits at the caret until clicked or dismissed by activity.
       hintTimerRef.current = setTimeout(() => {
         const ctx = getCaretContext();
         if (!ctx || !ctx.atEnd) return;
+        pendingCtxRef.current = { textBefore: ctx.textBefore };
         setPosition({ top: ctx.rect.top, left: ctx.rect.right + 2 });
         setHintVisible(true);
       }, HINT_MS);
-
-      // Stage 2: the actual AI call.
-      timerRef.current = setTimeout(async () => {
-        const ctx = getCaretContext();
-        if (!ctx || !ctx.atEnd) return;
-
-        // Don't re-generate for the same text
-        const text = ctx.textBefore.slice(-200);
-        if (text === lastTextRef.current && suggestion) return;
-        lastTextRef.current = text;
-        needsLeadingSpaceRef.current = !/\s$/.test(ctx.textBefore);
-
-        setPosition({ top: ctx.rect.top, left: ctx.rect.right + 2 });
-        setGenerating(true);
-
-        const controller = new AbortController();
-        abortRef.current = controller;
-
-        try {
-          // Continuation requires a different voice than inlineEdit, so
-          // call the endpoint directly with a continuation-specific prompt.
-        const ghostResponse = await fetch('/api/ai/book-mind', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          signal: controller.signal,
-          body: JSON.stringify({
-            voice: 'Continue with one sentence, max 20 words. Match the voice exactly. No preamble. Start with a space. No em dashes.',
-            context: `=== TEXT SO FAR ===\n${ctx.textBefore.slice(-800)}\n=== END ===`,
-            messages: [{ role: 'user', content: 'Continue from here.' }],
-            tier: 'spotlight',
-          }),
-        });
-        if (!ghostResponse.ok || !ghostResponse.body || controller.signal.aborted) return;
-        const reader = ghostResponse.body.getReader();
-        const decoder = new TextDecoder();
-        let buf = '';
-        let result = '';
-        outer: while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buf += decoder.decode(value, { stream: true });
-          const lines = buf.split('\n');
-          buf = lines.pop() ?? '';
-          for (const line of lines) {
-            if (!line.startsWith('data: ')) continue;
-            const d = line.slice(6).trim();
-            if (d === '[DONE]') break outer;
-            try {
-              const p = JSON.parse(d);
-              if (p.content) result += p.content;
-            } catch { /* skip */ }
-          }
-        }
-          if (controller.signal.aborted) return;
-          if (result.trim()) {
-            setSuggestion(result.trim());
-          }
-        } catch {
-          // Silent — ghost text is best-effort
-        } finally {
-          if (!controller.signal.aborted) setGenerating(false);
-        }
-      }, IDLE_MS);
     };
 
     document.addEventListener("selectionchange", handleActivity);
@@ -174,10 +177,9 @@ export default function GhostTextOverlay({
     return () => {
       document.removeEventListener("selectionchange", handleActivity);
       document.removeEventListener("input", handleActivity, true);
-      if (timerRef.current) clearTimeout(timerRef.current);
       if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     };
-  }, [enabled, inlineEdit, clear, suggestion]);
+  }, [enabled, clear, suggestion]);
 
   // Single accept path: reinstates a leading space when the caret sat
   // directly after non-whitespace, so the inserted continuation never
@@ -221,9 +223,10 @@ export default function GhostTextOverlay({
   if (!enabled || !position) return null;
   if (!suggestion && !generating && !hintVisible) return null;
 
-  // Stage 1: discreet discovery pill — appears at HINT_MS, no network
-  // call yet. Pointer-events disabled so it never gets in the way of
-  // typing or clicking through to the manuscript.
+  // Stage 1: discreet discovery pill — appears at HINT_MS, no network call
+  // yet. It stays put until the user clicks it; the click is what fires the
+  // model. onMouseDown is prevented so clicking doesn't collapse the caret
+  // selection before we read the snapshot.
   if (hintVisible && !generating && !suggestion) {
     return (
       <div
@@ -233,16 +236,21 @@ export default function GhostTextOverlay({
           left: Math.max(24, position.left - 12),
           zIndex: 800,
         }}
-        className="pointer-events-none"
       >
-        <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/95 dark:bg-[#1e1e1e]/95 border border-gray-200 dark:border-[#2f2f2f] shadow-sm backdrop-blur-sm animate-pulse">
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => { void generate(); }}
+          aria-label="Generate AI suggestion"
+          className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/95 dark:bg-[#1e1e1e]/95 border border-gray-200 dark:border-[#2f2f2f] shadow-sm backdrop-blur-sm transition-colors hover:border-[#4070ff]/40 hover:bg-[#4070ff]/5 dark:hover:bg-[#4070ff]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4070ff]/40 cursor-pointer"
+        >
           <svg className="w-3 h-3 text-[#4070ff]" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6L12 2z" />
           </svg>
           <span className="text-[10px] font-medium text-gray-500 dark:text-[#a3a3a3] tracking-wide">
             AI suggestion
           </span>
-        </div>
+        </button>
       </div>
     );
   }
