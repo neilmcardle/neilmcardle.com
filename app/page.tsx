@@ -711,36 +711,27 @@ export default function Homepage() {
                   Sits above the testimonial drawer (z-10) so the drawer tucks
                   behind its bottom edge. */}
               <div className="soft-card group relative z-10 rounded-[1.5rem] p-3 sm:p-3.5">
-                {/* Inset image — framed inside the outer border, peeking out the
-                    top behind the panel below. */}
-                <div className="relative aspect-[3/2] rounded-[1.05rem] overflow-hidden border border-white/10">
-                  {/* Blurred ambient backdrop — a soft version of the brand image. */}
+                {/* Brand image in a recessed window — crisp, hairline-framed,
+                    grounded with a soft bottom gradient. Mirrors the calm,
+                    inset surface of the GitHub activity card. */}
+                <div className="relative aspect-[3/2] rounded-[1.05rem] overflow-hidden border border-white/10 bg-[#0d0d0f] shadow-[inset_0_2px_7px_rgba(0,0,0,0.6)]">
                   <Image
                     src={c.image}
-                    alt=""
+                    alt={`${c.client} — ${c.discipline.toLowerCase()}`}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover scale-110 blur-[3px]"
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                   />
                   {/* Film grain — clipped to the image, leaving the panel clean. */}
                   <div className="img-grain absolute inset-0 pointer-events-none" aria-hidden="true" />
-                  {/* Pocket: the crisp brand image on a single card, peeking from
-                      behind the panel below. */}
-                  <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-                    <div className="soft-card absolute left-1/2 bottom-0 h-[88%] w-[56%] -translate-x-1/2 translate-y-[16%] origin-bottom rotate-[5deg] rounded-2xl overflow-hidden">
-                      <Image
-                        src={c.image}
-                        alt=""
-                        fill
-                        sizes="(max-width: 768px) 60vw, 30vw"
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
+                  <div
+                    className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"
+                    aria-hidden="true"
+                  />
                 </div>
-                {/* Foreground panel — raised, opaque, overlaps the image so it
-                    hides its lower portion and the image reads as tucked behind. */}
-                <div className="soft-card relative z-10 -mt-12 mx-2 mb-2 rounded-[1.15rem] p-6 sm:p-7 shadow-[0_-10px_24px_-10px_rgba(0,0,0,0.7)]">
+                {/* Meta — mono label, name, body sitting directly on the card
+                    surface. Same type ramp as the heatmap header. */}
+                <div className="px-1.5 pt-5 pb-1.5">
                   <div
                     className="text-tan mb-3"
                     style={{
