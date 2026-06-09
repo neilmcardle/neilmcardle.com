@@ -3,6 +3,7 @@ import Link from "next/link";
 import { type ProjectKey } from "@/components/HomepageProjectPreview";
 import ProfileCard from "@/components/ProfileCard";
 import TestimonialDrawer from "@/components/TestimonialDrawer";
+import GithubActivity from "@/components/GithubActivity";
 
 // Destination for the Subscribe buttons, the live Stripe Payment Link for the
 // digital design and build subscription (£5,000/mo + VAT, price
@@ -739,7 +740,7 @@ export default function Homepage() {
                 </div>
                 {/* Foreground panel — raised, opaque, overlaps the image so it
                     hides its lower portion and the image reads as tucked behind. */}
-                <div className="soft-card relative z-10 -mt-12 rounded-[1.15rem] p-6 sm:p-7 shadow-[0_-10px_24px_-10px_rgba(0,0,0,0.7)]">
+                <div className="soft-card relative z-10 -mt-12 mx-2 mb-2 rounded-[1.15rem] p-6 sm:p-7 shadow-[0_-10px_24px_-10px_rgba(0,0,0,0.7)]">
                   <div
                     className="text-tan mb-3"
                     style={{
@@ -810,6 +811,12 @@ export default function Homepage() {
             {PROJECTS.map((p) => (
               <ProjectCard key={p.number} project={p} />
             ))}
+          </div>
+
+          {/* Live GitHub contribution graph — build-velocity proof, pulled at
+              request time and skinned to the site's gold palette. */}
+          <div className="mt-4">
+            <GithubActivity />
           </div>
         </section>
 
