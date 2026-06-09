@@ -113,10 +113,11 @@ type BuildParams = {
   direction: string; fillMode: string; easing: string; color: string;
   stroked: boolean; strokeWidth: number; strokeCap: string; strokeJoin: string;
   filled: boolean; fillColor: string; transformOrigin: string;
-  travel: number; scale: number; shadowFilter: string;
+  travel: number; scale: number; shadowFilter: string; iconSize: number;
 };
 
-function buildCSS(p: BuildParams): string {
+// Shared CSS-syntax parts reused by the CSS / HTML / Vue generators.
+function buildStyleParts(p: BuildParams): { kf: string; rule: string; animation: string } {
   const timing = p.preset === "spin" ? "linear" : p.easing;
   const kf = makeKeyframes(p.preset, p.travel, p.scale)
     .replace(/\}\{/g, "} {")
@@ -130,13 +131,13 @@ function buildCSS(p: BuildParams): string {
   const iterStr  = p.iterations !== "infinite" ? ` ${p.iterations}` : " infinite";
   const dirStr   = p.direction !== "normal" ? ` ${p.direction}` : "";
   const fillStr  = p.fillMode !== "none" ? ` ${p.fillMode}` : "";
+  const animation = `ia-${p.preset} ${p.duration}s ${timing}${delayStr}${iterStr}${dirStr}${fillStr}`;
   const strokeLines = p.stroked
     ? [`  stroke-width: ${p.strokeWidth};`, `  stroke-linecap: ${p.strokeCap};`, `  stroke-linejoin: ${p.strokeJoin};`]
     : [`  stroke: none;`];
   const drawLines = p.preset === "draw" && p.stroked ? [`  stroke-dasharray: 1000;`, `  stroke-dashoffset: 1000;`] : [];
   const shadowLine = p.shadowFilter !== "none" ? [`  filter: ${p.shadowFilter};`] : [];
-  return [
-    kf, "",
+  const rule = [
     ".icon {",
     `  color: ${p.color};`,
     `  fill: ${p.filled ? p.fillColor : "none"};`,
@@ -144,8 +145,128 @@ function buildCSS(p: BuildParams): string {
     ...drawLines,
     `  transform-origin: ${p.transformOrigin};`,
     ...shadowLine,
-    `  animation: ia-${p.preset} ${p.duration}s ${timing}${delayStr}${iterStr}${dirStr}${fillStr};`,
+    `  animation: ${animation};`,
     "}",
+  ].join("\n");
+  return { kf, rule, animation };
+}
+
+function buildCSS(p: BuildParams): string {
+  const { kf, rule } = buildStyleParts(p);
+  return `${kf}\n\n${rule}`;
+}
+
+function buildHTML(p: BuildParams): string {
+  const { kf, rule } = buildStyleParts(p);
+  return [
+    `<style>`,
+    kf,
+    ``,
+    rule,
+    `</style>`,
+    ``,
+    `<svg`,
+    `  class="icon"`,
+    `  viewBox="0 0 24 24"`,
+    `  width="${p.iconSize}"`,
+    `  height="${p.iconSize}"`,
+    `  fill="none"`,
+    `  stroke="currentColor"`,
+    `>`,
+    `  <!-- paste your icon paths here -->`,
+    `</svg>`,
+  ].join("\n");
+}
+
+function buildVue(p: BuildParams): string {
+  const { kf, rule } = buildStyleParts(p);
+  return [
+    `<template>`,
+    `  <svg`,
+    `    class="icon"`,
+    `    viewBox="0 0 24 24"`,
+    `    :width="size"`,
+    `    :height="size"`,
+    `    fill="none"`,
+    `    stroke="currentColor"`,
+    `  >`,
+    `    <!-- paste your icon paths here -->`,
+    `  </svg>`,
+    `</template>`,
+    ``,
+    `<script setup lang="ts">`,
+    `withDefaults(defineProps<{ size?: number }>(), { size: ${p.iconSize} })`,
+    `</script>`,
+    ``,
+    `<style scoped>`,
+    kf,
+    ``,
+    rule,
+    `</style>`,
+  ].join("\n");
+}
+
+const TW_ORIGIN: Record<string, string> = {
+  "0% 0%": "origin-top-left", "50% 0%": "origin-top", "100% 0%": "origin-top-right",
+  "0% 50%": "origin-left", "50% 50%": "origin-center", "100% 50%": "origin-right",
+  "0% 100%": "origin-bottom-left", "50% 100%": "origin-bottom", "100% 100%": "origin-bottom-right",
+};
+
+// Tailwind reads underscores in arbitrary values as spaces.
+const twArbitrary = (s: string) => s.replace(/ /g, "_");
+
+function buildTailwind(p: BuildParams): string {
+  const { animation } = buildStyleParts(p);
+  const name = `ia-${p.preset}`;
+  const raw = makeKeyframes(p.preset, p.travel, p.scale);
+  const body = raw.slice(raw.indexOf("{") + 1, raw.lastIndexOf("}"));
+  const objLines: string[] = [];
+  for (const b of body.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    objLines.push(`        '${b[1].trim()}': {`);
+    for (const d of b[2].split(";").map(s => s.trim()).filter(Boolean)) {
+      const i = d.indexOf(":");
+      objLines.push(`          '${d.slice(0, i).trim()}': '${d.slice(i + 1).trim()}',`);
+    }
+    objLines.push(`        },`);
+  }
+
+  const classes = [`animate-${name}`, `text-[${p.color}]`];
+  if (p.stroked) {
+    classes.push(`[stroke-width:${p.strokeWidth}]`, `[stroke-linecap:${p.strokeCap}]`, `[stroke-linejoin:${p.strokeJoin}]`);
+  } else {
+    classes.push(`[stroke:none]`);
+  }
+  classes.push(p.filled ? `fill-[${p.fillColor}]` : `fill-none`);
+  classes.push(TW_ORIGIN[p.transformOrigin] ?? `[transform-origin:${twArbitrary(p.transformOrigin)}]`);
+  if (p.preset === "draw" && p.stroked) classes.push(`[stroke-dasharray:1000]`, `[stroke-dashoffset:1000]`);
+  if (p.shadowFilter !== "none") classes.push(`[filter:${twArbitrary(p.shadowFilter)}]`);
+
+  return [
+    `// tailwind.config.js — merge into theme.extend`,
+    `module.exports = {`,
+    `  theme: {`,
+    `    extend: {`,
+    `      keyframes: {`,
+    `        '${name}': {`,
+    ...objLines.map(l => `  ${l}`),
+    `        },`,
+    `      },`,
+    `      animation: {`,
+    `        '${name}': '${animation}',`,
+    `      },`,
+    `    },`,
+    `  },`,
+    `}`,
+    ``,
+    `<!-- usage -->`,
+    `<svg`,
+    `  viewBox="0 0 24 24"`,
+    `  fill="none"`,
+    `  stroke="currentColor"`,
+    `  class="${classes.join(" ")}"`,
+    `>`,
+    `  <!-- paste your icon paths here -->`,
+    `</svg>`,
   ].join("\n");
 }
 
@@ -497,6 +618,19 @@ function BezierEditor({ value, onChange }: { value: Bezier; onChange: (v: Bezier
 }
 
 // ─── Page ────────────────────────────────────────────────────────────────────
+const FORMATS = ["css", "react", "html", "tailwind", "vue"] as const;
+type Format = (typeof FORMATS)[number];
+const FORMAT_LABEL: Record<Format, string> = {
+  css: "CSS", react: "React", html: "HTML", tailwind: "Tailwind", vue: "Vue",
+};
+const FORMAT_DESC: Record<Format, string> = {
+  css: "Plain CSS — drop into any stylesheet.",
+  react: "React component — paste your icon paths.",
+  html: "Standalone HTML — paste anywhere, no framework.",
+  tailwind: "Tailwind config — merge into theme.extend.",
+  vue: "Vue SFC — single-file component with scoped styles.",
+};
+
 const TRAVEL_PRESETS = ["bounce", "shake", "float"];
 const SCALE_PRESETS = ["pulse", "pop", "heartbeat"];
 
@@ -540,7 +674,7 @@ export default function IconAnimator() {
   const [copied, setCopied] = useState(false);
   const [playing, setPlaying] = useState(true);
   const [resetKey, setResetKey] = useState(0);
-  const [format, setFormat] = useState<"css" | "react">("css");
+  const [format, setFormat] = useState<Format>("css");
   const [shadowOpen, setShadowOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -568,8 +702,9 @@ export default function IconAnimator() {
     ...(preset === "draw" && stroked ? { strokeDasharray: 1000, strokeDashoffset: 1000 } : {}),
   };
 
-  const params: BuildParams = { preset, duration, delay, iterations, direction, fillMode, easing: easingValue, color, stroked, strokeWidth, strokeCap, strokeJoin, filled, fillColor, transformOrigin: origin, travel, scale, shadowFilter };
-  const output = format === "react" ? buildReact(params) : buildCSS(params);
+  const params: BuildParams = { preset, duration, delay, iterations, direction, fillMode, easing: easingValue, color, stroked, strokeWidth, strokeCap, strokeJoin, filled, fillColor, transformOrigin: origin, travel, scale, shadowFilter, iconSize };
+  const builders = { css: buildCSS, react: buildReact, html: buildHTML, tailwind: buildTailwind, vue: buildVue };
+  const output = builders[format](params);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(output);
@@ -1357,7 +1492,7 @@ export default function IconAnimator() {
                   borderBottom: "1px solid rgba(0,0,0,0.06)",
                 }}
               >
-                {(["css","react"] as const).map(f => (
+                {FORMATS.map(f => (
                   <button
                     key={f}
                     onClick={() => setFormat(f)}
@@ -1374,7 +1509,7 @@ export default function IconAnimator() {
                       padding: 0,
                     }}
                   >
-                    {f}
+                    {FORMAT_LABEL[f]}
                   </button>
                 ))}
               </div>
@@ -1404,7 +1539,7 @@ export default function IconAnimator() {
                 }}
               >
                 <span style={{ fontFamily: "var(--font-inter)", fontSize: 12, color: "rgba(0,0,0,0.4)" }}>
-                  {format === "css" ? "Plain CSS — drop into any stylesheet." : "React component — paste your icon paths."}
+                  {FORMAT_DESC[format]}
                 </span>
                 <button
                   onClick={handleCopy}
@@ -1421,7 +1556,7 @@ export default function IconAnimator() {
                     transition: "all 0.15s",
                   }}
                 >
-                  {copied ? "Copied" : `Copy ${format.toUpperCase()}`}
+                  {copied ? "Copied" : `Copy ${FORMAT_LABEL[format]}`}
                 </button>
               </div>
             </div>
@@ -1470,7 +1605,7 @@ export default function IconAnimator() {
               pointerEvents: "none",
             }}
           >
-            Copied {format.toUpperCase()}
+            Copied {FORMAT_LABEL[format]}
           </div>
         )}
       </div>
