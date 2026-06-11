@@ -25,7 +25,7 @@ const PRICE = { amount: "£5,000", suffix: "+ VAT" } as const;
 const AVAILABILITY = {
   open: true,
   // Short status for the hero pill badge.
-  openBadge: "One slot open now",
+  openBadge: "Slot open now",
   fullBadge: "Currently full",
   // Fuller line used in the final CTA sentence.
   openLine: "One client at a time. One slot open now.",
@@ -419,7 +419,7 @@ export default function Homepage() {
                   fontWeight: 500,
                 }}
               >
-                Digital design and build, on subscription.
+                Your digital designer and builder, on subscription.
               </p>
               <p
                 className="order-7 lg:order-4 mt-5 lg:mt-3 text-cream/70 max-w-md"
@@ -429,9 +429,9 @@ export default function Homepage() {
                   lineHeight: 1.55,
                 }}
               >
-                I take on one client at a time and ship working product to your
-                domain. Fast, async, no calls. Design and code from the same
-                hands, so nothing gets lost in translation.
+                I ship working product to your domain. Fast, async, no calls.
+                Design and code from the same hands, so nothing gets lost in
+                translation.
               </p>
               {/* Mobile-only CTA — a filled green button. Touch has no hover, so
                   the desktop hover-trace would leave it looking like a text link;
@@ -459,7 +459,7 @@ export default function Homepage() {
                   above renders instead. */}
               <a
                 href="#pricing"
-                className="gold-btn gold-btn-trace group relative hidden lg:order-5 lg:inline-flex self-start items-center gap-3 mt-5 sm:mt-6 pl-6 pr-2.5 py-2.5 rounded-full whitespace-nowrap"
+                className="gold-btn gold-btn-trace group relative hidden lg:order-6 lg:inline-flex self-start items-center gap-3 mt-5 sm:mt-6 pl-6 pr-2.5 py-2.5 rounded-full whitespace-nowrap"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.75rem",
@@ -479,7 +479,7 @@ export default function Homepage() {
               {/* Availability is the real lever on the price. Reads from the
                   single AVAILABILITY source so it never contradicts itself. */}
               <p
-                className="order-5 lg:order-6 mt-5 self-start inline-flex items-center gap-2.5 rounded-full border border-tan/30 px-3.5 py-2 text-tan lg:border-0 lg:rounded-none lg:px-0 lg:py-0"
+                className="order-5 lg:order-5 mt-5 self-start inline-flex items-center gap-2.5 rounded-full border border-tan/30 px-3.5 py-2 text-tan lg:border-0 lg:rounded-none lg:px-0 lg:py-0"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.6875rem",
@@ -496,16 +496,6 @@ export default function Homepage() {
                   aria-hidden="true"
                 />
                 {slotBadge}
-              </p>
-              <p
-                className="order-8 lg:order-7 mt-3 text-cream/70 max-w-md"
-                style={{
-                  fontFamily: "var(--font-inter)",
-                  fontSize: "0.875rem",
-                  lineHeight: 1.55,
-                }}
-              >
-                Built for founders who'd rather ship than sit in scoping calls.
               </p>
             </div>
 
