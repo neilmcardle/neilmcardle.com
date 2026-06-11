@@ -51,6 +51,9 @@ SECURITY-FIXES.md
 # Spark teaching log (private drafts; polished MDX lessons publish separately)
 spark-teaching-log/
 
+# Granola interview prototype shell (reference build; copied to standalone repo when ready)
+prototype-shell/
+
 # Kids Academy private planning docs (curriculum, phases, design system, strategy)
 app/kids-academy/docs/
 
