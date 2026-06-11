@@ -1543,6 +1543,27 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   to   { --trace-angle: 360deg; }
 }
 
+/* Testimonial drawer "stretch and settle". The grid 0fr->1fr reveal gives a
+   clean height open but can't overshoot (an auto-height fr track clamps to
+   content height), so the bounce is a transform on the drawer root instead:
+   it holds at rest while the height reveals, then carries the bottom edge a few
+   percent past and springs back. transform-origin top keeps the tucked top
+   edge fixed so only the bottom moves. */
+@keyframes testimonial-drawer-stretch {
+  0%, 42% { transform: scaleY(1); }
+  64%     { transform: scaleY(1.018); }
+  82%     { transform: scaleY(0.997); }
+  93%     { transform: scaleY(1.005); }
+  100%    { transform: scaleY(1); }
+}
+.testimonial-drawer-stretch {
+  transform-origin: top center;
+  animation: testimonial-drawer-stretch 2400ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-drawer-stretch { animation: none; }
+}
+
 /* ── Profile bottom sheet (hero portrait) ──────────────────────────────────
    The credentials rise from the bottom of the portrait card like a bottom
    sheet rather than flipping it. The sheet is clipped by the card's

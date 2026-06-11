@@ -16,11 +16,20 @@ export default function TestimonialDrawer({ quote, name, org }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="relative z-0 overflow-hidden rounded-b-[1.5rem] border-x border-b border-white/5 bg-[#0c0c0e] shadow-[inset_0_11px_18px_-10px_rgba(0,0,0,0.9)]">
+    <div className={`relative z-0 overflow-hidden rounded-b-[1.5rem] border-x border-b border-white/5 bg-[#0c0c0e] shadow-[inset_0_11px_18px_-10px_rgba(0,0,0,0.9)] ${open ? "testimonial-drawer-stretch" : ""}`}>
       {/* Collapsible quote. */}
       <div
-        className="grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
-        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
+        className="grid"
+        style={{
+          gridTemplateRows: open ? "1fr" : "0fr",
+          transitionProperty: "grid-template-rows",
+          // Slow-mo "sheet" height reveal on open that finishes before the
+          // root's scaleY bounce peaks, so the bottom edge reads as stretching
+          // past and settling. Close snaps back at a normal pace. The overshoot
+          // lives in the transform, not here.
+          transitionDuration: open ? "1200ms" : "450ms",
+          transitionTimingFunction: "cubic-bezier(0.32, 0.72, 0, 1)",
+        }}
       >
         <div className="overflow-hidden">
           <figure className="relative px-6 pt-7 pb-3 sm:px-7">

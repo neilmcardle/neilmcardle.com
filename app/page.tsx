@@ -233,10 +233,8 @@ const CAPABILITIES: {
     heading: "Design",
     note: "From identity to interface.",
     items: [
-      "Branding",
-      "UI design",
-      "Landing pages and marketing sites",
-      "AI chat and AI product interfaces",
+      "Brand Identity Design",
+      "AI Product & Landing Page Design",
     ],
   },
   {
@@ -521,10 +519,22 @@ export default function Homepage() {
             the process. */}
         <section className="mb-24 mt-8">
           <SectionHeader label="Why this exists" />
+          <h3
+            className="text-cream mb-10 -mt-2 max-w-2xl"
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
+            }}
+          >
+            Getting product shipped is usually slow. I'm not.
+          </h3>
           <div className="soft-card relative grid grid-cols-1 lg:grid-cols-2 rounded-[1.5rem] overflow-hidden">
             <div className="relative p-8 sm:p-10 lg:p-12 border-b lg:border-b-0 lg:border-r border-white/10">
               <div
-                className="text-tan mb-5"
+                className="text-tan mb-4"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.6875rem",
@@ -534,24 +544,35 @@ export default function Homepage() {
               >
                 The usual way
               </div>
+              <h4
+                className="text-cream mb-3"
+                style={{
+                  fontFamily: "var(--font-playfair)",
+                  fontSize: "1.375rem",
+                  fontWeight: 700,
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1.2,
+                }}
+              >
+                Hire. Manage. Repeat.
+              </h4>
               <p
                 className="text-cream/70"
                 style={{
                   fontFamily: "var(--font-inter)",
-                  fontSize: "clamp(1rem, 1.6vw, 1.1875rem)",
+                  fontSize: "0.9375rem",
                   lineHeight: 1.6,
                 }}
               >
                 Hire a studio and you get months of forms, calls, scoping decks
                 and contracts before anyone touches the work, then a Figma file
                 you still can't ship. Hire in-house and you're recruiting for a
-                quarter. Either way you're managing people instead of shipping
-                product.
+                quarter.
               </p>
             </div>
             <div className="relative p-8 sm:p-10 lg:p-12 bg-cream/[0.02]">
               <div
-                className="text-cream mb-5"
+                className="text-cream mb-4"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
                   fontSize: "0.6875rem",
@@ -561,18 +582,27 @@ export default function Homepage() {
               >
                 With me
               </div>
-              <p
-                className="text-cream"
+              <h4
+                className="text-cream mb-3"
                 style={{
                   fontFamily: "var(--font-playfair)",
-                  fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
-                  lineHeight: 1.25,
-                  fontWeight: 600,
-                  letterSpacing: "-0.02em",
+                  fontSize: "1.375rem",
+                  fontWeight: 700,
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1.2,
                 }}
               >
-                Subscribe. Send the request. Approve the working thing when it
-                lands. That's the whole relationship.
+                Subscribe. Request. Receive.
+              </h4>
+              <p
+                className="text-cream/70"
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "0.9375rem",
+                  lineHeight: 1.6,
+                }}
+              >
+                That's the entire relationship.
               </p>
             </div>
           </div>
@@ -581,6 +611,18 @@ export default function Homepage() {
         {/* How it works */}
         <section id="how" className="mb-24 scroll-mt-12">
           <SectionHeader label="How it works" />
+          <h3
+            className="text-cream mb-10 -mt-2 max-w-2xl"
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
+            }}
+          >
+            Three steps to shipped.
+          </h3>
           <div className="soft-card grid grid-cols-1 sm:grid-cols-3 rounded-[1.5rem] overflow-hidden">
             {STEPS.map((s, i) => (
               <div
@@ -642,7 +684,7 @@ export default function Homepage() {
               lineHeight: 1.1,
             }}
           >
-            I take one client at a time. You get my full focus.
+            You get my full focus.
           </h3>
           <div className="soft-card grid grid-cols-1 md:grid-cols-3 rounded-[1.5rem] overflow-hidden">
             {WHY_ONE.map((point, i) => (
@@ -692,9 +734,10 @@ export default function Homepage() {
             className="text-cream mb-6"
             style={{
               fontFamily: "var(--font-playfair)",
-              fontSize: "1.5rem",
+              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
               fontWeight: 700,
-              letterSpacing: "-0.01em",
+              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
             }}
           >
             Selected client work
@@ -816,6 +859,18 @@ export default function Homepage() {
             defined, then priced. */}
         <section id="scope" className="mb-24 scroll-mt-12">
           <SectionHeader label="What I make" />
+          <h3
+            className="text-cream mb-10 -mt-2 max-w-2xl"
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
+            }}
+          >
+            I design it. I build it.
+          </h3>
           <div className="soft-card grid grid-cols-1 md:grid-cols-2 rounded-[1.5rem] overflow-hidden">
             {CAPABILITIES.map((col, i) => (
               <div
@@ -871,13 +926,7 @@ export default function Homepage() {
             SUBSCRIBE_URL (swap for a Stripe Payment Link). */}
         <section id="pricing" className="mb-24 scroll-mt-12">
           <SectionHeader label="Pricing" />
-          <div className="soft-card relative isolate max-w-2xl mx-auto rounded-[1.75rem] overflow-hidden">
-            {/* Warm gold glow pooling top-right so the priced moment feels lit,
-                not flat — the accent that anchors the whole soft-UI palette. */}
-            <div
-              className="pointer-events-none absolute -z-10 -top-24 -right-20 w-80 h-80 rounded-full bg-gold/[0.10] blur-3xl"
-              aria-hidden="true"
-            />
+          <div className="soft-card max-w-2xl mx-auto rounded-[1.75rem] overflow-hidden">
             <div className="p-8 sm:p-10">
               {/* Header: plan name + pause pill */}
               <div className="flex items-start justify-between gap-4">
@@ -1055,7 +1104,7 @@ export default function Homepage() {
               lineHeight: 1.1,
             }}
           >
-            One designer, on purpose.
+            One designer, one purpose... your work.
           </h3>
           <p
             className="text-cream/75"

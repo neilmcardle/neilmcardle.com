@@ -68,6 +68,26 @@ function Chevron({ size = 14 }: { size?: number }) {
   );
 }
 
+// Plots an easing as a graph: time runs left→right, progress bottom→top. The
+// dashed diagonal is constant speed (linear); the gold cubic-bezier curve
+// bowing above it reads as "fast early, slow to finish".
+function EasingCurve({ points, size = 56 }: { points: [number, number, number, number]; size?: number }) {
+  const [x1, y1, x2, y2] = points;
+  const p = 7;
+  const sx = (x: number) => p + x * (size - 2 * p);
+  const sy = (y: number) => size - p - y * (size - 2 * p);
+  const path = `M ${sx(0)} ${sy(0)} C ${sx(x1)} ${sy(y1)} ${sx(x2)} ${sy(y2)} ${sx(1)} ${sy(1)}`;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true"
+      style={{ flexShrink: 0, borderRadius: 8, background: "#0D0D0F", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <line x1={sx(0)} y1={sy(0)} x2={sx(1)} y2={sy(1)} stroke="rgba(158,148,130,0.3)" strokeWidth="1" strokeDasharray="2 2" />
+      <path d={path} fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" />
+      <circle cx={sx(0)} cy={sy(0)} r="2" fill="rgba(158,148,130,0.55)" />
+      <circle cx={sx(1)} cy={sy(1)} r="2" fill="rgba(158,148,130,0.55)" />
+    </svg>
+  );
+}
+
 function Section({ id, children }: { id?: string; children: ReactNode }) {
   return (
     <section id={id} style={{ marginTop: "clamp(72px, 12vw, 112px)", scrollMarginTop: 24 }}>
@@ -181,6 +201,18 @@ const RADII = [
   { r: 9999, note: "pills, buttons, chips" },
 ];
 
+const MOTION_RULES = [
+  { label: "Press", body: "Buttons sink 1px and their glow tightens, like a key being pushed in. Nothing ever grows or shrinks." },
+  { label: "Reveal", body: "Lists and panels appear one row at a time, each rising 8px as it fades in over 450ms, so the eye follows the order." },
+  { label: "At rest", body: "Motion only happens on hover. Left alone, the page is completely still, apart from the gold glint resting in a corner." },
+];
+
+const EASINGS: { name: string; dur: string; curve: string; pts: [number, number, number, number]; cls: string; plain: string }[] = [
+  { name: "micro", dur: "200ms", curve: "ease", pts: [0.25, 0.1, 0.25, 1], cls: "ds-ease-micro", plain: "Soft start, soft stop. The default for hovers and colour changes." },
+  { name: "sheet", dur: "500ms", curve: "cubic-bezier(.32, .72, 0, 1)", pts: [0.32, 0.72, 0, 1], cls: "ds-ease-sheet", plain: "Fast start, then settles into place. The bottom-sheet slide." },
+  { name: "trace fast", dur: "3.2s", curve: "cubic-bezier(.16, 1, .3, 1)", pts: [0.16, 1, 0.3, 1], cls: "ds-ease-trace", plain: "Instant launch, then a long glide out. The gold rim glint." },
+];
+
 export default function DesignSystemPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#0F0F11", color: "var(--cream)" }}>
@@ -272,7 +304,7 @@ export default function DesignSystemPage() {
 
           <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
             {[
-              { label: "Short and declarative", body: "One idea per sentence. Full stops do the pacing. “Subscribe. Send the request. Approve the working thing when it lands.”" },
+              { label: "Short and declarative", body: "One idea per sentence. Full stops do the pacing. “Subscribe. Send the request. Approve what you like.”" },
               { label: "Ship is the verb", body: "Talk about working product on a real domain, not deliverables or engagements. Days, not months. Built, not designed-then-handed-off." },
               { label: "Confident, never salesy", body: "No exclamation marks, no “world-class”, no urgency theatre. Scarcity is stated as fact: one client at a time, one slot open now." },
               { label: "Async courtesy", body: "Respect the reader's time the way the service respects the client's. No forms, no calls, no meetings, and no copy that wastes a line." },
@@ -349,7 +381,7 @@ export default function DesignSystemPage() {
           <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
             {[
               { label: "EB Garamond 800 · wordmark only", render: <span style={{ fontFamily: GARAMOND, fontWeight: 800, fontSize: 28, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--cream)" }}>NEIL McARDLE</span> },
-              { label: "Playfair Display 700 · all headings", render: <span style={{ fontFamily: PLAYFAIR, fontWeight: 700, fontSize: 26, color: "var(--cream)" }}>One designer, on purpose.</span> },
+              { label: "Playfair Display 700 · all headings", render: <span style={{ fontFamily: PLAYFAIR, fontWeight: 700, fontSize: 26, color: "var(--cream)" }}>One designer, one purpose... your work.</span> },
               { label: "Inter 400–600 · body", render: <span style={{ fontFamily: INTER, fontSize: 15, lineHeight: 1.6, color: "rgba(251,249,243,0.7)" }}>I take on one client at a time and ship working product to your domain. Fast, async, no calls. Design and code from the same hands, so nothing gets lost in translation.</span> },
               { label: "JetBrains Mono 400–600 · labels, numbers, buttons", render: <span style={mono(12, TAN)}>One slot open now · 2026 · £5,000/month</span> },
             ].map((t) => (
@@ -559,24 +591,32 @@ export default function DesignSystemPage() {
             <div className="soft-card" style={{ borderRadius: "1rem", padding: 28 }}>
               <p style={{ ...mono(11, "var(--gold)", 600), marginBottom: 20 }}>Gold rim trace</p>
               <div className="gold-trace" style={{ position: "relative", height: 120, borderRadius: "1rem", background: "#0D0D0F", border: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={mono(10, TAN)}>Orbiting glint</span>
+                <span style={{ position: "absolute", top: 10, left: 14, ...mono(9, TAN, 400, 0.1) }}>at rest, here</span>
+                <span style={mono(10, "rgba(251,249,243,0.85)")}>Hover to trace the rim</span>
               </div>
-              <p style={{ fontFamily: INTER, fontSize: 14, lineHeight: 1.55, color: "rgba(251,249,243,0.7)", margin: "16px 0 0" }}>Rests as a highlight in the top-left corner; orbits on hover, then settles back. Gold on dark surfaces, warm near-white on gold CTAs.</p>
+              <p style={{ fontFamily: INTER, fontSize: 14, lineHeight: 1.55, color: "rgba(251,249,243,0.7)", margin: "16px 0 0" }}>The glint is a thin spot of light on the panel&rsquo;s edge. At rest it sits in the top-left corner; hover and it travels all the way around the rim, then settles back. It reads as light catching the edge, never a colour change. Gold on dark panels like this one, warm near-white on gold buttons.</p>
             </div>
 
             <div className="soft-card" style={{ borderRadius: "1rem", padding: 28 }}>
-              <p style={{ ...mono(11, "var(--gold)", 600), marginBottom: 20 }}>Easing</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {[
-                  { cls: "ds-ease-micro", label: "micro · 200ms ease · hovers, colour" },
-                  { cls: "ds-ease-sheet", label: "sheet · 500ms cubic-bezier(.32,.72,0,1)" },
-                  { cls: "ds-ease-trace", label: "trace fast · 3.2s cubic-bezier(.16,1,.3,1)" },
-                ].map((e) => (
-                  <div key={e.cls}>
-                    <div className="soft-inset" style={{ position: "relative", height: 24, borderRadius: 9999 }}>
-                      <span className={`ds-dot ${e.cls}`} />
+              <p style={{ ...mono(11, "var(--gold)", 600), marginBottom: 10 }}>Easing</p>
+              <p style={{ fontFamily: INTER, fontSize: 12.5, lineHeight: 1.5, color: "rgba(251,249,243,0.6)", margin: "0 0 22px" }}>
+                In each graph, time runs left to right and progress bottom to top. The dashed line is constant speed; the gold curve rising above it early means fast to start, slow to finish. The dot plays it back live.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                {EASINGS.map((e, i) => (
+                  <div key={e.name} style={{ paddingTop: i === 0 ? 0 : 18, marginTop: i === 0 ? 0 : 18, borderTop: i === 0 ? "none" : HAIRLINE }}>
+                    <div className="flex items-baseline justify-between" style={{ gap: 12, marginBottom: 6 }}>
+                      <span style={mono(11, "var(--gold)", 600)}>{e.name}</span>
+                      <span style={specMono()}>{e.dur}</span>
                     </div>
-                    <p style={{ ...specMono(), marginTop: 8 }}>{e.label}</p>
+                    <p style={{ fontFamily: INTER, fontSize: 13, lineHeight: 1.5, color: "rgba(251,249,243,0.85)", margin: "0 0 12px" }}>{e.plain}</p>
+                    <div className="flex items-center" style={{ gap: 12 }}>
+                      <EasingCurve points={e.pts} />
+                      <div className="soft-inset" style={{ position: "relative", flex: 1, height: 24, borderRadius: 9999 }}>
+                        <span className={`ds-dot ${e.cls}`} />
+                      </div>
+                    </div>
+                    <p style={{ ...specMono(), marginTop: 10 }}>{e.curve}</p>
                   </div>
                 ))}
               </div>
@@ -584,13 +624,12 @@ export default function DesignSystemPage() {
 
             <div className="soft-card" style={{ borderRadius: "1rem", padding: 28 }}>
               <p style={{ ...mono(11, "var(--gold)", 600), marginBottom: 20 }}>Rules</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {[
-                  "Press states move 1px down and collapse the glow. Nothing scales.",
-                  "Reveals stagger in at 450ms ease, 8px rise, rows in sequence.",
-                  "Ambient motion is hover-only. The page at rest is still, except a resting glint.",
-                ].map((r, i) => (
-                  <p key={i} style={{ fontFamily: INTER, fontSize: 14, lineHeight: 1.55, color: "rgba(251,249,243,0.7)", margin: 0 }}>{r}</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {MOTION_RULES.map((r) => (
+                  <div key={r.label}>
+                    <p style={{ ...mono(10, "var(--gold)", 600), marginBottom: 5 }}>{r.label}</p>
+                    <p style={{ fontFamily: INTER, fontSize: 14, lineHeight: 1.55, color: "rgba(251,249,243,0.7)", margin: 0 }}>{r.body}</p>
+                  </div>
                 ))}
               </div>
             </div>
