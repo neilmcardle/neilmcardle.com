@@ -82,71 +82,67 @@ export default function HeroSection({ onPrimaryClick }: HeroSectionProps) {
 
 function EditorPreview() {
   return (
-    <div className="relative mx-auto w-full max-w-[460px] lg:max-w-none lg:justify-self-end">
-      {/* The writing canvas */}
-      <div
-        className="relative bg-[#fffdf6] border border-gray-200/80 rounded-[18px] overflow-hidden"
-        style={{ boxShadow: '0 44px 70px -34px rgba(20,20,19,.30), 0 2px 6px rgba(20,20,19,.06)' }}
-      >
-        {/* Slim window bar */}
-        <div className="flex items-center gap-2 px-5 h-11 border-b border-gray-100">
-          <span className="flex gap-1.5" aria-hidden>
-            <span className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-            <span className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-            <span className="w-2.5 h-2.5 rounded-full bg-gray-200" />
+    <div className="relative mx-auto w-full max-w-[480px] lg:max-w-none lg:justify-self-end">
+      {/* Kindle-style reader, matching the Editor Showcase section below. */}
+      <div className="flex flex-col bg-[#f7f4ea] border border-gray-200 rounded-[20px] overflow-hidden shadow-[0_44px_70px_-34px_rgba(20,20,19,.30),0_2px_6px_rgba(20,20,19,.06)]">
+        {/* Reader top bar */}
+        <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-gray-200 bg-white/60">
+          <span className="font-mono text-[12px] text-gray-500 font-semibold">9:42</span>
+          <span className="hidden sm:inline truncate text-[12.5px] text-gray-500 italic" style={{ fontFamily: 'Georgia, serif' }}>
+            Paperwhite &middot; Libre Baskerville &middot; 11pt
           </span>
-          <span className="ml-2 text-[10.5px] font-medium uppercase tracking-[0.16em] text-gray-400">
-            Untitled Novel
+          <span className="shrink-0 inline-flex items-center gap-1.5 bg-gray-900 text-[#faf9f5] text-[10px] uppercase tracking-[0.12em] px-2.5 py-1 rounded-full">
+            <span className="relative inline-flex w-1.5 h-1.5">
+              <span className="absolute inline-flex w-full h-full rounded-full bg-blue-500 opacity-60 animate-ping" />
+              <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-blue-500" />
+            </span>
+            Live preview
           </span>
-          <span className="ml-auto text-[10.5px] text-gray-300">Saved</span>
         </div>
 
-        {/* The page */}
-        <div className="px-7 sm:px-9 py-8" style={{ fontFamily: 'Georgia, serif' }}>
-          <div className="text-[9.5px] font-bold uppercase tracking-[0.24em] text-gray-400 mb-3">
-            Chapter Seven &middot; Draft 04
-          </div>
-          <h3 className="font-serif font-bold leading-[1.1] text-gray-900 mb-4" style={{ fontSize: 'clamp(20px, 2.2vw, 25px)' }}>
-            The Midnight Garden
+        {/* Page */}
+        <div className="px-7 sm:px-10 py-10">
+          <h3 className="font-serif text-[12px] tracking-[0.35em] uppercase font-medium text-center text-gray-400 mb-2">
+            Chapter Seven
           </h3>
-          <div className="space-y-3 text-[13.5px] leading-[1.75] text-[#3d3c36]">
-            <p>
-              The morning light fell across the old manuscript pages, illuminating years of careful revision.{' '}
-              <span className="relative px-0.5" style={{ background: 'linear-gradient(transparent 62%, rgba(64,112,255,.22) 62%)' }}>
-                Sarah&rsquo;s blue eyes narrowed
-              </span>{' '}
-              at the paragraph she had rewritten a hundred times.
+          <h2 className="font-serif font-bold text-center leading-[1.1] text-gray-900 mb-7" style={{ fontSize: 'clamp(24px, 3vw, 30px)', letterSpacing: '-0.02em' }}>
+            The Midnight Garden
+          </h2>
+          <div className="max-w-[46ch] mx-auto" style={{ fontFamily: '"Libre Baskerville", Georgia, serif', fontSize: '14px', lineHeight: 1.75, color: '#2a2a28' }}>
+            <p className="mb-3.5 text-justify first-letter:font-serif first-letter:font-bold first-letter:text-[54px] first-letter:float-left first-letter:leading-[0.8] first-letter:mr-2.5 first-letter:mt-1 first-letter:text-gray-900">
+              The morning light fell across the old manuscript pages, illuminating years of careful revision. She had written this story a hundred times in her mind before committing a single word to paper.
             </p>
-            <p>
-              She pressed on, even as the familiar doubt crept in. The story had been waiting too long.
-              <span
-                aria-hidden
-                className="inline-block align-[-0.12em] ml-0.5 bg-gray-900"
-                style={{ width: '2px', height: '1.05em', animation: 'meHeroCaret 1.06s steps(2, end) infinite' }}
-              />
+            <p className="mb-3.5 text-justify indent-[1.5em]">
+              <span style={{ background: 'linear-gradient(transparent 62%, rgba(64,112,255,.22) 62%)' }}>Sarah</span> pressed on, even as the familiar doubt crept in. The story had been waiting too long, and she could feel it in her bones like a forgotten promise.
             </p>
+            <p className="text-justify indent-[1.5em]">There was no going back now.</p>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="mt-auto px-5 py-3.5 border-t border-gray-200 bg-white/60 flex justify-between font-mono text-[11px] text-gray-400">
+          <span>Chapter Seven</span>
+          <span>172 / 312</span>
+        </footer>
       </div>
 
-      {/* The one Book Mind callout */}
-      <div
-        className="absolute -right-3 sm:-right-6 bottom-10 w-[228px] bg-white border border-gray-200 rounded-[14px] p-4"
-        style={{ boxShadow: '0 26px 42px -22px rgba(20,20,19,.30), 0 2px 4px rgba(20,20,19,.06)', transform: 'rotate(2deg)' }}
-      >
-        <div className="flex items-center gap-2 mb-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-700 ring-4 ring-amber-700/15" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700">Book Mind &middot; Inconsistency</span>
+      {/* Book Mind, reading the whole manuscript, in the same clean UI. */}
+      <div className="absolute -right-4 sm:-right-7 bottom-9 w-[244px] bg-white border border-gray-200/90 rounded-[16px] p-4 shadow-[0_26px_46px_-22px_rgba(20,20,19,.32),0_2px_6px_rgba(20,20,19,.06)]">
+        <div className="flex items-center gap-2 mb-2.5">
+          <span className="relative inline-flex w-1.5 h-1.5">
+            <span className="absolute inline-flex w-full h-full rounded-full bg-blue-500 opacity-60 animate-ping" />
+            <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-blue-500" />
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-600">Book Mind</span>
+          <span className="ml-auto text-[9px] font-semibold uppercase tracking-[0.14em] text-gray-400">Continuity</span>
         </div>
-        <h4 className="text-[13px] font-semibold text-gray-900 mb-1" style={{ letterSpacing: '-0.01em' }}>
+        <h4 className="text-[13.5px] font-semibold text-gray-900 mb-1" style={{ letterSpacing: '-0.01em' }}>
           Sarah&rsquo;s eyes changed colour
         </h4>
         <p className="text-[12px] leading-[1.5] text-gray-500 m-0" style={{ fontFamily: 'Georgia, serif' }}>
-          Chapter 3 says green, Chapter 7 says blue. Want to see both passages?
+          Green in Chapter 3, blue in Chapter 7. Want to see both passages?
         </p>
       </div>
-
-      <style>{`@keyframes meHeroCaret { 0%,50% { opacity: 1 } 50.01%,100% { opacity: 0 } }`}</style>
     </div>
   );
 }

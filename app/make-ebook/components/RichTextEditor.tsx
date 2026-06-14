@@ -875,7 +875,7 @@ export default function RichTextEditor({
 
   return (
     <div
-      className={`relative border-none rounded bg-white dark:bg-[#1e1e1e] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
+      className={`relative border-none rounded bg-white dark:bg-[#1e1e1e] me:bg-[var(--me-content)] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
       {/* Inline toast notification */}
@@ -886,7 +886,7 @@ export default function RichTextEditor({
       )}
 
       {/* Full Toolbar - Hidden on mobile when keyboard is open */}
-      {!hideToolbar && <div className={`bg-white dark:bg-[#262626] dark:border-b dark:border-[#2f2f2f] transition-all duration-200 overflow-visible ${
+      {!hideToolbar && <div className={`bg-white dark:bg-[#262626] border-b border-gray-200 dark:border-[#2f2f2f] transition-all duration-200 overflow-visible ${
         isMobileKeyboardOpen ? 'lg:block hidden' : ''
       }`}>
         {/* Sleek horizontal toolbar */}
@@ -1443,7 +1443,7 @@ export default function RichTextEditor({
         )}
         <div
           ref={editorRef}
-          className="editor-root p-6 text-base focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-y-auto flex-1 min-h-0 overflow-x-hidden text-gray-900 dark:text-white/80"
+          className="editor-root p-6 text-base focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-y-auto flex-1 min-h-0 overflow-x-hidden text-gray-900 dark:text-white/80 me:text-[var(--me-ink)]"
           style={{
             minHeight: Math.max(minHeight, 200),
             maxHeight: 'calc(100vh - 300px)',

@@ -11,14 +11,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Sparkles } from "lucide-react";
+import { LogOut, Sparkles, BookOpen, Moon, Sun, Check } from "lucide-react";
 import SubscriptionBadge from "./SubscriptionBadge";
 import ManageBillingButton from "./ManageBillingButton";
 import UpgradeModal from "./UpgradeModal";
 
 export function UserDropdownMobile() {
   const { user, signOut, loading } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { tier, isGrandfathered } = useSubscription();
   const [loggingOut, setLoggingOut] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
@@ -95,13 +95,20 @@ export function UserDropdownMobile() {
               <DropdownMenuSeparator />
             </>
           )}
-          <DropdownMenuItem onClick={toggleTheme}>
-            {theme === 'light' ? (
-              <img src="/moon-icon.svg" alt="Dark mode" className="mr-2 h-4 w-4" />
-            ) : (
-              <img src="/sun-icon.svg" alt="Light mode" className="mr-2 h-4 w-4 dark:invert" />
-            )}
-            <span>{theme === 'light' ? 'Dark mode' : 'Light mode'}</span>
+          <DropdownMenuItem onClick={() => setTheme('makeebook')}>
+            <BookOpen className="mr-2 h-4 w-4" />
+            <span>makeEbook</span>
+            {theme === 'makeebook' && <Check className="ml-auto h-4 w-4" />}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme('dark')}>
+            <Moon className="mr-2 h-4 w-4" />
+            <span>Dark</span>
+            {theme === 'dark' && <Check className="ml-auto h-4 w-4" />}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme('light')}>
+            <Sun className="mr-2 h-4 w-4" />
+            <span>Light</span>
+            {theme === 'light' && <Check className="ml-auto h-4 w-4" />}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

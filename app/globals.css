@@ -285,6 +285,19 @@ html.dark {
   --me-text-placeholder: #666666;
 }
 
+/* makeEbook mode — the editor's default theme: dark/charcoal chrome with a
+   cream paper writing surface. The dark chrome reuses the dark palette (the
+   sidebar gets a `.dark` wrapper), so this block only needs the paper content
+   tokens consumed by the `me:` utilities on the writing surfaces. */
+.makeebook {
+  --me-content:          #f7f4ea;
+  --me-content-raised:   #fffdf7;
+  --me-ink:              #2a2a28;
+  --me-ink-secondary:    #57534e;
+  --me-ink-muted:        #8a8378;
+  --me-paper-border:     rgba(0, 0, 0, 0.06);
+}
+
 /* Make borders much lighter for subtle divider lines */
 @layer base {
   * {

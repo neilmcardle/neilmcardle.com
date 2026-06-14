@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 
-type Theme = 'light' | 'dark';
+type Theme = 'light' | 'dark' | 'makeebook';
 
 interface ThemeContextType {
   theme: Theme;
@@ -14,11 +14,16 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-function applyThemeClass(resolved: 'light' | 'dark') {
+function applyThemeClass(resolved: Theme) {
   const html = document.documentElement;
-  html.classList.remove('dark');
+  html.classList.remove('dark', 'makeebook');
   if (resolved === 'dark') {
     html.classList.add('dark');
+  } else if (resolved === 'makeebook') {
+    // makeEbook composes the dark theme (so all chrome inherits dark styling and
+    // no light base ever leaks) plus `makeebook`, whose `me:` overrides turn only
+    // the writing surface to paper (me: beats dark: on selector specificity).
+    html.classList.add('dark', 'makeebook');
   }
 }
 
@@ -47,8 +52,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Signed-in users default to makeEbook (the editor's signature theme)
+    // unless they've explicitly chosen light or dark.
     const savedTheme = localStorage.getItem('theme');
-    const resolved: Theme = savedTheme === 'dark' ? 'dark' : 'light';
+    const resolved: Theme =
+      savedTheme === 'dark' ? 'dark' : savedTheme === 'light' ? 'light' : 'makeebook';
     setThemeState(resolved);
     applyThemeClass(resolved);
   }, [mounted, authLoading, user]);
@@ -56,7 +64,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const toggleTheme = () => {
     if (!user) return;
     setThemeState(prevTheme => {
-      const newTheme: Theme = prevTheme === 'light' ? 'dark' : 'light';
+      // Cycle makeEbook → dark → light → makeEbook.
+      const newTheme: Theme =
+        prevTheme === 'makeebook' ? 'dark' : prevTheme === 'dark' ? 'light' : 'makeebook';
       localStorage.setItem('theme', newTheme);
       applyThemeClass(newTheme);
       return newTheme;

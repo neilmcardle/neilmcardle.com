@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { LogOut, CreditCard, Sparkles } from 'lucide-react';
+import { LogOut, CreditCard, Sparkles, BookOpen, Moon, Sun, Check } from 'lucide-react';
 
 interface SlimSidebarNavProps {
   activeView: 'library' | 'book' | 'chapters' | null;
@@ -71,7 +71,7 @@ function Tooltip({ children, text }: { children: React.ReactNode; text: string }
 function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
   const { user, signOut, loading } = useAuth();
   const { tier, isGrandfathered, stripeCustomerId } = useSubscription();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [loggingOut, setLoggingOut] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
@@ -163,13 +163,20 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
               <DropdownMenuSeparator />
             </>
           )}
-          <DropdownMenuItem onClick={toggleTheme}>
-            {theme === 'light' ? (
-              <img src="/moon-icon.svg" alt="Dark mode" className="mr-2 h-4 w-4" />
-            ) : (
-              <img src="/sun-icon.svg" alt="Light mode" className="mr-2 h-4 w-4 dark:invert" />
-            )}
-            <span>{theme === 'light' ? 'Dark mode' : 'Light mode'}</span>
+          <DropdownMenuItem onClick={() => setTheme('makeebook')}>
+            <BookOpen className="mr-2 h-4 w-4" />
+            <span>makeEbook</span>
+            {theme === 'makeebook' && <Check className="ml-auto h-4 w-4" />}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme('dark')}>
+            <Moon className="mr-2 h-4 w-4" />
+            <span>Dark</span>
+            {theme === 'dark' && <Check className="ml-auto h-4 w-4" />}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme('light')}>
+            <Sun className="mr-2 h-4 w-4" />
+            <span>Light</span>
+            {theme === 'light' && <Check className="ml-auto h-4 w-4" />}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {showBillingButton && (
@@ -224,20 +231,21 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
 function ThemeToggleButton() {
   const { theme, toggleTheme } = useTheme();
 
-  const nextTheme = theme === 'light' ? 'dark' : 'light';
+  const label = theme === 'makeebook' ? 'makeEbook' : theme === 'dark' ? 'Dark' : 'Light';
 
   return (
-    <Tooltip text={`Switch to ${nextTheme} mode`}>
+    <Tooltip text={`Theme: ${label}`}>
       <button
         onClick={toggleTheme}
         className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
-        aria-label={`Switch to ${nextTheme} mode`}
+        aria-label={`Theme: ${label}. Click to change.`}
       >
         <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-          {theme === 'light'
-            ? <img src="/moon-icon.svg" alt="Dark mode" className="w-5 h-5" />
-            : <img src="/sun-icon.svg" alt="Light mode" className="w-5 h-5 dark:invert" />
-          }
+          {theme === 'makeebook'
+            ? <BookOpen className="w-5 h-5" />
+            : theme === 'dark'
+            ? <Moon className="w-5 h-5" />
+            : <Sun className="w-5 h-5" />}
         </div>
       </button>
     </Tooltip>

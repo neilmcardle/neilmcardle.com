@@ -36,9 +36,11 @@ export function ThemeAwareImage({
 }: ThemeAwareImageProps) {
   const { theme } = useTheme()
 
-  // Determine if we should use the dark variant
+  // Determine if we should use the dark variant. Both Dark and makeEbook have
+  // dark chrome (these icons live in the sidebar/header), so only Light mode
+  // uses the plain asset.
   const getImageSrc = () => {
-    if (theme !== 'dark') {
+    if (theme === 'light') {
       return src
     }
 
@@ -74,7 +76,7 @@ export function ThemeAwareImage({
       onClick={onClick}
       onError={(e) => {
         // If dark variant fails to load, fall back to original
-        if (theme === 'dark' && imageSrc !== src) {
+        if (theme !== 'light' && imageSrc !== src) {
           const target = e.target as HTMLImageElement
           target.src = src
         }

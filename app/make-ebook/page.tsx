@@ -2571,11 +2571,11 @@ function MakeEbookPage() {
                 // Empty editor state — mobile
                 <EmptyEditorState
                   onNewBook={handleNewBook}
-                  onOpenLibrary={() => setMobileSidebarOpen(true)}
-                  libraryCount={libraryBooks.length}
-                  libraryLoading={libraryLoading}
                   onPasteManuscript={handlePasteManuscript}
                   onUploadFile={docImport.showImportDialog}
+                  libraryBooks={libraryBooks}
+                  libraryLoading={libraryLoading}
+                  onOpenBook={(id) => library.handleLoadBook(id)}
                 />
               ) : (
               <>
@@ -2696,15 +2696,15 @@ function MakeEbookPage() {
                 // Empty editor state — desktop (shown when no book is loaded)
                 <EmptyEditorState
                   onNewBook={handleNewBook}
-                  onOpenLibrary={() => setSidebarView('library')}
-                  libraryCount={libraryBooks.length}
-                  libraryLoading={libraryLoading}
                   onPasteManuscript={handlePasteManuscript}
                   onUploadFile={docImport.showImportDialog}
+                  libraryBooks={libraryBooks}
+                  libraryLoading={libraryLoading}
+                  onOpenBook={(id) => library.handleLoadBook(id)}
                 />
               ) : (
               /* Editor Area — live preview now lives exclusively in EditorRightPanel */
-              <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2">
+              <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2 bg-white dark:bg-[#1e1e1e]">
                 <EditorHeader
                   isDirty={isDirty}
                   isSaving={isSaving}
