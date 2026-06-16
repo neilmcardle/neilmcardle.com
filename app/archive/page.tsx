@@ -158,7 +158,7 @@ function Row({ entry }: { entry: Entry }) {
 
 export default function ArchivePage() {
   return (
-    <div className="min-h-screen bg-[rgb(15,15,17)]">
+    <div className="min-h-screen bg-black">
       <div className="max-w-3xl mx-auto px-6 lg:px-10 pt-16 sm:pt-24 pb-24">
         <Link
           href="/"

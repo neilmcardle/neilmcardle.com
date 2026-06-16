@@ -374,6 +374,10 @@ export default function Strands({
       else stop();
     };
 
+    // Start animating immediately (inView defaults true). The observer only
+    // PAUSES the loop once the hero scrolls away. Gating the initial start on
+    // the observer firing left the canvas static on Safari/Firefox when that
+    // first callback was delayed or skipped.
     const io =
       typeof IntersectionObserver === 'function'
         ? new IntersectionObserver(
@@ -385,7 +389,6 @@ export default function Strands({
           )
         : null;
     if (io) {
-      inView = false;
       io.observe(ctn);
     }
 

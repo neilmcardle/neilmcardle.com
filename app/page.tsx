@@ -81,11 +81,8 @@ const FAQS: { q: string; a: string }[] = [
 ];
 
 export default function Homepage() {
-  // One source of truth for the scarcity line and the primary action, so the
+  // One source of truth for the scarcity badge and the primary action, so the
   // hero, pricing and final CTA stay in sync when the slot toggles.
-  const slotLine = AVAILABILITY.open
-    ? AVAILABILITY.openLine
-    : AVAILABILITY.fullLine;
   const slotBadge = AVAILABILITY.open
     ? AVAILABILITY.openBadge
     : AVAILABILITY.fullBadge;
@@ -95,7 +92,7 @@ export default function Homepage() {
 
   return (
     <>
-    <div className="min-h-screen bg-[rgb(15,15,17)] relative isolate overflow-hidden">
+    <div className="min-h-screen bg-black relative isolate overflow-hidden">
       {/* Hero ambience — antique-gold strands woven behind the name. Tuned low
           (muted saturation, restrained glow) so it reads as atmosphere, not a
           light show, and masked to fade into the page so the headline stays
@@ -136,12 +133,32 @@ export default function Homepage() {
         aria-hidden="true"
         style={{
           background:
-            "radial-gradient(68% 46% at 50% 24%, rgba(15,15,17,0.78) 0%, rgba(15,15,17,0.35) 48%, transparent 74%)",
+            "radial-gradient(68% 46% at 50% 24%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 48%, transparent 74%)",
         }}
       />
 
       <div className="home-prose relative z-10 max-w-6xl mx-auto pl-6 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pt-12 sm:pt-24 lg:pt-12 pb-20">
         <header className="mb-24 sm:mb-32 pt-4 sm:pt-10 flex flex-col items-center text-center">
+          {/* Golden N logomark — Neil's own mark (one shape rotated). */}
+          <svg
+            width="34"
+            height="34"
+            viewBox="0 0 78 78"
+            fill="none"
+            role="img"
+            aria-label="Neil McArdle"
+            className="mb-10"
+          >
+            <path
+              d="M0,0v76.8c0,.5.4,1,1,1h37c.5,0,1-.4,1-1v-37.8L0,0Z"
+              fill="#9e9482"
+            />
+            <path
+              d="M78,78V1.2c0-.5-.4-1-1-1h-37c-.5,0-1,.4-1,1v37.8l39,39Z"
+              fill="#9e9482"
+            />
+          </svg>
+
           {/* Avatar — small, circular, the profile-card cue. */}
           <div className="relative mb-8">
             <Image
@@ -153,7 +170,7 @@ export default function Homepage() {
               className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover grayscale"
             />
             <span
-              className={`absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full ring-2 ring-[rgb(15,15,17)] ${
+              className={`absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full ring-2 ring-black ${
                 AVAILABILITY.open ? "bg-emerald-400" : "bg-tan/60"
               }`}
               aria-hidden="true"
@@ -163,9 +180,9 @@ export default function Homepage() {
           <h1
             className="text-cream"
             style={{
-              fontFamily: "var(--font-geist-mono)",
+              fontFamily: "var(--font-cantarell)",
               fontSize: "clamp(2.75rem, 9vw, 5rem)",
-              fontWeight: 400,
+              fontWeight: 700,
               letterSpacing: "-0.02em",
               lineHeight: 1.05,
             }}
@@ -174,13 +191,16 @@ export default function Homepage() {
           </h1>
 
           <p
-            className="mt-5 text-cream"
+            className="mt-5 text-cream/90"
             style={{
-              fontFamily: "var(--font-geist-mono)",
-              fontSize: "clamp(1.5rem, 3.4vw, 2.25rem)",
-              fontWeight: 200,
+              fontFamily: "var(--font-cantarell)",
+              // No min floor and nowrap, so it scales down to stay on one line on
+              // narrow screens and caps at 2.25rem on wide ones.
+              fontSize: "min(2.25rem, 5vw)",
+              fontWeight: 400,
               letterSpacing: "-0.01em",
               lineHeight: 1.1,
+              whiteSpace: "nowrap",
             }}
           >
             I design it, then I build it.
@@ -189,20 +209,26 @@ export default function Homepage() {
           <div className="mt-9 flex flex-col items-center gap-5">
             <a
               href="#pricing"
-              className="gold-btn group inline-flex items-center gap-3 pl-7 pr-2.5 py-2.5 rounded-full"
+              className="gold-btn group inline-flex items-center gap-4 pl-6 pr-2 py-2 rounded-full"
               style={{
-                fontFamily: "var(--font-geist-mono)",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
+                fontFamily: "var(--font-inter)",
+                fontSize: "1.125rem",
+                fontWeight: 400,
+                letterSpacing: "0.01em",
+                textTransform: "none",
               }}
             >
               <span>{ctaLabel}</span>
-              <span className="gold-btn-badge w-7 h-7">
-                <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M13 5l7 7-7 7" />
-                </svg>
+              <span className="gold-btn-badge w-11 h-11">
+                {/* Straight face by default, smiles on hover. */}
+                <span className="relative inline-block w-[17px] h-[20px]" aria-hidden="true">
+                  <svg className="absolute inset-x-0 top-0 w-[17px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-100 group-hover:opacity-0" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 8.40039C10.3314 8.40039 10.5996 8.66863 10.5996 9C10.5996 9.33137 10.3314 9.59961 10 9.59961H1C0.668629 9.59961 0.400391 9.33137 0.400391 9C0.400391 8.66863 0.668629 8.40039 1 8.40039H10ZM1 0C1.55228 0 2 0.447715 2 1C2 1.55228 1.55228 2 1 2C0.447715 2 0 1.55228 0 1C0 0.447715 0.447715 0 1 0ZM10 0C10.5523 0 11 0.447715 11 1C11 1.55228 10.5523 2 10 2C9.44772 2 9 1.55228 9 1C9 0.447715 9.44772 0 10 0Z" fill="currentColor" />
+                  </svg>
+                  <svg className="absolute inset-x-0 top-0 w-[17px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-0 group-hover:opacity-100" viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.09492 8.67578C9.27398 8.39724 9.64535 8.31644 9.92402 8.49512C10.2027 8.67426 10.2837 9.0455 10.1047 9.32422C7.76261 12.9671 2.43686 12.9672 0.0949165 9.32422C-0.0837913 9.04565 -0.00270264 8.6743 0.275581 8.49512C0.554216 8.31618 0.925485 8.39731 1.10468 8.67578C2.97429 11.5837 7.22518 11.5835 9.09492 8.67578ZM1.5998 0C2.15208 0 2.5998 0.447715 2.5998 1C2.5998 1.55228 2.15208 2 1.5998 2C1.04774 1.99974 0.599799 1.55212 0.599799 1C0.599799 0.447876 1.04774 0.000260416 1.5998 0ZM8.5998 0C9.15208 0 9.5998 0.447715 9.5998 1C9.5998 1.55228 9.15208 2 8.5998 2C8.04774 1.99974 7.5998 1.55212 7.5998 1C7.5998 0.447876 8.04774 0.000260416 8.5998 0Z" fill="currentColor" />
+                  </svg>
+                </span>
               </span>
             </a>
             <p
@@ -262,11 +288,11 @@ export default function Homepage() {
             >
               Selected clients
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-cream/55">
+            <div className="flex flex-col items-center gap-2.5 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-2 text-cream/55">
               {CLIENTS.map((c, i) => (
-                <span key={c.name} className="inline-flex items-center gap-x-6">
+                <span key={c.name} className="flex items-center sm:gap-x-6">
                   {i > 0 && (
-                    <span className="w-1 h-1 rounded-full bg-tan/40" aria-hidden="true" />
+                    <span className="hidden sm:block w-1 h-1 rounded-full bg-tan/40" aria-hidden="true" />
                   )}
                   <span
                     style={{
@@ -353,29 +379,17 @@ export default function Homepage() {
             <div className="p-8 sm:p-10">
               {/* Header: plan name + pause pill */}
               <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3
-                    className="text-cream"
-                    style={{
-                      fontFamily: "var(--font-geist-mono)",
-                      fontSize: "1.75rem",
-                      fontWeight: 400,
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    Monthly
-                  </h3>
-                  <p
-                    className="mt-1.5 text-tan"
-                    style={{
-                      fontFamily: "var(--font-inter)",
-                      fontSize: "0.875rem",
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    One client at a time. When the slot's yours, it's yours.
-                  </p>
-                </div>
+                <h3
+                  className="text-cream"
+                  style={{
+                    fontFamily: "var(--font-geist-mono)",
+                    fontSize: "1.75rem",
+                    fontWeight: 400,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  Monthly
+                </h3>
                 <span
                   className="shrink-0 rounded-full px-3 py-1.5 text-gold border border-gold/30 bg-gold/10"
                   style={{
@@ -388,6 +402,16 @@ export default function Homepage() {
                   Pause anytime
                 </span>
               </div>
+              <p
+                className="mt-2.5 text-tan"
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "0.875rem",
+                  lineHeight: 1.5,
+                }}
+              >
+                One client at a time. When the slot&apos;s yours, it&apos;s yours.
+              </p>
 
               {/* Dotted divider */}
               <div className="my-7 border-t border-dashed border-white/15" />
@@ -471,13 +495,13 @@ export default function Homepage() {
               {/* CTA — full width, inverts on hover like the rest of the site. */}
               <a
                 href={ctaHref}
-                className="gold-btn group mt-8 flex w-full items-center justify-center gap-3 rounded-full px-8 py-4"
+                className="gold-btn group mt-8 mx-auto flex w-fit items-center gap-3 rounded-full pl-5 pr-2.5 py-2.5"
                 style={{
-                  fontFamily: "var(--font-geist-mono)",
-                  fontSize: "0.8125rem",
-                  fontWeight: 600,
-                  letterSpacing: "0.13em",
-                  textTransform: "uppercase",
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "0.875rem",
+                  fontWeight: 400,
+                  letterSpacing: "0.01em",
+                  textTransform: "none",
                 }}
               >
                 <span>{ctaLabel}</span>
@@ -537,7 +561,7 @@ export default function Homepage() {
         {/* Final CTA */}
         <section className="mb-24 text-center">
           <h2
-            className="text-cream mb-4"
+            className="text-cream mb-8"
             style={{
               fontFamily: "var(--font-geist-mono)",
               fontSize: "clamp(2rem, 6vw, 3.25rem)",
@@ -548,25 +572,15 @@ export default function Homepage() {
           >
             Got something to ship?
           </h2>
-          <p
-            className="text-cream/70 mb-8"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "1.0625rem",
-              lineHeight: 1.5,
-            }}
-          >
-            {slotLine} Two minutes to your first request.
-          </p>
           <a
             href={ctaHref}
-            className="gold-btn group relative inline-flex items-center justify-center gap-3 pl-8 pr-2.5 py-3.5 rounded-full"
+            className="gold-btn group relative inline-flex items-center justify-center gap-3 pl-5 pr-2.5 py-3.5 rounded-full"
             style={{
-              fontFamily: "var(--font-geist-mono)",
-              fontSize: "0.8125rem",
-              fontWeight: 600,
-              letterSpacing: "0.13em",
-              textTransform: "uppercase",
+              fontFamily: "var(--font-inter)",
+              fontSize: "0.875rem",
+              fontWeight: 400,
+              letterSpacing: "0.01em",
+              textTransform: "none",
             }}
           >
             <span>{ctaLabel}</span>

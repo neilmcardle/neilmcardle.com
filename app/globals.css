@@ -1537,68 +1537,31 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   box-shadow: none;
 }
 .home-prose .gold-btn {
-  /* Light champagne gold with near-black text. */
-  color: #131312;
-  background: #cfc0a5;
-  border: 1px solid rgba(0, 0, 0, 0.16);
+  /* Figma button shape (black pill, 1px border, label + gradient badge circle
+     with arrow) in the warm gold palette instead of cyan. */
+  color: #fff;
+  background: #000;
+  border: 1px solid var(--gold);
   box-shadow: none;
-  overflow: hidden;
 }
 .home-prose .gold-btn:hover {
   filter: none;
-  background: #c2b395;
+  background: #000;
+  box-shadow: 0 0 22px -8px rgba(216, 180, 106, 0.6);
 }
 .home-prose .gold-btn:active {
   transform: translateY(1px);
   box-shadow: none;
 }
 .home-prose .gold-btn-badge {
-  background: #131312;
+  background: rgba(216, 180, 106, 0.8);
+  border: 1px solid rgba(216, 180, 106, 0.35);
+  color: #131312;
+  transition: background-color 240ms ease, border-color 240ms ease;
 }
-
-/* Star border — the React Bits sweep (github.com/ansh-dhanani) adapted onto the
-   gold CTA: two soft light blobs orbit the top and bottom edges. Keep the label
-   and badge above the sweep. */
-.home-prose .gold-btn > * {
-  position: relative;
-  z-index: 1;
-}
-.home-prose .gold-btn::before,
-.home-prose .gold-btn::after {
-  content: "";
-  position: absolute;
-  width: 300%;
-  height: 50%;
-  border-radius: 50%;
-  opacity: 0.7;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(circle, rgba(255, 250, 240, 0.9), transparent 10%);
-}
-.home-prose .gold-btn::after {
-  bottom: -12px;
-  right: -250%;
-  animation: star-movement-bottom 6s linear infinite alternate;
-}
-.home-prose .gold-btn::before {
-  top: -12px;
-  left: -250%;
-  animation: star-movement-top 6s linear infinite alternate;
-}
-@keyframes star-movement-bottom {
-  0% { transform: translate(0%, 0%); opacity: 1; }
-  100% { transform: translate(-100%, 0%); opacity: 0; }
-}
-@keyframes star-movement-top {
-  0% { transform: translate(0%, 0%); opacity: 1; }
-  100% { transform: translate(100%, 0%); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .home-prose .gold-btn::before,
-  .home-prose .gold-btn::after {
-    animation: none;
-    opacity: 0;
-  }
+.home-prose .gold-btn:hover .gold-btn-badge {
+  background: var(--gold);
+  border-color: var(--gold);
 }
 
 /* Product tiles in the homepage Work grid: the glass logomark must read at rest,

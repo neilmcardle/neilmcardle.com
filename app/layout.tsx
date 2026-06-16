@@ -13,6 +13,14 @@ import ClientFooterWrapper from "@/components/ClientFooterWrapper";
 import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";
 import { GeistMono } from "geist/font/mono";
+import { Cantarell } from "next/font/google";
+
+const cantarell = Cantarell({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-cantarell",
+  display: "swap",
+});
 
 const TITLE = "Neil McArdle · Product Designer";
 const DESCRIPTION =
@@ -78,7 +86,7 @@ const personSchema = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={GeistMono.variable}>
+    <html lang="en" className={`${GeistMono.variable} ${cantarell.variable}`}>
       <body className="font-sans" style={{ fontFamily: 'var(--font-inter)' }}>
         <script
           type="application/ld+json"
