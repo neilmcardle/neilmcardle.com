@@ -219,13 +219,13 @@ export default function Homepage() {
               }}
             >
               <span>{ctaLabel}</span>
-              <span className="gold-btn-badge w-11 h-11">
+              <span className="gold-btn-badge w-7 h-7">
                 {/* Straight face by default, smiles on hover. */}
-                <span className="relative inline-block w-[17px] h-[20px]" aria-hidden="true">
-                  <svg className="absolute inset-x-0 top-0 w-[17px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-100 group-hover:opacity-0" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <span className="relative inline-block w-[11px] h-[13px]" aria-hidden="true">
+                  <svg className="face-straight absolute inset-x-0 top-0 w-[11px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-100 group-hover:opacity-0" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10 8.40039C10.3314 8.40039 10.5996 8.66863 10.5996 9C10.5996 9.33137 10.3314 9.59961 10 9.59961H1C0.668629 9.59961 0.400391 9.33137 0.400391 9C0.400391 8.66863 0.668629 8.40039 1 8.40039H10ZM1 0C1.55228 0 2 0.447715 2 1C2 1.55228 1.55228 2 1 2C0.447715 2 0 1.55228 0 1C0 0.447715 0.447715 0 1 0ZM10 0C10.5523 0 11 0.447715 11 1C11 1.55228 10.5523 2 10 2C9.44772 2 9 1.55228 9 1C9 0.447715 9.44772 0 10 0Z" fill="currentColor" />
                   </svg>
-                  <svg className="absolute inset-x-0 top-0 w-[17px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-0 group-hover:opacity-100" viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg className="face-smile absolute inset-x-0 top-0 w-[11px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-0 group-hover:opacity-100" viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9.09492 8.67578C9.27398 8.39724 9.64535 8.31644 9.92402 8.49512C10.2027 8.67426 10.2837 9.0455 10.1047 9.32422C7.76261 12.9671 2.43686 12.9672 0.0949165 9.32422C-0.0837913 9.04565 -0.00270264 8.6743 0.275581 8.49512C0.554216 8.31618 0.925485 8.39731 1.10468 8.67578C2.97429 11.5837 7.22518 11.5835 9.09492 8.67578ZM1.5998 0C2.15208 0 2.5998 0.447715 2.5998 1C2.5998 1.55228 2.15208 2 1.5998 2C1.04774 1.99974 0.599799 1.55212 0.599799 1C0.599799 0.447876 1.04774 0.000260416 1.5998 0ZM8.5998 0C9.15208 0 9.5998 0.447715 9.5998 1C9.5998 1.55228 9.15208 2 8.5998 2C8.04774 1.99974 7.5998 1.55212 7.5998 1C7.5998 0.447876 8.04774 0.000260416 8.5998 0Z" fill="currentColor" />
                   </svg>
                 </span>

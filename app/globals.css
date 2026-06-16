@@ -1564,6 +1564,21 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   border-color: var(--gold);
 }
 
+/* Touch devices have no hover, so the straight->smile swap can never fire.
+   Show the smiling, gold-badge state by default there instead. */
+@media (hover: none) {
+  .home-prose .gold-btn .face-straight {
+    opacity: 0;
+  }
+  .home-prose .gold-btn .face-smile {
+    opacity: 1;
+  }
+  .home-prose .gold-btn-badge {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+}
+
 /* Product tiles in the homepage Work grid: the glass logomark must read at rest,
    not only on hover (the default hides the bright overlay on hover-capable
    desktops, leaving a dark logo on a dark tile). Force the cream logomark on and
