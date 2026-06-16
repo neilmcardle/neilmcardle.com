@@ -12,6 +12,7 @@ import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import ClientFooterWrapper from "@/components/ClientFooterWrapper";
 import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";
+import { GeistMono } from "geist/font/mono";
 
 const TITLE = "Neil McArdle · Product Designer";
 const DESCRIPTION =
@@ -77,7 +78,7 @@ const personSchema = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={GeistMono.variable}>
       <body className="font-sans" style={{ fontFamily: 'var(--font-inter)' }}>
         <script
           type="application/ld+json"

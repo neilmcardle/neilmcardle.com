@@ -1517,6 +1517,101 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   animation: project-card-trace 3.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Homepage flat pass — the personal portfolio drops the neumorphic depth (raised
+   gradients, inset highlights, drop shadows, gold glow) for a calmer, flatter
+   editorial surface. Scoped to .home-prose so the /design system page and other
+   surfaces keep the original soft-UI treatment. */
+.home-prose .soft-card {
+  background: #161618;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+.home-prose .soft-inset {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: none;
+}
+.home-prose .icon-chip {
+  background: rgba(216, 180, 106, 0.1);
+  border: 1px solid rgba(216, 180, 106, 0.22);
+  box-shadow: none;
+}
+.home-prose .gold-btn {
+  /* Light champagne gold with near-black text. */
+  color: #131312;
+  background: #cfc0a5;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  box-shadow: none;
+  overflow: hidden;
+}
+.home-prose .gold-btn:hover {
+  filter: none;
+  background: #c2b395;
+}
+.home-prose .gold-btn:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+.home-prose .gold-btn-badge {
+  background: #131312;
+}
+
+/* Star border — the React Bits sweep (github.com/ansh-dhanani) adapted onto the
+   gold CTA: two soft light blobs orbit the top and bottom edges. Keep the label
+   and badge above the sweep. */
+.home-prose .gold-btn > * {
+  position: relative;
+  z-index: 1;
+}
+.home-prose .gold-btn::before,
+.home-prose .gold-btn::after {
+  content: "";
+  position: absolute;
+  width: 300%;
+  height: 50%;
+  border-radius: 50%;
+  opacity: 0.7;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 250, 240, 0.9), transparent 10%);
+}
+.home-prose .gold-btn::after {
+  bottom: -12px;
+  right: -250%;
+  animation: star-movement-bottom 6s linear infinite alternate;
+}
+.home-prose .gold-btn::before {
+  top: -12px;
+  left: -250%;
+  animation: star-movement-top 6s linear infinite alternate;
+}
+@keyframes star-movement-bottom {
+  0% { transform: translate(0%, 0%); opacity: 1; }
+  100% { transform: translate(-100%, 0%); opacity: 0; }
+}
+@keyframes star-movement-top {
+  0% { transform: translate(0%, 0%); opacity: 1; }
+  100% { transform: translate(100%, 0%); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-prose .gold-btn::before,
+  .home-prose .gold-btn::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Product tiles in the homepage Work grid: the glass logomark must read at rest,
+   not only on hover (the default hides the bright overlay on hover-capable
+   desktops, leaving a dark logo on a dark tile). Force the cream logomark on and
+   let the wrapper width drive the tile size instead of the 220px cap. */
+.home-prose .hpp-frame--glass {
+  max-width: 100%;
+}
+.home-prose .hpp-logo-bright {
+  opacity: 1;
+}
+
 /* Gold rim glint for dark surfaces (the portrait card). Unlike the hover-only
    CTA trace, this one RESTS visible: a single gold highlight sits in the
    top-left corner of the rim (the bright conic stop lands at ~315deg while

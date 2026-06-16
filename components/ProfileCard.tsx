@@ -46,25 +46,24 @@ export default function ProfileCard({ clients }: { clients: Client[] }) {
 
   return (
     <div className="relative w-full aspect-square">
-      <div className="soft-card gold-trace absolute inset-0 overflow-hidden rounded-[1.75rem]">
+      <div className="absolute inset-0 overflow-hidden rounded-[1.75rem]">
         <Image
           src="/me.png"
           alt="Neil McArdle"
           fill
           sizes="(max-width: 1024px) 440px, 520px"
           className="object-cover grayscale contrast-125"
+          // Feather the portrait into the page (heavier on the left, toward the
+          // strands) so it emerges from the dark instead of sitting in a hard
+          // card, and the hero animation can bleed around it.
+          style={{
+            maskImage:
+              "radial-gradient(125% 115% at 63% 40%, #000 56%, transparent 100%)",
+            WebkitMaskImage:
+              "radial-gradient(125% 115% at 63% 40%, #000 56%, transparent 100%)",
+          }}
           priority
         />
-        {/* "Thinking..." label — LLM streaming aesthetic, a nod to the AI work. */}
-        <div
-          className="absolute top-5 left-5 flex items-center gap-2"
-          style={{ fontFamily: "var(--font-inter)" }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-cream/80 animate-pulse" />
-          <span className="thinking-shimmer text-[11px] font-medium tracking-wide">
-            Thinking...
-          </span>
-        </div>
         {/* Social icons — floated bottom-right over the photo. */}
         <div
           className="absolute bottom-5 right-5 flex items-center gap-5"
