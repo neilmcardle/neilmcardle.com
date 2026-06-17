@@ -108,8 +108,11 @@ export default function Homepage() {
   return (
     <>
     <div className="min-h-screen bg-black relative isolate overflow-hidden">
+      {/* Hero ambience — side rays, masked to fade into the page. Desktop and
+          mobile render separately so each can be tuned for its viewport; only
+          the visible one spins up WebGL (the hidden one is display:none). */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[760px]"
+        className="hidden sm:block pointer-events-none absolute inset-x-0 top-0 z-0 h-[760px]"
         aria-hidden="true"
         style={{
           maskImage:
@@ -125,10 +128,37 @@ export default function Homepage() {
           speed={1}
           intensity={4}
           spread={2}
-          saturation={.8}
+          saturation={0.8}
           blend={0.6}
           falloff={1.6}
           opacity={0.8}
+        />
+      </div>
+
+      {/* Mobile SideRays — dialed well down because iPhone wide-gamut (P3)
+          displays render this gold much brighter than a desktop sRGB preview,
+          which otherwise washes the hero out. Tune independently of desktop. */}
+      <div
+        className="sm:hidden pointer-events-none absolute inset-x-0 top-0 z-0 h-[520px]"
+        aria-hidden="true"
+        style={{
+          maskImage:
+            "linear-gradient(to bottom, rgba(0,0,0,0.9) 25%, rgba(0,0,0,0) 90%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, rgba(0,0,0,0.9) 25%, rgba(0,0,0,0) 90%)",
+        }}
+      >
+        <SideRays
+          origin="top-left"
+          rayColor1="#e5b945"
+          rayColor2="#9e9482"
+          speed={1}
+          intensity={1.2}
+          spread={2.4}
+          saturation={0.6}
+          blend={0.6}
+          falloff={1.9}
+          opacity={0.45}
         />
       </div>
 
