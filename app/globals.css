@@ -1557,7 +1557,7 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 }
 .home-prose .gold-btn-badge {
   /* Yellow at rest and on hover; only the face changes (straight -> smile). */
-  background: #e5b945;
+  background: #ad9760;
   border: 1px solid #e5b945;
   color: #131312;
   transition: background-color 240ms ease, border-color 240ms ease;

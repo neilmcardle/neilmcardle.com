@@ -200,7 +200,7 @@ export default function Homepage() {
           {/* Identity line + the design⇄code mark, small. The positioning
               headline is the loud element now, not the name. */}
           <div
-            className="mb-6 flex items-center gap-3"
+            className="mb-6 flex items-center gap-3 sm:flex-col sm:gap-1.5"
             style={{
               fontFamily: "var(--font-geist-mono)",
               fontSize: "1.2em",
@@ -209,7 +209,7 @@ export default function Homepage() {
             }}
           >
             <span className="text-cream/80">Neil McArdle</span>
-            <span className="w-1 h-1 rounded-full bg-tan/40" aria-hidden="true" />
+            <span className="w-1 h-1 rounded-full bg-tan/40 sm:hidden" aria-hidden="true" />
             <span className="text-gold">
               design{" "}
               <span className="text-white">&#8644;</span>{" "}
@@ -243,7 +243,7 @@ export default function Homepage() {
           </p>
 
           <div className="mt-9 flex flex-col items-center gap-5">
-            <CtaButton href="#pricing" label={ctaLabel} />
+            <CtaButton href={ctaHref} label={ctaLabel} />
           </div>
 
           <nav
