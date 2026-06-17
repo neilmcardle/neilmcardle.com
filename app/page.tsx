@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
 import Strands from "@/components/Strands";
 import GradualBlur from "@/components/GradualBlur";
+import BorderGlow from "@/components/BorderGlow";
 
 // Destination for the Subscribe buttons, the live Stripe Payment Link for the
 // digital design and build subscription (£5,000/mo + VAT, price
@@ -203,7 +204,7 @@ export default function Homepage() {
               whiteSpace: "nowrap",
             }}
           >
-            I design it, then I build it.
+            design⇄code
           </p>
 
           <div className="mt-9 flex flex-col items-center gap-5">
@@ -701,19 +702,31 @@ function ProductFeature({
   reverse?: boolean;
 }) {
   const mediaInner = (
-    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-[#1b1b1f] to-[#0b0b0d] flex items-center justify-center">
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(56% 56% at 50% 44%, rgba(216,180,106,0.14), transparent 72%)",
-        }}
-        aria-hidden="true"
-      />
-      <div className="relative w-[44%] max-w-[230px] drop-shadow-[0_26px_55px_rgba(0,0,0,0.7)] transition-transform duration-500 ease-out group-hover:scale-[1.05]">
-        <HomepageProjectPreview k={tileKey} />
+    <BorderGlow
+      className="block w-full"
+      backgroundColor="#0d0d0f"
+      borderRadius={16}
+      glowColor="40 62 64"
+      glowRadius={34}
+      glowIntensity={1}
+      edgeSensitivity={32}
+      coneSpread={22}
+      colors={["#f0d091", "#d8b46a", "#b8923f"]}
+    >
+      <div className="relative aspect-[4/3] flex items-center justify-center">
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(56% 56% at 50% 44%, rgba(216,180,106,0.14), transparent 72%)",
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative w-[44%] max-w-[230px] drop-shadow-[0_26px_55px_rgba(0,0,0,0.7)] transition-transform duration-500 ease-out group-hover:scale-[1.05]">
+          <HomepageProjectPreview k={tileKey} />
+        </div>
       </div>
-    </div>
+    </BorderGlow>
   );
 
   const mediaCls = `block ${reverse ? "md:order-2" : ""}`;
