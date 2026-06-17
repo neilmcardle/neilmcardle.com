@@ -728,13 +728,7 @@ export default function Homepage() {
   );
 }
 
-// A large, image-forward work card. Client pieces show a brand image; product
-// pieces show the glass product tile centred on a dark panel. Caption sits below
-// the media (title, discipline, one line), with an optional testimonial pull
-// quote and App Store link. The whole media+caption is the link when href is set.
-// A large, alternating product feature row. The glass product tile sits on one
-// side, the write-up on the other, sides swapping via `reverse`. Used for the
-// two flagship products now that Work leads with them, not a grid of cards.
+
 function ProductFeature({
   tileKey,
   category,
@@ -894,8 +888,6 @@ function ProductFeature({
   );
 }
 
-// The primary CTA: gold pill, Inter label, and the smiley badge that smiles on
-// hover. Shared by the hero, pricing and final CTAs so they stay identical.
 function CtaButton({
   href,
   label,
@@ -937,9 +929,7 @@ function CtaButton({
   );
 }
 
-// Per-section glyph for the gold icon chip beside each section title, matching
-// the soft-UI sheet (lightbulb for "why", gear for process, etc.). Falls back
-// to a small plus mark so a new section without a mapped icon still renders.
+
 function SectionIcon({ label }: { label: string }) {
   const common = {
     width: 16,
