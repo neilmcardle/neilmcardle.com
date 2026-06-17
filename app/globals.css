@@ -1537,33 +1537,34 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   box-shadow: none;
 }
 .home-prose .gold-btn {
-  /* Black pill, label + badge circle with arrow. Border is gold by default and
-     turns white on hover; the badge circle is white by default and turns gold. */
+  /* Black pill with a yellow border and a yellow badge circle. On hover the
+     straight face simply smiles; the colours stay yellow. */
   color: #fff;
   background: #000;
-  border: 1px solid var(--gold);
+  border: 1px solid #e5b945;
   box-shadow: none;
   transition: border-color 240ms ease, box-shadow 200ms ease;
 }
 .home-prose .gold-btn:hover {
   filter: none;
   background: #000;
-  border-color: #fff;
-  box-shadow: 0 0 22px -8px rgba(216, 180, 106, 0.6);
+  border-color: #e5b945;
+  box-shadow: 0 0 22px -8px rgba(229, 185, 69, 0.6);
 }
 .home-prose .gold-btn:active {
   transform: translateY(1px);
   box-shadow: none;
 }
 .home-prose .gold-btn-badge {
-  background: #fff;
-  border: 1px solid #fff;
+  /* Yellow at rest and on hover; only the face changes (straight -> smile). */
+  background: #e5b945;
+  border: 1px solid #e5b945;
   color: #131312;
   transition: background-color 240ms ease, border-color 240ms ease;
 }
 .home-prose .gold-btn:hover .gold-btn-badge {
-  background: var(--gold);
-  border-color: var(--gold);
+  background: #e5b945;
+  border-color: #e5b945;
 }
 
 /* Touch devices have no hover, so the straight->smile swap can never fire.
@@ -1576,8 +1577,8 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
     opacity: 1;
   }
   .home-prose .gold-btn-badge {
-    background: var(--gold);
-    border-color: var(--gold);
+    background: #e5b945;
+    border-color: #e5b945;
   }
 }
 
