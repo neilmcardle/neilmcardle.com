@@ -1,38 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
-import Strands from "@/components/Strands";
+import Orb from "@/components/Orb";
 import GradualBlur from "@/components/GradualBlur";
 import BorderGlow from "@/components/BorderGlow";
 
-// Destination for the Subscribe buttons, the live Stripe Payment Link for the
-// digital design and build subscription (£5,000/mo + VAT, price
-// price_1TdomGQgnBfGbp9Oy6ukuZX4). Hosted checkout keeps the promise of
-// "email, payment, you're in, two minutes" with no backend.
 const SUBSCRIBE_URL = "https://buy.stripe.com/9B600l7XfblGdOxgk8fIs01";
 
-// Where the CTA points when the slot is full. A plain mailto waitlist keeps it
-// honest and backend-free.
 const WAITLIST_URL = "mailto:neil@neilmcardle.com?subject=Join%20the%20waitlist";
 
-// Single editable price. Quoted ex-VAT because the buyer is a business that
-// reclaims it. Raise once two case studies and a waitlist exist.
 const PRICE = { amount: "£5,000", suffix: "+ VAT" } as const;
 
-// Availability is real scarcity, one client at a time. Toggle `open` by hand
-// when the slot is taken; the hero, pricing and final CTA all read from here so
-// they never drift. Only ever set `open: true` when the slot is genuinely open.
 const AVAILABILITY = {
   open: true,
-  // Short status for the hero pill badge.
   openBadge: "Slot open now",
   fullBadge: "Currently full",
-  // Fuller line used in the final CTA sentence.
   openLine: "One client at a time. One slot open now.",
   fullLine: "One client at a time. Currently full, join the waitlist.",
 } as const;
-
-
 
 const CLIENTS: { name: string; note: string }[] = [
   { name: "Avis Budget Group", note: "Product design" },
@@ -116,7 +101,7 @@ const FAQS: { q: string; a: string }[] = [
 ];
 
 export default function Homepage() {
-  const ctaLabel = AVAILABILITY.open ? "Work with me" : "Join the waitlist";
+  const ctaLabel = AVAILABILITY.open ? "Let's work together" : "Join the waitlist";
   const ctaHref = AVAILABILITY.open ? SUBSCRIBE_URL : WAITLIST_URL;
 
 
@@ -124,36 +109,7 @@ export default function Homepage() {
     <>
     <div className="min-h-screen bg-black relative isolate overflow-hidden">
       {}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[760px]"
-        aria-hidden="true"
-        style={{
-          maskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,0.95) 30%, rgba(0,0,0,0) 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,0.95) 30%, rgba(0,0,0,0) 100%)",
-        }}
-      >
-        <Strands
-          colors={["#f0d091", "#d8b46a", "#b8923f", "#9e9482"]}
-          count={3}
-          speed={0.32}
-          amplitude={1}
-          waviness={1}
-          thickness={0.55}
-          glow={1.6}
-          taper={3.4}
-          spread={1.1}
-          intensity={0.32}
-          saturation={0.8}
-          opacity={0.4}
-          scale={1.7}
-          glass={false}
-        />
-      </div>
-
-      {/* Legibility scrim — darkens the centre where the hero text sits so the
-          strands read as a glow around the copy, never through it. */}
+      
       <div
         className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[760px]"
         aria-hidden="true"
@@ -165,7 +121,6 @@ export default function Homepage() {
 
       <div className="home-prose relative z-10 max-w-6xl mx-auto pl-6 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pt-12 sm:pt-24 lg:pt-12 pb-20">
         <header className="mb-24 sm:mb-32 pt-4 sm:pt-10 flex flex-col items-center text-center">
-          {/* Golden N logomark — Neil's own mark (one shape rotated). */}
           <svg
             width="34"
             height="34"
@@ -185,7 +140,6 @@ export default function Homepage() {
             />
           </svg>
 
-          {/* Avatar — small, circular, the profile-card cue. */}
           <div className="relative mb-8">
             <Image
               src="/me.png"
@@ -197,55 +151,51 @@ export default function Homepage() {
             />
           </div>
 
-          {/* Identity line + the design⇄code mark, small. The positioning
-              headline is the loud element now, not the name. */}
-          <div
-            className="mb-6 flex items-center gap-3 sm:flex-col sm:gap-1.5"
+          <h1
+            className="text-cream"
+            style={{
+              fontFamily: "var(--font-cantarell)",
+              fontSize: "clamp(2.5rem, 8vw, 4.25rem)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              lineHeight: 1,
+            }}
+          >
+            Neil McArdle
+          </h1>
+
+          <p
+            className="mt-4 text-tan"
             style={{
               fontFamily: "var(--font-geist-mono)",
-              fontSize: "1.2em",
+              fontSize: "0.8125rem",
               letterSpacing: "0.13em",
               textTransform: "uppercase",
             }}
           >
-            <span className="text-cream/80">Neil McArdle</span>
-            <span className="w-1 h-1 rounded-full bg-tan/40 sm:hidden" aria-hidden="true" />
-            <span className="text-gold">
-              design{" "}
-              <span className="text-white">&#8644;</span>{" "}
-              code
-            </span>
-          </div>
-
-          <h1
-            className="text-cream max-w-3xl"
-            style={{
-              fontFamily: "var(--font-cantarell)",
-              fontSize: "clamp(2.25rem, 6vw, 3.75rem)",
-              fontWeight: 700,
-              letterSpacing: "-0.02em",
-              lineHeight: 1.05,
-            }}
-          >
-            I design and build your product. One person, start to finish.
-          </h1>
-
-          <p
-            className="mt-6 max-w-xl text-cream/65"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "clamp(1rem, 1.4vw, 1.125rem)",
-              lineHeight: 1.6,
-            }}
-          >
-            From Figma file to shipped product, nothing gets lost in
-            translation.
+            Senior Digital Product Designer{" "}
+            <span className="text-white">@</span> Avis Budget Group
           </p>
 
-          <div className="mt-9 flex flex-col items-center gap-5">
-            <CtaButton href={ctaHref} label={ctaLabel} />
-          </div>
 
+          <section className="mb-4 mt-8 text-center">
+            <h2
+              className="text-cream mb-8"
+              style={{
+                fontFamily: "var(--font-geist-mono)",
+                fontSize: "clamp(2rem, 6vw, 3.25rem)",
+                fontWeight: 400,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.05,
+              }}
+            >
+              Got a product to ship?
+            </h2>
+          
+            <div className="mt-9 flex flex-col items-center gap-5">
+              <CtaButton href={ctaHref} label={ctaLabel} />
+            </div>
+          </section>
           <nav
             aria-label="Primary"
             className="mt-12 flex items-center gap-6 text-tan"
@@ -269,7 +219,6 @@ export default function Homepage() {
             </a>
           </nav>
 
-          {/* Client strip — instant credibility, a text logo-bar. */}
           <div className="mt-16 w-full max-w-2xl">
             <p
               className="text-tan/70 mb-4"
@@ -282,66 +231,63 @@ export default function Homepage() {
             >
               Selected clients
             </p>
-            <div className="flex flex-col items-center gap-2.5 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-2 text-cream/55">
-              {CLIENTS.map((c, i) => (
-                <span key={c.name} className="flex items-center sm:gap-x-6">
-                  {i > 0 && (
-                    <span className="hidden sm:block w-1 h-1 rounded-full bg-tan/40" aria-hidden="true" />
-                  )}
-                  <span
-                    style={{
-                      fontFamily: "var(--font-inter)",
-                      fontSize: "0.9375rem",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {c.name}
-                  </span>
+            <div className="flex flex-col items-center gap-2.5 text-cream/55">
+              {CLIENTS.map((c) => (
+                <span
+                  key={c.name}
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: "0.9375rem",
+                    fontWeight: 500,
+                  }}
+                >
+                  {c.name}
                 </span>
               ))}
             </div>
           </div>
         </header>
 
-        {/* Who it's for — qualifying hard raises the tier and filters the wrong
-            buyers. */}
-        <section className="mb-28">
-          <SectionHeader label="Who it's for" />
-          <ul className="space-y-4 max-w-2xl">
-            {WHO_FOR.fit.map((item) => (
-              <li
-                key={item}
-                className="flex items-start gap-3 text-cream/85"
-                style={{
-                  fontFamily: "var(--font-inter)",
-                  fontSize: "1.0625rem",
-                  lineHeight: 1.5,
-                }}
-              >
-                <svg
-                  className="w-4 h-4 mt-1 flex-shrink-0 text-gold"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  aria-hidden="true"
+<section className="mb-28">
+          <SectionHeader label="How it works" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8">
+            {STEPS.map((s) => (
+              <div key={s.n}>
+                <div
+                  className="text-gold mb-3"
+                  style={{
+                    fontFamily: "var(--font-geist-mono)",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.13em",
+                    fontWeight: 600,
+                  }}
                 >
-                  <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span>{item}</span>
-              </li>
+                  {s.n}
+                </div>
+                <h3
+                  className="text-cream mb-2"
+                  style={{
+                    fontFamily: "var(--font-cantarell)",
+                    fontSize: "1.375rem",
+                    fontWeight: 700,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {s.title}
+                </h3>
+                <p
+                  className="text-cream/65"
+                  style={{
+                    fontFamily: "var(--font-inter)",
+                    fontSize: "0.9375rem",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {s.body}
+                </p>
+              </div>
             ))}
-          </ul>
-          <p
-            className="mt-7 max-w-2xl text-tan"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "0.9375rem",
-              lineHeight: 1.6,
-            }}
-          >
-            {WHO_FOR.notFit}
-          </p>
+          </div>
         </section>
 
         {}
@@ -401,47 +347,7 @@ export default function Homepage() {
         </section>
 
         {/* How it works — three steps, no card, kept light. */}
-        <section className="mb-28">
-          <SectionHeader label="How it works" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8">
-            {STEPS.map((s) => (
-              <div key={s.n}>
-                <div
-                  className="text-gold mb-3"
-                  style={{
-                    fontFamily: "var(--font-geist-mono)",
-                    fontSize: "0.75rem",
-                    letterSpacing: "0.13em",
-                    fontWeight: 600,
-                  }}
-                >
-                  {s.n}
-                </div>
-                <h3
-                  className="text-cream mb-2"
-                  style={{
-                    fontFamily: "var(--font-cantarell)",
-                    fontSize: "1.375rem",
-                    fontWeight: 700,
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {s.title}
-                </h3>
-                <p
-                  className="text-cream/65"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.9375rem",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {s.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
+        
 
         {/* Work with me — the offer, kept to one quiet section. One designer who
             designs and builds, one client at a time, one public price. The
@@ -475,17 +381,6 @@ export default function Homepage() {
                   Pause anytime
                 </span>
               </div>
-              <p
-                className="mt-2.5 text-tan"
-                style={{
-                  fontFamily: "var(--font-inter)",
-                  fontSize: "0.875rem",
-                  lineHeight: 1.5,
-                }}
-              >
-                Design and build, one person, start to finish. One client at a
-                time, the slot is yours.
-              </p>
 
               {/* Dotted divider */}
               <div className="my-7 border-t border-dashed border-white/15" />
@@ -643,9 +538,9 @@ export default function Homepage() {
               lineHeight: 1.05,
             }}
           >
-            Got a product to ship?
+            Tell me more.
           </h2>
-          <CtaButton href={ctaHref} label={ctaLabel} className="justify-center" />
+          
         </section>
 
         <footer className="pt-12 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
@@ -710,7 +605,7 @@ export default function Homepage() {
               className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
               style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
             >
-              neil@neilmcardle.com
+              Email
             </a>
           </div>
         </footer>
@@ -753,7 +648,7 @@ function ProductFeature({
   const mediaInner = (
     <BorderGlow
       className="block w-full"
-      backgroundColor="#0d0d0f"
+      backgroundColor="#000000"
       borderRadius={16}
       glowColor="40 62 64"
       glowRadius={34}
@@ -763,14 +658,6 @@ function ProductFeature({
       colors={["#f0d091", "#d8b46a", "#b8923f"]}
     >
       <div className="relative aspect-[4/3] flex items-center justify-center">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(56% 56% at 50% 44%, rgba(216,180,106,0.14), transparent 72%)",
-          }}
-          aria-hidden="true"
-        />
         <div className="relative w-[44%] max-w-[230px] drop-shadow-[0_26px_55px_rgba(0,0,0,0.7)] transition-transform duration-500 ease-out group-hover:scale-[1.05]">
           <HomepageProjectPreview k={tileKey} />
         </div>
@@ -778,6 +665,9 @@ function ProductFeature({
     </BorderGlow>
   );
 
+
+
+  
   const mediaCls = `block ${reverse ? "md:order-2" : ""}`;
   const media = external ? (
     <a href={href} target="_blank" rel="noopener noreferrer" className={mediaCls} aria-label={name}>
@@ -898,34 +788,46 @@ function CtaButton({
   className?: string;
 }) {
   return (
-    <a
-      href={href}
-      className={`gold-btn group inline-flex items-center gap-1.5 pl-3 pr-2 py-2 rounded-full ${className}`}
-      style={{
-        fontFamily: "var(--font-inter)",
-        fontSize: "1.125rem",
-        fontWeight: 400,
-        letterSpacing: "0.01em",
-        textTransform: "none",
-      }}
+    <BorderGlow
+      className={`cta-glow inline-block align-middle ${className}`}
+      backgroundColor="#000000"
+      borderRadius={8}
+      glowColor="46 85 60"
+      glowRadius={16}
+      glowIntensity={1}
+      edgeSensitivity={18}
+      coneSpread={32}
+      colors={["#f0d091", "#e5b945", "#b8923f"]}
     >
-      <span>{label}</span>
-      <span className="gold-btn-badge w-7 h-7">
-        {/* Straight face by default, smiles on hover. */}
-        <span className="relative inline-block w-[11px] h-[13px]" aria-hidden="true">
-          <svg className="face-straight absolute inset-x-0 top-0 w-[11px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-100 group-hover:opacity-0" viewBox="0 0 12 10.71" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="1.5" cy="1.5" r="1.5" />
-            <path d="M11.6,9.61c0,.61-.49,1.1-1.1,1.1H1.5c-.61,0-1.1-.49-1.1-1.1s.49-1.1,1.1-1.1h9c.61,0,1.1.49,1.1,1.1Z" />
-            <circle cx="10.5" cy="1.5" r="1.5" />
-          </svg>
-          <svg className="face-smile absolute inset-x-0 top-0 w-[11px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-0 group-hover:opacity-100" viewBox="0 0 11.2 11.95" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3.6,1.5c0,.83-.68,1.5-1.5,1.5s-1.5-.67-1.5-1.5.67-1.5,1.5-1.5,1.5.67,1.5,1.5Z" />
-            <path d="M10.6,1.5c0,.83-.68,1.5-1.5,1.5s-1.5-.67-1.5-1.5.67-1.5,1.5-1.5,1.5.67,1.5,1.5Z" />
-            <path d="M11.02,8.98c-1.19,1.86-3.22,2.97-5.42,2.97S1.36,10.84.17,8.98c-.32-.51-.18-1.19.33-1.52.51-.32,1.2-.18,1.52.33.79,1.23,2.12,1.96,3.58,1.96s2.79-.73,3.57-1.96c.33-.5,1.01-.65,1.52-.33.25.16.42.41.48.69.06.29,0,.59-.15.83Z" />
-          </svg>
+      <a
+        href={href}
+        className="gold-btn group inline-flex items-center gap-1.5 pl-3 pr-2 py-2 rounded-[8px]"
+        style={{
+          fontFamily: "var(--font-inter)",
+          fontSize: "1.125rem",
+          fontWeight: 400,
+          letterSpacing: "0.01em",
+          textTransform: "none",
+        }}
+      >
+        <span>{label}</span>
+        <span className="gold-btn-badge w-7 h-7">
+          {/* Straight face by default, smiles on hover. */}
+          <span className="relative inline-block w-[11px] h-[13px]" aria-hidden="true">
+            <svg className="face-straight absolute inset-x-0 top-0 w-[11px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-100 group-hover:opacity-0" viewBox="0 0 12 10.71" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="1.5" cy="1.5" r="1.5" />
+              <path d="M11.6,9.61c0,.61-.49,1.1-1.1,1.1H1.5c-.61,0-1.1-.49-1.1-1.1s.49-1.1,1.1-1.1h9c.61,0,1.1.49,1.1,1.1Z" />
+              <circle cx="10.5" cy="1.5" r="1.5" />
+            </svg>
+            <svg className="face-smile absolute inset-x-0 top-0 w-[11px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-0 group-hover:opacity-100" viewBox="0 0 11.2 11.95" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3.6,1.5c0,.83-.68,1.5-1.5,1.5s-1.5-.67-1.5-1.5.67-1.5,1.5-1.5,1.5.67,1.5,1.5Z" />
+              <path d="M10.6,1.5c0,.83-.68,1.5-1.5,1.5s-1.5-.67-1.5-1.5.67-1.5,1.5-1.5,1.5.67,1.5,1.5Z" />
+              <path d="M11.02,8.98c-1.19,1.86-3.22,2.97-5.42,2.97S1.36,10.84.17,8.98c-.32-.51-.18-1.19.33-1.52.51-.32,1.2-.18,1.52.33.79,1.23,2.12,1.96,3.58,1.96s2.79-.73,3.57-1.96c.33-.5,1.01-.65,1.52-.33.25.16.42.41.48.69.06.29,0,.59-.15.83Z" />
+            </svg>
+          </span>
         </span>
-      </span>
-    </a>
+      </a>
+    </BorderGlow>
   );
 }
 

@@ -1537,28 +1537,24 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   box-shadow: none;
 }
 .home-prose .gold-btn {
-  /* Black pill with a yellow border and a yellow badge circle. On hover the
-     straight face simply smiles; the colours stay yellow. */
+  /* Tan resting stroke; the animated gold glow on hover comes from the
+     BorderGlow wrapper, like the product cards. */
   color: #fff;
-  background: #000;
-  border: 1px solid #e5b945;
+  background: none;
+  border: 1px solid #9e9482;
   box-shadow: none;
-  transition: border-color 240ms ease, box-shadow 200ms ease;
 }
 .home-prose .gold-btn:hover {
   filter: none;
-  background: #000;
-  border-color: #e5b945;
-  box-shadow: 0 0 22px -8px rgba(229, 185, 69, 0.6);
 }
 .home-prose .gold-btn:active {
   transform: translateY(1px);
   box-shadow: none;
 }
 .home-prose .gold-btn-badge {
-  /* Yellow at rest and on hover; only the face changes (straight -> smile). */
-  background: #ad9760;
-  border: 1px solid #e5b945;
+  /* Tan with the straight face at rest; turns yellow as it smiles on hover. */
+  background: #9e9482;
+  border: 1px solid #9e9482;
   color: #131312;
   transition: background-color 240ms ease, border-color 240ms ease;
 }
