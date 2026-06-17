@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
-import Orb from "@/components/Orb";
+import SideRays from "@/components/SideRays";
 import GradualBlur from "@/components/GradualBlur";
 import BorderGlow from "@/components/BorderGlow";
 
@@ -108,8 +108,31 @@ export default function Homepage() {
   return (
     <>
     <div className="min-h-screen bg-black relative isolate overflow-hidden">
-      {}
-      
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[760px]"
+        aria-hidden="true"
+        style={{
+          maskImage:
+            "linear-gradient(to bottom, rgba(0,0,0,0.95) 35%, rgba(0,0,0,0) 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, rgba(0,0,0,0.95) 35%, rgba(0,0,0,0) 100%)",
+        }}
+      >
+        <SideRays
+          origin="top-left"
+          rayColor1="#e5b945"
+          rayColor2="#9e9482"
+          speed={1}
+          intensity={4}
+          spread={2}
+          saturation={.8}
+          blend={0.6}
+          falloff={1.6}
+          opacity={0.8}
+        />
+      </div>
+
+      {/* Legibility scrim — darkens the centre where the hero text sits. */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[760px]"
         aria-hidden="true"
