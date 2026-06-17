@@ -1537,16 +1537,18 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   box-shadow: none;
 }
 .home-prose .gold-btn {
-  /* Figma button shape (black pill, 1px border, label + gradient badge circle
-     with arrow) in the warm gold palette instead of cyan. */
+  /* Black pill, label + badge circle with arrow. Border is gold by default and
+     turns white on hover; the badge circle is white by default and turns gold. */
   color: #fff;
   background: #000;
   border: 1px solid var(--gold);
   box-shadow: none;
+  transition: border-color 240ms ease, box-shadow 200ms ease;
 }
 .home-prose .gold-btn:hover {
   filter: none;
   background: #000;
+  border-color: #fff;
   box-shadow: 0 0 22px -8px rgba(216, 180, 106, 0.6);
 }
 .home-prose .gold-btn:active {
@@ -1554,8 +1556,8 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   box-shadow: none;
 }
 .home-prose .gold-btn-badge {
-  background: rgba(216, 180, 106, 0.8);
-  border: 1px solid rgba(216, 180, 106, 0.35);
+  background: #fff;
+  border: 1px solid #fff;
   color: #131312;
   transition: background-color 240ms ease, border-color 240ms ease;
 }
