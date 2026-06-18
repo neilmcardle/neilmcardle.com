@@ -47,7 +47,7 @@ export default function HeroSection({ onPrimaryClick }: HeroSectionProps) {
             >
               The{' '}
               <em style={{ fontStyle: 'italic', fontWeight: 500 }}>eBook</em>{' '}
-              editor with an AI that reads your whole manuscript.
+              editor built for writing with AI.
             </h1>
 
             {/* Sub */}
