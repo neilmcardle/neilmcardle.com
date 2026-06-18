@@ -4,6 +4,7 @@ import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepagePr
 import SideRays from "@/components/SideRays";
 import GradualBlur from "@/components/GradualBlur";
 import BorderGlow from "@/components/BorderGlow";
+import ShakeOnView from "@/components/ShakeOnView";
 
 const SUBSCRIBE_URL = "https://buy.stripe.com/9B600l7XfblGdOxgk8fIs01";
 
@@ -135,9 +136,7 @@ export default function Homepage() {
         />
       </div>
 
-      {/* Mobile SideRays — dialed well down because iPhone wide-gamut (P3)
-          displays render this gold much brighter than a desktop sRGB preview,
-          which otherwise washes the hero out. Tune independently of desktop. */}
+      {/* Mobile SideRays*/}
       <div
         className="sm:hidden pointer-events-none absolute inset-x-0 top-0 z-0 h-[520px]"
         aria-hidden="true"
@@ -218,7 +217,7 @@ export default function Homepage() {
           </h1>
 
           <p
-            className="mt-4 text-tan"
+            className="mt-4 text-white"
             style={{
               fontFamily: "var(--font-geist-mono)",
               fontSize: "0.8125rem",
@@ -227,7 +226,7 @@ export default function Homepage() {
             }}
           >
             Senior Digital Product Designer{" "}
-            <span className="text-white">@</span> Avis Budget Group
+            <span className="text-tan"><br/>@ Avis Budget Group</span>
           </p>
 
 
@@ -246,7 +245,9 @@ export default function Homepage() {
             </h2>
           
             <div className="mt-9 flex flex-col items-center gap-5">
-              <CtaButton href={ctaHref} label={ctaLabel} />
+              <ShakeOnView>
+                <CtaButton href={ctaHref} label={ctaLabel} />
+              </ShakeOnView>
             </div>
           </section>
           <nav
@@ -596,7 +597,7 @@ export default function Homepage() {
           
         </section>
 
-        <footer className="pt-12 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <footer className="pt-12 flex flex-col items-center sm:flex-row sm:justify-between gap-6">
           <p
             className="text-tan"
             style={{ fontFamily: "var(--font-inter)", fontSize: "0.75rem" }}
@@ -835,14 +836,16 @@ function CtaButton({
   href,
   label,
   className = "",
+  shake = false,
 }: {
   href: string;
   label: string;
   className?: string;
+  shake?: boolean;
 }) {
   return (
     <BorderGlow
-      className={`cta-glow inline-block align-middle ${className}`}
+      className={`cta-glow inline-block align-middle ${shake ? "cta-shake" : ""} ${className}`}
       backgroundColor="#000000"
       borderRadius={8}
       glowColor="46 85 60"

@@ -1389,31 +1389,14 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   text-wrap: balance;
 }
 
-/* neilmcardle.com personal-site (dark) palette as CSS variables, for the few
-   inline style={{ color }} usages on the homepage and paintings page that
-   can't reference Tailwind theme colors. Mirrors cream/tan in tailwind.config. */
 :root {
   --cream: #fbf9f3;
-  /* Lifted from #8a7f70 (5.3:1) to ~7:1 on black so the many small mono labels,
-     section headers and captions stop being the faintest thing on the page. */
   --tan: #9e9482;
-  /* Soft-UI accent. A warm antique gold, sitting in the same family as --tan so
-     the gold CTAs and the muted mono labels read as one palette, not two.
-     --gold is the resting accent; --gold-bright/--gold-deep are the highlight
-     and shadow stops of the gradient on raised gold surfaces. */
   --gold: #d8b46a;
   --gold-bright: #f0d091;
   --gold-deep: #b8923f;
 }
 
-/* ── Soft-UI design language ───────────────────────────────────────────────
-   A neumorphic re-skin: cards read as raised, pillowy panels lit from above
-   (top highlight + bottom drop shadow) on the near-black page, with gold as
-   the single warm accent. These primitives replace the old flat 2px-tan-border
-   cards. Keep cream for body text and tan for muted mono labels. */
-
-/* Raised panel — the default card material. The inset top hairline is the
-   "lit from above" highlight; the long soft drop shadow lifts it off the page. */
 .soft-card {
   background: linear-gradient(145deg, #1b1b1e 0%, #141416 100%);
   border: 1px solid rgba(255, 255, 255, 0.045);
@@ -1423,8 +1406,6 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
     0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Recessed surface — sub-panels nested inside a .soft-card (the Included box,
-   the price block). Inverted shadows read as pressed-in rather than raised. */
 .soft-inset {
   background: #0d0d0f;
   border: 1px solid rgba(0, 0, 0, 0.5);
@@ -1433,24 +1414,20 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
     inset 0 -1px 0 rgba(255, 255, 255, 0.03);
 }
 
-/* Circular raised chip — section-header icons and any small icon badge. Gold
-   glyph by default; the chip itself is the same raised material as a card. */
 .icon-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   border-radius: 9999px;
-  color: var(--gold);
-  background: linear-gradient(145deg, #202024 0%, #141416 100%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--tan);
+  background: linear-gradient(145deg, #20202400 0%, #14141600 100%);
+  border: 1px solid rgba(255, 255, 255, 0);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.07),
     0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Primary CTA — a raised gold pill with dark text, lit-from-above gradient and
-   a warm gold glow beneath. Replaces the old emerald trace button. */
 .gold-btn {
   position: relative;
   color: #2a1e06;
@@ -1471,8 +1448,7 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
     inset 0 1px 2px rgba(120, 90, 30, 0.4),
     0 3px 10px -4px rgba(216, 180, 106, 0.5);
 }
-/* The arrow badge inside a gold button: a small dark disc so the chevron stays
-   legible against the bright gold field. */
+
 .gold-btn-badge {
   display: inline-flex;
   align-items: center;
@@ -1482,12 +1458,6 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   color: var(--gold-bright);
 }
 
-/* Metallic glint — the soft-UI take on the old cream border-trace. A bright,
-   warm near-white specular sweep runs around the rim of a gold CTA on hover,
-   reading as light catching the gold edge (not a colour change). Reuses the
-   registered --trace-angle and the project-card-trace keyframes from the
-   portfolio cards. Masked down to a 2px ring so the centre stays transparent
-   and the label/badge underneath remain legible. */
 .gold-btn-trace::after {
   content: '';
   position: absolute;
@@ -1517,10 +1487,6 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   animation: project-card-trace 3.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Homepage flat pass — the personal portfolio drops the neumorphic depth (raised
-   gradients, inset highlights, drop shadows, gold glow) for a calmer, flatter
-   editorial surface. Scoped to .home-prose so the /design system page and other
-   surfaces keep the original soft-UI treatment. */
 .home-prose .soft-card {
   background: #161618;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1532,13 +1498,13 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   box-shadow: none;
 }
 .home-prose .icon-chip {
-  background: rgba(216, 180, 106, 0.1);
-  border: 1px solid rgba(216, 180, 106, 0.22);
+  /* Tan glyph, no visible chip circle (transparent fill + stroke). */
+  color: #9e9482;
+  background: transparent;
+  border: 1px solid transparent;
   box-shadow: none;
 }
 .home-prose .gold-btn {
-  /* Tan resting stroke; the animated gold glow on hover comes from the
-     BorderGlow wrapper, like the product cards. */
   color: #fff;
   background: none;
   border: 1px solid #9e9482;
@@ -1551,20 +1517,30 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   transform: translateY(1px);
   box-shadow: none;
 }
+
+@keyframes cta-badge-shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-2px) rotate(-1deg); }
+  55% { transform: translateX(1.5px) rotate(0.8deg); }
+  80% { transform: translateX(-0.75px) rotate(-0.3deg); }
+}
 .home-prose .gold-btn-badge {
-  /* Tan with the straight face at rest; turns yellow as it smiles on hover. */
   background: #9e9482;
   border: 1px solid #9e9482;
   color: #131312;
+  transform-origin: 50% 50%;
   transition: background-color 240ms ease, border-color 240ms ease;
+}
+
+/* Plays when ShakeOnView toggles `is-shaking` — on load and on each scroll-in. */
+.home-prose .shake-on-view.is-shaking .gold-btn-badge {
+  animation: cta-badge-shake 1.6s ease-in-out 0.3s 2 backwards;
 }
 .home-prose .gold-btn:hover .gold-btn-badge {
   background: #e5b945;
   border-color: #e5b945;
 }
 
-/* Touch devices have no hover, so the straight->smile swap can never fire.
-   Show the smiling, gold-badge state by default there instead. */
 @media (hover: none) {
   .home-prose .gold-btn .face-straight {
     opacity: 0;
@@ -1578,10 +1554,6 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   }
 }
 
-/* Product tiles in the homepage Work grid: the glass logomark must read at rest,
-   not only on hover (the default hides the bright overlay on hover-capable
-   desktops, leaving a dark logo on a dark tile). Force the cream logomark on and
-   let the wrapper width drive the tile size instead of the 220px cap. */
 .home-prose .hpp-frame--glass {
   max-width: 100%;
 }
@@ -1589,12 +1561,6 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   opacity: 1;
 }
 
-/* Gold rim glint for dark surfaces (the portrait card). Unlike the hover-only
-   CTA trace, this one RESTS visible: a single gold highlight sits in the
-   top-left corner of the rim (the bright conic stop lands at ~315deg while
-   --trace-angle is 0). On hover it orbits the perimeter continuously, then
-   settles back to the top-left corner when the pointer leaves. Gold rather than
-   warm-white so it reads as the accent against a dark photo. */
 .gold-trace::after {
   content: '';
   position: absolute;
@@ -1628,12 +1594,6 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   to   { --trace-angle: 360deg; }
 }
 
-/* Testimonial drawer "stretch and settle". The grid 0fr->1fr reveal gives a
-   clean height open but can't overshoot (an auto-height fr track clamps to
-   content height), so the bounce is a transform on the drawer root instead:
-   it holds at rest while the height reveals, then carries the bottom edge a few
-   percent past and springs back. transform-origin top keeps the tucked top
-   edge fixed so only the bottom moves. */
 @keyframes testimonial-drawer-stretch {
   0%, 42% { transform: scaleY(1); }
   64%     { transform: scaleY(1.018); }
@@ -1649,11 +1609,6 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   .testimonial-drawer-stretch { animation: none; }
 }
 
-/* ── Profile bottom sheet (hero portrait) ──────────────────────────────────
-   The credentials rise from the bottom of the portrait card like a bottom
-   sheet rather than flipping it. The sheet is clipped by the card's
-   overflow-hidden, so it reads as contained within the photo. iOS-style sheet
-   easing on the slide; a scrim dims the photo behind it. */
 .profile-sheet {
   transform: translateY(100%);
   transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
@@ -1662,8 +1617,7 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 .profile-sheet.is-open {
   transform: translateY(0);
 }
-/* The grab handle's hit area opts out of touch scrolling so a vertical drag
-   moves the sheet instead of the page. */
+
 .sheet-grip {
   touch-action: none;
 }
@@ -1676,7 +1630,7 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   opacity: 1;
   pointer-events: auto;
 }
-/* Rows stagger in once the sheet is open. */
+
 .profile-sheet.is-open .sheet-row {
   animation: sheet-row-in 0.45s ease both;
 }
@@ -1685,10 +1639,6 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   to   { opacity: 1; transform: none; }
 }
 
-/* Film-grain overlay for card imagery. A tiled, desaturated SVG fractal-noise
-   tile blended over the photo unifies disparate images, adds analog warmth, and
-   hides JPEG banding where the panel shadow meets the dark areas. Kept subtle;
-   overlay blend so it textures mid-tones without washing the image out. */
 .img-grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
