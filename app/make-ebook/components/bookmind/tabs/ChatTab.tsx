@@ -313,7 +313,7 @@ export default function ChatTab({
                         className="flex-1 min-w-0 text-left pr-7"
                         aria-label={`Load ${session.name}`}
                       >
-                        <p className={`text-sm font-medium truncate ${isCurrent ? "text-[#4070ff]" : "text-gray-900 dark:text-white"}`}>
+                        <p className={`text-sm font-medium truncate ${isCurrent ? "text-[#008ff0]" : "text-gray-900 dark:text-white"}`}>
                           {session.name}
                         </p>
                         {preview && (
@@ -469,7 +469,7 @@ export default function ChatTab({
         {activeSelectedText && (
           <div className="px-1 pb-2">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-2xs font-medium uppercase tracking-wider text-[#4070ff] dark:text-[#4070ff]">
+              <span className="text-2xs font-medium uppercase tracking-wider text-[#008ff0] dark:text-[#008ff0]">
                 Discussing your selection
               </span>
               <button
@@ -504,7 +504,7 @@ export default function ChatTab({
                 onClick={() => handleSlashSelect(cmd)}
                 className="w-full flex items-start gap-3 px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-[#232323] transition-colors"
               >
-                <span className="text-xs font-mono text-[#4070ff] whitespace-nowrap mt-0.5">{cmd.cmd}</span>
+                <span className="text-xs font-mono text-[#008ff0] whitespace-nowrap mt-0.5">{cmd.cmd}</span>
                 <span className="text-xs text-gray-600 dark:text-[#a3a3a3]">{cmd.label}</span>
               </button>
             ))}

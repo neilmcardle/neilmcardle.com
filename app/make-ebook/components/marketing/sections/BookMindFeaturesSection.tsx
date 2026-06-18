@@ -79,7 +79,7 @@ function CmdKDemo() {
           <span
             className="transition-all duration-500"
             style={{
-              backgroundColor: step >= 1 ? 'rgba(64,112,255,0.15)' : 'transparent',
+              backgroundColor: step >= 1 ? 'rgba(0,143,240,0.15)' : 'transparent',
               borderRadius: 2,
               padding: '0 2px',
             }}

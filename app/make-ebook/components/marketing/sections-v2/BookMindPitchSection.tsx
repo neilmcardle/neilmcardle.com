@@ -38,15 +38,15 @@ export default function BookMindPitchSection() {
             >
               <div
                 className="pointer-events-none absolute inset-0"
-                style={{ background: 'radial-gradient(ellipse at top, rgba(64,112,255,.15), transparent 60%)' }}
+                style={{ background: 'radial-gradient(ellipse at top, rgba(0,143,240,.15), transparent 60%)' }}
               />
               <div className="relative" style={{ fontFamily: 'Georgia, serif', fontSize: 17, lineHeight: 1.75, color: 'rgba(255,255,255,.78)' }}>
                 Sarah pressed on, even as the familiar doubt crept in.{' '}
                 <span
                   className="px-1 py-0.5 rounded-[3px] relative"
                   style={{
-                    background: 'rgba(64,112,255,.25)',
-                    boxShadow: 'inset 0 0 0 1px rgba(64,112,255,.5)',
+                    background: 'rgba(0,143,240,.25)',
+                    boxShadow: 'inset 0 0 0 1px rgba(0,143,240,.5)',
                   }}
                 >
                   The story had been waiting too long, and she could feel it in her bones like a forgotten promise.

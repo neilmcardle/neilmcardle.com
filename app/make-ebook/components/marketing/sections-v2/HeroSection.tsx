@@ -22,7 +22,7 @@ export default function HeroSection({ onPrimaryClick }: HeroSectionProps) {
         className="pointer-events-none absolute inset-0 opacity-50 mix-blend-multiply"
         style={{
           backgroundImage:
-            'radial-gradient(circle at 20% 30%, rgba(64,112,255,.04), transparent 50%), radial-gradient(circle at 80% 70%, rgba(180,83,9,.04), transparent 50%)',
+            'radial-gradient(circle at 20% 30%, rgba(0,143,240,.04), transparent 50%), radial-gradient(circle at 80% 70%, rgba(180,83,9,.04), transparent 50%)',
         }}
       />
 
@@ -113,7 +113,7 @@ function EditorPreview() {
               The morning light fell across the old manuscript pages, illuminating years of careful revision. She had written this story a hundred times in her mind before committing a single word to paper.
             </p>
             <p className="mb-3.5 text-justify indent-[1.5em]">
-              <span style={{ background: 'linear-gradient(transparent 62%, rgba(64,112,255,.22) 62%)' }}>Sarah</span> pressed on, even as the familiar doubt crept in. The story had been waiting too long, and she could feel it in her bones like a forgotten promise.
+              <span style={{ background: 'linear-gradient(transparent 62%, rgba(0,143,240,.22) 62%)' }}>Sarah</span> pressed on, even as the familiar doubt crept in. The story had been waiting too long, and she could feel it in her bones like a forgotten promise.
             </p>
             <p className="text-justify indent-[1.5em]">There was no going back now.</p>
           </div>

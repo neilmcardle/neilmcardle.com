@@ -99,7 +99,7 @@ export default function InsightsTab({
                   <button
                     onClick={handleAddAllCharacters}
                     disabled={addedChars.size === characterCards.length}
-                    className="text-2xs text-[#4070ff] hover:text-[#3560e6] disabled:text-gray-400 disabled:cursor-default transition-colors"
+                    className="text-2xs text-[#008ff0] hover:text-[#3560e6] disabled:text-gray-400 disabled:cursor-default transition-colors"
                   >
                     {addedChars.size === characterCards.length
                       ? "All characters added to Book Mind"

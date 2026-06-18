@@ -935,7 +935,7 @@ export default function RichTextEditor({
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-transform touch-manipulation ${
                   formats[b.cmd]
-                    ? 'bg-[#4070ff]/15 dark:bg-[#4070ff]/20 text-[#4070ff]'
+                    ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20 text-[#008ff0]'
                     : 'bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]'
                 } ${b.className || ''}`}
               >
@@ -991,7 +991,7 @@ export default function RichTextEditor({
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
                 formats['justifyLeft']
-                  ? 'bg-[#4070ff]/15 dark:bg-[#4070ff]/20'
+                  ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20'
                   : 'bg-gray-100 dark:bg-[#1e1e1e]'
               }`}
             >
@@ -1007,7 +1007,7 @@ export default function RichTextEditor({
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
                 formats['justifyCenter']
-                  ? 'bg-[#4070ff]/15 dark:bg-[#4070ff]/20'
+                  ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20'
                   : 'bg-gray-100 dark:bg-[#1e1e1e]'
               }`}
             >
@@ -1023,7 +1023,7 @@ export default function RichTextEditor({
               disabled={disabled}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
                 formats['justifyRight']
-                  ? 'bg-[#4070ff]/15 dark:bg-[#4070ff]/20'
+                  ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20'
                   : 'bg-gray-100 dark:bg-[#1e1e1e]'
               }`}
             >

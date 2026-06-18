@@ -132,7 +132,7 @@ Do NOT flag grammar, spelling, or punctuation. Return ONLY the JSON array. If no
   if (!enabled || (visible.length === 0 && !isGenerating)) return null;
 
   const TYPE_COLORS: Record<Annotation["type"], string> = {
-    craft: "text-[#4070ff] bg-[#4070ff]/10",
+    craft: "text-[#008ff0] bg-[#008ff0]/10",
     pacing: "text-purple-600 bg-purple-500/10 dark:text-purple-400",
     voice: "text-emerald-600 bg-emerald-500/10 dark:text-emerald-400",
     repetition: "text-amber-600 bg-amber-500/10 dark:text-amber-400",

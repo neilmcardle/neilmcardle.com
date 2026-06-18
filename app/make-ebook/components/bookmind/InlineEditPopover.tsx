@@ -247,7 +247,7 @@ export default function InlineEditPopover({
       {/* Instruction input */}
       <div className="px-4 pt-3 pb-2 flex-shrink-0">
         <div className="flex items-start gap-2">
-          <svg className="w-4 h-4 text-[#4070ff] flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-4 h-4 text-[#008ff0] flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
             <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
           </svg>
@@ -288,7 +288,7 @@ export default function InlineEditPopover({
                     disabled={r === null}
                     className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center transition-all ${
                       i === activeIndex && r !== null
-                        ? "bg-[#4070ff] text-white"
+                        ? "bg-[#008ff0] text-white"
                         : r !== null
                           ? "bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#a3a3a3] hover:bg-gray-300 dark:hover:bg-[#3a3a3a]"
                           : "bg-gray-100 dark:bg-[#262626] text-gray-300 dark:text-[#525252]"
@@ -329,9 +329,9 @@ export default function InlineEditPopover({
                 type="button"
                 onClick={handleAccept}
                 aria-label="Accept this suggestion"
-                className="group w-full text-left rounded-lg p-2 -m-2 cursor-pointer transition-colors hover:bg-[#4070ff]/5 dark:hover:bg-[#4070ff]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4070ff]/40"
+                className="group w-full text-left rounded-lg p-2 -m-2 cursor-pointer transition-colors hover:bg-[#008ff0]/5 dark:hover:bg-[#008ff0]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#008ff0]/40"
               >
-                <p className="text-2xs uppercase tracking-wider text-[#4070ff] font-medium mb-1 flex items-center gap-1.5">
+                <p className="text-2xs uppercase tracking-wider text-[#008ff0] font-medium mb-1 flex items-center gap-1.5">
                   Suggestion
                   <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] normal-case tracking-normal text-gray-400 dark:text-[#737373]">
                     click to accept
@@ -384,7 +384,7 @@ export default function InlineEditPopover({
                 <button
                   onClick={handleMoreTakes}
                   disabled={isLoading}
-                  className="px-2.5 py-1 text-xs font-medium text-[#4070ff] border border-[#4070ff]/30 hover:bg-[#4070ff]/5 dark:hover:bg-[#4070ff]/10 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
+                  className="px-2.5 py-1 text-xs font-medium text-[#008ff0] border border-[#008ff0]/30 hover:bg-[#008ff0]/5 dark:hover:bg-[#008ff0]/10 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
                 >
                   More takes
                 </button>
@@ -399,7 +399,7 @@ export default function InlineEditPopover({
               <button
                 onClick={handleAccept}
                 disabled={!activeResult}
-                className="px-3 py-1 text-xs font-medium bg-[#4070ff] text-white hover:bg-[#3560e6] rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
+                className="px-3 py-1 text-xs font-medium bg-[#008ff0] text-white hover:bg-[#3560e6] rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
               >
                 Accept
               </button>
@@ -409,7 +409,7 @@ export default function InlineEditPopover({
             <button
               onClick={() => handleSubmit()}
               disabled={!instruction.trim()}
-              className="px-3 py-1 text-xs font-medium bg-[#4070ff] text-white hover:bg-[#3560e6] rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
+              className="px-3 py-1 text-xs font-medium bg-[#008ff0] text-white hover:bg-[#3560e6] rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
             >
               Rewrite
             </button>

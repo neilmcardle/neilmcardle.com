@@ -53,7 +53,7 @@ export default function LayoutSwitcher({ mode, onChange }: LayoutSwitcherProps) 
             className={`flex items-center gap-1.5 px-3 h-10 text-xs font-medium transition-colors whitespace-nowrap
               ${i > 0 ? 'border-l border-gray-200 dark:border-[#2f2f2f]' : ''}
               ${active
-                ? 'bg-white dark:bg-[#262626] text-[#4070ff] dark:text-[#4070ff]'
+                ? 'bg-white dark:bg-[#262626] text-[#008ff0] dark:text-[#008ff0]'
                 : 'text-gray-400 dark:text-[#525252] hover:text-gray-700 dark:hover:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#262626]'
               }`}
           >

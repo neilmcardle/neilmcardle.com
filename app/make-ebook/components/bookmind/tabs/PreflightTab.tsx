@@ -150,7 +150,7 @@ export default function PreflightTab({ book, coverFile, liveTitle, liveAuthor, l
                 onClick={() => setSelectedDisclosure(opt.id)}
                 className={`w-full text-left px-3 py-2.5 rounded-lg text-xs transition-colors ${
                   selectedDisclosure === opt.id
-                    ? "bg-[#4070ff]/10 dark:bg-[#4070ff]/15 text-[#4070ff] font-medium"
+                    ? "bg-[#008ff0]/10 dark:bg-[#008ff0]/15 text-[#008ff0] font-medium"
                     : "bg-gray-50 dark:bg-[#262626] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f]"
                 }`}
               >
@@ -167,7 +167,7 @@ export default function PreflightTab({ book, coverFile, liveTitle, liveAuthor, l
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleCopyDisclosure}
-                  className="text-xs font-medium text-[#4070ff] hover:text-[#3560e6] transition-colors"
+                  className="text-xs font-medium text-[#008ff0] hover:text-[#3560e6] transition-colors"
                 >
                   {copied ? "Copied to clipboard" : "Copy disclosure text"}
                 </button>

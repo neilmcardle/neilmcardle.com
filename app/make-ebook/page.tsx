@@ -685,27 +685,6 @@ function MakeEbookPage() {
     clearHistory: clearExportHistory,
   } = useExportHistory({ bookId: currentBookId, maxExports: 5 });
 
-  // Kick off Book Mind's manuscript brief in the background whenever a new
-  // book is loaded or when the current book is opened for the first time
-  // by a Pro user. The brief is the spine of every fast Book Mind
-  // interaction — once it exists in localStorage, chat / Cmd-K / margin
-  // annotations all read it locally without an API call. Idempotent: the
-  // generator returns immediately if the brief is already fresh, joins
-  // an existing in-flight call, or starts a new one. Free users skip
-  // entirely — Book Mind is Pro-gated and we don't burn API calls for
-  // them. Errors are swallowed and surfaced in the next chat send if
-  // anything went wrong.
-  // Brief generation is NOT automatic on book open. It runs only when
-  // the user explicitly triggers it (via a "Generate brief" action in
-  // the Chat tab, or the first time they use a feature that needs it).
-  // This avoids a Haiku call on every book open for users who might
-  // just be reading or editing without using Book Mind at all.
-  //
-  // If a brief already exists and is fresh (manuscriptHash matches),
-  // ensureManuscriptBrief returns immediately at zero cost.
-
-  // Unified History modal: null = closed, otherwise the tab to open on.
-  // Replaces the old split showVersionHistory / showExportHistory booleans.
   const [historyModal, setHistoryModal] = useState<'versions' | 'exports' | null>(null);
 
   // ── Extracted hooks ────────────────────────────────────────────────────────
@@ -767,10 +746,7 @@ function MakeEbookPage() {
 
   // Auto-save hook - Creates draft book if needed to prevent data loss
   const handleAutoSave = useCallback(() => {
-    // Auto-save will create a draft book if one doesn't exist
-    // This prevents data loss when users click away before manually saving
     saveBook.saveBookDirectly(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentBookId, title, author, blurb, publisher, pubDate, isbn, language, genre, tags, chapters, coverUrl, endnoteReferences]);
 
   // Helper to determine if there's meaningful content to auto-save

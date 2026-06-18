@@ -102,7 +102,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
         {!isPro && (
           <div className="flex-shrink-0 flex items-center justify-between gap-2 px-4 py-2 bg-[#f5f7ff] dark:bg-[#1a1d2e] border-b border-[#d6dcff] dark:border-[#2a2f45]">
             <div className="flex items-center gap-2 min-w-0">
-              <svg className="w-3.5 h-3.5 text-[#4070ff] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-3.5 h-3.5 text-[#008ff0] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2L15 8.5L22 9.5L17 14.5L18.5 22L12 18.5L5.5 22L7 14.5L2 9.5L9 8.5L12 2Z" />
               </svg>
               <span className="text-xs text-gray-700 dark:text-[#d4d4d4] truncate">
@@ -111,7 +111,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
             </div>
             <button
               onClick={props.onUpgrade}
-              className="flex-shrink-0 text-xs font-semibold text-[#4070ff] hover:text-[#3560e6] transition-colors whitespace-nowrap"
+              className="flex-shrink-0 text-xs font-semibold text-[#008ff0] hover:text-[#3560e6] transition-colors whitespace-nowrap"
             >
               Upgrade
             </button>
@@ -124,7 +124,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
             <TabsTrigger
               key={tab.key}
               value={tab.key}
-              className="flex-1 h-11 rounded-none px-2 gap-1.5 text-xs text-gray-500 dark:text-[#737373] data-[state=active]:bg-white dark:data-[state=active]:bg-[#1e1e1e] data-[state=active]:text-[#4070ff] dark:data-[state=active]:text-[#4070ff] data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#4070ff] transition-colors"
+              className="flex-1 h-11 rounded-none px-2 gap-1.5 text-xs text-gray-500 dark:text-[#737373] data-[state=active]:bg-white dark:data-[state=active]:bg-[#1e1e1e] data-[state=active]:text-[#008ff0] dark:data-[state=active]:text-[#008ff0] data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#008ff0] transition-colors"
             >
               {tab.icon}
               <span className="font-medium">{tab.label}</span>

@@ -222,7 +222,7 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
                 <button
                   onClick={handleGenerateDesc}
                   disabled={isGeneratingDesc || !newCharName.trim()}
-                  className="text-2xs text-[#4070ff] hover:text-[#3560e6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="text-2xs text-[#008ff0] hover:text-[#3560e6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {isGeneratingDesc ? "Generating from manuscript..." : "Auto-generate description from manuscript"}
                 </button>

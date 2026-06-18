@@ -28,7 +28,7 @@ function Switch({ on }: { on: boolean }) {
   return (
     <span
       className={`relative inline-block w-8 h-4 rounded-full transition-colors flex-shrink-0 ${
-        on ? 'bg-[#4070ff]' : 'bg-gray-300 dark:bg-[#3a3a3a]'
+        on ? 'bg-[#008ff0]' : 'bg-gray-300 dark:bg-[#3a3a3a]'
       }`}
       aria-hidden
     >
@@ -62,14 +62,14 @@ export default function ModeMenu({
           aria-label={anyActive ? `Writing modes, ${activeCount} on` : 'Focus and writing modes'}
           className={`flex items-center gap-1.5 px-3 h-10 rounded-lg transition-colors group ${
             anyActive
-              ? 'bg-[#4070ff]/10 dark:bg-[#4070ff]/15'
+              ? 'bg-[#008ff0]/10 dark:bg-[#008ff0]/15'
               : 'bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f]'
           }`}
         >
           <svg
             className={`w-6 h-6 transition-colors ${
               anyActive
-                ? 'text-[#4070ff]'
+                ? 'text-[#008ff0]'
                 : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4]'
             }`}
             viewBox="0 0 24 24"
@@ -84,7 +84,7 @@ export default function ModeMenu({
           <span
             className={`text-xs transition-colors ${
               anyActive
-                ? 'font-semibold text-[#4070ff]'
+                ? 'font-semibold text-[#008ff0]'
                 : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4]'
             }`}
           >
@@ -117,7 +117,7 @@ export default function ModeMenu({
             onSelect={(e) => { e.preventDefault(); onToggleFlow(); }}
             className="flex items-start gap-3 px-3 py-2.5 rounded-md cursor-pointer focus:bg-gray-50 dark:focus:bg-[#262626]"
           >
-            <svg className="w-4 h-4 mt-0.5 text-[#4070ff] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mt-0.5 text-[#008ff0] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6L12 2z" />
             </svg>
             <div className="flex-1 min-w-0">

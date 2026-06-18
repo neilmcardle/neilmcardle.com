@@ -267,7 +267,7 @@ export default function ComposePalette({
                 onClick={() => handleSelectCommand(cmd)}
                 className="w-full flex items-start gap-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-[#232323] transition-colors"
               >
-                <span className="text-xs font-mono text-[#4070ff] dark:text-[#4070ff] whitespace-nowrap mt-0.5">
+                <span className="text-xs font-mono text-[#008ff0] dark:text-[#008ff0] whitespace-nowrap mt-0.5">
                   {cmd.label}
                 </span>
                 <span className="text-xs text-gray-600 dark:text-[#a3a3a3] leading-relaxed">
@@ -287,7 +287,7 @@ export default function ComposePalette({
           {/* Selected command + instruction input */}
           <div className="px-3 pt-3 pb-2 border-b border-gray-100 dark:border-[#262626]">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-mono text-[#4070ff]">{selectedCommand.label}</span>
+              <span className="text-xs font-mono text-[#008ff0]">{selectedCommand.label}</span>
               <span className="text-xs text-gray-400 dark:text-[#737373]">{selectedCommand.description}</span>
             </div>
             {selectedCommand.id !== "continue" && !result && (
@@ -304,7 +304,7 @@ export default function ComposePalette({
                 <button
                   onClick={() => handleGenerate(selectedCommand, instruction)}
                   disabled={isLoading || (!instruction.trim() && selectedCommand.id !== "continue")}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-[#4070ff] text-white font-medium disabled:opacity-50 hover:bg-[#3560e6] transition-colors"
+                  className="text-xs px-3 py-1.5 rounded-lg bg-[#008ff0] text-white font-medium disabled:opacity-50 hover:bg-[#3560e6] transition-colors"
                 >
                   {isLoading ? "..." : "Go"}
                 </button>
@@ -350,7 +350,7 @@ export default function ComposePalette({
                 <button
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={handleAccept}
-                  className="text-xs px-3 py-1 bg-[#4070ff] text-white rounded font-medium hover:bg-[#3560e6] transition-colors"
+                  className="text-xs px-3 py-1 bg-[#008ff0] text-white rounded font-medium hover:bg-[#3560e6] transition-colors"
                 >
                   Insert
                 </button>

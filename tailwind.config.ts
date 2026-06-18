@@ -44,7 +44,7 @@ const config = {
         'me-cream-dark': '#0a0a0a',   // Dark mirror for cream (signin etc.)
 
         // Brand accent (chapter pills, active states)
-        'me-accent': '#4070ff',
+        'me-accent': '#008ff0',
         // Dark-mode surface palette — use these instead of arbitrary hex values
         'me-base':    '#1e1e1e',   // Main panel / sidebar backgrounds
         'me-surface': '#262626',   // Elevated surface (inputs, cards within panels)

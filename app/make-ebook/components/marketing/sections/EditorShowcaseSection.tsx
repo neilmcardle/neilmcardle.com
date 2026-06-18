@@ -42,7 +42,7 @@ const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSec
                   ))}
                   <div className="w-px h-4 bg-white/10 mx-1" />
                   {['H1','H2','H3'].map((l,i) => (
-                    <button key={i} className={`w-8 h-7 flex items-center justify-center rounded text-[10px] font-medium ${i===1 ? 'bg-[#4070ff]/20 text-[#4070ff]' : 'text-white/70'}`}>{l}</button>
+                    <button key={i} className={`w-8 h-7 flex items-center justify-center rounded text-[10px] font-medium ${i===1 ? 'bg-[#008ff0]/20 text-[#008ff0]' : 'text-white/70'}`}>{l}</button>
                   ))}
                   <div className="w-px h-4 bg-white/10 mx-1" />
                   <button className="w-7 h-7 flex items-center justify-center rounded text-white/70 text-sm font-serif">&ldquo;</button>
@@ -56,7 +56,7 @@ const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSec
                   <div className="text-white/90 text-base font-semibold mb-3" style={{ fontFamily: 'Georgia, serif', lineHeight: '1.3' }}>The Midnight Garden</div>
                   <div className="text-white/55 text-[13px] leading-relaxed space-y-3" style={{ fontFamily: 'Georgia, serif' }}>
                     <p>The morning light fell across the old manuscript pages, illuminating years of careful revision. She had written this story a hundred times in her mind before committing a single word to paper.</p>
-                    <div className="border-l-2 border-[#4070ff] pl-3 text-white/40 italic">&ldquo;This time,&rdquo; she thought, &ldquo;it would be different.&rdquo;</div>
+                    <div className="border-l-2 border-[#008ff0] pl-3 text-white/40 italic">&ldquo;This time,&rdquo; she thought, &ldquo;it would be different.&rdquo;</div>
                   </div>
                 </div>
               </div>
@@ -83,7 +83,7 @@ const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSec
                   { title: 'Chapter Four', words: '891', active: false },
                   { title: 'Epilogue', words: '345', active: false },
                 ].map((ch, i) => (
-                  <div key={i} className={`flex items-center gap-2.5 px-3 py-2.5 ${ch.active ? 'bg-[#4070ff]/10' : ''}`}>
+                  <div key={i} className={`flex items-center gap-2.5 px-3 py-2.5 ${ch.active ? 'bg-[#008ff0]/10' : ''}`}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className="text-white/20 flex-shrink-0"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
                     <span className={`flex-1 text-[13px] ${ch.active ? 'text-white' : 'text-white/45'}`}>{ch.title}</span>
                     <span className="text-white/25 text-[10px]">{ch.words}w</span>
@@ -110,7 +110,7 @@ const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSec
                   <div className="text-white/35 text-[10px] uppercase tracking-widest mb-2.5">Typography preset</div>
                   <div className="flex flex-wrap gap-2 mb-5">
                     {['Novel', 'Non-fiction', 'Technical', 'Poetry'].map((p, i) => (
-                      <button key={i} className={`px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${i === 0 ? 'bg-[#4070ff] text-white' : 'bg-[#262626] text-white/45 border border-[#2f2f2f]'}`}>{p}</button>
+                      <button key={i} className={`px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${i === 0 ? 'bg-[#008ff0] text-white' : 'bg-[#262626] text-white/45 border border-[#2f2f2f]'}`}>{p}</button>
                     ))}
                   </div>
                   <div className="bg-[#262626] rounded-lg p-3.5 mb-5 border border-[#2f2f2f]">

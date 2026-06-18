@@ -52,35 +52,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Signed-in users default to makeEbook (the editor's signature theme)
-    // unless they've explicitly chosen light or dark.
-    const savedTheme = localStorage.getItem('theme');
-    const resolved: Theme =
-      savedTheme === 'dark' ? 'dark' : savedTheme === 'light' ? 'light' : 'makeebook';
-    setThemeState(resolved);
-    applyThemeClass(resolved);
+    setThemeState('dark');
+    applyThemeClass('dark');
+    try { localStorage.setItem('theme', 'dark'); } catch {}
   }, [mounted, authLoading, user]);
 
-  const toggleTheme = () => {
-    if (!user) return;
-    setThemeState(prevTheme => {
-      // Cycle makeEbook → dark → light → makeEbook.
-      const newTheme: Theme =
-        prevTheme === 'makeebook' ? 'dark' : prevTheme === 'dark' ? 'light' : 'makeebook';
-      localStorage.setItem('theme', newTheme);
-      applyThemeClass(newTheme);
-      return newTheme;
-    });
-  };
+  const toggleTheme = () => {};
 
-  const setTheme = (newTheme: Theme) => {
-    if (!user) return;
-    localStorage.setItem('theme', newTheme);
-    applyThemeClass(newTheme);
-    setThemeState(newTheme);
-  };
+  const setTheme = () => {};
 
-  const canToggle = !!user && !authLoading;
+  const canToggle = false;
 
   if (!mounted) {
     return <>{children}</>;

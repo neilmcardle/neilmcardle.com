@@ -62,14 +62,14 @@ export default function LibraryPanel({
           {libraryBooks.length > 0 && (
             <button
               onClick={() => setMultiSelectMode(!multiSelectMode)}
-              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${multiSelectMode ? 'bg-[#4070ff]/10 dark:bg-[#4070ff]/15' : 'hover:bg-gray-50 dark:hover:bg-[#262626]'}`}
+              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${multiSelectMode ? 'bg-[#008ff0]/10 dark:bg-[#008ff0]/15' : 'hover:bg-gray-50 dark:hover:bg-[#262626]'}`}
               title={multiSelectMode ? 'Cancel selection' : 'Select multiple'}
             >
-              <svg className={`w-4 h-4 ${multiSelectMode ? 'text-[#4070ff]' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+              <svg className={`w-4 h-4 ${multiSelectMode ? 'text-[#008ff0]' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <circle className={multiSelectMode ? '' : 'dark:stroke-white'} cx="12" cy="12" r="9" />
                 <path className={multiSelectMode ? '' : 'dark:stroke-white'} d="M8.5 12l2.5 2.5 4.5-4.5" />
               </svg>
-              <span className={`text-xs font-medium ${multiSelectMode ? 'text-[#4070ff]' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
+              <span className={`text-xs font-medium ${multiSelectMode ? 'text-[#008ff0]' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
                 {multiSelectMode ? 'Cancel' : 'Select'}
               </span>
             </button>
@@ -102,7 +102,7 @@ export default function LibraryPanel({
 
       {multiSelectMode && libraryBooks.length > 0 && (
         <div className="flex items-center justify-between mt-2 px-2 py-1.5 bg-gray-50 dark:bg-[#262626] rounded-md">
-          <button onClick={toggleSelectAll} className="text-xs text-[#4070ff] hover:underline">
+          <button onClick={toggleSelectAll} className="text-xs text-[#008ff0] hover:underline">
             {selectedBookIds.size === libraryBooks.length ? 'Deselect All' : 'Select All'}
           </button>
           <span className="text-xs text-gray-500 dark:text-[#a3a3a3]">{selectedBookIds.size} selected</span>
