@@ -134,21 +134,9 @@
   z-index: 1;
 }
 
-/* CTA usage: shrink the glow card to the button instead of filling its row, and
-   let the inner overflow show so the badge shake animation isn't clipped. */
 .border-glow-card.cta-glow {
   display: inline-grid;
 }
 .border-glow-card.cta-glow .border-glow-inner {
   overflow: visible;
-}
-
-/* The button is small and its text fills the centre, so light the whole border
-   on hover regardless of where the cursor sits (the cards' edge-proximity
-   reactivity reads "far from edge" over the label and shows nothing). */
-.cta-glow:hover::before,
-.cta-glow:hover > .edge-light {
-  opacity: 1;
-  -webkit-mask-image: none;
-  mask-image: none;
 }

@@ -848,12 +848,12 @@ function CtaButton({
       className={`cta-glow inline-block align-middle ${shake ? "cta-shake" : ""} ${className}`}
       backgroundColor="#000000"
       borderRadius={8}
-      glowColor="46 85 60"
-      glowRadius={16}
+      glowColor="40 62 64"
+      glowRadius={34}
       glowIntensity={1}
-      edgeSensitivity={18}
-      coneSpread={32}
-      colors={["#f0d091", "#e5b945", "#b8923f"]}
+      edgeSensitivity={32}
+      coneSpread={22}
+      colors={["#f0d091", "#d8b46a", "#b8923f"]}
     >
       <a
         href={href}
