@@ -66,6 +66,7 @@ import { loadBookLibrary, saveBookToLibrary, loadBookById } from "./utils/bookLi
 // chat send, not automatically on book open. No import needed here.
 import { ensureAnalyticalCache } from "./utils/analyticalCache";
 import type { AnalyticalKind } from "./utils/bookmindMemory";
+import { ensureBookProfile } from "./utils/bookmindProfile";
 // Extracted utilities & components
 import { getContentChapterNumber } from "./utils/pageUtils";
 import { ChapterCapsuleMarker } from "./components/ChapterCapsuleMarker";
@@ -747,7 +748,22 @@ function MakeEbookPage() {
   // Auto-save hook - Creates draft book if needed to prevent data loss
   const handleAutoSave = useCallback(() => {
     saveBook.saveBookDirectly(false);
-  }, [currentBookId, title, author, blurb, publisher, pubDate, isbn, language, genre, tags, chapters, coverUrl, endnoteReferences]);
+    // After saving, refresh the book profile in the background if the
+    // manuscript has changed since the last extraction.
+    if (currentBookId && user?.id && isPro) {
+      const book = loadBookById(user.id, currentBookId);
+      if (book) {
+        ensureBookProfile({ userId: user.id, book }).then(result => {
+          if (result.ok && ((result.newCharacters?.length ?? 0) + (result.newLocations?.length ?? 0)) > 0) {
+            const parts: string[] = [];
+            if (result.newCharacters?.length) parts.push(`${result.newCharacters.length} character${result.newCharacters.length > 1 ? 's' : ''}`);
+            if (result.newLocations?.length)  parts.push(`${result.newLocations.length} location${result.newLocations.length > 1 ? 's' : ''}`);
+            toast(`Book Mind added ${parts.join(' and ')} to your profile`, { duration: 4000 });
+          }
+        }).catch(() => {});
+      }
+    }
+  }, [currentBookId, title, author, blurb, publisher, pubDate, isbn, language, genre, tags, chapters, coverUrl, endnoteReferences, user?.id, isPro]);
 
   // Helper to determine if there's meaningful content to auto-save
   const hasContent = (title && title.trim() !== '') ||
@@ -1217,7 +1233,7 @@ function MakeEbookPage() {
             The close button is a thin bar above the Inspector because
             InspectorPanel does not own its own chrome. */}
         {mobileBookMindOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 flex flex-col animate-slide-in-from-bottom bg-white dark:bg-[#1e1e1e]">
+          <div className="lg:hidden fixed inset-0 z-50 flex flex-col animate-slide-in-from-bottom bg-white dark:bg-[#2c2c2c]">
             <div className="flex items-center justify-end px-3 py-2 border-b border-gray-200 dark:border-[#2f2f2f] flex-shrink-0">
               <button
                 onClick={() => setMobileBookMindOpen(false)}
@@ -1243,6 +1259,18 @@ function MakeEbookPage() {
                 onNavigateToChapter={(idx) => {
                   setSelectedChapter(idx);
                   setMobileBookMindOpen(false);
+                }}
+                onRefreshAnalytical={handleRefreshAnalytical}
+                onAddDisclosureChapter={(content: string) => {
+                  const newChapter = {
+                    id: `ch-${Date.now()}`,
+                    title: 'AI Disclosure',
+                    content,
+                    type: 'backmatter' as const,
+                  };
+                  setChapters(prev => [...prev, newChapter]);
+                  setSelectedChapter(chapters.length);
+                  toast.success('AI Disclosure chapter added');
                 }}
                 isPro={isPro}
                 onUpgrade={() => setExportUpgradeOpen(true)}
@@ -2549,6 +2577,7 @@ function MakeEbookPage() {
                   onNewBook={handleNewBook}
                   onPasteManuscript={handlePasteManuscript}
                   onUploadFile={docImport.showImportDialog}
+                  onOpenLibrary={() => setMobileSidebarOpen(true)}
                   libraryBooks={libraryBooks}
                   libraryLoading={libraryLoading}
                   onOpenBook={(id) => library.handleLoadBook(id)}
@@ -2674,6 +2703,7 @@ function MakeEbookPage() {
                   onNewBook={handleNewBook}
                   onPasteManuscript={handlePasteManuscript}
                   onUploadFile={docImport.showImportDialog}
+                  onOpenLibrary={() => setSidebarView('library')}
                   libraryBooks={libraryBooks}
                   libraryLoading={libraryLoading}
                   onOpenBook={(id) => library.handleLoadBook(id)}

@@ -1,9 +1,8 @@
 "use client";
 
-// Collapsible per-book memory editor: rules, confirmed characters,
-// recent editorial decisions. Anything stored here is injected into
-// every editorial-brain interaction. Reads/writes via the memory
-// helpers which persist through the book library.
+// Collapsible memory editor: rules, characters, remembered decisions.
+// Everything stored here is injected into every Book Mind call.
+// Collapsed state shows a content summary so users know what's stored.
 
 import React, { useState } from "react";
 import {
@@ -12,11 +11,9 @@ import {
   removeRule,
   setCharacter,
   removeCharacter,
-  addDecision,
 } from "../../utils/bookmindMemory";
 import { loadBookById } from "../../utils/bookLibrary";
 import { useBookMind } from "../../hooks/useBookMind";
-import type { BookMindMemory } from "../../types";
 
 interface MemoryEditorProps {
   bookId?: string;
@@ -29,21 +26,29 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
   const [newCharName, setNewCharName] = useState("");
   const [newCharDesc, setNewCharDesc] = useState("");
   const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
-  // Force re-render after mutations (localStorage writes don't trigger React state)
   const [version, setVersion] = useState(0);
   const bump = () => setVersion(v => v + 1);
 
-  // Used for auto-generating character descriptions from the manuscript.
   const { inlineEdit } = useBookMind({ bookId, userId });
 
   if (!bookId || !userId) return null;
 
   const book = loadBookById(userId, bookId);
   const memory = getMemory(book);
-  const hasContent =
-    memory.rules.length > 0 ||
-    Object.keys(memory.characters).length > 0 ||
-    memory.decisions.length > 0;
+
+  const ruleCount = memory.rules.length;
+  const charCount = Object.keys(memory.characters).length;
+  const decisionCount = memory.decisions.length;
+  const totalCount = ruleCount + charCount + decisionCount;
+
+  // Collapsed subtitle: show a summary of what's stored, or a prompt if empty.
+  const summary = totalCount === 0
+    ? "Nothing stored yet"
+    : [
+        ruleCount > 0 && `${ruleCount} ${ruleCount === 1 ? "rule" : "rules"}`,
+        charCount > 0 && `${charCount} ${charCount === 1 ? "character" : "characters"}`,
+        decisionCount > 0 && `${decisionCount} remembered`,
+      ].filter(Boolean).join(" · ");
 
   const handleAddRule = () => {
     const trimmed = newRule.trim();
@@ -91,21 +96,22 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
   };
 
   return (
-    <div className="border-t border-gray-100 dark:border-[#262626]">
+    <div className="border-t border-gray-100 dark:border-[#2a2a2a]">
+      {/* Collapsed toggle */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-[#232323] transition-colors"
+        className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-[#232323] transition-colors"
       >
-        <span className="flex flex-col text-left">
-          <span className="text-2xs font-medium uppercase tracking-wider text-gray-400 dark:text-[#737373]">
-            Book Mind knows
+        <span className="flex flex-col text-left gap-0.5">
+          <span className="text-2xs font-semibold uppercase tracking-wider text-gray-400 dark:text-[#737373]">
+            Memory
           </span>
-          <span className="text-2xs font-normal text-gray-300 dark:text-[#525252] normal-case tracking-normal">
-            Set writing rules and add characters
+          <span className="text-2xs text-gray-300 dark:text-[#525252]">
+            {summary}
           </span>
         </span>
         <svg
-          className={`w-3 h-3 text-gray-400 dark:text-[#737373] transition-transform ${expanded ? "rotate-180" : ""}`}
+          className={`w-3 h-3 text-gray-400 dark:text-[#525252] transition-transform flex-shrink-0 ${expanded ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -116,26 +122,22 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
       </button>
 
       {expanded && (
-        <div className="px-4 pb-3 space-y-4">
+        <div className="px-4 pb-4 space-y-5">
+
           {/* Rules */}
           <div>
-            <h4 className="text-2xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#a3a3a3] mb-2">
-              Rules
-            </h4>
-            {memory.rules.length === 0 ? (
-              <p className="text-xs text-gray-400 dark:text-[#737373] italic mb-2">
-                No rules set. Tell Book Mind things like "no em dashes" or "always use British spelling."
-              </p>
-            ) : (
+            <div className="mb-2">
+              <p className="text-2xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#a3a3a3]">Writing rules</p>
+              <p className="text-2xs text-gray-400 dark:text-[#737373] mt-0.5">Sent with every message. E.g. "no em dashes" or "British spelling".</p>
+            </div>
+            {ruleCount > 0 && (
               <ul className="space-y-1 mb-2">
                 {memory.rules.map((rule, i) => (
                   <li key={i} className="flex items-start gap-2 group">
-                    <span className="text-xs text-gray-700 dark:text-[#d4d4d4] leading-relaxed flex-1">
-                      {rule}
-                    </span>
+                    <span className="text-xs text-gray-700 dark:text-[#d4d4d4] leading-relaxed flex-1">{rule}</span>
                     <button
                       onClick={() => handleRemoveRule(rule)}
-                      className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all"
+                      className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all mt-0.5"
                       title="Remove rule"
                     >
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -151,8 +153,8 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
                 value={newRule}
                 onChange={e => setNewRule(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && handleAddRule()}
-                placeholder="Add a rule..."
-                className="flex-1 text-xs px-2 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
+                placeholder="Add a rule…"
+                className="flex-1 text-xs px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
               />
               <button
                 onClick={handleAddRule}
@@ -166,24 +168,23 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
 
           {/* Characters */}
           <div>
-            <h4 className="text-2xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#a3a3a3] mb-2">
-              Characters
-            </h4>
-            {Object.keys(memory.characters).length === 0 ? (
-              <p className="text-xs text-gray-400 dark:text-[#737373] italic mb-2">
-                No characters confirmed. Add key characters so Book Mind remembers who they are.
-              </p>
-            ) : (
-              <ul className="space-y-1.5 mb-2">
+            <div className="mb-2">
+              <p className="text-2xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#a3a3a3]">Characters</p>
+              <p className="text-2xs text-gray-400 dark:text-[#737373] mt-0.5">Book Mind will always know who these people are.</p>
+            </div>
+            {charCount > 0 && (
+              <ul className="space-y-1.5 mb-3">
                 {Object.entries(memory.characters).map(([name, desc]) => (
                   <li key={name} className="flex items-start gap-2 group">
                     <div className="flex-1 min-w-0">
                       <span className="text-xs font-medium text-gray-900 dark:text-white">{name}</span>
-                      <span className="text-xs text-gray-500 dark:text-[#a3a3a3] ml-1.5">{desc}</span>
+                      {desc && desc !== "No description yet" && (
+                        <span className="text-xs text-gray-500 dark:text-[#a3a3a3] ml-1.5">{desc}</span>
+                      )}
                     </div>
                     <button
                       onClick={() => handleRemoveCharacter(name)}
-                      className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all"
+                      className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all mt-0.5"
                       title="Remove character"
                     >
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -195,47 +196,48 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
               </ul>
             )}
             <div className="space-y-1.5">
-              <div className="flex gap-1.5">
-                <input
-                  value={newCharName}
-                  onChange={e => setNewCharName(e.target.value)}
-                  placeholder="Name"
-                  className="w-24 text-xs px-2 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
-                />
-                <input
-                  value={newCharDesc}
-                  onChange={e => setNewCharDesc(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && handleAddCharacter()}
-                  placeholder={isGeneratingDesc ? "Generating..." : "Description"}
-                  disabled={isGeneratingDesc}
-                  className="flex-1 text-xs px-2 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373] disabled:opacity-50"
-                />
-                <button
-                  onClick={handleAddCharacter}
-                  disabled={!newCharName.trim()}
-                  className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors"
-                >
-                  Add
-                </button>
-              </div>
-              {newCharName.trim() && !newCharDesc.trim() && (
+              <input
+                value={newCharName}
+                onChange={e => setNewCharName(e.target.value)}
+                placeholder="Name"
+                className="w-full text-xs px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
+              />
+              <input
+                value={newCharDesc}
+                onChange={e => setNewCharDesc(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleAddCharacter()}
+                placeholder={isGeneratingDesc ? "Generating…" : "Description (optional)"}
+                disabled={isGeneratingDesc}
+                className="w-full text-xs px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373] disabled:opacity-50"
+              />
+              {newCharName.trim() && !newCharDesc.trim() && !isGeneratingDesc && (
                 <button
                   onClick={handleGenerateDesc}
-                  disabled={isGeneratingDesc || !newCharName.trim()}
-                  className="text-2xs text-[#008ff0] hover:text-[#3560e6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="text-2xs text-[#008ff0] hover:text-[#3560e6] transition-colors"
                 >
-                  {isGeneratingDesc ? "Generating from manuscript..." : "Auto-generate description from manuscript"}
+                  Generate description from manuscript
                 </button>
               )}
+              {isGeneratingDesc && (
+                <p className="text-2xs text-gray-400 dark:text-[#737373]">Generating from manuscript…</p>
+              )}
+              <button
+                onClick={handleAddCharacter}
+                disabled={!newCharName.trim()}
+                className="w-full text-xs py-1.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors"
+              >
+                Add character
+              </button>
             </div>
           </div>
 
-          {/* Recent decisions */}
-          {memory.decisions.length > 0 && (
+          {/* Remembered decisions — only shown if any exist */}
+          {decisionCount > 0 && (
             <div>
-              <h4 className="text-2xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#a3a3a3] mb-2">
-                Recent decisions
-              </h4>
+              <div className="mb-2">
+                <p className="text-2xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#a3a3a3]">Remembered</p>
+                <p className="text-2xs text-gray-400 dark:text-[#737373] mt-0.5">Added via "Remember this" in chat.</p>
+              </div>
               <ul className="space-y-1">
                 {memory.decisions.slice(-5).reverse().map((d, i) => (
                   <li key={i} className="text-xs text-gray-600 dark:text-[#a3a3a3] leading-relaxed">
@@ -246,9 +248,9 @@ export default function MemoryEditor({ bookId, userId }: MemoryEditorProps) {
             </div>
           )}
 
-          {!hasContent && (
-            <p className="text-xs text-gray-400 dark:text-[#737373] text-center py-2 leading-relaxed">
-              Anything you add here is injected into every Book Mind call, so the AI never forgets.
+          {totalCount === 0 && (
+            <p className="text-xs text-gray-400 dark:text-[#737373] text-center py-1 leading-relaxed">
+              Everything you add here is injected into every Book Mind message.
             </p>
           )}
         </div>

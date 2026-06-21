@@ -51,27 +51,17 @@ export default function ModeMenu({
   // absent (not disabled) for Free users — no locks, no upsell-in-context.
   const hasFlow = useFeatureAccess('book_mind_ai');
   const flowOn = flowMode && hasFlow;
-  const activeCount = (focusActive ? 1 : 0) + (flowOn ? 1 : 0);
-  const anyActive = activeCount > 0;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          title={anyActive ? `Writing modes (${activeCount} on)` : 'Focus and writing modes'}
-          aria-label={anyActive ? `Writing modes, ${activeCount} on` : 'Focus and writing modes'}
-          className={`flex items-center gap-1.5 px-3 h-10 rounded-lg transition-colors group ${
-            anyActive
-              ? 'bg-[#008ff0]/10 dark:bg-[#008ff0]/15'
-              : 'bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f]'
-          }`}
+          title="Writing modes"
+          aria-label="Writing modes"
+          className="flex items-center gap-1.5 px-3 h-10 rounded-full bg-gray-100 dark:bg-[#1c1c1c] border border-gray-200 dark:border-[#333] hover:bg-gray-200 dark:hover:bg-[#2e2e2e] transition-colors group"
         >
           <svg
-            className={`w-6 h-6 transition-colors ${
-              anyActive
-                ? 'text-[#008ff0]'
-                : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4]'
-            }`}
+            className={`w-4 h-4 transition-colors ${flowOn ? 'text-[#008ff0]' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4]'}`}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -81,14 +71,8 @@ export default function ModeMenu({
             <circle cx="12" cy="12" r="3" />
             <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
           </svg>
-          <span
-            className={`text-xs transition-colors ${
-              anyActive
-                ? 'font-semibold text-[#008ff0]'
-                : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4]'
-            }`}
-          >
-            Focus{anyActive && activeCount > 1 ? ` (${activeCount})` : ''}
+          <span className={`text-xs transition-colors ${flowOn ? 'text-[#008ff0] font-semibold' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4]'}`}>
+            Modes
           </span>
         </button>
       </DropdownMenuTrigger>

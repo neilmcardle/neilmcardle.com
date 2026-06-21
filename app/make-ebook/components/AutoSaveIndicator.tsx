@@ -64,8 +64,7 @@ export function AutoSaveIndicator({ isDirty, isSaving, lastSaved, compact = fals
   }
 
   if (lastSaved) {
-    const saveText = hasCloudSync ? 'Saved to cloud' : 'Saved locally';
-    const titleText = `${saveText} ${formatLastSaved(lastSaved)}`;
+    const titleText = `Saved ${formatLastSaved(lastSaved)}`;
 
     if (compact) {
       return (
@@ -89,7 +88,7 @@ export function AutoSaveIndicator({ isDirty, isSaving, lastSaved, compact = fals
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 13l4 4L19 7" />
           </svg>
         )}
-        <span className="hidden xl:inline">{saveText} {formatLastSaved(lastSaved)}</span>
+        <span className="hidden xl:inline whitespace-nowrap">Saved {formatLastSaved(lastSaved)}</span>
       </div>
     );
   }

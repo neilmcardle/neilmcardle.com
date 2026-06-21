@@ -103,25 +103,55 @@ export interface BookRecord extends BookMetadata {
 
 export interface BookMindMemory {
   // Pre-computed manuscript brief — the spine of every fast retrieval.
-  // Generated once on book open by a single Haiku call, refreshed in the
-  // background after edits settle. Used by every Book Mind surface to
-  // ground answers without re-shipping the whole manuscript.
   brief?: ManuscriptBrief;
 
   // Cached results for analytical actions (themes, characters,
-  // inconsistencies, pacing, word frequency). Populated in the background
-  // by Sonnet calls with prompt caching, never re-run unless the
-  // manuscript hash changes or the user explicitly hits Refresh.
+  // inconsistencies, pacing, word frequency).
   analytical?: AnalyticalCache;
 
-  // Persistent per-book user-facing memory — the things the author has
-  // told Book Mind to remember. Injected into every system prompt.
+  // AI-extracted, user-editable book profile. Replaces the old manual
+  // rules/characters fields as the primary context injected into prompts.
+  profile?: BookProfile;
+
+  // Legacy manual memory fields — kept for backward compat but superseded
+  // by profile. Still injected into prompts if present.
   rules: string[];
   characters: Record<string, string>;
   decisions: Array<{ date: number; note: string }>;
 
   // Issues the author has dismissed so they don't reappear on re-analysis.
   dismissedIssueIds?: string[];
+}
+
+export interface ProfileCharacter {
+  id: string;
+  name: string;
+  role: string;        // e.g. "Protagonist", "Antagonist", "Supporting"
+  description: string;
+  source: 'auto' | 'user';
+}
+
+export interface ProfileLocation {
+  id: string;
+  name: string;
+  description: string;
+  source: 'auto' | 'user';
+}
+
+export interface ProfileStyle {
+  pov: string;   // e.g. "First person"
+  tense: string; // e.g. "Past tense"
+  tone: string;  // e.g. "Literary, darkly comedic"
+}
+
+export interface BookProfile {
+  generatedAt: number;
+  manuscriptHash: string;
+  characters: ProfileCharacter[];
+  locations: ProfileLocation[];
+  style: ProfileStyle;
+  keyFacts: string[];
+  writingRules: string[]; // user-curated, replaces legacy memory.rules
 }
 
 export interface ManuscriptBrief {

@@ -233,10 +233,21 @@ export function buildWideContext(args: {
 }): RetrievedContext {
   const tokens = extractTokens(args.query);
 
-  // No brief yet: cold start. Send the first few chapters by index so we
-  // have *some* grounding. The brief will be ready by the next turn.
+  // No brief yet: cold start. Send as many chapters as fit within a token
+  // budget so the model has real manuscript grounding. Sending 3 chapters
+  // by index is wrong for analytical queries — the user's content may be
+  // in chapters 4-10. The brief will be ready for the next turn.
   if (!args.brief) {
-    const fallback = args.chapters.slice(0, 3).map(chapter => ({
+    const COLD_START_BUDGET = 24000;
+    const fallbackChapters: Chapter[] = [];
+    let budgetUsed = 0;
+    for (const ch of args.chapters) {
+      const est = estimateTokens(ch.content);
+      if (budgetUsed + est > COLD_START_BUDGET && fallbackChapters.length > 0) break;
+      fallbackChapters.push(ch);
+      budgetUsed += est;
+    }
+    const fallback = fallbackChapters.map(chapter => ({
       chapter,
       reason: 'manuscript brief still generating',
       score: 0,
@@ -246,7 +257,7 @@ export function buildWideContext(args: {
       brief: null,
       retrievedChapters: fallback,
       selectedText: args.selectedText,
-      estimatedTokens: fallback.reduce((sum, r) => sum + estimateTokens(r.chapter.content), 0),
+      estimatedTokens: budgetUsed,
     };
   }
 

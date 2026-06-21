@@ -80,6 +80,7 @@ export default function EditorRightPanel({
             onNavigateToChapter={onChapterSelect}
             onRefreshAnalytical={onRefreshAnalytical}
             onAddDisclosureChapter={onAddDisclosureChapter}
+            onClose={onClose}
             isPro={isPro}
             onUpgrade={onUpgrade}
           />

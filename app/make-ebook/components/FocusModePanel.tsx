@@ -95,39 +95,37 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
 
       {/* Settings panel */}
       {open && (
-        <div className="w-72 rounded-2xl bg-[#161616] backdrop-blur-xl border border-white/20 shadow-2xl p-5 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
-          {/* Toggles */}
-          <p className="text-2xs font-semibold text-white/55 uppercase tracking-widest mb-3">
-            Focus mode
+        <div className="w-64 rounded-2xl bg-[#161616] backdrop-blur-xl border border-white/20 shadow-2xl p-4 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
+
+          {/* Interface toggles */}
+          <p className="text-2xs font-semibold text-white/45 uppercase tracking-widest mb-2">
+            Interface
           </p>
           <Toggle
             label="Full screen"
+            description="Hide browser chrome"
             checked={settings.fullScreen}
             onChange={(v) => onChangeSetting("fullScreen", v)}
           />
           <Toggle
             label="Minimal interface"
+            description="Hide nav and toolbar"
             checked={settings.hideChrome}
             onChange={(v) => onChangeSetting("hideChrome", v)}
-          />
-          <Toggle
-            label="Hide formatting toolbar"
-            checked={settings.hideToolbar}
-            onChange={(v) => onChangeSetting("hideToolbar", v)}
           />
 
           {/* Column width */}
           <div className="py-2.5 border-b border-white/10">
             <p className="text-sm text-white/90 mb-2">Column width</p>
-            <div className="flex rounded-lg overflow-hidden border border-white/20">
+            <div className="flex items-center gap-0.5 p-1 rounded-full bg-white/8 border border-white/10">
               {COL_OPTIONS.map(({ value, label }) => (
                 <button
                   key={value}
                   onClick={() => onChangeSetting("columnWidth", value)}
-                  className={`flex-1 py-1.5 text-xs transition-colors ${
+                  className={`flex-1 py-1 rounded-full text-xs font-medium transition-all ${
                     settings.columnWidth === value
-                      ? "bg-white text-gray-900 font-medium"
-                      : "text-white/60 hover:text-white/90 hover:bg-white/8"
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-white/50 hover:text-white/80"
                   }`}
                 >
                   {label}
@@ -136,33 +134,36 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
             </div>
           </div>
 
-          <p className="text-2xs font-semibold text-white/55 uppercase tracking-widest mt-3 mb-3">
+          {/* Writing toggles */}
+          <p className="text-2xs font-semibold text-white/45 uppercase tracking-widest mt-3 mb-2">
             Writing
           </p>
           <Toggle
             label="Typewriter mode"
+            description="Keeps the cursor centred"
             checked={settings.typewriterMode}
             onChange={(v) => onChangeSetting("typewriterMode", v)}
           />
           <Toggle
             label="Paragraph focus"
+            description="Dims everything except the current paragraph"
             checked={settings.paragraphFocus}
             onChange={(v) => onChangeSetting("paragraphFocus", v)}
           />
 
           {/* Ambient sound */}
-          <p className="text-2xs font-semibold text-white/55 uppercase tracking-widest mt-3 mb-3">
+          <p className="text-2xs font-semibold text-white/45 uppercase tracking-widest mt-3 mb-2">
             Ambient sound
           </p>
-          <div className="grid grid-cols-2 gap-1.5 mb-3">
+          <div className="grid grid-cols-3 gap-1 mb-3">
             {SOUND_OPTIONS.map(({ value, label }) => (
               <button
                 key={value}
                 onClick={() => onChangeSetting("ambientSound", value)}
-                className={`px-3 py-2 rounded-lg text-xs transition-colors text-left ${
+                className={`px-2 py-1.5 rounded-lg text-2xs font-medium transition-colors text-center ${
                   settings.ambientSound === value
-                    ? "bg-white text-gray-900 font-medium"
-                    : "bg-white/8 text-white/65 hover:bg-white/12 hover:text-white/90"
+                    ? "bg-white text-gray-900"
+                    : "bg-white/8 text-white/55 hover:bg-white/12 hover:text-white/90"
                 }`}
               >
                 {label}
@@ -170,33 +171,30 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
             ))}
           </div>
           {settings.ambientSound !== "none" && (
-            <div className="flex items-center gap-3">
-              <span className="text-white/60 text-xs w-6">Vol</span>
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-white/50 text-2xs">Vol</span>
               <input
                 type="range"
                 min={0}
                 max={1}
                 step={0.02}
                 value={settings.ambientVolume}
-                onChange={(e) =>
-                  onChangeSetting("ambientVolume", parseFloat(e.target.value))
-                }
+                onChange={(e) => onChangeSetting("ambientVolume", parseFloat(e.target.value))}
                 className="flex-1 h-1 accent-white cursor-pointer"
               />
-              <span className="text-white/60 text-xs w-7 text-right">
+              <span className="text-white/50 text-2xs w-7 text-right">
                 {Math.round(settings.ambientVolume * 100)}%
               </span>
             </div>
           )}
 
-          {/* Exit */}
-          <div className="border-t border-white/15 mt-4 pt-4">
+          {/* Exit — clearly labelled as leaving focus mode, not closing the panel */}
+          <div className="border-t border-white/10 mt-4 pt-3">
             <button
               onClick={onExit}
-              className="w-full py-2 rounded-lg border border-white/20 text-xs text-white/60 hover:text-white/90 hover:border-white/35 transition-colors"
+              className="w-full py-1.5 rounded-full border border-white/15 text-xs text-white/50 hover:text-white/90 hover:border-white/30 transition-colors"
             >
-              Exit focus mode
-              <span className="opacity-50 ml-2">Esc</span>
+              Exit focus mode <span className="opacity-40 ml-1">Esc</span>
             </button>
           </div>
         </div>

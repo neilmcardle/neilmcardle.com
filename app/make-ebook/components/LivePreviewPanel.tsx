@@ -162,7 +162,7 @@ export default function LivePreviewPanel({
   const { loc, percentage } = calcLocAndPercent(chapters, selectedChapter, currentPage, totalPages, viewMode);
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-[#1e1e1e]">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-[#2c2c2c]">
       {/* Header */}
       <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-[#2f2f2f]">
         <div className="flex items-center justify-between mb-2">
@@ -170,11 +170,11 @@ export default function LivePreviewPanel({
           {onClose && (
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 dark:text-white/40 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#2e2e2e] transition-colors"
               title="Close preview"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M6 18L18 6M6 6l12 12" />
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeLinecap="round">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}

@@ -9,7 +9,7 @@
 import React from 'react';
 import { LockIcon } from './icons';
 import RichTextEditor from './RichTextEditor';
-import type { FocusModeSettings } from '../hooks/useFocusMode';
+import type { FocusSettings as FocusModeSettings } from '../hooks/useFocusMode';
 import { ModKey } from './marketing/sections-v2/PlatformKey';
 
 interface Chapter {

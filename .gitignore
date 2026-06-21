@@ -41,9 +41,11 @@ make-ebook/components/AuthProvider.tsx.DS_Store
 
 # speckit planning & constitution (private)
 .specify/
+specs/
 
 # Claude Code local config: agents, skills, session memory (private)
 .claude/
+.agents/
 
 # strategy & config docs (private)
 CLAUDE.md

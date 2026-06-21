@@ -192,7 +192,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     >
       <div
         ref={innerRef}
-        className="flex flex-col h-full bg-white dark:bg-[#1e1e1e] border-r border-gray-200 dark:border-[#2f2f2f]"
+        className="flex flex-col h-full bg-white dark:bg-[#2c2c2c] border-r border-gray-200 dark:border-[#2f2f2f]"
         style={{ width, minWidth: width }}
       >
         {/* Close button row */}

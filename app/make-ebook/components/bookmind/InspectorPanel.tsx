@@ -6,6 +6,7 @@
 import React, { useState, useMemo } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ChatTab from "./tabs/ChatTab";
+import ProfileTab from "./tabs/ProfileTab";
 import InsightsTab from "./tabs/InsightsTab";
 import IssuesTab from "./tabs/IssuesTab";
 import PreflightTab from "./tabs/PreflightTab";
@@ -26,58 +27,26 @@ interface InspectorPanelProps {
   onNavigateToChapter?: (chapterIndex: number) => void;
   onRefreshAnalytical?: (kind: AnalyticalKind) => void;
   onAddDisclosureChapter?: (content: string) => void;
+  onClose?: () => void;
   isPro?: boolean;
   onUpgrade?: () => void;
 }
 
-type TabKey = "chat" | "insights" | "issues" | "preflight";
+type TabKey = "chat" | "profile" | "insights" | "issues" | "preflight";
 
-const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
-  {
-    key: "chat",
-    label: "Chat",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
-      </svg>
-    ),
-  },
-  {
-    key: "insights",
-    label: "Insights",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-      </svg>
-    ),
-  },
-  {
-    key: "issues",
-    label: "Issues",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-        <line x1="12" y1="9" x2="12" y2="13" />
-        <line x1="12" y1="17" x2="12.01" y2="17" />
-      </svg>
-    ),
-  },
-  {
-    key: "preflight",
-    label: "Pre-flight",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-        <polyline points="22 4 12 14.01 9 11.01" />
-      </svg>
-    ),
-  },
+const TABS: Array<{ key: TabKey; label: string }> = [
+  { key: "chat",      label: "Chat" },
+  { key: "profile",   label: "Profile" },
+  { key: "insights",  label: "Insights" },
+  { key: "issues",    label: "Issues" },
+  { key: "preflight", label: "Preflight" },
 ];
 
 export default function InspectorPanel(props: InspectorPanelProps) {
   const isPro = props.isPro ?? true;
   const visibleTabs = isPro ? TABS : TABS.filter(t => t.key === "chat");
   const [active, setActive] = useState<TabKey>("chat");
+  const { onClose } = props;
 
   // Load the full record for the analytical tabs. Reads are cheap so
   // re-running on tab switch is fine.
@@ -92,7 +61,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
   );
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#1e1e1e]">
+    <div className="flex flex-col h-full bg-white dark:bg-[#2c2c2c]">
       <Tabs
         value={active}
         onValueChange={(v) => setActive(v as TabKey)}
@@ -119,18 +88,30 @@ export default function InspectorPanel(props: InspectorPanelProps) {
         )}
         {/* Flow mode toggle moved to the editor toolbar's Mode menu —
             see app/make-ebook/components/ModeMenu.tsx. */}
-        <TabsList className="flex-shrink-0 h-11 w-full justify-start gap-0 bg-gray-50 dark:bg-[#181818] border-b border-gray-200 dark:border-[#2f2f2f] rounded-none p-0 mt-0">
-          {visibleTabs.map((tab) => (
-            <TabsTrigger
-              key={tab.key}
-              value={tab.key}
-              className="flex-1 h-11 rounded-none px-2 gap-1.5 text-xs text-gray-500 dark:text-[#737373] data-[state=active]:bg-white dark:data-[state=active]:bg-[#1e1e1e] data-[state=active]:text-[#008ff0] dark:data-[state=active]:text-[#008ff0] data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#008ff0] transition-colors"
+        <div className="flex-shrink-0 flex items-center gap-1.5 mx-3 my-2">
+          <TabsList className="flex-1 flex items-center gap-0.5 p-1 h-auto rounded-full bg-gray-100 dark:bg-[#1c1c1c] border border-gray-200 dark:border-[#333]">
+            {visibleTabs.map((tab) => (
+              <TabsTrigger
+                key={tab.key}
+                value={tab.key}
+                className="flex-1 py-1.5 px-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap text-gray-400 dark:text-white/40 hover:text-gray-600 dark:hover:text-white/70 data-[state=active]:bg-white dark:data-[state=active]:bg-[#2e2e2e] data-[state=active]:text-gray-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {onClose && (
+            <button
+              onClick={onClose}
+              aria-label="Close panel"
+              className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 dark:text-white/40 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#2e2e2e] transition-colors"
             >
-              {tab.icon}
-              <span className="font-medium">{tab.label}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+                <path d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
 
         <TabsContent value="chat" className="flex-1 min-h-0 mt-0 outline-none">
           <ChatTab
@@ -146,6 +127,9 @@ export default function InspectorPanel(props: InspectorPanelProps) {
             trialMode={!isPro}
             onUpgrade={props.onUpgrade}
           />
+        </TabsContent>
+        <TabsContent value="profile" className="flex-1 min-h-0 mt-0 outline-none">
+          <ProfileTab bookId={props.bookId} userId={props.userId} />
         </TabsContent>
         <TabsContent value="insights" className="flex-1 min-h-0 mt-0 outline-none">
           <InsightsTab

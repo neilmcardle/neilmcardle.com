@@ -6,6 +6,9 @@ import {
   AnalyticalCache,
   AnalyticalCacheEntry,
   AnalyticalResponse,
+  BookProfile,
+  ProfileCharacter,
+  ProfileLocation,
 } from '../types';
 import { loadBookById, saveBookToLibrary } from './bookLibrary';
 
@@ -175,25 +178,174 @@ export function dismissIssue(userId: string, bookId: string, issueId: string): v
   });
 }
 
+// ─── Book Profile helpers ─────────────────────────────────────────────────────
+
+export function getProfile(book: BookRecord | undefined): BookProfile | null {
+  return book?.bookmindMemory?.profile ?? null;
+}
+
+export function isProfileFresh(book: BookRecord | undefined): boolean {
+  const p = book?.bookmindMemory?.profile;
+  if (!p) return false;
+  return p.manuscriptHash === manuscriptHash(book!.chapters);
+}
+
+export function setProfile(userId: string, bookId: string, profile: BookProfile): void {
+  patchMemory(userId, bookId, { profile });
+}
+
+export function patchProfileCharacter(
+  userId: string,
+  bookId: string,
+  char: ProfileCharacter,
+): void {
+  const book = loadBookById(userId, bookId);
+  if (!book) return;
+  const profile = getProfile(book);
+  if (!profile) return;
+  const chars = profile.characters.map(c => c.id === char.id ? char : c);
+  setProfile(userId, bookId, { ...profile, characters: chars });
+}
+
+export function removeProfileCharacter(userId: string, bookId: string, charId: string): void {
+  const book = loadBookById(userId, bookId);
+  if (!book) return;
+  const profile = getProfile(book);
+  if (!profile) return;
+  setProfile(userId, bookId, {
+    ...profile,
+    characters: profile.characters.filter(c => c.id !== charId),
+  });
+}
+
+export function addProfileCharacter(userId: string, bookId: string, char: Omit<ProfileCharacter, 'id' | 'source'>): void {
+  const book = loadBookById(userId, bookId);
+  if (!book) return;
+  const profile = getProfile(book);
+  const newChar: ProfileCharacter = { ...char, id: `char-${Date.now()}`, source: 'user' };
+  if (profile) {
+    setProfile(userId, bookId, { ...profile, characters: [...profile.characters, newChar] });
+  }
+}
+
+export function removeProfileLocation(userId: string, bookId: string, locId: string): void {
+  const book = loadBookById(userId, bookId);
+  if (!book) return;
+  const profile = getProfile(book);
+  if (!profile) return;
+  setProfile(userId, bookId, {
+    ...profile,
+    locations: profile.locations.filter(l => l.id !== locId),
+  });
+}
+
+export function patchProfileLocation(
+  userId: string,
+  bookId: string,
+  loc: ProfileLocation,
+): void {
+  const book = loadBookById(userId, bookId);
+  if (!book) return;
+  const profile = getProfile(book);
+  if (!profile) return;
+  setProfile(userId, bookId, {
+    ...profile,
+    locations: profile.locations.map(l => l.id === loc.id ? loc : l),
+  });
+}
+
+export function addProfileRule(userId: string, bookId: string, rule: string): void {
+  const book = loadBookById(userId, bookId);
+  if (!book) return;
+  const profile = getProfile(book);
+  if (!profile || profile.writingRules.includes(rule)) return;
+  setProfile(userId, bookId, { ...profile, writingRules: [...profile.writingRules, rule] });
+}
+
+export function removeProfileRule(userId: string, bookId: string, rule: string): void {
+  const book = loadBookById(userId, bookId);
+  if (!book) return;
+  const profile = getProfile(book);
+  if (!profile) return;
+  setProfile(userId, bookId, {
+    ...profile,
+    writingRules: profile.writingRules.filter(r => r !== rule),
+  });
+}
+
+export function addProfileFact(userId: string, bookId: string, fact: string): void {
+  const book = loadBookById(userId, bookId);
+  if (!book) return;
+  const profile = getProfile(book);
+  if (!profile) return;
+  setProfile(userId, bookId, { ...profile, keyFacts: [...profile.keyFacts, fact] });
+}
+
+export function removeProfileFact(userId: string, bookId: string, fact: string): void {
+  const book = loadBookById(userId, bookId);
+  if (!book) return;
+  const profile = getProfile(book);
+  if (!profile) return;
+  setProfile(userId, bookId, {
+    ...profile,
+    keyFacts: profile.keyFacts.filter(f => f !== fact),
+  });
+}
+
 export function formatMemoryForPrompt(memory: BookMindMemory): string {
   const parts: string[] = [];
-  if (memory.rules.length > 0) {
-    parts.push('Rules the author has set:\n' + memory.rules.map(r => `- ${r}`).join('\n'));
+
+  // Prefer profile over legacy fields when both exist.
+  const p = memory.profile;
+  if (p) {
+    if (p.style?.pov || p.style?.tense || p.style?.tone) {
+      const styleLines = [
+        p.style.pov && `POV: ${p.style.pov}`,
+        p.style.tense && `Tense: ${p.style.tense}`,
+        p.style.tone && `Tone: ${p.style.tone}`,
+      ].filter(Boolean);
+      parts.push('Writing style:\n' + styleLines.map(l => `- ${l}`).join('\n'));
+    }
+    if (p.characters.length > 0) {
+      parts.push(
+        'Characters:\n' +
+        p.characters.map(c => `- ${c.name} (${c.role}): ${c.description}`).join('\n'),
+      );
+    }
+    if (p.locations.length > 0) {
+      parts.push(
+        'Locations:\n' +
+        p.locations.map(l => `- ${l.name}: ${l.description}`).join('\n'),
+      );
+    }
+    if (p.keyFacts.length > 0) {
+      parts.push('Key facts:\n' + p.keyFacts.map(f => `- ${f}`).join('\n'));
+    }
+    if (p.writingRules.length > 0) {
+      parts.push('Writing rules:\n' + p.writingRules.map(r => `- ${r}`).join('\n'));
+    }
+  } else {
+    // Fallback to legacy fields for books not yet profiled.
+    if (memory.rules.length > 0) {
+      parts.push('Rules the author has set:\n' + memory.rules.map(r => `- ${r}`).join('\n'));
+    }
+    const charNames = Object.keys(memory.characters);
+    if (charNames.length > 0) {
+      parts.push(
+        'Characters the author has confirmed:\n' +
+        charNames.map(n => `- ${n}: ${memory.characters[n]}`).join('\n'),
+      );
+    }
   }
-  const charNames = Object.keys(memory.characters);
-  if (charNames.length > 0) {
-    parts.push(
-      'Characters the author has confirmed:\n' +
-      charNames.map(n => `- ${n}: ${memory.characters[n]}`).join('\n'),
-    );
-  }
+
   if (memory.decisions.length > 0) {
     const recent = memory.decisions.slice(-10);
     parts.push(
-      'Recent editorial decisions:\n' +
+      'Editorial decisions:\n' +
       recent.map(d => `- ${d.note}`).join('\n'),
     );
   }
+
   if (parts.length === 0) return '';
-  return `THINGS BOOK MIND KNOWS ABOUT THIS BOOK\n\n${parts.join('\n\n')}`;
+  return `BOOK PROFILE\n\n${parts.join('\n\n')}`;
 }

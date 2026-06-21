@@ -105,7 +105,7 @@ export default function EditorHeader({
         {isDirty && !isSaving && (
           <button
             onClick={onSaveNow}
-            className="flex items-center gap-2 h-10 px-3 rounded-lg bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors text-xs font-medium text-gray-700 dark:text-[#d4d4d4]"
+            className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[#1c1c1c] border border-gray-200 dark:border-[#333] hover:bg-gray-200 dark:hover:bg-[#2e2e2e] transition-colors text-xs font-medium text-gray-700 dark:text-[#d4d4d4]"
             title={`Save now (${isMac ? '⌘S' : 'Ctrl+S'})`}
           >
             <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
@@ -139,7 +139,7 @@ export default function EditorHeader({
             <button
               title="More actions"
               aria-label="More actions"
-              className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-[#1c1c1c] border border-gray-200 dark:border-[#333] text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-200 dark:hover:bg-[#2e2e2e] transition-colors"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
@@ -177,7 +177,7 @@ export default function EditorHeader({
           <DropdownMenuTrigger asChild>
             <button
               data-tour="export"
-              className="flex items-center gap-2 h-10 px-5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors shadow-sm"
+              className="flex items-center gap-2 h-10 px-5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors shadow-sm"
               title="Export book"
             >
               <svg

@@ -14,16 +14,16 @@ export default function SyncConflictBanner({ conflicts, onResolve }: SyncConflic
   const current = conflicts[0];
 
   return (
-    <div className="mb-3 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-3">
+    <div className="mb-3 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-[#252525] p-3">
       <div className="flex items-start gap-2 mb-2">
-        <svg className="w-4 h-4 mt-0.5 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+        <svg className="w-4 h-4 mt-0.5 text-gray-500 dark:text-[#a3a3a3] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 9v3.75m0 3h.008v.008H12v-.008zM10.363 3.591l-8.106 13.51A1.914 1.914 0 003.89 20h16.22a1.914 1.914 0 001.632-2.899L13.636 3.59a1.914 1.914 0 00-3.273 0z" />
         </svg>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+          <p className="text-sm font-semibold text-gray-900 dark:text-white">
             Choose a version
           </p>
-          <p className="text-xs text-amber-800/80 dark:text-amber-200/80 mt-0.5">
+          <p className="text-xs text-gray-500 dark:text-[#a3a3a3] mt-0.5">
             &ldquo;{current.local.title || 'Untitled'}&rdquo; was edited on another device.
             {conflicts.length > 1 && ` (${conflicts.length} books)`}
           </p>
@@ -31,15 +31,15 @@ export default function SyncConflictBanner({ conflicts, onResolve }: SyncConflic
       </div>
 
       <div className="grid grid-cols-2 gap-2 mb-2 text-2xs">
-        <div className="p-2 rounded-md bg-white dark:bg-[#1e1e1e] border border-amber-100 dark:border-amber-900/40">
-          <p className="font-semibold text-gray-700 dark:text-gray-300 mb-0.5">This device</p>
-          <p className="text-gray-500 dark:text-gray-400">{current.local.chapters.length} chapters</p>
-          <p className="text-gray-500 dark:text-gray-400">{formatRelativeTime(current.local.savedAt)}</p>
+        <div className="p-2 rounded-md bg-gray-50 dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#333]">
+          <p className="font-semibold text-gray-700 dark:text-[#d4d4d4] mb-0.5">This device</p>
+          <p className="text-gray-500 dark:text-[#737373]">{current.local.chapters.length} chapters</p>
+          <p className="text-gray-500 dark:text-[#737373]">{formatRelativeTime(current.local.savedAt)}</p>
         </div>
-        <div className="p-2 rounded-md bg-white dark:bg-[#1e1e1e] border border-amber-100 dark:border-amber-900/40">
-          <p className="font-semibold text-gray-700 dark:text-gray-300 mb-0.5">Cloud</p>
-          <p className="text-gray-500 dark:text-gray-400">{current.cloud.chapters.length} chapters</p>
-          <p className="text-gray-500 dark:text-gray-400">{formatRelativeTime(current.cloud.savedAt)}</p>
+        <div className="p-2 rounded-md bg-gray-50 dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#333]">
+          <p className="font-semibold text-gray-700 dark:text-[#d4d4d4] mb-0.5">Cloud</p>
+          <p className="text-gray-500 dark:text-[#737373]">{current.cloud.chapters.length} chapters</p>
+          <p className="text-gray-500 dark:text-[#737373]">{formatRelativeTime(current.cloud.savedAt)}</p>
         </div>
       </div>
 
