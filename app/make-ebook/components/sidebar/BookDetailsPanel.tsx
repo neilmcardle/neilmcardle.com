@@ -87,7 +87,7 @@ export default function BookDetailsPanel({
           <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Cover Image</label>
           <div className="w-full aspect-[2/3] max-h-52 bg-gray-100 dark:bg-[#2a2a2a] rounded border border-gray-200 dark:border-[#2f2f2f] overflow-hidden flex items-center justify-center mb-2">
             {coverFile
-              ? <img src={coverFile} alt="Cover" className="w-full h-full object-cover" />
+              ? <img src={coverFile} alt="Cover" className="w-full h-full object-cover outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10" />
               : <img src="/image-icon.svg" alt="" className="w-8 h-8 opacity-30 dark:opacity-20" />}
           </div>
           <input

@@ -51,7 +51,7 @@ export function UserDropdownMobile() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition px-0 -ml-2"
+            className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors px-0 -ml-2"
             aria-label="User menu"
           >
             <img

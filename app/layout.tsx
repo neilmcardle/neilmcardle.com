@@ -87,7 +87,7 @@ const personSchema = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${GeistMono.variable} ${cantarell.variable}`}>
-      <body className="font-sans" style={{ fontFamily: 'var(--font-inter)' }}>
+      <body className="font-sans antialiased" style={{ fontFamily: 'var(--font-inter)' }}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}

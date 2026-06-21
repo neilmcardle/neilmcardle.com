@@ -87,10 +87,10 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
   if (!hasBrief && !profile) {
     return (
       <div className="flex flex-col items-center justify-center h-full px-6 text-center gap-3">
-        <p className="text-sm text-gray-500 dark:text-[#a3a3a3]">
+        <p className="text-sm text-gray-500 dark:text-[#a3a3a3] text-balance">
           Send your first Book Mind message to generate your book profile.
         </p>
-        <p className="text-xs text-gray-400 dark:text-[#737373]">
+        <p className="text-xs text-gray-400 dark:text-[#737373] text-pretty">
           Book Mind needs to read your manuscript first.
         </p>
       </div>

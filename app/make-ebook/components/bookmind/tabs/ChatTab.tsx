@@ -446,10 +446,10 @@ export default function ChatTab({
       {trialMode && trialExhausted ? (
         <div className="flex-shrink-0 px-4 pb-4 pt-3">
           <div className="rounded-xl border border-[#d6dcff] dark:border-[#2a2f45] bg-[#f5f7ff] dark:bg-[#1a1d2e] px-4 py-4 text-center">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1 text-balance">
               You&apos;ve used your free Book Mind analysis
             </p>
-            <p className="text-xs text-gray-600 dark:text-[#a3a3a3] mb-4 leading-relaxed">
+            <p className="text-xs text-gray-600 dark:text-[#a3a3a3] mb-4 leading-relaxed text-pretty">
               Upgrade to Pro for unlimited chat, insights, issues, and the KDP pre-flight check.
             </p>
             <button

@@ -60,7 +60,7 @@ export function ChapterList({
           <div
             key={i}
             ref={el => (pillRefs.current[i] = el)}
-            className={`flex items-center rounded-[30px] px-5 py-2.5 mb-2 cursor-pointer transition
+            className={`flex items-center rounded-[30px] px-5 py-2.5 mb-2 cursor-pointer transition-colors
               ${isSelected ? "bg-[#008ff0]/15 text-white font-semibold" : "bg-[#181a1d] text-white/75 hover:bg-[#23252a] hover:text-white"}
               relative
             `}
@@ -71,7 +71,7 @@ export function ChapterList({
             <span className="ml-3 text-[12px] truncate flex-1 min-w-0">{displayTitle}</span>
             <span className="ml-4 text-3xs font-medium whitespace-nowrap">{plainText(ch.content).length} chars</span>
             <button
-              className="ml-4 p-1 rounded hover:bg-white/10 text-white/65 hover:text-white transition"
+              className="ml-4 p-1 rounded hover:bg-white/10 text-white/65 hover:text-white transition-colors"
               onClick={e => {
                 e.stopPropagation();
                 onRemove(i);
@@ -90,13 +90,13 @@ export function ChapterList({
 function HandleDots() {
   return (
     <span
-      className="relative w-4 h-5 shrink-0 flex flex-wrap content-center gap-[2px] opacity-70 group-hover:opacity-100 transition"
+      className="relative w-4 h-5 shrink-0 flex flex-wrap content-center gap-[2px] opacity-70 group-hover:opacity-100 transition-opacity"
       aria-hidden="true"
     >
       {Array.from({ length: 4 }).map((_, i) => (
         <span
           key={i}
-          className="w-[5px] h-[5px] rounded-[2px] bg-white/55 group-hover:bg-white transition"
+          className="w-[5px] h-[5px] rounded-[2px] bg-white/55 group-hover:bg-white transition-colors"
         />
       ))}
     </span>

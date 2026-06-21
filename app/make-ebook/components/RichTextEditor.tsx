@@ -901,7 +901,7 @@ export default function RichTextEditor({
               aria-label="Undo"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4] active:scale-95 transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-transform touch-manipulation"
             >
               <img src="/undo-icon.svg" alt="" aria-hidden="true" className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -912,7 +912,7 @@ export default function RichTextEditor({
               aria-label="Redo"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4] active:scale-95 transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-transform touch-manipulation"
             >
               <img src="/redo-icon.svg" alt="" aria-hidden="true" className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -933,7 +933,7 @@ export default function RichTextEditor({
                 aria-pressed={!!formats[b.cmd]}
                 type="button"
                 disabled={disabled}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-transform touch-manipulation ${
+                className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-[0.96] transition-transform touch-manipulation ${
                   formats[b.cmd]
                     ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20 text-[#008ff0]'
                     : 'bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]'
@@ -989,7 +989,7 @@ export default function RichTextEditor({
               aria-pressed={!!formats['justifyLeft']}
               type="button"
               disabled={disabled}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
+              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
                 formats['justifyLeft']
                   ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20'
                   : 'bg-gray-100 dark:bg-[#1e1e1e]'
@@ -1005,7 +1005,7 @@ export default function RichTextEditor({
               aria-pressed={!!formats['justifyCenter']}
               type="button"
               disabled={disabled}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
+              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
                 formats['justifyCenter']
                   ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20'
                   : 'bg-gray-100 dark:bg-[#1e1e1e]'
@@ -1021,7 +1021,7 @@ export default function RichTextEditor({
               aria-pressed={!!formats['justifyRight']}
               type="button"
               disabled={disabled}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${
+              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
                 formats['justifyRight']
                   ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20'
                   : 'bg-gray-100 dark:bg-[#1e1e1e]'
@@ -1069,7 +1069,7 @@ export default function RichTextEditor({
               aria-label="Outdent"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-600 dark:text-[#d4d4d4] active:scale-95 transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-transform touch-manipulation"
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 6h18M9 12h12M9 18h12" /><path d="M7 9l-4 3 4 3" />
@@ -1105,7 +1105,7 @@ export default function RichTextEditor({
               aria-label="Indent"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-600 dark:text-[#d4d4d4] active:scale-95 transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-transform touch-manipulation"
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 6h18M9 12h12M9 18h12" /><path d="M3 9l4 3-4 3" />
@@ -1125,7 +1125,7 @@ export default function RichTextEditor({
               aria-label="Insert endnote"
               type="button"
               disabled={disabled || !onCreateEndnote}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-95 transition-transform touch-manipulation disabled:opacity-50"
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation disabled:opacity-50"
             >
               <Image src="/endnote-icon.svg" alt="" aria-hidden="true" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -1136,7 +1136,7 @@ export default function RichTextEditor({
               aria-label="Insert link"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
             >
               <Image src="/link-icon.svg" alt="" aria-hidden="true" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -1147,7 +1147,7 @@ export default function RichTextEditor({
               aria-label="Insert anchor"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-95 transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
             >
               <Image src="/anchor-icon.svg" alt="" aria-hidden="true" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -1164,7 +1164,7 @@ export default function RichTextEditor({
             aria-label="Insert image"
             type="button"
             disabled={disabled}
-            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
+            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation flex-shrink-0"
           >
             <img src="/image-icon.svg" alt="" aria-hidden="true" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
           </button>
@@ -1182,7 +1182,7 @@ export default function RichTextEditor({
             aria-label="Remove all formatting"
             type="button"
             disabled={disabled}
-            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-95 transition-transform touch-manipulation flex-shrink-0"
+            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation flex-shrink-0"
           >
             <img src="/clear-erase-icon.svg" alt="" aria-hidden="true" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
           </button>
@@ -1290,7 +1290,7 @@ export default function RichTextEditor({
                   key={b.cmd}
                   onMouseDown={e => e.preventDefault()}
                   onClick={() => applyInlineOrAlign(b.cmd)}
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-95 transition-transform ${
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-[0.96] transition-transform ${
                     formats[b.cmd]
                       ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
                       : 'bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]'
@@ -1312,7 +1312,7 @@ export default function RichTextEditor({
                   key={h.level}
                   onMouseDown={e => e.preventDefault()}
                   onClick={() => applyHeading(h.level)}
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-95 transition-transform ${
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-[0.96] transition-transform ${
                     formats[`heading${h.level}`]
                       ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
                       : 'bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]'
@@ -1332,7 +1332,7 @@ export default function RichTextEditor({
               <button
                 onMouseDown={e => e.preventDefault()}
                 onClick={() => applyInlineOrAlign('justifyLeft')}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform ${
+                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
                   formats['justifyLeft']
                     ? 'bg-[#181a1d] dark:bg-white'
                     : 'bg-gray-100 dark:bg-[#1e1e1e]'
@@ -1344,7 +1344,7 @@ export default function RichTextEditor({
               <button
                 onMouseDown={e => e.preventDefault()}
                 onClick={() => applyInlineOrAlign('justifyCenter')}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform ${
+                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
                   formats['justifyCenter']
                     ? 'bg-[#181a1d] dark:bg-white'
                     : 'bg-gray-100 dark:bg-[#1e1e1e]'
@@ -1356,7 +1356,7 @@ export default function RichTextEditor({
               <button
                 onMouseDown={e => e.preventDefault()}
                 onClick={() => applyInlineOrAlign('justifyRight')}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform ${
+                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
                   formats['justifyRight']
                     ? 'bg-[#181a1d] dark:bg-white'
                     : 'bg-gray-100 dark:bg-[#1e1e1e]'
@@ -1399,7 +1399,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => setShowMoreMenu(!showMoreMenu)}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 transition-transform flex-shrink-0 ${
+              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform flex-shrink-0 ${
                 showMoreMenu
                   ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
                   : 'bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]'
@@ -1655,7 +1655,7 @@ export default function RichTextEditor({
                 onMouseDown={e => e.preventDefault()}
                 title={action.title}
                 type="button"
-                className="w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
+                className="w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
                 onClick={() => {
                   if (action.cmd === 'endnote') {
                     handleEndnoteClick();

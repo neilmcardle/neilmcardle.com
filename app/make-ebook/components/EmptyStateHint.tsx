@@ -21,10 +21,10 @@ export default function EmptyStateHint({ icon, title, description, action, compa
           {icon}
         </div>
       )}
-      <p className={`font-medium text-gray-500 dark:text-[#a3a3a3] ${compact ? 'text-3xs mb-0.5' : 'text-xs mb-1'}`}>
+      <p className={`font-medium text-gray-500 dark:text-[#a3a3a3] text-balance ${compact ? 'text-3xs mb-0.5' : 'text-xs mb-1'}`}>
         {title}
       </p>
-      <p className={`text-gray-400 dark:text-[#737373] ${compact ? 'text-2xs' : 'text-3xs'}`}>
+      <p className={`text-gray-400 dark:text-[#737373] text-pretty ${compact ? 'text-2xs' : 'text-3xs'}`}>
         {description}
       </p>
       {action && (

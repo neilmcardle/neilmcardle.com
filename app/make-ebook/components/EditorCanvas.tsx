@@ -178,17 +178,17 @@ export default function EditorCanvas({
           <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
             <span className="flex items-center gap-1.5">
               <span className="text-gray-300 dark:text-gray-600">Chapter:</span>
-              <span>{chapterWordCount.toLocaleString()} words</span>
+              <span className="tabular-nums">{chapterWordCount.toLocaleString()} words</span>
             </span>
             <span className="text-gray-300 dark:text-gray-700">|</span>
             <span className="flex items-center gap-1.5">
               <span className="text-gray-300 dark:text-gray-600">Book:</span>
-              <span>{bookStats.totalWords.toLocaleString()} words</span>
+              <span className="tabular-nums">{bookStats.totalWords.toLocaleString()} words</span>
             </span>
             {sessionStats.wordsThisSession > 0 && (
               <>
                 <span className="text-gray-300 dark:text-gray-700">|</span>
-                <span className="text-green-500/70 dark:text-green-500/50">
+                <span className="text-green-500/70 dark:text-green-500/50 tabular-nums">
                   +{sessionStats.wordsThisSession.toLocaleString()} this session
                 </span>
               </>

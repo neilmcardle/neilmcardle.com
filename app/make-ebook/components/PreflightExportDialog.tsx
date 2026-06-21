@@ -163,8 +163,8 @@ function ProBody({
         )}
 
         {allClear && warns.length > 0 && (
-          <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40">
-            <p className="text-xs text-amber-700 dark:text-amber-400">
+          <div className="p-3 rounded-xl bg-gray-50 dark:bg-[#252525] border border-gray-200 dark:border-[#3a3a3a]">
+            <p className="text-xs text-gray-600 dark:text-[#a3a3a3]">
               {warns.length} {warns.length === 1 ? "recommendation" : "recommendations"} worth addressing before publishing.
             </p>
           </div>
@@ -208,15 +208,15 @@ function FreeBody({
   return (
     <>
       <div className="px-6 py-5 space-y-4">
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40">
-          <svg className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-[#252525] border border-gray-200 dark:border-[#3a3a3a]">
+          <svg className="w-5 h-5 text-gray-400 dark:text-[#737373] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-amber-900 dark:text-amber-200 mb-1">
+            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1 text-balance">
               Pre-flight check skipped
             </p>
-            <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+            <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed text-pretty">
               Amazon delists books that fail KDP requirements. Pro shows a pre-flight check for word count, title, and metadata before you export. You can still export without it.
             </p>
           </div>
