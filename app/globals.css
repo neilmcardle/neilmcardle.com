@@ -711,37 +711,22 @@ button:hover .palette-icon {
   100% { opacity: 0; --trace-angle: 360deg; }
 }
 
-/* Mobile CTA button — glint plays on load then repeats.
-   Uses transform: rotate() instead of @property so it works in Firefox. */
+/* Mobile CTA button — border flash, no conic-gradient or mask-composite
+   so it works in Firefox and all other browsers without artifacts. */
 @keyframes mobile-border-glint {
-  0%   { opacity: 0; transform: rotate(0deg); }
-  5%   { opacity: 1; }
-  28%  { opacity: 0; transform: rotate(360deg); }
-  100% { opacity: 0; transform: rotate(360deg); }
+  0%   { opacity: 0; }
+  8%   { opacity: 1; }
+  30%  { opacity: 0; }
+  100% { opacity: 0; }
 }
 .mobile-border-glint::after {
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
+  inset: -1px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 250, 240, 0.75);
+  box-shadow: 0 0 10px rgba(255, 250, 240, 0.25);
   pointer-events: none;
-  padding: 2px;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg 280deg,
-    rgba(255, 250, 240, 0.2) 310deg,
-    rgba(255, 250, 240, 0.9) 340deg,
-    rgba(255, 250, 240, 0.2) 352deg,
-    transparent 360deg
-  );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
   opacity: 0;
   animation: mobile-border-glint 10s ease-out 4s infinite;
 }

@@ -81,15 +81,19 @@ export default function HeroCta({ href }: { href: string }) {
         />
       </div>
 
-      {/* Mobile */}
-      <a
-        href={href}
-        className="mobile-border-glint md:hidden inline-flex items-center gap-2.5 px-6 py-3 rounded-[8px]"
-        style={{ ...BUTTON_STYLE, position: 'relative' }}
-      >
-        <Logomark size={14} />
-        Let's work together
-      </a>
+      {/* Mobile — always-on ElectricBorder */}
+      <div className="md:hidden">
+        <ElectricBorder color="#d8b46a" speed={0.7} chaos={0.06} borderRadius={8}>
+          <a
+            href={href}
+            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-[8px]"
+            style={BUTTON_STYLE}
+          >
+            <Logomark size={14} />
+            Let's work together
+          </a>
+        </ElectricBorder>
+      </div>
     </>
   );
 }

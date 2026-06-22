@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
-import SideRays from "@/components/SideRays";
 import GradualBlur from "@/components/GradualBlur";
 import BorderGlow from "@/components/BorderGlow";
 import ElectricBorder from "@/components/ElectricBorder";
@@ -111,30 +110,6 @@ export default function Homepage() {
   return (
     <>
     <div className="min-h-screen bg-black relative isolate overflow-hidden">
-      {/* Mobile SideRays*/}
-      <div
-        className="sm:hidden pointer-events-none absolute inset-x-0 top-0 z-0 h-[520px]"
-        aria-hidden="true"
-        style={{
-          maskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,0.9) 25%, rgba(0,0,0,0) 90%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,0.9) 25%, rgba(0,0,0,0) 90%)",
-        }}
-      >
-        <SideRays
-          origin="top-left"
-          rayColor1="#ffffff"
-          rayColor2="#9e9482"
-          speed={1}
-          intensity={1.2}
-          spread={2.4}
-          saturation={0.6}
-          blend={0.6}
-          falloff={1.9}
-          opacity={0.45}
-        />
-      </div>
 
       {/* Legibility scrim — darkens the centre where the hero text sits. */}
       <div
