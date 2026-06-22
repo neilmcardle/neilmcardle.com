@@ -124,7 +124,7 @@ export default function Homepage() {
       >
         <SideRays
           origin="top-left"
-          rayColor1="#e5b945"
+          rayColor1="#ffffff"
           rayColor2="#9e9482"
           speed={1}
           intensity={4}
@@ -149,7 +149,7 @@ export default function Homepage() {
       >
         <SideRays
           origin="top-left"
-          rayColor1="#e5b945"
+          rayColor1="#ffffff"
           rayColor2="#9e9482"
           speed={1}
           intensity={1.2}
@@ -180,15 +180,15 @@ export default function Homepage() {
             fill="none"
             role="img"
             aria-label="Neil McArdle"
-            className="mb-10"
+            className="mb-10 text-cream"
           >
             <path
               d="M0,0v76.8c0,.5.4,1,1,1h37c.5,0,1-.4,1-1v-37.8L0,0Z"
-              fill="#9e9482"
+              fill="currentColor"
             />
             <path
               d="M78,78V1.2c0-.5-.4-1-1-1h-37c-.5,0-1,.4-1,1v37.8l39,39Z"
-              fill="#9e9482"
+              fill="currentColor"
             />
           </svg>
 
@@ -206,9 +206,9 @@ export default function Homepage() {
           <h1
             className="text-cream"
             style={{
-              fontFamily: "var(--font-cantarell)",
+              fontFamily: "var(--font-eb-garamond)",
               fontSize: "clamp(2.5rem, 8vw, 4.25rem)",
-              fontWeight: 700,
+              fontWeight: 800,
               letterSpacing: "-0.02em",
               lineHeight: 1,
             }}
@@ -219,7 +219,7 @@ export default function Homepage() {
           <p
             className="mt-4 text-white"
             style={{
-              fontFamily: "var(--font-geist-mono)",
+              fontFamily: "var(--font-inter)",
               fontSize: "0.8125rem",
               letterSpacing: "0.13em",
               textTransform: "uppercase",
@@ -234,7 +234,7 @@ export default function Homepage() {
             <h2
               className="text-cream mb-8"
               style={{
-                fontFamily: "var(--font-geist-mono)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "clamp(2rem, 6vw, 3.25rem)",
                 fontWeight: 400,
                 letterSpacing: "-0.02em",
@@ -254,7 +254,7 @@ export default function Homepage() {
             aria-label="Primary"
             className="mt-12 flex items-center gap-6 text-tan"
             style={{
-              fontFamily: "var(--font-geist-mono)",
+              fontFamily: "var(--font-inter)",
               fontSize: "0.75rem",
               textTransform: "uppercase",
               letterSpacing: "0.13em",
@@ -277,7 +277,7 @@ export default function Homepage() {
             <p
               className="text-tan/70 mb-4"
               style={{
-                fontFamily: "var(--font-geist-mono)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "0.625rem",
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
@@ -310,7 +310,7 @@ export default function Homepage() {
                 <div
                   className="text-gold mb-3"
                   style={{
-                    fontFamily: "var(--font-geist-mono)",
+                    fontFamily: "var(--font-inter)",
                     fontSize: "0.75rem",
                     letterSpacing: "0.13em",
                     fontWeight: 600,
@@ -321,7 +321,7 @@ export default function Homepage() {
                 <h3
                   className="text-cream mb-2"
                   style={{
-                    fontFamily: "var(--font-cantarell)",
+                    fontFamily: "var(--font-eb-garamond)",
                     fontSize: "1.375rem",
                     fontWeight: 700,
                     letterSpacing: "-0.01em",
@@ -387,7 +387,7 @@ export default function Homepage() {
                 <figcaption
                   className="mt-4 text-tan"
                   style={{
-                    fontFamily: "var(--font-geist-mono)",
+                    fontFamily: "var(--font-inter)",
                     fontSize: "0.6875rem",
                     letterSpacing: "0.13em",
                     textTransform: "uppercase",
@@ -415,7 +415,7 @@ export default function Homepage() {
                 <h3
                   className="text-cream"
                   style={{
-                    fontFamily: "var(--font-geist-mono)",
+                    fontFamily: "var(--font-inter)",
                     fontSize: "1.75rem",
                     fontWeight: 400,
                     letterSpacing: "-0.01em",
@@ -426,7 +426,7 @@ export default function Homepage() {
                 <span
                   className="shrink-0 rounded-full px-3 py-1.5 text-gold border border-gold/30 bg-gold/10"
                   style={{
-                    fontFamily: "var(--font-geist-mono)",
+                    fontFamily: "var(--font-inter)",
                     fontSize: "0.625rem",
                     letterSpacing: "0.13em",
                     textTransform: "uppercase",
@@ -444,7 +444,7 @@ export default function Homepage() {
                 <span
                   className="text-cream leading-none"
                   style={{
-                    fontFamily: "var(--font-geist-mono)",
+                    fontFamily: "var(--font-inter)",
                     fontSize: "clamp(2.75rem, 8vw, 4rem)",
                     fontWeight: 400,
                     letterSpacing: "-0.02em",
@@ -455,7 +455,7 @@ export default function Homepage() {
                 <span
                   className="text-tan mb-1.5"
                   style={{
-                    fontFamily: "var(--font-geist-mono)",
+                    fontFamily: "var(--font-inter)",
                     fontSize: "0.875rem",
                     letterSpacing: "0.08em",
                   }}
@@ -465,7 +465,7 @@ export default function Homepage() {
                 <span
                   className="text-tan mb-2"
                   style={{
-                    fontFamily: "var(--font-geist-mono)",
+                    fontFamily: "var(--font-inter)",
                     fontSize: "0.625rem",
                     letterSpacing: "0.13em",
                     textTransform: "uppercase",
@@ -494,7 +494,7 @@ export default function Homepage() {
                 <span
                   className="absolute -top-2 left-5 bg-[#1a1a1d] px-2 text-gold"
                   style={{
-                    fontFamily: "var(--font-geist-mono)",
+                    fontFamily: "var(--font-inter)",
                     fontSize: "0.625rem",
                     letterSpacing: "0.13em",
                     textTransform: "uppercase",
@@ -536,7 +536,7 @@ export default function Homepage() {
               <p
                 className="mt-3 text-center text-tan"
                 style={{
-                  fontFamily: "var(--font-geist-mono)",
+                  fontFamily: "var(--font-inter)",
                   fontSize: "0.6875rem",
                   letterSpacing: "0.08em",
                 }}
@@ -585,7 +585,7 @@ export default function Homepage() {
           <h2
             className="text-cream mb-8"
             style={{
-              fontFamily: "var(--font-geist-mono)",
+              fontFamily: "var(--font-inter)",
               fontSize: "clamp(2rem, 6vw, 3.25rem)",
               fontWeight: 400,
               letterSpacing: "-0.02em",
@@ -736,7 +736,7 @@ function ProductFeature({
   const ctaCls =
     "group/cta inline-flex items-center gap-2 text-gold hover:text-gold-bright transition-colors";
   const ctaStyle = {
-    fontFamily: "var(--font-geist-mono)",
+    fontFamily: "var(--font-inter)",
     fontSize: "0.6875rem",
     letterSpacing: "0.13em",
     textTransform: "uppercase" as const,
@@ -761,7 +761,7 @@ function ProductFeature({
         <div
           className="text-tan mb-4"
           style={{
-            fontFamily: "var(--font-geist-mono)",
+            fontFamily: "var(--font-inter)",
             fontSize: "0.6875rem",
             letterSpacing: "0.13em",
             textTransform: "uppercase",
@@ -772,7 +772,7 @@ function ProductFeature({
         <h3
           className="text-cream"
           style={{
-            fontFamily: "var(--font-geist-mono)",
+            fontFamily: "var(--font-inter)",
             fontSize: "clamp(2rem, 4vw, 2.75rem)",
             fontWeight: 400,
             letterSpacing: "-0.02em",
@@ -816,7 +816,7 @@ function ProductFeature({
               </svg>
               <span
                 style={{
-                  fontFamily: "var(--font-geist-mono)",
+                  fontFamily: "var(--font-inter)",
                   fontSize: "0.625rem",
                   letterSpacing: "0.13em",
                   textTransform: "uppercase",
@@ -975,7 +975,7 @@ function SectionHeader({ label }: { label: string }) {
         className="text-tan"
         style={{
           fontSize: "0.75rem",
-          fontFamily: "var(--font-geist-mono)",
+          fontFamily: "var(--font-inter)",
           letterSpacing: "0.13em",
           textTransform: "uppercase",
         }}
