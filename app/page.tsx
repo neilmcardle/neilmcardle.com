@@ -4,7 +4,9 @@ import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepagePr
 import SideRays from "@/components/SideRays";
 import GradualBlur from "@/components/GradualBlur";
 import BorderGlow from "@/components/BorderGlow";
+import ElectricBorder from "@/components/ElectricBorder";
 import ShakeOnView from "@/components/ShakeOnView";
+import HeroCta from "@/components/HeroCta";
 
 const SUBSCRIBE_URL = "https://buy.stripe.com/9B600l7XfblGdOxgk8fIs01";
 
@@ -109,33 +111,6 @@ export default function Homepage() {
   return (
     <>
     <div className="min-h-screen bg-black relative isolate overflow-hidden">
-      {/* Hero ambience — side rays, masked to fade into the page. Desktop and
-          mobile render separately so each can be tuned for its viewport; only
-          the visible one spins up WebGL (the hidden one is display:none). */}
-      <div
-        className="hidden sm:block pointer-events-none absolute inset-x-0 top-0 z-0 h-[760px]"
-        aria-hidden="true"
-        style={{
-          maskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,0.95) 35%, rgba(0,0,0,0) 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,0.95) 35%, rgba(0,0,0,0) 100%)",
-        }}
-      >
-        <SideRays
-          origin="top-left"
-          rayColor1="#ffffff"
-          rayColor2="#9e9482"
-          speed={1}
-          intensity={4}
-          spread={2}
-          saturation={0.8}
-          blend={0.6}
-          falloff={1.6}
-          opacity={0.8}
-        />
-      </div>
-
       {/* Mobile SideRays*/}
       <div
         className="sm:hidden pointer-events-none absolute inset-x-0 top-0 z-0 h-[520px]"
@@ -209,15 +184,15 @@ export default function Homepage() {
               fontFamily: "var(--font-eb-garamond)",
               fontSize: "clamp(2.5rem, 8vw, 4.25rem)",
               fontWeight: 800,
-              letterSpacing: "-0.02em",
-              lineHeight: 1,
+              letterSpacing: "0.2em",
+              lineHeight: 1.2,
             }}
           >
-            Neil McArdle
+            NEIL McARDLE
           </h1>
 
           <p
-            className="mt-4 text-white"
+            className="mb-4 text-tan"
             style={{
               fontFamily: "var(--font-inter)",
               fontSize: "0.8125rem",
@@ -225,8 +200,7 @@ export default function Homepage() {
               textTransform: "uppercase",
             }}
           >
-            Senior Digital Product Designer{" "}
-            <span className="text-tan"><br/>@ Avis Budget Group</span>
+            Artist · Designer · London
           </p>
 
 
@@ -241,13 +215,11 @@ export default function Homepage() {
                 lineHeight: 1.05,
               }}
             >
-              Got a product to ship?
+              Your product, designed and built.
             </h2>
           
             <div className="mt-9 flex flex-col items-center gap-5">
-              <ShakeOnView>
-                <CtaButton href={ctaHref} label={ctaLabel} />
-              </ShakeOnView>
+              <HeroCta href={ctaHref} />
             </div>
           </section>
           <nav
@@ -408,7 +380,8 @@ export default function Homepage() {
             Subscribe CTA points at SUBSCRIBE_URL. */}
         <section id="pricing" className="mb-24 scroll-mt-12">
           <SectionHeader label="Work with me" />
-          <div className="soft-card max-w-2xl mx-auto rounded-[1.75rem] overflow-hidden">
+          <div className="max-w-2xl mx-auto">
+          <div className="soft-card rounded-[1.75rem] overflow-hidden" style={{ background: '#000000' }}>
             <div className="p-8 sm:p-10">
               {/* Header: plan name + pause pill */}
               <div className="flex items-start justify-between gap-4">
@@ -424,10 +397,10 @@ export default function Homepage() {
                   Monthly
                 </h3>
                 <span
-                  className="shrink-0 rounded-full px-3 py-1.5 text-gold border border-gold/30 bg-gold/10"
+                  className="shrink-0 text-tan"
                   style={{
                     fontFamily: "var(--font-inter)",
-                    fontSize: "0.625rem",
+                    fontSize: "0.8125rem",
                     letterSpacing: "0.13em",
                     textTransform: "uppercase",
                   }}
@@ -545,6 +518,7 @@ export default function Homepage() {
               </p>
 
             </div>
+          </div>
           </div>
         </section>
 
@@ -844,20 +818,17 @@ function CtaButton({
   shake?: boolean;
 }) {
   return (
-    <BorderGlow
-      className={`cta-glow inline-block align-middle ${shake ? "cta-shake" : ""} ${className}`}
-      backgroundColor="#000000"
+    <ElectricBorder
+      color="#d8b46a"
+      speed={0.7}
+      chaos={0.06}
       borderRadius={8}
-      glowColor="40 62 64"
-      glowRadius={34}
-      glowIntensity={1}
-      edgeSensitivity={32}
-      coneSpread={22}
-      colors={["#f0d091", "#d8b46a", "#b8923f"]}
+      className={`${shake ? "cta-shake" : ""} ${className}`}
+      style={{ display: "inline-block", verticalAlign: "middle" }}
     >
       <a
         href={href}
-        className="gold-btn group inline-flex items-center gap-1.5 pl-3 pr-2 py-2 rounded-[8px]"
+        className="gold-btn inline-flex items-center gap-2.5 px-5 py-2.5 rounded-[8px]"
         style={{
           fontFamily: "var(--font-inter)",
           fontSize: "1.125rem",
@@ -866,24 +837,20 @@ function CtaButton({
           textTransform: "none",
         }}
       >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 78 78"
+          fill="currentColor"
+          aria-hidden="true"
+          style={{ flexShrink: 0 }}
+        >
+          <path d="M0,0v76.8c0,.5.4,1,1,1h37c.5,0,1-.4,1-1v-37.8L0,0Z" />
+          <path d="M78,78V1.2c0-.5-.4-1-1-1h-37c-.5,0-1,.4-1,1v37.8l39,39Z" />
+        </svg>
         <span>{label}</span>
-        <span className="gold-btn-badge w-7 h-7">
-          {/* Straight face by default, smiles on hover. */}
-          <span className="relative inline-block w-[11px] h-[13px]" aria-hidden="true">
-            <svg className="face-straight absolute inset-x-0 top-0 w-[11px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-100 group-hover:opacity-0" viewBox="0 0 12 10.71" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="1.5" cy="1.5" r="1.5" />
-              <path d="M11.6,9.61c0,.61-.49,1.1-1.1,1.1H1.5c-.61,0-1.1-.49-1.1-1.1s.49-1.1,1.1-1.1h9c.61,0,1.1.49,1.1,1.1Z" />
-              <circle cx="10.5" cy="1.5" r="1.5" />
-            </svg>
-            <svg className="face-smile absolute inset-x-0 top-0 w-[11px] h-auto transition-opacity duration-[240ms] ease-in-out opacity-0 group-hover:opacity-100" viewBox="0 0 11.2 11.95" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3.6,1.5c0,.83-.68,1.5-1.5,1.5s-1.5-.67-1.5-1.5.67-1.5,1.5-1.5,1.5.67,1.5,1.5Z" />
-              <path d="M10.6,1.5c0,.83-.68,1.5-1.5,1.5s-1.5-.67-1.5-1.5.67-1.5,1.5-1.5,1.5.67,1.5,1.5Z" />
-              <path d="M11.02,8.98c-1.19,1.86-3.22,2.97-5.42,2.97S1.36,10.84.17,8.98c-.32-.51-.18-1.19.33-1.52.51-.32,1.2-.18,1.52.33.79,1.23,2.12,1.96,3.58,1.96s2.79-.73,3.57-1.96c.33-.5,1.01-.65,1.52-.33.25.16.42.41.48.69.06.29,0,.59-.15.83Z" />
-            </svg>
-          </span>
-        </span>
       </a>
-    </BorderGlow>
+    </ElectricBorder>
   );
 }
 

@@ -711,6 +711,39 @@ button:hover .palette-icon {
   100% { opacity: 0; --trace-angle: 360deg; }
 }
 
+/* Mobile CTA button — glint plays on load then repeats every ~6s */
+@keyframes mobile-border-glint {
+  0%   { opacity: 1; --trace-angle:   0deg; }
+  28%  { opacity: 0; --trace-angle: 360deg; }
+  100% { opacity: 0; --trace-angle: 360deg; }
+}
+.mobile-border-glint::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--trace-angle),
+    transparent 0deg 280deg,
+    rgba(255, 250, 240, 0.2) 310deg,
+    rgba(255, 250, 240, 0.9) 340deg,
+    rgba(255, 250, 240, 0.2) 352deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  animation: mobile-border-glint 10s ease-out 4s infinite;
+}
+
 /* Auto-loop trace removed. The hover rule above is the only trigger now,
    so the border lights up only when the user actually engages with a
    card instead of pulsing constantly. */
@@ -1509,9 +1542,12 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   background: none;
   border: 1px solid #9e9482;
   box-shadow: none;
+  transition: color 200ms ease;
 }
 .home-prose .gold-btn:hover {
   filter: none;
+  color: rgba(255, 255, 255, 0.45);
+  transition: color 200ms ease;
 }
 .home-prose .gold-btn:active {
   transform: translateY(1px);
