@@ -78,6 +78,7 @@ export default function HeroCta({ href }: { href: string }) {
           className="absolute pointer-events-none overflow-visible"
           style={{ left: TEXT_LEFT_OFFSET, right: '1.5rem', top: 0, bottom: 0 }}
           scatterScale={0.35}
+          scatteredOpacity={0}
         />
       </div>
 

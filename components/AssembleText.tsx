@@ -9,6 +9,7 @@ interface Props {
   className?: string;
   scatterUp?: boolean;
   scatterScale?: number;
+  scatteredOpacity?: number;
   style?: React.CSSProperties;
 }
 
@@ -18,7 +19,7 @@ export interface AssembleTextHandle {
 }
 
 const AssembleText = forwardRef<AssembleTextHandle, Props>(function AssembleText(
-  { text, fontSize = '1rem', color = 'currentColor', className = '', scatterUp = false, scatterScale = 1, style },
+  { text, fontSize = '1rem', color = 'currentColor', className = '', scatterUp = false, scatterScale = 1, scatteredOpacity = 1, style },
   ref
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -35,16 +36,18 @@ const AssembleText = forwardRef<AssembleTextHandle, Props>(function AssembleText
   const scatter = useCallback(() => {
     const spans = containerRef.current?.querySelectorAll<HTMLElement>('.asm-word') ?? [];
     spans.forEach((span, i) => {
-      span.style.transition = `transform 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94) ${i * 25}ms`;
+      span.style.transition = `transform 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94) ${i * 25}ms, opacity 300ms ease ${i * 25}ms`;
       span.style.transform = makeScatterTransform();
+      span.style.opacity = String(scatteredOpacity);
     });
-  }, [makeScatterTransform]);
+  }, [makeScatterTransform, scatteredOpacity]);
 
   const assemble = useCallback(() => {
     const spans = containerRef.current?.querySelectorAll<HTMLElement>('.asm-word') ?? [];
     spans.forEach((span, i) => {
-      span.style.transition = `transform 520ms cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 45}ms`;
+      span.style.transition = `transform 520ms cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 45}ms, opacity 200ms ease ${i * 45}ms`;
       span.style.transform = 'translate(0px, 0px) rotate(0deg)';
+      span.style.opacity = '1';
     });
   }, []);
 
@@ -63,10 +66,10 @@ const AssembleText = forwardRef<AssembleTextHandle, Props>(function AssembleText
       container.querySelectorAll<HTMLElement>('.asm-word').forEach(span => {
         span.style.transition = 'none';
         span.style.transform = makeScatterTransform();
-        span.style.opacity = '1';
+        span.style.opacity = String(scatteredOpacity);
       });
     });
-  }, [text, makeScatterTransform]);
+  }, [text, makeScatterTransform, scatteredOpacity]);
 
   return (
     <div
