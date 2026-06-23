@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 import FadeIn from '../FadeIn';
 import { SECTION_TIERS } from '../sectionTiers';
-import { PRICING, FAQ, type CheckoutType } from '../marketing-content';
+import { PRICING, type CheckoutType } from '../marketing-content';
 
 type BillingPeriod = 'monthly' | 'yearly';
 
@@ -16,7 +16,6 @@ type PricingSectionProps = {
   checkoutError: string | null;
 };
 
-// Pro tier annual pricing. $79/yr vs $9/mo × 12 = $108 → $29 saved.
 const PRO_ANNUAL_PRICE = '$79';
 const PRO_ANNUAL_SAVINGS = '$29';
 
@@ -36,10 +35,10 @@ const PricingSection = forwardRef<HTMLElement, PricingSectionProps>(function Pri
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
         <FadeIn>
           <div className="max-w-3xl mb-14 sm:mb-16">
-            <h2 className="font-serif font-bold text-gray-900 text-balance" style={SECTION_TIERS.standard.title}>
+            <h2 className="font-serif font-bold text-white text-balance" style={SECTION_TIERS.standard.title}>
               Free to write and ship. Pay only for Book Mind.
             </h2>
-            <p className="mt-5 text-lg sm:text-xl text-gray-600 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}>
+            <p className="mt-5 text-lg sm:text-xl text-white/65 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}>
               When you want Book Mind to read every chapter, try Pro with our 7-day free trial.
             </p>
             {checkoutError && (
@@ -48,17 +47,12 @@ const PricingSection = forwardRef<HTMLElement, PricingSectionProps>(function Pri
           </div>
         </FadeIn>
 
-        {/* All three plans in a single row at lg, stack into one column at
-            tablet and below. Lifetime sits on the right as the premium anchor. */}
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {PRICING.map((plan, index) => {
             const isPro = plan.checkoutType === 'pro';
             const isLifetime = plan.checkoutType === 'lifetime';
             const displayPrice = isPro && billingPeriod === 'yearly' ? PRO_ANNUAL_PRICE : plan.price;
             const displayPeriod = isPro && billingPeriod === 'yearly' ? '/year' : plan.period;
-            // Two layers of microcopy: risk-reversal beside the price (the
-            // place buyers are most anxious), and a payment-mechanic line under
-            // the button to set expectations for the click itself.
             const priceMicrocopy = isPro
               ? 'Cancel anytime'
               : isLifetime
@@ -86,34 +80,32 @@ const PricingSection = forwardRef<HTMLElement, PricingSectionProps>(function Pri
                   </div>
                 )}
                 <div
-                  className={`relative rounded-2xl p-8 sm:p-10 h-full flex flex-col bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 ${
-                    plan.highlighted ? 'ring-2 ring-blue-600' : ''
+                  className={`relative rounded-2xl p-8 sm:p-10 h-full flex flex-col bg-[#262626] border transition-all duration-300 group-hover:-translate-y-1 ${
+                    plan.highlighted ? 'border-blue-600/40 ring-1 ring-blue-600/30' : 'border-[#2f2f2f]'
                   }`}
                 >
-                  <h3 className="text-2xl font-semibold mb-2 text-gray-900" style={{ letterSpacing: '-0.02em' }}>{plan.name}</h3>
+                  <h3 className="text-2xl font-semibold mb-2 text-white" style={{ letterSpacing: '-0.02em' }}>{plan.name}</h3>
                   {isPro && (
                     <BillingToggle period={billingPeriod} onChange={setBillingPeriod} />
                   )}
                   <div className="mb-1 flex items-baseline gap-1">
-                    <span className="text-5xl font-bold text-gray-900" style={{ letterSpacing: '-0.03em' }}>{displayPrice}</span>
-                    <span className="text-gray-500">{displayPeriod}</span>
+                    <span className="text-5xl font-bold text-white" style={{ letterSpacing: '-0.03em' }}>{displayPrice}</span>
+                    <span className="text-white/45">{displayPeriod}</span>
                   </div>
                   {isPro && billingPeriod === 'yearly' && (
-                    <div className="text-xs font-semibold text-emerald-700">
+                    <div className="text-xs font-semibold text-emerald-400">
                       Save {PRO_ANNUAL_SAVINGS} vs monthly
                     </div>
                   )}
                   {priceMicrocopy && (
-                    <p className="mt-1 mb-4 text-xs text-gray-500">
+                    <p className="mt-1 mb-4 text-xs text-white/40">
                       {priceMicrocopy}
                     </p>
                   )}
                   {!priceMicrocopy && <div className="mb-3" />}
-                  <p className="mb-8 text-pretty text-gray-600" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}>{plan.description}</p>
+                  <p className="mb-8 text-pretty text-white/60" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}>{plan.description}</p>
                   <ul className="space-y-3 mb-10 flex-1">
                     {plan.features.map((feature, i) => {
-                      // The Lifetime cover-design bullet swaps the tick for
-                      // Neil's avatar so the service nature reads at a glance.
                       const useNeilAvatar = isLifetime && /cover design/i.test(feature);
                       return (
                         <li key={i} className="flex items-start gap-3">
@@ -126,11 +118,11 @@ const PricingSection = forwardRef<HTMLElement, PricingSectionProps>(function Pri
                               className="rounded-full w-5 h-5 object-cover flex-shrink-0 mt-0.5"
                             />
                           ) : (
-                            <svg className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                            <svg className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                           )}
-                          <span className="text-gray-700">{feature}</span>
+                          <span className="text-white/65">{feature}</span>
                         </li>
                       );
                     })}
@@ -144,11 +136,11 @@ const PricingSection = forwardRef<HTMLElement, PricingSectionProps>(function Pri
                       }
                     }}
                     disabled={!!plan.checkoutType && checkoutLoading === plan.checkoutType}
-                    className={`w-full py-3.5 rounded-full font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isPro ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-900 text-white hover:bg-gray-700'}`}
+                    className={`w-full py-3.5 rounded-full font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isPro ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-gray-900 hover:bg-gray-100'}`}
                   >
                     {plan.checkoutType && checkoutLoading === plan.checkoutType ? 'Redirecting\u2026' : plan.cta}
                   </button>
-                  <p className="mt-3 text-xs text-center text-gray-500">
+                  <p className="mt-3 text-xs text-center text-white/35">
                     {buttonMicrocopy}
                   </p>
                 </div>
@@ -157,20 +149,7 @@ const PricingSection = forwardRef<HTMLElement, PricingSectionProps>(function Pri
           })}
         </div>
 
-        {/* Plan comparison table — shows exactly what each tier loses or gains
-            so visitors can pick without re-reading the cards. */}
         <ComparisonTable />
-
-        {/* FAQ */}
-        <div className="max-w-2xl mx-auto mt-20">
-          <h3 className="font-serif font-semibold text-gray-900 text-center mb-8" style={{ fontSize: '1.25rem' }}>Common questions</h3>
-          {FAQ.map((item, i) => (
-            <div key={i} className={`py-5 ${i > 0 ? 'border-t border-gray-200' : ''}`}>
-              <h4 className="font-semibold text-gray-900 mb-1 text-balance">{item.q}</h4>
-              <p className="text-gray-600 text-sm text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.7 }}>{item.a}</p>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -197,30 +176,28 @@ function ComparisonTable() {
   return (
     <div className="mt-20 max-w-5xl mx-auto">
       <h3
-        className="font-serif font-semibold text-gray-900 mb-6"
+        className="font-serif font-semibold text-white mb-6"
         style={{ fontSize: '1.5rem', letterSpacing: '-0.01em' }}
       >
         Compare plans
       </h3>
-      {/* Horizontal scroll on narrow viewports so the columns stay readable
-          instead of crushing into illegible widths. */}
       <div className="overflow-x-auto -mx-6 sm:mx-0">
-        <div className="min-w-[640px] sm:min-w-0 rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="min-w-[640px] sm:min-w-0 rounded-2xl border border-[#2f2f2f] overflow-hidden">
           <div className="grid grid-cols-[1.6fr_1fr_1fr_1fr] text-sm">
-            <div className="bg-gray-50 p-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">
+            <div className="bg-[#1a1a1a] p-4 font-semibold text-white/40 text-xs uppercase tracking-wider">
               Feature
             </div>
-            <div className="bg-gray-50 p-4 font-semibold text-gray-900 text-center">Free</div>
+            <div className="bg-[#1a1a1a] p-4 font-semibold text-white/70 text-center">Free</div>
             <div className="bg-gray-900 p-4 font-semibold text-white text-center">Pro</div>
-            <div className="bg-[#faf5e8] p-4 font-semibold text-gray-900 text-center">Lifetime</div>
+            <div className="bg-[#1e1a0a] p-4 font-semibold text-white/70 text-center">Lifetime</div>
 
             {COMPARISON_ROWS.map((row, i) => (
               <React.Fragment key={row.feature}>
-                <div className={`p-4 text-gray-900 ${i > 0 ? 'border-t border-gray-200' : ''}`}>
+                <div className={`p-4 text-white/75 ${i > 0 ? 'border-t border-[#2f2f2f]' : ''}`}>
                   {row.feature}
                 </div>
-                <CellRender value={row.free}    border={i > 0} />
-                <CellRender value={row.pro}     border={i > 0} highlight />
+                <CellRender value={row.free}     border={i > 0} />
+                <CellRender value={row.pro}      border={i > 0} highlight />
                 <CellRender value={row.lifetime} border={i > 0} tint />
               </React.Fragment>
             ))}
@@ -242,18 +219,18 @@ function CellRender({
   highlight?: boolean;
   tint?: boolean;
 }) {
-  const bg = highlight ? 'bg-gray-900/[0.03]' : tint ? 'bg-[#faf5e8]/40' : '';
-  const borderClass = border ? 'border-t border-gray-200' : '';
+  const bg = highlight ? 'bg-blue-600/[0.06]' : tint ? 'bg-[#1e1a0a]/60' : '';
+  const borderClass = border ? 'border-t border-[#2f2f2f]' : '';
   return (
     <div className={`p-4 text-center ${bg} ${borderClass}`}>
       {typeof value === 'string' ? (
-        <span className="text-sm text-gray-700">{value}</span>
+        <span className="text-sm text-white/60">{value}</span>
       ) : value ? (
-        <svg className="w-5 h-5 mx-auto text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg className="w-5 h-5 mx-auto text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
       ) : (
-        <span className="text-gray-300" aria-hidden>—</span>
+        <span className="text-white/20" aria-hidden>—</span>
       )}
     </div>
   );
@@ -270,7 +247,7 @@ function BillingToggle({
     <div
       role="tablist"
       aria-label="Billing period"
-      className="mb-4 inline-flex items-center gap-1 p-1 rounded-full bg-gray-100 border border-gray-200 self-start"
+      className="mb-4 inline-flex items-center gap-1 p-1 rounded-full bg-[#2f2f2f] border border-[#3a3a3a] self-start"
     >
       {(['monthly', 'yearly'] as const).map((value) => {
         const active = period === value;
@@ -281,7 +258,7 @@ function BillingToggle({
             aria-selected={active}
             onClick={() => onChange(value)}
             className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
-              active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-900'
+              active ? 'bg-white text-gray-900' : 'text-white/45 hover:text-white'
             }`}
           >
             {value === 'monthly' ? 'Monthly' : 'Yearly'}

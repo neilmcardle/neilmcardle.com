@@ -27,11 +27,11 @@ export default function BookGallerySection() {
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
         <FadeIn>
           <div className="max-w-3xl">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-500">04 &middot; Covers</div>
-            <h2 className="mt-3 font-serif font-bold text-gray-900 text-balance" style={SECTION_TIERS.standard.title}>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">03 &middot; Covers</div>
+            <h2 className="mt-3 font-serif font-bold text-white text-balance" style={SECTION_TIERS.standard.title}>
               Generate your book cover inside makeEbook.
             </h2>
-            <p className="mt-5 text-lg sm:text-xl text-gray-600 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}>
+            <p className="mt-5 text-lg sm:text-xl text-white/65 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}>
               Choose a cover using your title, author, genre. Pick the colour you want, and the style that fits the book you&rsquo;ve written.
             </p>
           </div>
@@ -59,8 +59,8 @@ export default function BookGallerySection() {
                   <div className="w-7 h-px bg-current opacity-50 mt-2.5 mb-2.5" />
                   <div className="text-[9px] uppercase tracking-[0.28em] font-semibold opacity-50">makeEbook</div>
                 </div>
-                <div className="mt-3 text-[12px] text-gray-500">
-                  <div className="text-gray-900 font-medium text-[13px]">{b.t}</div>
+                <div className="mt-3 text-[12px] text-white/40">
+                  <div className="text-white/80 font-medium text-[13px]">{b.t}</div>
                   {b.a} &middot; {b.g}
                 </div>
               </div>

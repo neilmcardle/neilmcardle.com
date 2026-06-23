@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { track } from '@vercel/analytics';
 
 import { useAuth } from '@/lib/hooks/useAuth';
-
 import Image from 'next/image';
 
 import MarketingNav from './MarketingNav';
@@ -25,8 +24,10 @@ import FinalCtaSection from './marketing/sections/FinalCtaSection';
 import HeroSectionV2 from './marketing/sections-v2/HeroSection';
 import EditorShowcaseSectionV2 from './marketing/sections-v2/EditorShowcaseSection';
 import BookMindPitchSectionV2 from './marketing/sections-v2/BookMindPitchSection';
-import ComparisonSection from './marketing/sections-v2/ComparisonSection';
 import BookGallerySection from './marketing/sections-v2/BookGallerySection';
+import AboutNeilSection from './marketing/sections-v2/AboutNeilSection';
+import ComparisonSection from './marketing/sections-v2/ComparisonSection';
+import FaqSection from './marketing/sections-v2/FaqSection';
 import FinalCtaSectionV2 from './marketing/sections-v2/FinalCtaSection';
 
 const USE_V2 = true;
@@ -90,20 +91,16 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
   const startWriting = user ? onStartWritingAction : () => handleOpenAuth('signup');
 
   return (
-    <div className="relative min-h-screen bg-me-cream text-gray-700 overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#1e1e1e] text-[#f5f5f5] overflow-x-hidden">
 
       {hideNav ? (
         <header className="sticky top-0 z-50 bg-transparent">
           <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-            <div className="flex items-center" style={{ height: '4.5rem' }}>
-              <Image
-                src="/make-ebook-logomark.svg"
-                alt="makeEbook"
-                width={120}
-                height={24}
-                className="h-6 w-auto"
-                priority
-              />
+            <div className="flex items-center gap-2" style={{ height: '4.5rem' }}>
+              <Image src="/make-ebook-logo.svg" alt="" width={22} height={22} className="invert" aria-hidden="true" />
+              <span className="font-serif font-bold text-white" style={{ fontSize: '1.0625rem', letterSpacing: '-0.02em' }}>
+                makeEbook
+              </span>
             </div>
           </div>
         </header>
@@ -119,19 +116,13 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
       <main id="main-content">
         {USE_V2 ? (
           <>
-            <HeroSectionV2
-              onPrimaryClick={startWriting}
-            />
+            <HeroSectionV2 onPrimaryClick={startWriting} />
 
             <EditorShowcaseSectionV2 ref={featuresRef} />
 
             <BookMindPitchSectionV2 />
 
-            <ComparisonSection />
-
             <BookGallerySection />
-
-            {}
 
             <PricingSection
               ref={pricingRef}
@@ -140,6 +131,12 @@ export default function MarketingLandingPage({ onStartWritingAction, libraryCoun
               checkoutLoading={checkoutLoading}
               checkoutError={checkoutError}
             />
+
+            <AboutNeilSection />
+
+            <ComparisonSection />
+
+            <FaqSection />
 
             <FinalCtaSectionV2 onPrimaryClick={startWriting} />
           </>

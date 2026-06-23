@@ -4,17 +4,6 @@ import React, { forwardRef, useState } from 'react';
 
 import FadeIn from '../FadeIn';
 import { SECTION_TIERS } from '../sectionTiers';
-import { useIsMac } from './PlatformKey';
-
-/**
- * v2 Editor Showcase — hover chapters to re-render a live Kindle-style reader.
- *
- * Replaces the 3-card grid in v1 with a single interactive two-pane layout:
- *  • Left: dark chapter picker (drag-grip, word counts, ⌘K hint)
- *  • Right: cream paper reader with chapter heading, drop-cap, justified prose
- *
- * Hover a chapter → the reader fades-swaps to that chapter's content.
- */
 
 type Chapter = {
   n: string;
@@ -123,7 +112,6 @@ const CHAPTERS: Chapter[] = [
 const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSection(_, ref) {
   const [active, setActive] = useState(6);
   const [key, setKey] = useState(6);
-  const isMac = useIsMac();
 
   const onHover = (i: number) => {
     if (i === active) return;
@@ -138,15 +126,15 @@ const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSec
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
         <FadeIn>
           <div className="max-w-3xl mb-14 sm:mb-16">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-500">01 &middot; The Editor</div>
-            <h2 className="mt-3 font-serif font-bold text-gray-900 text-balance" style={SECTION_TIERS.standard.title}>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">01 &middot; The Editor</div>
+            <h2 className="mt-3 font-serif font-bold text-white text-balance" style={SECTION_TIERS.standard.title}>
               Hover over a chapter.<br />
               Preview your ebook.
             </h2>
-            <p className="mt-5 text-lg sm:text-xl text-gray-600 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}>
+            <p className="mt-5 text-lg sm:text-xl text-white/65 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}>
               A preview of your book as it will appear on Kindle, Kobo, and Apple Books. Not a rough approximation. Real typography, real margins, real eReader feel.
             </p>
-            <div className="mt-6 text-sm text-gray-500" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
+            <div className="mt-6 text-sm text-white/35" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
               &darr; Try it
             </div>
           </div>
@@ -154,17 +142,15 @@ const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSec
 
         <FadeIn delay={100}>
           <div className="grid lg:grid-cols-[1fr_1.3fr] gap-6 items-stretch">
-            {/* Chapter picker */}
-            <div className="bg-[#1e1e1e] text-white rounded-[20px] overflow-hidden border border-[#2f2f2f] flex flex-col min-h-[540px]">
-              <header className="flex justify-between items-center px-5 py-4 border-b border-[#2f2f2f]">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/40">Your Library &middot; The Midnight Garden</span>
-                <span className="text-[10px] text-white/30 flex items-center gap-1.5">
-                  <kbd className="bg-white/10 border border-white/10 rounded px-1.5 py-0.5 font-mono text-[9px]">{isMac ? '⌘' : 'Ctrl'}</kbd>
-                  <span>+</span>
-                  <kbd className="bg-white/10 border border-white/10 rounded px-1.5 py-0.5 font-mono text-[9px]">K</kbd>
+            <div className="text-white flex flex-col min-h-[540px] border border-[#2f2f2f] rounded-2xl overflow-hidden">
+              <header className="px-5 py-4 bg-[#262626] border-b border-[#2f2f2f] flex items-center gap-2.5">
+                <span className="relative inline-flex w-1.5 h-1.5 flex-shrink-0">
+                  <span className="absolute inline-flex w-full h-full rounded-full bg-blue-500 opacity-60 animate-ping" />
+                  <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-blue-500" />
                 </span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/40">Your Library &middot; The Midnight Garden</span>
               </header>
-              <div className="flex-1" onMouseLeave={() => { /* keep last hover */ }}>
+              <div className="flex-1" onMouseLeave={() => {}}>
                 {CHAPTERS.map((ch, i) => (
                   <div
                     key={i}
@@ -182,26 +168,15 @@ const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSec
                   </div>
                 ))}
               </div>
-              <footer className="px-4 py-3.5 border-t border-[#2f2f2f] flex justify-between text-[11px] text-white/30">
+              <footer className="px-5 py-3.5 border-t border-[#2f2f2f] flex justify-between text-[11px] text-white/30">
                 <span>12 chapters &middot; 86,430 words</span>
                 <span className="text-white/70 font-mono font-semibold">78%</span>
               </footer>
             </div>
 
-            {/* Reader */}
             <div className="bg-[#f7f4ea] border border-gray-200 rounded-[20px] overflow-hidden flex flex-col relative shadow-[0_24px_40px_-24px_rgba(20,20,19,.22),0_2px_4px_rgba(20,20,19,.04)]">
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-white/60">
-                <span className="font-mono text-[12px] text-gray-500 font-semibold">9:42</span>
+              <div className="flex items-center justify-center px-5 py-3.5 border-b border-gray-200 bg-white/60">
                 <span className="hidden md:inline text-[13px] text-gray-500 italic" style={{ fontFamily: 'Georgia, serif' }}>Paperwhite &middot; Libre Baskerville &middot; 11pt</span>
-                <span className="hidden md:inline text-[11px] text-gray-400 tracking-[0.12em]">●●●●○ 84%</span>
-              </div>
-
-              <div className="absolute top-4 right-5 bg-gray-900 text-[#faf9f5] text-[10px] uppercase tracking-[0.12em] px-2.5 py-1 rounded-full flex items-center gap-1.5 z-10">
-                <span className="relative inline-flex w-1.5 h-1.5">
-                  <span className="absolute inline-flex w-full h-full rounded-full bg-blue-500 opacity-60 animate-ping" />
-                  <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-blue-500" />
-                </span>
-                Live preview
               </div>
 
               <div key={key} className="flex-1 px-8 sm:px-12 lg:px-18 py-12 relative animate-[pageSwap_.45s_ease]">

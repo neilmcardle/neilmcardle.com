@@ -4,10 +4,6 @@ import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import FadeIn from '../FadeIn';
 
-/**
- * v2 Final CTA — cinematic, with a huge ghosted "finish." word in the backdrop.
- * Drop-in replacement for v1 FinalCtaSection.
- */
 type Props = { onPrimaryClick: () => void };
 
 export default function FinalCtaSection({ onPrimaryClick }: Props) {
@@ -32,7 +28,7 @@ export default function FinalCtaSection({ onPrimaryClick }: Props) {
               maxWidth: '14ch',
             }}
           >
-            Write the book you&rsquo;ve <em className="font-medium">been putting off.</em>
+            Write the book you&rsquo;ve been putting off.
           </h2>
         </FadeIn>
         <FadeIn delay={120}>

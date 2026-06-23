@@ -1,13 +1,5 @@
 'use client';
 
-// ⚠ NOT RENDERED. Kept for future use once real testimonials are collected.
-// The quotes in the WALL array below are fabricated placeholders. The section
-// copy frames them as real ("unsolicited", "ported from email, Discord, and
-// app store reviews with permission") — shipping this with fake content is
-// materially misleading advertising. Do NOT re-import in MarketingLandingPage
-// until the WALL array contains real, permission-granted quotes (minimum 3),
-// and the intro copy honestly reflects where the quotes came from.
-
 import React from 'react';
 import FadeIn from '../FadeIn';
 import { SECTION_TIERS } from '../sectionTiers';
@@ -32,7 +24,7 @@ export default function WriterWallSection() {
           <div className="max-w-3xl">
             <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-500">05 &middot; Writer wall</div>
             <h2 className="mt-3 font-serif font-bold text-gray-900 text-balance" style={SECTION_TIERS.standard.title}>
-              What writers are <em className="font-medium">saying</em>.
+              What writers are saying.
             </h2>
             <p className="mt-5 text-lg sm:text-xl text-gray-600 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.55 }}>
               Unpolished, unsolicited. Ported from email, Discord, and app store reviews with permission.

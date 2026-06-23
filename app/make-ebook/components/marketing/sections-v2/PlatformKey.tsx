@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 
-// Returns true on macOS. Defaults to true during SSR/first paint to avoid a
-// flash, then swaps to Ctrl on non-Mac once the client mounts.
 export function useIsMac(): boolean {
   const [isMac, setIsMac] = useState(true);
   useEffect(() => {
@@ -16,7 +14,6 @@ export function useIsMac(): boolean {
   return isMac;
 }
 
-// Inline "⌘K" on Mac, "Ctrl+K" elsewhere. Inherits its container's styling.
 export function ModKey({ keyName }: { keyName: string }) {
   const isMac = useIsMac();
   return <>{isMac ? `⌘${keyName}` : `Ctrl+${keyName}`}</>;
