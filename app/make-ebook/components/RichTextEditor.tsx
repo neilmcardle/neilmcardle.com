@@ -1564,11 +1564,11 @@ export default function RichTextEditor({
           <div className="px-4 pb-2 text-3xs text-[#86868B] dark:text-[#a3a3a3] flex justify-between items-center select-none">
             {/* Terms/Privacy links - only on mobile */}
             <div className="lg:hidden flex items-center space-x-2">
-              <a href="https://neilmcardle.com/terms" className="hover:underline" target="_blank" rel="noopener noreferrer">
+              <a href="https://makeebook.ink/terms" className="hover:underline" target="_blank" rel="noopener noreferrer">
                 Terms
               </a>
               <span className="text-gray-300">|</span>
-              <a href="https://neilmcardle.com/privacy" className="hover:underline" target="_blank" rel="noopener noreferrer">
+              <a href="https://makeebook.ink/privacy" className="hover:underline" target="_blank" rel="noopener noreferrer">
                 Privacy
               </a>
             </div>

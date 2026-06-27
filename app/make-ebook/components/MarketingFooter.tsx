@@ -107,8 +107,8 @@ export default function MarketingFooter({
           <div className="md:col-span-2">
             <h4 className="text-xs font-semibold mb-4 text-white/50 uppercase tracking-widest">Legal</h4>
             <ul className="space-y-3 text-white/40">
-              <li><a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Terms</a></li>
-              <li><a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Privacy</a></li>
+              <li><a href="https://makeebook.ink/terms" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Terms</a></li>
+              <li><a href="https://makeebook.ink/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Privacy</a></li>
               <li><button onClick={openCookieConsent} className="hover:text-white transition-colors">Cookie preferences</button></li>
             </ul>
           </div>

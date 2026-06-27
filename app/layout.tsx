@@ -9,7 +9,6 @@ import { SubscriptionProvider } from "@/lib/hooks/useSubscription";
 import { ThemeProvider } from "@/lib/contexts/ThemeContext";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
-import ClientFooterWrapper from "@/components/ClientFooterWrapper";
 import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";
 import { GeistMono } from "geist/font/mono";
@@ -97,7 +96,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ThemeProvider>
               <div className="min-h-screen flex flex-col">
                 <main className="flex-1">{children}</main>
-                <ClientFooterWrapper />
               </div>
               <Toaster />
               <SonnerToaster />

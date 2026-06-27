@@ -588,7 +588,7 @@ export default function Homepage() {
               </svg>
             </a>
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex flex-wrap items-center justify-center gap-5">
             <Link
               href="/archive"
               className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
@@ -610,6 +610,20 @@ export default function Homepage() {
             >
               Email
             </a>
+            <Link
+              href="/terms"
+              className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
+              style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
+            >
+              Terms
+            </Link>
+            <Link
+              href="/privacy"
+              className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
+              style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
+            >
+              Privacy
+            </Link>
           </div>
         </footer>
       </div>

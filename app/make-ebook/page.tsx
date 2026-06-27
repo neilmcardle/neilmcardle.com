@@ -2078,8 +2078,8 @@ function MakeEbookPage() {
                       }}
                       className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
                     >Tour</button>
-                    <a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors">Terms</a>
-                    <a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors">Privacy</a>
+                    <a href="https://makeebook.ink/terms" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors">Terms</a>
+                    <a href="https://makeebook.ink/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors">Privacy</a>
                   </div>
                 </div>
               </footer>

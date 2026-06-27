@@ -1,250 +1,121 @@
-"use client"
+import type { Metadata } from "next";
+import Link from "next/link";
 
-import { Header } from '@/components/Header'
+export const metadata: Metadata = {
+  title: "Privacy Policy — Neil McArdle",
+  description: "How neilmcardle.com collects and handles personal data.",
+};
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
-      
-      <main className="pt-20 pb-16">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="prose prose-gray max-w-none">
-            <h1 className="text-4xl font-bold text-gray-900 mb-8">Privacy Policy</h1>
-            
-            <p className="text-gray-600 mb-4">
-              <strong>Last updated:</strong> {new Date().toLocaleDateString('en-GB')}
-            </p>
-            <p className="text-gray-500 text-sm mb-8">
-              <a href="https://makeebook.ink" className="text-blue-600 hover:underline">makeEbook</a> is a product by Neil McArdle, operated under <a href="https://neilmcardle.com" className="text-blue-600 hover:underline">neilmcardle.com</a>.
-            </p>
+    <div className="min-h-screen bg-black">
+      <main className="home-prose max-w-3xl mx-auto px-6 lg:px-10 pt-16 pb-24">
+        <Link
+          href="/"
+          className="inline-block mb-12 text-tan hover:text-cream transition-colors"
+          style={{ fontFamily: "var(--font-inter)", fontSize: "0.75rem", letterSpacing: "0.13em", textTransform: "uppercase" }}
+        >
+          ← Back
+        </Link>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Controller Information</h2>
-              <p className="text-gray-700 mb-4">
-                The data controller for <a href="https://makeebook.ink" className="text-blue-600 hover:underline">makeEbook</a> is Neil McArdle, operating as an individual under UK GDPR.
-                For any privacy-related inquiries, please contact us through
-                <a href="https://neilmcardle.com" className="text-blue-600 hover:underline"> neilmcardle.com</a>.
-              </p>
-            </section>
+        <h1
+          className="text-cream mb-6"
+          style={{ fontFamily: "var(--font-inter)", fontSize: "clamp(2rem, 5vw, 2.75rem)", fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.1 }}
+        >
+          Privacy Policy
+        </h1>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">2. Information We Collect</h2>
-              
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">2.1 Information You Provide Directly</h3>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li><strong>Account Information:</strong> Email address, password (encrypted)</li>
-                <li><strong>eBook Content:</strong> Text, titles, chapters, and any content you create</li>
-                <li><strong>Optional Information:</strong> Username or display name if provided</li>
-              </ul>
+        <p className="text-tan mb-2" style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}>
+          Last updated: {new Date().toLocaleDateString("en-GB")}
+        </p>
+        <p className="text-cream/60 mb-12" style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem", lineHeight: 1.6 }}>
+          This policy covers neilmcardle.com. makeEbook has its own{" "}
+          <a href="https://makeebook.ink/privacy" className="text-gold hover:text-gold-bright transition-colors">privacy policy</a>.
+        </p>
 
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">2.2 Information Collected Automatically</h3>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li><strong>Usage Data:</strong> How you interact with the service, features used</li>
-                <li><strong>Technical Data:</strong> IP address, browser type, device information</li>
-                <li><strong>Authentication Data:</strong> Login sessions and security tokens</li>
-              </ul>
-            </section>
+        <Section title="1. Who is responsible for your data">
+          The data controller for neilmcardle.com is Neil McArdle, a sole trader based in London, England, operating under UK
+          GDPR. You can reach me at{" "}
+          <a href="mailto:neil@neilmcardle.com" className="text-gold hover:text-gold-bright transition-colors">neil@neilmcardle.com</a>.
+        </Section>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">3. Legal Basis for Processing</h2>
-              <p className="text-gray-700 mb-4">
-                We process your personal data based on the following legal grounds under UK GDPR:
-              </p>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li><strong>Contract Performance:</strong> To provide the eBook creation service you've requested</li>
-                <li><strong>Legitimate Interests:</strong> To improve our service, prevent fraud, and ensure security</li>
-                <li><strong>Consent:</strong> For any additional features or communications (where explicitly given)</li>
-              </ul>
-            </section>
+        <Section title="2. What I collect">
+          <ul className="list-disc pl-5 space-y-2 mt-1">
+            <li><strong className="text-cream/85">When you contact me:</strong> your email address and whatever you choose to put in your message.</li>
+            <li><strong className="text-cream/85">If you subscribe:</strong> billing details handled by Stripe. Stripe processes your payment and card data directly; I never see or store your full card number.</li>
+            <li><strong className="text-cream/85">Automatically:</strong> aggregate, anonymous page-view statistics through Vercel Analytics, which is cookie-less and does not identify you or track you across sites.</li>
+          </ul>
+        </Section>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. How We Use Your Information</h2>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li>To provide and maintain the eBook creation service</li>
-                <li>To manage your user account and authentication</li>
-                <li>To store and process your eBook content</li>
-                <li>To communicate with you about the service</li>
-                <li>To improve our service and fix technical issues</li>
-                <li>To comply with legal obligations</li>
-              </ul>
-            </section>
+        <Section title="3. Legal bases">
+          I process contact data to respond to you and to perform or enter into a contract (Article 6(1)(b) UK GDPR). I use
+          aggregate analytics on the basis of legitimate interest in understanding and improving the site (Article 6(1)(f)).
+          Any advertising or measurement cookies are used only with your consent (Article 6(1)(a)).
+        </Section>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">5. Data Sharing and Recipients</h2>
-              <p className="text-gray-700 mb-4">
-                We share your personal data only in the following circumstances:
-              </p>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li><strong>Service Providers:</strong> Supabase (database hosting), Vercel (application hosting and analytics)</li>
-                <li><strong>Advertising and Measurement (consent only):</strong> Google LLC, for Google Ads conversion measurement. Only engaged when you grant consent through our cookie banner. See section 10 for details.</li>
-                <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
-                <li><strong>With Your Consent:</strong> Any other sharing only with your explicit permission</li>
-              </ul>
-              <p className="text-gray-700 mb-4">
-                We do not sell, rent, or trade your personal data to third parties for marketing purposes.
-              </p>
-            </section>
+        <Section title="4. Who I share it with">
+          I do not sell or rent your data. I share it only with the providers that run the site and the business: Vercel
+          (hosting and cookie-less analytics) and Stripe (payments). Where you have consented to advertising cookies, measurement
+          data is shared with Google. I also disclose data where the law requires it.
+        </Section>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. Data Retention</h2>
-              <p className="text-gray-700 mb-4">
-                We retain your personal data for as long as necessary to provide the service and fulfill our legal obligations:
-              </p>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li><strong>Account Data:</strong> Until you delete your account or request deletion</li>
-                <li><strong>eBook Content:</strong> Until you delete it or close your account</li>
-                <li><strong>Usage Logs:</strong> Maximum of 12 months for security and improvement purposes</li>
-              </ul>
-            </section>
+        <Section title="5. Cookies">
+          <ul className="list-disc pl-5 space-y-2 mt-1">
+            <li><strong className="text-cream/85">Necessary:</strong> a small cookie that remembers your cookie-consent choice so you are not asked repeatedly.</li>
+            <li><strong className="text-cream/85">Analytics:</strong> Vercel Analytics is cookie-less, so it sets nothing on your device.</li>
+            <li><strong className="text-cream/85">Advertising and measurement (consent only):</strong> set only if you accept through the cookie banner, and removed when you withdraw consent. Until you consent, no advertising cookies are set and no identifiers are sent to Google.</li>
+          </ul>
+        </Section>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Your Rights Under UK GDPR</h2>
-              <p className="text-gray-700 mb-4">
-                You have the following rights regarding your personal data:
-              </p>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li><strong>Right of Access:</strong> Request a copy of your personal data</li>
-                <li><strong>Right to Rectification:</strong> Correct inaccurate or incomplete data</li>
-                <li><strong>Right to Erasure:</strong> Request deletion of your personal data</li>
-                <li><strong>Right to Restrict Processing:</strong> Limit how we use your data</li>
-                <li><strong>Right to Data Portability:</strong> Receive your data in a portable format</li>
-                <li><strong>Right to Object:</strong> Object to processing based on legitimate interests</li>
-                <li><strong>Right to Withdraw Consent:</strong> Where processing is based on consent</li>
-              </ul>
-              <p className="text-gray-700 mb-4">
-                To exercise any of these rights, please contact us through our website. We will respond within one month.
-              </p>
-            </section>
+        <Section title="6. Retention">
+          I keep correspondence for as long as needed to handle your enquiry and any resulting work, plus a reasonable period for
+          legal and accounting purposes. Billing records are kept for six years as UK tax law requires. You can ask me to delete
+          your data at any time, subject to those obligations.
+        </Section>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">8. International Transfers</h2>
-              <p className="text-gray-700 mb-4">
-                Your data may be processed outside the UK through our service providers (Supabase, Vercel). 
-                We ensure appropriate safeguards are in place through:
-              </p>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li>Standard Contractual Clauses approved by UK authorities</li>
-                <li>Service providers' compliance with international data protection standards</li>
-                <li>Regular review of transfer mechanisms and safeguards</li>
-              </ul>
-            </section>
+        <Section title="7. Your rights">
+          Under UK GDPR you have the right to access, correct, delete, restrict, or object to the processing of your personal
+          data, the right to data portability, and the right to withdraw consent at any time. To exercise any of these, email me
+          and I will respond within one month.
+        </Section>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. Data Security</h2>
-              <p className="text-gray-700 mb-4">
-                We implement appropriate technical and organisational measures to protect your data:
-              </p>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li>Encryption of data in transit and at rest</li>
-                <li>Secure authentication and access controls</li>
-                <li>Regular security updates and monitoring</li>
-                <li>Limited access to personal data on a need-to-know basis</li>
-              </ul>
-            </section>
+        <Section title="8. International transfers">
+          Some providers (Vercel, Stripe, Google) may process data outside the UK. Where they do, transfers are protected by
+          mechanisms such as the UK Addendum to the EU Standard Contractual Clauses or the UK Extension to the EU-US Data Privacy
+          Framework.
+        </Section>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Cookies and Tracking</h2>
+        <Section title="9. Complaints">
+          If you are unhappy with how I handle your data, please tell me first so I can put it right. You also have the right to
+          complain to the Information Commissioner&rsquo;s Office at{" "}
+          <a href="https://ico.org.uk" className="text-gold hover:text-gold-bright transition-colors" target="_blank" rel="noopener noreferrer">ico.org.uk</a>.
+        </Section>
 
-              <p className="text-gray-700 mb-4">
-                We use a small number of cookies and similar technologies. They fall into two
-                categories with different legal bases under PECR (the UK&rsquo;s Privacy and Electronic
-                Communications Regulations) and UK GDPR.
-              </p>
+        <Section title="10. Changes">
+          I may update this policy from time to time. The date at the top shows when it was last changed.
+        </Section>
 
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">10.1 Strictly necessary cookies</h3>
-              <p className="text-gray-700 mb-4">
-                These cookies are required for the service to work and are set without consent on
-                the basis of contractual necessity. They cannot be turned off without breaking the
-                service.
-              </p>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li><strong>Authentication:</strong> Supabase session tokens that keep you signed in</li>
-                <li><strong>Preferences:</strong> Theme choice (light/dark) for signed-in users</li>
-                <li><strong>Security:</strong> CSRF protection and session integrity</li>
-              </ul>
-
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">10.2 Advertising and measurement cookies (consent required)</h3>
-              <p className="text-gray-700 mb-4">
-                We use Google Ads conversion tracking to measure the effectiveness of our paid
-                advertising campaigns. The cookies and data this involves are <strong>only set when
-                you grant consent</strong> through the cookie banner. You can withdraw consent at any
-                time and the cookies will be removed.
-              </p>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li><strong>Provider:</strong> Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA</li>
-                <li><strong>Cookies set on consent:</strong> <code>_gcl_au</code>, <code>_gcl_aw</code>, <code>_gcl_dc</code> (Google Click Identifier — used to attribute a sign-up to the ad you clicked). Typical lifetime: 90 days.</li>
-                <li><strong>Data sent to Google:</strong> Your IP address, browser and device information, the page you visited, and a flag indicating you completed a sign-up. We do not send your email address, manuscript content, or any other identifying account data.</li>
-                <li><strong>Purpose:</strong> Measuring ad campaign effectiveness. We do not use Google&rsquo;s data for retargeting or building advertising profiles.</li>
-                <li><strong>Lawful basis:</strong> Your consent under Regulation 6 of PECR and Article 6(1)(a) UK GDPR.</li>
-                <li><strong>International transfer:</strong> Google processes this data in the United States. Transfers rely on the EU-US Data Privacy Framework and the UK Extension to that framework, in which Google is certified.</li>
-                <li><strong>Google&rsquo;s policy:</strong> See <a href="https://policies.google.com/privacy" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">Google&rsquo;s privacy policy</a> for how they handle the data they receive.</li>
-              </ul>
-
-              <p className="text-gray-700 mb-4">
-                We use Google Consent Mode v2, which means before you grant consent, no cookies are
-                set and no personal identifiers are sent to Google. If you decline, this remains
-                true for the duration of your visit. If you accept, the cookies above are set until
-                they expire or you withdraw consent.
-              </p>
-
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">10.3 Site analytics</h3>
-              <p className="text-gray-700 mb-4">
-                We use Vercel Analytics for aggregate page-view statistics. Vercel Analytics is
-                cookie-less and does not track individuals or use cross-site identifiers. It is
-                set on the basis of legitimate interest (Article 6(1)(f) UK GDPR) for service
-                improvement.
-              </p>
-
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">10.4 Withdrawing consent</h3>
-              <p className="text-gray-700 mb-4">
-                You can withdraw consent for advertising cookies at any time through the cookie
-                banner&rsquo;s settings. You can also clear all cookies for this site through your
-                browser&rsquo;s privacy settings, which will reset all preferences including consent.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">11. Children's Privacy</h2>
-              <p className="text-gray-700 mb-4">
-                Our service is not intended for children under 13 years of age. We do not knowingly collect 
-                personal data from children under 13. If you believe we have collected such data, 
-                please contact us immediately.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">12. Changes to This Privacy Policy</h2>
-              <p className="text-gray-700 mb-4">
-                We may update this Privacy Policy from time to time. We will notify you of any significant 
-                changes by email or through the service. Your continued use after such changes constitutes 
-                acceptance of the updated policy.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">13. Complaints</h2>
-              <p className="text-gray-700 mb-4">
-                If you have concerns about how we handle your personal data, you can:
-              </p>
-              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li>Contact us directly through our website</li>
-                <li>Lodge a complaint with the Information Commissioner's Office (ICO) at 
-                  <a href="https://ico.org.uk" className="text-blue-600 hover:underline"> ico.org.uk</a>
-                </li>
-              </ul>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">14. Contact Information</h2>
-              <p className="text-gray-700 mb-4">
-                For any questions about this Privacy Policy or to exercise your data protection rights, 
-                please contact us through <a href="https://neilmcardle.com" className="text-blue-600 hover:underline">neilmcardle.com</a>.
-              </p>
-            </section>
-          </div>
-        </div>
+        <Section title="11. Contact">
+          For anything about this policy or your data, email{" "}
+          <a href="mailto:neil@neilmcardle.com" className="text-gold hover:text-gold-bright transition-colors">neil@neilmcardle.com</a>.
+        </Section>
       </main>
     </div>
-  )
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="mb-9">
+      <h2
+        className="text-cream mb-3"
+        style={{ fontFamily: "var(--font-inter)", fontSize: "1.125rem", fontWeight: 600, letterSpacing: "-0.01em" }}
+      >
+        {title}
+      </h2>
+      <div className="text-cream/70" style={{ fontFamily: "var(--font-inter)", fontSize: "0.9375rem", lineHeight: 1.7 }}>
+        {children}
+      </div>
+    </section>
+  );
 }

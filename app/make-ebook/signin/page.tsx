@@ -306,9 +306,9 @@ function SignInContent() {
             <div className="mt-8 pt-6 border-t border-gray-200 dark:border-[#2f2f2f]">
               <p className="text-xs text-center text-gray-500 dark:text-[#a3a3a3] text-pretty">
                 By creating an account, you agree to our{' '}
-                <a href="https://neilmcardle.com/terms" target="_blank" rel="noopener noreferrer" className="underline decoration-gray-300 hover:decoration-gray-700 hover:text-gray-700 dark:hover:text-gray-300">Terms</a>
+                <a href="https://makeebook.ink/terms" target="_blank" rel="noopener noreferrer" className="underline decoration-gray-300 hover:decoration-gray-700 hover:text-gray-700 dark:hover:text-gray-300">Terms</a>
                 {' '}and{' '}
-                <a href="https://neilmcardle.com/privacy" target="_blank" rel="noopener noreferrer" className="underline decoration-gray-300 hover:decoration-gray-700 hover:text-gray-700 dark:hover:text-gray-300">Privacy Policy</a>.
+                <a href="https://makeebook.ink/privacy" target="_blank" rel="noopener noreferrer" className="underline decoration-gray-300 hover:decoration-gray-700 hover:text-gray-700 dark:hover:text-gray-300">Privacy Policy</a>.
               </p>
             </div>
           )}

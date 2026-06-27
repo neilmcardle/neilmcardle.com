@@ -31,15 +31,18 @@ const Logomark = ({ size = 14 }: { size?: number }) => (
 // px-6 (24px) + logomark (14px) + gap-2.5 (10px) = 48px offset for the text area
 const TEXT_LEFT_OFFSET = '3rem';
 
-export default function HeroCta({ href }: { href: string }) {
+export default function HeroCta({ href, alwaysElectric = false }: { href: string; alwaysElectric?: boolean }) {
   const assembleRef = useRef<AssembleTextHandle>(null);
   const [electricVisible, setElectricVisible] = useState(false);
 
   useEffect(() => {
     const assembleTimer = setTimeout(() => assembleRef.current?.assemble(), 200);
+    if (alwaysElectric) {
+      return () => clearTimeout(assembleTimer);
+    }
     const scatterTimer = setTimeout(() => assembleRef.current?.scatter(), 2400);
     return () => { clearTimeout(assembleTimer); clearTimeout(scatterTimer); };
-  }, []);
+  }, [alwaysElectric]);
 
   return (
     <>
@@ -54,7 +57,7 @@ export default function HeroCta({ href }: { href: string }) {
           speed={0.7}
           chaos={0.06}
           borderRadius={8}
-          visible={electricVisible}
+          visible={alwaysElectric || electricVisible}
         >
           <a
             href={href}
@@ -74,7 +77,7 @@ export default function HeroCta({ href }: { href: string }) {
           ref={assembleRef}
           text="Let's work together"
           fontSize="1.125rem"
-          color={electricVisible ? "#fbf9f3" : "rgba(255,255,255,0.3)"}
+          color={alwaysElectric || electricVisible ? "#fbf9f3" : "rgba(255,255,255,0.3)"}
           className="absolute pointer-events-none overflow-visible"
           style={{ left: TEXT_LEFT_OFFSET, right: '1.5rem', top: 0, bottom: 0 }}
           scatterScale={0.35}
