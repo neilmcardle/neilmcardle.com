@@ -5,9 +5,7 @@ import { sparkWaitlist } from "@/lib/db/schema";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Per-IP rate limit. In-memory; resets on cold start. Phase 2.3 of
-// SECURITY-FIXES.md will swap this for Upstash. Turnstile is the
-// remaining layer once a Cloudflare site is provisioned for the form.
+// Per-IP rate limit. In-memory; resets on cold start.
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 5;
 const ipBuckets = new Map<string, { count: number; resetAt: number }>();

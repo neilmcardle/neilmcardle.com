@@ -47,15 +47,6 @@ specs/
 .claude/
 .agents/
 
-# strategy & config docs (private)
-CLAUDE.md
-DESIGN.md
-SEO-STRATEGY.md
-GOOGLE-ADS-STRATEGY.md
-STRIPE_IMPLEMENTATION.md
-STRIPE_SETUP.md
-SECURITY-FIXES.md
-
 # Spark teaching log (private drafts; polished MDX lessons publish separately)
 spark-teaching-log/
 

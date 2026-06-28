@@ -14,8 +14,7 @@ const MAX_QUANTITY = 10
 
 const SVG_MIN_BYTES = 200
 const SVG_MAX_BYTES = 2_000_000
-// Block SVG payloads that smuggle script execution or remote loads. Phase 2
-// of SECURITY-FIXES.md adds a Turnstile token + Upstash rate limit.
+// Block SVG payloads that smuggle script execution or remote loads.
 const SVG_BLOCKLIST = [
   '<script',
   '<foreignobject',
