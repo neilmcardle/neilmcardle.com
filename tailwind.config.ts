@@ -50,6 +50,26 @@ const config = {
         'me-surface': '#262626',   // Elevated surface (inputs, cards within panels)
         'me-raised':  '#2f2f2f',   // Borders, hover states, tooltips
 
+        // Semantic action colors (Beautiful UI integration)
+        // Use for high-priority actions, warnings, approvals
+        'action-primary': {
+          50:   '#fef3f0',
+          100:  '#fde7df',
+          500:  '#e56d24',
+          600:  '#d45d0d',
+          700:  '#b94806',
+          dark: '#f97316',
+        },
+        // Use for confirmations, success states, approvals accepted
+        'confirm-primary': {
+          50:   '#f0fdf8',
+          100:  '#d4f3e8',
+          500:  '#1f7a5f',
+          600:  '#157043',
+          700:  '#0d5930',
+          dark: '#2dd4bf',
+        },
+
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

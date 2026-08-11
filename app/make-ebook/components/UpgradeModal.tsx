@@ -235,9 +235,9 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
           <button
             onClick={() => handleCheckout(selectedPlan === 'monthly' ? 'subscription' : 'lifetime')}
             disabled={checkoutLoading || isLoading}
-            className="w-full py-3.5 bg-gray-900 dark:bg-white text-white dark:text-[#111] font-semibold rounded-full transition-all hover:bg-gray-800 dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg uppercase tracking-wide text-sm"
+            className="w-full py-3.5 bg-action-primary-500 dark:bg-action-primary-dark text-white dark:text-gray-900 font-semibold rounded-full transition-all hover:bg-action-primary-600 dark:hover:bg-orange-400 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg uppercase tracking-wide text-sm"
           >
-            {checkoutLoading ? 'Redirecting...' : 
+            {checkoutLoading ? 'Redirecting...' :
               selectedPlan === 'monthly' ? 'Subscribe to Pro - $9/month' : 'Buy Lifetime - $149'}
           </button>
 

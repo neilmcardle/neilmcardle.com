@@ -188,7 +188,7 @@ function ProBody({
         </button>
         <button
           onClick={() => { onDownload(); onClose(); }}
-          className="px-5 py-2.5 text-sm font-semibold bg-gray-900 dark:bg-white text-white dark:text-[#111] rounded-full hover:bg-gray-800 dark:hover:bg-[#e5e5e5] transition-colors"
+          className="px-5 py-2.5 text-sm font-semibold bg-action-primary-500 dark:bg-action-primary-dark text-white dark:text-gray-900 rounded-full hover:bg-action-primary-600 dark:hover:bg-orange-400 transition-colors"
         >
           {buttonLabel}
         </button>
@@ -232,7 +232,7 @@ function FreeBody({
         </button>
         <button
           onClick={() => { track("upgrade_clicked", { source: "preflight_export" }); onUpgrade(); onClose(); }}
-          className="px-5 py-2.5 text-sm font-semibold bg-gray-900 dark:bg-white text-white dark:text-[#111] rounded-full hover:bg-gray-800 dark:hover:bg-[#e5e5e5] transition-colors"
+          className="px-5 py-2.5 text-sm font-semibold bg-action-primary-500 dark:bg-action-primary-dark text-white dark:text-gray-900 rounded-full hover:bg-action-primary-600 dark:hover:bg-orange-400 transition-colors"
         >
           Upgrade to Pro
         </button>
