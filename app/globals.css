@@ -477,6 +477,22 @@ input, select, textarea {
   font-size: 1rem;
   transition: border 0.15s;
 }
+
+/* Chat composer override — no padding, no border, transparent */
+textarea.chat-composer {
+  border: none !important;
+  background: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  font-size: inherit !important;
+  border-radius: 0 !important;
+  transition: none !important;
+}
+textarea.chat-composer:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
 input:focus, select:focus, textarea:focus {
   border: 1.5px solid #d4d4d4;
   outline: none;
@@ -533,17 +549,17 @@ html[data-theme='dark'] textarea:focus {
 /* Remove outline on buttons for softer look */
 button:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #e6e6e6;
+  box-shadow: none;
 }
 
 html.dark button:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #444444;
+  box-shadow: none;
 }
 
 html[data-theme='dark'] button:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #444444;
+  box-shadow: none;
 }
 
 /* Subtle shadow for floating containers */

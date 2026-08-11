@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useLayoutEffect, useRef } from 'react';
 import { TrashIcon } from '../icons';
 import EmptyStateHint from '../EmptyStateHint';
 
@@ -45,146 +45,207 @@ export default function LibraryPanel({
   toggleSelectAll,
   handleDeleteSelectedBooks,
 }: LibraryPanelProps) {
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [box, setBox] = useState<{ top: number; height: number } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const target = hovered ? itemRefs.current[hovered] : null;
+    if (!container || !target) {
+      setBox(null);
+      return;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    setBox({
+      top: targetRect.top - containerRect.top,
+      height: targetRect.height,
+    });
+  }, [hovered]);
+
   return (
-    <div className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
-      <div className="flex items-center justify-between py-2 px-2">
-        <div className="flex items-center gap-2">
-          <svg className="w-5 h-5 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+    <div className="border-b border-gray-200 dark:border-[#2f2f2f] pb-3">
+      {/* Header with title and count */}
+      <div className="flex items-center justify-between py-3 px-3">
+        <div className="flex items-center gap-2.5">
+          <svg className="w-4 h-4 text-gray-600 dark:text-[#a3a3a3]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
             <rect x="4" y="4" width="3" height="16" rx="0.5" />
             <rect x="10" y="7" width="3" height="13" rx="0.5" />
             <rect x="16" y="5" width="3" height="15" rx="0.5" />
             <path d="M3 20h18" />
           </svg>
-          <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
-          <span className="text-xs text-gray-600 dark:text-[#a3a3a3]">({libraryBooks.length})</span>
+          <span className="text-125 font-semibold text-gray-900 dark:text-[#e5e5e5]">Library</span>
+          <span className="text-11 text-gray-500 dark:text-[#a3a3a3]">({libraryBooks.length})</span>
         </div>
-        <div className="flex items-center gap-1">
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-1.5">
           {libraryBooks.length > 0 && (
             <button
               onClick={() => setMultiSelectMode(!multiSelectMode)}
-              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${multiSelectMode ? 'bg-[#008ff0]/10 dark:bg-[#008ff0]/15' : 'hover:bg-gray-50 dark:hover:bg-[#262626]'}`}
+              className={`flex items-center justify-center h-8 w-8 rounded-chip transition-all duration-150 ${
+                multiSelectMode
+                  ? 'bg-[#008ff0]/10 dark:bg-[#008ff0]/15 text-[#008ff0]'
+                  : 'text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] hover:text-gray-700 dark:hover:text-[#d4d4d4]'
+              }`}
               title={multiSelectMode ? 'Cancel selection' : 'Select multiple'}
             >
-              <svg className={`w-4 h-4 ${multiSelectMode ? 'text-[#008ff0]' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                <circle className={multiSelectMode ? '' : 'dark:stroke-white'} cx="12" cy="12" r="9" />
-                <path className={multiSelectMode ? '' : 'dark:stroke-white'} d="M8.5 12l2.5 2.5 4.5-4.5" />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M8.5 12l2.5 2.5 4.5-4.5" />
               </svg>
-              <span className={`text-xs font-medium ${multiSelectMode ? 'text-[#008ff0]' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
-                {multiSelectMode ? 'Cancel' : 'Select'}
-              </span>
             </button>
           )}
           <button
             onClick={showNewBookConfirmation}
-            className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#262626] rounded transition-colors"
+            className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] hover:text-gray-700 dark:hover:text-[#d4d4d4] transition-all duration-150"
             title="New book"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-              <path className="dark:stroke-white" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <path className="dark:stroke-white" d="M14 2v6h6" />
-              <path className="dark:stroke-white" d="M9 14h6M12 11v6" />
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <path d="M14 2v6h6" />
+              <path d="M9 14h6M12 11v6" />
             </svg>
-            <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">New</span>
           </button>
           <button
             onClick={showImportDialog}
-            className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#262626] rounded transition-colors"
+            className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] hover:text-gray-700 dark:hover:text-[#d4d4d4] transition-all duration-150"
             title="Import document"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-              <path className="dark:stroke-white" d="M12 3v12M7.5 10l4.5 5 4.5-5" />
-              <path className="dark:stroke-white" d="M4 19h16" />
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 3v12M7.5 10l4.5 5 4.5-5" />
+              <path d="M4 19h16" />
             </svg>
-            <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5]">Import</span>
           </button>
         </div>
       </div>
 
+      {/* Multi-select toolbar */}
       {multiSelectMode && libraryBooks.length > 0 && (
-        <div className="flex items-center justify-between mt-2 px-2 py-1.5 bg-gray-50 dark:bg-[#262626] rounded-md">
-          <button onClick={toggleSelectAll} className="text-xs text-[#008ff0] hover:underline">
+        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-[#2d2d2d] rounded-card gap-2 mx-2 mb-2">
+          <button onClick={toggleSelectAll} className="text-11 font-medium text-[#008ff0] hover:underline">
             {selectedBookIds.size === libraryBooks.length ? 'Deselect All' : 'Select All'}
           </button>
-          <span className="text-xs text-gray-500 dark:text-[#a3a3a3]">{selectedBookIds.size} selected</span>
+          <span className="text-11 text-gray-500 dark:text-[#a3a3a3]">{selectedBookIds.size} selected</span>
           <button
             onClick={handleDeleteSelectedBooks}
             disabled={selectedBookIds.size === 0}
-            className="text-xs text-red-600 dark:text-red-400 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-11 font-medium text-red-600 dark:text-red-400 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Delete Selected
+            Delete
           </button>
         </div>
       )}
 
-      <div className={`mt-2 space-y-1 pl-2 ${libraryBooks.length > 4 ? 'max-h-[400px] overflow-y-auto pr-1' : ''}`}>
+      {/* Book list or empty state */}
+      <div className={`${libraryBooks.length > 4 ? 'max-h-[400px] overflow-y-auto' : ''}`}>
         {libraryBooks.length === 0 ? (
-          <EmptyStateHint
-            compact
-            icon={
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            }
-            title="No saved books yet"
-            description="Your books will appear here once saved. Click Save to preserve your current work."
-          />
+          <div className="px-2 pt-1">
+            <EmptyStateHint
+              compact
+              icon={
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              }
+              title="No saved books yet"
+              description="Your books will appear here once saved. Click Save to preserve your current work."
+            />
+          </div>
         ) : (
-          libraryBooks.map((book) => {
-            const isSelected = selectedBookId === book.id;
-            const isChecked = selectedBookIds.has(book.id);
-            return (
-              <div
-                key={book.id}
-                className={`group flex items-center justify-between py-2 px-2 rounded transition-colors ${
-                  isSelected || isChecked ? 'bg-gray-100 dark:bg-[#262626]' : 'hover:bg-gray-50 dark:hover:bg-[#262626]'
-                }`}
-              >
-                {multiSelectMode && (
-                  <label className="flex items-center mr-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => toggleBookSelection(book.id)}
-                      className="w-4 h-4 rounded border-gray-300 dark:border-[#3a3a3a] text-blue-600 focus:ring-blue-500 dark:focus:ring-blue-400 cursor-pointer"
-                    />
-                  </label>
-                )}
+          <div
+            ref={containerRef}
+            onMouseLeave={() => setHovered(null)}
+            className="relative flex flex-col gap-0.5 px-2"
+          >
+            {/* Gliding highlight */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-1 rounded-[7px] bg-gray-100 dark:bg-[#2d2d2d]"
+              style={{
+                top: box?.top ?? 0,
+                height: box?.height ?? 0,
+                opacity: box ? 1 : 0,
+                transition:
+                  'top 220ms cubic-bezier(0.23,1,0.32,1), height 220ms cubic-bezier(0.23,1,0.32,1), opacity 150ms ease',
+              }}
+            />
+
+            {/* Book items */}
+            {libraryBooks.map((book) => {
+              const isSelected = selectedBookId === book.id;
+              const isChecked = selectedBookIds.has(book.id);
+
+              return (
                 <button
+                  key={book.id}
+                  ref={(el) => {
+                    itemRefs.current[book.id] = el;
+                  }}
+                  onMouseEnter={() => setHovered(book.id)}
+                  onFocus={() => setHovered(book.id)}
+                  onBlur={() => setHovered(null)}
                   onClick={() => (multiSelectMode ? toggleBookSelection(book.id) : setSelectedBookId(isSelected ? null : book.id))}
-                  className="flex-1 text-left"
+                  className="group relative z-10 flex items-center gap-2.5 py-2.5 px-2 text-left transition-[color] duration-150 rounded-[7px]"
                 >
-                  <div className={`text-sm font-medium truncate ${isSelected || isChecked ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-700 dark:text-[#d4d4d4]'}`}>
-                    {book.title || 'Untitled'}
+                  {/* Checkbox (multi-select mode) */}
+                  {multiSelectMode && (
+                    <label className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleBookSelection(book.id)}
+                        className="w-4 h-4 rounded border-gray-300 dark:border-[#3a3a3a] text-[#008ff0] focus:ring-[#008ff0] dark:focus:ring-[#008ff0] cursor-pointer"
+                      />
+                    </label>
+                  )}
+
+                  {/* Book info */}
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-125 font-medium truncate ${
+                      isSelected || isChecked ? 'text-gray-900 dark:text-[#f5f5f5]' : 'text-gray-700 dark:text-[#d4d4d4]'
+                    }`}>
+                      {book.title || 'Untitled'}
+                    </div>
+                    <div className="text-11 text-gray-500 dark:text-[#a3a3a3] truncate">
+                      {book.author || 'Unknown author'}
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-[#a3a3a3] truncate">
-                    {book.author || 'Unknown author'}
-                  </div>
+
+                  {/* Actions (visible when selected and not in multi-select) */}
+                  {!multiSelectMode && isSelected && (
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLoadBook(book.id);
+                          setSelectedBookId(null);
+                        }}
+                        className="px-2.5 py-1.5 text-11 font-medium rounded-chip bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-85 transition-opacity active:scale-[0.96]"
+                      >
+                        Open
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteBook(book.id);
+                        }}
+                        className="p-1.5 rounded-chip text-gray-400 dark:text-[#737373] hover:bg-gray-200 dark:hover:bg-[#2d2d2d] hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
+                        title="Delete book"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                 </button>
-                {!multiSelectMode && isSelected && (
-                  <div className="flex items-center gap-1 ml-2">
-                    <button
-                      onClick={() => {
-                        handleLoadBook(book.id);
-                        setSelectedBookId(null);
-                      }}
-                      className="px-2 py-1 text-xs rounded bg-black dark:bg-white text-white dark:text-black hover:opacity-80"
-                      title="Open book"
-                    >
-                      Open
-                    </button>
-                    <button
-                      onClick={() => handleDeleteBook(book.id)}
-                      className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#2a2a2a] opacity-100 hover:opacity-70 transition-opacity"
-                      title="Delete"
-                    >
-                      <img src="/dark-bin-icon.svg" alt="Delete" className="w-4 h-4 hidden dark:block" />
-                      <TrashIcon className="w-4 h-4 dark:hidden" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         )}
       </div>
     </div>

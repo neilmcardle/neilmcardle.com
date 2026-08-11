@@ -51,13 +51,13 @@ export function AutoSaveIndicator({ isDirty, isSaving, lastSaved, compact = fals
     if (compact) {
       return (
         <div className="flex items-center justify-center w-6 h-6" title="Unsaved changes">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+          <span className="size-2.5 rounded-full bg-amber-500 animate-pulse" />
         </div>
       );
     }
     return (
       <div className="flex items-center gap-2 h-10 px-3 rounded-lg bg-gray-100 dark:bg-[#262626] text-xs text-stone-600 dark:text-stone-400" title="Unsaved changes">
-        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+        <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
         <span className="hidden xl:inline">Unsaved changes</span>
       </div>
     );
