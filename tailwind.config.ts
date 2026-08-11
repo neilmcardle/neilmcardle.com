@@ -25,6 +25,12 @@ const config = {
         // can be referenced as utility classes instead of arbitrary values.
         '2xs': ['0.625rem', { lineHeight: '1rem' }],   // 10px — labels, metadata
         '3xs': ['0.6875rem', { lineHeight: '1rem' }],  // 11px — footers, captions
+        // Beautiful UI granular scale for Book Mind UI
+        '10': ['0.65625rem', { lineHeight: '1rem' }],  // 10.5px — captions, inline badges
+        '11': ['0.6875rem', { lineHeight: '1.25rem' }], // 11px — small text
+        '12': ['0.75rem', { lineHeight: '1.25rem' }],   // 12px — labels, secondary text
+        '125': ['0.78125rem', { lineHeight: '1.5rem' }], // 12.5px — body, item labels
+        '13': ['0.8125rem', { lineHeight: '1.5rem' }],   // 13px — primary body text
       },
       colors: {
         // neilmcardle.com personal-site (dark) palette — homepage + paintings.
@@ -129,6 +135,11 @@ const config = {
       spacing: {
         'ka-touch':    '44px',
         'ka-touch-lg': '56px',
+        // Beautiful UI heights for Book Mind components
+        '4.5': '1.125rem',   // 18px
+        '5.5': '1.375rem',   // 22px
+        '6.5': '1.625rem',   // 26px
+        '7.5': '1.875rem',   // 30px
       },
       fontFamily: {
         sans: ["var(--font-inter)"],
@@ -140,15 +151,37 @@ const config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        // Beautiful UI precise border radius scale
+        'control': '7px',    // interactive controls, buttons
+        'chip': '8px',       // compact chips, badges
+        'card': '10px',      // card containers
+        'modal': '14px',     // modal dialogs
+        'pill': '24px',      // full-width pills
       },
       keyframes: {
         shimmer: {
           '0%': { backgroundPosition: '200% 0' },
           '100%': { backgroundPosition: '-200% 0' },
         },
+        // Beautiful UI animations
+        'fade-up': {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'pop-in': {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
       },
       animation: {
         shimmer: 'shimmer 2s linear infinite',
+        'fade-up': 'fade-up 320ms cubic-bezier(0.23, 1, 0.32, 1)',
+        'fade-in': 'fade-in 300ms ease-out',
+        'pop-in': 'pop-in 250ms cubic-bezier(0.23, 1, 0.32, 1)',
       },
     },
   },
