@@ -126,6 +126,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
             onNavigateToChapter={props.onNavigateToChapter}
             trialMode={!isPro}
             onUpgrade={props.onUpgrade}
+            isPro={isPro}
           />
         </TabsContent>
         <TabsContent value="profile" className="flex-1 min-h-0 mt-0 outline-none">

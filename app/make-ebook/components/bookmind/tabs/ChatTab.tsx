@@ -41,6 +41,7 @@ interface ChatTabProps {
   onNavigateToChapter?: (chapterIndex: number) => void;
   trialMode?: boolean;
   onUpgrade?: () => void;
+  isPro?: boolean;
 }
 
 export default function ChatTab({
@@ -55,6 +56,7 @@ export default function ChatTab({
   onNavigateToChapter,
   trialMode = false,
   onUpgrade,
+  isPro = true,
 }: ChatTabProps) {
   const {
     messages,
@@ -387,7 +389,7 @@ export default function ChatTab({
                 </div>
 
                 <div className="grid grid-cols-2 gap-1.5">
-                  {QUICK_ACTIONS.map(({ action, label, description }, idx) => (
+                  {QUICK_ACTIONS.slice(0, isPro ? 4 : 2).map(({ action, label, description }, idx) => (
                     <button
                       key={action}
                       onClick={() => handleQuickAction(action)}
@@ -422,6 +424,7 @@ export default function ChatTab({
                 onOpenReadingView={() => setReadingView({ open: true, content: message.content })}
                 onRemember={handleRemember}
                 disabled={isLoading}
+                isPro={isPro}
               />
             ))}
 
@@ -572,6 +575,7 @@ interface MessageBubbleProps {
   onOpenReadingView: () => void;
   onRemember: (content: string) => void;
   disabled: boolean;
+  isPro?: boolean;
 }
 
 function MessageBubble({
@@ -583,6 +587,7 @@ function MessageBubble({
   onOpenReadingView,
   onRemember,
   disabled,
+  isPro = true,
 }: MessageBubbleProps) {
   const isUser = message.role === "user";
   const isAssistant = message.role === "assistant";
@@ -652,9 +657,10 @@ function MessageBubble({
               content={message.content}
               onRegenerate={onRegenerate}
               onContinue={onContinue}
-              onOpenReadingView={onOpenReadingView}
-              onRemember={onRemember}
+              onOpenReadingView={isPro ? onOpenReadingView : undefined}
+              onRemember={isPro ? onRemember : undefined}
               disabled={disabled}
+              isPro={isPro}
             />
           </div>
         )}

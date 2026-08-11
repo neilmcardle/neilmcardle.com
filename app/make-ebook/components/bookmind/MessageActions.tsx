@@ -12,6 +12,7 @@ interface MessageActionsProps {
   onOpenReadingView?: () => void;
   onRemember?: (text: string) => void;
   disabled?: boolean;
+  isPro?: boolean;
 }
 
 export default function MessageActions({
@@ -21,6 +22,7 @@ export default function MessageActions({
   onOpenReadingView,
   onRemember,
   disabled,
+  isPro = true,
 }: MessageActionsProps) {
   const [copied, setCopied] = useState(false);
 
@@ -94,7 +96,7 @@ export default function MessageActions({
         </ActionButton>
       )}
 
-      {onRemember && (
+      {isPro && onRemember && (
         <ActionButton
           onClick={() => onRemember(content)}
           disabled={disabled}
