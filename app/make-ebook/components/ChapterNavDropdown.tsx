@@ -48,7 +48,7 @@ export default function ChapterNavDropdown({
           <ChevronDown className="w-3.5 h-3.5" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64 max-h-[400px] overflow-y-auto" align="start">
+      <DropdownMenuContent className="w-64 max-h-[400px] overflow-y-auto bg-white dark:bg-[#252525] border border-gray-200 dark:border-[#2f2f2f]" align="start">
         <DropdownMenuLabel className="text-xs font-semibold text-gray-500 dark:text-[#a3a3a3] uppercase tracking-wide">
           Chapters ({chapters.length})
         </DropdownMenuLabel>

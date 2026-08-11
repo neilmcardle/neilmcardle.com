@@ -76,7 +76,7 @@ export default function ModeMenu({
           </span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={8} className="w-72 p-1.5">
+      <DropdownMenuContent align="end" sideOffset={8} className="w-72 p-1.5 bg-white dark:bg-[#252525] border border-gray-200 dark:border-[#2f2f2f]">
         {/* Focus — universal */}
         <DropdownMenuItem
           onSelect={(e) => { e.preventDefault(); onToggleFocus(); }}
