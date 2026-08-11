@@ -143,7 +143,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
             </div>
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" sideOffset={8} forceMount>
+        <DropdownMenuContent className="w-56 bg-white dark:bg-[#252525]" align="end" sideOffset={8} forceMount>
           <DropdownMenuLabel className="font-normal pt-2 pb-2">
             <div className="flex flex-col space-y-2">
               <div className="flex items-center">
