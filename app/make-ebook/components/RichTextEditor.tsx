@@ -886,7 +886,7 @@ export default function RichTextEditor({
       )}
 
       {/* Full Toolbar - Hidden on mobile when keyboard is open */}
-      {!hideToolbar && <div className={`bg-white dark:bg-[#262626] border-b border-gray-200 dark:border-[#2f2f2f] transition-all duration-200 overflow-visible ${
+      {!hideToolbar && <div className={`transition-all duration-200 overflow-visible ${
         isMobileKeyboardOpen ? 'lg:block hidden' : ''
       }`}>
         {/* Sleek horizontal toolbar */}
@@ -901,7 +901,7 @@ export default function RichTextEditor({
               aria-label="Undo"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
             >
               <img src="/undo-icon.svg" alt="" aria-hidden="true" className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -912,7 +912,7 @@ export default function RichTextEditor({
               aria-label="Redo"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
             >
               <img src="/redo-icon.svg" alt="" aria-hidden="true" className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -951,7 +951,7 @@ export default function RichTextEditor({
               connected control (not separate pills) so the highlighted item
               reads as "the current style" rather than a toggle that's stuck on.
               This is why "P" looking active no longer implies a hidden state. */}
-          <div role="group" aria-label="Paragraph style" className="flex items-center gap-0.5 flex-shrink-0 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] p-0.5">
+          <div role="group" aria-label="Paragraph style" className="flex items-center gap-0.5 flex-shrink-0 rounded-lg p-0.5">
             {HEADINGS.map(h => {
               const active = !!formats[`heading${h.level}`];
               return (
@@ -966,7 +966,7 @@ export default function RichTextEditor({
                   disabled={disabled}
                   className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold transition-colors touch-manipulation ${
                     active
-                      ? 'bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white shadow-sm'
+                      ? 'bg-gray-200 dark:bg-[#3a3a3a] text-gray-900 dark:text-white'
                       : 'text-gray-500 dark:text-[#a3a3a3] hover:text-gray-700 dark:hover:text-[#d4d4d4]'
                   }`}
                 >
@@ -1069,7 +1069,7 @@ export default function RichTextEditor({
               aria-label="Outdent"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 6h18M9 12h12M9 18h12" /><path d="M7 9l-4 3 4 3" />
@@ -1105,7 +1105,7 @@ export default function RichTextEditor({
               aria-label="Indent"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-[#1e1e1e] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-transform touch-manipulation"
+              className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 6h18M9 12h12M9 18h12" /><path d="M3 9l4 3-4 3" />
@@ -1125,7 +1125,7 @@ export default function RichTextEditor({
               aria-label="Insert endnote"
               type="button"
               disabled={disabled || !onCreateEndnote}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation disabled:opacity-50"
+              className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation disabled:opacity-50"
             >
               <Image src="/endnote-icon.svg" alt="" aria-hidden="true" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
             </button>
@@ -1164,7 +1164,7 @@ export default function RichTextEditor({
             aria-label="Insert image"
             type="button"
             disabled={disabled}
-            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation flex-shrink-0"
+            className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation flex-shrink-0"
           >
             <img src="/image-icon.svg" alt="" aria-hidden="true" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
           </button>
@@ -1182,7 +1182,7 @@ export default function RichTextEditor({
             aria-label="Remove all formatting"
             type="button"
             disabled={disabled}
-            className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation flex-shrink-0"
+            className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation flex-shrink-0"
           >
             <img src="/clear-erase-icon.svg" alt="" aria-hidden="true" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
           </button>

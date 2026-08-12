@@ -9,6 +9,7 @@ import ChatTab from "./tabs/ChatTab";
 import ProfileTab from "./tabs/ProfileTab";
 import InsightsTab from "./tabs/InsightsTab";
 import IssuesTab from "./tabs/IssuesTab";
+import MemoryTab from "./tabs/MemoryTab";
 import PreflightTab from "./tabs/PreflightTab";
 import type { Chapter, BookRecord } from "../../types";
 import { loadBookById } from "../../utils/bookLibrary";
@@ -32,13 +33,14 @@ interface InspectorPanelProps {
   onUpgrade?: () => void;
 }
 
-type TabKey = "chat" | "profile" | "insights" | "issues" | "preflight";
+type TabKey = "chat" | "profile" | "insights" | "issues" | "memory" | "preflight";
 
 const TABS: Array<{ key: TabKey; label: string }> = [
   { key: "chat",      label: "Chat" },
   { key: "profile",   label: "Profile" },
   { key: "insights",  label: "Insights" },
   { key: "issues",    label: "Issues" },
+  { key: "memory",    label: "Memory" },
   { key: "preflight", label: "Preflight" },
 ];
 
@@ -46,14 +48,19 @@ export default function InspectorPanel(props: InspectorPanelProps) {
   const isPro = props.isPro ?? true;
   const visibleTabs = isPro ? TABS : TABS.filter(t => t.key === "chat");
   const [active, setActive] = useState<TabKey>("chat");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { onClose } = props;
+
+  const handleDismissOrRefresh = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   // Load the full record for the analytical tabs. Reads are cheap so
   // re-running on tab switch is fine.
   const book: BookRecord | undefined = useMemo(() => {
     if (!props.bookId || !props.userId) return undefined;
     return loadBookById(props.userId, props.bookId);
-  }, [props.bookId, props.userId, active]); // re-read when switching tabs
+  }, [props.bookId, props.userId, active, refreshTrigger]); // re-read when switching tabs or after dismiss
 
   const chapterIndex = useMemo(
     () => props.chapters.map(c => ({ id: c.id, title: c.title })),
@@ -148,6 +155,14 @@ export default function InspectorPanel(props: InspectorPanelProps) {
             chapters={chapterIndex}
             onNavigateToChapter={props.onNavigateToChapter}
             onRefresh={props.onRefreshAnalytical}
+            onDismiss={handleDismissOrRefresh}
+          />
+        </TabsContent>
+        <TabsContent value="memory" className="flex-1 min-h-0 mt-0 outline-none">
+          <MemoryTab
+            book={book}
+            userId={props.userId}
+            onUpdate={handleDismissOrRefresh}
           />
         </TabsContent>
         <TabsContent value="preflight" className="flex-1 min-h-0 mt-0 outline-none">

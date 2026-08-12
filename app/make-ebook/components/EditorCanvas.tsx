@@ -175,19 +175,19 @@ export default function EditorCanvas({
 
         {/* Word stats footer */}
         <div className="flex-shrink-0 flex items-center justify-between px-6 py-2 border-t border-gray-100 dark:border-gray-800/50">
-          <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
+          <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-400">
             <span className="flex items-center gap-1.5">
-              <span className="text-gray-300 dark:text-gray-600">Chapter:</span>
+              <span className="text-gray-300 dark:text-gray-500">Chapter:</span>
               <span className="tabular-nums">{chapterWordCount.toLocaleString()} words</span>
             </span>
-            <span className="text-gray-300 dark:text-gray-700">|</span>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
             <span className="flex items-center gap-1.5">
-              <span className="text-gray-300 dark:text-gray-600">Book:</span>
+              <span className="text-gray-300 dark:text-gray-500">Book:</span>
               <span className="tabular-nums">{bookStats.totalWords.toLocaleString()} words</span>
             </span>
             {sessionStats.wordsThisSession > 0 && (
               <>
-                <span className="text-gray-300 dark:text-gray-700">|</span>
+                <span className="text-gray-300 dark:text-gray-600">|</span>
                 <span className="text-green-500/70 dark:text-green-500/50 tabular-nums">
                   +{sessionStats.wordsThisSession.toLocaleString()} this session
                 </span>
@@ -196,7 +196,7 @@ export default function EditorCanvas({
           </div>
           {/* Quiet "words today" nudge. No streak, no flame, no grind. */}
           {todayWords > 0 && (
-            <span className="text-xs text-gray-500 dark:text-[#888] tabular-nums">
+            <span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
               {todayWords.toLocaleString()} words today
             </span>
           )}

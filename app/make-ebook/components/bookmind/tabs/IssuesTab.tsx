@@ -22,6 +22,7 @@ interface IssuesTabProps {
   chapters: Array<{ id: string; title: string }>;
   onNavigateToChapter?: (chapterIndex: number) => void;
   onRefresh?: (kind: AnalyticalKind) => void;
+  onDismiss?: () => void;
 }
 
 export default function IssuesTab({
@@ -30,6 +31,7 @@ export default function IssuesTab({
   chapters,
   onNavigateToChapter,
   onRefresh,
+  onDismiss,
 }: IssuesTabProps) {
   if (!book) {
     return <EmptyState message="Open a book to check for issues." />;
@@ -48,6 +50,7 @@ export default function IssuesTab({
   const handleDismiss = (card: AnalyticalCard, idx: number) => {
     if (!userId || !book) return;
     dismissIssue(userId, book.id, issueId(card, idx));
+    onDismiss?.();
   };
 
   return (

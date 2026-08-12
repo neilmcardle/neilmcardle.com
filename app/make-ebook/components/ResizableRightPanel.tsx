@@ -74,7 +74,7 @@ export default function ResizableRightPanel({ children, className = '' }: Resiza
     <div
       ref={panelRef}
       style={{ width: isExpanded ? width : 0 }}
-      className={`hidden lg:flex flex-col flex-shrink-0 h-screen overflow-hidden border-l border-gray-200 dark:border-[#2f2f2f] relative transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-x-hidden ${className}`}
+      className={`hidden lg:flex flex-col flex-shrink-0 h-screen overflow-hidden border-l-2 border-gray-300 dark:border-[#404040] relative transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-x-hidden shadow-xl dark:shadow-black/20 ${className}`}
     >
       {/* Resize handle — left edge */}
       <div
