@@ -91,11 +91,11 @@ export default function HistoryPanel({
   return (
     <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden"
+        className="bg-white dark:bg-[#2f2f2f] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#333]">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#3a3a3a]">
           <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">History</h2>
           <button
             onClick={onClose}
