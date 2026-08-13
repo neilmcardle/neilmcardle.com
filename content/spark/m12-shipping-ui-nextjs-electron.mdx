@@ -1,544 +1,1365 @@
 ---
-title: "Shipping UI: Next.js + desktop/Electron"
+title: "M12: Shipping UI — Next.js + Desktop/Electron"
+description: "Build a real, polished multi-surface app from design to deployment. Understand server vs client rendering, performance constraints, and where desktop breaks the web assumptions."
 module: 12
-phase: "Phase 2 — DE core"
-promise: "Ship a real, polished multi-surface app and understand desktop delivery."
+concepts:
+  - Next.js file-based routing and the App Router
+  - Server components vs client components (and why it matters)
+  - Form handling, validation, and error states
+  - Performance fundamentals (Lighthouse, Core Web Vitals, bundle analysis)
+  - Deployment to Vercel with CI/CD and environment variables
+  - Optional: Electron for Mac/Windows desktop, native conventions
+build:
+  - "Design a real product (portfolio, notes app, expense tracker, reading list)"
+  - "Implement in Next.js with pages, forms, API routes, and data persistence"
+  - "Deploy to Vercel with custom domain and monitoring"
+  - "(Optional) Wrap in Electron, build for Mac/Windows, test conventions"
+checkpoint:
+  - "App deployed and live on production domain"
+  - "All forms validate, show errors, handle edge cases"
+  - "Lighthouse score 90+ on all core metrics"
+  - "Mobile responsive, no layout shift on dynamic content"
+  - "(Desktop) Native menus, file dialogs, system integration"
 threads:
   - "craft-is-the-differentiator"
   - "your-code-vs-the-platform"
+duration: "6–8 weeks (evenings)"
+difficulty: "intermediate → advanced"
 ---
 
-<Section title="The serverless divide: server vs. client components">
+# M12: Shipping UI — Next.js + Desktop/Electron
 
-Next.js 16 splits your code into two execution environments. Understanding which code runs where is the foundational move.
+## The Premise
 
-Server components run once, on your server, then ship rendered HTML to the browser. No JavaScript. Client components run in the browser, can hold state, respond to clicks.
+Building a feature is not the same as shipping a product. A shipped product means:
+- Users can actually reach it (deployed, DNS, HTTPS)
+- Forms don't silently fail or crash
+- The page loads in 2 seconds on 4G, not 8
+- Errors show helpful messages, not cryptic stack traces
+- The experience is consistent on mobile, tablet, desktop
+- (For desktop) It doesn't feel like a web app bolted onto a native shell
 
-The mistake: thinking server/client is about *databases* and *APIs*. It's not. It's about where your code executes and what the browser downloads.
+Shipping is where **craft is the differentiator**. Two apps with identical features feel completely different if one has thought through error states, loading states, and performance. Shipping is also where you learn that **your code is only half the battle**—the platform (Next.js, Vercel, Electron, the browser, the OS) shapes what's possible and what's expensive.
 
-A server component that fetches data from your database renders once. The result is HTML. The browser displays it, no round trip.
+This module builds a real, complete product. Not a demo, not a tutorial app. Something you'd actually use, someone else would pay for, or you'd link in a portfolio. You'll deploy it yourself, monitor its performance, and optionally wrap it for desktop. By the end, you'll understand what separates a shipped product from a hobby project.
 
-A client component with a button needs JavaScript. The browser downloads React, your component code, and everything it imports. Your bundle grows.
+---
 
-```typescript
-// app/page.tsx — Server component by default
-import { getArticles } from "@/lib/db";
+## Section 1: The Shape of a Shipped Product
 
-export default async function HomePage() {
-  const articles = await getArticles();
-  
-  return (
-    <div>
-      {articles.map((a) => (
-        <article key={a.id}>
-          <h2>{a.title}</h2>
-          <p>{a.excerpt}</p>
-        </article>
-      ))}
-    </div>
-  );
-}
-```
+### What "Shipping" Means
 
-This doesn't ship any JavaScript. The HTML includes the article list. Fast.
+A shipped product has three layers:
 
-```typescript
-// app/components/InteractiveFilter.tsx — Client component
-"use client";
-import { useState } from "react";
+1. **The code layer** — your React components, Next.js routes, API handlers
+2. **The platform layer** — Next.js, Vercel, the browser, the OS
+3. **The human layer** — your actual users, their devices, their network, their expectations
 
-export default function InteractiveFilter({ articles }) {
-  const [filter, setFilter] = useState("");
-  const filtered = articles.filter((a) =>
-    a.title.toLowerCase().includes(filter.toLowerCase())
-  );
+Most tutorials focus on layer 1. This module teaches layers 2 and 3.
 
-  return (
-    <div>
-      <input
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        placeholder="Search articles..."
-      />
-      {filtered.map((a) => (
-        <article key={a.id}>
-          <h2>{a.title}</h2>
-        </article>
-      ))}
-    </div>
-  );
-}
-```
+### What Makes a Product Feel Shipped
 
-This ships JavaScript because the browser handles input changes. Smaller component, focused responsibility. The browser re-renders the filtered list, not the server.
+**Load performance.** When users click the link, does the page appear in < 1s on 4G? Or does it hang for 5s while JavaScript downloads and hydrates? The difference is perceived quality.
 
-The pattern: fetch on the server, render the HTML, pass data as props to a small client component that handles interactivity. You get fast initial load and instant clicks.
+**Error resilience.** What happens when the API is slow? The server crashes? The user is offline? A shipped product doesn't crash; it degrades gracefully.
 
-</Section>
+**Mobile responsiveness.** Your design looks great on desktop. Does it look *designed* on mobile, or does it look responsive-by-accident? Shipped products feel native on every screen size.
 
-<Section title="Routing as your mental model">
+**State clarity.** When a form is submitting, does the user know? When it fails, do they see why? Loading states, error messages, success confirmations—these are not nice-to-haves. They're what separate a shipped product from an experiment.
 
-In Next.js 16, the file system is your router. Each folder with a `page.tsx` is a route.
+**Attention to detail.** Animations that don't drop frames. Form fields that remember their state. Keyboard navigation that works. The back button that does the right thing. Shipped products have noticed these things.
+
+### The Platform's Role
+
+Next.js, Vercel, React, the browser—they all make promises:
+- Next.js promises file-based routing, automatic code-splitting, SSR/SSG
+- React promises reusable components and predictable state
+- Vercel promises instant deploys, automatic CDN, edge functions
+- The browser promises consistent DOM APIs and async rendering
+
+But the platform also imposes constraints:
+- JavaScript has to download, parse, and execute before anything interactive happens (hydration is expensive)
+- Network latency is real—an API call that takes 2 seconds makes a form feel broken
+- The bundle size is a hard limit—every kilobyte of JavaScript is paid for at load time
+- Mobile and desktop are different environments (touch vs. pointer, battery vs. plugged in, WiFi vs. 4G)
+
+A shipped product doesn't fight the platform; it works *with* it. Server components let you keep heavy logic off the client. API routes let you talk to your database without exposing credentials. Vercel's edge functions let you serve API responses from a server near the user.
+
+---
+
+## Section 2: Next.js Fundamentals
+
+### File-Based Routing (App Router)
+
+In Next.js 13+, the **App Router** replaced the Pages Router. It's based on React Server Components by default, which changes everything.
 
 ```
 app/
-  page.tsx                 → /
-  dashboard/
-    page.tsx              → /dashboard
-    settings/
-      page.tsx            → /dashboard/settings
-  api/
-    articles/
-      route.ts            → POST /api/articles
+├── layout.tsx              # Root layout, wraps all pages
+├── page.tsx                # Home page (/)
+├── dashboard/
+│   ├── layout.tsx          # Dashboard layout
+│   └── page.tsx            # /dashboard
+├── api/
+│   ├── books/
+│   │   ├── route.ts        # GET/POST /api/books
+│   │   └── [id]/
+│   │       └── route.ts    # GET/PUT/DELETE /api/books/[id]
+└── (marketing)/
+    ├── about/page.tsx      # /about (grouped in parens, doesn't affect URL)
+    └── blog/[slug]/page.tsx # /blog/[slug]
 ```
 
-This isn't magic. It's just a convention that maps files to URLs.
+Routes are files. `app/blog/[slug]/page.tsx` automatically handles `/blog/my-post`, `/blog/another-post`, etc. Dynamic segments like `[slug]` and `[id]` become route parameters.
 
-When a visitor lands on `/dashboard/settings`, Next.js runs `app/dashboard/settings/page.tsx`. If it's a server component, the data fetches, HTML renders, browser receives it.
+**Key feature:** Route groups in parentheses don't add to the URL. Use them to organise layouts:
 
-The URL is not separate from your component structure. They're the same thing.
+```tsx
+// app/(auth)/login/page.tsx → /login (not /auth/login)
+// app/(auth)/layout.tsx wraps both login and signup with a centered card
 
-Layout files wrap multiple routes. A `layout.tsx` in the `app/` folder wraps every page. A `layout.tsx` in `app/dashboard/` wraps only dashboard pages.
-
-```typescript
-// app/dashboard/layout.tsx — wraps /dashboard and /dashboard/settings
-"use client";
-import { useState } from "react";
-
-export default function DashboardLayout({ children }) {
-  const [open, setOpen] = useState(false);
-
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ display: "flex" }}>
-      <aside style={{ width: open ? 240 : 60 }}>
-        <button onClick={() => setOpen(!open)}>Toggle</button>
-        {open && <nav>Navigation here</nav>}
-      </aside>
-      <main style={{ flex: 1 }}>{children}</main>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md">{children}</div>
     </div>
   );
 }
 ```
 
-Every page inside this layout gets the sidebar. The layout persists during navigation, so state doesn't reset when you move between routes. This is cheaper than rebuilding the whole page.
+### Server Components (Default)
 
-Dynamic routes use square brackets. `app/articles/[id]/page.tsx` matches `/articles/42`, `/articles/hello-world`, any ID.
+By default, **every component is a Server Component**. It runs on the server, never ships JavaScript to the browser. A server component renders to HTML once, and that HTML is sent to the client.
 
-```typescript
-// app/articles/[id]/page.tsx
-export default async function ArticlePage({ params }) {
-  const { id } = params;
-  const article = await getArticle(id);
+```tsx
+// app/dashboard/page.tsx — Server Component (no 'use client')
+// This code runs on the server, not in the browser
 
+import { db } from '@/lib/db';
+
+export default async function DashboardPage() {
+  const books = await db.book.findMany({ limit: 50 });
+  
   return (
-    <article>
-      <h1>{article.title}</h1>
-      <div>{article.content}</div>
-    </article>
+    <div>
+      <h1>Your Books</h1>
+      <ul>
+        {books.map(book => (
+          <li key={book.id}>{book.title}</li>
+        ))}
+      </ul>
+    </div>
   );
 }
 ```
 
-The `params` object gives you the captured value. Next.js handles the parsing.
+The database query runs on the server. The HTML is generated on the server. The client receives finished HTML and renders it instantly. No JavaScript needed.
 
-</Section>
+**Advantages:**
+- No secrets exposed to the browser (API keys, database URLs stay safe)
+- Faster initial page load (no JavaScript hydration delay)
+- Smaller bundle size (database queries aren't shipped as code)
+- Direct database access (no need for an API route in between)
 
-<Section title="Forms without the framework">
+**Trade-off:** Server components can't use browser APIs (event listeners, localStorage, useState). They also can't use hooks.
 
-Forms are HTML. They've been forms since the 90s. Next.js isn't reinventing them, it's making them work better.
+### Client Components ('use client')
 
-A form submission is a request to your server. The browser collects the data, sends it, waits for a response. No JavaScript required for basic forms.
+When you need interactivity (form state, button clicks, animations), you add `'use client'` at the top of the file. Everything below it runs in the browser.
 
-In Next.js, you write a Server Action — a function marked `"use server"` that runs on your server when the form submits.
+```tsx
+'use client';
 
-```typescript
-// lib/actions.ts
-"use server";
-import { db } from "@/lib/db";
+import { useState } from 'react';
 
-export async function createArticle(formData) {
-  const title = formData.get("title");
-  const excerpt = formData.get("excerpt");
+export default function AddBookForm() {
+  const [title, setTitle] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const article = await db.articles.create({
-    title,
-    excerpt,
-  });
-
-  return { success: true, id: article.id };
-}
-```
-
-Then use it directly in your form:
-
-```typescript
-// app/articles/new/page.tsx
-import { createArticle } from "@/lib/actions";
-
-export default function NewArticlePage() {
-  return (
-    <form action={createArticle}>
-      <input type="text" name="title" required />
-      <textarea name="excerpt"></textarea>
-      <button type="submit">Create article</button>
-    </form>
-  );
-}
-```
-
-No JavaScript needed. The form submits, the server action runs, the database updates, the browser navigates to the next page or revalidates data.
-
-For client-side validation and loading states, wrap the form in a client component:
-
-```typescript
-// app/components/ArticleForm.tsx
-"use client";
-import { createArticle } from "@/lib/actions";
-import { useState, useTransition } from "react";
-
-export default function ArticleForm() {
-  const [pending, startTransition] = useTransition();
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    startTransition(async () => {
-      const formData = new FormData(e.target);
-      const result = await createArticle(formData);
-      if (result.success) {
-        e.target.reset();
-      }
+    setIsSubmitting(true);
+    
+    const res = await fetch('/api/books', {
+      method: 'POST',
+      body: JSON.stringify({ title }),
     });
+    
+    setIsSubmitting(false);
+    if (!res.ok) alert('Failed to add book');
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="text" name="title" required />
-      <button type="submit" disabled={pending}>
-        {pending ? "Creating..." : "Create article"}
+      <input
+        value={title}
+        onChange={e => setTitle(e.target.value)}
+        placeholder="Book title"
+      />
+      <button disabled={isSubmitting}>
+        {isSubmitting ? 'Adding...' : 'Add Book'}
       </button>
     </form>
   );
 }
 ```
 
-The `useTransition` hook gives you a `pending` flag so you can disable the button and show loading state. The browser doesn't navigate until the server action completes.
+The `'use client'` directive only affects this file and its descendants. If a server component imports a client component, the client component renders on the browser, but its parent stays on the server.
 
-</Section>
+**Key rule:** Keep `'use client'` components small and deep in the tree. A huge root component as `'use client'` forces the entire app to the browser, defeating the purpose.
 
-<Section title="Data fetching: not just async/await">
-
-Fetching data in Next.js is async/await on the server side. But the browser caches, Next.js revalidates, and your data gets stale.
-
-In a server component, you can `await` directly:
-
-```typescript
-// app/dashboard/page.tsx
-import { getStats } from "@/lib/db";
-
-export default async function DashboardPage() {
-  const stats = await getStats();
-
+```tsx
+// Good: Server component wraps client component
+export default function BooksPage() {
+  // runs on server, queries database
+  const books = await db.book.findMany();
+  
   return (
     <div>
-      <h1>Dashboard</h1>
-      <p>Users: {stats.userCount}</p>
-      <p>Articles: {stats.articleCount}</p>
+      <BookList books={books} />         {/* Server component */}
+      <AddBookForm />                     {/* Client component */}
+    </div>
+  );
+}
+
+// Bad: Everything becomes client-rendered
+'use client';
+
+export default function BooksPage() {
+  // Now this entire page and its children run in the browser
+  // You lose the speed and security benefits
+}
+```
+
+---
+
+## Section 3: Server vs Client — The Architectural Pattern
+
+### The Mental Model
+
+- **Server components** are for display and fetching. They're fast, they're safe, they're the default.
+- **Client components** are for interaction. They handle user input, state, navigation, animations.
+
+Most pages follow this pattern:
+
+```
+Page (Server)
+├── Header (Server) — fetches user profile once
+├── Sidebar (Server) — fetches menu data once
+└── MainContent (Client)
+    ├── FilterBar (Client) — handles filter state
+    ├── SearchInput (Client) — handles search input, debounces
+    └── ResultsList (Server) — passed results from parent, just renders
+```
+
+The server fetches data once. The client manages UI state (filters, search, sorting). When the user changes a filter, the client makes a fetch to `/api/books?category=fiction`, the server responds, the client updates the list.
+
+### Why This Matters for Performance
+
+In the old Pages Router (or a traditional SPA), **everything is JavaScript**. The entire page is client code. When the user lands, the browser:
+1. Downloads the JavaScript bundle (100KB–500KB)
+2. Parses and compiles it (takes ~1s on slow devices)
+3. Runs the JavaScript (hydration — React initializes, re-renders, attaches event listeners)
+4. Makes an API call to fetch data
+5. Re-renders again with the data
+6. Now the page is interactive
+
+That's 3–5 seconds before anything interactive happens.
+
+With Server Components:
+
+1. Server fetches data and renders HTML
+2. Browser receives HTML and renders it instantly
+3. Browser downloads the client component JavaScript (only what's needed for interactivity)
+4. Browser attaches event listeners (hydration is fast because most of the page doesn't need it)
+
+That's 0.5–1 second before something interactive appears. The content is visible immediately.
+
+### Fetching Data
+
+**In a server component**, use `async/await` directly:
+
+```tsx
+// app/books/page.tsx
+export default async function BooksPage() {
+  const res = await fetch('https://api.example.com/books');
+  const books = await res.json();
+  
+  return (
+    <div>
+      {books.map(book => (
+        <BookCard key={book.id} book={book} />
+      ))}
     </div>
   );
 }
 ```
 
-Next.js caches this response by default. The data doesn't refetch until you redeploy or manually revalidate.
+**In a client component**, use an effect hook:
 
-To refresh data on demand, use `revalidatePath` inside a Server Action:
+```tsx
+'use client';
 
-```typescript
-// lib/actions.ts
-"use server";
-import { revalidatePath } from "next/cache";
-import { db } from "@/lib/db";
+import { useEffect, useState } from 'react';
 
-export async function publishArticle(id) {
-  await db.articles.update(id, { published: true });
-  revalidatePath("/dashboard");
-  // Next.js rerenders /dashboard and fetches fresh stats
-}
-```
-
-For real-time updates, client components fetch inside `useEffect`:
-
-```typescript
-// app/components/LiveStats.tsx
-"use client";
-import { useEffect, useState } from "react";
-
-export default function LiveStats() {
-  const [stats, setStats] = useState(null);
+export default function BooksPage() {
+  const [books, setBooks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const poll = setInterval(async () => {
-      const res = await fetch("/api/stats");
+    const fetchBooks = async () => {
+      const res = await fetch('/api/books');
       const data = await res.json();
-      setStats(data);
-    }, 5000);
-
-    return () => clearInterval(poll);
+      setBooks(data);
+      setIsLoading(false);
+    };
+    
+    fetchBooks();
   }, []);
 
-  if (!stats) return <p>Loading...</p>;
-  return <p>Users now: {stats.activeNow}</p>;
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      {books.map(book => (
+        <BookCard key={book.id} book={book} />
+      ))}
+    </div>
+  );
 }
 ```
 
-This polls every 5 seconds. The browser fetches fresh data, no page reload.
+The server component is faster and cleaner. Use client components only when you need state or event listeners.
 
-</Section>
+---
 
-<Section title="Performance: no dropped frames, small bundles">
+## Section 4: Forms and Validation
 
-A dropped frame feels like a stutter. Your app rendered 59 frames per second instead of 60. Users notice.
+Forms are where products are built or broken. A good form:
+- Validates client-side (instant feedback, no round trip)
+- Validates server-side (can't trust the browser)
+- Shows clear error messages
+- Prevents double-submission
+- Handles network errors gracefully
 
-Performance on the web is two problems: fast initial load and fast interaction.
+### A Complete Form Example
 
-Initial load is mostly about bundle size. Smaller JavaScript means faster download, parse, and execution. Use server components to ship zero JavaScript when you don't need it.
+```tsx
+'use client';
 
-Interaction performance is about React rendering. If you render 10,000 items on every keystroke, the browser can't keep up. Use `key` props correctly, memoize expensive renders, and don't fetch on every input change.
+import { useState } from 'react';
 
-```typescript
-// Bad: fetches on every keystroke
-"use client";
-import { useState, useEffect } from "react";
+interface AddBookFormProps {
+  onSuccess?: () => void;
+}
 
-export default function Search() {
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
+export function AddBookForm({ onSuccess }: AddBookFormProps) {
+  const [formData, setFormData] = useState({ title: '', author: '', pages: '' });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  useEffect(() => {
-    if (query.length > 0) {
-      fetch(`/api/search?q=${query}`).then((res) =>
-        res.json().then(setResults)
-      );
+  // Client-side validation
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.title.trim()) {
+      newErrors.title = 'Title is required';
     }
-  }, [query]); // runs on EVERY keystroke
-
-  return (
-    <div>
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search..."
-      />
-      {results.map((r) => (
-        <div key={r.id}>{r.title}</div>
-      ))}
-    </div>
-  );
-}
-```
-
-This fetches for every character typed. Network round trip is slow.
-
-Better: debounce the fetch:
-
-```typescript
-// Good: debounces the fetch
-"use client";
-import { useState, useEffect, useRef } from "react";
-
-export default function Search() {
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
-  const timeoutRef = useRef(null);
-
-  useEffect(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-    timeoutRef.current = setTimeout(() => {
-      if (query.length > 0) {
-        fetch(`/api/search?q=${query}`).then((res) =>
-          res.json().then(setResults)
-        );
-      }
-    }, 300); // waits 300ms after typing stops
-  }, [query]);
-
-  return (
-    <div>
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search..."
-      />
-      {results.map((r) => (
-        <div key={r.id}>{r.title}</div>
-      ))}
-    </div>
-  );
-}
-```
-
-Wait 300ms after the user stops typing, then fetch. Fewer requests, same user experience.
-
-For bundle size, check what you're importing. If you import a 50KB library to use one function, you've added 50KB to your bundle. Audit with `next/bundle-analyzer`.
-
-</Section>
-
-<Section title="Electron and cross-platform consistency">
-
-Electron wraps your web app in a desktop shell. The same React code that runs in the browser runs in the desktop app. Almost.
-
-The difference: the desktop shell has native APIs. You can read the file system, watch folders, send notifications, change system tray icons. A web app can't do these things.
-
-Electron is two processes: the main process (Node.js, native APIs) and the renderer process (Chromium, your React app). They talk via IPC (inter-process communication).
-
-```typescript
-// main.js — main process, runs in Node.js
-const { app, BrowserWindow, ipcMain } = require("electron");
-const path = require("path");
-
-let mainWindow;
-
-app.on("ready", () => {
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-    },
-  });
-
-  mainWindow.loadURL("http://localhost:3000");
-  mainWindow.webContents.openDevTools();
-});
-
-ipcMain.handle("get-user-documents", async () => {
-  const documentsPath = app.getPath("documents");
-  return documentsPath;
-});
-```
-
-The main process listens for IPC messages and runs Node.js code.
-
-In your React app (the renderer), call the main process:
-
-```typescript
-// In your React component
-"use client";
-const { ipcRenderer } = require("electron");
-
-export default function FileBrowser() {
-  const openFolder = async () => {
-    const docsPath = await ipcRenderer.invoke("get-user-documents");
-    console.log("Docs at:", docsPath);
+    if (!formData.author.trim()) {
+      newErrors.author = 'Author is required';
+    }
+    if (formData.pages && isNaN(Number(formData.pages))) {
+      newErrors.pages = 'Pages must be a number';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  return <button onClick={openFolder}>Open Documents</button>;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitError('');
+    setSubmitSuccess(false);
+
+    // Validate before submitting
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch('/api/books', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        // Server responded with an error
+        const error = await res.json();
+        setSubmitError(error.message || 'Failed to add book');
+        return;
+      }
+
+      // Success
+      setSubmitSuccess(true);
+      setFormData({ title: '', author: '', pages: '' });
+      
+      // Clear success message after 3s
+      setTimeout(() => setSubmitSuccess(false), 3000);
+      
+      // Callback to parent (e.g. to refresh the book list)
+      onSuccess?.();
+    } catch (err) {
+      // Network error
+      setSubmitError('Network error. Please try again.');
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto">
+      <h2 className="text-lg font-bold">Add a Book</h2>
+
+      {/* Title field */}
+      <div>
+        <label className="block text-sm font-medium mb-1">Title</label>
+        <input
+          type="text"
+          value={formData.title}
+          onChange={e => setFormData({ ...formData, title: e.target.value })}
+          className={`w-full px-3 py-2 border rounded ${
+            errors.title ? 'border-red-500' : 'border-gray-300'
+          }`}
+          disabled={isSubmitting}
+        />
+        {errors.title && <p className="text-sm text-red-600 mt-1">{errors.title}</p>}
+      </div>
+
+      {/* Author field */}
+      <div>
+        <label className="block text-sm font-medium mb-1">Author</label>
+        <input
+          type="text"
+          value={formData.author}
+          onChange={e => setFormData({ ...formData, author: e.target.value })}
+          className={`w-full px-3 py-2 border rounded ${
+            errors.author ? 'border-red-500' : 'border-gray-300'
+          }`}
+          disabled={isSubmitting}
+        />
+        {errors.author && <p className="text-sm text-red-600 mt-1">{errors.author}</p>}
+      </div>
+
+      {/* Pages field */}
+      <div>
+        <label className="block text-sm font-medium mb-1">Pages (optional)</label>
+        <input
+          type="text"
+          value={formData.pages}
+          onChange={e => setFormData({ ...formData, pages: e.target.value })}
+          className={`w-full px-3 py-2 border rounded ${
+            errors.pages ? 'border-red-500' : 'border-gray-300'
+          }`}
+          disabled={isSubmitting}
+        />
+        {errors.pages && <p className="text-sm text-red-600 mt-1">{errors.pages}</p>}
+      </div>
+
+      {/* Success message */}
+      {submitSuccess && (
+        <div className="p-3 bg-green-100 text-green-800 rounded">
+          Book added successfully!
+        </div>
+      )}
+
+      {/* Error message */}
+      {submitError && (
+        <div className="p-3 bg-red-100 text-red-800 rounded">
+          {submitError}
+        </div>
+      )}
+
+      {/* Submit button */}
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={`w-full px-4 py-2 rounded font-medium ${
+          isSubmitting
+            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+            : 'bg-blue-600 text-white hover:bg-blue-700'
+        }`}
+      >
+        {isSubmitting ? 'Adding...' : 'Add Book'}
+      </button>
+    </form>
+  );
 }
 ```
 
-The React component invokes the main process, waits for the result, updates state.
+### The Corresponding API Route
 
-For Mac and Windows consistency: platform-specific code is inevitable. File paths differ, keyboard shortcuts differ, menu bar behaviour differs. Write platform checks when you need them:
+```ts
+// app/api/books/route.ts
 
-```typescript
-// lib/platform.ts
-export const isMac = process.platform === "darwin";
-export const isWindows = process.platform === "win32";
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { title, author, pages } = body;
 
-export const shortcuts = isMac
-  ? { save: "Cmd+S", undo: "Cmd+Z" }
-  : { save: "Ctrl+S", undo: "Ctrl+Z" };
-```
-
-Use these constants in your UI and native code.
-
-</Section>
-
-<Section title="Deployment and the real world">
-
-Deploying your app means getting it running on a server that's always on, always available.
-
-Vercel is the simplest path for Next.js. Push to Git, Vercel builds and deploys. You get HTTPS, caching, analytics, edge functions. Most of it free.
-
-```bash
-# 1. Create a GitHub repository
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/yourname/your-app.git
-git push -u origin main
-
-# 2. Connect to Vercel at vercel.com
-# (Import from GitHub, Vercel builds automatically on push)
-
-# 3. Set environment variables in Vercel dashboard
-# DATABASE_URL, API_KEYS, etc.
-
-# 4. Push a new change
-git add app/page.tsx
-git commit -m "Update homepage"
-git push
-# Vercel rebuilds and deploys in < 1 minute
-```
-
-Deployment for Electron is different. You build once, then distribute the binary. Platforms have different build processes.
-
-For Mac: create a `.dmg` installer. For Windows: create an `.exe` installer. Use `electron-builder` to automate this.
-
-```json
-{
-  "name": "my-desktop-app",
-  "build": {
-    "appId": "com.example.myapp",
-    "productName": "My App",
-    "files": ["dist/**/*"],
-    "mac": {
-      "target": ["dmg"],
-      "category": "public.app-category.productivity"
-    },
-    "win": {
-      "target": ["nsis"]
+    // Server-side validation (never trust the client)
+    if (!title || typeof title !== 'string' || title.trim().length === 0) {
+      return new Response(
+        JSON.stringify({ message: 'Title is required and must be a string' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
     }
+
+    if (!author || typeof author !== 'string' || author.trim().length === 0) {
+      return new Response(
+        JSON.stringify({ message: 'Author is required' }),
+        { status: 400 }
+      );
+    }
+
+    // Save to database
+    const book = await db.book.create({
+      title: title.trim(),
+      author: author.trim(),
+      pages: pages ? parseInt(pages, 10) : null,
+    });
+
+    return new Response(JSON.stringify(book), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    console.error('POST /api/books failed:', err);
+    return new Response(
+      JSON.stringify({ message: 'Internal server error' }),
+      { status: 500 }
+    );
   }
 }
 ```
 
-Then build: `electron-builder`. You get `My App.dmg` and `My App Setup.exe`.
+**Key lessons:**
+1. Validate client-side for UX. Validate server-side for security.
+2. Show loading state (button text changes, button is disabled).
+3. Show error messages (network, validation, server errors).
+4. Show success message (user knows something happened).
+5. Handle edge cases (what if the network is slow? What if the server crashes?).
 
-Distribute these files on your website or GitHub Releases. Users download, install, run locally. No server required. Your data stays on their machine.
+---
 
-The tradeoff: no auto-update. If you push a fix, users have to download the new version manually. Solve this with `electron-updater`, which checks for new versions and downloads in the background.
+## Section 5: Performance — The Lighthouse Mentality
 
-</Section>
+Lighthouse is the browser's report card for your site. It measures:
+- **First Contentful Paint (FCP)**: How long until something visible appears?
+- **Largest Contentful Paint (LCP)**: How long until the main content is visible?
+- **Cumulative Layout Shift (CLS)**: Does the layout jump around while loading?
+- **Time to Interactive (TTI)**: How long until the user can click?
+- **Total Blocking Time (TBT)**: How long is JavaScript blocking the main thread?
 
-<Section title="Your checkpoint: an interactive dashboard with desktop support">
+A Lighthouse score of 90+ means your app feels fast. Below 50 means users will abandon it.
 
-Build a personal productivity dashboard. Ship it web and desktop. Make it fast.
+### Bundle Size Matters
 
-**Requirements:**
+Every kilobyte of JavaScript shipped to the browser is JavaScript the user must download, parse, and execute. Here's the math on a typical 4G connection (1.5 Mbps):
 
-- Route structure: home page, dashboard page with dynamic user ID, settings page.
-- At least one form that submits data (add a task, update a preference).
-- One data fetching pattern that doesn't block the page load.
-- Export to Electron with at least one native API call (read a folder, send a notification).
-- Deployed web version and a downloadable desktop binary.
+- 100 KB bundle: 670 ms download + 100 ms parse/compile + 500 ms execution = ~1.3 seconds before interactive
+- 500 KB bundle: 3.3 seconds download + 500 ms parse/compile + 2 seconds execution = ~6 seconds before interactive
 
-**What craft means here:**
+The difference between a fast and slow app is often just 100–200 KB of JavaScript.
 
-Your dashboard should feel fast. No spinners while you type. No jank when you scroll. The desktop version should respect platform conventions (Mac keyboard shortcuts, Windows window chrome).
+### Strategies
 
-**What "deployed" means:**
+**1. Code splitting:** Next.js does this automatically. Each route only loads the code for that route, not the entire app.
 
-The web version lives at a URL (vercel.com domain is fine). The desktop binary exists and can be downloaded. Both work offline or with live data, depending on your architecture.
+```tsx
+// ✓ Good: Only loaded when the user visits /dashboard
+// app/dashboard/page.tsx
+import { HeavyChart } from '@/components/HeavyChart';
 
-**Grading criteria:**
+export default function Dashboard() {
+  return <HeavyChart />;
+}
+```
 
-- Routing works. You can navigate between pages without full refresh.
-- The form submits without leaving the page and shows feedback.
-- Fetched data appears within 2 seconds on first visit.
-- The desktop version opens and doesn't crash. One native API call works (file read, notification, menu item).
-- Bundle size is under 5MB for web, under 150MB for desktop.
+**2. Dynamic imports:** For code that's not needed on the initial page, use dynamic imports.
 
-This is your first real, shippable product. Polish it like you'll use it every day.
+```tsx
+// ✓ Good: HeavyModal only loads when the user clicks "open modal"
+'use client';
 
-</Section>
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+const HeavyModal = dynamic(() => import('@/components/HeavyModal'), {
+  loading: () => <div>Loading...</div>,
+});
+
+export function PageWithModal() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setIsOpen(true)}>Open Modal</button>
+      {isOpen && <HeavyModal />}
+    </div>
+  );
+}
+```
+
+**3. Server components:** Keep heavy logic on the server. Don't ship database queries as client code.
+
+```tsx
+// ✓ Good: Database query runs on server, only results are sent to client
+export default async function BookList() {
+  const books = await db.book.findMany(); // Runs on server, doesn't ship to browser
+  return <BookListClient books={books} />;
+}
+```
+
+**4. Image optimization:** Use `<Image />` instead of `<img />`. Next.js serves optimized sizes for different devices.
+
+```tsx
+import Image from 'next/image';
+
+export function BookCard({ book }: { book: Book }) {
+  return (
+    <div>
+      <Image
+        src={book.coverUrl}
+        alt={book.title}
+        width={200}
+        height={300}
+        // Next.js automatically serves smaller versions for mobile
+        // and modern formats (WebP) for supported browsers
+      />
+      <h3>{book.title}</h3>
+    </div>
+  );
+}
+```
+
+**5. Minimize layout shifts:** Declare image dimensions or skeleton loaders so the layout doesn't jump.
+
+```tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+
+export function BookCover({ url }: { url: string }) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  return (
+    <div className="relative w-48 h-72 bg-gray-200">
+      {isLoading && (
+        <div className="absolute inset-0 bg-gray-300 animate-pulse" />
+      )}
+      <Image
+        src={url}
+        alt="Cover"
+        fill
+        onLoad={() => setIsLoading(false)}
+        className="object-cover"
+      />
+    </div>
+  );
+}
+```
+
+### Analyzing Performance
+
+```bash
+# Build the app and measure bundle size
+npm run build
+
+# Next.js will show you:
+# ✓ Route (pages)          Size     First Load JS
+# ├   /_app                          [shared runtime]
+# ├   /_document          -              [shared]
+# ├   / (index)           2 kB       85 kB
+# ├   /dashboard          3 kB      120 kB
+# └   /books/[id]         4 kB       92 kB
+# + First Load JS shared by all     80 kB
+
+# 80 kB = third-party libraries + Next.js runtime
+# 85 kB = homepage (80 + 5)
+# 120 kB = dashboard (80 + 40 for HeavyChart)
+```
+
+If a route is much larger than others, investigate what's being imported. Use the bundle analyzer:
+
+```bash
+npm install --save-dev @next/bundle-analyzer
+
+# In next.config.js:
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+module.exports = withBundleAnalyzer({
+  // ... rest of config
+});
+
+# Run with analysis:
+ANALYZE=true npm run build
+# Opens a browser showing what's in your bundle
+```
+
+---
+
+## Section 6: Deployment to Vercel
+
+Vercel is purpose-built for Next.js. It handles deployment, CI/CD, automatic previews on pull requests, and edge functions. It's the easiest way to ship a web app.
+
+### Step 1: Create a Git Repository
+
+```bash
+# If you haven't already
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/yourusername/your-app.git
+git push -u origin main
+```
+
+### Step 2: Sign Up for Vercel
+
+Go to [vercel.com](https://vercel.com) and sign up with your GitHub account. Vercel will ask for permission to read your GitHub repos.
+
+### Step 3: Import Your Project
+
+In the Vercel dashboard, click "New Project" and select your repo. Vercel will detect that it's a Next.js app and configure it automatically.
+
+```
+Project settings:
+✓ Framework: Next.js
+✓ Root directory: ./
+✓ Build command: next build
+✓ Output directory: .next
+✓ Environment variables: (add any .env.local secrets here)
+```
+
+### Step 4: Add Environment Variables
+
+If your app uses secrets (database URL, API keys), add them in the Vercel dashboard under Settings → Environment Variables.
+
+```
+DATABASE_URL=postgres://...
+NEXT_PUBLIC_API_URL=https://api.example.com
+STRIPE_SECRET_KEY=sk_...
+```
+
+**Important:** Any variable starting with `NEXT_PUBLIC_` is visible in the browser. Don't put secrets there. Variables without that prefix are server-only and safe.
+
+### Step 5: Deploy
+
+Push to main, and Vercel deploys automatically. You'll get a URL: `https://your-app.vercel.app`.
+
+```bash
+git push origin main
+# Vercel sees the push, runs npm install + npm run build, deploys
+# You can watch the build in the Vercel dashboard
+```
+
+### Step 6: Connect Your Domain
+
+In Vercel's dashboard, go to Settings → Domains and add your custom domain. Vercel will show you the DNS records to update with your registrar.
+
+```
+Nameservers (easiest):
+ns1.vercel.com
+ns2.vercel.com
+ns3.vercel.com
+```
+
+Or CNAME records if you want to keep your registrar as the authoritative DNS provider.
+
+### Preview Deployments
+
+Every pull request gets its own preview URL. Before merging, you can see the live version and share it with others.
+
+```bash
+git checkout -b new-feature
+# Make changes, push
+git push origin new-feature
+
+# In GitHub, create a pull request. Vercel automatically deploys a preview.
+# You get a comment on the PR: "Preview deployment ready!"
+# Click the link to see the live preview.
+```
+
+This is invaluable for feedback before shipping.
+
+### Monitoring and Logs
+
+In the Vercel dashboard, you can see:
+- **Deployment history:** Every build, success/fail, who triggered it
+- **Real-time logs:** Live `console.log()` output during builds and requests
+- **Analytics:** Page load times, edge function performance, which routes are visited most
+- **Usage:** API calls, data transfer, compute time
+
+---
+
+## Section 7: Building the Project (Checkpoint)
+
+### Project Options
+
+Choose one:
+
+**1. Reading List / Book Tracker**
+Track books you want to read, are reading, and have finished. Features: add books (manual or from an API), rate and review, set reading goals, export list.
+
+**2. Personal Portfolio**
+Showcase your work with projects, skills, testimonials. Features: project gallery with images, contact form, downloadable resume, blog or case studies.
+
+**3. Expense Tracker / Budget App**
+Track spending across categories. Features: add transactions, categorise, monthly summaries, charts, recurring transactions, export to CSV.
+
+**4. Learning Dashboard**
+Track your progress on courses or learning goals. Features: courses/topics, mark lessons complete, streak counter, quiz or flashcards, progress graphs.
+
+Pick one based on:
+- **What would you actually use?** If you won't use it, don't build it.
+- **Scope.** You have 6–8 weeks. A portfolio is smaller than an expense tracker.
+- **Shipping value.** Can you deploy it and share the link? Does someone else want to use it?
+
+### Minimum Features for Shipping
+
+Every project needs:
+
+1. **Display data** (at least one server component fetching and rendering data)
+2. **Create/edit data** (a form with validation, error handling, success message)
+3. **Delete data** (a button that removes an item with a confirmation)
+4. **Mobile responsive** (looks good on phone and desktop)
+5. **Error handling** (show errors, not crashes)
+6. **Performance** (Lighthouse 90+ on all metrics)
+
+Example structure for the reading list:
+
+```
+app/
+├── layout.tsx                 # Root, nav, theme
+├── page.tsx                   # Home / landing
+├── books/
+│   ├── page.tsx              # List all books (server component)
+│   ├── [id]/page.tsx         # Book detail view
+│   └── components/
+│       ├── AddBookForm.tsx   # Add book form (client)
+│       ├── BookCard.tsx      # Book display (server)
+│       └── DeleteButton.tsx  # Delete with confirmation (client)
+├── api/
+│   └── books/
+│       ├── route.ts          # GET/POST /api/books
+│       └── [id]/route.ts     # PUT/DELETE /api/books/[id]
+└── components/
+    ├── Header.tsx            # Site header (server)
+    ├── Footer.tsx            # Site footer
+    └── ThemeToggle.tsx       # Dark mode toggle (client)
+```
+
+### Checkpoint Rubric
+
+Your project ships when:
+
+- [ ] **Deployed on Vercel** with a live URL (not localhost)
+- [ ] **All forms work** without crashing, show errors, handle edge cases
+- [ ] **Lighthouse 90+** on all Core Web Vitals (FCP, LCP, CLS, TTI)
+- [ ] **Mobile responsive** — no horizontal scrolling, readable on 375px width
+- [ ] **No console errors** — check the browser console and server logs
+- [ ] **Images optimized** — using Next.js `<Image />`, not `<img />`
+- [ ] **API routes protected** — validate inputs, return proper error codes
+- [ ] **Database queries optimized** — not N+1, indexes on frequently queried columns
+- [ ] **Environment variables** not exposed — secrets in Vercel, not in `.env`
+- [ ] **Error boundaries** — page doesn't crash if data fetch fails
+- [ ] **Loading states** — forms show "submitting", lists show skeleton loaders
+- [ ] **Accessibility basics** — forms have labels, images have alt text, keyboard navigation works
+- [ ] **DNS configured** — custom domain points to Vercel (optional but shipping-ready)
+
+### Example: Building the Book Tracker (Abbreviated)
+
+```tsx
+// app/books/page.tsx — Server component
+import { db } from '@/lib/db';
+import { AddBookForm } from './components/AddBookForm';
+import { BookCard } from './components/BookCard';
+
+export default async function BooksPage() {
+  const books = await db.book.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return (
+    <div className="max-w-4xl mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-8">My Books</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h2 className="text-lg font-semibold mb-4">Add a Book</h2>
+          <AddBookForm />
+        </div>
+        
+        <div>
+          <h2 className="text-lg font-semibold mb-4">
+            {books.length} Books
+          </h2>
+          {books.length === 0 ? (
+            <p className="text-gray-500">No books yet. Add one!</p>
+          ) : (
+            <div className="space-y-4">
+              {books.map(book => (
+                <BookCard key={book.id} book={book} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## Section 8: Optional — Electron & Desktop
+
+Building a desktop app is optional, but valuable if you want your product to work offline, access the file system, or live as a native app on Mac/Windows.
+
+### Why Electron?
+
+Electron wraps your web app in a native browser (Chromium) and gives you access to:
+- **File system:** Read/write local files, open file dialogs
+- **Notifications:** Native OS notifications
+- **Menus:** Native top menu bar (Mac) or app menu (Windows)
+- **Offline:** App works without internet (if designed for it)
+- **Native feel:** Taskbar integration, app icon, window chrome
+
+The trade-off: bundle size increases (Chromium is ~150 MB), startup is slower, and you need to handle Mac/Windows differences.
+
+### Electron + Next.js Architecture
+
+The typical setup:
+- Main process (Node.js, can access file system and OS)
+- Renderer process (Chromium, runs your Next.js app)
+- IPC (Inter-Process Communication) bridge them
+
+```
+main/
+  index.ts                 # Electron main process
+
+out/
+  main/index.js           # Compiled main process
+
+public/
+  app/                    # Next.js build output (.next)
+
+electron-builder.yml      # Configuration for building installers
+
+package.json
+  "main": "out/main/index.js"
+  "homepage": "file://__dirname/../public/app"
+```
+
+### Setting Up Electron
+
+```bash
+npm install electron --save-dev
+npm install electron-builder --save-dev
+```
+
+Create a main process:
+
+```ts
+// main/index.ts
+import { app, BrowserWindow, Menu } from 'electron';
+import path from 'path';
+
+let mainWindow: BrowserWindow | null;
+
+const createWindow = () => {
+  mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  // In development, load from localhost:3000
+  // In production, load from file://
+  const isDev = process.env.NODE_ENV === 'development';
+  const url = isDev
+    ? 'http://localhost:3000'
+    : `file://${path.join(__dirname, '../public/app/index.html')}`;
+
+  mainWindow.loadURL(url);
+
+  if (isDev) {
+    mainWindow.webContents.openDevTools();
+  }
+};
+
+app.on('ready', createWindow);
+
+// Quit when all windows close (except on macOS)
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+// On macOS, re-create the window when the dock icon is clicked
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow();
+  }
+});
+```
+
+### Key Differences from Web
+
+1. **No backend needed.** The desktop app is all client-side (unless you ship a server). Data lives in `~/.config/yourapp/` or the system's application data folder.
+
+2. **File system access.** Use Electron's file dialogs:
+
+```ts
+// preload.ts (safe bridge between renderer and main)
+import { contextBridge, ipcMain } from 'electron';
+import { dialog } from 'electron';
+
+contextBridge.exposeInMainWorld('electron', {
+  openFile: () => dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [{ name: 'Text', extensions: ['txt', 'md'] }],
+  }),
+});
+```
+
+Then in your React component:
+
+```tsx
+'use client';
+
+export function ImportFile() {
+  const handleImport = async () => {
+    const result = await window.electron.openFile();
+    if (result.canceled) return;
+    
+    const filePath = result.filePaths[0];
+    // Read the file, import data
+  };
+
+  return <button onClick={handleImport}>Import from File</button>;
+}
+```
+
+3. **Native menus.** Use Electron's Menu API instead of building a dropdown:
+
+```ts
+// main/index.ts
+const menu = [
+  {
+    label: 'File',
+    submenu: [
+      { label: 'Open', accelerator: 'CmdOrCtrl+O', click: () => {} },
+      { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => {} },
+    ],
+  },
+  {
+    label: 'Edit',
+    submenu: [
+      { label: 'Undo', accelerator: 'CmdOrCtrl+Z', click: () => {} },
+    ],
+  },
+];
+
+Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
+```
+
+4. **Offline-first data.** If the app should work offline, store data locally (SQLite, JSON files) instead of relying on a server.
+
+```tsx
+// Example: use IndexedDB (same in web and Electron)
+async function saveBook(book: Book) {
+  const db = await openDB('books');
+  await db.add('books', book);
+}
+```
+
+### Building Installers
+
+Use electron-builder to create `.dmg` (Mac) and `.exe` (Windows) installers:
+
+```bash
+npm run build      # Build Next.js
+npm run electron:build  # Package into installers
+```
+
+The installers live in `dist/` and are ready to distribute.
+
+### Platform-Specific Considerations
+
+**macOS:**
+- Window chrome is minimal (traffic light buttons)
+- Menu bar is at the top
+- `Cmd+Q` quits the app, `Cmd+W` closes the window
+- Notarization required for distribution (Apple's code signing)
+
+**Windows:**
+- Menu bar is in the window (or hidden and accessed via Alt)
+- System tray integration is common
+- Users expect `.exe` and `.msi` installers
+
+Always test on both platforms. The "works on my Mac" problem is real.
+
+---
+
+## Section 9: Shipping Checklist
+
+Before deploying to production, run through this list:
+
+### Code Quality
+- [ ] No `console.log()` left in code (or all behind a debug flag)
+- [ ] No `any` types in TypeScript
+- [ ] API routes validate inputs and return proper status codes
+- [ ] Error messages are user-friendly, not stack traces
+- [ ] Forms show loading states and disable during submission
+- [ ] Forms show both client-side and server-side validation errors
+- [ ] No credentials in code (DATABASE_URL, API keys in env vars)
+
+### Performance
+- [ ] Lighthouse score 90+ on all metrics
+- [ ] Largest image is under 200 KB (use Next.js Image optimization)
+- [ ] Bundle size reasonable (under 250 KB for most apps)
+- [ ] No N+1 queries in database code
+- [ ] Server components used for display, client components for interaction
+- [ ] Heavy libraries lazy-loaded (dynamic imports)
+- [ ] API endpoints have cache headers (Cache-Control)
+
+### User Experience
+- [ ] Mobile responsive (test on actual phone, not browser zoom)
+- [ ] Keyboard navigation works (Tab, Enter, Escape)
+- [ ] Images have alt text
+- [ ] Form labels are associated with inputs
+- [ ] Success/error messages are visible and clear
+- [ ] Links are underlined or obviously clickable
+- [ ] No layout shift when images load
+- [ ] Back button works correctly (browser back, not custom)
+
+### Security
+- [ ] No secrets in frontend code (use env vars)
+- [ ] API routes validate user ownership (check `user.id`)
+- [ ] Database queries use parameterized queries (protection against SQL injection)
+- [ ] HTTPS enforced (Vercel does this by default)
+- [ ] CORS configured correctly (if you have a separate API)
+- [ ] Rate limiting on API routes (optional but good for production)
+
+### Monitoring
+- [ ] Error logging set up (Sentry, LogRocket, or Vercel's built-in)
+- [ ] Analytics tracking (Vercel Analytics, Plausible, or Google Analytics)
+- [ ] Environment variables are set in Vercel (not forgotten)
+- [ ] Database backups configured (Supabase, Firebase, etc.)
+- [ ] You have a way to contact users if something breaks
+
+### Documentation
+- [ ] README with setup instructions
+- [ ] Environment variables documented (.env.example)
+- [ ] Database schema documented (what tables, what columns)
+- [ ] API route documentation (what does each endpoint do)
+- [ ] Deployment process documented (so you can deploy 6 months from now)
+
+---
+
+## Section 10: The Threads
+
+### Thread 1: Craft Is the Differentiator
+
+Features are commodities. Everyone can build a todo list or expense tracker. What separates a shipped product from a tutorial app is **craft**.
+
+Craft is:
+- The loading state that appears instantly when a form submits
+- The success message that stays for exactly 3 seconds, then fades smoothly
+- The validation error that appears below the field without changing the layout
+- The skeleton loader that matches the shape of the content
+- The button that's disabled during submission (so you can't double-click)
+- The error message that tells you *why* something failed, not just "error"
+- The animation that guides your eye without being distracting
+- The corner radius that's consistent throughout the app
+- The color palette that was carefully chosen, not copied
+- The empty state that's actually useful, not just a placeholder
+
+Most apps fail not because the feature is wrong, but because the details are missing. A shipped product notices *everything*.
+
+**In your project:** Spend 20% of your time on features, 80% on refinement. Polish the forms. Animate the transitions. Test on mobile. Write helpful error messages. A perfectly polished simple app beats a feature-rich mess.
+
+### Thread 2: Your Code vs. The Platform
+
+You write React. React doesn't run in production—the browser does. Next.js doesn't run in production—Vercel does. Understanding the platform shapes every decision you make.
+
+**JavaScript shipping costs.**
+Every byte of JavaScript the user downloads is JavaScript they must execute. If your app is 500 KB of JavaScript, it doesn't matter how well you wrote it—it'll feel slow on 4G. The answer isn't to optimize your code; it's to ship less code. This is why server components matter: code that runs on the server doesn't ship to the browser.
+
+**The network is the bottleneck.**
+An API call that takes 1 second makes a form feel broken, no matter how fast your code is. The answer isn't to optimize the API; it's to design around latency. Optimistic updates (show the success state before the server responds), local caching, and careful request batching all protect users from slow networks.
+
+**The platform gives you superpowers.**
+Next.js gives you file-based routing (no setup), automatic code splitting (less shipped), server components (fast), edge functions (fast APIs), and middleware. Vercel gives you global CDN (faster serving), preview deployments (safer shipping), and built-in monitoring. These are not free—they're earned through understanding what the platform does and how to use it.
+
+**Constraints breed innovation.**
+Mobile has no hover state. Desktop has no touch. The browser has security boundaries. These aren't problems; they're design parameters. Understanding them means you design for what's possible, not for an imaginary perfect device.
+
+In your project: **Don't fight the platform.** You're not writing generic JavaScript; you're writing for Next.js, which is built on React, which is for browsers, which run on devices. Each layer has rules. Follow them, and you get speed and reliability for free. Fight them, and you burn time and ship a slow app.
+
+---
+
+## Section 11: Shipping Your Project
+
+### Week 1–2: Design and Plan
+- Sketch the app on paper or in Figma
+- List the core features (don't over-scope)
+- Set up the Next.js project with TypeScript, Tailwind, and your database
+- Create the data model (what tables do you need?)
+
+### Week 2–3: Build the Essentials
+- Create routes for displaying data
+- Build the main form (add/edit)
+- Wire up the database
+- Deploy to Vercel (yes, this early—so you can share a live link)
+
+### Week 3–4: Refine
+- Add delete/edit functionality
+- Improve mobile responsive
+- Add error handling and loading states
+- Test on actual devices
+
+### Week 4–6: Polish
+- Optimize bundle size and performance
+- Audit with Lighthouse, hit 90+
+- Refine animations and transitions
+- Test all edge cases (empty state, errors, slow network)
+- Write README and deployment docs
+
+### Week 6–8: Launch
+- Final testing on Mac, Windows, mobile, tablet
+- Set up monitoring/error tracking
+- Custom domain (if applicable)
+- Write a launch post, share on Twitter/LinkedIn
+- Collect feedback from early users
+
+### Optional (if doing Electron)
+- Extract main process and set up Electron
+- Build installers and test on both platforms
+- Add file system features (import/export)
+- Test offline functionality
+
+---
+
+## Section 12: Common Mistakes to Avoid
+
+1. **Building in isolation.** Deploy early, get feedback early. A live app is better than perfect code that no one sees.
+
+2. **Ignoring performance until the end.** By then, the bundle is 500 KB and you're fighting optimization. Measure from day one.
+
+3. **Shipping without error handling.** What happens if the server is down? The network is slow? The user is offline? Plan for these. They're not edge cases; they're normal.
+
+4. **Over-engineering.** A todo list doesn't need a complex state management library. Start simple. Add complexity only when you hit its limits.
+
+5. **Forgetting the mobile experience.** "Works on my Mac" is not shipping. Test on actual phones (or at least Chrome DevTools mobile mode).
+
+6. **Mixing concerns.** Keep components small. Keep forms separate from display logic. Keep API routes focused on one job.
+
+7. **Not documenting as you go.** Future you will forget how this works. Leave yourself notes (README, inline comments for non-obvious decisions).
+
+---
+
+## Section 13: Final Thoughts
+
+Shipping a product is an entirely different skill from building a feature. It's about understanding the full stack—from the React code you write to the browser that runs it to the network it travels on to the device it lands on. It's about noticing everything: the loading state, the error message, the animation, the performance, the edge case.
+
+This module gives you the tools. The only thing left is to build something you're proud of, deploy it, and ship it to real people. That's the differentiator.
+
+---
+
+## Checkpoint Rubric (Final Assessment)
+
+Your project is shipping-ready when:
+
+### Functionality (40 points)
+- [ ] (10) Create/read/update/delete operations work without crashing
+- [ ] (10) Forms validate client-side and server-side with clear error messages
+- [ ] (10) No console errors or unhandled Promise rejections
+- [ ] (10) Loading and success states are visible to the user
+
+### Performance (20 points)
+- [ ] (10) Lighthouse score 90+ on Core Web Vitals (FCP, LCP, CLS, TTI)
+- [ ] (10) Images optimized with Next.js Image component; bundle size reasonable
+
+### User Experience (20 points)
+- [ ] (5) Mobile responsive, readable on 375px width (no horizontal scroll)
+- [ ] (5) Keyboard navigation works (Tab, Enter, Escape)
+- [ ] (5) Empty state, error state, and success state all handled
+- [ ] (5) Consistent styling, typography, spacing; attention to detail
+
+### Deployment (10 points)
+- [ ] (5) Deployed to Vercel with live URL
+- [ ] (5) Environment variables configured; secrets not exposed in code
+
+### Extra Credit (up to 10 points)
+- [ ] Electron desktop app built and tested (Mac/Windows)
+- [ ] Advanced features (real-time collaboration, offline-first, API integration)
+- [ ] Thoughtful documentation and README
+
+**Total: 100 points**
+
+---
+
+## Resources
+
+**Next.js:**
+- [Next.js Documentation](https://nextjs.org/docs) — authoritative, well-written
+- [React Server Components RFC](https://github.com/acdlite/rfcs/blob/first-class-promises/text/0000-first-class-promise-use-cases.md) — understand the philosophy
+- [App Router Migration Guide](https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration) — upgrading from Pages Router
+
+**Performance:**
+- [Web.dev Core Web Vitals](https://web.dev/vitals/) — official guide
+- [Lighthouse Documentation](https://developers.google.com/web/tools/lighthouse)
+- [Bundle Analyzer](https://www.npmjs.com/package/@next/bundle-analyzer)
+
+**Deployment:**
+- [Vercel Documentation](https://vercel.com/docs)
+- [Vercel Deployment Best Practices](https://vercel.com/docs/best-practices)
+
+**Electron:**
+- [Electron Documentation](https://www.electronjs.org/docs)
+- [electron-builder](https://www.electron.build/) — building installers
+- [Electron Security](https://www.electronjs.org/docs/tutorial/security) — important
+
+**Forms & Validation:**
+- [React Hook Form](https://react-hook-form.com/) — lightweight form library (optional, not required)
+- [Zod](https://zod.dev/) — TypeScript-first schema validation
+
+---
+
+## Next Steps
+
+1. Choose a project idea (reading list, portfolio, expense tracker, etc.)
+2. Sketch the features and data model
+3. Initialize a Next.js app with TypeScript and Tailwind
+4. Deploy to Vercel immediately (get the live URL)
+5. Build the core features (display, create, delete)
+6. Measure performance and iterate
+7. Polish the UI and refine error handling
+8. Checkpoint: submit your live link and Lighthouse report
+9. (Optional) Wrap in Electron and build installers
+
+The checkpoint is a live product. Not a demo, not a tutorial app. Something you'd actually use or show to a friend. Make it simple, but make it *shipped*.
+

@@ -3,101 +3,256 @@ title: "Intermediate JavaScript: Fetch and Real Data"
 module: 6
 phase: "1 — JS & React"
 promise: "Fetch and work with real data in the UI."
+concepts:
+  - "Async/await — waiting for data without blocking"
+  - "The fetch API — making HTTP requests from the browser"
+  - "APIs & JSON — reading API docs, parsing responses"
+  - "ES modules — import/export for organizing code"
 threads:
   - error-location-is-a-hint
 ---
 
-<Section title="Async and Await">
-JavaScript runs fast. The internet runs slow. If you fetch data and wait for the response to come back, your page freezes. The solution: `async` and `await`.
+<Section title="Why Async? The Network is Slow.">
 
-An `async` function returns a promise. Inside it, you can use `await` to pause execution until something finishes, then pick up with the result. No callback hell. No `.then()` chains (though those still work).
+Your JavaScript runs in milliseconds. The internet runs in seconds. If you ask the browser to wait for a network response before continuing, your page freezes. The user clicks a button. Nothing happens for a second. That is a frozen page.
 
-```javascript
-async function getBook() {
-  const response = await fetch('https://api.example.com/books/1');
-  const book = await response.json();
-  console.log(book.title);
-}
+The solution: **async** and **await**. Let the network request happen in the background. Keep your page responsive. When the data arrives, update the UI.
 
-getBook();
-```
-
-When you call `getBook()`, the first line runs, then pauses at `await`. The page stays responsive. Once the fetch completes, the second `await` runs and parses the JSON. Then `console.log` fires with the book title. It reads like synchronous code, top to bottom, but your page never froze.
+Real example: fetching a GitHub user's profile takes 200-500ms. Without async, your entire app would pause. With async, you show a loading spinner while you wait, then display the data when it arrives.
 
 </Section>
 
-<Section title="The Fetch API and JSON">
-`fetch()` is the modern way to make network requests. It takes a URL and returns a promise that resolves to a Response object. That Response has methods like `.json()` to parse the response body as JSON.
+<Section title="Async and Await: Waiting Without Blocking">
+
+An `async` function is a function that might wait for something. Inside it, you use `await` to pause execution until a promise resolves. Once it resolves, you pick up with the result.
+
+Here is a real example fetching a GitHub user:
+
+```javascript
+async function getGitHubUser(username) {
+  const response = await fetch(`https://api.github.com/users/${username}`);
+  const user = await response.json();
+  console.log(`${user.name} has ${user.public_repos} repos`);
+}
+
+getGitHubUser('torvalds');
+```
+
+Step by step:
+1. `async function` tells JavaScript "this function will wait for something."
+2. `const response = await fetch(...)` starts the fetch. Execution **pauses here**. The page stays responsive.
+3. When the response arrives, the next line runs: `await response.json()`. This parses the JSON. Execution **pauses again**.
+4. Once JSON parsing finishes, `console.log` runs with the parsed data.
+
+It reads like synchronous code (top to bottom, one line after another), but your page never froze. Other buttons still work. Other code still runs. The async function waits in the background.
+
+**Key insight:** when you `await` something, you are not waiting for the *whole function*. You are waiting for *that one line*. The rest of your code continues.
+
+</Section>
+
+<Section title="Understanding Promises">
+
+`await` works with promises. A promise is an object that represents "something that will eventually finish."
+
+When you call `fetch()`, it returns a promise immediately. That promise will resolve to a Response object when the network request completes.
+
+```javascript
+const promise = fetch('https://api.github.com/users/torvalds');
+console.log(promise); // Promise { <pending> }
+
+// Later, when the response arrives:
+console.log(promise); // Promise { Response { ... } }
+```
+
+You don't have to `await`. You can also use `.then()`:
+
+```javascript
+fetch('https://api.github.com/users/torvalds')
+  .then(response => response.json())
+  .then(user => console.log(user.name));
+```
+
+Both work. But `async`/`await` is cleaner and reads more like normal code. Use it.
+
+</Section>
+
+<Section title="The Fetch API and HTTP">
+
+`fetch()` is the modern way to make network requests from the browser. It takes a URL and returns a promise that resolves to a Response object.
 
 ```javascript
 const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
-console.log(response.status); // 200
-console.log(response.ok);     // true
-
-const post = await response.json();
-console.log(post.title);
+console.log(response.status);       // 200
+console.log(response.statusText);   // "OK"
+console.log(response.ok);           // true
+console.log(response.headers);      // Headers { ... }
+console.log(response.body);         // ReadableStream { ... }
 ```
 
-`fetch()` handles the HTTP request for you. You get back a Response with `.status`, `.headers`, `.body`, and more. The `.json()` method reads the response as JSON and parses it into a JavaScript object. Most APIs return JSON, so you will use `.json()` a lot. One gotcha: `fetch()` does not reject on HTTP errors like 404 or 500. `response.ok` tells you if the status was in the 200-299 range. You have to check it yourself.
+The Response object has:
+- `status` — the HTTP status code (200, 404, 500, etc.)
+- `statusText` — the status as words ("OK", "Not Found", "Internal Server Error")
+- `ok` — boolean, true if status is 200-299, false otherwise
+- `headers` — an object of response headers
+- `body` — the response as a stream (rarely used directly)
+
+To read the body, use methods like `.json()` or `.text()`:
+
+```javascript
+const json = await response.json();   // Parse as JSON
+const text = await response.text();   // Parse as plain text
+```
+
+**Critical gotcha:** `fetch()` does NOT reject on HTTP errors like 404 or 500. It only rejects on network errors (no internet, DNS failed, timeout). A 404 response is still a *successful fetch*. You have to check `response.ok` yourself.
+
+```javascript
+const response = await fetch('https://jsonplaceholder.typicode.com/posts/99999');
+console.log(response.status); // 404, but fetch did not throw an error!
+
+if (!response.ok) {
+  throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+}
+```
 
 </Section>
 
-<Section title="Error Handling in Async Code">
-Async code can fail. The network dies. The API returns an error. Your code tries to access a property that doesn't exist. You need to catch these problems before they crash your page.
+<Section title="APIs and JSON: Reading the Documentation">
 
-Use try/catch blocks with async/await.
+An **API** (Application Programming Interface) is a URL that returns data instead of a web page. You fetch from it like any other URL. Most APIs return **JSON** — a text format for structured data.
+
+JSON looks like JavaScript objects:
+
+```json
+{
+  "name": "Linus Torvalds",
+  "login": "torvalds",
+  "public_repos": 45,
+  "followers": 250000,
+  "avatar_url": "https://avatars.githubusercontent.com/u/1024?v=4"
+}
+```
+
+When you fetch from an API, you get JSON as a string. `.json()` parses it into a JavaScript object:
 
 ```javascript
-async function fetchUserPosts(userId) {
+const response = await fetch('https://api.github.com/users/torvalds');
+const user = await response.json();
+// Now user is a JavaScript object:
+console.log(user.name);           // "Linus Torvalds"
+console.log(user.public_repos);   // 45
+```
+
+**How to use an API:**
+1. Read the documentation. Find the endpoint URL.
+2. Fetch the URL. Most APIs are public and need no authentication.
+3. Parse the JSON response.
+4. Access the properties you need.
+
+**Example APIs (all free, no signup required):**
+- **GitHub Users:** `https://api.github.com/users/[username]`
+- **Open Weather:** `https://api.open-meteo.com/v1/forecast?latitude=37.7749&longitude=-122.4194&current=temperature_2m,precipitation`
+- **JSONPlaceholder (fake data):** `https://jsonplaceholder.typicode.com/posts/[id]`, `https://jsonplaceholder.typicode.com/users/[id]`
+- **Deck of Cards (for games):** `https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`
+
+Before writing code, **read the API docs**. They tell you:
+- What the endpoint URL is
+- What parameters it accepts
+- What shape the response is
+- Any rate limits or authentication needed
+
+</Section>
+
+<Section title="Error Handling: Try/Catch">
+
+Async code can fail in multiple ways. The network dies. The API returns an error. The response is not valid JSON. Your code tries to access a property that does not exist. You need to catch these problems before they crash your page.
+
+Use try/catch blocks:
+
+```javascript
+async function fetchUser(userId) {
   try {
-    const response = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userId}`);
+    const response = await fetch(
+      `https://jsonplaceholder.typicode.com/users/${userId}`
+    );
     
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      throw new Error(`HTTP ${response.status}: Could not find user`);
     }
     
-    const posts = await response.json();
-    return posts;
+    const user = await response.json();
+    console.log(user.name);
+    return user;
+    
   } catch (error) {
-    console.error('Failed to fetch posts:', error.message);
-    return [];
+    console.error('Failed to fetch user:', error.message);
+    return null;
   }
 }
 ```
 
-The `try` block runs your code. If anything throws an error, the `catch` block catches it and handles it. Here we throw an error if the HTTP status is not ok, then catch it and log it. We return an empty array as a fallback so the rest of your app doesn't crash.
+The `try` block contains code that might fail. If anything throws an error, execution jumps to the `catch` block. The error object has a `.message` property.
+
+Common errors:
+- **Network error (throw happens inside fetch):** "Failed to fetch" — network down, CORS blocked, bad URL
+- **HTTP error (throw happens after checking response.ok):** "HTTP 404: Could not find user" — you threw this
+- **JSON parse error (throw happens inside .json()):** The response was not valid JSON
+- **Property access error (throw happens when accessing user.name):** The API returned a different shape than expected, and the property doesn't exist
+
+**The pattern:**
+1. Wrap risky code in `try`.
+2. Check `response.ok` and throw if needed.
+3. Catch any error and handle it gracefully (log, return a default, show an error state).
 
 </Section>
 
-<Section title="Organizing Code with ES Modules">
-As your projects grow, you need to split code across files. ES modules let you export functions and objects from one file and import them in another.
+<Section title="Organizing Async Code with ES Modules">
 
-Use `export` at the top level to make things available. Use `import` to bring them in. This is cleaner than passing everything as props, and it scales to large codebases.
+As your project grows, split async functions into separate files. Use `export` to make functions available, and `import` to use them.
 
-An API utility file might have `export async function fetchPost(id) { ... }`. A React component can then import it: `import { fetchPost } from '../utils/api.js'`. The component does not need to know how fetching works. It just calls the function and handles the result.
-
-</Section>
-
-<Section title="Building a Data-Backed Component">
-Let's put it together. Build a React component that fetches real data and displays it on the page.
-
-We will use the JSONPlaceholder API, a free fake API perfect for learning. The component will fetch a post and show its title and body.
+Create `utils/github.js`:
 
 ```javascript
-import React, { useState, useEffect } from 'react';
+export async function getGitHubUser(username) {
+  const response = await fetch(`https://api.github.com/users/${username}`);
+  
+  if (!response.ok) {
+    throw new Error(`User not found: ${username}`);
+  }
+  
+  return await response.json();
+}
 
-export function PostCard({ postId }) {
-  const [post, setPost] = useState(null);
+export async function getGitHubRepos(username) {
+  const response = await fetch(
+    `https://api.github.com/users/${username}/repos`
+  );
+  
+  if (!response.ok) {
+    throw new Error(`Could not fetch repos for ${username}`);
+  }
+  
+  return await response.json();
+}
+```
+
+Then in your React component:
+
+```javascript
+import { getGitHubUser, getGitHubRepos } from '../utils/github.js';
+
+export function GitHubProfile({ username }) {
+  const [user, setUser] = useState(null);
+  const [repos, setRepos] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    async function loadPost() {
+    async function load() {
       try {
-        const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${postId}`);
-        if (!response.ok) throw new Error('Post not found');
-        const data = await response.json();
-        setPost(data);
+        const userData = await getGitHubUser(username);
+        const reposData = await getGitHubRepos(username);
+        setUser(userData);
+        setRepos(reposData);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -105,42 +260,409 @@ export function PostCard({ postId }) {
       }
     }
     
-    loadPost();
-  }, [postId]);
+    load();
+  }, [username]);
   
-  if (loading) return <div className="card">Loading...</div>;
-  if (error) return <div className="card error">{error}</div>;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
   
   return (
-    <div className="card">
-      <h2>{post.title}</h2>
-      <p>{post.body}</p>
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.bio}</p>
+      <ul>
+        {repos.map(repo => (
+          <li key={repo.id}>{repo.name} ⭐ {repo.stargazers_count}</li>
+        ))}
+      </ul>
     </div>
   );
 }
 ```
 
-The component uses `useState` to track the post, any error, and a loading flag. `useEffect` runs once on mount to fetch the post. Inside the async function we fetch, check `response.ok`, parse JSON, and set the state. If anything fails, we catch it and set the error. The component renders loading, error, or post data based on the current state. Pass different `postId` values and watch the component re-fetch automatically.
+**Benefits:**
+- `github.js` owns all GitHub API calls. If the API changes, you fix it in one place.
+- The component is clean. It calls `getGitHubUser()` without knowing how fetching works.
+- You can test `github.js` separately from the component.
+
+</Section>
+
+<Section title="Build: A Live Data-Backed Card">
+
+Let's build a real, production-ready component: a weather card that fetches current temperature from a real API.
+
+We will use the **Open-Meteo API**, which is free and needs no authentication. We will display:
+- Current temperature
+- Weather condition (sunny, rainy, etc.)
+- Humidity and wind speed
+- A loading state while fetching
+- An error state if the API fails
+
+**Step 1: Create the API utility**
+
+File: `utils/weather.js`
+
+```javascript
+export async function getWeather(latitude, longitude) {
+  const url = new URL('https://api.open-meteo.com/v1/forecast');
+  url.searchParams.append('latitude', latitude);
+  url.searchParams.append('longitude', longitude);
+  url.searchParams.append('current', 'temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m');
+  url.searchParams.append('timezone', 'auto');
+  
+  try {
+    const response = await fetch(url.toString());
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch weather');
+    }
+    
+    const data = await response.json();
+    return data.current;
+  } catch (error) {
+    throw new Error(`Weather API error: ${error.message}`);
+  }
+}
+
+// Helper to convert weather code to description
+function getWeatherDescription(code) {
+  const descriptions = {
+    0: 'Clear sky',
+    1: 'Mainly clear',
+    2: 'Partly cloudy',
+    3: 'Overcast',
+    45: 'Foggy',
+    48: 'Depositing rime fog',
+    51: 'Light drizzle',
+    53: 'Moderate drizzle',
+    55: 'Dense drizzle',
+    61: 'Slight rain',
+    63: 'Moderate rain',
+    65: 'Heavy rain',
+    71: 'Slight snow',
+    73: 'Moderate snow',
+    75: 'Heavy snow',
+    77: 'Snow grains',
+    80: 'Slight rain showers',
+    81: 'Moderate rain showers',
+    82: 'Violent rain showers',
+    85: 'Slight snow showers',
+    86: 'Heavy snow showers',
+    95: 'Thunderstorm',
+  };
+  
+  return descriptions[code] || 'Unknown';
+}
+
+export { getWeatherDescription };
+```
+
+**Step 2: Build the component**
+
+File: `components/WeatherCard.jsx`
+
+```javascript
+import React, { useState, useEffect } from 'react';
+import { getWeather, getWeatherDescription } from '../utils/weather.js';
+
+export function WeatherCard({ city = 'San Francisco', latitude = 37.7749, longitude = -122.4194 }) {
+  const [weather, setWeather] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    async function loadWeather() {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const weatherData = await getWeather(latitude, longitude);
+        setWeather({
+          temp: Math.round(weatherData.temperature_2m),
+          condition: getWeatherDescription(weatherData.weather_code),
+          humidity: weatherData.relative_humidity_2m,
+          windSpeed: Math.round(weatherData.wind_speed_10m),
+        });
+      } catch (err) {
+        setError(err.message);
+        setWeather(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadWeather();
+  }, [latitude, longitude]);
+  
+  // Loading state
+  if (loading) {
+    return (
+      <div className="weather-card loading">
+        <div className="spinner"></div>
+        <p>Fetching weather for {city}...</p>
+      </div>
+    );
+  }
+  
+  // Error state
+  if (error) {
+    return (
+      <div className="weather-card error">
+        <h3>Could not load weather</h3>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Try again</button>
+      </div>
+    );
+  }
+  
+  // Success state
+  return (
+    <div className="weather-card success">
+      <h2>{city}</h2>
+      <div className="temp">{weather.temp}°C</div>
+      <p className="condition">{weather.condition}</p>
+      <div className="details">
+        <div>Humidity: {weather.humidity}%</div>
+        <div>Wind: {weather.windSpeed} km/h</div>
+      </div>
+    </div>
+  );
+}
+```
+
+**Step 3: Basic CSS**
+
+```css
+.weather-card {
+  width: 300px;
+  padding: 20px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.weather-card.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  opacity: 0.8;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.weather-card.error {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.weather-card h2 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+}
+
+.weather-card .temp {
+  font-size: 48px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.weather-card .condition {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 5px 0 15px 0;
+}
+
+.weather-card .details {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.weather-card button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid white;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.weather-card button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+```
+
+**How it works:**
+1. When the component mounts, `useEffect` runs and calls `getWeather()` with the coordinates.
+2. `setLoading(true)` shows the spinner.
+3. `getWeather()` fetches from the API and parses the JSON.
+4. The weather object updates, and the component re-renders with the data.
+5. If anything fails, the error state shows.
+
+**To use it:**
+
+```javascript
+<WeatherCard city="Tokyo" latitude={35.6762} longitude={139.6503} />
+<WeatherCard city="Sydney" latitude={-33.8688} longitude={151.2093} />
+```
+
+Pass different coordinates and watch it fetch real weather for each city, all at the same time, without blocking.
+
+</Section>
+
+<Section title="Real APIs to Explore">
+
+Once you finish the build, try these:
+
+**GitHub Users API**
+- Endpoint: `https://api.github.com/users/[username]`
+- No authentication needed
+- Build a component that shows a GitHub user's profile, repos, and followers
+
+```javascript
+const response = await fetch('https://api.github.com/users/torvalds');
+const user = await response.json();
+console.log(user.name, user.public_repos, user.followers);
+```
+
+**JSONPlaceholder (fake API for learning)**
+- Endpoints: `https://jsonplaceholder.typicode.com/posts/[id]`, `/users/[id]`, `/comments/[id]`
+- Returns fake blog data
+- Perfect for testing without worrying about rate limits
+
+```javascript
+const post = await fetch('https://jsonplaceholder.typicode.com/posts/1')
+  .then(r => r.json());
+console.log(post.title, post.body);
+```
+
+**Deck of Cards (for games)**
+- Endpoint: `https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`
+- Returns a shuffled deck. Use `/draw/?count=5` to draw cards
+- Great for building card games
+
+```javascript
+const deck = await fetch('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1')
+  .then(r => r.json());
+console.log(`Deck ID: ${deck.deck_id}, Remaining: ${deck.remaining}`);
+```
+
+**Star Wars API (SWAPI)**
+- Endpoints: `https://swapi.dev/api/people/[id]`, `/films/[id]`, `/planets/[id]`
+- No authentication, no rate limit
+- Fun for building Star Wars apps
+
+```javascript
+const luke = await fetch('https://swapi.dev/api/people/1/')
+  .then(r => r.json());
+console.log(luke.name, luke.height, luke.homeworld);
+```
+
+The process is always the same: fetch the URL, check `response.ok`, parse JSON, extract what you need, handle errors.
 
 </Section>
 
 <Section title="Thread: Error Location is a Hint">
+
 When async code breaks, the error stack trace tells you exactly where. Pay attention.
 
-If you see an error from inside a `fetch()` call, it is usually a network error: bad URL, server down, or CORS blocked. If you see an error from `.json()`, the response was not valid JSON. If you see an error from accessing a property on the parsed object, the API returned a different shape than you expected.
+**Error inside fetch():**
+```
+TypeError: Failed to fetch
+```
+This is a network error. Causes: bad URL, server down, CORS blocked, no internet.
 
-Most importantly, errors inside a `try` block will be caught by `catch`. Errors outside the try block will crash your page. This is intentional. The error is telling you "your code structure leaked." Move the risky code into the try block. Use error location as a hint to fix your architecture.
+**Error inside .json():**
+```
+SyntaxError: Unexpected token < in JSON at position 0
+```
+The response was not valid JSON. Maybe the server returned HTML instead of JSON (happens on 500 errors). Check `response.ok` before calling `.json()`.
+
+**Error accessing a property:**
+```
+TypeError: Cannot read property 'name' of undefined
+```
+The API returned a different shape than you expected. The property does not exist. Log the response to see what you actually got:
+```javascript
+const data = await response.json();
+console.log(data); // What does it actually contain?
+```
+
+**Error inside try block:**
+Caught by catch. Good.
+
+**Error outside try block:**
+Crashes the page. This tells you your code structure leaked. Move the risky code into the try block.
+
+**How to debug:**
+1. Look at the error message. It tells you *what* broke.
+2. Look at the line number. It tells you *where* it broke.
+3. The error location is a hint about *why*. Is it a network error? A JSON parse error? A data shape error?
+4. Add `console.log` statements around the risky lines to see what is actually happening:
+   ```javascript
+   console.log('Before fetch');
+   const response = await fetch(url);
+   console.log('After fetch, status:', response.status);
+   const data = await response.json();
+   console.log('Parsed data:', data);
+   ```
+
+Most async errors are one of three things: the network failed, the response was not what you expected, or you forgot to handle an error. The error message and line number tell you which.
 
 </Section>
 
 <Section title="Checkpoint: Fetch Real Data">
-You have done the work. Test your skills.
 
-1. Write a function that fetches data from an API and parses the JSON.
-2. Use try/catch to handle errors gracefully.
-3. Build a component that fetches real data and renders it to the page.
-4. Change the URL or ID and watch the component re-fetch automatically.
-5. Introduce an error (wrong URL, bad ID) and verify your error state shows.
+You have learned async/await, fetch, APIs, JSON, error handling, and modules. Now prove it.
+
+**Task 1: Build the weather card from this module.**
+- Copy the API utility and component code.
+- Get it rendering with real weather data from Open-Meteo.
+- Verify loading state appears while fetching.
+- Introduce an error (wrong API URL) and verify error state shows.
+
+**Task 2: Add a second card with different data.**
+- Pick a different API from the list above (GitHub, JSONPlaceholder, etc.).
+- Fetch from it.
+- Display the data in a card component.
+- Handle loading and error states.
+
+**Task 3: Wire up a user interaction.**
+- Add an input field that lets you change the city coordinates.
+- When the input changes, re-fetch the weather.
+- Verify the new data appears without refreshing the page.
+
+**Task 4: Verify error handling.**
+- Break the API URL on purpose.
+- Break the JSON parsing (fetch an API that returns HTML, not JSON).
+- Verify that errors are caught and displayed, not crashing the page.
+
+**Success criteria:**
+- [x] Fetches data from a real API without blocking the page
+- [x] Handles `response.ok` and throws errors for non-2xx responses
+- [x] Parses JSON correctly
+- [x] Shows a loading state while fetching
+- [x] Shows an error state if fetching fails
+- [x] Uses async/await cleanly
+- [x] Organizes async code in a separate utility file
+- [x] Uses ES modules (import/export)
 
 If you can fetch, parse, handle errors, and wire it into React, you are ready for the next module. You have moved beyond isolated functions. You are building real, data-connected interfaces.
 

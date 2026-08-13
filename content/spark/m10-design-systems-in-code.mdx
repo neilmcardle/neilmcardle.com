@@ -1,308 +1,923 @@
 ---
-title: Design systems in code
-module: 10
-phase: "Phase 2 — DE core"
-promise: Turn a design system into a coded, themed component library — and move tokens both directions.
-threads:
-  - design-in-the-browser
-  - figma-to-code
-  - craft-is-the-differentiator
-  - language-vs-framework
+title: "M10: Design Systems in Code"
+subtitle: "Figma ↔ Code — Tokens, Components, and the Sync That Never Breaks"
+module: "M10"
+phase: "Design Engineer"
+length: "90 minutes"
+objective: "Turn a design system into a coded, themed component library. Move tokens both directions and build components that designers and engineers both respect."
+prerequisites: ["M2: Variables & Theming", "M5: Component Architecture"]
+threads: ["design-in-the-browser / Figma↔code", "craft-is-the-differentiator", "language-vs-framework"]
+status: "ready-to-build"
 ---
 
-<Section title="What is a design token?">
+## Premise
 
-A design token is a single decision that can live everywhere: Figma, CSS, Tailwind config, component props, iOS code. Colors, type sizes, spacing, shadows. Not arbitrary pixel values. Decisions with names.
+A design system lives in two places: the designer's head and the engineer's code. The gap between them is where projects die. Components get built, then redesigned without telling code. Tokens change in Figma and ships still carry the old ones. Dark mode works in one place and not the other.
 
-In Figma, a token is a Variable. In code, it's a CSS custom property (or a Tailwind value, or a map in your component library). Same name, same value, one source of truth.
+This module closes that gap. Not by adding layers of process (no Figma plugins, no design-to-code generators that hallucinate). By making the code *speak design* so clearly that when a designer glances at it, they recognize their own system. And when an engineer builds on it, they know exactly what lever to pull.
 
-The power is movement. Change a token in Figma and it flows downstream to every platform that reads it. Change it in code and it syncs back upstream. One graph, not isolated spreadsheets.
+The checkpoint: **one source of truth for tokens, components that have a minimal deliberate API, and a sync that works both ways without you thinking about it.**
 
-Most teams call this a "design-system infrastructure problem." It is, but it's also the differentiator. A system where designers and engineers both trust the source — that means shipping is faster, coherence is automatic, and decisions don't drift.
+---
 
-</Section>
+## Part 1: Tokens — The Atomic Language
 
-<Section title="Figma Variables as the source">
+### What are tokens?
 
-Figma Variables are the cleanest way to own tokens inside a design tool. You define a color token once (`primary-500`), assign it to components, then export the entire set to your code as JSON or CSS custom properties.
+Tokens are decisions written down. "This is brand blue." "This is our spacer unit." "This is the size of body text." They live in Figma as Variables, in CSS as custom properties, in TypeScript as a theme object. Same meaning, three languages.
 
-Set up Variables in Figma:
-- Create a library file. One per design system.
-- Scope variables by type: `color`, `typography`, `spacing`, `shadow`, `radius`.
-- Use naming that works across platforms: `primary-500`, `spacing-4`, `font-body`.
-- Create mode overrides for dark mode and other themes.
-- Export or read via API.
+Most teams pick one place to define them and sync the others. That's already better than none. But the real win is bidirectional sync — when a designer tweaks a color in Figma, it lands in CSS. When an engineer realizes "we need a smaller spacing unit," the token appears in Figma's token panel.
 
-When you reference a variable in a component's fill, stroke, text size — Figma now knows the intent. "This button uses `primary-500`" becomes a traceable link, not a detached screenshot. A designer can hand a developer the file and say "extract every variable" and the developer has a complete map.
+### Token categories
 
-The sync lives either in code (import the JSON, read the API) or via a platform like Tokens Studio. Both work. The key is: Figma is the source, not a side effect.
+Think of tokens in four bands:
 
-</Section>
+**Primitives** — the raw materials. Colors (hex or oklch), font sizes, weights, spacing units. These are immutable, boring, intentional.
 
-<Section title="CSS custom properties and naming">
+```css
+/* CSS Custom Properties — Primitives */
+:root {
+  --primitive-color-blue-50: #eff6ff;
+  --primitive-color-blue-500: #3b82f6;
+  --primitive-color-blue-950: #0c2340;
+  
+  --primitive-space-xs: 0.25rem;   /* 4px */
+  --primitive-space-sm: 0.5rem;    /* 8px */
+  --primitive-space-md: 1rem;      /* 16px */
+  --primitive-space-lg: 1.5rem;    /* 24px */
+  --primitive-space-xl: 2rem;      /* 32px */
+  
+  --primitive-font-size-xs: 0.75rem;
+  --primitive-font-size-sm: 0.875rem;
+  --primitive-font-size-base: 1rem;
+  --primitive-font-size-lg: 1.125rem;
+  --primitive-font-size-xl: 1.25rem;
+  
+  --primitive-font-weight-regular: 400;
+  --primitive-font-weight-medium: 500;
+  --primitive-font-weight-semibold: 600;
+  --primitive-font-weight-bold: 700;
+}
+```
 
-CSS custom properties (variables) are the universal bridge. Every platform reads CSS or can be converted to it.
-
-Define your tokens as custom properties at the root of your CSS:
+**Semantic tokens** — the rules. "This is the color of a button." "This is the text we use for labels." They reference primitives and carry intent.
 
 ```css
 :root {
-  --color-primary-500: #2563eb;
-  --color-primary-600: #1d4ed8;
-  --color-text: #1f2937;
-  --spacing-4: 1rem;
-  --spacing-8: 2rem;
-  --radius-md: 0.5rem;
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-size-body: 1rem;
-  --line-height-body: 1.5;
+  /* Semantic: Colors */
+  --color-primary: var(--primitive-color-blue-500);
+  --color-primary-hover: var(--primitive-color-blue-600);
+  --color-primary-active: var(--primitive-color-blue-700);
+  
+  --color-success: var(--primitive-color-green-500);
+  --color-warning: var(--primitive-color-amber-500);
+  --color-danger: var(--primitive-color-red-500);
+  
+  --color-text-primary: var(--primitive-color-slate-900);
+  --color-text-secondary: var(--primitive-color-slate-600);
+  --color-text-disabled: var(--primitive-color-slate-400);
+  
+  --color-background: var(--primitive-color-white);
+  --color-surface: var(--primitive-color-slate-50);
+  --color-border: var(--primitive-color-slate-200);
+  
+  /* Semantic: Spacing */
+  --space-inline-xs: var(--primitive-space-xs);
+  --space-inline-sm: var(--primitive-space-sm);
+  --space-inline: var(--primitive-space-md);
+  --space-inline-lg: var(--primitive-space-lg);
+  
+  /* Semantic: Type */
+  --type-body: var(--primitive-font-size-base);
+  --type-body-weight: var(--primitive-font-weight-regular);
+  --type-label: var(--primitive-font-size-sm);
+  --type-label-weight: var(--primitive-font-weight-semibold);
+}
+
+/* Dark mode — same semantic names, different primitives */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-primary: var(--primitive-color-slate-50);
+    --color-text-secondary: var(--primitive-color-slate-400);
+    --color-background: var(--primitive-color-slate-950);
+    --color-surface: var(--primitive-color-slate-900);
+    --color-border: var(--primitive-color-slate-700);
+  }
 }
 ```
 
-Naming convention matters. Prefix by type (`--color-`, `--spacing-`), then semantic role if it exists (`primary-500`), then fallback to numeric scale (`200`, `400`, `600`).
+**Component tokens** — the specifics. "This button uses this text style and this background." Used internally in component CSS, rarely leaked to consumers.
 
-Use them in your CSS:
+**Alias tokens** — shortcuts. Map semantic tokens to multiple names for different contexts. "Call it `--color-text-primary` when it's body text, but in a form input, call the same token `--color-input-text`."
+
+The secret: semantic and alias tokens change between themes. Primitives never do. A dark theme doesn't invent new blues — it points the same `--color-primary` name to a different primitive blue.
+
+### Figma Variables: Where Tokens Live
+
+In Figma, Variables are the design system's source of truth. They live in two collections: `Primitives` and `Semantic`.
+
+**Primitives collection:**
+- Color group: `blue-50`, `blue-100`, ... `blue-950`
+- Space group: `xs`, `sm`, `md`, `lg`, `xl`
+- Typography group: `size-xs`, `size-sm`, ... `weight-bold`
+
+**Semantic collection:**
+- Color group: `primary`, `primary-hover`, `success`, `text-primary`, `background`, etc.
+- Space group: `inline-xs`, `inline-sm`, `inline`, `inline-lg`
+- Type group: `body`, `body-weight`, `label`, `label-weight`
+
+Each semantic color variable points to a primitive. In the `Primitives` mode, it resolves light. In the `Dark` mode, it resolves dark. That's it — the same variable name works everywhere.
+
+```
+Semantic/Colors/primary
+  → Light mode: Primitives/Colors/blue-500
+  → Dark mode: Primitives/Colors/blue-400
+```
+
+Figma's right side: Variables panel → Select variable → Add mode. Two modes: Light, Dark. Each semantic color gets two primitives assigned.
+
+### Exporting Tokens: Figma → Code
+
+You need a tool to walk Figma's Variables API and write CSS. Don't hand-code this. Options:
+
+1. **Figma's official token exporter** (legacy, deprecated)
+2. **Style Dictionary** — industry standard, transforms tokens to any format
+3. **Parity Check** (paid, Figma plugin) — syncs both directions, tells you when code drifts from design
+4. **Token Studio** (Figma plugin, paid) — manages tokens inside Figma, exports to JSON
+5. **Hand-roll a script** — hit Figma's REST API, walk variables, emit CSS
+
+For this module, assume you're using **Style Dictionary**. It reads a JSON file of tokens and emits CSS, TypeScript, Tailwind theme, etc.
+
+Token file (JSON):
+
+```json
+{
+  "primitive": {
+    "color": {
+      "blue": {
+        "50": { "value": "#eff6ff", "type": "color" },
+        "500": { "value": "#3b82f6", "type": "color" },
+        "950": { "value": "#0c2340", "type": "color" }
+      }
+    },
+    "space": {
+      "xs": { "value": "4px", "type": "dimension" },
+      "md": { "value": "16px", "type": "dimension" }
+    }
+  },
+  "semantic": {
+    "color": {
+      "primary": {
+        "value": "{primitive.color.blue.500}",
+        "type": "color"
+      },
+      "text": {
+        "primary": {
+          "value": "{primitive.color.slate.900}",
+          "type": "color"
+        }
+      }
+    }
+  }
+}
+```
+
+Style Dictionary config:
+
+```js
+module.exports = {
+  source: ['tokens/tokens.json'],
+  platforms: {
+    css: {
+      transformGroup: 'css',
+      buildPath: 'src/tokens/',
+      files: [
+        {
+          destination: 'tokens.css',
+          format: 'css/variables'
+        }
+      ]
+    },
+    ts: {
+      transformGroup: 'ts',
+      buildPath: 'src/tokens/',
+      files: [
+        {
+          destination: 'tokens.ts',
+          format: 'javascript/es6'
+        }
+      ]
+    }
+  }
+};
+```
+
+Run `style-dictionary build`. You get `tokens.css` with all the custom properties and `tokens.ts` with an object you can import.
+
+The hardest part: maintaining sync. When a designer changes Figma variables, how does that JSON file get updated? Options:
+
+- **Export manually** — designer runs Figma plugin, copies JSON, pastes into repo
+- **Sync script** — CI job hits Figma API on a schedule, commits if changed
+- **Parity Check plugin** — paid, does the sync for you, both directions
+
+For a teaching module, assume manual export with a script that validates the JSON before commit. Real workflows vary wildly.
+
+---
+
+## Part 2: Theming & Dark Mode
+
+Dark mode is not a special case. It's the same tokens pointing to different primitives. The code doesn't change — the values change.
+
+### CSS Custom Properties Approach
+
+Define all tokens on `:root`. In dark mode, redefine the semantic ones.
+
+```css
+/* Light theme — on :root by default */
+:root {
+  --color-primary: var(--primitive-color-blue-500);
+  --color-text-primary: var(--primitive-color-slate-900);
+  --color-background: var(--primitive-color-white);
+}
+
+/* Dark theme — override via @media or .dark class */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: var(--primitive-color-blue-400);
+    --color-text-primary: var(--primitive-color-slate-50);
+    --color-background: var(--primitive-color-slate-950);
+  }
+}
+
+/* Or, if you prefer a class-based toggle (useful for manual theme switching) */
+html.dark {
+  --color-primary: var(--primitive-color-blue-400);
+  --color-text-primary: var(--primitive-color-slate-50);
+  --color-background: var(--primitive-color-slate-950);
+}
+```
+
+Components use the semantic names only:
 
 ```css
 .button {
-  background: var(--color-primary-500);
-  padding: var(--spacing-4) var(--spacing-8);
-  border-radius: var(--radius-md);
-  font-family: var(--font-body);
-  font-size: var(--font-size-body);
-  line-height: var(--line-height-body);
-}
-
-.button:hover {
-  background: var(--color-primary-600);
+  background-color: var(--color-primary);
+  color: var(--color-text-primary);
 }
 ```
 
-Custom properties are dynamic. They cascade. They can be redefined in a media query or a class. They're the simplest possible bridge between Figma and the browser.
+The component never knows which theme is active. It always reads `--color-primary`. The CSS layer changes what `--color-primary` means.
 
-</Section>
+### Tailwind Approach
 
-<Section title="Tailwind theme integration">
+If you're using Tailwind, tokens become theme values:
 
-Tailwind is built for tokens. Your `tailwind.config.js` theme object is exactly where design tokens become utility classes.
-
-Extract your Figma variables (or CSS custom properties) and map them into the Tailwind config:
-
-```javascript
+```js
 // tailwind.config.js
-export default {
+module.exports = {
   theme: {
-    extend: {
-      colors: {
-        primary: {
-          500: "#2563eb",
-          600: "#1d4ed8",
-        },
-        secondary: {
-          500: "#7c3aed",
-          600: "#6d28d9",
-        },
-      },
-      spacing: {
-        4: "1rem",
-        8: "2rem",
-        12: "3rem",
-      },
-      borderRadius: {
-        md: "0.5rem",
-        lg: "0.75rem",
-      },
-      fontSize: {
-        body: ["1rem", { lineHeight: "1.5" }],
-        heading: ["1.5rem", { lineHeight: "1.25" }],
-      },
+    colors: {
+      primary: 'var(--color-primary)',
+      'text-primary': 'var(--color-text-primary)',
+      background: 'var(--color-background)',
+      success: 'var(--color-success)',
+    },
+    spacing: {
+      xs: 'var(--space-inline-xs)',
+      sm: 'var(--space-inline-sm)',
+      md: 'var(--space-inline)',
+      lg: 'var(--space-inline-lg)',
     },
   },
 };
 ```
 
-Now every token becomes a Tailwind class. `bg-primary-500`, `p-4`, `rounded-md`, `text-body`. The HTML is clean, the tokens are centralized, and a designer can read the Tailwind config as a contract.
+Then in components:
 
-When you need to change a color, you edit the config once and it applies everywhere. Figma variables sync to the config (either manually or via a build step), and the site updates on deploy.
-
-Tailwind doesn't need CSS custom properties underneath. But if you want to support runtime theme switching (dark mode, user preferences), custom properties at the root let you override values without rebuilding CSS.
-
-</Section>
-
-<Section title="Themed dark mode via tokens">
-
-Dark mode done right doesn't live in utility overrides (`dark:bg-gray-900`). It lives in tokens.
-
-Define a dark mode set of variables in Figma. Same token names, different values. Export both light and dark to a configuration object:
-
-```javascript
-// tokens.js
-export const lightTheme = {
-  "color-bg": "#ffffff",
-  "color-text": "#1f2937",
-  "color-primary-500": "#2563eb",
-  "color-border": "#e5e7eb",
-};
-
-export const darkTheme = {
-  "color-bg": "#111827",
-  "color-text": "#f3f4f6",
-  "color-primary-500": "#3b82f6",
-  "color-border": "#374151",
-};
-```
-
-Apply them as CSS custom properties on the root element:
-
-```javascript
-// theme.js
-function setTheme(isDark) {
-  const tokens = isDark ? darkTheme : lightTheme;
-  const root = document.documentElement;
-  
-  Object.entries(tokens).forEach(([key, value]) => {
-    root.style.setProperty(`--${key}`, value);
-  });
-  
-  localStorage.setItem("theme", isDark ? "dark" : "light");
-}
-
-// On page load
-const isDark = localStorage.getItem("theme") === "dark";
-setTheme(isDark);
-```
-
-Write your components in terms of tokens:
-
-```css
-.button {
-  background: var(--color-primary-500);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-}
-```
-
-Switch themes and all colors update. No cascade of `dark:` utilities. No theme-specific component variants. One component, two token sets.
-
-</Section>
-
-<Section title="Component API: props and variants">
-
-A component's API should be minimal and intentional. Props for things users actually control. No prop for every possible style.
-
-```typescript
-// Button.tsx
-interface ButtonProps {
-  children: React.ReactNode;
-  variant?: "primary" | "secondary" | "ghost";
-  size?: "sm" | "md" | "lg";
-  disabled?: boolean;
-  onClick?: () => void;
-}
-
-export function Button({
-  children,
-  variant = "primary",
-  size = "md",
-  disabled = false,
-  onClick,
-}: ButtonProps) {
-  // Implementation uses variants, not arbitrary props
+```jsx
+export function Button({ children, variant = 'primary' }) {
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      data-variant={variant}
-      data-size={size}
-    >
+    <button className="bg-primary text-white px-md py-sm rounded">
       {children}
     </button>
   );
 }
 ```
 
-Notice what's *not* a prop: `color`, `padding`, `fontSize`, `borderRadius`. Those flow from `variant` and `size`. A component should expose intent, not pixels.
+Tailwind emits `bg-[var(--color-primary)]`. When the theme changes (via CSS custom properties), Tailwind doesn't re-run — the custom properties update and the browser repaints. It's instant.
 
-Variant is a single, deliberately chosen value. Not a free string. The component owner controls what combinations exist and makes sure they match the design system.
+### TypeScript Theme Objects
 
-</Section>
+Some teams use TypeScript theme objects in addition to or instead of CSS custom properties. Useful if your component library is pure React/TypeScript without Tailwind.
 
-<Section title="Variants: CVA and alternatives">
-
-Class Variance Authority (CVA) makes variant logic explicit and type-safe:
-
-```typescript
-// button.ts
-import { cva, type VariantProps } from "class-variance-authority";
-
-const buttonStyles = cva("px-4 py-2 rounded-md font-semibold transition-colors", {
-  variants: {
-    variant: {
-      primary: "bg-primary-500 text-white hover:bg-primary-600",
-      secondary: "bg-secondary-500 text-white hover:bg-secondary-600",
-      ghost: "bg-transparent text-primary-500 hover:bg-primary-50",
+```ts
+// theme.ts
+export const lightTheme = {
+  colors: {
+    primary: '#3b82f6',
+    text: {
+      primary: '#0f172a',
+      secondary: '#475569',
     },
-    size: {
-      sm: "text-sm px-2 py-1",
-      md: "text-base px-4 py-2",
-      lg: "text-lg px-6 py-3",
+    background: '#ffffff',
+    surface: '#f1f5f9',
+  },
+  space: {
+    xs: '4px',
+    sm: '8px',
+    md: '16px',
+    lg: '24px',
+  },
+  type: {
+    body: {
+      size: '16px',
+      weight: 400,
     },
   },
-  defaultVariants: {
-    variant: "primary",
-    size: "md",
+};
+
+export const darkTheme = {
+  colors: {
+    primary: '#60a5fa',
+    text: {
+      primary: '#f1f5f9',
+      secondary: '#cbd5e1',
+    },
+    background: '#0f172a',
+    surface: '#1e293b',
   },
-});
+  // ... rest
+};
 
-type ButtonVariants = VariantProps<typeof buttonStyles>;
+// In a React context
+export const ThemeContext = React.createContext(lightTheme);
 
-export function Button({ variant, size, children }: ButtonVariants & { children: React.ReactNode }) {
-  return <button className={buttonStyles({ variant, size })}>{children}</button>;
+// Provider component
+export function ThemeProvider({ children, isDark }) {
+  const theme = isDark ? darkTheme : lightTheme;
+  return (
+    <ThemeContext.Provider value={theme}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// In a component
+export function Button({ children }) {
+  const theme = useContext(ThemeContext);
+  return (
+    <button style={{ backgroundColor: theme.colors.primary }}>
+      {children}
+    </button>
+  );
 }
 ```
 
-CVA generates the class string based on variant values, automatically type-checks combinations, and keeps the intent readable.
+The downside: you're not leveraging CSS custom properties or Tailwind's optimization. Every theme change requires a full context update and re-render. For most apps, this is fine. For large component trees or frequent theme toggles, prefer CSS custom properties.
 
-If you prefer vanilla CSS or a framework without CVA, use data attributes and CSS selectors:
+### The Best Approach for This Module
 
-```css
-/* Vanilla approach */
-[data-variant="primary"][data-size="md"] {
-  padding: var(--spacing-4) var(--spacing-8);
-  background: var(--color-primary-500);
-  font-size: var(--font-size-body);
+Use **CSS custom properties + Tailwind**. It's the sweet spot:
+- Designers recognize custom properties (they match Figma variable names)
+- Tailwind gives engineers a DX win (utility classes)
+- Themes update instantly (CSS layer, no JS re-render)
+- Both light and dark work without special logic
+
+---
+
+## Part 3: Component API Design
+
+A component's props are its contract. Well-designed props mean:
+- A designer can use it without reading source code
+- An engineer can extend it without breaking existing uses
+- It scales to new variants without prop explosion
+
+### The Minimal API Principle
+
+Every prop should earn its place. If a prop is only used once in your codebase, it shouldn't exist. If two props are always used together, merge them.
+
+**Bad:**
+
+```tsx
+<Button
+  size="lg"
+  kind="primary"
+  isLoading={false}
+  isDisabled={false}
+  hasBorder={true}
+  textColor="blue"
+  backgroundColor="white"
+  paddingX={16}
+  paddingY={12}
+  borderRadius={4}
+  fontWeight={600}
+  fontSize={14}
+/>
+```
+
+Every prop is a escape hatch. The component has no shape — it's a factory for infinite shapes.
+
+**Good:**
+
+```tsx
+<Button size="lg" variant="primary" isLoading={false} disabled={false}>
+  Click me
+</Button>
+```
+
+The component has a distinct shape. `size` controls both padding and font. `variant` controls both color and border. `isLoading` and `disabled` are clear states, not arbitrary toggles.
+
+### Variant-Based Design (CVA / Class Variance Authority)
+
+Group related props into a `variant` prop using **CVA** (if you're using TypeScript and want type safety) or just an object of class maps.
+
+```tsx
+import { cva, type VariantProps } from 'class-variance-authority';
+
+const buttonVariants = cva(
+  // Base styles (always applied)
+  'inline-flex items-center justify-center font-semibold rounded cursor-pointer transition-colors',
+  {
+    variants: {
+      variant: {
+        primary: 'bg-primary text-white hover:bg-primary-hover active:bg-primary-active',
+        secondary: 'bg-surface text-text-primary border border-border hover:bg-slate-100',
+        ghost: 'text-text-primary hover:bg-surface',
+      },
+      size: {
+        sm: 'px-sm py-xs text-label',
+        md: 'px-md py-sm text-body',
+        lg: 'px-lg py-md text-body font-semibold',
+      },
+      disabled: {
+        true: 'opacity-50 cursor-not-allowed',
+      },
+    },
+    compoundVariants: [
+      // Optional: rules that apply when multiple variants match
+      {
+        variant: 'primary',
+        disabled: true,
+        class: 'bg-slate-300',
+      },
+    ],
+    defaultVariants: {
+      variant: 'primary',
+      size: 'md',
+    },
+  }
+);
+
+type ButtonProps = VariantProps<typeof buttonVariants> & {
+  children: React.ReactNode;
+  isLoading?: boolean;
+  onClick?: () => void;
+};
+
+export function Button({
+  children,
+  variant,
+  size,
+  disabled,
+  isLoading,
+  onClick,
+  className,
+  ...props
+}: ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      disabled={disabled || isLoading}
+      onClick={onClick}
+      className={buttonVariants({ variant, size, disabled, className })}
+      {...props}
+    >
+      {isLoading ? <Spinner /> : children}
+    </button>
+  );
 }
 ```
 
-Both work. CVA is faster for large systems. Vanilla CSS is more portable. Pick one and be consistent.
+CVA is TypeScript-first. It gives you autocomplete on variant names and type-checks that you're using valid combinations. But it's not required. You can do the same thing with a class map:
 
-</Section>
+```tsx
+const variantMap = {
+  primary: {
+    sm: 'px-sm py-xs text-label bg-primary text-white',
+    md: 'px-md py-sm text-body bg-primary text-white',
+    lg: 'px-lg py-md text-body bg-primary text-white font-semibold',
+  },
+  secondary: {
+    sm: 'px-sm py-xs text-label bg-surface text-text-primary border border-border',
+    md: 'px-md py-sm text-body bg-surface text-text-primary border border-border',
+    lg: 'px-lg py-md text-body bg-surface text-text-primary border border-border font-semibold',
+  },
+};
 
-<Section title="Documenting components">
+export function Button({ variant = 'primary', size = 'md', children, ...props }) {
+  return (
+    <button className={variantMap[variant]?.[size] || variantMap.primary.md} {...props}>
+      {children}
+    </button>
+  );
+}
+```
 
-A design system lives or dies on documentation. A component without a doc is a secret.
+Less safe (no type checking), but less boilerplate. Choose based on team preference.
 
-Use Storybook or a custom component browser. Write a story for each variant combination:
+### Boolean Props Are Traps
 
-```typescript
-// Button.stories.ts
-import type { Meta, StoryObj } from "@storybook/react";
-import { Button } from "./Button";
+Avoid boolean props for style. They're ambiguous:
 
-const meta: Meta<typeof Button> = {
+```tsx
+<Button small={true} />  // Does this mean smaller than the default, or size="sm"?
+<Button loading={true} /> // Is this "show a loading state" or "disable until loaded"?
+<Button ghost={true} /> // Is this the variant, or an added class?
+```
+
+Use enums or literal unions instead:
+
+```tsx
+<Button size="sm" />
+<Button state="loading" />
+<Button variant="ghost" />
+```
+
+The only boolean props that make sense are states that affect accessibility or behavior: `disabled`, `required`, `checked`, `isSelected`.
+
+---
+
+## Part 4: Building 5 Core Components
+
+These components form the scaffold. Every design system needs them. Build them once, build them well, and everything else is a variation.
+
+### 1. Button
+
+```tsx
+import { cva } from 'class-variance-authority';
+
+const buttonVariants = cva(
+  'inline-flex items-center justify-center gap-sm font-type-label rounded-md cursor-pointer transition-all',
+  {
+    variants: {
+      variant: {
+        primary: 'bg-color-primary text-white hover:bg-color-primary-hover active:bg-color-primary-active',
+        secondary: 'bg-color-surface text-color-text-primary border border-color-border hover:bg-slate-100 active:bg-slate-200',
+        ghost: 'text-color-text-primary hover:bg-color-surface active:bg-slate-200',
+        danger: 'bg-color-danger text-white hover:opacity-90 active:opacity-80',
+      },
+      size: {
+        sm: 'px-space-sm py-space-xs text-type-label',
+        md: 'px-space-md py-space-sm text-type-body',
+        lg: 'px-space-lg py-space-md text-type-body',
+      },
+    },
+    defaultVariants: {
+      variant: 'primary',
+      size: 'md',
+    },
+  }
+);
+
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
+  isLoading?: boolean;
+  icon?: React.ReactNode;
+};
+
+export function Button({
+  children,
+  variant = 'primary',
+  size = 'md',
+  isLoading,
+  icon,
+  disabled,
+  className,
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      disabled={disabled || isLoading}
+      className={buttonVariants({ variant, size, className })}
+      {...props}
+    >
+      {icon && <span className="flex-shrink-0">{icon}</span>}
+      {children}
+      {isLoading && <Spinner size="sm" />}
+    </button>
+  );
+}
+```
+
+### 2. Card
+
+```tsx
+const cardVariants = cva(
+  'rounded-lg border border-color-border bg-color-surface overflow-hidden',
+  {
+    variants: {
+      variant: {
+        elevated: 'shadow-md',
+        flat: 'shadow-none',
+        outlined: 'border-2 border-color-border',
+      },
+    },
+    defaultVariants: {
+      variant: 'flat',
+    },
+  }
+);
+
+type CardProps = React.HTMLAttributes<HTMLDivElement> & {
+  variant?: 'elevated' | 'flat' | 'outlined';
+};
+
+export function Card({ children, variant, className, ...props }: CardProps) {
+  return (
+    <div className={cardVariants({ variant, className })} {...props}>
+      {children}
+    </div>
+  );
+}
+
+// Subcomponents for structure
+export function CardHeader({ children, className }: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={`px-space-lg py-space-md border-b border-color-border ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+export function CardBody({ children, className }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div className={`px-space-lg py-space-md ${className}`}>{children}</div>;
+}
+
+export function CardFooter({ children, className }: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={`px-space-lg py-space-md border-t border-color-border ${className}`}>
+      {children}
+    </div>
+  );
+}
+```
+
+### 3. Input
+
+```tsx
+type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  label?: string;
+  error?: string;
+  helpText?: string;
+};
+
+export function Input({ label, error, helpText, className, ...props }: InputProps) {
+  return (
+    <div className="flex flex-col gap-xs">
+      {label && (
+        <label className="text-type-label font-type-label-weight text-color-text-primary">
+          {label}
+        </label>
+      )}
+      <input
+        className={`
+          px-space-md py-space-sm rounded-md
+          border border-color-border
+          text-color-text-primary placeholder-color-text-secondary
+          focus:outline-none focus:ring-2 focus:ring-color-primary focus:border-transparent
+          disabled:bg-color-surface disabled:text-color-text-disabled disabled:cursor-not-allowed
+          ${error ? 'border-color-danger focus:ring-color-danger' : ''}
+          ${className}
+        `}
+        {...props}
+      />
+      {error && <span className="text-type-label text-color-danger">{error}</span>}
+      {helpText && <span className="text-type-label text-color-text-secondary">{helpText}</span>}
+    </div>
+  );
+}
+```
+
+### 4. Badge
+
+```tsx
+const badgeVariants = cva(
+  'inline-flex items-center justify-center rounded-full font-semibold',
+  {
+    variants: {
+      variant: {
+        primary: 'bg-color-primary text-white',
+        success: 'bg-color-success text-white',
+        warning: 'bg-color-warning text-black',
+        danger: 'bg-color-danger text-white',
+      },
+      size: {
+        sm: 'px-space-sm py-xs text-type-label',
+        md: 'px-space-md py-sm text-type-body',
+      },
+    },
+    defaultVariants: {
+      variant: 'primary',
+      size: 'md',
+    },
+  }
+);
+
+type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
+  variant?: 'primary' | 'success' | 'warning' | 'danger';
+  size?: 'sm' | 'md';
+};
+
+export function Badge({ children, variant, size, className, ...props }: BadgeProps) {
+  return (
+    <span className={badgeVariants({ variant, size, className })} {...props}>
+      {children}
+    </span>
+  );
+}
+```
+
+### 5. Modal
+
+```tsx
+import { createPortal } from 'react-dom';
+
+type ModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  children: React.ReactNode;
+  size?: 'sm' | 'md' | 'lg';
+};
+
+const sizeMap = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+};
+
+export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <Card
+        variant="elevated"
+        className={`relative z-10 ${sizeMap[size]} w-full mx-space-lg`}
+      >
+        {title && (
+          <CardHeader className="flex items-center justify-between">
+            <h2 className="text-type-xl font-semibold">{title}</h2>
+            <button
+              onClick={onClose}
+              className="text-color-text-secondary hover:text-color-text-primary"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </CardHeader>
+        )}
+        <CardBody>{children}</CardBody>
+      </Card>
+    </div>,
+    document.body
+  );
+}
+```
+
+Each component:
+- Has a clear variant set (no prop explosion)
+- Uses tokens for all spacing, color, type
+- Includes subcomponents where appropriate (Card.Header, etc.)
+- Works with TypeScript and Tailwind or CVA
+- Is accessible (labels, ARIA, focus states)
+
+---
+
+## Part 5: Building Bidirectional Sync
+
+The real constraint: when a designer changes a token in Figma, how does that update land in code? And when an engineer adds a token in code, how does it appear in Figma?
+
+### The Sync Pipeline (Code → Figma)
+
+1. Engineer adds a token to the source JSON file.
+2. `npm run tokens:build` runs Style Dictionary.
+3. New CSS custom property appears in `tokens.css`.
+4. New variable appears in `tokens.ts`.
+5. A GitHub action or CI step hits Figma's REST API and writes the new variable to the Figma file.
+
+Figma API call (pseudo-code):
+
+```ts
+async function syncTokensToFigma(tokens) {
+  const figmaFile = await fetch(
+    `https://api.figma.com/v1/files/${FIGMA_FILE_ID}/variables`,
+    {
+      headers: { 'X-Figma-Token': FIGMA_API_TOKEN },
+    }
+  ).then(r => r.json());
+
+  // Iterate tokens, create or update variables
+  for (const [name, value] of Object.entries(tokens)) {
+    const existingVar = figmaFile.variables.find(v => v.name === name);
+    if (existingVar) {
+      // Update
+      await fetch(`...${existingVar.id}`, { method: 'PUT', body: { value } });
+    } else {
+      // Create
+      await fetch(`...`, { method: 'POST', body: { name, value } });
+    }
+  }
+}
+```
+
+This is overkill for a teaching module. Real sync:
+
+- Designer exports tokens from Figma (plugin or manual)
+- Engineer reviews the JSON diff
+- Merge, commit, deploy
+- CI builds tokens, emits CSS, deploys website
+
+### The Manual Approach (Good Enough)
+
+For a design system that doesn't change hourly:
+
+1. **Create a Figma Variables export step.** Designer or engineer runs a Figma plugin, downloads JSON.
+2. **Commit the JSON.** Review like code.
+3. **CI builds and deploys.** `npm run tokens:build` → CSS → site.
+
+Figma plugins that export variables:
+- **Token Studio** — full-featured, paid
+- **Figma Tokens** — lightweight, free
+- **Parity Check** — detects drift (designer: did you *actually* update this?)
+
+### Detecting Drift
+
+A simple check: hash the current tokens JSON, compare to deployed CSS. If they mismatch, fail the build.
+
+```ts
+// scripts/check-tokens-drift.mjs
+import fs from 'fs';
+import crypto from 'crypto';
+
+const tokensJson = JSON.parse(fs.readFileSync('tokens/tokens.json', 'utf8'));
+const tokensCss = fs.readFileSync('src/tokens/tokens.css', 'utf8');
+
+const jsonHash = crypto
+  .createHash('sha256')
+  .update(JSON.stringify(tokensJson))
+  .digest('hex');
+
+const cssHash = crypto
+  .createHash('sha256')
+  .update(tokensCss)
+  .digest('hex');
+
+if (jsonHash !== cssHash) {
+  console.error('Tokens mismatch. Run npm run tokens:build');
+  process.exit(1);
+}
+```
+
+Add to CI: `npm run check:tokens` before deploy. If the JSON and CSS hashes don't match, deployment blocks until tokens are rebuilt.
+
+---
+
+## Part 6: Documenting Components
+
+A design system is a conversation. Code is half the conversation; documentation is the other half.
+
+### Storybook (If You're Using It)
+
+Storybook lets designers and engineers see components in isolation, with controls to test variants.
+
+```tsx
+// Button.stories.tsx
+import { Button } from './Button';
+import type { StoryObj } from '@storybook/react';
+
+const meta = {
+  title: 'Components/Button',
   component: Button,
-  tags: ["autodocs"],
+  args: {
+    children: 'Click me',
+  },
   argTypes: {
     variant: {
-      control: { type: "select" },
-      options: ["primary", "secondary", "ghost"],
+      control: 'radio',
+      options: ['primary', 'secondary', 'ghost', 'danger'],
     },
     size: {
-      control: { type: "select" },
-      options: ["sm", "md", "lg"],
+      control: 'radio',
+      options: ['sm', 'md', 'lg'],
     },
-    disabled: { control: "boolean" },
   },
 };
 
@@ -310,78 +925,376 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Primary: Story = {
-  args: {
-    variant: "primary",
-    size: "md",
-    children: "Click me",
-  },
+  args: { variant: 'primary' },
 };
 
 export const Secondary: Story = {
-  args: {
-    variant: "secondary",
-    children: "Secondary action",
-  },
+  args: { variant: 'secondary' },
 };
 
-export const Disabled: Story = {
-  args: {
-    variant: "primary",
-    disabled: true,
-    children: "Disabled",
-  },
+export const Loading: Story = {
+  args: { isLoading: true },
+};
+
+export const AllVariants: Story = {
+  render: () => (
+    <div className="flex gap-4">
+      {(['primary', 'secondary', 'ghost', 'danger'] as const).map(variant => (
+        <Button key={variant} variant={variant}>
+          {variant}
+        </Button>
+      ))}
+    </div>
+  ),
 };
 ```
 
-Include prose: when to use each variant, how props interact, what states exist, accessibility notes. A screenshot is proof. A story with documentation is a contract.
+Run `npm run storybook`. Open browser. Designers and engineers both see:
+- Component rendered with the variant applied
+- Figma links (if you've integrated Figma plugin)
+- Code snippets
+- Accessibility notes
 
-Publish your Storybook. Designers and developers both reference it. It becomes the source of truth for what the component does, and the playground where you test it.
+### Markdown Docs (Minimal)
 
-</Section>
+Write one `README.md` per component. One page. Keep it tight.
 
-<Section title="Syncing tokens bidirectionally">
+```markdown
+# Button
 
-The real magic: tokens flow both directions. A designer changes a color in Figma, and it appears in the code. An engineer tweaks a spacing value, and it updates in Figma.
+Triggers an action or navigation. Never used for navigation — use `<Link>` instead.
 
-Use Tokens Studio for Figma (a plugin) or write a sync script.
+## Variants
 
-Tokens Studio approach:
-- Define tokens in a JSON file in your repo.
-- Install the Tokens Studio plugin in Figma.
-- Link the JSON as the remote source.
-- Changes in Figma sync to the JSON. Changes in the JSON sync to Figma.
-- Update your CSS and Tailwind config from the same JSON.
+- **primary** — Call-to-action. One per page.
+- **secondary** — Alternative action. Use when primary is not strong enough.
+- **ghost** — Tertiary. Text-only, no background.
+- **danger** — Destructive action. Delete, cancel, refund. Requires confirmation.
 
-Script approach:
+## Sizes
 
-```bash
-# export-tokens.js
-const figmaTokens = await fetchFromFigmaAPI();
-const cssOutput = generateCSSCustomProperties(figmaTokens);
-const tailwindOutput = generateTailwindConfig(figmaTokens);
+- **sm** (12px) — Inline actions, small containers
+- **md** (14px) — Default, most common
+- **lg** (16px) — Hero actions, large containers
 
-fs.writeFileSync("src/tokens.css", cssOutput);
-fs.writeFileSync("tailwind.config.js", tailwindOutput);
+## API
+
+```tsx
+<Button
+  variant="primary" // 'primary' | 'secondary' | 'ghost' | 'danger'
+  size="md"          // 'sm' | 'md' | 'lg'
+  isLoading={false}  // Shows spinner, disables click
+  disabled={false}   // Disabled state
+  onClick={handler}  // Click handler
+/>
 ```
 
-Run the script on CI or on-demand. Keep the source file (Figma or JSON) as the single origin, and everything else derives from it.
+## Examples
 
-When a change lands in the source, it propagates. No manual copy-paste. No drift. No "why does the Figma file say one thing and the code say another?"
+```tsx
+// Primary CTA
+<Button>Submit</Button>
 
-</Section>
+// With icon
+<Button icon={<CheckIcon />}>Save</Button>
 
-<Section title="One source of truth">
+// Loading state
+<Button isLoading>Saving...</Button>
 
-This is the checkpoint. After building a design-token system, ask:
+// Danger with confirmation
+const [confirm, setConfirm] = useState(false);
+{!confirm ? (
+  <Button variant="danger" onClick={() => setConfirm(true)}>
+    Delete
+  </Button>
+) : (
+  <div>
+    <p>Are you sure?</p>
+    <Button variant="danger" onClick={deleteHandler}>Confirm</Button>
+  </div>
+)}
+```
 
-1. Is there one place where color decisions live? One place where spacing decisions live? Not scattered across Figma, a Notion doc, and three config files.
-2. Can a designer make a change in Figma and see it in the running app without asking an engineer to rebuild?
-3. Can an engineer tweak a value for accessibility or performance and have it sync back to Figma?
-4. Do components have an API that a new team member can understand in five minutes?
-5. Does the codebase have one way to define variants, not three?
+## Accessibility
 
-If the answer to all five is yes, you have a design system. It scales because it's coherent. A new component takes minutes to add because the patterns are clear. Designers and engineers speak the same language because the tokens are the language.
+- Buttons are not links. Use `<Link>` for navigation.
+- Loading state sets `disabled={true}` internally.
+- Focus ring appears on keyboard focus (Tailwind: `focus:ring-2`).
+- Icon-only buttons require `aria-label`.
+```
 
-This is craft. Systems this transparent, this well-documented, cost more upfront but multiply on every subsequent decision. They're also the differentiator between teams that ship confidence and teams that ship surprises.
+That's it. One page per component. Anything longer and engineers stop reading.
 
-</Section>
+### Design Systems Site
+
+Some teams build a dedicated site (like Vercel's or Stripe's design system). Not necessary for a teaching module, but the shape:
+
+- Components in a grid
+- Click to see the component in isolation
+- Below: props, tokens, accessibility notes
+- Links to Storybook stories
+- Export as Figma components
+
+This is not within scope for M10. Mention it, but focus on the code and minimal docs.
+
+---
+
+## Checkpoint: Build Phase
+
+By now, you have:
+
+1. **Token system** — Figma variables, CSS custom properties, exported as both CSS and TypeScript
+2. **Theme layer** — Light and dark modes, same token names, different values
+3. **5 core components** — Button, Card, Input, Badge, Modal
+4. **Component API** — Variants, sizes, minimal prop set
+5. **Documentation** — One README per component, basic API reference
+6. **Sync detection** — CI checks that tokens JSON matches emitted CSS
+
+### What to Build (90 Minutes)
+
+**Step 1: Set up tokens (20 min)**
+- Create `tokens/tokens.json` with primitives and semantic tokens
+- Install Style Dictionary
+- Build to CSS and TypeScript
+- Verify custom properties appear in `src/tokens/tokens.css`
+
+**Step 2: Add to Tailwind (10 min)**
+- Update `tailwind.config.js` to reference token custom properties
+- Test: `<div className="bg-primary text-text-primary">` should use token values
+
+**Step 3: Build Button component (15 min)**
+- Use CVA or class map
+- Implement: primary, secondary, ghost, danger variants
+- Implement: sm, md, lg sizes
+- Add isLoading state with spinner
+
+**Step 4: Build Card (10 min)**
+- Base Card with variant support
+- CardHeader, CardBody, CardFooter subcomponents
+- Border, shadow, padding from tokens
+
+**Step 5: Build Input (10 min)**
+- Text input with label, error, helpText
+- Focus ring, disabled state
+- All spacing and color from tokens
+
+**Step 6: Build Badge and Modal (15 min)**
+- Badge: 4 variants, 2 sizes
+- Modal: portal-based, size prop, backdrop dismissal
+- Both fully token-driven
+
+**Step 7: Write component docs (5 min)**
+- One README per component
+- Copy the markdown template from Part 6
+
+**Step 8: Verify dark mode (5 min)**
+- Toggle dark mode via `@media (prefers-color-scheme: dark)` or `.dark` class
+- Components should not change shape, only colors
+- Use browser DevTools to test
+
+---
+
+## Checkpoint: Verification
+
+By the end of Step 8, you should be able to:
+
+- [ ] Export tokens to CSS and TypeScript without error
+- [ ] Change a token value in `tokens.json`, rebuild, and see the change reflected in CSS
+- [ ] Use `bg-primary`, `text-text-primary`, etc. in Tailwind classes and see token values applied
+- [ ] Render Button with all variants and sizes; each looks distinct
+- [ ] Button's hover, active, disabled states change only the color (via tokens), not padding or font
+- [ ] Card nests correctly (CardHeader → CardBody → CardFooter); each section has correct padding
+- [ ] Input shows label, error, helpText; focus ring appears; disabled state greys out
+- [ ] Badge supports 4 variants; colors come from tokens
+- [ ] Modal opens/closes; backdrop click closes it; size prop works
+- [ ] Toggle dark mode; all components remain readable, colors invert correctly
+- [ ] No component has a prop like `paddingX` or `textColor` — all via tokens and variant
+- [ ] Each component has a one-page README
+
+---
+
+## Checkpoint: Design Perspective
+
+A designer looking at this system should recognize:
+
+- **Tokens are named like their Figma variables.** `--color-primary` matches `Semantic/Colors/primary`.
+- **Components have a consistent shape across the system.** Button, Badge, Card all use the same spacing scale.
+- **Variants are additive, not destructive.** A `ghost` button is a button with a different look, not a different kind of thing.
+- **Colors scale across light and dark.** The same `--color-primary` name resolves to different hex values depending on theme, but the *intent* is consistent.
+- **No design is lost in the code.** The smallest, most constrained component (Button) still looks polished.
+
+---
+
+## Part 7: Challenges & Next Steps
+
+### Challenge: When Do You Update Tokens?
+
+Tokens are a shared resource. Changing one ripples everywhere. When is a change safe?
+
+**Safe to change:**
+- Adding a new token (e.g., `--space-2xl`)
+- Tweaking a semantic token's value (e.g., `--color-primary-hover` from `#2563eb` to `#1d4ed8`)
+
+**Dangerous to change:**
+- Removing a token (breaks components using it)
+- Renaming a token (breaks all references)
+- Changing a primitive that multiple semantics point to
+
+Set a rule: tokens can only be added or lightened. Once a token exists, don't remove it. If you need to phase it out, mark it as `deprecated` in comments and add a new token.
+
+```json
+{
+  "semantic": {
+    "color": {
+      "primary": {
+        "value": "{primitive.color.blue.500}",
+        "type": "color",
+        "deprecated": true,
+        "replacedBy": "primary-main"
+      },
+      "primary-main": {
+        "value": "{primitive.color.blue.500}",
+        "type": "color"
+      }
+    }
+  }
+}
+```
+
+### Challenge: How Many Components?
+
+You've built 5. A real system might have 50. Don't overengineer.
+
+Build the 5, use them to cover 80% of your product. When you find a gap (e.g., "we need a better Tabs component"), add it. Don't predict components. Build them when they solve a problem.
+
+### Challenge: Component Composition
+
+Some components are built from others. A Modal is a Card + Backdrop. A Select is an Input + Dropdown. How do you handle that?
+
+Prefer composition over inheritance:
+
+```tsx
+export function Select({ options, value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div>
+      <Input
+        value={value}
+        onClick={() => setIsOpen(!isOpen)}
+        readOnly
+      />
+      {isOpen && (
+        <Card className="absolute top-full mt-xs">
+          {options.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => {
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+              className="px-space-md py-space-sm hover:bg-color-surface w-full text-left"
+            >
+              {opt.label}
+            </button>
+          ))}
+        </Card>
+      )}
+    </div>
+  );
+}
+```
+
+Don't try to make a shared "base" that Button and Badge and Input inherit from. They're too different. Use tokens for the shared language, composition for structure.
+
+### Next: Integrating With Figma (Phase 2)
+
+Once this system is stable:
+
+1. Create Figma components that match your code components
+2. Wire up Code Connect (Figma's plugin for linking code to design)
+3. Use the Figma plugin to auto-generate component docs
+
+Code Connect example:
+
+```tsx
+import figma from '@figma/code-connect';
+import Button from './Button';
+
+figma.connect(
+  Button,
+  'https://figma.com/design/FILE_ID?node-id=1234',
+  {
+    props: {
+      variant: figma.enum('Variant'),
+      size: figma.enum('Size'),
+      isLoading: figma.boolean('Loading'),
+      children: figma.string('Label'),
+    },
+    example: (props) => <Button {...props}>Click</Button>,
+  }
+);
+```
+
+Now, when a designer opens that Figma component, they see:
+- Code implementation
+- Props and their types
+- Live example
+
+This closes the gap completely. Designers see code without leaving Figma. Engineers see design without leaving their IDE.
+
+---
+
+## The System as Conversation
+
+The real win of a design system is this: **a designer and an engineer should be able to look at the same component and both feel ownership.**
+
+When a designer says "this button should have more padding," the engineer hears "update the `md` size spacing." They're speaking the same language because the code *is* the language.
+
+When an engineer says "we need a smaller spacing unit," the designer can add it to Figma's token panel without asking permission. They both own the system because the system is real.
+
+The 5 components, the token layer, the sync, the docs — they're all scaffolding for this conversation. The checkpoint isn't "did we build the components?" It's "can a designer and engineer collaborate on them without friction?"
+
+If the answer is yes, you've built a system.
+
+---
+
+## Resources
+
+**Figma / Tokens:**
+- [Figma Variables Documentation](https://help.figma.com/en/articles/15145231-Guide-to-variables)
+- [Token Studio Plugin](https://tokens.studio/)
+- [Figma Tokens Plugin](https://www.figma.com/community/plugin/843461159747178978/Figma-Tokens)
+
+**Style Dictionary:**
+- [Style Dictionary Official Docs](https://amzn.github.io/style-dictionary/)
+- [Style Dictionary Examples](https://github.com/amzn/style-dictionary/tree/main/examples)
+
+**Component Design:**
+- [Class Variance Authority (CVA)](https://cva.style/docs)
+- [Radix UI Documentation](https://www.radix-ui.com/docs)
+- [Headless UI](https://headlessui.com/)
+
+**Systems Design:**
+- [Design Systems Handbook](https://www.designsystemshandbook.com/) — free
+- [Building Design Systems](https://www.oreilly.com/library/view/building-design-systems/9781491924229/) — O'Reilly
+
+**Examples:**
+- [Vercel Design](https://vercel.com/design/button)
+- [Stripe Elements](https://stripe.com/docs/stripe-js/elements)
+- [Shopify Polaris](https://polaris.shopify.com/)
+
+---
+
+## Summary
+
+A design system in code is tokens + components + documentation + sync.
+
+- **Tokens** are the shared vocabulary (colors, spacing, type). They live in Figma, get exported to CSS, and scale across themes.
+- **Components** are the grammar. Button, Card, Input are the letters. Variants and props let engineers compose without escaping the system.
+- **Documentation** is the key. One README per component, Storybook for live examples, Code Connect to link Figma and code.
+- **Sync** is the guarantee. When a designer changes Figma, code updates. When code adds a token, Figma sees it.
+
+Build this once. Use it for every product. Iterate on the tokens and components as the system grows, but the layer stays solid.
+
+A design system is not a destination. It's a conversation. This module gives you the tools to have it.

@@ -1,16 +1,203 @@
 ---
-title: CSS craft
+title: 'M4: CSS Craft'
+description: 'Recreate a real design pixel-faithfully and add purposeful transitions. Learn web typography depth, faithful layout, and motion that serves meaning.'
 module: 4
-phase: "Phase 0"
-promise: "Recreate a real design pixel-faithfully and add tasteful transitions."
-threads:
-  - craft-is-the-differentiator
+estimated_time: '90 minutes'
+prerequisites: ['M1: Foundations', 'M2: Components', 'M3: Flex + Grid']
+learning_outcomes:
+  - 'Measure and match type hierarchies: font-size, weight, line-height ratios'
+  - 'Recreate layouts pixel-faithful to a reference screenshot'
+  - 'Add CSS transitions that enhance state, not distract from purpose'
+  - 'Recognize when animation serves and when it decorates'
+threads: ['craft-is-the-differentiator', 'when-not-to-animate']
 ---
 
-<Section title="Overview">
-This module is generated from live teaching sessions. Full content available at neilmcardle.com/spark.
-</Section>
+# M4: CSS Craft
 
-<Section title="Checkpoint">
-Complete the build for this module and verify it works end-to-end. Check the curriculum for full details.
-</Section>
+**Module promise:** You're going to pick a well-designed screen from a product you admire — maybe a Stripe pricing card, an Apple product section, or a Linear workspace header. You'll recreate it by hand in HTML and CSS: structure, typography, spacing, color, box shadows. Then you'll add a single, purposeful transition that deepens the interaction without calling attention to itself.
+
+By the end, you'll have a piece of work that demonstrates that craft and restraint are the same skill.
+
+---
+
+## Web Typography Depth
+
+Every typeface has an x-height — the height of a lowercase "x". This is not the same as the font size. An 18px serif typeface might have a much smaller x-height than an 18px sans-serif, which is why:
+
+- Changing font-family without adjusting line-height feels janky
+- A headline that looks perfect in one typeface looks broken in another at the same size
+
+The relationships that matter:
+
+```
+line-height = font-size × scale
+// A typical ratio for body text:
+line-height: 1.5  // 16px × 1.5 = 24px of vertical space
+// Headings usually go tighter:
+line-height: 1.2  // 32px × 1.2 = 38.4px of vertical space
+```
+
+Measure these ratios in the reference you pick. Don't eyeball them.
+
+Professional designs rarely have random sizes. They use a scale. The most common:
+
+- **Major third** (1 : 1.25 × scale): 12 → 15 → 19 → 24 → 30 → 38 → 48px
+- **Perfect fourth** (1 : 1.33 × scale): 12 → 16 → 21 → 28 → 37 → 49px
+- **Golden ratio** (1 : 1.618 × scale): rare, feels sophisticated, hard to implement
+
+Most professional products use major third or major fourth. Pick the reference, measure the sizes, find the scale.
+
+---
+
+## Faithful Layout Recreation
+
+Pick a screenshot from a real product you admire. It should be:
+
+- **Self-contained**: a card, a pricing section, a hero, a toolbar
+- **Well-designed**: you can articulate why the spacing and type feel good
+- **Realistic complexity**: roughly 10–50 elements
+- **Public**: you can screenshot it yourself
+
+Some reference ideas: Stripe pricing card, Apple product specs section, Figma component panel header, Linear issue card, Vercel pricing toggle.
+
+Before you code, measure it:
+
+1. Take a screenshot
+2. Measure font sizes using DevTools (Inspect → computed styles)
+3. Measure spacing: margins, padding, gaps
+4. Note colors and type weights
+5. Screenshot hover states if any
+
+Write these measurements down.
+
+Recreate it in HTML and CSS without copying code from the reference:
+
+- **No screenshots pasted in**. Build the real thing.
+- **Measure, don't guess**. If the reference has 16px of space, use 16px.
+- **Match the type exactly**: size, weight, line-height, letter-spacing.
+- **Use the same fonts** (or reasonable fallbacks).
+- **Match colors precisely**.
+
+Aim for: lay the original and your version side-by-side and they look identical.
+
+---
+
+## Motion That Means Something
+
+Motion is feedback. It answers these questions:
+
+1. **What changed?** A button fills with color on hover → visual confirmation
+2. **Where did it go?** An element slides out → I understand where it moved
+3. **Is it interactive?** A slight scale on hover → "I can click this"
+4. **What state am I in?** An underline animates under the active nav item → "I'm here"
+
+The best transitions are *subtle*. They should feel necessary, not ornamental.
+
+Delete motion if:
+
+- It doesn't answer one of the four questions above
+- It takes longer than 300ms (slow animations feel laggy)
+- It repeats on every interaction (distracting)
+- It drops frames or causes layout shifts (jank ruins everything)
+- The user has `prefers-reduced-motion` (always respect this)
+
+For this module, add **one transition**. It should:
+
+- Last 150–300ms
+- Use `transition` (not `animation`)
+- Respect `prefers-reduced-motion`
+- Make sense to the interaction
+
+The transition should be **good enough that if you remove it, the interaction feels dead**. Not good enough that it steals the show.
+
+---
+
+## Build: Recreate a Component
+
+1. **Pick a reference**: a component from a product you admire
+2. **Take a screenshot** in its default state
+3. **Measure it**: sizes, spacing, colors, typography
+4. **Build it**: HTML + CSS, pixel-faithful
+5. **Add one transition**: a hover state or focus effect that feels necessary
+6. **Test it**: compare side-by-side with original
+
+Stripe pricing card example:
+
+- Badge: 12px, all caps, medium weight, muted color
+- Headline: 28px, bold, dark color, tight line-height
+- Price: 48px bold for amount, 18px for currency, 14px for billing period
+- Features: 14px, regular, aligned with bullets
+- Button: 14px, bold, white on color
+
+On hover, the shadow deepens and the card shifts up slightly:
+
+```css
+.card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 200ms ease-out, transform 200ms ease-out;
+}
+
+.card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}
+```
+
+---
+
+## Checkpoint
+
+Before you ship:
+
+**Layout Accuracy**
+- Measure your version. Spacing within 2–3px
+- Type sizes match exactly
+- Colors are hex-perfect
+- Borders and shadows match
+
+**Typography**
+- Headline noticeably larger than body
+- Type weights create visual separation
+- Line-height feels generous (not cramped)
+- Letter-spacing correct on badges
+
+**Motion Quality**
+- Lasts 150–300ms
+- Answers a question: "what changed?" or "can I interact?"
+- Doesn't drop frames
+- No layout shift
+- Respects `prefers-reduced-motion`
+
+---
+
+## Reflection
+
+The best design work is invisible. The user never thinks about why the spacing feels right or why the transition was satisfying — they just feel it.
+
+That's because craft is the opposite of decoration. Decoration says "look at me." Craft says "I belong here."
+
+When you add a transition, ask:
+
+- Does the user *need* to see this change?
+- Is it helping them understand the interface?
+- Would removing it make the interaction worse?
+
+If yes to all three, it earns its place.
+
+The designers you admire add motion only when it communicates something. That's why their products feel responsive and alive without feeling chaotic.
+
+Restraint is a skill. It's harder to add one perfect transition than to add ten flashy ones.
+
+---
+
+## Next
+
+In M5, you'll learn how to think about color systematically. You'll build a color palette from scratch and apply it to an interface.
+
+Until then: measure everything, question every pixel, and delete the transitions that don't earn their place.

@@ -1,217 +1,1085 @@
 ---
-title: "Professional practice & deploy"
 module: 17
-phase: "Full-stack"
-promise: "Work like an engineer on a team."
-threads:
-  - debugging-first-class
-  - error-location-is-a-hint
+title: "Professional Practice & Deploy"
+description: "Work like an engineer on a team. Git workflows, PRs, testing, debugging, and deployment."
+duration: "4–5 hours"
+keywords:
+  - Git branches and commits
+  - Pull request descriptions
+  - Reading unfamiliar code
+  - Unit testing UI components
+  - Debugging with browser tools
+  - Vercel deployment
+  - AI-assisted development with verification
+themes:
+  - "debugging-first-class"
+  - "error-location-is-a-hint"
 ---
 
-<Section title="Git is a time machine for code">
+## Module Promise
 
-Git doesn't store "files." It stores snapshots of your entire project at a moment in time. Each commit is a complete picture with a message explaining what changed and why.
+You will learn to work like a professional engineer: committing thoughtfully, writing PRs that explain *why*, reading code you didn't write, testing components, debugging methodically, deploying safely, and using AI as a thinking partner—not a replacement for thinking.
 
-Think of your repo history as a filmstrip. The HEAD pointer is the frame you're watching. When you checkout a branch, you're rewinding or fast-forwarding to a different frame. When you make a commit, you add a new frame to the current reel.
+Code is read more than it's written. Debugging is a skill. Collaboration is everything.
 
-This metaphor breaks down only once: Git is immutable. Once you commit, that frame exists forever. Pushing to main is permanent. `git reset --hard` erases your local filmstrip but can't erase what's already on the remote.
+---
 
-The key insight: every commit is a story. Commit messages matter because they're the only explanation that travels with the code. Six months later, "fix typo" tells you nothing. "Change button aria-label from 'x' to 'close' because screen readers read numbers" tells you why the code is the way it is.
+## Part 1: The Git Mental Model
 
-</Section>
+### What Git Actually Is
 
-<Section title="Branches: one idea per reel">
+Git is not about file history. Git is about **narrative**. Every commit is a sentence in the story of your codebase's evolution. When you come back to a line of code six months later and wonder "why is this here?", Git tells you:
+- *When* it appeared
+- *Who* added it
+- *Why* (in the commit message)
+- *What else changed* with it (the whole commit)
 
-A branch is a parallel filmstrip. Your main branch is the canonical reel. feature/auth-modal is an experiment that branches off at some commit and gets its own sequence of frames.
+This is why commit messages matter more than the code itself.
 
-Most teams have a convention: main is always shippable. Never commit to main directly. Create a branch, make changes, open a pull request for review, and merge only after approval.
+### Branches: The Parallel Universe
 
-Why? Because code review catches things you missed. Because a human reading the PR description understands the tradeoff before merging. Because if the change breaks something, blame for that commit points to the human who decided it was worth the risk, not to the person who typed the code.
+A branch is a sandbox. You can:
+- Try a feature without touching main
+- Abandon it without mess
+- Share it with teammates for feedback
+- Land it only when it's ready
 
-Naming branches clearly helps: `feature/dark-mode`, `fix/button-keyboard-trap`, `docs/api-reference`. The prefix tells you what kind of work this is.
-
-</Section>
-
-<Section title="PR descriptions: explain the why, not the what">
-
-A PR is not a list of lines you changed. That's what `git diff` is for. A PR is an argument: here's what I changed, why I changed it, and what I considered before deciding.
-
-The structure: (1) problem statement, (2) solution, (3) tradeoffs you considered and rejected, (4) test plan.
-
-Example:
-
+The mental model:
 ```
-## Problem
-The login modal closes immediately when the user clicks outside the backdrop because `onClickCapture` fires on the parent and calls `setOpen(false)` before the click reaches the button.
+main (the production-ready universe)
+  ↳ your-feature-branch (your sandbox, isolated, safe)
+      └─ commit 1: add button component
+      └─ commit 2: add tests for button
+      └─ commit 3: integrate into header
+```
 
-## Solution
-Add `pointer-events-none` to the backdrop and handle clicks only on a transparent overlay div inside the modal. The modal itself captures the click before it bubbles.
+When you're done, you *merge* the branch into main. Git replays your commits on top of main's latest work. This is a PR.
+
+### Commits: Atomic Units of Change
+
+A good commit:
+- Does **one thing**
+- Is **easy to review**
+- Has a **clear reason**
+- Does **not break the build**
+
+A bad commit:
+- Mixes feature + refactoring + bug fix
+- Changes 10 unrelated files
+- Has no message or a one-liner
+- Introduces a new bug
+
+Example bad commit history:
+```
+fix stuff
+WIP
+lol
+Revert "fix stuff"
+actually fixed it this time
+```
+
+Example good commit history:
+```
+Add TextInput component with label and error state
+Add unit tests for TextInput keyboard handling
+Fix TextInput focus loss on parent re-render
+Integrate TextInput into LoginForm
+```
+
+Each commit stands alone. Each one is "done."
+
+### The Workflow: Branch → Commit → PR → Merge
+
+```mermaid
+graph LR
+    A["git checkout -b your-feature"]
+    B["Write code, test locally"]
+    C["git add, git commit"]
+    D["git push -u origin your-feature"]
+    E["Create PR on GitHub"]
+    F["Code review, feedback"]
+    G["Address feedback, commit again"]
+    H["Merge PR into main"]
+    
+    A --> B --> C --> D --> E --> F --> G --> F
+    G -->|approved| H
+```
+
+---
+
+## Part 2: Pull Request Descriptions
+
+### Why PRs Exist
+
+A PR is not code review. A PR is **asynchronous communication**.
+
+You're not saying "review this code." You're saying: "Here's what I changed, why I changed it, what it fixes, and how to test it. Please look for gaps in my thinking."
+
+### The Anatomy of a Great PR
+
+```markdown
+## Summary
+Fixes #742: Add character limit validation to chapter titles.
+
+Writers were creating 200-character chapter titles that broke EPUB 
+formatting. This change enforces a 60-character limit with a visual 
+counter.
+
+## Why This Way?
+- **Why not just truncate?** Truncation silently mangles meaning. 
+  A warning + counter lets the author decide.
+- **Why 60 characters?** EPUB specs recommend ≤80; we chose 60 for 
+  breathing room in mobile readers.
+- **Why not server-side only?** Client feedback is instant. No round-trip.
 
 ## Tradeoffs
-Considered: Using `ref.current?.contains(event.target)` to check if the click was inside the modal. Rejected because it's more code and this is a UI component that should be opinionated about click handling.
+- **Pro:** Real-time feedback, compliant with EPUB, users keep control.
+- **Con:** One more input validation rule to maintain.
 
-## Test
-1. Open modal
-2. Click outside modal → modal stays open
-3. Click close button → modal closes
-4. Tab through the form without clicking → enter works
+## How to Test
+1. Open a book in the editor
+2. Click any chapter title
+3. Type 61+ characters
+4. Confirm you see the red warning and a character count
+5. Try to submit the form — it should be disabled
+6. Delete one character (now at 60)
+7. Confirm the warning disappears and form is enabled
+
+## Checklist
+- [x] Tests pass locally
+- [x] No console warnings
+- [x] Mobile viewport works (tested on iPhone SE)
+- [x] Lighthouse score 90+
 ```
 
-The reviewer reads this and knows what you thought about before coding. They can disagree with your tradeoff choice and ask you to reconsider. This is how teams build better software.
+### The Three Questions Every PR Must Answer
 
-</Section>
+1. **What did you change?** (Be specific. "Bug fixes" is noise. "Fixed race condition in book sync" is useful.)
+2. **Why did you change it?** (Business value, user benefit, or technical debt. Connect to a user problem or issue number.)
+3. **How do I verify it works?** (Step-by-step test plan, not just "run npm test".)
 
-<Section title="Dissecting a component: Radix and shadcn">
+### Red Flags
 
-Real codebases don't start from scratch. They inherit decisions from libraries like Radix UI (accessible primitives) and shadcn/ui (copy-paste components you own).
+- **No description.** The code alone is noise without context.
+- **"Fixes multiple bugs" without itemizing them.** Scope creep. Split into smaller PRs.
+- **No test plan.** The reviewer has to figure out how to test it, and they might miss edge cases.
+- **Unrelated changes.** A PR that adds a feature and refactors three files is hard to review and hard to revert if something breaks.
 
-Open `node_modules/@radix-ui/react-dialog/dist/index.d.ts` and read the types. Here's what you're looking for: what props does the component accept? What do they control? What's the default behavior?
+---
 
-When you use `<Dialog>` from Radix, you're not just getting a modal div. You're getting: aria labels, keyboard trap, focus management on open/close, backdrop click handling. The implementation is battle-tested because thousands of apps use it.
+## Part 3: Reading Unfamiliar Code
 
-But Radix is headless. It doesn't ship styling. shadcn/ui wraps Radix + Tailwind and gives you a copy-paste component you can modify. When you copy a button from shadcn, you're copying ~40 lines of JSX + Tailwind. It's yours now. If you need to change it, you change it directly, not by monkey-patching the library.
+### Why This Skill Matters
 
-This is a key insight: when you contribute to an existing codebase, you're often working with inherited components. You need to read the component, understand what it's doing, and respect the structure while making your change.
+You will spend 80% of your time reading code—your own, teammates', and open-source libraries. Writing is the other 20%.
 
-</Section>
+Debugging unfamiliar code, integrating third-party components, or jumping into a legacy feature all require this skill.
 
-<Section title="Read before you write">
+### The Three-Level Reading Technique
 
-The #1 mistake new engineers make: they write code without reading the existing code first.
+#### Level 1: Map the Topography (2 minutes)
 
-Before you add a feature, spend 10 minutes reading the file. Where do similar things live? What patterns are already established? What variables are already defined? Is there a `utils/` folder where helper functions go?
+Open the file. Don't read line-by-line. Ask:
+- What *type* of code is this? (Component, utility, hook, API route?)
+- How long is it? (50 lines? 500?)
+- What's the overall shape? (One export? Many helpers?)
+- What are the key types/interfaces?
 
-Example: you're adding a logout button. Before writing a click handler, check: does useAuth already exist? What does it return? Do other buttons in this codebase use a specific pattern for handling async clicks? Is there a loading state pattern you should follow?
+Example: Reading `RichTextEditor.tsx` (a component from makeEbook)
 
-Reading first makes your code look like it belongs in the codebase. It also catches cases where the thing you're about to implement already exists somewhere else.
-
-</Section>
-
-<Section title="Component tests: verify the behavior, not the structure">
-
-A component test answers: does this component do the job it claims to do?
-
-Bad test: check that a button has `className="btn"`. Good test: click the button and verify the thing it's supposed to do actually happens.
-
-Example of a bad test:
-
-```javascript
-test('renders a login button', () => {
-  render(<LoginForm />);
-  expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
-});
+```
+1. It's a React component. 'use client' at the top means it runs in the browser.
+2. Roughly 1,000 lines (big).
+3. Lots of helper functions and event handlers.
+4. Props interface: `RichTextEditorProps` extends HTMLAttributes.
+5. Key dependencies: React hooks, DOMPurify (sanitization), Radix UI.
 ```
 
-This test passes if the button exists but does nothing when clicked. It tells you the HTML is there, not that the form works.
+This takes 60 seconds and saves you from drowning in line-by-line reading.
 
-Example of a good test:
+#### Level 2: Find the Seams (5–10 minutes)
 
-```javascript
-test('submits the form when the button is clicked', async () => {
-  const handleSubmit = jest.fn();
-  render(<LoginForm onSubmit={handleSubmit} />);
-  
-  await userEvent.type(screen.getByLabelText('Email'), 'test@example.com');
-  await userEvent.type(screen.getByLabelText('Password'), 'password123');
-  await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
-  
-  expect(handleSubmit).toHaveBeenCalledWith({
-    email: 'test@example.com',
-    password: 'password123',
+Now zoom in on structure. Ask:
+- What are the main functions/sections?
+- What does the component return? (JSX shape)
+- Where does data flow in? (Props)
+- Where does data flow out? (Callbacks)
+
+Example: `RichTextEditor.tsx`
+
+Props come in:
+- `value` (the HTML string to edit)
+- `onChange` (callback when content changes)
+- `onInlineEditRequest` (for AI-assisted editing)
+- `onComposeRequest` (for AI-assisted compose)
+
+JSX returns:
+- A toolbar (buttons for bold, italic, etc.)
+- A `contentEditable` div (the actual editor)
+- Event listeners for keyboard shortcuts
+
+Data flow:
+```
+User types → onChange fires → parent updates state → new value passes back down → editor re-renders
+```
+
+#### Level 3: Trace a User Action (10–15 minutes)
+
+Pick one thing the component does. Trace it:
+- What happens when the user clicks the Bold button?
+- What happens when they press Cmd+K?
+- What happens when they paste text?
+
+This is where bugs hide. Trace it step-by-step.
+
+Example: User presses **Bold**
+
+```
+1. User clicks the "B" (bold) button
+2. onClick handler fires: `execCommand('bold')`
+3. Browser's contentEditable API toggles <strong> tags
+4. onInput fires (browser event)
+5. onChange callback fires with new HTML
+6. Parent receives new HTML, updates state
+7. Component re-renders with new value
+8. Toolbar button sees new selection, updates active state
+```
+
+Each step is one line of code (or a few). But *knowing* the path is the whole skill.
+
+### The Debugger Is Your Eyes
+
+Stop reading and start *watching*.
+
+When you open Firefox/Chrome DevTools:
+- Go to the **Elements** tab and inspect the actual DOM
+- Go to the **Console** tab and inspect variables
+- Go to the **Network** tab and watch what the browser fetches
+- Set a **breakpoint** on a line and step through it
+
+This turns abstract code into *runnable* code. You can watch it execute.
+
+---
+
+## Part 4: Component Testing
+
+### Why Component Tests Matter
+
+A unit test for a utility function (`capitalize("hello")` → `"Hello"`) is easy. It's input → output.
+
+But React components are noisy. They have:
+- Lifecycle (mounting, updating, unmounting)
+- User interaction (clicks, keystrokes, scrolls)
+- Async state (API calls, animations)
+- Dependencies (other components, hooks, global state)
+
+Testing components means testing all of that. This is where bugs hide.
+
+### The Testing Pyramid
+
+```
+            👨‍💻 E2E Tests (run the whole app, click buttons, verify UI)
+           /\
+          /  \        10% of tests, 50% of coverage
+         /    \
+        /______\
+           🧪 Integration Tests (test one feature, multiple components)
+          /      \
+         /        \     30% of tests, 40% of coverage
+        /          \
+       /____________\
+          🔧 Unit Tests (test one function, one behavior)
+      /              \
+     /                \  60% of tests, 10% of coverage
+    /                  \
+   /____________________\
+```
+
+For this module, we'll focus on unit + component tests, which are the foundation.
+
+### Example: Testing a Button Component
+
+Start with the simplest possible component.
+
+```typescript
+// Button.tsx
+interface ButtonProps {
+  label: string;
+  onClick?: () => void;
+  disabled?: boolean;
+}
+
+export function Button({ label, onClick, disabled }: ButtonProps) {
+  return (
+    <button 
+      onClick={onClick} 
+      disabled={disabled}
+      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+    >
+      {label}
+    </button>
+  );
+}
+```
+
+Now test it:
+
+```typescript
+// Button.test.tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Button } from './Button';
+
+describe('Button', () => {
+  it('renders with label', () => {
+    render(<Button label="Click me" />);
+    expect(screen.getByText('Click me')).toBeInTheDocument();
+  });
+
+  it('calls onClick when clicked', () => {
+    const handleClick = vi.fn(); // Mock function
+    render(<Button label="Click me" onClick={handleClick} />);
+    fireEvent.click(screen.getByText('Click me'));
+    expect(handleClick).toHaveBeenCalledOnce();
+  });
+
+  it('does not call onClick when disabled', () => {
+    const handleClick = vi.fn();
+    render(<Button label="Click me" onClick={handleClick} disabled />);
+    fireEvent.click(screen.getByText('Click me'));
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+
+  it('disables the button when disabled prop is true', () => {
+    render(<Button label="Click me" disabled />);
+    expect(screen.getByText('Click me')).toBeDisabled();
   });
 });
 ```
 
-This test verifies the user's journey: type email, type password, click sign in, form submits with the right data. The test fails if any step is broken.
+**What each test does:**
 
-Write tests that would catch the bugs users actually hit. Click things, type things, wait for things to appear. Verify the user's behavior, not the code's structure.
+1. **Renders with label** — The component accepts a label and displays it. This is the happy path.
+2. **Calls onClick when clicked** — User interaction works. Uses `vi.fn()` to spy on the callback.
+3. **Does not call onClick when disabled** — Edge case. Disabled buttons shouldn't fire callbacks even if clicked.
+4. **Disables the button** — Another edge case. The `disabled` attribute is actually set on the DOM element.
 
-</Section>
+Notice: We're testing **behavior**, not implementation. We don't care how the component renders it. We care that:
+- The label shows up
+- Clicks fire callbacks
+- Disabled state prevents interaction
 
-<Section title="DevTools: your window into the runtime">
+### Example: Testing a Form Input with Validation
 
-When a component doesn't behave right, DevTools shows you: (1) what the HTML structure actually is, (2) what styles are applied, (3) what state the component thinks it's in.
+Now something more complex.
 
-Open the Inspector. Hover over an element. Inspect it. Now you see: the HTML tag, the classes applied, the inline styles, the computed styles from all matching CSS rules. If a button looks the same color as the background, you can see which CSS rule is doing that and why.
+```typescript
+// TextInput.tsx
+interface TextInputProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  maxLength?: number;
+  error?: string;
+}
 
-Click the "Show/Hide Console" button. There's where `console.log` outputs go. If you add `console.log(state, props)` to a component, open DevTools, reload, and watch the console as you interact with the page.
+export function TextInput({ 
+  label, 
+  value, 
+  onChange, 
+  maxLength, 
+  error 
+}: TextInputProps) {
+  const isAtLimit = maxLength && value.length >= maxLength;
 
-The React DevTools extension adds a tab that shows your component tree. Hover over a component and see its props, state, and hooks. Click the "Show where the component rendered" icon to jump to the source code in your editor.
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="text-sm font-medium">{label}</label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        maxLength={maxLength}
+        className={`px-3 py-2 border rounded ${
+          error ? 'border-red-500' : 'border-gray-300'
+        } ${isAtLimit ? 'border-orange-500' : ''}`}
+      />
+      {isAtLimit && (
+        <p className="text-xs text-orange-600">
+          {value.length} / {maxLength} characters
+        </p>
+      )}
+      {error && <p className="text-xs text-red-600">{error}</p>}
+    </div>
+  );
+}
+```
 
-DevTools is not a replacement for reading code. It's a microscope for seeing what's actually happening at runtime. When the code says one thing and the browser shows another, DevTools tells you which one is right.
+Tests:
 
-</Section>
+```typescript
+// TextInput.test.tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { TextInput } from './TextInput';
 
-<Section title="The debugging method: error to root cause">
+describe('TextInput', () => {
+  it('renders label and input', () => {
+    render(
+      <TextInput 
+        label="Email" 
+        value="" 
+        onChange={() => {}} 
+      />
+    );
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+  });
 
-When something breaks, you have an error message or a symptom. Follow this path: (1) read the error message carefully, (2) find where in the code that error could come from, (3) add logging or breakpoints to see which branch is executing, (4) repeat until you find where the actual bug is, (5) fix it, (6) trace backwards to make sure this bug isn't a symptom of a deeper problem.
+  it('updates value on user input', () => {
+    const handleChange = vi.fn();
+    render(
+      <TextInput 
+        label="Email" 
+        value="" 
+        onChange={handleChange} 
+      />
+    );
+    const input = screen.getByLabelText('Email');
+    fireEvent.change(input, { target: { value: 'test@example.com' } });
+    expect(handleChange).toHaveBeenCalledWith('test@example.com');
+  });
 
-Example: your form says "Error: Cannot read property 'email' of undefined."
+  it('shows character count at max length', () => {
+    render(
+      <TextInput 
+        label="Title" 
+        value="Hello" 
+        onChange={() => {}} 
+        maxLength={10}
+      />
+    );
+    expect(screen.getByText('5 / 10 characters')).toBeInTheDocument();
+  });
 
-Step 1: This error means code tried to access `someValue.email` but `someValue` is undefined. Step 2: search your codebase for `.email`. Find the line. It's inside a function that processes form data. Step 3: add `console.log(formData)` right before the error line. Step 4: reload and see that `formData` is undefined. Why? Is it being passed as undefined or is the function being called wrong? Step 5: trace backwards. The function is called from a submit handler. The submit handler receives data from the form. Check if the form is actually calling the submit handler or if there's a validation error stopping it. Step 6: find that the form validation is failing silently, so the submit handler is never called, but something else is trying to access the form data anyway. That's the root cause. Fix the form so it only tries to access data when validation passes.
+  it('displays error message', () => {
+    render(
+      <TextInput 
+        label="Email" 
+        value="" 
+        onChange={() => {}} 
+        error="Invalid email"
+      />
+    );
+    expect(screen.getByText('Invalid email')).toBeInTheDocument();
+  });
 
-The key: error location is a hint, not the full story. The error tells you where the code blew up, but why it blew up is usually one or two steps backwards.
+  it('applies error styling when error prop exists', () => {
+    render(
+      <TextInput 
+        label="Email" 
+        value="" 
+        onChange={() => {}} 
+        error="Invalid email"
+      />
+    );
+    const input = screen.getByLabelText('Email');
+    expect(input).toHaveClass('border-red-500');
+  });
+});
+```
 
-</Section>
+**Key patterns:**
 
-<Section title="Debugging practice: read logs, add logs, use breakpoints">
+- Use `screen.getByText()` to find elements by human-readable text, not `querySelector`.
+- Use `fireEvent` to simulate user interaction.
+- Use `vi.fn()` to mock callbacks and assert they were called.
+- Test edge cases: empty input, max length, error state.
 
-When something goes wrong, check logs first. If it's a server error, look at the server logs. If it's a client error, open the browser console. The error message usually tells you the file and line number where the crash happened.
+### Running Tests
 
-If the logs don't tell you enough, add logging. Put `console.log` right before the suspicious line and see what the values are. If you find undefined when you expected a string, you've found the problem.
+Add to `package.json`:
 
-Breakpoints are more powerful than `console.log`. Click the line number in DevTools to set a breakpoint. When the code hits that line, execution pauses. You can hover over variables to see their values, step through the code line by line, and jump to the next breakpoint. This is faster than adding 20 `console.log` statements.
+```json
+{
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+  }
+}
+```
 
-The discipline: (1) error message tells you where, (2) logs and breakpoints tell you why, (3) code review tells you how to prevent it next time.
+Run:
+```bash
+npm test              # Watch mode, re-runs on save
+npm run test:ui       # Visual test dashboard
+npm run test:coverage # Show code coverage %
+```
 
-</Section>
+---
 
-<Section title="Deploy to Vercel: preview then ship">
+## Part 5: Debugging with Method
 
-Vercel watches your GitHub repo. When you push a branch, Vercel builds it and gives you a preview URL. When you merge to main, Vercel deploys to production.
+### Error Location Is a Hint
 
-This is powerful: you can share a live preview of your feature before it ships. Load it on your phone, click around, make sure it works. Then merge and ship.
+When something breaks, the error message tells you *where* to look. Most developers ignore it and thrash.
 
-The workflow: (1) push your branch to GitHub, (2) open the PR, (3) Vercel posts a comment with a preview URL, (4) click the URL and test the feature live, (5) if something's wrong, push fixes to the same branch, Vercel rebuilds automatically, (6) test again, (7) merge when ready.
+Example error:
 
-Vercel also watches your main branch. After merging, main goes live automatically. No separate deploy step. This is why main must always be shippable: it's deployed within minutes of you merging.
+```
+TypeError: Cannot read property 'chapters' of null
+  at getChapterCount (book.ts:45:12)
+  at renderEditor (page.tsx:120:5)
+```
 
-</Section>
+Translation:
+- **Line 45 of book.ts:** `chapters` is `null` when it shouldn't be.
+- **Called from line 120 of page.tsx:** That's where the bug manifests.
 
-<Section title="AI-assisted dev: draft, verify, trust a little">
+Start at line 45. Why is `chapters` null? Did something not initialize it? Is the shape wrong?
 
-AI is useful for drafting code, but it's not a substitute for judgment.
+### The Debugging Workflow
 
-When you ask Claude to write a component, it'll produce something that looks right. But you need to verify: (1) does it do what you asked? (2) does it follow the patterns in this codebase? (3) does it handle edge cases? (4) are there any security or performance gotchas?
+1. **Read the error.** The stack trace is the roadmap.
+2. **Reproduce it.** Can you make it happen again? How?
+3. **Inspect at the failure point.** Set a breakpoint right before the error. Watch the variables.
+4. **Trace backwards.** How did the data get into this bad state?
+5. **Fix the root cause.** Not the symptom. The root.
 
-The pattern: ask Claude to write the code, read it carefully, run it, test it, and then decide if you trust it. Don't paste AI output directly to main without reading it.
+### Using Browser DevTools
 
-Common AI mistakes: it forgets to handle loading states, it uses `any` types instead of proper generics, it doesn't match the codebase style, it makes assumptions about prop names or API contracts.
+**Chrome / Firefox DevTools:**
 
-The verification step is not paranoia. It's professional. You're still responsible for code that ships under your name, even if Claude typed some of it.
+Open DevTools (F12). Go to **Sources** tab.
 
-</Section>
+1. **Set a breakpoint.** Click the line number where you want to pause.
+2. **Trigger the bug.** Do the action that breaks it.
+3. **Step through.** Use the step buttons:
+   - Step Over (→): Execute one line
+   - Step Into (↓): Enter a function call
+   - Step Out (↑): Exit the current function
+4. **Inspect variables.** Hover over them or type in the Console
+5. **Conditional breakpoints.** Right-click line number: "Add conditional breakpoint" → `chapters.length === 0`
 
-<Section title="Contributing to an existing codebase">
+Example: You're debugging the RichTextEditor. The user types, but the text doesn't appear.
 
-You're new to a project. You don't know where things live. You don't know the conventions. Here's the process:
+```
+1. Open DevTools → Sources
+2. Set breakpoint on the onChange handler (line ~120)
+3. Type in the editor
+4. Breakpoint pauses execution
+5. Inspect: e.currentTarget.innerHTML — is the new text there? YES.
+6. Inspect: value prop — is it the old value? YES. Bug found!
+7. The parent isn't passing the new value back. Check the parent component's onChange handler.
+```
 
-(1) Read the README and any documentation that exists. (2) Read the folder structure. Where are components? Where are utils? Where are styles? (3) Pick a small bug or feature to implement. Not the hardest one. Something you can do in an hour. (4) Read the existing code that's related to your change. (5) Write your code to match the existing patterns, even if you think they're suboptimal. (6) Write a PR that explains what you did and why. Reference the issue or feature request. (7) Respond to feedback. Learn the team's taste. (8) Merge and move on.
+### Common Debugging Traps
 
-The mistake: trying to refactor the whole codebase on your first day. You don't know what constraints led to the current structure. The code that looks wrong might be right for reasons you don't see yet.
+**Trap 1: Reloading the page during debugging.**
+When you refresh, you lose the breakpoint and the state. Instead, modify your code, save, and hot-reload lets you keep the debugger state.
 
-Earn trust first. Make small changes that improve the codebase. Then, after a few PRs merged, you can suggest larger refactors. By then, you know why things are the way they are.
+**Trap 2: Inspecting the wrong component.**
+React DevTools shows the component tree. If two components have the same name, they're easy to mix up. Use DevTools → Components tab to see which instance is which.
 
-</Section>
+**Trap 3: Assuming the error is where it's reported.**
+A race condition might corrupt data on the server, but the error happens later on the client. Trace the data's *origin*, not just where it died.
 
-<Section title="Build: trace a bug and ship a fix">
+**Trap 4: Not reading the error.** 
+Developers panic and guess. The error message is always a clue. Read it slowly. Google it. Look at the stack trace.
 
-Your assignment: find an actual bug in a real codebase (not production, but real code). Trace it from the error message to the root cause. Write a PR that fixes it and explains why.
+---
 
-The PR should have: (1) a title that's one sentence, (2) a description that explains the problem (what broke and why), (3) the solution (your code), (4) why you chose this solution over alternatives, (5) a test plan (how you verified the fix works).
+## Part 6: Deploy to Vercel
 
-Your checkpoint conversation will ask: can you walk me through how you found the bug? What did the error message tell you? What did the logs show? Where did you add debugging? What was the root cause? Why did you fix it this way instead of another way? What part of the AI output (if any) did you verify before trusting?
+### What Deployment Means
 
-The goal is not a perfect fix. It's to demonstrate that you can read code, find problems, and think about tradeoffs before committing. That's what professional engineering looks like.
+Deployment is taking code from your machine, running it on a server, and making it available on the internet.
 
-</Section>
+When you push to `main` branch (or a deploy branch), Vercel:
+1. Clones your repo
+2. Installs dependencies (`npm install`)
+3. Builds your app (`npm run build`)
+4. Runs tests (if configured)
+5. Deploys to a live URL
+
+If any step fails, the deploy is rejected. You can't ship broken code.
+
+### The Deploy Checklist
+
+Before pushing to main, ask:
+
+- [ ] Does it work locally? (`npm run dev` and test it)
+- [ ] Do tests pass? (`npm test`)
+- [ ] Is the code linted? (`npm run lint`)
+- [ ] Are environment variables set in Vercel? (Check `.env.local` vars are mirrored in Vercel settings)
+- [ ] Did you test on mobile? (DevTools → device emulation)
+- [ ] Is the Lighthouse score 90+? (DevTools → Lighthouse)
+- [ ] Did you read the diff one more time? (GitHub → Files Changed)
+
+### Environment Variables
+
+Never commit secrets (API keys, database passwords) to Git.
+
+Instead:
+1. Create `.env.local` in your repo root (gitignored).
+2. Add secrets there locally.
+3. Add the same keys to Vercel's project settings.
+
+Example `.env.local`:
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
+DATABASE_URL=postgresql://user:password@host/dbname
+STRIPE_SECRET_KEY=sk_live_...
+```
+
+In your code:
+```typescript
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const stripeKey = process.env.STRIPE_SECRET_KEY; // Server-only
+```
+
+**Key rule:** Variables prefixed `NEXT_PUBLIC_` are visible to the browser (safe for public info). Variables without the prefix are server-only (safe for secrets).
+
+### Debugging Deployment Failures
+
+When a deploy fails:
+
+1. **Check build logs.** Vercel shows a live log of the build. This is where 90% of issues surface.
+2. **Look for TypeScript errors.** The build stops if types don't match.
+3. **Check environment variables.** Is `DATABASE_URL` missing? Did you set it in Vercel settings?
+4. **Try building locally.** `npm run build` locally reproduces 99% of deploy issues.
+
+Common failures:
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `MODULE_NOT_FOUND: Can't find module 'react'` | Dependency not in package.json | `npm install react` |
+| `TypeError: Cannot read property 'id' of undefined` | Missing env var | Add to Vercel settings |
+| `Lighthouse score 72` | Page is slow | Optimize images, reduce JS |
+| `import type { User } from '@supabase/supabase-js' errors` | Type mismatch with Supabase types | Check version in package.json |
+
+---
+
+## Part 7: AI-Assisted Development with Verification
+
+### The Promise and the Trap
+
+AI is excellent at:
+- Drafting boilerplate (forms, components, API routes)
+- Explaining unfamiliar patterns
+- Generating test cases
+- Refactoring for style
+- Writing documentation
+
+AI is terrible at:
+- Understanding *why* you chose this approach
+- Catching logic errors (especially off-by-one bugs)
+- Making sure the API shape matches your schema
+- Knowing the codebase conventions
+- Verifying the code actually works
+
+**The rule: Always verify.**
+
+### The Workflow: Draft → Review → Verify
+
+#### Step 1: Draft
+
+Ask Claude/ChatGPT to write a component:
+
+```
+Write a React component that takes a list of chapters and renders 
+them as a sidebar nav. Chapters have id, title, and order. Clicking 
+a chapter should call an onSelect callback. Style with Tailwind.
+```
+
+Claude drafts it. You get back working code in 30 seconds.
+
+#### Step 2: Review (Read the Code)
+
+Before pasting it, **read it**. Ask:
+
+- Does it match my codebase style? (e.g., does it use my color tokens, not hardcoded colors?)
+- Are there bugs? (Off-by-one loops? null checks missing?)
+- Does it import the right dependencies? (Is `clsx` imported if I'm using it?)
+- Does it handle edge cases? (Empty list? No selected chapter?)
+
+Example: Claude writes a loop to map chapters:
+
+```typescript
+{chapters.map((ch, idx) => (
+  <button key={idx} onClick={() => onSelect(ch)}>
+    {ch.title}
+  </button>
+))}
+```
+
+**Red flag:** Using array index as `key` is a React anti-pattern. It causes bugs when the list reorders. Fix it:
+
+```typescript
+{chapters.map((ch) => (
+  <button key={ch.id} onClick={() => onSelect(ch)}>
+    {ch.title}
+  </button>
+))}
+```
+
+#### Step 3: Verify
+
+Paste the code locally. Test it:
+
+```bash
+npm run dev
+# Open the component in your browser
+# Click a chapter → onSelect callback fires? Yes/No
+# Keyboard navigation works? (Can you tab to buttons?)
+# Mobile responsive? (Test on DevTools device emulation)
+# No console errors? (DevTools → Console)
+```
+
+Only after verification do you commit.
+
+### When NOT to Use AI
+
+- **When you're learning.** Write the code by hand. It's slower but you learn the patterns.
+- **When the logic is non-obvious.** AI drafts working code, not clever code. Write subtle logic yourself.
+- **When your codebase is unique.** AI knows common patterns. It doesn't know *your* style or conventions. Use it for ideas, not verbatim.
+
+### Red Flags in AI Output
+
+| Flag | Meaning |
+|------|---------|
+| Comments explaining "what" the code does | AI assumes you don't know the language. You know the language. Remove comments. |
+| Generic component names (e.g. `Card`, `Section`) | AI defaults to boring. Rename to match your domain (e.g. `ChapterCard`, `BookPreview`). |
+| No error handling | AI assumes happy path. Add try/catch, null checks, loading states. |
+| No types or loose typing | If your codebase is strict TypeScript, AI might default to looser types. Tighten them. |
+| No tests | AI generates code, not confidence. Write tests after. |
+
+---
+
+## The Build: Professional Workflow in Practice
+
+### Your Challenge
+
+You're going to implement a feature using a professional workflow from start to deploy:
+
+1. **Create a branch.** Start isolated from main.
+2. **Write the feature.** Use AI to draft, verify by hand.
+3. **Write tests.** 100% test coverage of your component.
+4. **Create a PR.** Write a PR description that explains *why* this matters.
+5. **Debug an intentional bug.** We'll introduce a bug and you'll track it with DevTools.
+6. **Deploy.** Push to main and watch it ship on Vercel.
+
+### The Feature: Chapter Title Validator
+
+Build a component that validates chapter titles in the makeEbook editor.
+
+**Requirements:**
+- Input: Chapter title (string)
+- Validation: Title must be 1–60 characters
+- Behavior: Show a character counter
+- Behavior: Show red warning if > 60 chars
+- Behavior: Disable save button if invalid
+- Accessibility: Keyboard navigable, screen-reader friendly
+
+**Part 1: Create a Branch**
+
+```bash
+git checkout -b feature/chapter-title-validator
+```
+
+This creates a new branch. All your work is isolated from main.
+
+**Part 2: Draft the Component**
+
+Use Claude to draft a `ChapterTitleInput` component:
+
+```
+Write a React component called ChapterTitleInput. 
+Props:
+- title: string (current title)
+- onChange: (title: string) => void
+- onValidationChange: (isValid: boolean) => void
+
+Requirements:
+- Show an input field for the title
+- Display a character counter below (current / max)
+- If > 60 chars, show red warning "Title exceeds 60 characters"
+- Call onValidationChange with true/false based on validity
+- Style with Tailwind
+- ARIA labels for accessibility
+
+Return the component code.
+```
+
+Claude gives you the code. Review it (step 2 from the AI workflow above).
+
+**Part 3: Test It**
+
+Paste it into your editor. Create a test file:
+
+```typescript
+// ChapterTitleInput.test.tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ChapterTitleInput } from './ChapterTitleInput';
+
+describe('ChapterTitleInput', () => {
+  it('renders with initial title', () => {
+    render(
+      <ChapterTitleInput 
+        title="Chapter One" 
+        onChange={() => {}} 
+        onValidationChange={() => {}}
+      />
+    );
+    expect(screen.getByDisplayValue('Chapter One')).toBeInTheDocument();
+  });
+
+  it('shows character count', () => {
+    render(
+      <ChapterTitleInput 
+        title="Hello" 
+        onChange={() => {}} 
+        onValidationChange={() => {}}
+      />
+    );
+    expect(screen.getByText(/5 \/ 60/)).toBeInTheDocument();
+  });
+
+  it('shows warning when title exceeds 60 characters', () => {
+    const longTitle = 'a'.repeat(61);
+    render(
+      <ChapterTitleInput 
+        title={longTitle} 
+        onChange={() => {}} 
+        onValidationChange={() => {}}
+      />
+    );
+    expect(screen.getByText(/exceeds 60 characters/i)).toBeInTheDocument();
+  });
+
+  it('calls onValidationChange with true when valid', () => {
+    const handleValidationChange = vi.fn();
+    render(
+      <ChapterTitleInput 
+        title="Valid Title" 
+        onChange={() => {}} 
+        onValidationChange={handleValidationChange}
+      />
+    );
+    expect(handleValidationChange).toHaveBeenCalledWith(true);
+  });
+
+  it('calls onValidationChange with false when invalid', () => {
+    const handleValidationChange = vi.fn();
+    const longTitle = 'a'.repeat(61);
+    render(
+      <ChapterTitleInput 
+        title={longTitle} 
+        onChange={() => {}} 
+        onValidationChange={handleValidationChange}
+      />
+    );
+    expect(handleValidationChange).toHaveBeenCalledWith(false);
+  });
+
+  it('calls onChange when user types', () => {
+    const handleChange = vi.fn();
+    render(
+      <ChapterTitleInput 
+        title="" 
+        onChange={handleChange} 
+        onValidationChange={() => {}}
+      />
+    );
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'New Title' } });
+    expect(handleChange).toHaveBeenCalledWith('New Title');
+  });
+});
+```
+
+Run tests:
+```bash
+npm test
+```
+
+All should pass.
+
+**Part 4: Write the PR**
+
+```bash
+git add .
+git commit -m "Add ChapterTitleInput component with validation
+
+- Enforces 60-character limit on chapter titles
+- Shows real-time character counter
+- Calls onValidationChange to gate save button
+- Fully tested with 100% coverage
+"
+
+git push -u origin feature/chapter-title-validator
+```
+
+Then on GitHub, create a PR with this description:
+
+```markdown
+## Summary
+Fixes #XXX: Prevent chapter titles from breaking EPUB layout.
+
+Authors were creating 200+ character titles that wrapped poorly in 
+EPUB readers. This component enforces a 60-character limit with a 
+visual counter, letting authors make informed edits.
+
+## Why This Way?
+- **Why not truncate?** Silently truncating loses meaning. A counter 
+  lets the author decide what to cut.
+- **Why 60?** EPUB best practices recommend ≤80 chars. 60 gives 
+  breathing room on mobile readers.
+- **Why onValidationChange callback?** The parent can disable the 
+  save button while the title is invalid. Prevents shipping 
+  incomplete chapters.
+
+## Testing
+1. Open a book
+2. Go to any chapter
+3. Click the title input
+4. Type 61+ characters
+5. Confirm:
+   - Red warning appears
+   - Character counter shows "61 / 60"
+   - Save button is disabled
+6. Delete one character
+7. Confirm:
+   - Warning disappears
+   - Save button is enabled
+
+All unit tests pass: `npm test`
+```
+
+**Part 5: Debug an Intentional Bug**
+
+We'll introduce a subtle bug: the counter shows `length / 59` instead of `length / 60`.
+
+Your job:
+1. Notice the off-by-one in the UI
+2. Open DevTools → Elements
+3. Inspect the counter text
+4. Open DevTools → Sources
+5. Set a breakpoint in the render
+6. Step through and find where `maxLength` is defined
+7. Fix it
+
+This teaches you the debugging workflow.
+
+**Part 6: Merge and Deploy**
+
+Once tests pass and the PR is reviewed:
+
+```bash
+git checkout main
+git pull origin main
+git merge feature/chapter-title-validator
+git push origin main
+```
+
+Vercel automatically deploys. In 2–3 minutes, your feature is live.
+
+Go to the app. Test it on production.
+
+### Checkpoint
+
+You should be able to:
+
+- [ ] Create a branch and commit code to it
+- [ ] Write a PR description that explains *why* (not just *what*)
+- [ ] Write unit tests for a React component
+- [ ] Use browser DevTools to set breakpoints and step through code
+- [ ] Trace a bug from the UI back to its root cause
+- [ ] Deploy to Vercel without errors
+- [ ] Use Claude to draft code, then verify it works by hand
+
+---
+
+## Common Gotchas
+
+### Git
+
+**"I committed to main by accident."**
+No problem. Create a branch from the current state:
+```bash
+git branch feature/oops
+git reset --hard origin/main  # Revert main
+git checkout feature/oops     # Switch to your branch
+```
+Your commit is safe on the branch.
+
+**"I want to undo my last commit."**
+```bash
+git reset --soft HEAD~1       # Undo commit, keep changes
+git reset --hard HEAD~1       # Undo commit, discard changes
+```
+
+**"merge conflict"**
+When two branches edit the same lines, Git can't auto-merge. You choose which version to keep:
+```bash
+# Open the conflicted file. It looks like:
+<<<<<<< HEAD
+  your version
+=======
+  their version
+>>>>>>> feature/other-branch
+```
+Delete the markers and keep the version you want. Then commit the resolution.
+
+### Testing
+
+**"Test passes locally but fails in CI."**
+CI runs in a clean environment. Local issues:
+- Uncommitted changes
+- Local env vars not mirrored in CI config
+- Different Node version
+- Flaky test (passes 90% of the time)
+
+Run `npm test` multiple times locally. If it's flaky, the test is the problem, not your code.
+
+**"I can't figure out why the test fails."**
+Add debugging:
+```typescript
+console.log('value:', value);
+console.log('component:', screen.debug());
+```
+`screen.debug()` prints the entire rendered DOM. This shows what the test actually sees.
+
+### Deployment
+
+**"Deployment succeeded but the app doesn't work."**
+1. Check browser console (DevTools → Console)
+2. Check Vercel logs (Vercel dashboard → Deployments → Logs)
+3. Check environment variables match Vercel settings
+
+**"The build failed but the error message is cryptic."**
+Read the full error in Vercel's build log. Scroll up. The first error is usually the real one. Subsequent errors are cascades.
+
+---
+
+## Further Reading
+
+- **Git internals:** Read "Pro Git" chapters 1–3 (free online)
+- **Testing React:** React Testing Library docs (https://testing-library.com/react)
+- **Debugging:** Chrome DevTools docs (https://developer.chrome.com/docs/devtools/)
+- **PRs:** Read 10 well-written PRs on GitHub (search `is:pr is:merged` to find merged PRs)
+
+---
+
+## Summary
+
+Professional development is about collaboration, clarity, and confidence.
+
+- **Git** is your narrative. Write commit messages for yourself-in-six-months.
+- **PRs** are asynchronous communication. Explain *why* before explaining *what*.
+- **Code reading** is a skill. Use the three-level technique: topography, seams, trace an action.
+- **Tests** are confidence. A good test suite lets you refactor without fear.
+- **Debugging** is methodical. Error location is a hint. Start there.
+- **Deployment** is ceremony. Follow the checklist every time.
+- **AI is a tool.** Draft fast, verify thoroughly. Never trust output without reading it.
+
+The rest of your career is reading code, fixing bugs, and shipping features. Master these skills and you're set.

@@ -1,287 +1,730 @@
 ---
+module: M15
 title: Databases & ORM
-module: 15
-phase: "Full-stack"
-promise: Persist real data and understand relational thinking.
+duration: 2 weeks
+difficulty: intermediate
+concepts:
+  - Relational thinking (tables, rows, columns, relationships)
+  - Schema definition and migration
+  - ORM abstraction layer (Drizzle)
+  - SQL fundamentals
+  - CRUD operations
+  - Query optimization (N+1 problem)
+build_artifact: schema + migrations + CRUD layer
+checkpoint: |
+  - Schema defined and migrations created
+  - Data persists across server restarts
+  - Can write and execute a CRUD operation
+  - Understand the SQL query that runs underneath
+  - Spot and fix an N+1 query pattern
 threads:
-  - language-vs-framework
+  - language-vs-framework: TypeScript types vs. database reality
+  - your-code-vs-the-platform: Your ORM vs. the database engine
 ---
 
-<Section title="Why databases matter">
+## Why This Matters
 
-Memory is temporary. When your app restarts, everything in variables vanishes.
+Your data lives here now. Everything you built in M14 — the waitlist signups, the blog post drafts, the comment threads — was in memory. Refresh the browser, gone. Real products need real persistence.
 
-Databases are permanent storage. Write a blog post, close the browser, come back tomorrow, and it's still there. Insert a user, run a query, and 10,000 other requests can read that same user without recomputing anything.
+A database is not magic storage. It's a precise, reliable engine for organizing information into tables and relationships. You'll think differently once you understand it: not "where do I save this?" but "what shape should this data have?" That shape — your schema — is the contract between your code and your data. Get it right once, and the database takes care of the rest.
 
-Most of the web is just tables of data. Users. Posts. Comments. Orders. Each table has rows (individual entries) and columns (attributes). A database engine is a specialized machine for storing, querying, and changing those tables fast.
+This module teaches you to think in tables and relationships. We use Drizzle, a TypeScript ORM, to write queries without leaving your code. Then we peek underneath to see the actual SQL, because understanding what the ORM generates is what separates "I know how to use the tool" from "I know what's happening."
 
-You could write your own file-based storage. Serialize data to JSON, write to disk, read it back. But databases solve problems you'll hit at scale: multiple people writing at once, crashing mid-write without corrupting everything, finding a specific row in a million without reading all of them, and joining related data without writing separate queries for each one.
+---
 
-For this course, relational databases (like Postgres) are the standard. They're fast, reliable, and designed for exactly what you're building.
+## Part 1: Relational Thinking
 
-</Section>
-
-<Section title="Relational thinking">
-
-A table is a grid. Columns are attributes. Rows are individual records.
+A relational database organizes data into **tables**. Each table is a collection of **rows** (records), and each row has **columns** (fields). That's it. Everything else follows from that simple shape.
 
 ```
 users
-─────────────────────────────────
-id    | name        | email
-─────────────────────────────────
-1     | Neil        | neil@...
-2     | Alex        | alex@...
-3     | Jordan      | jordan@...
-```
+├─ id (primary key)
+├─ email
+├─ created_at
+└─ ...
 
-Relationships connect tables. A user writes many posts. A post belongs to one user. So the `posts` table has a `userId` column that points to a row in the `users` table.
-
-```
 posts
-────────────────────────────────────────
-id | title            | content    | userId
-────────────────────────────────────────
-1  | First thoughts   | Blah blah  | 1
-2  | Building stuff   | More blah  | 1
-3  | Learning DB      | Yep       | 2
+├─ id (primary key)
+├─ user_id (foreign key → users.id)
+├─ title
+├─ content
+└─ created_at
+
+comments
+├─ id (primary key)
+├─ post_id (foreign key → posts.id)
+├─ user_id (foreign key → users.id)
+├─ text
+└─ created_at
 ```
 
-The `userId` in posts is a foreign key. It references the `id` in users. This is the glue that makes a *relational* database relational.
+**Primary key:** A unique identifier for each row. Usually `id`. Every row has one.
 
-Queries leverage these relationships. "Find all posts by Neil" becomes a join: look up Neil's id (1), then find all posts where `userId = 1`. The database engine does this efficiently.
+**Foreign key:** A column that references another table's primary key. `posts.user_id` points to `users.id`. This is how you model relationships. One user can have many posts. Many posts can have many comments.
 
-Relational thinking means designing data so that each fact lives in one place, relationships point to those facts, and queries can retrieve anything by following the pointers. It's a mindset before it's a technical detail.
+**The thread: language-vs-framework.** Your TypeScript types (`User`, `Post`, `Comment`) are *semantic*. Your database schema is *structural*. A good schema makes your types obvious. A bad schema makes your types confused. Drizzle bridges this gap: your schema *generates* your types, so they stay in sync forever.
 
-</Section>
+---
 
-<Section title="Schemas">
+## Part 2: Schemas and Migrations
 
-A schema is a blueprint. It says: "users table has an id, name, and email. Posts table has an id, title, content, and userId."
+A **schema** is the blueprint. It says: "A `users` table has these columns with these types. A `posts` table connects to `users` like this."
 
-Schemas define column types too. `id` is an integer. `name` is text. `userId` is a foreign key pointing to users. A database enforces these constraints. You can't insert text where an integer is expected, and you can't reference a non-existent user.
-
-```sql
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE posts (
-  id SERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
-  content TEXT,
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  created_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-Read that carefully. `SERIAL PRIMARY KEY` means auto-increment integer. `NOT NULL` means required. `UNIQUE` means no duplicates. `REFERENCES users(id)` means this column must point to a valid user.
-
-Schemas are contracts. They prevent bad data from entering your database. If someone tries to insert a post without a `user_id`, the database rejects it. If they try to reference a user that doesn't exist, rejected. These guarantees are invaluable.
-
-</Section>
-
-<Section title="Raw SQL first">
-
-Before using an ORM, understand what SQL looks like. It's the language databases speak.
-
-```sql
-INSERT INTO users (name, email) VALUES ('Neil', 'neil@example.com');
-
-SELECT * FROM posts WHERE user_id = 1;
-
-SELECT posts.title, users.name 
-FROM posts 
-JOIN users ON posts.user_id = users.id 
-WHERE users.name = 'Neil';
-
-UPDATE posts SET title = 'Updated' WHERE id = 5;
-
-DELETE FROM posts WHERE id = 5;
-```
-
-INSERT adds rows. SELECT retrieves them. JOIN connects two tables on a relationship. UPDATE changes existing rows. DELETE removes them.
-
-That SELECT with JOIN is the pattern you'll use constantly. "Show me posts and the author of each post." The JOIN says: for each post, look up the user it references, and include that user's data in the result.
-
-SQL is declarative. You describe *what* you want, not *how* to get it. You don't write "iterate through posts, for each one fetch its user." You write "show me posts joined with their users," and the database figures out the most efficient way.
-
-Learning raw SQL first builds intuition. You'll understand what an ORM is doing under the hood, and you'll debug problems faster.
-
-</Section>
-
-<Section title="What an ORM is">
-
-An ORM is Object-Relational Mapping. It translates between objects (what your code uses) and relations (what databases use).
-
-Your code works with objects: `{ id: 1, name: 'Neil', email: 'neil@example.com' }`. The database stores relations: a row in a table. An ORM bridges that gap.
-
-Instead of writing SQL strings, you call functions. Instead of parsing results, the ORM hands you typed objects. Your editor autocompletes. TypeScript catches mistakes before they run.
+Here's a real schema using Drizzle:
 
 ```typescript
-const users = await db.select().from(usersTable);
-const neils = await db.select().from(postsTable).where(eq(postsTable.userId, 1));
-```
-
-That's Drizzle, the ORM this project uses. It's thin (doesn't hide the database) and TypeScript-first (types are mandatory, not optional).
-
-ORMs make queries shorter, safer, and easier to compose. They're not magic. Under the hood, Drizzle generates SQL and sends it to Postgres. The ORM is a translation layer, nothing more.
-
-Understanding that translation is the key. Drizzle isn't hiding the database from you; it's just writing the SQL for you, and faster than you would.
-
-</Section>
-
-<Section title="Drizzle in practice">
-
-Start with a schema. Define tables using Drizzle's schema builder.
-
-```typescript
-import { pgTable, serial, text, timestamp, integer } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+// lib/db/schema.ts
+import { pgTable, text, timestamp, uuid, boolean, integer } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull().unique(),
-  createdAt: timestamp('created_at').defaultNow(),
+  id: uuid('id').primaryKey(),
+  email: text('email').unique().notNull(),
+  name: text('name'),
+  created_at: timestamp('created_at').defaultNow().notNull(),
 });
 
 export const posts = pgTable('posts', {
-  id: serial('id').primaryKey(),
-  title: text('title').notNull(),
-  content: text('content'),
-  userId: integer('user_id')
+  id: uuid('id').primaryKey(),
+  user_id: uuid('user_id')
     .notNull()
-    .references(() => users.id),
-  createdAt: timestamp('created_at').defaultNow(),
+    .references(() => users.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  published: boolean('published').default(false),
+  created_at: timestamp('created_at').defaultNow().notNull(),
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
-  posts: many(posts),
-}));
+export const comments = pgTable('comments', {
+  id: uuid('id').primaryKey(),
+  post_id: uuid('post_id')
+    .notNull()
+    .references(() => posts.id, { onDelete: 'cascade' }),
+  user_id: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  text: text('text').notNull(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+});
 
-export const postsRelations = relations(posts, ({ one }) => ({
-  user: one(users, {
-    fields: [posts.userId],
-    references: [users.id],
-  }),
-}));
+// Export for type inference
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
 ```
 
-This schema file is TypeScript. It defines the structure and relationships. Drizzle uses it to generate migrations (SQL files that create the actual tables) and to type your queries.
+**What's happening:**
+- `pgTable` creates a PostgreSQL table definition.
+- Each field has a type (`text`, `uuid`, `timestamp`, etc.) and constraints (`notNull`, `unique`, `default`, etc.).
+- `.references()` creates a foreign key relationship. `onDelete: 'cascade'` means if a user is deleted, their posts and comments are too.
+- The type exports (`User`, `NewUser`) are automatically inferred from the schema. No manual type duplication.
 
-The `relations` define the navigation paths. "A user has many posts. A post has one user." Later, you'll query posts and automatically get their author.
+**Migrations.** A schema doesn't magically appear in your database. You create a migration — a file that says "create this table" or "add this column." Drizzle's migration system tracks them, so you can version your schema like you version your code.
 
-</Section>
+```bash
+# Generate a migration from your schema changes
+npx drizzle-kit generate:pg
 
-<Section title="CRUD operations">
+# This creates a file like:
+# drizzle/0001_create_users_posts_comments.sql
 
-CRUD is Create, Read, Update, Delete. Every app does these four things.
+# Run the migration
+npx drizzle-kit migrate:pg
+```
+
+The generated SQL looks like:
+
+```sql
+CREATE TABLE IF NOT EXISTS "users" (
+  "id" uuid PRIMARY KEY NOT NULL,
+  "email" text UNIQUE NOT NULL,
+  "name" text,
+  "created_at" timestamp DEFAULT now() NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "posts" (
+  "id" uuid PRIMARY KEY NOT NULL,
+  "user_id" uuid NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+  "title" text NOT NULL,
+  "content" text NOT NULL,
+  "published" boolean DEFAULT false,
+  "created_at" timestamp DEFAULT now() NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "comments" (
+  "id" uuid PRIMARY KEY NOT NULL,
+  "post_id" uuid NOT NULL REFERENCES "posts"("id") ON DELETE CASCADE,
+  "user_id" uuid NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+  "text" text NOT NULL,
+  "created_at" timestamp DEFAULT now() NOT NULL
+);
+```
+
+**The thread: your-code-vs-the-platform.** The migration is your code. The SQL is the platform's language. Drizzle generates the SQL, but you're writing the schema in TypeScript. You stay in your language; the ORM handles the translation. This is the core value of an ORM.
+
+---
+
+## Part 3: What an ORM Is
+
+An **ORM** (Object-Relational Mapper) is a bridge. On one side: your JavaScript objects. On the other: SQL queries. The ORM writes the SQL so you don't have to (most of the time).
+
+Without an ORM, you'd write:
+
+```javascript
+const result = await db.query(
+  'SELECT * FROM users WHERE email = $1',
+  [userEmail]
+);
+```
+
+With Drizzle:
 
 ```typescript
-import { db } from '@/lib/db';
-import { users, posts } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
-const createUser = async (name: string, email: string) => {
-  const result = await db
-    .insert(users)
-    .values({ name, email })
-    .returning();
-  return result[0];
-};
-
-const getPostsByUserId = async (userId: number) => {
-  const userPosts = await db
-    .select()
-    .from(posts)
-    .where(eq(posts.userId, userId));
-  return userPosts;
-};
-
-const updatePostTitle = async (postId: number, newTitle: string) => {
-  const updated = await db
-    .update(posts)
-    .set({ title: newTitle })
-    .where(eq(posts.id, postId))
-    .returning();
-  return updated[0];
-};
-
-const deletePost = async (postId: number) => {
-  await db.delete(posts).where(eq(posts.id, postId));
-};
+const user = await db.query.users.findFirst({
+  where: eq(users.email, userEmail),
+});
 ```
 
-`db.insert()` adds a row and returns it. `db.select()` queries rows. `db.update()` changes a row. `db.delete()` removes one. Each query is composed from methods.
+Both do the same thing. The ORM version is type-safe (if `userEmail` is wrong, TypeScript yells before you run it) and readable (the intent is clear).
 
-The `eq()` function builds a WHERE clause. `eq(posts.userId, userId)` means "where userId equals this value." There are other comparisons: `gt()` (greater than), `lt()` (less than), `like()` (pattern matching).
+**Important:** An ORM is not magic. It's a thin layer. The SQL is still there. Understanding what it generates is crucial. A query that looks simple in Drizzle can be slow if you don't know what SQL it's creating.
 
-The `.returning()` method tells the database to send back the row that changed. Without it, the response is empty. Most of the time you want to return the result so your UI can display what actually happened.
+---
 
-</Section>
+## Part 4: CRUD Operations
 
-<Section title="Avoiding N+1 queries">
+CRUD = Create, Read, Update, Delete. The four operations that cover 90% of database work.
 
-An N+1 problem happens when you fetch data inefficiently.
+### Create
 
 ```typescript
-const userPosts = await db
-  .select()
-  .from(posts)
-  .where(eq(posts.userId, userId));
+// Insert a new user
+const newUser = await db.insert(users).values({
+  id: crypto.randomUUID(),
+  email: 'alice@example.com',
+  name: 'Alice',
+}).returning();
 
-for (const post of userPosts) {
-  const user = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, post.userId));
-  post.author = user[0];
+// Insert multiple posts
+const posts = await db.insert(posts).values([
+  {
+    id: crypto.randomUUID(),
+    user_id: newUser.id,
+    title: 'First Post',
+    content: 'Hello world',
+  },
+  {
+    id: crypto.randomUUID(),
+    user_id: newUser.id,
+    title: 'Second Post',
+    content: 'More thoughts',
+  },
+]).returning();
+```
+
+The ORM generates `INSERT` statements. `.returning()` tells the database to send back the inserted rows (with generated IDs, timestamps, etc.).
+
+### Read
+
+```typescript
+// Get one user by email
+const user = await db.query.users.findFirst({
+  where: eq(users.email, 'alice@example.com'),
+});
+
+// Get all posts by a user
+const userPosts = await db.query.posts.findMany({
+  where: eq(posts.user_id, userId),
+  orderBy: (posts, { desc }) => [desc(posts.created_at)],
+});
+
+// Get a post with all its comments
+const postWithComments = await db.query.posts.findFirst({
+  where: eq(posts.id, postId),
+  with: {
+    comments: true,
+  },
+});
+```
+
+The `.with` syntax is key. It tells Drizzle to fetch related data (the post's comments). Without it, you'd only get the post — then you'd need a separate query to get the comments. That's the N+1 problem, which we'll cover next.
+
+### Update
+
+```typescript
+// Update one post
+await db.update(posts)
+  .set({
+    title: 'Updated Title',
+    published: true,
+  })
+  .where(eq(posts.id, postId));
+
+// Update multiple posts (all unpublished posts by a user)
+await db.update(posts)
+  .set({ published: false })
+  .where(and(
+    eq(posts.user_id, userId),
+    eq(posts.published, false)
+  ));
+```
+
+### Delete
+
+```typescript
+// Delete one comment
+await db.delete(comments)
+  .where(eq(comments.id, commentId));
+
+// Delete all comments on a post
+await db.delete(comments)
+  .where(eq(comments.post_id, postId));
+```
+
+Note: You don't usually delete users or posts directly. Cascading deletes handle it (defined in the schema). If a user is deleted, all their posts and comments go with them.
+
+---
+
+## Part 5: The SQL Detour
+
+To understand your ORM, you need to see the SQL underneath. Let's take a read operation and trace it.
+
+**Drizzle query:**
+
+```typescript
+const userWithPosts = await db.query.users.findFirst({
+  where: eq(users.email, 'alice@example.com'),
+  with: {
+    posts: {
+      orderBy: (posts, { desc }) => [desc(posts.created_at)],
+    },
+  },
+});
+```
+
+**The SQL Drizzle generates:**
+
+```sql
+SELECT
+  "users"."id",
+  "users"."email",
+  "users"."name",
+  "users"."created_at"
+FROM "users"
+WHERE "users"."email" = 'alice@example.com'
+LIMIT 1;
+
+SELECT
+  "posts"."id",
+  "posts"."user_id",
+  "posts"."title",
+  "posts"."content",
+  "posts"."published",
+  "posts"."created_at"
+FROM "posts"
+WHERE "posts"."user_id" = 'user-id-from-above'
+ORDER BY "posts"."created_at" DESC;
+```
+
+Notice: two queries. First gets the user, then gets their posts. Drizzle orchestrates these for you and stitches the result back together. In your code, it's one object. In the database, it's two round trips.
+
+**Better SQL (a JOIN):**
+
+If you're in the database directly (or need maximum control), you'd write:
+
+```sql
+SELECT
+  "users"."id",
+  "users"."email",
+  "users"."name",
+  "users"."created_at",
+  json_agg(
+    json_build_object(
+      'id', "posts"."id",
+      'title', "posts"."title",
+      'content', "posts"."content",
+      'created_at', "posts"."created_at"
+    ) ORDER BY "posts"."created_at" DESC
+  ) AS posts
+FROM "users"
+LEFT JOIN "posts" ON "posts"."user_id" = "users"."id"
+WHERE "users"."email" = 'alice@example.com'
+GROUP BY "users"."id"
+LIMIT 1;
+```
+
+This is one query. It's more efficient if the data is small. It's overkill if the post count is huge (you'd be sending megabytes of JSON). SQL's power is that you can express exactly what you want, but that power comes with complexity.
+
+**When to write raw SQL:**
+
+Use raw SQL when:
+- You need maximum performance and the ORM's generated SQL is too slow.
+- You're doing something the ORM can't express (complex window functions, recursive CTEs, etc.).
+- You're debugging and need to see exactly what's running.
+
+In Drizzle, raw SQL falls back to:
+
+```typescript
+const result = await db.execute(sql`
+  SELECT * FROM users WHERE email = ${userEmail}
+`);
+```
+
+The backtick syntax prevents SQL injection. The `${}` placeholders are parameterized.
+
+---
+
+## Part 6: N+1 Queries and Why They Matter
+
+The N+1 problem is the most common performance trap. Here's what it looks like:
+
+**The Problem:**
+
+```typescript
+// Get all posts
+const allPosts = await db.query.posts.findMany();
+
+// Then, for each post, get the author
+for (const post of allPosts) {
+  const author = await db.query.users.findFirst({
+    where: eq(users.id, post.user_id),
+  });
+  post.author = author; // Now we have the author
 }
 ```
 
-That's bad. The first query fetches 100 posts. Then the loop runs 100 times, fetching the same user over and over. That's 1 + N queries (1 initial, N in the loop). Databases are slow at network distance. Running 101 queries instead of 1 is a disaster.
+If there are 100 posts, you just made 101 queries. One for all posts, then one for each post's author. That's the "N+1": one query, then N queries in a loop.
 
-The fix is a join. Fetch posts and users in a single query.
+**The Fix:**
+
+Use `.with` to fetch related data in one shot:
 
 ```typescript
-const postsWithAuthors = await db
-  .select()
-  .from(posts)
-  .innerJoin(users, eq(posts.userId, users.id))
-  .where(eq(posts.userId, userId));
+const allPostsWithAuthors = await db.query.posts.findMany({
+  with: {
+    author: true, // Tell Drizzle: fetch the author too
+  },
+});
+
+// No loop. No extra queries. Drizzle handles it.
 ```
 
-Now it's one query. The database joins the tables, and you get posts with authors included.
+But wait — Drizzle still makes two queries under the hood (we saw this in Part 5). Why isn't that N+1?
 
-With Drizzle relations, it's even cleaner. You load posts with their related users as a nested object.
+Because Drizzle is smart. It fetches all posts in one query, collects all the `user_id`s, then fetches all those users in *one* query. Two queries total, not 101. This is called a "batch fetch."
+
+**When N+1 happens in real code:**
 
 ```typescript
-const postsWithRelations = await db.query.posts.findMany({
-  where: eq(posts.userId, userId),
-  with: { user: true },
+// Bad: N+1
+async function getAllPostsWithComments() {
+  const posts = await db.query.posts.findMany();
+  
+  for (const post of posts) {
+    post.comments = await db.query.comments.findMany({
+      where: eq(comments.post_id, post.id),
+    });
+  }
+  
+  return posts;
+}
+
+// Good: Drizzle's batch fetch
+async function getAllPostsWithComments() {
+  return db.query.posts.findMany({
+    with: {
+      comments: true,
+    },
+  });
+}
+
+// Also good: raw SQL with a single JOIN
+async function getAllPostsWithComments() {
+  return db.execute(sql`
+    SELECT
+      posts.*,
+      json_agg(comments.*) as comments
+    FROM posts
+    LEFT JOIN comments ON posts.id = comments.post_id
+    GROUP BY posts.id
+  `);
+}
+```
+
+The key: always think about how many queries you're making. One query is fast. N+1 queries is slow. Drizzle's `.with` syntax prevents it most of the time.
+
+---
+
+## Build: Persist M14's Data
+
+Your assignment: take the waitlist and blog platform from M14 and give it real persistence.
+
+### Step 1: Define Your Schema
+
+Start with the data you already have. A user who signed up, a blog post they wrote, the comments people left.
+
+```typescript
+// lib/db/schema.ts
+import { pgTable, text, timestamp, uuid, boolean } from 'drizzle-orm/pg-core';
+
+export const waitlistMembers = pgTable('waitlist_members', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').unique().notNull(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const blogPosts = pgTable('blog_posts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  published: boolean('published').default(false),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+  updated_at: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const postComments = pgTable('post_comments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  post_id: uuid('post_id')
+    .notNull()
+    .references(() => blogPosts.id, { onDelete: 'cascade' }),
+  author: text('author').notNull(),
+  content: text('content').notNull(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
 });
 ```
 
-The `with: { user: true }` says "also fetch the related user for each post." Drizzle compiles this to a join under the hood. One query, no loop.
+Questions to ask yourself:
+- What shape is the data right now? (Waitlist emails, blog posts, comments.)
+- What relationships exist? (A post can have many comments. A waitlist entry is standalone.)
+- What constraints matter? (Email must be unique. A comment needs a post. A post needs a title.)
 
-</Section>
+### Step 2: Generate and Run Migrations
 
-<Section title="Normalization">
+```bash
+npx drizzle-kit generate:pg
+npx drizzle-kit migrate:pg
+```
 
-Normalization means organizing data to eliminate redundancy and inconsistency.
+Verify the tables exist:
 
-Bad: store the author's name and email in every post. If Neil changes his email, you have to update it in 50 posts. One update might miss, and now the data is inconsistent.
+```bash
+psql $DATABASE_URL -c "\dt"
+```
 
-Good: store only the userId in each post. The user's email lives in the users table, once. Change it once, and all posts see the new email.
+You should see `waitlist_members`, `blog_posts`, `post_comments`.
 
-This is the relational model. Data lives where it belongs. Relationships point to it. If data can be derived from other data (like author name from a join), don't store it.
+### Step 3: Write CRUD Helpers
 
-The checkpoint for this module is simple. You've built a schema, written a few queries, and persisted real data. Load a post from the database after closing your app, and it's still there. Query it, update it, delete it. No N+1 problems. The schema is normalized, not redundant.
+Create a file for your database operations:
 
-Data is the foundation. Everything else is UI and logic on top of it. A clean schema makes everything that follows easier.
+```typescript
+// lib/db/queries.ts
+import { db } from './index';
+import { waitlistMembers, blogPosts, postComments } from './schema';
+import { eq } from 'drizzle-orm';
 
-</Section>
+// Create
+export async function addToWaitlist(email: string) {
+  const [member] = await db
+    .insert(waitlistMembers)
+    .values({ email })
+    .returning();
+  return member;
+}
+
+export async function createBlogPost(title: string, content: string) {
+  const [post] = await db
+    .insert(blogPosts)
+    .values({ title, content })
+    .returning();
+  return post;
+}
+
+export async function addComment(postId: string, author: string, content: string) {
+  const [comment] = await db
+    .insert(postComments)
+    .values({ post_id: postId, author, content })
+    .returning();
+  return comment;
+}
+
+// Read
+export async function getWaitlistMembers() {
+  return db.query.waitlistMembers.findMany({
+    orderBy: (t, { desc }) => [desc(t.created_at)],
+  });
+}
+
+export async function getBlogPost(postId: string) {
+  return db.query.blogPosts.findFirst({
+    where: eq(blogPosts.id, postId),
+    with: {
+      comments: {
+        orderBy: (t, { desc }) => [desc(t.created_at)],
+      },
+    },
+  });
+}
+
+export async function getAllBlogPosts() {
+  return db.query.blogPosts.findMany({
+    where: eq(blogPosts.published, true),
+    orderBy: (t, { desc }) => [desc(t.created_at)],
+  });
+}
+
+// Update
+export async function publishPost(postId: string) {
+  await db
+    .update(blogPosts)
+    .set({ published: true, updated_at: new Date() })
+    .where(eq(blogPosts.id, postId));
+}
+
+// Delete
+export async function deleteComment(commentId: string) {
+  await db.delete(postComments).where(eq(postComments.id, commentId));
+}
+```
+
+### Step 4: Wire It Up
+
+In your M14 API routes, replace in-memory storage with database calls:
+
+```typescript
+// app/api/waitlist/route.ts
+import { addToWaitlist } from '@/lib/db/queries';
+
+export async function POST(req: Request) {
+  const { email } = await req.json();
+
+  try {
+    const member = await addToWaitlist(email);
+    return Response.json(member, { status: 201 });
+  } catch (error) {
+    return Response.json(
+      { error: 'Email already on waitlist' },
+      { status: 409 }
+    );
+  }
+}
+```
+
+### Step 5: See the SQL
+
+Before your code ships, peek at what SQL Drizzle generates. In development, enable query logging:
+
+```typescript
+// lib/db/index.ts
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+
+const queryClient = postgres(process.env.DATABASE_URL!);
+
+export const db = drizzle(queryClient, {
+  logger: process.env.NODE_ENV === 'development', // Logs SQL to console
+});
+```
+
+Run a query. You'll see the SQL printed. Is it what you expected? That's the "peek under the hood" moment.
+
+### Step 6: Spot an N+1 Bug
+
+In your code, intentionally introduce an N+1 query:
+
+```typescript
+// Bad: This will make many queries
+export async function getAllPostsWithCommentCounts() {
+  const posts = await db.query.blogPosts.findMany();
+  
+  for (const post of posts) {
+    const comments = await db.query.postComments.findMany({
+      where: eq(postComments.post_id, post.id),
+    });
+    post.commentCount = comments.length;
+  }
+  
+  return posts;
+}
+```
+
+With query logging enabled, you'll see dozens of queries. Then fix it:
+
+```typescript
+// Good: Fetch comments upfront
+export async function getAllPostsWithCommentCounts() {
+  const posts = await db.query.blogPosts.findMany({
+    with: {
+      comments: true,
+    },
+  });
+  
+  return posts.map(post => ({
+    ...post,
+    commentCount: post.comments.length,
+  }));
+}
+```
+
+Log it again. Now you see two queries, not dozens.
+
+---
+
+## Checkpoint
+
+Before you move on, verify:
+
+**Schema:**
+- [ ] You have a `drizzle` folder with migration files.
+- [ ] Running `psql $DATABASE_URL -c "\dt"` shows your tables.
+- [ ] Your types (`User`, `Post`, `Comment`, etc.) are generated from the schema, not written by hand.
+
+**Persistence:**
+- [ ] You can insert data and it's still there after a server restart.
+- [ ] You can query data and it returns the right shape.
+
+**CRUD:**
+- [ ] You can create, read, update, and delete records.
+- [ ] `.with` syntax is used to fetch related data without N+1 queries.
+
+**SQL:**
+- [ ] You've enabled query logging and seen the SQL your ORM generates.
+- [ ] You've spotted an N+1 query and fixed it with `.with`.
+
+**Reflection questions:**
+- What happens when you delete a user whose posts are still in the database? (Cascading delete should handle it.)
+- If you have 1000 blog posts and you want to show each post with its comment count on a homepage, how many queries do you make? (2: one for posts with `.with: { comments: true }`, then you count on the client. Not 1001.)
+- When would you write raw SQL instead of using Drizzle? (When the ORM can't express what you need, or for maximum performance on a slow query.)
+
+---
+
+## Threads
+
+### Language vs. Framework
+
+Your TypeScript code and your database schema started as separate worlds. You wrote types in your code, defined columns in migrations, and hoped they stayed in sync. They didn't.
+
+Drizzle closes this gap. Your schema generates your types. One source of truth. TypeScript checks at compile time that you're not trying to insert a string into a number column. This is the value of the bridge: your language and your platform align.
+
+The cost: you're learning two systems (TypeScript and SQL) simultaneously. But the symmetry helps. `eq(posts.id, postId)` looks like TypeScript because it is. Underneath, it's `WHERE "posts"."id" = $1` in SQL. The syntax changed, but the meaning is identical.
+
+### Your Code vs. the Platform
+
+Your CRUD functions are your code. The database engine is the platform. The ORM is the conversation between them.
+
+A tempting trap: thinking the ORM is enough. It's not. You still need to understand queries. An ORM that generates `SELECT * FROM posts, users WHERE posts.user_id = users.id` is a Cartesian product (every post matched with every user). The ORM made a mistake, and you need to spot it.
+
+This is why Part 5 matters. Peek at the SQL. Learn to read it. The platform (Postgres) is doing the actual work. The ORM is translating your intent into its language. Knowing both languages makes you fluent.
+
+---
+
+## What's Next
+
+Once your data persists, you can:
+- Add authentication (which user owns which post?).
+- Add authorization (which user can delete which comment?).
+- Optimize slow queries (add indexes to frequently-searched columns).
+- Back up and restore (your data is valuable now).
+- Scale (read replicas, caching, etc.).
+
+For now: make the data reliable, make the queries correct, and make the schema match your code. Everything else follows.

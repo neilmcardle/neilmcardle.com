@@ -1,14 +1,14 @@
+'use client';
+
 import React from 'react';
 
 interface SectionProps {
   title: string;
   children: React.ReactNode;
-  index: number;
-  isVisible: boolean;
+  index?: number;
 }
 
-export function Section({ title, children, index, isVisible }: SectionProps) {
-  if (!isVisible) return null;
+export function Section({ title, children, index = 0 }: SectionProps) {
 
   return (
     <section className="min-h-screen py-16 px-6 max-w-2xl mx-auto animate-in fade-in">
