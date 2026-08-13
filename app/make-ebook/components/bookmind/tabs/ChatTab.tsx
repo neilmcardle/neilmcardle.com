@@ -501,7 +501,7 @@ function MessageBubble({
 
       {isAssistant && message.content && (
         <div className="mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          <MessageActions content={message.content} onRegenerate={onRegenerate} onContinue={onContinue} onOpenReadingView={isPro ? onOpenReadingView : undefined} onRemember={isPro ? onRemember : undefined} disabled={disabled} isPro={isPro} />
+          <MessageActions content={message.content} onRegenerate={onRegenerate} onContinue={onContinue} onOpenReadingView={isPro ? onOpenReadingView : undefined} onRemember={isPro ? onRemember : undefined} isPro={isPro} />
         </div>
       )}
     </div>
