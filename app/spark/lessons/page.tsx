@@ -46,7 +46,7 @@ export default async function LessonsPage() {
             Spark
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl">
-            From design foundations to full-stack engineering. Learn by reading real code and building real things.
+            Learn by reading real code and building real things.
           </p>
         </div>
       </header>
