@@ -25,7 +25,7 @@ import { linkCitations } from "../../../utils/citationLinker";
 import { hasUsedTrial, markTrialUsed } from "../../../utils/bookMindTrial";
 import type { Chapter } from "../../../types";
 
-const CHAR_DELAY = 0.015;
+const CHAR_DELAY = 0.0083;
 
 interface ChatTabProps {
   bookId?: string;
@@ -480,20 +480,22 @@ function MessageBubble({
   const chapterRefs = citationSegments.filter(s => s.type === "chapter");
   const uniqueRefs = Array.from(new Map(chapterRefs.filter((s): s is Extract<typeof s, { type: "chapter" }> => s.type === "chapter").map(s => [s.chapterIndex, s])).values());
 
+  if (!message.content) {
+    return null;
+  }
+
   return (
     <div className={`group flex flex-col ${isUser ? "items-end" : "items-start"}`} style={{ animation: 'fade-up 300ms cubic-bezier(0.23,1,0.32,1) both' }}>
       <div className={`max-w-[85%] rounded-card px-3 py-2.5 text-125 leading-relaxed ${isUser ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-tr-sm" : "bg-gray-100 dark:bg-[#303030] text-gray-800 dark:text-[#f5f5f5] rounded-tl-sm"}`}>
-        {message.content && (
-          structured ? (
-            <CardRenderer response={structured} chapters={chapters.map(c => ({ id: c.id, title: c.title }))} onNavigate={onNavigate} />
-          ) : isAssistant ? (
-            <StreamingMessage content={message.content} charDelay={CHAR_DELAY} />
-          ) : (
-            <div className="[&>p+p]:mt-2.5 [&>p]:m-0" dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }} />
-          )
+        {structured ? (
+          <CardRenderer response={structured} chapters={chapters.map(c => ({ id: c.id, title: c.title }))} onNavigate={onNavigate} />
+        ) : isAssistant ? (
+          <StreamingMessage content={message.content} charDelay={CHAR_DELAY} />
+        ) : (
+          <div className="[&>p+p]:mt-2.5 [&>p]:m-0" dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }} />
         )}
 
-        {isAssistant && message.content && !structured && uniqueRefs.length > 0 && (
+        {isAssistant && !structured && uniqueRefs.length > 0 && (
           <div className="mt-2 pt-2 border-t border-gray-200 dark:border-[#3a3a3a]">
             <p className="text-10 uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium mb-1">Sources</p>
             <div className="flex flex-wrap gap-1">
@@ -505,7 +507,7 @@ function MessageBubble({
         )}
       </div>
 
-      {isAssistant && message.content && (
+      {isAssistant && (
         <div className="mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
           <MessageActions content={message.content} onRegenerate={onRegenerate} onContinue={onContinue} onOpenReadingView={isPro ? onOpenReadingView : undefined} onRemember={isPro ? onRemember : undefined} isPro={isPro} />
         </div>
