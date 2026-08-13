@@ -62,8 +62,8 @@ export function ModuleCard({ mod }: ModuleCardProps) {
           </span>
 
           {/* Title */}
-          <h3 className="text-7xl font-bold text-gray-900 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
-            {mod.title}
+          <h3 className="text-4xl font-bold text-gray-900 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
+            {mod.title || 'Module'}
           </h3>
         </div>
 
