@@ -45,9 +45,9 @@ export default async function LessonPage(props: PageProps) {
     }
 
     return (
-      <div className="min-h-screen bg-white flex flex-col">
+      <div className="min-h-screen bg-white flex flex-col overflow-hidden">
         <nav className="bg-white sticky top-0 z-50" style={{boxShadow: '0px 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 2px 3px -1px rgba(0, 0, 0, 0.06), 0px 2px 5px 0px rgba(0, 0, 0, 0.04)'}}>
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
             <a href="/spark/lessons" className="text-sm font-medium text-gray-600 hover:text-gray-900">
               ← Back to curriculum
             </a>
@@ -57,9 +57,9 @@ export default async function LessonPage(props: PageProps) {
           </div>
         </nav>
 
-        <div className="flex flex-1">
+        <div className="flex flex-1 overflow-hidden">
           {/* Center Content */}
-          <main className="flex-1 px-6 py-12 lg:py-16">
+          <main className="flex-1 px-6 py-12 lg:py-16 overflow-y-auto">
             <div className="max-w-3xl mx-auto">
               <header className="mb-12">
                 <p className="text-sm text-gray-500 mb-3 uppercase tracking-wide">
@@ -96,7 +96,7 @@ export default async function LessonPage(props: PageProps) {
           </main>
 
           {/* Right Sidebar */}
-          <aside className="hidden xl:flex w-56 p-6 flex-col sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+          <aside className="hidden xl:flex w-52 p-6 flex-col flex-shrink-0 overflow-y-auto border-l border-gray-100">
             <div className="space-y-8 text-sm">
               <div>
                 <p className="font-semibold text-gray-900 mb-3 text-xs uppercase tracking-widest">On this page</p>
