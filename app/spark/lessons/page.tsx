@@ -60,7 +60,7 @@ export default async function LessonsPage() {
               className="group relative block"
             >
               {/* Background number */}
-              <div className="absolute -top-8 -left-4 text-8xl font-bold text-gray-100 -z-10 leading-none select-none pointer-events-none">
+              <div className="absolute -top-8 -left-4 text-8xl font-bold text-gray-100 -z-10 leading-none select-none pointer-events-none" style={{fontFamily: 'var(--font-playfair)'}}>
                 {String(mod.module).padStart(2, '0')}
               </div>
 
