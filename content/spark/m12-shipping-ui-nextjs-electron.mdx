@@ -1,5 +1,5 @@
 ---
-title: "M12: Shipping UI — Next.js + Desktop/Electron"
+title: "M12: Shipping UI ,  Next.js + Desktop/Electron"
 description: "Build a real, polished multi-surface app from design to deployment. Understand server vs client rendering, performance constraints, and where desktop breaks the web assumptions."
 module: 12
 concepts:
@@ -27,7 +27,7 @@ duration: "6–8 weeks (evenings)"
 difficulty: "intermediate → advanced"
 ---
 
-# M12: Shipping UI — Next.js + Desktop/Electron
+# M12: Shipping UI ,  Next.js + Desktop/Electron
 
 ## The Premise
 
@@ -39,7 +39,7 @@ Building a feature is not the same as shipping a product. A shipped product mean
 - The experience is consistent on mobile, tablet, desktop
 - (For desktop) It doesn't feel like a web app bolted onto a native shell
 
-Shipping is where **craft is the differentiator**. Two apps with identical features feel completely different if one has thought through error states, loading states, and performance. Shipping is also where you learn that **your code is only half the battle**—the platform (Next.js, Vercel, Electron, the browser, the OS) shapes what's possible and what's expensive.
+Shipping is where **craft is the differentiator**. Two apps with identical features feel completely different if one has thought through error states, loading states, and performance. Shipping is also where you learn that **your code is only half the battle**, the platform (Next.js, Vercel, Electron, the browser, the OS) shapes what's possible and what's expensive.
 
 This module builds a real, complete product. Not a demo, not a tutorial app. Something you'd actually use, someone else would pay for, or you'd link in a portfolio. You'll deploy it yourself, monitor its performance, and optionally wrap it for desktop. By the end, you'll understand what separates a shipped product from a hobby project.
 
@@ -51,9 +51,9 @@ This module builds a real, complete product. Not a demo, not a tutorial app. Som
 
 A shipped product has three layers:
 
-1. **The code layer** — your React components, Next.js routes, API handlers
-2. **The platform layer** — Next.js, Vercel, the browser, the OS
-3. **The human layer** — your actual users, their devices, their network, their expectations
+1. **The code layer** ,  your React components, Next.js routes, API handlers
+2. **The platform layer** ,  Next.js, Vercel, the browser, the OS
+3. **The human layer** ,  your actual users, their devices, their network, their expectations
 
 Most tutorials focus on layer 1. This module teaches layers 2 and 3.
 
@@ -65,13 +65,13 @@ Most tutorials focus on layer 1. This module teaches layers 2 and 3.
 
 **Mobile responsiveness.** Your design looks great on desktop. Does it look *designed* on mobile, or does it look responsive-by-accident? Shipped products feel native on every screen size.
 
-**State clarity.** When a form is submitting, does the user know? When it fails, do they see why? Loading states, error messages, success confirmations—these are not nice-to-haves. They're what separate a shipped product from an experiment.
+**State clarity.** When a form is submitting, does the user know? When it fails, do they see why? Loading states, error messages, success confirmations, these are not nice-to-haves. They're what separate a shipped product from an experiment.
 
 **Attention to detail.** Animations that don't drop frames. Form fields that remember their state. Keyboard navigation that works. The back button that does the right thing. Shipped products have noticed these things.
 
 ### The Platform's Role
 
-Next.js, Vercel, React, the browser—they all make promises:
+Next.js, Vercel, React, the browser, they all make promises:
 - Next.js promises file-based routing, automatic code-splitting, SSR/SSG
 - React promises reusable components and predictable state
 - Vercel promises instant deploys, automatic CDN, edge functions
@@ -79,8 +79,8 @@ Next.js, Vercel, React, the browser—they all make promises:
 
 But the platform also imposes constraints:
 - JavaScript has to download, parse, and execute before anything interactive happens (hydration is expensive)
-- Network latency is real—an API call that takes 2 seconds makes a form feel broken
-- The bundle size is a hard limit—every kilobyte of JavaScript is paid for at load time
+- Network latency is real, an API call that takes 2 seconds makes a form feel broken
+- The bundle size is a hard limit, every kilobyte of JavaScript is paid for at load time
 - Mobile and desktop are different environments (touch vs. pointer, battery vs. plugged in, WiFi vs. 4G)
 
 A shipped product doesn't fight the platform; it works *with* it. Server components let you keep heavy logic off the client. API routes let you talk to your database without exposing credentials. Vercel's edge functions let you serve API responses from a server near the user.
@@ -132,7 +132,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 By default, **every component is a Server Component**. It runs on the server, never ships JavaScript to the browser. A server component renders to HTML once, and that HTML is sent to the client.
 
 ```tsx
-// app/dashboard/page.tsx — Server Component (no 'use client')
+// app/dashboard/page.tsx ,  Server Component (no 'use client')
 // This code runs on the server, not in the browser
 
 import { db } from '@/lib/db';
@@ -233,7 +233,7 @@ export default function BooksPage() {
 
 ---
 
-## Section 3: Server vs Client — The Architectural Pattern
+## Section 3: Server vs Client ,  The Architectural Pattern
 
 ### The Mental Model
 
@@ -244,12 +244,12 @@ Most pages follow this pattern:
 
 ```
 Page (Server)
-├── Header (Server) — fetches user profile once
-├── Sidebar (Server) — fetches menu data once
+├── Header (Server) ,  fetches user profile once
+├── Sidebar (Server) ,  fetches menu data once
 └── MainContent (Client)
-    ├── FilterBar (Client) — handles filter state
-    ├── SearchInput (Client) — handles search input, debounces
-    └── ResultsList (Server) — passed results from parent, just renders
+    ├── FilterBar (Client) ,  handles filter state
+    ├── SearchInput (Client) ,  handles search input, debounces
+    └── ResultsList (Server) ,  passed results from parent, just renders
 ```
 
 The server fetches data once. The client manages UI state (filters, search, sorting). When the user changes a filter, the client makes a fetch to `/api/books?category=fiction`, the server responds, the client updates the list.
@@ -259,7 +259,7 @@ The server fetches data once. The client manages UI state (filters, search, sort
 In the old Pages Router (or a traditional SPA), **everything is JavaScript**. The entire page is client code. When the user lands, the browser:
 1. Downloads the JavaScript bundle (100KB–500KB)
 2. Parses and compiles it (takes ~1s on slow devices)
-3. Runs the JavaScript (hydration — React initializes, re-renders, attaches event listeners)
+3. Runs the JavaScript (hydration ,  React initializes, re-renders, attaches event listeners)
 4. Makes an API call to fetch data
 5. Re-renders again with the data
 6. Now the page is interactive
@@ -555,7 +555,7 @@ export async function POST(request: Request) {
 
 ---
 
-## Section 5: Performance — The Lighthouse Mentality
+## Section 5: Performance ,  The Lighthouse Mentality
 
 Lighthouse is the browser's report card for your site. It measures:
 - **First Contentful Paint (FCP)**: How long until something visible appears?
@@ -872,21 +872,21 @@ Your project ships when:
 - [ ] **Deployed on Vercel** with a live URL (not localhost)
 - [ ] **All forms work** without crashing, show errors, handle edge cases
 - [ ] **Lighthouse 90+** on all Core Web Vitals (FCP, LCP, CLS, TTI)
-- [ ] **Mobile responsive** — no horizontal scrolling, readable on 375px width
-- [ ] **No console errors** — check the browser console and server logs
-- [ ] **Images optimized** — using Next.js `<Image />`, not `<img />`
-- [ ] **API routes protected** — validate inputs, return proper error codes
-- [ ] **Database queries optimized** — not N+1, indexes on frequently queried columns
-- [ ] **Environment variables** not exposed — secrets in Vercel, not in `.env`
-- [ ] **Error boundaries** — page doesn't crash if data fetch fails
-- [ ] **Loading states** — forms show "submitting", lists show skeleton loaders
-- [ ] **Accessibility basics** — forms have labels, images have alt text, keyboard navigation works
-- [ ] **DNS configured** — custom domain points to Vercel (optional but shipping-ready)
+- [ ] **Mobile responsive** ,  no horizontal scrolling, readable on 375px width
+- [ ] **No console errors** ,  check the browser console and server logs
+- [ ] **Images optimized** ,  using Next.js `<Image />`, not `<img />`
+- [ ] **API routes protected** ,  validate inputs, return proper error codes
+- [ ] **Database queries optimized** ,  not N+1, indexes on frequently queried columns
+- [ ] **Environment variables** not exposed ,  secrets in Vercel, not in `.env`
+- [ ] **Error boundaries** ,  page doesn't crash if data fetch fails
+- [ ] **Loading states** ,  forms show "submitting", lists show skeleton loaders
+- [ ] **Accessibility basics** ,  forms have labels, images have alt text, keyboard navigation works
+- [ ] **DNS configured** ,  custom domain points to Vercel (optional but shipping-ready)
 
 ### Example: Building the Book Tracker (Abbreviated)
 
 ```tsx
-// app/books/page.tsx — Server component
+// app/books/page.tsx ,  Server component
 import { db } from '@/lib/db';
 import { AddBookForm } from './components/AddBookForm';
 import { BookCard } from './components/BookCard';
@@ -928,7 +928,7 @@ export default async function BooksPage() {
 
 ---
 
-## Section 8: Optional — Electron & Desktop
+## Section 8: Optional ,  Electron & Desktop
 
 Building a desktop app is optional, but valuable if you want your product to work offline, access the file system, or live as a native app on Mac/Windows.
 
@@ -1203,16 +1203,16 @@ Most apps fail not because the feature is wrong, but because the details are mis
 
 ### Thread 2: Your Code vs. The Platform
 
-You write React. React doesn't run in production—the browser does. Next.js doesn't run in production—Vercel does. Understanding the platform shapes every decision you make.
+You write React. React doesn't run in production, the browser does. Next.js doesn't run in production, Vercel does. Understanding the platform shapes every decision you make.
 
 **JavaScript shipping costs.**
-Every byte of JavaScript the user downloads is JavaScript they must execute. If your app is 500 KB of JavaScript, it doesn't matter how well you wrote it—it'll feel slow on 4G. The answer isn't to optimize your code; it's to ship less code. This is why server components matter: code that runs on the server doesn't ship to the browser.
+Every byte of JavaScript the user downloads is JavaScript they must execute. If your app is 500 KB of JavaScript, it doesn't matter how well you wrote it, it'll feel slow on 4G. The answer isn't to optimize your code; it's to ship less code. This is why server components matter: code that runs on the server doesn't ship to the browser.
 
 **The network is the bottleneck.**
 An API call that takes 1 second makes a form feel broken, no matter how fast your code is. The answer isn't to optimize the API; it's to design around latency. Optimistic updates (show the success state before the server responds), local caching, and careful request batching all protect users from slow networks.
 
 **The platform gives you superpowers.**
-Next.js gives you file-based routing (no setup), automatic code splitting (less shipped), server components (fast), edge functions (fast APIs), and middleware. Vercel gives you global CDN (faster serving), preview deployments (safer shipping), and built-in monitoring. These are not free—they're earned through understanding what the platform does and how to use it.
+Next.js gives you file-based routing (no setup), automatic code splitting (less shipped), server components (fast), edge functions (fast APIs), and middleware. Vercel gives you global CDN (faster serving), preview deployments (safer shipping), and built-in monitoring. These are not free, they're earned through understanding what the platform does and how to use it.
 
 **Constraints breed innovation.**
 Mobile has no hover state. Desktop has no touch. The browser has security boundaries. These aren't problems; they're design parameters. Understanding them means you design for what's possible, not for an imaginary perfect device.
@@ -1233,7 +1233,7 @@ In your project: **Don't fight the platform.** You're not writing generic JavaSc
 - Create routes for displaying data
 - Build the main form (add/edit)
 - Wire up the database
-- Deploy to Vercel (yes, this early—so you can share a live link)
+- Deploy to Vercel (yes, this early, so you can share a live link)
 
 ### Week 3–4: Refine
 - Add delete/edit functionality
@@ -1283,7 +1283,7 @@ In your project: **Don't fight the platform.** You're not writing generic JavaSc
 
 ## Section 13: Final Thoughts
 
-Shipping a product is an entirely different skill from building a feature. It's about understanding the full stack—from the React code you write to the browser that runs it to the network it travels on to the device it lands on. It's about noticing everything: the loading state, the error message, the animation, the performance, the edge case.
+Shipping a product is an entirely different skill from building a feature. It's about understanding the full stack, from the React code you write to the browser that runs it to the network it travels on to the device it lands on. It's about noticing everything: the loading state, the error message, the animation, the performance, the edge case.
 
 This module gives you the tools. The only thing left is to build something you're proud of, deploy it, and ship it to real people. That's the differentiator.
 
@@ -1325,12 +1325,12 @@ Your project is shipping-ready when:
 ## Resources
 
 **Next.js:**
-- [Next.js Documentation](https://nextjs.org/docs) — authoritative, well-written
-- [React Server Components RFC](https://github.com/acdlite/rfcs/blob/first-class-promises/text/0000-first-class-promise-use-cases.md) — understand the philosophy
-- [App Router Migration Guide](https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration) — upgrading from Pages Router
+- [Next.js Documentation](https://nextjs.org/docs) ,  authoritative, well-written
+- [React Server Components RFC](https://github.com/acdlite/rfcs/blob/first-class-promises/text/0000-first-class-promise-use-cases.md) ,  understand the philosophy
+- [App Router Migration Guide](https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration) ,  upgrading from Pages Router
 
 **Performance:**
-- [Web.dev Core Web Vitals](https://web.dev/vitals/) — official guide
+- [Web.dev Core Web Vitals](https://web.dev/vitals/) ,  official guide
 - [Lighthouse Documentation](https://developers.google.com/web/tools/lighthouse)
 - [Bundle Analyzer](https://www.npmjs.com/package/@next/bundle-analyzer)
 
@@ -1340,12 +1340,12 @@ Your project is shipping-ready when:
 
 **Electron:**
 - [Electron Documentation](https://www.electronjs.org/docs)
-- [electron-builder](https://www.electron.build/) — building installers
-- [Electron Security](https://www.electronjs.org/docs/tutorial/security) — important
+- [electron-builder](https://www.electron.build/) ,  building installers
+- [Electron Security](https://www.electronjs.org/docs/tutorial/security) ,  important
 
 **Forms & Validation:**
-- [React Hook Form](https://react-hook-form.com/) — lightweight form library (optional, not required)
-- [Zod](https://zod.dev/) — TypeScript-first schema validation
+- [React Hook Form](https://react-hook-form.com/) ,  lightweight form library (optional, not required)
+- [Zod](https://zod.dev/) ,  TypeScript-first schema validation
 
 ---
 

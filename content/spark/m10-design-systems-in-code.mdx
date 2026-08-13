@@ -1,6 +1,6 @@
 ---
 title: "M10: Design Systems in Code"
-subtitle: "Figma ↔ Code — Tokens, Components, and the Sync That Never Breaks"
+subtitle: "Figma ↔ Code ,  Tokens, Components, and the Sync That Never Breaks"
 module: "M10"
 phase: "Design Engineer"
 length: "90 minutes"
@@ -20,22 +20,22 @@ The checkpoint: **one source of truth for tokens, components that have a minimal
 
 ---
 
-## Part 1: Tokens — The Atomic Language
+## Part 1: Tokens ,  The Atomic Language
 
 ### What are tokens?
 
 Tokens are decisions written down. "This is brand blue." "This is our spacer unit." "This is the size of body text." They live in Figma as Variables, in CSS as custom properties, in TypeScript as a theme object. Same meaning, three languages.
 
-Most teams pick one place to define them and sync the others. That's already better than none. But the real win is bidirectional sync — when a designer tweaks a color in Figma, it lands in CSS. When an engineer realizes "we need a smaller spacing unit," the token appears in Figma's token panel.
+Most teams pick one place to define them and sync the others. That's already better than none. But the real win is bidirectional sync ,  when a designer tweaks a color in Figma, it lands in CSS. When an engineer realizes "we need a smaller spacing unit," the token appears in Figma's token panel.
 
 ### Token categories
 
 Think of tokens in four bands:
 
-**Primitives** — the raw materials. Colors (hex or oklch), font sizes, weights, spacing units. These are immutable, boring, intentional.
+**Primitives** ,  the raw materials. Colors (hex or oklch), font sizes, weights, spacing units. These are immutable, boring, intentional.
 
 ```css
-/* CSS Custom Properties — Primitives */
+/* CSS Custom Properties ,  Primitives */
 :root {
   --primitive-color-blue-50: #eff6ff;
   --primitive-color-blue-500: #3b82f6;
@@ -60,7 +60,7 @@ Think of tokens in four bands:
 }
 ```
 
-**Semantic tokens** — the rules. "This is the color of a button." "This is the text we use for labels." They reference primitives and carry intent.
+**Semantic tokens** ,  the rules. "This is the color of a button." "This is the text we use for labels." They reference primitives and carry intent.
 
 ```css
 :root {
@@ -94,7 +94,7 @@ Think of tokens in four bands:
   --type-label-weight: var(--primitive-font-weight-semibold);
 }
 
-/* Dark mode — same semantic names, different primitives */
+/* Dark mode ,  same semantic names, different primitives */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-text-primary: var(--primitive-color-slate-50);
@@ -106,11 +106,11 @@ Think of tokens in four bands:
 }
 ```
 
-**Component tokens** — the specifics. "This button uses this text style and this background." Used internally in component CSS, rarely leaked to consumers.
+**Component tokens** ,  the specifics. "This button uses this text style and this background." Used internally in component CSS, rarely leaked to consumers.
 
-**Alias tokens** — shortcuts. Map semantic tokens to multiple names for different contexts. "Call it `--color-text-primary` when it's body text, but in a form input, call the same token `--color-input-text`."
+**Alias tokens** ,  shortcuts. Map semantic tokens to multiple names for different contexts. "Call it `--color-text-primary` when it's body text, but in a form input, call the same token `--color-input-text`."
 
-The secret: semantic and alias tokens change between themes. Primitives never do. A dark theme doesn't invent new blues — it points the same `--color-primary` name to a different primitive blue.
+The secret: semantic and alias tokens change between themes. Primitives never do. A dark theme doesn't invent new blues ,  it points the same `--color-primary` name to a different primitive blue.
 
 ### Figma Variables: Where Tokens Live
 
@@ -126,7 +126,7 @@ In Figma, Variables are the design system's source of truth. They live in two co
 - Space group: `inline-xs`, `inline-sm`, `inline`, `inline-lg`
 - Type group: `body`, `body-weight`, `label`, `label-weight`
 
-Each semantic color variable points to a primitive. In the `Primitives` mode, it resolves light. In the `Dark` mode, it resolves dark. That's it — the same variable name works everywhere.
+Each semantic color variable points to a primitive. In the `Primitives` mode, it resolves light. In the `Dark` mode, it resolves dark. That's it ,  the same variable name works everywhere.
 
 ```
 Semantic/Colors/primary
@@ -141,10 +141,10 @@ Figma's right side: Variables panel → Select variable → Add mode. Two modes:
 You need a tool to walk Figma's Variables API and write CSS. Don't hand-code this. Options:
 
 1. **Figma's official token exporter** (legacy, deprecated)
-2. **Style Dictionary** — industry standard, transforms tokens to any format
-3. **Parity Check** (paid, Figma plugin) — syncs both directions, tells you when code drifts from design
-4. **Token Studio** (Figma plugin, paid) — manages tokens inside Figma, exports to JSON
-5. **Hand-roll a script** — hit Figma's REST API, walk variables, emit CSS
+2. **Style Dictionary** ,  industry standard, transforms tokens to any format
+3. **Parity Check** (paid, Figma plugin) ,  syncs both directions, tells you when code drifts from design
+4. **Token Studio** (Figma plugin, paid) ,  manages tokens inside Figma, exports to JSON
+5. **Hand-roll a script** ,  hit Figma's REST API, walk variables, emit CSS
 
 For this module, assume you're using **Style Dictionary**. It reads a JSON file of tokens and emits CSS, TypeScript, Tailwind theme, etc.
 
@@ -216,9 +216,9 @@ Run `style-dictionary build`. You get `tokens.css` with all the custom propertie
 
 The hardest part: maintaining sync. When a designer changes Figma variables, how does that JSON file get updated? Options:
 
-- **Export manually** — designer runs Figma plugin, copies JSON, pastes into repo
-- **Sync script** — CI job hits Figma API on a schedule, commits if changed
-- **Parity Check plugin** — paid, does the sync for you, both directions
+- **Export manually** ,  designer runs Figma plugin, copies JSON, pastes into repo
+- **Sync script** ,  CI job hits Figma API on a schedule, commits if changed
+- **Parity Check plugin** ,  paid, does the sync for you, both directions
 
 For a teaching module, assume manual export with a script that validates the JSON before commit. Real workflows vary wildly.
 
@@ -226,21 +226,21 @@ For a teaching module, assume manual export with a script that validates the JSO
 
 ## Part 2: Theming & Dark Mode
 
-Dark mode is not a special case. It's the same tokens pointing to different primitives. The code doesn't change — the values change.
+Dark mode is not a special case. It's the same tokens pointing to different primitives. The code doesn't change ,  the values change.
 
 ### CSS Custom Properties Approach
 
 Define all tokens on `:root`. In dark mode, redefine the semantic ones.
 
 ```css
-/* Light theme — on :root by default */
+/* Light theme ,  on :root by default */
 :root {
   --color-primary: var(--primitive-color-blue-500);
   --color-text-primary: var(--primitive-color-slate-900);
   --color-background: var(--primitive-color-white);
 }
 
-/* Dark theme — override via @media or .dark class */
+/* Dark theme ,  override via @media or .dark class */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-primary: var(--primitive-color-blue-400);
@@ -304,7 +304,7 @@ export function Button({ children, variant = 'primary' }) {
 }
 ```
 
-Tailwind emits `bg-[var(--color-primary)]`. When the theme changes (via CSS custom properties), Tailwind doesn't re-run — the custom properties update and the browser repaints. It's instant.
+Tailwind emits `bg-[var(--color-primary)]`. When the theme changes (via CSS custom properties), Tailwind doesn't re-run ,  the custom properties update and the browser repaints. It's instant.
 
 ### TypeScript Theme Objects
 
@@ -415,7 +415,7 @@ Every prop should earn its place. If a prop is only used once in your codebase, 
 />
 ```
 
-Every prop is a escape hatch. The component has no shape — it's a factory for infinite shapes.
+Every prop is a escape hatch. The component has no shape ,  it's a factory for infinite shapes.
 
 **Good:**
 
@@ -854,9 +854,9 @@ For a design system that doesn't change hourly:
 3. **CI builds and deploys.** `npm run tokens:build` → CSS → site.
 
 Figma plugins that export variables:
-- **Token Studio** — full-featured, paid
-- **Figma Tokens** — lightweight, free
-- **Parity Check** — detects drift (designer: did you *actually* update this?)
+- **Token Studio** ,  full-featured, paid
+- **Figma Tokens** ,  lightweight, free
+- **Parity Check** ,  detects drift (designer: did you *actually* update this?)
 
 ### Detecting Drift
 
@@ -962,20 +962,20 @@ Write one `README.md` per component. One page. Keep it tight.
 ```markdown
 # Button
 
-Triggers an action or navigation. Never used for navigation — use `<Link>` instead.
+Triggers an action or navigation. Never used for navigation ,  use `<Link>` instead.
 
 ## Variants
 
-- **primary** — Call-to-action. One per page.
-- **secondary** — Alternative action. Use when primary is not strong enough.
-- **ghost** — Tertiary. Text-only, no background.
-- **danger** — Destructive action. Delete, cancel, refund. Requires confirmation.
+- **primary** ,  Call-to-action. One per page.
+- **secondary** ,  Alternative action. Use when primary is not strong enough.
+- **ghost** ,  Tertiary. Text-only, no background.
+- **danger** ,  Destructive action. Delete, cancel, refund. Requires confirmation.
 
 ## Sizes
 
-- **sm** (12px) — Inline actions, small containers
-- **md** (14px) — Default, most common
-- **lg** (16px) — Hero actions, large containers
+- **sm** (12px) ,  Inline actions, small containers
+- **md** (14px) ,  Default, most common
+- **lg** (16px) ,  Hero actions, large containers
 
 ## API
 
@@ -1043,12 +1043,12 @@ This is not within scope for M10. Mention it, but focus on the code and minimal 
 
 By now, you have:
 
-1. **Token system** — Figma variables, CSS custom properties, exported as both CSS and TypeScript
-2. **Theme layer** — Light and dark modes, same token names, different values
-3. **5 core components** — Button, Card, Input, Badge, Modal
-4. **Component API** — Variants, sizes, minimal prop set
-5. **Documentation** — One README per component, basic API reference
-6. **Sync detection** — CI checks that tokens JSON matches emitted CSS
+1. **Token system** ,  Figma variables, CSS custom properties, exported as both CSS and TypeScript
+2. **Theme layer** ,  Light and dark modes, same token names, different values
+3. **5 core components** ,  Button, Card, Input, Badge, Modal
+4. **Component API** ,  Variants, sizes, minimal prop set
+5. **Documentation** ,  One README per component, basic API reference
+6. **Sync detection** ,  CI checks that tokens JSON matches emitted CSS
 
 ### What to Build (90 Minutes)
 
@@ -1108,7 +1108,7 @@ By the end of Step 8, you should be able to:
 - [ ] Badge supports 4 variants; colors come from tokens
 - [ ] Modal opens/closes; backdrop click closes it; size prop works
 - [ ] Toggle dark mode; all components remain readable, colors invert correctly
-- [ ] No component has a prop like `paddingX` or `textColor` — all via tokens and variant
+- [ ] No component has a prop like `paddingX` or `textColor` ,  all via tokens and variant
 - [ ] Each component has a one-page README
 
 ---
@@ -1253,7 +1253,7 @@ When a designer says "this button should have more padding," the engineer hears 
 
 When an engineer says "we need a smaller spacing unit," the designer can add it to Figma's token panel without asking permission. They both own the system because the system is real.
 
-The 5 components, the token layer, the sync, the docs — they're all scaffolding for this conversation. The checkpoint isn't "did we build the components?" It's "can a designer and engineer collaborate on them without friction?"
+The 5 components, the token layer, the sync, the docs ,  they're all scaffolding for this conversation. The checkpoint isn't "did we build the components?" It's "can a designer and engineer collaborate on them without friction?"
 
 If the answer is yes, you've built a system.
 
@@ -1276,8 +1276,8 @@ If the answer is yes, you've built a system.
 - [Headless UI](https://headlessui.com/)
 
 **Systems Design:**
-- [Design Systems Handbook](https://www.designsystemshandbook.com/) — free
-- [Building Design Systems](https://www.oreilly.com/library/view/building-design-systems/9781491924229/) — O'Reilly
+- [Design Systems Handbook](https://www.designsystemshandbook.com/) ,  free
+- [Building Design Systems](https://www.oreilly.com/library/view/building-design-systems/9781491924229/) ,  O'Reilly
 
 **Examples:**
 - [Vercel Design](https://vercel.com/design/button)

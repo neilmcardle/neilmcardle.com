@@ -1,7 +1,7 @@
 ---
 title: Make a real file yours
 module: 0
-phase: "0 — Foundations"
+phase: "0 ,  Foundations"
 promise: "Read every line of a real shipped file and say what it does and why."
 threads:
   - chosen-vs-fixed
@@ -154,7 +154,7 @@ This is where React takes over. `value={query}` means "make this input show what
 
 `onChange={(e) => setQuery(e.target.value)}` says "when the user types something, call `setQuery` with the new text." The `e` is the browser's event object, and `e.target.value` is what the user just typed. So when they type "alice", this line calls `setQuery("alice")`, which updates `query`, which re-renders the component with the filtered list.
 
-This cycle—type, update state, re-render, show new filtered results—happens instantly. That's React's core trick.
+This cycle, type, update state, re-render, show new filtered results, happens instantly. That's React's core trick.
 
 </Section>
 
@@ -246,7 +246,7 @@ Let's trace through what happens when a user finds "alice":
 9. After each keystroke, the cycle repeats. Each render, `.filter()` runs fresh, and the results update instantly.
 10. The component is now showing only users whose names include "alice".
 
-This cycle—type, update state, re-render, show new results—is the core of how interactive React components work. It's the same pattern whether you're filtering users, searching for products, or sorting posts by date.
+This cycle, type, update state, re-render, show new results, is the core of how interactive React components work. It's the same pattern whether you're filtering users, searching for products, or sorting posts by date.
 
 </Section>
 
