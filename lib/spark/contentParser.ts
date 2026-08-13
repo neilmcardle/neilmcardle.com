@@ -1,6 +1,12 @@
+export interface ParsedContent {
+  type: 'text' | 'component';
+  value: string;
+}
+
 export interface ParsedSection {
   title: string;
   content: string;
+  components: string[];
 }
 
 export function parseContentIntoSections(mdxSource: string): ParsedSection[] {
@@ -13,9 +19,12 @@ export function parseContentIntoSections(mdxSource: string): ParsedSection[] {
     const title = match[1];
     const rawContent = match[2].trim();
 
+    const components = extractComponents(rawContent);
+
     sections.push({
       title,
       content: rawContent,
+      components,
     });
   }
 
@@ -30,11 +39,12 @@ export function parseContentIntoSections(mdxSource: string): ParsedSection[] {
       if (line.startsWith('## ')) {
         if (currentSection) {
           currentSection.content = currentContent.join('\n').trim();
+          currentSection.components = extractComponents(currentSection.content);
           sections.push(currentSection);
         }
 
         const title = line.replace(/^## /, '').trim();
-        currentSection = { title, content: '' };
+        currentSection = { title, content: '', components: [] };
         currentContent = [];
       } else if (currentSection) {
         currentContent.push(line);
@@ -43,9 +53,22 @@ export function parseContentIntoSections(mdxSource: string): ParsedSection[] {
 
     if (currentSection) {
       currentSection.content = currentContent.join('\n').trim();
+      currentSection.components = extractComponents(currentSection.content);
       sections.push(currentSection);
     }
   }
 
   return sections;
+}
+
+function extractComponents(content: string): string[] {
+  const componentRegex = /<(\w+)\s*\/>/g;
+  const components: string[] = [];
+  let match;
+
+  while ((match = componentRegex.exec(content)) !== null) {
+    components.push(match[1]);
+  }
+
+  return components;
 }
