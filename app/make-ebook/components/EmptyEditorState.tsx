@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'motion/react';
 import type { BookRecord } from '../types';
 
 const LITERARY_QUOTES = [
@@ -68,6 +69,11 @@ export default function EmptyEditorState({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pasteButtonRef = useRef<HTMLButtonElement>(null);
 
+  // Locked animation values (tuned with DialKit)
+  const STAGGER_DELAY = 0.4;
+  const DURATION = 0.6;
+  const Y_OFFSET = 16;
+
   useEffect(() => {
     const idx = Math.floor(Math.random() * LITERARY_QUOTES.length);
     setQuote(LITERARY_QUOTES[idx]);
@@ -111,6 +117,9 @@ export default function EmptyEditorState({
               onUploadFile={onUploadFile}
               onNewBook={onNewBook}
               onOpenLibrary={onOpenLibrary}
+              staggerDelay={STAGGER_DELAY}
+              duration={DURATION}
+              yOffset={Y_OFFSET}
             />
           </div>
         </div>
@@ -132,6 +141,9 @@ function PaperPanel({
   onUploadFile,
   onNewBook,
   onOpenLibrary,
+  staggerDelay,
+  duration,
+  yOffset,
 }: {
   quote: { text: string; author: string };
   pasteExpanded: boolean;
@@ -145,17 +157,14 @@ function PaperPanel({
   onUploadFile: () => void;
   onNewBook: () => void;
   onOpenLibrary: () => void;
+  staggerDelay: number;
+  duration: number;
+  yOffset: number;
 }) {
   const words = pasteValue.trim() ? pasteValue.trim().split(/\s+/).filter(Boolean).length : 0;
 
   return (
     <div className="relative flex flex-col bg-[#2c2c2c] border border-[#3a3a3a] rounded-[20px] overflow-hidden">
-      {/* Top bar */}
-      <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-[#3a3a3a] flex-shrink-0">
-        <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-white/40">New book</span>
-        <span className="hidden sm:inline text-[13px] text-white/30 italic" style={{ fontFamily: 'Georgia, serif' }}>Untitled</span>
-      </div>
-
       {/* Body */}
       <div className="flex-1 flex flex-col px-7 sm:px-10 py-9 sm:py-10">
         <h2 className="font-bold text-white leading-[1.1] tracking-[-0.02em]" style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(26px, 3.2vw, 32px)' }}>
@@ -193,10 +202,10 @@ function PaperPanel({
             </div>
           ) : (
             <div className="space-y-2.5">
-              <PaperActionRow primary refEl={pasteButtonRef} icon={ICONS.paste} label="Paste manuscript" description="From a doc, an email, anywhere" onClick={onPasteStart} />
-              <PaperActionRow icon={ICONS.upload} label="Upload a file" description=".docx or .txt" onClick={onUploadFile} />
-              <PaperActionRow icon={ICONS.write} label="Start writing" description="Begin with a blank book" onClick={onNewBook} />
-              <PaperActionRow icon={ICONS.library} label="Open library" description="Your saved books" onClick={onOpenLibrary} />
+              <PaperActionRow primary refEl={pasteButtonRef} icon={ICONS.paste} label="Paste manuscript" description="From a doc, an email, anywhere" onClick={onPasteStart} index={0} staggerDelay={staggerDelay} duration={duration} yOffset={yOffset} />
+              <PaperActionRow icon={ICONS.upload} label="Upload a file" description=".docx or .txt" onClick={onUploadFile} index={1} staggerDelay={staggerDelay} duration={duration} yOffset={yOffset} />
+              <PaperActionRow icon={ICONS.write} label="Start writing" description="Begin with a blank book" onClick={onNewBook} index={2} staggerDelay={staggerDelay} duration={duration} yOffset={yOffset} />
+              <PaperActionRow icon={ICONS.library} label="Open library" description="Your saved books" onClick={onOpenLibrary} index={3} staggerDelay={staggerDelay} duration={duration} yOffset={yOffset} />
             </div>
           )}
         </div>
@@ -217,6 +226,10 @@ function PaperActionRow({
   onClick,
   primary,
   refEl,
+  index = 0,
+  staggerDelay = 0.1,
+  duration = 0.4,
+  yOffset = 20,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -224,12 +237,23 @@ function PaperActionRow({
   onClick: () => void;
   primary?: boolean;
   refEl?: React.Ref<HTMLButtonElement>;
+  index?: number;
+  staggerDelay?: number;
+  duration?: number;
+  yOffset?: number;
 }) {
   return (
-    <button
+    <motion.button
       ref={refEl}
       type="button"
       onClick={onClick}
+      initial={{ opacity: 0, y: yOffset }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        delay: index * staggerDelay,
+        duration: duration,
+        ease: 'easeOut',
+      }}
       className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 ${
         primary
           ? 'border-[#444] bg-white/[0.08] hover:bg-white/[0.12]'
@@ -244,6 +268,7 @@ function PaperActionRow({
       <svg className="w-4 h-4 text-white/25 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M9 6l6 6-6 6" />
       </svg>
-    </button>
+    </motion.button>
   );
 }
+
