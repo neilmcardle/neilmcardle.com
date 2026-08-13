@@ -7,8 +7,7 @@
 ## What this document is (and is not)
 
 This is **the metal, refined from the mine.** The mine is
-[`../spark-teaching-log/`](../spark-teaching-log/) — the raw, chronological record of Neil actually
-learning this material, warts and all. This file is the *designed* course spine derived from it,
+[`../spark-teaching-log/`](../spark-teaching-log/) — the raw, chronological record of learning this material, warts and all. This file is the *designed* course spine derived from it,
 ordered for a learner we haven't met.
 
 **Two rules that make Spark Spark:**
@@ -16,7 +15,7 @@ ordered for a learner we haven't met.
 1. **The rubric is borrowed; the content is lived.** The Definition of Done and per-module template
    are a rubric to build **toward**, never a machine to generate **from**.
 2. **AI is banned as author.** Every lesson's content and code is hand-lived and hand-written by
-   Neil, documented while it's "still wet." The best assets (the S08 semicolon bug, the S10
+   the instructor, documented while it's "still wet." The best assets (the S08 semicolon bug, the S10
    Babel-drift fight) prove why — real friction can't be prompted.
 
 **Status markers:** `LIVED` = real source material exists · `PARTIAL` = touched, not fully lived ·
@@ -26,8 +25,7 @@ ordered for a learner we haven't met.
 
 ## North Star: the target profile
 
-The competency bar we aim at is the **Design Engineer role** (per the Granola DE listing Neil flagged,
-2026-07-02): *a builder who owns the seam between design and engineering — ships polished production UI
+The competency bar we aim at is the **Design Engineer role**: *a builder who owns the seam between design and engineering — ships polished production UI
 with obsessive craft (typography, color, motion, microinteractions), builds design systems in Figma
 **and** code (React/TypeScript/Tailwind), keeps consistency across desktop platforms (Electron), and
 invents new interaction patterns for AI-native products.*
@@ -221,7 +219,7 @@ components. *Build: a **design-token pipeline + themed component set**, mirrored
 **Checkpoint:** one source of truth for tokens; components have a deliberate, minimal API; dark mode via
 tokens, not overrides; a designer *and* an engineer would both respect it.
 **Threads:** design-in-the-browser / Figma↔code · craft-is-the-differentiator · language-vs-framework.
-*(Neil's design-systems strength is the edge here — lean on it.)*
+*(Design-systems expertise is the edge here — lean on it.)*
 
 #### M10 — Motion & interaction engineering · `AHEAD`
 **Promise:** Implement high-craft motion and microinteractions — and know when to withhold them.

@@ -1,0 +1,332 @@
+---
+title: "Designing AI-native interaction patterns"
+module: 13
+phase: "Phase 2 — DE core"
+promise: "Invent interaction patterns for AI products where no precedent exists."
+threads:
+  - craft-is-the-differentiator
+  - your-code-vs-the-platform
+---
+
+<Section title="The four states of non-deterministic output">
+
+AI doesn't work like a button press. You send a prompt, the model computes, and the answer arrives eventually. In the meantime, the user is looking at your screen.
+
+Most AI products ignore this. They show an empty state, then a full answer. The user is stuck watching a spinner for 5 seconds, guessing whether the feature is broken.
+
+Real AI-native design builds these four states into every surface:
+
+**Idle.** Nothing is happening. The field is empty or shows previous output.
+
+**Loading.** The model is computing. Streaming has not started yet. This is the moment the user needs confidence that something *is* happening. A spinner is honest. So is a skeleton with a gentle pulse.
+
+**Streaming.** Output is arriving token-by-token. The user can see the answer taking shape. This is the moment to stop worrying about latency and start thinking about rhythm. Fast streams feel responsive. Slow streams feel stuttering. The same content arriving at 60 tokens/sec feels snappier than 20 tokens/sec.
+
+**Done.** The model has finished. The output is ready to edit, save, or reject. This is when you show the user the confidence score, the citation, or the "these are the assumptions I made" disclosure.
+
+Each state needs a visual language. And the transitions between them need to feel intentional, not like errors.
+
+</Section>
+
+<Section title="Streaming as a design material">
+
+Streaming is not a latency hack. It is a design material. Learn to use it.
+
+When a user sees text appearing on the screen word by word, three things happen in their brain at once. They read ahead. They anticipate the rest of the sentence. And they feel like the model is *thinking*, not just retrieving from memory. Streaming makes slow interactions feel responsive because the eye has something to track.
+
+A 5-second stream of 120 characters per second feels like work-in-progress. Responsive, but real. A 5-second wait with a blank screen feels like failure.
+
+Here is a basic streaming component that adjusts the render rate:
+
+```typescript
+export function StreamingText({ text, speed = 60 }: { text: string; speed?: number }) {
+  const [rendered, setRendered] = useState("");
+  const charIntervalMs = 1000 / speed;
+
+  useEffect(() => {
+    if (!text) {
+      setRendered("");
+      return;
+    }
+
+    let index = 0;
+    let lastTime = Date.now();
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const charsSinceLastUpdate = Math.floor((now - lastTime) / charIntervalMs);
+      
+      if (charsSinceLastUpdate > 0) {
+        index = Math.min(index + charsSinceLastUpdate, text.length);
+        setRendered(text.slice(0, index));
+        lastTime = now;
+      }
+
+      if (index >= text.length) clearInterval(interval);
+    }, 16);
+
+    return () => clearInterval(interval);
+  }, [text, speed]);
+
+  return <p>{rendered}</p>;
+}
+```
+
+The speed parameter is the key. Book Mind, for example, streams at 120 characters per second by default. That feels like a human typing. Try 30 chars/sec on a 200-word response and watch how patience evaporates. The stream is not the message. The stream is the tempo.
+
+</Section>
+
+<Section title="Uncertainty states and honest signals">
+
+AI is not confident about everything. Sometimes the model knows it is guessing. Sometimes it hallucinates a citation. Sometimes the context was incomplete.
+
+The old design pattern ignores this. The model outputs text. The text appears on screen. The user assumes it is fact.
+
+AI-native design surfaces uncertainty. You give the model permission to be honest. And you give the UI permission to show that honesty.
+
+Here are three ways to signal uncertainty:
+
+**Confidence scores.** The model can return a number from 0 to 1 indicating how confident it is about each claim. A score below 0.7 gets a soft visual indicator, like a reduced opacity or a question mark glyph. Not a lock. Just a whisper that says, "This might be wrong."
+
+**Source citations.** If the model pulled from a specific chapter or document, show it. Link to it. Let the user verify. If the model is inventing from its training data, say so. A citation that links to a real page is a proof point. A claim with no source is a guess.
+
+**Reasoning traces.** Some models can explain their reasoning: "I think this because of X, Y, and Z." Show that trace. It is the difference between "the model said so" and "here is why the model thinks so." The user can then evaluate the reasoning independently.
+
+The checkpoint is honesty, not accuracy. If your UI never admits uncertainty, users learn not to trust it. If your UI admits uncertainty clearly, users learn when to trust it more.
+
+</Section>
+
+<Section title="The rhythm of latency">
+
+Latency is not evil if you use it well. A 3-second wait with streaming text feels fast. A 3-second wait with a spinner feels broken.
+
+There are three latency moments in an AI interaction:
+
+**Time to first token.** This is when the model starts responding. It is the most visceral moment. If you have a 2-second delay here, the user is checking their internet connection. If you have a 0.2-second delay, the user thinks your server is adjacent. Time to first token is about infrastructure and model selection, not UI. But your UI can smooth it. Show a "generating..." state immediately, before you know if the model will respond. Communicate intent. Do not ask for permission. Just show the user that something is happening in response to their action.
+
+**Time to completion.** This is the entire stream. If the stream is 5 seconds, the user will wait 5 seconds. But if the stream is interrupted, the user will wait longer. A stream that stops and starts looks like an error, not a pause. Keep the stream smooth. If the connection drops, show an error state clearly, then offer retry. Do not resume midstream and hope the user does not notice.
+
+**Time to edit.** Once the output is done, how long until the user can edit or correct it? If your interface requires the user to hit "Save" before they can make changes, you have added friction. Let the user correct and refine in real time. Treat the AI output like a draft, not a finished artifact.
+
+The best AI interfaces feel like co-writing. The model generates, the user refines, the model generates again. This rhythm is faster than "wait for perfect output, then ship it."
+
+</Section>
+
+<Section title="Human-in-the-loop editing and undo">
+
+The fundamental law of AI-native UX: the user must always be able to undo. Every model output is a suggestion, not a decree.
+
+This means two things in your code:
+
+First, never destructively replace the user's text with the model's text. Always show the model's text as a suggestion, a draft, a take. The user should be able to see both the original and the generated version at the same time, or switch between them with a single keystroke.
+
+Second, every edit the user makes should be reversible. If the user corrects a sentence, they should be able to undo that correction and return to the model's version. And if they like the model's version better, they should be able to accept it again. This sounds simple. It is actually complex to build. It requires storing the interaction history and treating each state as a branching tree, not a linear sequence.
+
+Here is a minimal state machine for this:
+
+```typescript
+interface AIEditState {
+  original: string;
+  modelVersion: string;
+  userVersion: string;
+  history: string[];
+}
+
+export function useAIEdit(original: string) {
+  const [state, setState] = useState<AIEditState>({
+    original,
+    modelVersion: "",
+    userVersion: original,
+    history: [original],
+  });
+
+  const acceptModel = () => {
+    setState((prev) => ({
+      ...prev,
+      userVersion: prev.modelVersion,
+      history: [...prev.history, prev.modelVersion],
+    }));
+  };
+
+  const rejectModel = () => {
+    setState((prev) => ({
+      ...prev,
+      modelVersion: "",
+      userVersion: prev.original,
+      history: [...prev.history, prev.original],
+    }));
+  };
+
+  const undo = () => {
+    setState((prev) => {
+      if (prev.history.length <= 1) return prev;
+      const newHistory = prev.history.slice(0, -1);
+      return {
+        ...prev,
+        userVersion: newHistory[newHistory.length - 1],
+        history: newHistory,
+      };
+    });
+  };
+
+  return { state, acceptModel, rejectModel, undo };
+}
+```
+
+The key insight is that `userVersion` is always the current state the user is looking at. `modelVersion` is the suggestion. Accepting the model means copying it into `userVersion`. Rejecting means resetting to `original`. And history tracks every state transition so undo always works.
+
+Build this state machine first. Wire the UI later. The interaction model has to be solid before the visual design can land.
+
+</Section>
+
+<Section title="Trust through correction loops">
+
+Users trust AI when they can correct it without penalty. Not "correct and start over." Not "your edit disqualifies the entire response." Just, "I see what you meant, but here is what I want instead."
+
+This is the inverse of most UX patterns. In a traditional interface, the user initiates, the system responds, the task ends. In an AI-native interface, the user initiates, the AI responds, the user corrects, the AI responds again. It is a loop.
+
+Each loop should be fast. When the user edits the AI's output and re-submits, they should see the new response within 2-3 seconds, not 10. This is why streaming is so important. A streaming response at 100 tokens/sec feels immediate. A buffered response that arrives all at once after 10 seconds feels slow, even if the total time is the same.
+
+And each loop should be visible. Do not hide the previous turns in a collapsed sidebar. Show the conversation. Let the user see how they refine the AI's output turn by turn. This is the transparency that builds trust. The user can see, "Oh, I asked for shorter sentences, and the AI actually did that. I asked for more technical depth, and the AI added three footnotes. The AI is listening to me."
+
+This feedback loop is the moat. A user who has corrected an AI output three times and seen it improve feels ownership. They feel like they are co-creating. That is when they upgrade. That is when they recommend your product.
+
+</Section>
+
+<Section title="Build: a live-summarizing note field">
+
+Let us build a small AI-native interface to cement these patterns. A note field that summarizes its own text as you type.
+
+The user opens the field. They start typing. After 2 seconds of no keystroke, the interface sends the text to the model. The model streams back a summary. The summary appears below the note field. The user can edit the note further, and the summary updates accordingly.
+
+Here is the flow:
+
+**Idle state.** The note field is empty. There is no summary to show. A placeholder says, "Type a note. A summary will appear."
+
+**Typing state.** The user types. The interface debounces the input and waits 2 seconds. If another keystroke comes, the timer resets. No API call yet.
+
+**Loading state.** The timer expires. No keystroke in 2 seconds. An API request is sent. A subtle pulse appears below the note. "Summarizing..."
+
+**Streaming state.** The summary arrives, word by word. The text appears below the note. The user reads it as it streams.
+
+**Done state.** The summary is complete. The user can now edit the note further or copy the summary to the clipboard.
+
+**Error state.** If the API fails, a dismissible error appears. The note is still intact. The user can try again.
+
+Here is the component:
+
+```typescript
+export function LiveSummarizeNote() {
+  const [note, setNote] = useState("");
+  const [summary, setSummary] = useState("");
+  const [state, setState] = useState<"idle" | "typing" | "loading" | "streaming" | "done" | "error">("idle");
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const fetchSummary = async (text: string) => {
+    if (!text.trim()) {
+      setSummary("");
+      setState("idle");
+      return;
+    }
+
+    setState("loading");
+    setSummary("");
+
+    try {
+      const response = await fetch("/api/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) throw new Error("Failed to summarize");
+
+      setState("streaming");
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No stream");
+
+      let accumulated = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = new TextDecoder().decode(value);
+        accumulated += chunk;
+        setSummary(accumulated);
+      }
+
+      setState("done");
+    } catch (error) {
+      setState("error");
+    }
+  };
+
+  const handleNoteChange = (text: string) => {
+    setNote(text);
+    setState("typing");
+
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    debounceTimer.current = setTimeout(() => {
+      fetchSummary(text);
+    }, 2000);
+  };
+
+  return (
+    <div className="space-y-4">
+      <textarea
+        value={note}
+        onChange={(e) => handleNoteChange(e.target.value)}
+        placeholder="Type a note. A summary will appear."
+        className="w-full h-32 p-3 border rounded"
+      />
+
+      {state === "typing" && <p className="text-sm text-gray-400">Waiting for pause...</p>}
+
+      {state === "loading" && <p className="text-sm text-gray-400">Summarizing...</p>}
+
+      {state === "streaming" && (
+        <div className="p-3 bg-blue-50 rounded">
+          <p className="text-sm font-semibold text-gray-700">Summary</p>
+          <p className="text-sm text-gray-600">{summary}</p>
+        </div>
+      )}
+
+      {state === "done" && (
+        <div className="p-3 bg-blue-50 rounded">
+          <p className="text-sm font-semibold text-gray-700">Summary</p>
+          <p className="text-sm text-gray-600">{summary}</p>
+        </div>
+      )}
+
+      {state === "error" && (
+        <p className="text-sm text-red-600">Could not summarize. Try again.</p>
+      )}
+    </div>
+  );
+}
+```
+
+This component surfaces every state honestly. The user knows when the system is listening, when it is thinking, when it is streaming, when it is done, and when it failed. There is no pretense. There is no magic. There is only clarity.
+
+The streaming part is the differentiator. Without it, the user waits for a spinner. With it, the user watches the summary take shape. Same latency. Completely different feeling.
+
+Build this first. It is the smallest version of an AI-native interface. Master it before you ship a chat interface, a Cmd-K bar, or a full editorial suite.
+
+</Section>
+
+<Section title="Checkpoint: calm under latency">
+
+You are done with this module when your interface meets three criteria:
+
+First, the user always knows what state the system is in. Idle. Thinking. Streaming. Done. Error. No ambiguity. The visual language is consistent. A thinking state in one place looks like a thinking state everywhere else.
+
+Second, the user can correct or undo every AI output without losing their own work. If the AI generates something they do not like, they reject it, and their original text is still there. If they accept it, they can edit it further. This is not a guarantee that the AI will get it right. It is a guarantee that the user is always in control.
+
+Third, the interface stays calm under latency. A 3-second delay with streaming text is not a problem. A 3-second delay with a spinner is a failure. If your AI interaction feels responsive, latency becomes invisible.
+
+Test this on a slow connection. Throttle your network to 3G. Watch the streams. Watch the error handling. Does your interface feel responsive? Does it feel trustworthy? Does the user feel in control?
+
+If the answer is yes to all three, you have designed an AI-native interface. You are ready for the next pattern.
+
+</Section>

@@ -1,0 +1,544 @@
+---
+title: "Shipping UI: Next.js + desktop/Electron"
+module: 12
+phase: "Phase 2 — DE core"
+promise: "Ship a real, polished multi-surface app and understand desktop delivery."
+threads:
+  - "craft-is-the-differentiator"
+  - "your-code-vs-the-platform"
+---
+
+<Section title="The serverless divide: server vs. client components">
+
+Next.js 16 splits your code into two execution environments. Understanding which code runs where is the foundational move.
+
+Server components run once, on your server, then ship rendered HTML to the browser. No JavaScript. Client components run in the browser, can hold state, respond to clicks.
+
+The mistake: thinking server/client is about *databases* and *APIs*. It's not. It's about where your code executes and what the browser downloads.
+
+A server component that fetches data from your database renders once. The result is HTML. The browser displays it, no round trip.
+
+A client component with a button needs JavaScript. The browser downloads React, your component code, and everything it imports. Your bundle grows.
+
+```typescript
+// app/page.tsx — Server component by default
+import { getArticles } from "@/lib/db";
+
+export default async function HomePage() {
+  const articles = await getArticles();
+  
+  return (
+    <div>
+      {articles.map((a) => (
+        <article key={a.id}>
+          <h2>{a.title}</h2>
+          <p>{a.excerpt}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+This doesn't ship any JavaScript. The HTML includes the article list. Fast.
+
+```typescript
+// app/components/InteractiveFilter.tsx — Client component
+"use client";
+import { useState } from "react";
+
+export default function InteractiveFilter({ articles }) {
+  const [filter, setFilter] = useState("");
+  const filtered = articles.filter((a) =>
+    a.title.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  return (
+    <div>
+      <input
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        placeholder="Search articles..."
+      />
+      {filtered.map((a) => (
+        <article key={a.id}>
+          <h2>{a.title}</h2>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+This ships JavaScript because the browser handles input changes. Smaller component, focused responsibility. The browser re-renders the filtered list, not the server.
+
+The pattern: fetch on the server, render the HTML, pass data as props to a small client component that handles interactivity. You get fast initial load and instant clicks.
+
+</Section>
+
+<Section title="Routing as your mental model">
+
+In Next.js 16, the file system is your router. Each folder with a `page.tsx` is a route.
+
+```
+app/
+  page.tsx                 → /
+  dashboard/
+    page.tsx              → /dashboard
+    settings/
+      page.tsx            → /dashboard/settings
+  api/
+    articles/
+      route.ts            → POST /api/articles
+```
+
+This isn't magic. It's just a convention that maps files to URLs.
+
+When a visitor lands on `/dashboard/settings`, Next.js runs `app/dashboard/settings/page.tsx`. If it's a server component, the data fetches, HTML renders, browser receives it.
+
+The URL is not separate from your component structure. They're the same thing.
+
+Layout files wrap multiple routes. A `layout.tsx` in the `app/` folder wraps every page. A `layout.tsx` in `app/dashboard/` wraps only dashboard pages.
+
+```typescript
+// app/dashboard/layout.tsx — wraps /dashboard and /dashboard/settings
+"use client";
+import { useState } from "react";
+
+export default function DashboardLayout({ children }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div style={{ display: "flex" }}>
+      <aside style={{ width: open ? 240 : 60 }}>
+        <button onClick={() => setOpen(!open)}>Toggle</button>
+        {open && <nav>Navigation here</nav>}
+      </aside>
+      <main style={{ flex: 1 }}>{children}</main>
+    </div>
+  );
+}
+```
+
+Every page inside this layout gets the sidebar. The layout persists during navigation, so state doesn't reset when you move between routes. This is cheaper than rebuilding the whole page.
+
+Dynamic routes use square brackets. `app/articles/[id]/page.tsx` matches `/articles/42`, `/articles/hello-world`, any ID.
+
+```typescript
+// app/articles/[id]/page.tsx
+export default async function ArticlePage({ params }) {
+  const { id } = params;
+  const article = await getArticle(id);
+
+  return (
+    <article>
+      <h1>{article.title}</h1>
+      <div>{article.content}</div>
+    </article>
+  );
+}
+```
+
+The `params` object gives you the captured value. Next.js handles the parsing.
+
+</Section>
+
+<Section title="Forms without the framework">
+
+Forms are HTML. They've been forms since the 90s. Next.js isn't reinventing them, it's making them work better.
+
+A form submission is a request to your server. The browser collects the data, sends it, waits for a response. No JavaScript required for basic forms.
+
+In Next.js, you write a Server Action — a function marked `"use server"` that runs on your server when the form submits.
+
+```typescript
+// lib/actions.ts
+"use server";
+import { db } from "@/lib/db";
+
+export async function createArticle(formData) {
+  const title = formData.get("title");
+  const excerpt = formData.get("excerpt");
+
+  const article = await db.articles.create({
+    title,
+    excerpt,
+  });
+
+  return { success: true, id: article.id };
+}
+```
+
+Then use it directly in your form:
+
+```typescript
+// app/articles/new/page.tsx
+import { createArticle } from "@/lib/actions";
+
+export default function NewArticlePage() {
+  return (
+    <form action={createArticle}>
+      <input type="text" name="title" required />
+      <textarea name="excerpt"></textarea>
+      <button type="submit">Create article</button>
+    </form>
+  );
+}
+```
+
+No JavaScript needed. The form submits, the server action runs, the database updates, the browser navigates to the next page or revalidates data.
+
+For client-side validation and loading states, wrap the form in a client component:
+
+```typescript
+// app/components/ArticleForm.tsx
+"use client";
+import { createArticle } from "@/lib/actions";
+import { useState, useTransition } from "react";
+
+export default function ArticleForm() {
+  const [pending, startTransition] = useTransition();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    startTransition(async () => {
+      const formData = new FormData(e.target);
+      const result = await createArticle(formData);
+      if (result.success) {
+        e.target.reset();
+      }
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" name="title" required />
+      <button type="submit" disabled={pending}>
+        {pending ? "Creating..." : "Create article"}
+      </button>
+    </form>
+  );
+}
+```
+
+The `useTransition` hook gives you a `pending` flag so you can disable the button and show loading state. The browser doesn't navigate until the server action completes.
+
+</Section>
+
+<Section title="Data fetching: not just async/await">
+
+Fetching data in Next.js is async/await on the server side. But the browser caches, Next.js revalidates, and your data gets stale.
+
+In a server component, you can `await` directly:
+
+```typescript
+// app/dashboard/page.tsx
+import { getStats } from "@/lib/db";
+
+export default async function DashboardPage() {
+  const stats = await getStats();
+
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <p>Users: {stats.userCount}</p>
+      <p>Articles: {stats.articleCount}</p>
+    </div>
+  );
+}
+```
+
+Next.js caches this response by default. The data doesn't refetch until you redeploy or manually revalidate.
+
+To refresh data on demand, use `revalidatePath` inside a Server Action:
+
+```typescript
+// lib/actions.ts
+"use server";
+import { revalidatePath } from "next/cache";
+import { db } from "@/lib/db";
+
+export async function publishArticle(id) {
+  await db.articles.update(id, { published: true });
+  revalidatePath("/dashboard");
+  // Next.js rerenders /dashboard and fetches fresh stats
+}
+```
+
+For real-time updates, client components fetch inside `useEffect`:
+
+```typescript
+// app/components/LiveStats.tsx
+"use client";
+import { useEffect, useState } from "react";
+
+export default function LiveStats() {
+  const [stats, setStats] = useState(null);
+
+  useEffect(() => {
+    const poll = setInterval(async () => {
+      const res = await fetch("/api/stats");
+      const data = await res.json();
+      setStats(data);
+    }, 5000);
+
+    return () => clearInterval(poll);
+  }, []);
+
+  if (!stats) return <p>Loading...</p>;
+  return <p>Users now: {stats.activeNow}</p>;
+}
+```
+
+This polls every 5 seconds. The browser fetches fresh data, no page reload.
+
+</Section>
+
+<Section title="Performance: no dropped frames, small bundles">
+
+A dropped frame feels like a stutter. Your app rendered 59 frames per second instead of 60. Users notice.
+
+Performance on the web is two problems: fast initial load and fast interaction.
+
+Initial load is mostly about bundle size. Smaller JavaScript means faster download, parse, and execution. Use server components to ship zero JavaScript when you don't need it.
+
+Interaction performance is about React rendering. If you render 10,000 items on every keystroke, the browser can't keep up. Use `key` props correctly, memoize expensive renders, and don't fetch on every input change.
+
+```typescript
+// Bad: fetches on every keystroke
+"use client";
+import { useState, useEffect } from "react";
+
+export default function Search() {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+
+  useEffect(() => {
+    if (query.length > 0) {
+      fetch(`/api/search?q=${query}`).then((res) =>
+        res.json().then(setResults)
+      );
+    }
+  }, [query]); // runs on EVERY keystroke
+
+  return (
+    <div>
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search..."
+      />
+      {results.map((r) => (
+        <div key={r.id}>{r.title}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+This fetches for every character typed. Network round trip is slow.
+
+Better: debounce the fetch:
+
+```typescript
+// Good: debounces the fetch
+"use client";
+import { useState, useEffect, useRef } from "react";
+
+export default function Search() {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    timeoutRef.current = setTimeout(() => {
+      if (query.length > 0) {
+        fetch(`/api/search?q=${query}`).then((res) =>
+          res.json().then(setResults)
+        );
+      }
+    }, 300); // waits 300ms after typing stops
+  }, [query]);
+
+  return (
+    <div>
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search..."
+      />
+      {results.map((r) => (
+        <div key={r.id}>{r.title}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+Wait 300ms after the user stops typing, then fetch. Fewer requests, same user experience.
+
+For bundle size, check what you're importing. If you import a 50KB library to use one function, you've added 50KB to your bundle. Audit with `next/bundle-analyzer`.
+
+</Section>
+
+<Section title="Electron and cross-platform consistency">
+
+Electron wraps your web app in a desktop shell. The same React code that runs in the browser runs in the desktop app. Almost.
+
+The difference: the desktop shell has native APIs. You can read the file system, watch folders, send notifications, change system tray icons. A web app can't do these things.
+
+Electron is two processes: the main process (Node.js, native APIs) and the renderer process (Chromium, your React app). They talk via IPC (inter-process communication).
+
+```typescript
+// main.js — main process, runs in Node.js
+const { app, BrowserWindow, ipcMain } = require("electron");
+const path = require("path");
+
+let mainWindow;
+
+app.on("ready", () => {
+  mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+    },
+  });
+
+  mainWindow.loadURL("http://localhost:3000");
+  mainWindow.webContents.openDevTools();
+});
+
+ipcMain.handle("get-user-documents", async () => {
+  const documentsPath = app.getPath("documents");
+  return documentsPath;
+});
+```
+
+The main process listens for IPC messages and runs Node.js code.
+
+In your React app (the renderer), call the main process:
+
+```typescript
+// In your React component
+"use client";
+const { ipcRenderer } = require("electron");
+
+export default function FileBrowser() {
+  const openFolder = async () => {
+    const docsPath = await ipcRenderer.invoke("get-user-documents");
+    console.log("Docs at:", docsPath);
+  };
+
+  return <button onClick={openFolder}>Open Documents</button>;
+}
+```
+
+The React component invokes the main process, waits for the result, updates state.
+
+For Mac and Windows consistency: platform-specific code is inevitable. File paths differ, keyboard shortcuts differ, menu bar behaviour differs. Write platform checks when you need them:
+
+```typescript
+// lib/platform.ts
+export const isMac = process.platform === "darwin";
+export const isWindows = process.platform === "win32";
+
+export const shortcuts = isMac
+  ? { save: "Cmd+S", undo: "Cmd+Z" }
+  : { save: "Ctrl+S", undo: "Ctrl+Z" };
+```
+
+Use these constants in your UI and native code.
+
+</Section>
+
+<Section title="Deployment and the real world">
+
+Deploying your app means getting it running on a server that's always on, always available.
+
+Vercel is the simplest path for Next.js. Push to Git, Vercel builds and deploys. You get HTTPS, caching, analytics, edge functions. Most of it free.
+
+```bash
+# 1. Create a GitHub repository
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/yourname/your-app.git
+git push -u origin main
+
+# 2. Connect to Vercel at vercel.com
+# (Import from GitHub, Vercel builds automatically on push)
+
+# 3. Set environment variables in Vercel dashboard
+# DATABASE_URL, API_KEYS, etc.
+
+# 4. Push a new change
+git add app/page.tsx
+git commit -m "Update homepage"
+git push
+# Vercel rebuilds and deploys in < 1 minute
+```
+
+Deployment for Electron is different. You build once, then distribute the binary. Platforms have different build processes.
+
+For Mac: create a `.dmg` installer. For Windows: create an `.exe` installer. Use `electron-builder` to automate this.
+
+```json
+{
+  "name": "my-desktop-app",
+  "build": {
+    "appId": "com.example.myapp",
+    "productName": "My App",
+    "files": ["dist/**/*"],
+    "mac": {
+      "target": ["dmg"],
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": ["nsis"]
+    }
+  }
+}
+```
+
+Then build: `electron-builder`. You get `My App.dmg` and `My App Setup.exe`.
+
+Distribute these files on your website or GitHub Releases. Users download, install, run locally. No server required. Your data stays on their machine.
+
+The tradeoff: no auto-update. If you push a fix, users have to download the new version manually. Solve this with `electron-updater`, which checks for new versions and downloads in the background.
+
+</Section>
+
+<Section title="Your checkpoint: an interactive dashboard with desktop support">
+
+Build a personal productivity dashboard. Ship it web and desktop. Make it fast.
+
+**Requirements:**
+
+- Route structure: home page, dashboard page with dynamic user ID, settings page.
+- At least one form that submits data (add a task, update a preference).
+- One data fetching pattern that doesn't block the page load.
+- Export to Electron with at least one native API call (read a folder, send a notification).
+- Deployed web version and a downloadable desktop binary.
+
+**What craft means here:**
+
+Your dashboard should feel fast. No spinners while you type. No jank when you scroll. The desktop version should respect platform conventions (Mac keyboard shortcuts, Windows window chrome).
+
+**What "deployed" means:**
+
+The web version lives at a URL (vercel.com domain is fine). The desktop binary exists and can be downloaded. Both work offline or with live data, depending on your architecture.
+
+**Grading criteria:**
+
+- Routing works. You can navigate between pages without full refresh.
+- The form submits without leaving the page and shows feedback.
+- Fetched data appears within 2 seconds on first visit.
+- The desktop version opens and doesn't crash. One native API call works (file read, notification, menu item).
+- Bundle size is under 5MB for web, under 150MB for desktop.
+
+This is your first real, shippable product. Polish it like you'll use it every day.
+
+</Section>

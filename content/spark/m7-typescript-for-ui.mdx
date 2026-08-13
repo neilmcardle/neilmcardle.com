@@ -1,0 +1,255 @@
+---
+title: TypeScript for UI
+module: 7
+phase: Phase 1 — JS & React
+promise: Type component props and data confidently.
+threads:
+  - language-vs-framework
+---
+
+<Section title="What Types Add">
+
+JavaScript is permissive. A function expects a number but gets a string. It runs anyway, crashes later, and you debug for an hour. TypeScript catches this at write-time. Your editor flags the mistake before you save.
+
+Types are a contract. They say: "This prop is a string, always. This object has a `name` and an `age`. This function returns a boolean or null, never undefined." The computer enforces the contract.
+
+```javascript
+// JavaScript — no complaint until the crash
+function greet(name) {
+  return "Hello, " + name.toUpperCase();
+}
+
+greet(42); // Crashes: 42 has no toUpperCase method
+```
+
+```typescript
+// TypeScript — catches it immediately
+function greet(name: string) {
+  return "Hello, " + name.toUpperCase();
+}
+
+greet(42); // Error: Argument of type 'number' is not assignable to parameter of type 'string'
+```
+
+Types aren't just safety. They're a form of documentation. Six months later, you read `function loadUser(id: number): Promise<User>` and immediately understand what the function does and what it returns. No guessing.
+
+</Section>
+
+<Section title="Structural Typing">
+
+TypeScript doesn't care about names. It cares about shape. If an object has the fields you need, TypeScript treats it as the right type. This is called structural typing, and it's the opposite of Java's nominal typing (where the name matters).
+
+```typescript
+// Two different type names, same shape
+type User = {
+  id: number;
+  name: string;
+};
+
+type Person = {
+  id: number;
+  name: string;
+};
+
+const user: User = { id: 1, name: "Alice" };
+const person: Person = user; // Valid. TypeScript doesn't care about the type name.
+```
+
+```typescript
+// This works because the object has the right fields
+type Author = {
+  name: string;
+  email: string;
+};
+
+const author: Author = {
+  name: "Neil",
+  email: "neil@example.com",
+  bio: "A designer", // Extra fields are fine
+};
+```
+
+Structural typing makes TypeScript flexible. You don't need to inherit from a base class or implement an interface (though you can). You just need the right fields in the right shape. This is why a fetch response, a hardcoded object, and a database query result can all satisfy the same type.
+
+</Section>
+
+<Section title="Typing Component Props">
+
+React components receive props. Props are objects. TypeScript makes sure the props you pass match what the component expects.
+
+```typescript
+// Define what props the button accepts
+type ButtonProps = {
+  label: string;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  disabled?: boolean; // Optional prop
+};
+
+function Button({ label, onClick, disabled = false }: ButtonProps) {
+  return (
+    <button onClick={onClick} disabled={disabled}>
+      {label}
+    </button>
+  );
+}
+
+// Usage
+<Button label="Save" onClick={() => console.log("saved")} />
+<Button label="Delete" onClick={handleDelete} disabled={true} />
+// <Button label="Save" onClick={console.log} /> — Error: wrong callback signature
+```
+
+The `?` marks a prop as optional. `disabled = false` sets its default. TypeScript checks both at the call site (when you use the component) and inside the component (the handler must match the type).
+
+```typescript
+// Common pattern: spread remaining props
+type CardProps = {
+  title: string;
+  children: React.ReactNode;
+} & React.HTMLAttributes<HTMLDivElement>;
+
+function Card({ title, children, ...rest }: CardProps) {
+  return (
+    <div {...rest}>
+      <h2>{title}</h2>
+      {children}
+    </div>
+  );
+}
+```
+
+Typing props costs almost nothing. You get editor autocomplete, instant error messages, and documentation in one place. Every component in a typed codebase answers "what do I need?" without opening its body.
+
+</Section>
+
+<Section title="Typing API Responses">
+
+Your component fetches data. The server sends JSON. TypeScript must understand the shape of that JSON or the data is worthless.
+
+```typescript
+// Before fetch, define the shape
+type BookData = {
+  id: string;
+  title: string;
+  wordCount: number;
+  chapters: {
+    number: number;
+    title: string;
+    content: string;
+  }[];
+};
+
+async function loadBook(bookId: string): Promise<BookData> {
+  const response = await fetch(`/api/books/${bookId}`);
+  const data = await response.json();
+  return data as BookData; // Cast if you trust the server
+}
+
+// Now TypeScript knows what's in the data
+const book = await loadBook("1");
+console.log(book.title); // Valid
+console.log(book.author); // Error: type has no 'author' property
+```
+
+Casting with `as` is a risky escape hatch. The server might send different data and the type lies. Safer: validate at runtime.
+
+```typescript
+// Runtime validation with a type guard
+function isBookData(data: unknown): data is BookData {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    typeof (data as any).id === "string" &&
+    typeof (data as any).title === "string" &&
+    typeof (data as any).wordCount === "number" &&
+    Array.isArray((data as any).chapters)
+  );
+}
+
+async function loadBook(bookId: string): Promise<BookData> {
+  const response = await fetch(`/api/books/${bookId}`);
+  const data = await response.json();
+  if (!isBookData(data)) {
+    throw new Error("Invalid book data from server");
+  }
+  return data; // TypeScript now knows it's BookData, no cast needed
+}
+```
+
+Validation is tedious but safe. For large APIs, libraries like Zod automate it. For now, the principle is simple: never trust the server. Verify the shape before you use it.
+
+</Section>
+
+<Section title="Build: Retype the Component">
+
+Take an existing component that fetches data and renders it. Add types everywhere: the component props, the API response, the rendered data.
+
+Start with the API response. What does the server send? Write a type. Then the component props. What does the component need? Write a type. Finally, inside the component, rely on TypeScript to flag any mismatches.
+
+```typescript
+// Step 1: Define the API shape
+type ChapterData = {
+  id: string;
+  number: number;
+  title: string;
+  wordCount: number;
+};
+
+type BookResponse = {
+  id: string;
+  title: string;
+  author: string;
+  chapters: ChapterData[];
+};
+
+// Step 2: Define component props
+type BookViewerProps = {
+  bookId: string;
+  onChapterClick?: (chapterId: string) => void;
+};
+
+// Step 3: Build the component with types
+function BookViewer({ bookId, onChapterClick }: BookViewerProps) {
+  const [book, setBook] = React.useState<BookResponse | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function load() {
+      const response = await fetch(`/api/books/${bookId}`);
+      const data: BookResponse = await response.json();
+      setBook(data);
+      setLoading(false);
+    }
+    load();
+  }, [bookId]);
+
+  if (loading) return <div>Loading...</div>;
+  if (!book) return <div>Not found</div>;
+
+  return (
+    <div>
+      <h1>{book.title}</h1>
+      <p>By {book.author}</p>
+      <ul>
+        {book.chapters.map((ch) => (
+          <li key={ch.id} onClick={() => onChapterClick?.(ch.id)}>
+            {ch.number}: {ch.title} ({ch.wordCount} words)
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+Check the component in your editor. Is the state typed? Are the props required? Does the fetch response have all the fields you're using? TypeScript will tell you. Fix any red squiggles. When they're gone, the component is correct.
+
+</Section>
+
+<Section title="Checkpoint">
+
+You've typed a data-backed component. The component props are explicit. The API response is verified. No `any` types snuck in. Your editor autocompletes `.chapters[0].title` because TypeScript knows the shape.
+
+This is the foundation. From here, types scale to entire applications. A large codebase where every function, prop, and response is typed is a codebase where refactoring is safe and adding features is fast.
+
+</Section>

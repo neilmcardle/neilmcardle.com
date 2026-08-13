@@ -1,0 +1,342 @@
+---
+title: "Data & APIs in depth"
+module: 14
+phase: "Phase 3 — Full-stack"
+promise: "Know what a request really is, then build real endpoints."
+threads:
+  - "your-code-vs-the-platform"
+---
+
+<Section title="What a request really is">
+
+When you fill a form and hit submit, something happens. Your code gathers data. The browser packages it. Sends it across the internet as a message. Waits for a response. That message is an HTTP request.
+
+It's not magic. It's a conversation. Your browser says: "I have this data, do something with it." Your server reads it, does the work, and says: "Done, here's what happened."
+
+Every request has a method (GET means "fetch this", POST means "I'm sending data"), a path (where the server should listen), headers (metadata about the request), and a body (the data itself, if any).
+
+The server responds with a status code. 200 means success. 400 means you sent bad data. 500 means the server broke. This is how the two sides actually understand each other.
+
+You've been making requests in the browser all along. Clicking a link is a GET request. Submitting a form is a POST. Now you'll build the other half: the code that listens for requests and decides what to do.
+
+</Section>
+
+<Section title="Route handlers in Next.js">
+
+A route handler is a JavaScript function that catches HTTP requests and sends responses. In Next.js, they live in your `app/` directory with a file named `route.ts`.
+
+When someone visits `/api/waitlist`, that file's handler runs. You decide what happens next.
+
+```typescript
+// app/api/waitlist/route.ts
+export async function POST(request: Request) {
+  const { email } = await request.json();
+  
+  // Validate, save to database, send email
+  // ...
+  
+  return Response.json(
+    { success: true, message: "You're on the list" },
+    { status: 200 }
+  );
+}
+```
+
+That's a handler. When the browser POSTs to `/api/waitlist`, this function runs. It reads the request body (which the browser sent as JSON). It does something. It returns a response.
+
+The `status` code tells the browser what happened. 200 is "it worked". 400 is "your data was bad". Always set the right code. The browser reads it and acts accordingly.
+
+You can export multiple functions from one file. `export async function GET()` handles GET requests. `export async function POST()` handles POST. One file can listen for multiple request types on the same path.
+
+</Section>
+
+<Section title="Reading request data">
+
+The request object is passed directly to your handler. It's a browser-standard interface, so the API is the same everywhere.
+
+The request body is a stream by default, so you need to parse it. JSON is the most common format for APIs.
+
+```typescript
+export async function POST(request: Request) {
+  const data = await request.json();
+  
+  console.log(data.email); // "user@example.com"
+  console.log(data.name);  // "Alice"
+  
+  return Response.json({ received: true });
+}
+```
+
+You can also read URL parameters, headers, and cookies. They're all available on the request object.
+
+```typescript
+// Reading from the URL: /api/users?page=1&limit=10
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const page = searchParams.get("page");
+  const limit = searchParams.get("limit");
+  
+  return Response.json({ page, limit });
+}
+```
+
+Headers contain metadata. Your frontend might send an `Authorization` header with a token. Your backend reads it to check if the user is allowed.
+
+```typescript
+export async function GET(request: Request) {
+  const token = request.headers.get("Authorization");
+  
+  if (!token) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
+  return Response.json({ message: "Access granted" });
+}
+```
+
+</Section>
+
+<Section title="Validation before trust">
+
+Never trust data from the client. Someone will send garbage. Send an empty string instead of an email. Send a number when you expect text. Send way too much data. It's not always malice, often just a mistake or a network hiccup.
+
+Validation is your first line of defense. Check the data before you use it.
+
+```typescript
+export async function POST(request: Request) {
+  const { email, name } = await request.json();
+  
+  // Check email is a string and not empty
+  if (typeof email !== "string" || !email.trim()) {
+    return Response.json(
+      { error: "Email is required" },
+      { status: 400 }
+    );
+  }
+  
+  // Check email looks like an email
+  if (!email.includes("@")) {
+    return Response.json(
+      { error: "Email must be valid" },
+      { status: 400 }
+    );
+  }
+  
+  // Check name exists and isn't too long
+  if (typeof name !== "string" || name.length > 100) {
+    return Response.json(
+      { error: "Name must be under 100 characters" },
+      { status: 400 }
+    );
+  }
+  
+  // Now you can trust the data
+  return Response.json({ success: true });
+}
+```
+
+This gets repetitive fast. Libraries like Zod handle it for you. Define the shape of your data once, and Zod checks it.
+
+```typescript
+import { z } from "zod";
+
+const waitlistSchema = z.object({
+  email: z.string().email("Must be a valid email"),
+  name: z.string().min(1).max(100),
+});
+
+export async function POST(request: Request) {
+  const data = await request.json();
+  
+  // Zod validates and throws if invalid
+  const { email, name } = waitlistSchema.parse(data);
+  
+  // You can trust it now
+  return Response.json({ success: true });
+}
+```
+
+If validation fails, Zod throws an error. You catch it and send a 400 back to the client. The client learns what went wrong and can ask the user to fix it.
+
+</Section>
+
+<Section title="Server actions in React">
+
+Route handlers are one way to build an endpoint. Server actions are another. They're React functions that run on the server, not the client.
+
+A server action is async. It's defined in a file marked `"use server"`. You call it from the client like a normal function, but the code runs on the server.
+
+```typescript
+// app/api/actions.ts
+"use server";
+
+export async function addToWaitlist(email: string) {
+  // This runs on the server
+  // Database queries, API calls, secrets all safe here
+  
+  const isValid = email.includes("@");
+  if (!isValid) {
+    throw new Error("Invalid email");
+  }
+  
+  // Save to database
+  return { success: true };
+}
+```
+
+From the client, you import it and call it:
+
+```typescript
+// app/components/WaitlistForm.tsx
+"use client";
+
+import { addToWaitlist } from "@/app/api/actions";
+
+export function WaitlistForm() {
+  const [email, setEmail] = useState("");
+  
+  async function handleSubmit(e) {
+    e.preventDefault();
+    
+    try {
+      const result = await addToWaitlist(email);
+      console.log(result); // { success: true }
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <button type="submit">Join</button>
+    </form>
+  );
+}
+```
+
+It looks like you're calling a local function. The framework handles sending it to the server and waiting for the response. Errors travel back to the client. Results too.
+
+Server actions are cleaner than route handlers when you have a small, focused piece of logic. Route handlers are better when you need HTTP verbs, status codes, or headers explicitly.
+
+</Section>
+
+<Section title="Your code vs the platform">
+
+Here's the invisible line: the platform handles the network. You handle the logic.
+
+The platform (Next.js, the browser) makes sure your request arrives. Handles retries. Converts JSON to bytes and back. You don't think about that.
+
+You write the function. You validate the input. You call the database. You return the result. That's it.
+
+When something goes wrong, think clearly about whose fault it is. The browser can't reach the server? Network issue, platform's problem. The user entered an empty email? Your validation should catch it. The database is down? Your logic should handle it gracefully and tell the user.
+
+Most mistakes come from blurring this line. Writing a server action but forgetting `"use server"`, so it runs on the client and exposes secrets. Or not validating input, trusting the browser (browsers lie). Or not thinking about what happens when the database is slow or offline.
+
+The platform gives you the tools. You use them right.
+
+</Section>
+
+<Section title="Build: a working waitlist endpoint">
+
+You'll build a small waitlist. A form on the frontend. An endpoint on the backend. When someone submits their email, it saves to a database and returns a success message.
+
+Start with the form. It sends a POST request with the email. You've done this before. Use fetch or a server action.
+
+```typescript
+// app/components/WaitlistForm.tsx
+"use client";
+
+import { useState } from "react";
+
+export function WaitlistForm() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("");
+  
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus("Loading...");
+    
+    try {
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        setStatus(`Error: ${error.error}`);
+        return;
+      }
+      
+      const data = await response.json();
+      setStatus(data.message);
+      setEmail("");
+    } catch (error) {
+      setStatus("Something went wrong");
+    }
+  }
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="your@email.com"
+      />
+      <button type="submit">Join the waitlist</button>
+      {status && <p>{status}</p>}
+    </form>
+  );
+}
+```
+
+Now build the endpoint. It receives the email, validates it, saves it, and responds.
+
+```typescript
+// app/api/waitlist/route.ts
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+export async function POST(request: Request) {
+  try {
+    const data = await request.json();
+    const { email } = schema.parse(data);
+    
+    // Save to database (pseudo-code)
+    // const saved = await db.waitlist.create({ email });
+    
+    return Response.json(
+      { message: "You're on the list" },
+      { status: 200 }
+    );
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return Response.json(
+        { error: error.errors[0].message },
+        { status: 400 }
+      );
+    }
+    
+    return Response.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+Test it. Submit an invalid email. The endpoint should return a 400 with a clear message. The form shows the error. Submit a valid email. The endpoint returns 200. The form clears and says "You're on the list".
+
+Your endpoint now handles POST requests. Validates input. Returns the right status codes. Errors are clear. This is the checkpoint. You've built real data flow. Request to response. Frontend to backend. Validation in between. The foundation for everything you build next.
+
+</Section>

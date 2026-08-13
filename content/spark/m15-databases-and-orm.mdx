@@ -1,0 +1,287 @@
+---
+title: Databases & ORM
+module: 15
+phase: "Full-stack"
+promise: Persist real data and understand relational thinking.
+threads:
+  - language-vs-framework
+---
+
+<Section title="Why databases matter">
+
+Memory is temporary. When your app restarts, everything in variables vanishes.
+
+Databases are permanent storage. Write a blog post, close the browser, come back tomorrow, and it's still there. Insert a user, run a query, and 10,000 other requests can read that same user without recomputing anything.
+
+Most of the web is just tables of data. Users. Posts. Comments. Orders. Each table has rows (individual entries) and columns (attributes). A database engine is a specialized machine for storing, querying, and changing those tables fast.
+
+You could write your own file-based storage. Serialize data to JSON, write to disk, read it back. But databases solve problems you'll hit at scale: multiple people writing at once, crashing mid-write without corrupting everything, finding a specific row in a million without reading all of them, and joining related data without writing separate queries for each one.
+
+For this course, relational databases (like Postgres) are the standard. They're fast, reliable, and designed for exactly what you're building.
+
+</Section>
+
+<Section title="Relational thinking">
+
+A table is a grid. Columns are attributes. Rows are individual records.
+
+```
+users
+─────────────────────────────────
+id    | name        | email
+─────────────────────────────────
+1     | Neil        | neil@...
+2     | Alex        | alex@...
+3     | Jordan      | jordan@...
+```
+
+Relationships connect tables. A user writes many posts. A post belongs to one user. So the `posts` table has a `userId` column that points to a row in the `users` table.
+
+```
+posts
+────────────────────────────────────────
+id | title            | content    | userId
+────────────────────────────────────────
+1  | First thoughts   | Blah blah  | 1
+2  | Building stuff   | More blah  | 1
+3  | Learning DB      | Yep       | 2
+```
+
+The `userId` in posts is a foreign key. It references the `id` in users. This is the glue that makes a *relational* database relational.
+
+Queries leverage these relationships. "Find all posts by Neil" becomes a join: look up Neil's id (1), then find all posts where `userId = 1`. The database engine does this efficiently.
+
+Relational thinking means designing data so that each fact lives in one place, relationships point to those facts, and queries can retrieve anything by following the pointers. It's a mindset before it's a technical detail.
+
+</Section>
+
+<Section title="Schemas">
+
+A schema is a blueprint. It says: "users table has an id, name, and email. Posts table has an id, title, content, and userId."
+
+Schemas define column types too. `id` is an integer. `name` is text. `userId` is a foreign key pointing to users. A database enforces these constraints. You can't insert text where an integer is expected, and you can't reference a non-existent user.
+
+```sql
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE posts (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT,
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+Read that carefully. `SERIAL PRIMARY KEY` means auto-increment integer. `NOT NULL` means required. `UNIQUE` means no duplicates. `REFERENCES users(id)` means this column must point to a valid user.
+
+Schemas are contracts. They prevent bad data from entering your database. If someone tries to insert a post without a `user_id`, the database rejects it. If they try to reference a user that doesn't exist, rejected. These guarantees are invaluable.
+
+</Section>
+
+<Section title="Raw SQL first">
+
+Before using an ORM, understand what SQL looks like. It's the language databases speak.
+
+```sql
+INSERT INTO users (name, email) VALUES ('Neil', 'neil@example.com');
+
+SELECT * FROM posts WHERE user_id = 1;
+
+SELECT posts.title, users.name 
+FROM posts 
+JOIN users ON posts.user_id = users.id 
+WHERE users.name = 'Neil';
+
+UPDATE posts SET title = 'Updated' WHERE id = 5;
+
+DELETE FROM posts WHERE id = 5;
+```
+
+INSERT adds rows. SELECT retrieves them. JOIN connects two tables on a relationship. UPDATE changes existing rows. DELETE removes them.
+
+That SELECT with JOIN is the pattern you'll use constantly. "Show me posts and the author of each post." The JOIN says: for each post, look up the user it references, and include that user's data in the result.
+
+SQL is declarative. You describe *what* you want, not *how* to get it. You don't write "iterate through posts, for each one fetch its user." You write "show me posts joined with their users," and the database figures out the most efficient way.
+
+Learning raw SQL first builds intuition. You'll understand what an ORM is doing under the hood, and you'll debug problems faster.
+
+</Section>
+
+<Section title="What an ORM is">
+
+An ORM is Object-Relational Mapping. It translates between objects (what your code uses) and relations (what databases use).
+
+Your code works with objects: `{ id: 1, name: 'Neil', email: 'neil@example.com' }`. The database stores relations: a row in a table. An ORM bridges that gap.
+
+Instead of writing SQL strings, you call functions. Instead of parsing results, the ORM hands you typed objects. Your editor autocompletes. TypeScript catches mistakes before they run.
+
+```typescript
+const users = await db.select().from(usersTable);
+const neils = await db.select().from(postsTable).where(eq(postsTable.userId, 1));
+```
+
+That's Drizzle, the ORM this project uses. It's thin (doesn't hide the database) and TypeScript-first (types are mandatory, not optional).
+
+ORMs make queries shorter, safer, and easier to compose. They're not magic. Under the hood, Drizzle generates SQL and sends it to Postgres. The ORM is a translation layer, nothing more.
+
+Understanding that translation is the key. Drizzle isn't hiding the database from you; it's just writing the SQL for you, and faster than you would.
+
+</Section>
+
+<Section title="Drizzle in practice">
+
+Start with a schema. Define tables using Drizzle's schema builder.
+
+```typescript
+import { pgTable, serial, text, timestamp, integer } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const posts = pgTable('posts', {
+  id: serial('id').primaryKey(),
+  title: text('title').notNull(),
+  content: text('content'),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const usersRelations = relations(users, ({ many }) => ({
+  posts: many(posts),
+}));
+
+export const postsRelations = relations(posts, ({ one }) => ({
+  user: one(users, {
+    fields: [posts.userId],
+    references: [users.id],
+  }),
+}));
+```
+
+This schema file is TypeScript. It defines the structure and relationships. Drizzle uses it to generate migrations (SQL files that create the actual tables) and to type your queries.
+
+The `relations` define the navigation paths. "A user has many posts. A post has one user." Later, you'll query posts and automatically get their author.
+
+</Section>
+
+<Section title="CRUD operations">
+
+CRUD is Create, Read, Update, Delete. Every app does these four things.
+
+```typescript
+import { db } from '@/lib/db';
+import { users, posts } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+
+const createUser = async (name: string, email: string) => {
+  const result = await db
+    .insert(users)
+    .values({ name, email })
+    .returning();
+  return result[0];
+};
+
+const getPostsByUserId = async (userId: number) => {
+  const userPosts = await db
+    .select()
+    .from(posts)
+    .where(eq(posts.userId, userId));
+  return userPosts;
+};
+
+const updatePostTitle = async (postId: number, newTitle: string) => {
+  const updated = await db
+    .update(posts)
+    .set({ title: newTitle })
+    .where(eq(posts.id, postId))
+    .returning();
+  return updated[0];
+};
+
+const deletePost = async (postId: number) => {
+  await db.delete(posts).where(eq(posts.id, postId));
+};
+```
+
+`db.insert()` adds a row and returns it. `db.select()` queries rows. `db.update()` changes a row. `db.delete()` removes one. Each query is composed from methods.
+
+The `eq()` function builds a WHERE clause. `eq(posts.userId, userId)` means "where userId equals this value." There are other comparisons: `gt()` (greater than), `lt()` (less than), `like()` (pattern matching).
+
+The `.returning()` method tells the database to send back the row that changed. Without it, the response is empty. Most of the time you want to return the result so your UI can display what actually happened.
+
+</Section>
+
+<Section title="Avoiding N+1 queries">
+
+An N+1 problem happens when you fetch data inefficiently.
+
+```typescript
+const userPosts = await db
+  .select()
+  .from(posts)
+  .where(eq(posts.userId, userId));
+
+for (const post of userPosts) {
+  const user = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, post.userId));
+  post.author = user[0];
+}
+```
+
+That's bad. The first query fetches 100 posts. Then the loop runs 100 times, fetching the same user over and over. That's 1 + N queries (1 initial, N in the loop). Databases are slow at network distance. Running 101 queries instead of 1 is a disaster.
+
+The fix is a join. Fetch posts and users in a single query.
+
+```typescript
+const postsWithAuthors = await db
+  .select()
+  .from(posts)
+  .innerJoin(users, eq(posts.userId, users.id))
+  .where(eq(posts.userId, userId));
+```
+
+Now it's one query. The database joins the tables, and you get posts with authors included.
+
+With Drizzle relations, it's even cleaner. You load posts with their related users as a nested object.
+
+```typescript
+const postsWithRelations = await db.query.posts.findMany({
+  where: eq(posts.userId, userId),
+  with: { user: true },
+});
+```
+
+The `with: { user: true }` says "also fetch the related user for each post." Drizzle compiles this to a join under the hood. One query, no loop.
+
+</Section>
+
+<Section title="Normalization">
+
+Normalization means organizing data to eliminate redundancy and inconsistency.
+
+Bad: store the author's name and email in every post. If Neil changes his email, you have to update it in 50 posts. One update might miss, and now the data is inconsistent.
+
+Good: store only the userId in each post. The user's email lives in the users table, once. Change it once, and all posts see the new email.
+
+This is the relational model. Data lives where it belongs. Relationships point to it. If data can be derived from other data (like author name from a join), don't store it.
+
+The checkpoint for this module is simple. You've built a schema, written a few queries, and persisted real data. Load a post from the database after closing your app, and it's still there. Query it, update it, delete it. No N+1 problems. The schema is normalized, not redundant.
+
+Data is the foundation. Everything else is UI and logic on top of it. A clean schema makes everything that follows easier.
+
+</Section>

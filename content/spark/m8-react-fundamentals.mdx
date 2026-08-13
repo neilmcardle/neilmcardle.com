@@ -1,0 +1,424 @@
+---
+title: React Fundamentals
+module: 8
+phase: "Phase 1 — JS & React"
+promise: Build a small React app and reason about state
+threads:
+  - chosen-vs-fixed
+  - your-code-vs-the-platform
+---
+
+<Section title="What's a component?">
+
+A component is a JavaScript function that returns one JSX root element. That root wraps everything else.
+
+JSX is plain JavaScript pretending to be HTML. When you write `<Button>Click me</Button>`, React turns it into a function call: `Button({ children: 'Click me' })`.
+
+```jsx
+function Greeting() {
+  return <h1>Hello, world</h1>;
+}
+
+function App() {
+  return <Greeting />;
+}
+```
+
+The rule is strict: one root. If you need two siblings, you wrap them. A Fragment (`<>...</>`) is an invisible wrapper that counts.
+
+```jsx
+function Card() {
+  return (
+    <>
+      <h2>Title</h2>
+      <p>Description</p>
+    </>
+  );
+}
+```
+
+React calls your function when it needs to see what should appear on screen. Think of it as "what does this component look like *right now*?"
+
+</Section>
+
+<Section title="useState and the re-render loop">
+
+`useState` is how you tell React that a component has state: data that can change. When it changes, React re-runs your function to see the new output.
+
+```jsx
+import { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>
+        Increment
+      </button>
+    </div>
+  );
+}
+```
+
+Here's what happens: user clicks the button. `onClick` fires. `setCount(count + 1)` runs. React schedules a re-render. React calls `Counter()` again. This time `useState(0)` returns the new value, `1`. The JSX says "Count: 1". The screen updates.
+
+The loop is: event → setState → re-render → new output.
+
+You can call `useState` multiple times in one component. Each call gets its own pair.
+
+```jsx
+function Form() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+
+  return (
+    <div>
+      <input value={name} onChange={(e) => setName(e.target.value)} />
+      <input value={email} onChange={(e) => setEmail(e.target.value)} />
+    </div>
+  );
+}
+```
+
+Never set state directly. Always use the setter function. React needs to know state changed so it can re-render.
+
+</Section>
+
+<Section title="Derived vs. stored state">
+
+Derived state is computed from other state. Stored state lives directly in `useState`.
+
+If you have both weight and height, don't store BMI in state. Calculate it every render.
+
+```jsx
+function BMI() {
+  const [weight, setWeight] = useState(70);
+  const [height, setHeight] = useState(1.75);
+
+  // Derived: calculate it fresh every render
+  const bmi = weight / (height * height);
+
+  return (
+    <div>
+      <input value={weight} onChange={(e) => setWeight(Number(e.target.value))} />
+      <input value={height} onChange={(e) => setHeight(Number(e.target.value))} />
+      <p>BMI: {bmi.toFixed(1)}</p>
+    </div>
+  );
+}
+```
+
+Why? Because now weight and height are always in sync with BMI. If you stored BMI separately, you'd have to update it manually whenever weight or height changed. Easy to forget. State goes stale.
+
+The rule: if it can be computed from other state, don't store it.
+
+</Section>
+
+<Section title="The controlled input">
+
+An input is controlled when React holds its value in state. You set the value prop and handle onChange to update state.
+
+```jsx
+function SearchBox() {
+  const [query, setQuery] = useState('');
+
+  return (
+    <input
+      type="text"
+      value={query}
+      onChange={(e) => setQuery(e.target.value)}
+      placeholder="Search..."
+    />
+  );
+}
+```
+
+React is now the source of truth for the input's value. The input can't drift out of sync with your state.
+
+An uncontrolled input leaves the value to the browser. You read it when you need it with `ref`. Avoid refs for inputs unless you have a specific reason, like focus management or file uploads.
+
+Controlled inputs are predictable. They're the default in React.
+
+</Section>
+
+<Section title="Props: data parent to child">
+
+Props are how a parent component passes data to a child. They're function arguments.
+
+```jsx
+function Header({ title, subtitle }) {
+  return (
+    <header>
+      <h1>{title}</h1>
+      <p>{subtitle}</p>
+    </header>
+  );
+}
+
+function App() {
+  return <Header title="Welcome" subtitle="React basics" />;
+}
+```
+
+Props are read-only from the child's perspective. You can't call `setTitle(...)` inside `Header` and expect the parent to update. That violates the one-way flow: parent owns the data, parent can change it, child reads it.
+
+If a child needs to change data, it calls a function the parent passed down.
+
+```jsx
+function Button({ label, onClick }) {
+  return <button onClick={onClick}>{label}</button>;
+}
+
+function App() {
+  const [count, setCount] = useState(0);
+  return <Button label="Click me" onClick={() => setCount(count + 1)} />;
+}
+```
+
+Here's a small naming convention baked into the language: `onClick` is reserved for the click handler prop. If you try `onClick` on a div, it won't work. That's "chosen, not fixed." The platform chose camelCase and reserved these names. Your code has to match.
+
+</Section>
+
+<Section title="Composition into a tree">
+
+Real apps are hierarchies of components. Each piece handles its own slice of the UI.
+
+```jsx
+function SearchResults({ results }) {
+  if (results.length === 0) return <p>No results</p>;
+
+  return (
+    <ul>
+      {results.map((item) => (
+        <ResultItem key={item.id} item={item} />
+      ))}
+    </ul>
+  );
+}
+
+function ResultItem({ item }) {
+  return <li>{item.name}</li>;
+}
+
+function SearchPage() {
+  const [query, setQuery] = useState('');
+  const results = fakeSearch(query);
+
+  return (
+    <div>
+      <input value={query} onChange={(e) => setQuery(e.target.value)} />
+      <SearchResults results={results} />
+    </div>
+  );
+}
+```
+
+Each component has one job. `SearchPage` manages the query. `SearchResults` renders a list. `ResultItem` renders one item. The tree is clear.
+
+When the query changes, `SearchPage` re-renders, passes new results to `SearchResults`, which re-renders its children. This flows naturally.
+
+Always add a `key` prop when rendering lists. It helps React track which item is which if the list reorders.
+
+</Section>
+
+<Section title="Lifting state up">
+
+If two sibling components need to share state, move that state to their common parent.
+
+```jsx
+function Tab({ label, isActive, onClick }) {
+  return (
+    <button onClick={onClick} style={{ fontWeight: isActive ? 'bold' : 'normal' }}>
+      {label}
+    </button>
+  );
+}
+
+function Tabs() {
+  const [activeTab, setActiveTab] = useState('home');
+
+  return (
+    <div>
+      <div>
+        <Tab label="Home" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
+        <Tab label="About" isActive={activeTab === 'about'} onClick={() => setActiveTab('about')} />
+      </div>
+      <div>
+        {activeTab === 'home' && <p>Home content</p>}
+        {activeTab === 'about' && <p>About content</p>}
+      </div>
+    </div>
+  );
+}
+```
+
+Both tabs need to know which one is active. Instead of storing it in each tab separately, store it in `Tabs` and pass it down as props. Now they always agree.
+
+This pattern scales to any number of siblings. The parent is the single source of truth.
+
+</Section>
+
+<Section title="The four states">
+
+Every async operation has four states: idle (waiting to start), loading (in flight), empty (done, no data), error (done, failure).
+
+Real UIs handle all four.
+
+```jsx
+function BookSearch() {
+  const [query, setQuery] = useState('');
+  const [state, setState] = useState('idle');
+  const [results, setResults] = useState([]);
+  const [error, setError] = useState(null);
+
+  const handleSearch = async (q) => {
+    if (!q) {
+      setState('idle');
+      setResults([]);
+      return;
+    }
+
+    setState('loading');
+    try {
+      const data = await fetch(`/api/books?q=${q}`).then((r) => r.json());
+      if (data.length === 0) {
+        setState('empty');
+        setResults([]);
+      } else {
+        setState('idle');
+        setResults(data);
+      }
+    } catch (err) {
+      setState('error');
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div>
+      <input
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          handleSearch(e.target.value);
+        }}
+        placeholder="Search books..."
+      />
+
+      {state === 'idle' && results.length > 0 && (
+        <ul>
+          {results.map((book) => (
+            <li key={book.id}>{book.title}</li>
+          ))}
+        </ul>
+      )}
+
+      {state === 'loading' && <p>Searching...</p>}
+      {state === 'empty' && <p>No books found</p>}
+      {state === 'error' && <p>Error: {error}</p>}
+    </div>
+  );
+}
+```
+
+This is tight. Every state has its own UI. No results render until data arrives. Loading UI shows immediately. Errors have a home.
+
+The four states are a mental model. Write it down: idle, loading, empty, error. Then check your UI handles all four. Most bugs live in the states you skipped.
+
+</Section>
+
+<Section title="Build: Search interaction in React">
+
+Let's build a real search experience split into components. A search box, a results list, and proper state handling.
+
+```jsx
+function SearchBox({ query, onQueryChange }) {
+  return (
+    <input
+      type="text"
+      value={query}
+      onChange={(e) => onQueryChange(e.target.value)}
+      placeholder="Search books..."
+    />
+  );
+}
+
+function SearchResults({ state, results, error }) {
+  if (state === 'loading') return <p>Searching...</p>;
+  if (state === 'empty') return <p>No books found</p>;
+  if (state === 'error') return <p>Error: {error}</p>;
+  if (results.length === 0) return null;
+
+  return (
+    <ul>
+      {results.map((book) => (
+        <li key={book.id}>{book.title} by {book.author}</li>
+      ))}
+    </ul>
+  );
+}
+
+function BookSearch() {
+  const [query, setQuery] = useState('');
+  const [state, setState] = useState('idle');
+  const [results, setResults] = useState([]);
+  const [error, setError] = useState(null);
+
+  const handleSearch = async (q) => {
+    setQuery(q);
+
+    if (!q.trim()) {
+      setState('idle');
+      setResults([]);
+      return;
+    }
+
+    setState('loading');
+    try {
+      const response = await fetch(`/api/books?q=${encodeURIComponent(q)}`);
+      const data = await response.json();
+
+      if (data.length === 0) {
+        setState('empty');
+      } else {
+        setState('idle');
+        setResults(data);
+      }
+    } catch (err) {
+      setState('error');
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div>
+      <SearchBox query={query} onQueryChange={handleSearch} />
+      <SearchResults state={state} results={results} error={error} />
+    </div>
+  );
+}
+```
+
+The structure: `BookSearch` owns all state. It passes the query to `SearchBox` and the results to `SearchResults`. When you type, `SearchBox` calls `onQueryChange`, which runs the async fetch and updates state. `SearchResults` re-renders with the new state.
+
+Each component is small and testable. The flow is clear: parent to child via props, child to parent via callbacks.
+
+</Section>
+
+<Section title="Checkpoint">
+
+Before you move on, make sure you can answer these aloud.
+
+**No derived data in useState.** Look at your state shape. If something can be calculated from other state, remove it. Keep only the irreducible facts.
+
+**Justify the state shape aloud.** Say why each piece of state is there. If you can't explain it in one sentence, it might be derived or unnecessary.
+
+**Handle all four states.** Write code for idle, loading, empty, and error. Real apps need all four. If your UI doesn't show loading, users will think it froze.
+
+**Hand-write a prop.** Create a component with three props. Pass them from a parent. Don't skip steps. The muscle memory matters.
+
+Also: notice how `onClick` is spelled camelCase. That's not a bug. That's the platform. React chose it. Your code has to match. There's no "correct" spelling in the abstract. There's only what the platform chose, and your code following it. This is "chosen, not fixed," and it's how you learn to work with systems instead of against them.
+
+</Section>

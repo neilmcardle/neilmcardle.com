@@ -1,0 +1,304 @@
+---
+title: "Auth: Gating Pages Behind Login"
+module: 16
+phase: "Phase 3 — Full-stack"
+promise: "Gate something behind login and understand sessions vs. tokens."
+threads:
+  - "your-code-vs-the-platform"
+---
+
+<Section title="Sessions vs. Tokens — The Core Difference">
+
+When you log in to a site, how does it remember you?
+
+Two patterns exist. A **session** is server-side state. You sign in, the server stores "you are logged in" on its hard drive, and gives your browser a ticket (a cookie) that says "give this ticket back on every request." The server checks the ticket, looks up the state, and says "yep, you're real."
+
+A **token** is self-contained state. You sign in, the server creates a signed package that says "this person is alice@example.com, this token is good until Tuesday, and I've signed it so nobody can forge it." Your browser stores it, usually in localStorage or a cookie. On every request, your browser sends the token, and the server verifies the signature and trusts the contents.
+
+Sessions are simpler to revoke. Log out, the server throws away the state, the ticket is useless. Tokens are harder to revoke instantly, but they scale better because the server doesn't have to remember everyone.
+
+The difference matters for how you think about your code.
+
+</Section>
+
+<Section title="How Cookies and Browsers Work">
+
+A cookie is a small file your browser stores and automatically sends to a server on every request. The server can set it with a response header.
+
+```
+Set-Cookie: sessionId=abc123; HttpOnly; Secure; Path=/; SameSite=Lax
+```
+
+The browser sees this header, stores `sessionId=abc123`, and from then on, every request to that domain includes `Cookie: sessionId=abc123` without you doing anything.
+
+This is the magic that makes sessions work. The server doesn't have to ask the browser for the ticket every time. The browser just sends it.
+
+The `HttpOnly` flag means JavaScript can't read it, safer against XSS. The `Secure` flag means it only travels over HTTPS. `SameSite=Lax` stops the browser from sending it to cross-site requests.
+
+Cookies are old, they're built into the browser, and they're the reason sessions work at all.
+
+</Section>
+
+<Section title="DIY Sessions: The Hand-Written Detour">
+
+Build a minimal session system from scratch. Not for production, but to understand what's happening under the hood.
+
+Store sessions in a JavaScript object. When someone signs in, generate a random ID, save it, and set a cookie.
+
+```javascript
+// Simple session store (in-memory; lost on server restart)
+const sessions = {};
+
+export function createSession(userId) {
+  const sessionId = crypto.randomUUID();
+  sessions[sessionId] = { userId, createdAt: Date.now() };
+  return sessionId;
+}
+
+export function getSession(sessionId) {
+  const session = sessions[sessionId];
+  if (!session) return null;
+  const age = Date.now() - session.createdAt;
+  if (age > 1000 * 60 * 60 * 24) return null; // 24 hours
+  return session;
+}
+
+export function deleteSession(sessionId) {
+  delete sessions[sessionId];
+}
+```
+
+Now a login endpoint:
+
+```javascript
+// POST /api/login
+export async function POST(req) {
+  const { email, password } = await req.json();
+  
+  // (check password; find user)
+  const user = await db.users.findOne({ email });
+  if (!user || !verifyPassword(password, user.passwordHash)) {
+    return new Response("Invalid credentials", { status: 401 });
+  }
+  
+  const sessionId = createSession(user.id);
+  const response = new Response(JSON.stringify({ ok: true }), { status: 200 });
+  response.headers.set("Set-Cookie", `sessionId=${sessionId}; HttpOnly; Secure; Path=/; SameSite=Lax`);
+  return response;
+}
+```
+
+On every protected request, check the cookie:
+
+```javascript
+// Middleware or handler
+export function getSessionFromRequest(req) {
+  const cookie = req.headers.get("cookie");
+  if (!cookie) return null;
+  
+  const sessionId = cookie
+    .split("; ")
+    .find(c => c.startsWith("sessionId="))
+    ?.split("=")[1];
+  
+  if (!sessionId) return null;
+  return getSession(sessionId);
+}
+```
+
+This is the bones of every auth system. The server stores state, cookies carry the ticket, middleware validates on every request. Building it once teaches you why libraries exist.
+
+</Section>
+
+<Section title="Tokens: The Stateless Upside">
+
+Tokens flip the model. Instead of "server stores state, browser carries a ticket," it's "browser carries the state, server verifies it."
+
+A **JWT** (JSON Web Token) is the most common flavor. It's three base64-encoded parts joined by dots: header, payload, signature.
+
+```javascript
+// Signing a token
+import jwt from "jsonwebtoken";
+
+const token = jwt.sign(
+  { userId: "alice-123", email: "alice@example.com" },
+  process.env.JWT_SECRET,
+  { expiresIn: "24h" }
+);
+// Result: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhbGljZS0xMjMi...
+```
+
+The payload is readable by anyone, but the signature is a hash of the payload plus a secret only the server knows. If someone tampers with the payload, the signature no longer matches.
+
+Upside: the server doesn't store anything. Every token is self-contained. If you have 1 million users, you don't need 1 million rows in a sessions table.
+
+Downside: you can't revoke a token instantly. If someone steals a token, it stays valid until it expires. You can add a blocklist (a database of revoked tokens), but then you've lost the stateless advantage.
+
+Tokens work well for APIs where clients are programs, not browsers with cookies. Your Next.js app usually sticks with sessions.
+
+</Section>
+
+<Section title="Why Platforms Like Supabase Exist">
+
+Hand-written sessions work, but they're tedious and risky. Real login systems have to handle password hashing, email verification, password reset flows, MFA, detecting compromised tokens, rate-limiting login attempts, and more.
+
+**Supabase Auth** is the platform play. You don't write any of the session logic. You call Supabase methods, it handles the database, the cookies, the expiration, the security headers.
+
+```javascript
+// Supabase does the work
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(URL, KEY);
+
+// Sign up
+const { data, error } = await supabase.auth.signUp({
+  email: "alice@example.com",
+  password: "secret",
+});
+
+// Sign in
+const { data, error } = await supabase.auth.signInWithPassword({
+  email: "alice@example.com",
+  password: "secret",
+});
+
+// Get the current user (from the session)
+const { data: { user } } = await supabase.auth.getUser();
+```
+
+Supabase handles session cookies, expiration, refresh tokens, all the security details. Your code shrinks to a few lines. The platform takes the burden.
+
+The trade-off: you're dependent on Supabase. If it goes down, so does your auth. For a solo project or a startup, that's a reasonable bet.
+
+</Section>
+
+<Section title="Building a Gated Page">
+
+Now the build. Create a page only logged-in users can see.
+
+First, a layout that checks the session:
+
+```typescript
+// app/protected/layout.tsx
+import { redirect } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
+
+export default async function ProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    redirect("/signin");
+  }
+
+  return <>{children}</>;
+}
+```
+
+The layout runs on every request to `/protected/*`. If there's no session, redirect to signin. If there is, render the page.
+
+For a client-side check, use a hook:
+
+```typescript
+// app/dashboard/page.tsx
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/hooks/useAuth";
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/signin");
+    }
+  }, [user, loading, router]);
+
+  if (loading) return <p>Loading...</p>;
+  if (!user) return null;
+
+  return <div>Welcome, {user.email}</div>;
+}
+```
+
+The hook reads the session and redirects if it's missing. The pattern is simple: check, redirect if needed, render if OK.
+
+</Section>
+
+<Section title="Sign-Out and Session Cleanup">
+
+Sign-out destroys the session. On the server:
+
+```typescript
+// app/api/logout/route.ts
+import { createClient } from "@supabase/supabase-js";
+
+export async function POST() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  await supabase.auth.signOut();
+
+  // Hard redirect to homepage
+  return new Response(null, {
+    status: 303,
+    headers: { Location: "/" },
+  });
+}
+```
+
+Or on the client:
+
+```typescript
+// In a button or React component
+"use client";
+import { useRouter } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
+
+export function SignOutButton() {
+  const router = useRouter();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+  };
+
+  return <button onClick={handleSignOut}>Sign Out</button>;
+}
+```
+
+`signOut()` clears the session cookie, invalidates the token, and wipes localStorage. The browser is now anonymous again. Any gated page will redirect.
+
+Test the flow: log in, navigate to a protected page, refresh (session persists), sign out, refresh (redirected back to signin). That's auth.
+
+</Section>
+
+<Section title="Your Code vs. the Platform">
+
+The thread running through this module: you could hand-write sessions, but why would you?
+
+Hand-writing sessions teaches you why platforms exist. You learn that password hashing is non-obvious, that token expiration needs thought, that cookies have security flags for a reason. That knowledge matters.
+
+But once you know it, delegating to Supabase is the right call. The platform has security experts, it's audited, it handles edge cases you'd miss. Your job is to gate pages, not to invent login.
+
+This pattern repeats everywhere in software: learn the hard way once, then choose the simple platform when you actually build something. The trade-off is always the same, less code and more safety, in exchange for less control. And for auth, that's a deal worth taking.
+
+</Section>

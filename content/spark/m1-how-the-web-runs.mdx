@@ -1,0 +1,141 @@
+---
+title: How the web runs
+module: 1
+phase: "0 — Foundations"
+promise: "Know what happens between saving a file and seeing it in a browser."
+threads:
+  - your-code-vs-the-platform
+  - error-location-is-a-hint
+---
+
+<Section title="The terminal is a text UI">
+
+The terminal is not a fancy tool or a hacker cliché. It is a text-based interface to your computer. You type commands, the computer responds in text. That is it.
+
+When you save a file with your editor, nothing happens on the web. The file sits on your disk. To get that file into a browser, you need a program to run. The terminal is how you start programs, change folders, and watch them do their work.
+
+Open your terminal. Type `ls` on macOS or `dir` on Windows. You see files and folders as text. Now type `node --version`. You see a version number. These commands are programs you are running. Every web developer spends hours in the terminal, not because it is faster (it sometimes is not), but because you need it to run servers, install packages, and debug.
+
+The terminal output tells you what your programs are doing. When a server starts, it prints a message. When something breaks, it prints an error. These messages are your only window into what is actually happening behind the scenes.
+
+</Section>
+
+<Section title="file:// is not a server">
+
+You can open an HTML file in your browser by dragging it in. The URL bar shows `file:///Users/neil/index.html`. This works, and for a single static page it is fine. But `file://` has a crucial limitation: it is not a server.
+
+A server listens for requests. Your browser makes a request. The server responds. This happens over the network (even if it is localhost). A `file://` URL bypasses this entirely. The browser reads the file directly from disk. This works for basic HTML, but it breaks the moment your code needs to load resources across files, fetch data, or test realistic network behavior.
+
+Some browser features are blocked on `file://` URLs for security reasons. Service workers do not run. Cross-origin requests fail. Your code might work on `file://` but break when deployed to the actual web.
+
+This is part of the "your-code-vs-the-platform" thread: your code and the platform (the browser, the web) have different rules depending on where and how you run it. Local file access is not the same as web access.
+
+</Section>
+
+<Section title="Client and server talk in requests and responses">
+
+The web is a conversation between two programs: a client (your browser) and a server (a program listening on a network address). Here is how it works.
+
+You type `http://localhost:3000` into your browser. The browser makes a request: "Give me the page at root." The server receives this request and responds: "Here is your HTML file." The browser downloads the HTML, parses it, and renders it to the screen.
+
+The HTML says `<script src="/app.js">`. The browser makes another request: "Give me `/app.js`." The server responds with JavaScript. The browser runs it.
+
+The HTML says `<img src="/logo.png">`. Another request. Another response.
+
+Each request and response is a round-trip. The browser sends data up, the server sends data back. This is the client↔server round-trip. It is not instant. Depending on your network, each trip takes milliseconds or more. This is why developers worry about the number of requests and the size of files.
+
+A local server like `http://localhost:3000` simulates this real web behavior. `file://` URLs do not. This is why you need a server when you develop.
+
+</Section>
+
+<Section title="Packages bring code you did not write">
+
+You do not write everything from scratch. You use libraries. You install them using npm (or similar package managers). When you run `npm install react`, npm downloads React from the internet and puts it in a `node_modules` folder.
+
+Each package has a version number like `18.3.1`. The first number (18) is the major version. Breaking changes bump this. The second number (3) is the minor version. New features bump this. The third number (1) is the patch version. Bug fixes bump this. This is called semantic versioning.
+
+Your `package.json` file lists which packages you depend on. It might say `"react": "^18.3.1"`. The `^` means "I will accept any minor or patch version above 18.3.1, but not 19 or higher." This is version pinning.
+
+But here is the problem: version pinning is not perfect. A package you depend on might depend on another package with a loose version constraint. If that package updates and breaks something, your code breaks too. This is dependency drift.
+
+When you run `npm install` on your machine, you get one set of versions. When someone else runs `npm install` on theirs, they might get different versions if they have not committed `package-lock.json`. This is why the lock file exists. It records the exact versions that worked, so everyone gets the same thing.
+
+</Section>
+
+<Section title="Build: Serve a file two ways">
+
+Let us see the difference between `file://` and a server. We will serve the same HTML file two ways: first with Python's simple HTTP server, then with Vite.
+
+Create an `index.html` file:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Basics</title>
+</head>
+<body>
+  <h1>Hello from the server</h1>
+  <script src="./app.js"></script>
+</body>
+</html>
+```
+
+Create an `app.js` file:
+
+```javascript
+console.log("Script loaded from server");
+document.body.innerHTML += "<p>JavaScript ran</p>";
+```
+
+Now open `index.html` by dragging it into your browser. You see `file:///...` in the URL bar. Check the browser console (F12). The script loaded, so it worked. But note that it happened instantly. There was no network round-trip. The browser read the file directly.
+
+Now start a server. Open your terminal in the same folder and run:
+
+```bash
+python3 -m http.server 8000
+```
+
+You see `Serving HTTP on 0.0.0.0 port 8000 ...`. Open `http://localhost:8000` in your browser. The page looks identical. Check the browser console. The script still loaded. But now, if you open the Network tab in your developer tools, you see two requests: one for `index.html`, one for `app.js`. These were network round-trips, not direct file access.
+
+Stop the server (Ctrl+C). The page stops working. Reload. Your browser tried to make a request to `localhost:8000`, got no response, and failed. This is what the real web looks like. A server must be running.
+
+Now install Vite. In your terminal:
+
+```bash
+npm create vite@latest
+```
+
+Follow the prompts to create a new Vite project. Move your `index.html` and `app.js` into the project folder (or let Vite scaffold for you). Run `npm run dev`. You see `Local: http://localhost:5173`. Open it. The page loads. But Vite is doing more than `http.server`. It is watching your files. Edit `app.js` and save. Watch the browser update automatically. Vite reloads the code without you refreshing. This is hot module replacement. The difference is that both servers serve your files over HTTP, but Vite rebuilds and reloads while you work.
+
+</Section>
+
+<Section title="The error-location thread">
+
+The "error-location-is-a-hint" thread runs through everything we just covered. When something breaks, the error message usually tells you where the problem is.
+
+If your `app.js` file has a syntax error, the browser console shows the error and tells you the file name and line number. That is location data. It is a hint that you should look at that file, on that line.
+
+If you are using `file://` and a script does not load, the problem might be that the file path is wrong. The browser will not be able to load it because there is no server to negotiate the path. Check the Network tab: did the browser even try to load the resource? If not, maybe the path in your HTML is wrong.
+
+If you run `npm install` and get a version conflict error, the error message tells you which package and which version caused the conflict. That location data points you to the `package.json` file.
+
+Every error message is trying to tell you something. The location is the first clue.
+
+</Section>
+
+<Section title="Checkpoint">
+
+Now you should be able to do the following:
+
+1. Open a terminal and start a local server (using Python, Node, or any tool). Navigate to `http://localhost:<port>` and verify the page loads. Stop the server and confirm the page stops working.
+
+2. Explain why `file://` URLs are not the same as server URLs. What browser feature does not work on `file://`?
+
+3. Look at a `package.json` file and spot a dependency with a loose version constraint. Explain what would happen if that dependency released a breaking change.
+
+4. Open your browser developer tools, go to the Network tab, and watch the requests happen when you load a page with a server. How many requests did it take? How large were the files?
+
+These are the foundations. Everything else builds on top.
+
+</Section>

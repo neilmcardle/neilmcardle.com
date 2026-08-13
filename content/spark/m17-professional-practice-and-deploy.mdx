@@ -1,0 +1,217 @@
+---
+title: "Professional practice & deploy"
+module: 17
+phase: "Full-stack"
+promise: "Work like an engineer on a team."
+threads:
+  - debugging-first-class
+  - error-location-is-a-hint
+---
+
+<Section title="Git is a time machine for code">
+
+Git doesn't store "files." It stores snapshots of your entire project at a moment in time. Each commit is a complete picture with a message explaining what changed and why.
+
+Think of your repo history as a filmstrip. The HEAD pointer is the frame you're watching. When you checkout a branch, you're rewinding or fast-forwarding to a different frame. When you make a commit, you add a new frame to the current reel.
+
+This metaphor breaks down only once: Git is immutable. Once you commit, that frame exists forever. Pushing to main is permanent. `git reset --hard` erases your local filmstrip but can't erase what's already on the remote.
+
+The key insight: every commit is a story. Commit messages matter because they're the only explanation that travels with the code. Six months later, "fix typo" tells you nothing. "Change button aria-label from 'x' to 'close' because screen readers read numbers" tells you why the code is the way it is.
+
+</Section>
+
+<Section title="Branches: one idea per reel">
+
+A branch is a parallel filmstrip. Your main branch is the canonical reel. feature/auth-modal is an experiment that branches off at some commit and gets its own sequence of frames.
+
+Most teams have a convention: main is always shippable. Never commit to main directly. Create a branch, make changes, open a pull request for review, and merge only after approval.
+
+Why? Because code review catches things you missed. Because a human reading the PR description understands the tradeoff before merging. Because if the change breaks something, blame for that commit points to the human who decided it was worth the risk, not to the person who typed the code.
+
+Naming branches clearly helps: `feature/dark-mode`, `fix/button-keyboard-trap`, `docs/api-reference`. The prefix tells you what kind of work this is.
+
+</Section>
+
+<Section title="PR descriptions: explain the why, not the what">
+
+A PR is not a list of lines you changed. That's what `git diff` is for. A PR is an argument: here's what I changed, why I changed it, and what I considered before deciding.
+
+The structure: (1) problem statement, (2) solution, (3) tradeoffs you considered and rejected, (4) test plan.
+
+Example:
+
+```
+## Problem
+The login modal closes immediately when the user clicks outside the backdrop because `onClickCapture` fires on the parent and calls `setOpen(false)` before the click reaches the button.
+
+## Solution
+Add `pointer-events-none` to the backdrop and handle clicks only on a transparent overlay div inside the modal. The modal itself captures the click before it bubbles.
+
+## Tradeoffs
+Considered: Using `ref.current?.contains(event.target)` to check if the click was inside the modal. Rejected because it's more code and this is a UI component that should be opinionated about click handling.
+
+## Test
+1. Open modal
+2. Click outside modal → modal stays open
+3. Click close button → modal closes
+4. Tab through the form without clicking → enter works
+```
+
+The reviewer reads this and knows what you thought about before coding. They can disagree with your tradeoff choice and ask you to reconsider. This is how teams build better software.
+
+</Section>
+
+<Section title="Dissecting a component: Radix and shadcn">
+
+Real codebases don't start from scratch. They inherit decisions from libraries like Radix UI (accessible primitives) and shadcn/ui (copy-paste components you own).
+
+Open `node_modules/@radix-ui/react-dialog/dist/index.d.ts` and read the types. Here's what you're looking for: what props does the component accept? What do they control? What's the default behavior?
+
+When you use `<Dialog>` from Radix, you're not just getting a modal div. You're getting: aria labels, keyboard trap, focus management on open/close, backdrop click handling. The implementation is battle-tested because thousands of apps use it.
+
+But Radix is headless. It doesn't ship styling. shadcn/ui wraps Radix + Tailwind and gives you a copy-paste component you can modify. When you copy a button from shadcn, you're copying ~40 lines of JSX + Tailwind. It's yours now. If you need to change it, you change it directly, not by monkey-patching the library.
+
+This is a key insight: when you contribute to an existing codebase, you're often working with inherited components. You need to read the component, understand what it's doing, and respect the structure while making your change.
+
+</Section>
+
+<Section title="Read before you write">
+
+The #1 mistake new engineers make: they write code without reading the existing code first.
+
+Before you add a feature, spend 10 minutes reading the file. Where do similar things live? What patterns are already established? What variables are already defined? Is there a `utils/` folder where helper functions go?
+
+Example: you're adding a logout button. Before writing a click handler, check: does useAuth already exist? What does it return? Do other buttons in this codebase use a specific pattern for handling async clicks? Is there a loading state pattern you should follow?
+
+Reading first makes your code look like it belongs in the codebase. It also catches cases where the thing you're about to implement already exists somewhere else.
+
+</Section>
+
+<Section title="Component tests: verify the behavior, not the structure">
+
+A component test answers: does this component do the job it claims to do?
+
+Bad test: check that a button has `className="btn"`. Good test: click the button and verify the thing it's supposed to do actually happens.
+
+Example of a bad test:
+
+```javascript
+test('renders a login button', () => {
+  render(<LoginForm />);
+  expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+});
+```
+
+This test passes if the button exists but does nothing when clicked. It tells you the HTML is there, not that the form works.
+
+Example of a good test:
+
+```javascript
+test('submits the form when the button is clicked', async () => {
+  const handleSubmit = jest.fn();
+  render(<LoginForm onSubmit={handleSubmit} />);
+  
+  await userEvent.type(screen.getByLabelText('Email'), 'test@example.com');
+  await userEvent.type(screen.getByLabelText('Password'), 'password123');
+  await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+  
+  expect(handleSubmit).toHaveBeenCalledWith({
+    email: 'test@example.com',
+    password: 'password123',
+  });
+});
+```
+
+This test verifies the user's journey: type email, type password, click sign in, form submits with the right data. The test fails if any step is broken.
+
+Write tests that would catch the bugs users actually hit. Click things, type things, wait for things to appear. Verify the user's behavior, not the code's structure.
+
+</Section>
+
+<Section title="DevTools: your window into the runtime">
+
+When a component doesn't behave right, DevTools shows you: (1) what the HTML structure actually is, (2) what styles are applied, (3) what state the component thinks it's in.
+
+Open the Inspector. Hover over an element. Inspect it. Now you see: the HTML tag, the classes applied, the inline styles, the computed styles from all matching CSS rules. If a button looks the same color as the background, you can see which CSS rule is doing that and why.
+
+Click the "Show/Hide Console" button. There's where `console.log` outputs go. If you add `console.log(state, props)` to a component, open DevTools, reload, and watch the console as you interact with the page.
+
+The React DevTools extension adds a tab that shows your component tree. Hover over a component and see its props, state, and hooks. Click the "Show where the component rendered" icon to jump to the source code in your editor.
+
+DevTools is not a replacement for reading code. It's a microscope for seeing what's actually happening at runtime. When the code says one thing and the browser shows another, DevTools tells you which one is right.
+
+</Section>
+
+<Section title="The debugging method: error to root cause">
+
+When something breaks, you have an error message or a symptom. Follow this path: (1) read the error message carefully, (2) find where in the code that error could come from, (3) add logging or breakpoints to see which branch is executing, (4) repeat until you find where the actual bug is, (5) fix it, (6) trace backwards to make sure this bug isn't a symptom of a deeper problem.
+
+Example: your form says "Error: Cannot read property 'email' of undefined."
+
+Step 1: This error means code tried to access `someValue.email` but `someValue` is undefined. Step 2: search your codebase for `.email`. Find the line. It's inside a function that processes form data. Step 3: add `console.log(formData)` right before the error line. Step 4: reload and see that `formData` is undefined. Why? Is it being passed as undefined or is the function being called wrong? Step 5: trace backwards. The function is called from a submit handler. The submit handler receives data from the form. Check if the form is actually calling the submit handler or if there's a validation error stopping it. Step 6: find that the form validation is failing silently, so the submit handler is never called, but something else is trying to access the form data anyway. That's the root cause. Fix the form so it only tries to access data when validation passes.
+
+The key: error location is a hint, not the full story. The error tells you where the code blew up, but why it blew up is usually one or two steps backwards.
+
+</Section>
+
+<Section title="Debugging practice: read logs, add logs, use breakpoints">
+
+When something goes wrong, check logs first. If it's a server error, look at the server logs. If it's a client error, open the browser console. The error message usually tells you the file and line number where the crash happened.
+
+If the logs don't tell you enough, add logging. Put `console.log` right before the suspicious line and see what the values are. If you find undefined when you expected a string, you've found the problem.
+
+Breakpoints are more powerful than `console.log`. Click the line number in DevTools to set a breakpoint. When the code hits that line, execution pauses. You can hover over variables to see their values, step through the code line by line, and jump to the next breakpoint. This is faster than adding 20 `console.log` statements.
+
+The discipline: (1) error message tells you where, (2) logs and breakpoints tell you why, (3) code review tells you how to prevent it next time.
+
+</Section>
+
+<Section title="Deploy to Vercel: preview then ship">
+
+Vercel watches your GitHub repo. When you push a branch, Vercel builds it and gives you a preview URL. When you merge to main, Vercel deploys to production.
+
+This is powerful: you can share a live preview of your feature before it ships. Load it on your phone, click around, make sure it works. Then merge and ship.
+
+The workflow: (1) push your branch to GitHub, (2) open the PR, (3) Vercel posts a comment with a preview URL, (4) click the URL and test the feature live, (5) if something's wrong, push fixes to the same branch, Vercel rebuilds automatically, (6) test again, (7) merge when ready.
+
+Vercel also watches your main branch. After merging, main goes live automatically. No separate deploy step. This is why main must always be shippable: it's deployed within minutes of you merging.
+
+</Section>
+
+<Section title="AI-assisted dev: draft, verify, trust a little">
+
+AI is useful for drafting code, but it's not a substitute for judgment.
+
+When you ask Claude to write a component, it'll produce something that looks right. But you need to verify: (1) does it do what you asked? (2) does it follow the patterns in this codebase? (3) does it handle edge cases? (4) are there any security or performance gotchas?
+
+The pattern: ask Claude to write the code, read it carefully, run it, test it, and then decide if you trust it. Don't paste AI output directly to main without reading it.
+
+Common AI mistakes: it forgets to handle loading states, it uses `any` types instead of proper generics, it doesn't match the codebase style, it makes assumptions about prop names or API contracts.
+
+The verification step is not paranoia. It's professional. You're still responsible for code that ships under your name, even if Claude typed some of it.
+
+</Section>
+
+<Section title="Contributing to an existing codebase">
+
+You're new to a project. You don't know where things live. You don't know the conventions. Here's the process:
+
+(1) Read the README and any documentation that exists. (2) Read the folder structure. Where are components? Where are utils? Where are styles? (3) Pick a small bug or feature to implement. Not the hardest one. Something you can do in an hour. (4) Read the existing code that's related to your change. (5) Write your code to match the existing patterns, even if you think they're suboptimal. (6) Write a PR that explains what you did and why. Reference the issue or feature request. (7) Respond to feedback. Learn the team's taste. (8) Merge and move on.
+
+The mistake: trying to refactor the whole codebase on your first day. You don't know what constraints led to the current structure. The code that looks wrong might be right for reasons you don't see yet.
+
+Earn trust first. Make small changes that improve the codebase. Then, after a few PRs merged, you can suggest larger refactors. By then, you know why things are the way they are.
+
+</Section>
+
+<Section title="Build: trace a bug and ship a fix">
+
+Your assignment: find an actual bug in a real codebase (not production, but real code). Trace it from the error message to the root cause. Write a PR that fixes it and explains why.
+
+The PR should have: (1) a title that's one sentence, (2) a description that explains the problem (what broke and why), (3) the solution (your code), (4) why you chose this solution over alternatives, (5) a test plan (how you verified the fix works).
+
+Your checkpoint conversation will ask: can you walk me through how you found the bug? What did the error message tell you? What did the logs show? Where did you add debugging? What was the root cause? Why did you fix it this way instead of another way? What part of the AI output (if any) did you verify before trusting?
+
+The goal is not a perfect fix. It's to demonstrate that you can read code, find problems, and think about tradeoffs before committing. That's what professional engineering looks like.
+
+</Section>

@@ -1,0 +1,525 @@
+---
+title: "Testing React UI"
+module: 9
+phase: "Phase 1 — JS & React"
+promise: "Write a failing test, watch it fail, make it pass, refactor with confidence."
+threads:
+  - "evidence-over-claims"
+---
+
+<Section title="Why TDD changes how you build">
+
+Most people test *after* they write. They finish a component, open the browser, click around, hope nothing breaks. That's debugging dressed up as testing.
+
+TDD is the opposite. You write the test first. It fails. You write the minimum code to make it pass. Then you refactor knowing the test has your back.
+
+This reversal feels backwards at first. But it rewires how you think. The test is not a safety net. It's the spec. It's the contract between you and the component. You can't implement until you know what you're testing for.
+
+By the end of this module, you'll have tested the M8 search component through a complete TDD cycle. You'll watch five tests fail, write the code to pass them, and refactor knowing every behavior is covered.
+
+</Section>
+
+<Section title="Your testing stack: Vitest and React Testing Library">
+
+Two tools make this happen. Vitest runs your tests with the speed of Vite. React Testing Library tests components the way users interact with them.
+
+Vitest is Jest-compatible. If you've used Jest, Vitest is faster and cleaner. If you haven't, the API is straightforward: `describe`, `it`, `expect`.
+
+React Testing Library doesn't query the DOM by test IDs or class names. It finds elements the way a human would: by label text, by button text, by heading. This forces you to write components that are actually accessible. It also prevents tests that pass but components that break.
+
+Together, they push you toward tests that matter. Tests that break when users actually can't use your component.
+
+```bash
+npm install -D vitest @vitest/ui
+npm install --save-dev @testing-library/react @testing-library/jest-dom
+```
+
+Add a `vitest.config.ts` to the root:
+
+```typescript
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+  },
+});
+```
+
+And a setup file that imports matchers:
+
+```typescript
+// vitest.setup.ts
+import '@testing-library/jest-dom';
+```
+
+Now `npm test` will find and run all `*.test.ts` and `*.test.tsx` files.
+
+</Section>
+
+<Section title="RED: Write the test first, let it fail">
+
+The RED phase is intentional failure. You describe what the component *should* do before it exists.
+
+Think of a search input. It should:
+- Render with a text input
+- Call an `onSearch` callback when the user types
+- Show a loading state while searching
+- Render results when they arrive
+- Show an empty state if no results found
+
+Each of these is a test. Write them before the component.
+
+```typescript
+// SearchInput.test.tsx
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { SearchInput } from './SearchInput';
+
+describe('SearchInput', () => {
+  it('renders a text input with placeholder', () => {
+    render(<SearchInput onSearch={() => {}} />);
+    expect(screen.getByPlaceholderText('Search...')).toBeInTheDocument();
+  });
+
+  it('calls onSearch when user types', async () => {
+    const handleSearch = vi.fn();
+    render(<SearchInput onSearch={handleSearch} />);
+    
+    const input = screen.getByPlaceholderText('Search...');
+    await userEvent.type(input, 'react');
+    
+    expect(handleSearch).toHaveBeenCalledWith('react');
+  });
+
+  it('shows loading state while searching', async () => {
+    render(<SearchInput onSearch={() => {}} isLoading={true} />);
+    expect(screen.getByText('Searching...')).toBeInTheDocument();
+  });
+
+  it('renders results when provided', () => {
+    const results = ['React', 'Vue', 'Svelte'];
+    render(<SearchInput onSearch={() => {}} results={results} />);
+    
+    results.forEach(result => {
+      expect(screen.getByText(result)).toBeInTheDocument();
+    });
+  });
+
+  it('shows empty state when no results found', () => {
+    render(
+      <SearchInput onSearch={() => {}} results={[]} hasSearched={true} />
+    );
+    expect(screen.getByText('No results found')).toBeInTheDocument();
+  });
+});
+```
+
+Run this. Watch all five tests fail. The component doesn't exist yet. The test output tells you exactly what's missing.
+
+This is RED. It's uncomfortable. That's the point. You're writing a specification that the code must satisfy.
+
+</Section>
+
+<Section title="GREEN: Write the minimum code to pass">
+
+Now build the component. Nothing fancy. Just enough to make the tests pass.
+
+```typescript
+// SearchInput.tsx
+import { useState } from 'react';
+
+interface SearchInputProps {
+  onSearch: (query: string) => void;
+  isLoading?: boolean;
+  results?: string[];
+  hasSearched?: boolean;
+}
+
+export function SearchInput({
+  onSearch,
+  isLoading,
+  results,
+  hasSearched,
+}: SearchInputProps) {
+  const [query, setQuery] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    onSearch(value);
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        placeholder="Search..."
+        value={query}
+        onChange={handleChange}
+      />
+      
+      {isLoading && <p>Searching...</p>}
+      
+      {results && results.length > 0 && (
+        <ul>
+          {results.map(result => (
+            <li key={result}>{result}</li>
+          ))}
+        </ul>
+      )}
+      
+      {hasSearched && results && results.length === 0 && (
+        <p>No results found</p>
+      )}
+    </div>
+  );
+}
+```
+
+Run the tests. They all pass. GREEN achieved.
+
+You now have working code. More importantly, you have proof that every stated behavior works. The tests are not theoretical. They run. They pass. Your component is not "probably fine". It's verified.
+
+</Section>
+
+<Section title="REFACTOR: Improve with your tests as a shield">
+
+The component works. But look at it. The JSX is repetitive. The state handling is scattered.
+
+Refactoring without tests is terrifying. With tests, it's safe. Change the implementation. The tests stay the same. If a test breaks, you broke a behavior that matters.
+
+```typescript
+// SearchInput.tsx (refactored)
+interface SearchInputProps {
+  onSearch: (query: string) => void;
+  isLoading?: boolean;
+  results?: string[];
+  hasSearched?: boolean;
+}
+
+export function SearchInput({
+  onSearch,
+  isLoading,
+  results = [],
+  hasSearched,
+}: SearchInputProps) {
+  const [query, setQuery] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    onSearch(value);
+  };
+
+  const isEmpty = hasSearched && results.length === 0;
+  const hasResults = results.length > 0;
+
+  return (
+    <div className="search-container">
+      <input
+        type="text"
+        placeholder="Search..."
+        value={query}
+        onChange={handleChange}
+        aria-label="Search input"
+      />
+      
+      {isLoading && <p>Searching...</p>}
+      {hasResults && <ResultsList results={results} />}
+      {isEmpty && <EmptyState />}
+    </div>
+  );
+}
+
+function ResultsList({ results }: { results: string[] }) {
+  return (
+    <ul className="results">
+      {results.map(result => (
+        <li key={result} className="result-item">{result}</li>
+      ))}
+    </ul>
+  );
+}
+
+function EmptyState() {
+  return <p className="empty-state">No results found</p>;
+}
+```
+
+Run the tests again. They all still pass. You've extracted components, removed duplication, and improved readability. The test suite is your proof that nothing broke.
+
+This is the power of TDD. Refactoring stops being risky. It becomes something you do confidently, often, and with immediate feedback.
+
+</Section>
+
+<Section title="Test behavior, not implementation details">
+
+A trap: testing how things work instead of what they do.
+
+Bad test:
+```typescript
+it('sets state to true when loading', () => {
+  const { result } = renderHook(() => useSearch());
+  act(() => {
+    result.current.setIsLoading(true);
+  });
+  expect(result.current.isLoading).toBe(true);
+});
+```
+
+This test is about internal state. It breaks if you refactor the hook. It doesn't test whether the user sees anything different.
+
+Good test:
+```typescript
+it('shows loading message while searching', async () => {
+  render(<SearchInput onSearch={() => {}} isLoading={true} />);
+  expect(screen.getByText('Searching...')).toBeInTheDocument();
+});
+```
+
+This test cares about behavior: the user sees "Searching...". How you achieve that is an implementation detail. Refactor the state, refactor the rendering, replace the hook with a state machine. The test doesn't care. It only cares that the user gets the feedback they expect.
+
+Test behavior. Users don't care about your state. They care about what they see and what they can do.
+
+</Section>
+
+<Section title="The four states: Your test roadmap">
+
+Most interactive components live in one of four states. Testing each state separately is where TDD shines.
+
+The states are: idle, loading, success (data arrived), and error (something broke).
+
+Each state is a separate test. Each tests one scenario.
+
+```typescript
+describe('SearchInput state transitions', () => {
+  // IDLE: No search yet
+  it('starts in idle state', () => {
+    render(<SearchInput onSearch={() => {}} />);
+    expect(screen.queryByText('Searching...')).not.toBeInTheDocument();
+    expect(screen.queryByText('No results found')).not.toBeInTheDocument();
+  });
+
+  // LOADING: User initiated search, waiting for results
+  it('shows loading state while fetching', () => {
+    render(<SearchInput isLoading={true} onSearch={() => {}} />);
+    expect(screen.getByText('Searching...')).toBeInTheDocument();
+  });
+
+  // SUCCESS: Data arrived
+  it('renders results on success', () => {
+    render(
+      <SearchInput 
+        results={['React', 'Vue']} 
+        onSearch={() => {}} 
+      />
+    );
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('Vue')).toBeInTheDocument();
+  });
+
+  // ERROR: Search failed or returned nothing
+  it('shows empty state when no results', () => {
+    render(
+      <SearchInput 
+        results={[]} 
+        hasSearched={true} 
+        onSearch={() => {}} 
+      />
+    );
+    expect(screen.getByText('No results found')).toBeInTheDocument();
+  });
+});
+```
+
+This is the test structure. Four states, four tests, one test per behavior. When you write the component, each state becomes a branch in your render logic. Testing all four states means no branch is missed.
+
+</Section>
+
+<Section title="Anti-pattern: Over-mocking">
+
+Mocking is useful. It's also addictive. Avoid mocking until you need it.
+
+Bad test with unnecessary mock:
+```typescript
+it('calls onSearch', () => {
+  const mockCallback = vi.fn();
+  const { rerender } = render(
+    <SearchInput onSearch={mockCallback} />
+  );
+  
+  const input = screen.getByPlaceholderText('Search...');
+  // Mocking userEvent instead of using it directly
+  vi.mock('@testing-library/user-event');
+  // Now the test doesn't actually type
+  expect(mockCallback).toHaveBeenCalled();
+});
+```
+
+Good test without the mock clutter:
+```typescript
+it('calls onSearch when user types', async () => {
+  const handleSearch = vi.fn();
+  render(<SearchInput onSearch={handleSearch} />);
+  
+  const input = screen.getByPlaceholderText('Search...');
+  await userEvent.type(input, 'react');
+  
+  expect(handleSearch).toHaveBeenCalledWith('react');
+});
+```
+
+The second test actually simulates typing. It's slower by milliseconds. It's more realistic. It tests the real path.
+
+Mock API calls. Mock external services. Don't mock the component you're testing. Over-mocking creates tests that pass while the actual component breaks.
+
+</Section>
+
+<Section title="Anti-pattern: Snapshot-everything">
+
+Snapshots look appealing. Write one test, save the output, done.
+
+```typescript
+it('renders correctly', () => {
+  const { container } = render(<SearchInput onSearch={() => {}} />);
+  expect(container).toMatchSnapshot();
+});
+```
+
+This test passes. Every typo, every attribute, every whitespace change updates the snapshot.
+
+Snapshots are brittle. They make refactoring harder, not easier. A change to styling breaks the snapshot. A change to accessibility attributes breaks it. You update the snapshot without reading the diff. Bad behaviors slip in.
+
+Test outcomes. Test behavior. Test the user's perspective.
+
+```typescript
+it('renders search input with correct label', () => {
+  render(<SearchInput onSearch={() => {}} />);
+  expect(screen.getByPlaceholderText('Search...')).toBeInTheDocument();
+});
+```
+
+This test is specific. It will fail if you break the label. It doesn't break if you change the component's classes or structure. It cares about what matters.
+
+Avoid snapshots. They feel productive. They're rarely worth the cost.
+
+</Section>
+
+<Section title="Build: Testing the M8 search component">
+
+Now apply this to the M8 search component you built in the last module. You'll write five tests first. Then build the component to pass them.
+
+The component should:
+- Render a search input and search button
+- Make a fetch request when the user types
+- Show a loading spinner while fetching
+- Display matching results in a list
+- Show an empty state if no results found
+
+Write these five tests in `SearchComponent.test.tsx`:
+
+```typescript
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { SearchComponent } from './SearchComponent';
+
+describe('SearchComponent', () => {
+  beforeEach(() => {
+    global.fetch = vi.fn();
+  });
+
+  it('renders search input', () => {
+    render(<SearchComponent />);
+    expect(screen.getByRole('textbox', { name: /search/i })).toBeInTheDocument();
+  });
+
+  it('shows loading state while fetching', async () => {
+    global.fetch = vi.fn(() => new Promise(() => {}));
+    render(<SearchComponent />);
+    
+    const input = screen.getByRole('textbox', { name: /search/i });
+    await userEvent.type(input, 'test');
+    
+    await waitFor(() => {
+      expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    });
+  });
+
+  it('displays results when fetch succeeds', async () => {
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ results: ['React', 'Vue', 'Svelte'] }),
+      })
+    );
+    
+    render(<SearchComponent />);
+    
+    const input = screen.getByRole('textbox', { name: /search/i });
+    await userEvent.type(input, 'frameworks');
+    
+    await waitFor(() => {
+      expect(screen.getByText('React')).toBeInTheDocument();
+      expect(screen.getByText('Vue')).toBeInTheDocument();
+      expect(screen.getByText('Svelte')).toBeInTheDocument();
+    });
+  });
+
+  it('shows empty state when no results', async () => {
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ results: [] }),
+      })
+    );
+    
+    render(<SearchComponent />);
+    
+    const input = screen.getByRole('textbox', { name: /search/i });
+    await userEvent.type(input, 'nonexistent');
+    
+    await waitFor(() => {
+      expect(screen.getByText(/no results/i)).toBeInTheDocument();
+    });
+  });
+
+  it('handles fetch errors gracefully', async () => {
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
+    
+    render(<SearchComponent />);
+    
+    const input = screen.getByRole('textbox', { name: /search/i });
+    await userEvent.type(input, 'test');
+    
+    await waitFor(() => {
+      expect(screen.getByText(/error/i)).toBeInTheDocument();
+    });
+  });
+});
+```
+
+Run these tests. All fail. Now build the component to pass them. Every test becomes a requirement. Every requirement has a test verifying it works.
+
+</Section>
+
+<Section title="Checkpoint: Evidence over claims">
+
+You've now reached a milestone. Your component isn't "probably fine". It's tested. Every stated behavior is verified. Every state is covered.
+
+This module introduces a new thread: evidence-over-claims. From here on, checkpoints are verified by tests, not asserted by description.
+
+You can refactor the search component tomorrow and know immediately if anything broke. You can add features and test them the same way. You have a written contract between you and the code.
+
+This is what TDD buys you. Not perfect code. Not zero bugs. But code you can touch with confidence. Code where "it works" means something because the tests prove it.
+
+The next time you're tempted to skip a test because "it'll be fine," remember this moment. Remember what it felt like to watch five tests fail, write the code, watch them pass, and refactor knowing nothing broke.
+
+That confidence is worth the time. It always is.
+
+</Section>
