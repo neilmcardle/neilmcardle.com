@@ -49,16 +49,20 @@ export default async function LessonPage(props: PageProps) {
           </div>
         </header>
 
-        <main className="max-w-2xl mx-auto px-6 py-12">
-          <div className="space-y-16">
+        <main className="max-w-3xl mx-auto px-6 py-16 lg:py-20">
+          <div className="space-y-20">
             {(() => {
               const parsedSections = parseContentIntoSections(module.mdxSource);
               return parsedSections.map((section, i) => (
-                <section key={i} className="py-16 border-b border-slate-200 dark:border-slate-800 last:border-b-0">
-                  <h2 className="text-3xl font-bold mb-6 text-slate-900 dark:text-white">
+                <section
+                  key={i}
+                  className="pb-16 border-b border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 scroll-mt-20"
+                  id={`section-${i}`}
+                >
+                  <h2 className="text-3xl lg:text-4xl font-bold mb-8 text-slate-900 dark:text-white leading-tight">
                     {section.title}
                   </h2>
-                  <div className="prose prose-invert dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 space-y-4 whitespace-pre-wrap">
+                  <div className="text-lg text-slate-700 dark:text-slate-300 space-y-4 leading-relaxed whitespace-pre-wrap font-mono text-sm">
                     {section.content}
                   </div>
                 </section>
