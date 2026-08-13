@@ -66,12 +66,6 @@ export default async function LessonsPage() {
 
               {/* Card */}
               <div className="relative p-8 bg-gray-50 rounded-lg shadow-border hover:shadow-border-hover transition-shadow">
-                <div className="mb-4">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Module {mod.module}
-                  </span>
-                </div>
-
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
                   {mod.title}
                 </h3>

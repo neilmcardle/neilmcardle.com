@@ -62,9 +62,6 @@ export default async function LessonPage(props: PageProps) {
           <main className="flex-1 px-6 py-12 lg:py-16 overflow-y-auto">
             <div className="max-w-3xl mx-auto">
               <header className="mb-12">
-                <p className="text-sm text-gray-500 mb-3 uppercase tracking-wide">
-                  Module {module.frontmatter.module}
-                </p>
                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
                   {module.frontmatter.title}
                 </h1>
