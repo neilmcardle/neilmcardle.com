@@ -235,6 +235,8 @@ The best developers get fluent enough with the forced stuff that it becomes invi
 
 Let's trace through what happens when a user finds "alice":
 
+<FilteringWidget />
+
 1. User clicks the input and types "a".
 2. The `onChange` event fires. `setQuery("a")` gets called.
 3. React re-renders the component with `query` set to `"a"`.
