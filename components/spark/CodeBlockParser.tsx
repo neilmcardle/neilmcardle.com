@@ -9,7 +9,7 @@ interface CodeBlockParserProps {
 
 export function CodeBlockParser({ children }: CodeBlockParserProps) {
   const parts: (string | { type: 'code'; language: string; code: string })[] = [];
-  const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+  const codeBlockRegex = /```(\w+)?\s*\n([\s\S]*?)\n```/g;
 
   let lastIndex = 0;
   let match;
@@ -40,7 +40,7 @@ export function CodeBlockParser({ children }: CodeBlockParserProps) {
       {parts.map((part, i) => {
         if (typeof part === 'string') {
           return (
-            <p key={i} className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+            <p key={i} className="text-slate-700 dark:text-slate-50 leading-relaxed whitespace-pre-wrap">
               {part}
             </p>
           );
