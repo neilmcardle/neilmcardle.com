@@ -52,7 +52,7 @@ export default async function LessonsPage() {
 
       {/* All modules in grid */}
       <main className="max-w-6xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 auto-rows-fr">
+        <div className="grid grid-cols-2 gap-8">
           {sortedModules.map((mod) => (
             <Link
               key={mod.slug}
@@ -60,7 +60,7 @@ export default async function LessonsPage() {
               className="group relative block"
             >
               {/* Card */}
-              <div className="relative p-8 bg-gray-50 rounded-lg shadow-sm hover:shadow-md shadow-border hover:shadow-border-hover transition-shadow">
+              <div className="relative p-8 bg-gray-50 rounded-lg shadow-sm hover:shadow-md shadow-border hover:shadow-border-hover transition-shadow aspect-square flex flex-col">
                 {/* Background number */}
                 <span className="absolute top-4 right-4 text-8xl font-bold text-gray-200 leading-none select-none pointer-events-none opacity-40" style={{fontFamily: 'var(--font-playfair)'}}>
                   {String(mod.module).padStart(2, '0')}
@@ -70,11 +70,11 @@ export default async function LessonsPage() {
                   {mod.title}
                 </h3>
 
-                <p className="text-gray-600 text-sm leading-relaxed mb-6 relative z-10">
+                <p className="text-gray-600 text-sm leading-relaxed mb-6 relative z-10 flex-1">
                   {mod.promise}
                 </p>
 
-                <div className="pt-4 border-t border-gray-200 relative z-10">
+                <div className="pt-4 border-t border-gray-200 relative z-10 mt-auto">
                   <span className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
                     Read module →
                   </span>
