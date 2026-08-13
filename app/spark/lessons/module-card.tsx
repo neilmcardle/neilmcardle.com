@@ -67,10 +67,10 @@ export function ModuleCard({ mod }: ModuleCardProps) {
           </h3>
         </div>
 
-        <div className="relative z-10 text-center pt-4">
-          <span className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
+        <div className="relative z-10 pt-4 w-full">
+          <button className="w-full px-4 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-900 shadow-border hover:shadow-border-hover transition-shadow bg-transparent">
             Read module →
-          </span>
+          </button>
         </div>
       </div>
     </Link>
