@@ -183,6 +183,10 @@ const config = {
         'fade-in': 'fade-in 300ms ease-out',
         'pop-in': 'pop-in 250ms cubic-bezier(0.23, 1, 0.32, 1)',
       },
+      boxShadow: {
+        'border': '0px 0px 0px 1px rgba(0, 0, 0, 0.06), 0px 1px 2px -1px rgba(0, 0, 0, 0.06), 0px 2px 4px 0px rgba(0, 0, 0, 0.04)',
+        'border-hover': '0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 1px 2px -1px rgba(0, 0, 0, 0.08), 0px 2px 4px 0px rgba(0, 0, 0, 0.06)',
+      },
     },
   },
   plugins: [

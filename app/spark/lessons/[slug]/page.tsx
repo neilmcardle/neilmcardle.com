@@ -31,7 +31,7 @@ export default async function LessonPage(props: PageProps) {
 
     return (
       <div className="min-h-screen bg-white flex flex-col">
-        <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
+        <nav className="bg-white sticky top-0 z-50" style={{boxShadow: '0px 0px 0px 1px rgba(0, 0, 0, 0.06), 0px 1px 2px -1px rgba(0, 0, 0, 0.06), 0px 2px 4px 0px rgba(0, 0, 0, 0.04)'}}>
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <a href="/spark/lessons" className="text-sm font-medium text-gray-600 hover:text-gray-900">
               ← Back to curriculum
@@ -44,7 +44,7 @@ export default async function LessonPage(props: PageProps) {
 
         <div className="flex flex-1">
           {/* Left Sidebar */}
-          <aside className="hidden lg:flex w-56 border-r border-gray-200 bg-gray-50 p-6 flex-col sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+          <aside className="hidden lg:flex w-56 bg-gray-50 p-6 flex-col sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto" style={{boxShadow: 'inset -1px 0 0 rgba(0, 0, 0, 0.06)'}}>
             <div className="space-y-4">
               <div>
                 <p className="font-semibold text-gray-900 mb-3 text-xs uppercase tracking-widest">Modules</p>
@@ -90,7 +90,10 @@ export default async function LessonPage(props: PageProps) {
                 {parsedSections.map((section, i) => (
                   <section
                     key={i}
-                    className="pb-12 border-b border-gray-200 last:border-b-0 last:pb-0"
+                    className="pb-12 last:pb-0"
+                    style={{
+                      borderBottom: i < parsedSections.length - 1 ? '1px solid rgba(0, 0, 0, 0.06)' : 'none'
+                    }}
                     id={`section-${i}`}
                   >
                     <h2 className="text-3xl font-bold mb-6 text-gray-900 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
@@ -106,7 +109,7 @@ export default async function LessonPage(props: PageProps) {
           </main>
 
           {/* Right Sidebar */}
-          <aside className="hidden xl:flex w-56 border-l border-gray-200 bg-gray-50 p-6 flex-col sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+          <aside className="hidden xl:flex w-56 bg-gray-50 p-6 flex-col sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto" style={{boxShadow: 'inset 1px 0 0 rgba(0, 0, 0, 0.06)'}}>
             <div className="space-y-8 text-sm">
               <div>
                 <p className="font-semibold text-gray-900 mb-3 text-xs uppercase tracking-widest">On this page</p>
@@ -126,7 +129,7 @@ export default async function LessonPage(props: PageProps) {
               {module.frontmatter.module < 18 && (() => {
                 const nextModuleSlug = allModuleSlugs.find(s => parseInt(s.match(/^m(\d+)/)?.[1] || '0') === module.frontmatter.module + 1);
                 return nextModuleSlug ? (
-                  <div className="pt-4 border-t border-gray-200">
+                  <div className="pt-4" style={{borderTop: '1px solid rgba(0, 0, 0, 0.06)'}}>
                     <p className="font-semibold text-gray-900 mb-3 text-xs uppercase tracking-widest">Next</p>
                     <a href={`/spark/lessons/${nextModuleSlug}`} className="block px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded text-center font-medium text-sm transition-colors">
                       M{module.frontmatter.module + 1}

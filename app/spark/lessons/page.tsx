@@ -65,7 +65,7 @@ export default async function LessonsPage() {
               </div>
 
               {/* Card */}
-              <div className="relative p-8 bg-gray-50 border border-gray-200 rounded-lg hover:border-gray-400 transition-all hover:shadow-md">
+              <div className="relative p-8 bg-gray-50 rounded-lg shadow-border hover:shadow-border-hover transition-shadow">
                 <div className="mb-4">
                   <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Module {mod.module}
