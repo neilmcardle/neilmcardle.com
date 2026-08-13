@@ -114,7 +114,7 @@ export function CodeBlockParser({ children }: CodeBlockParserProps) {
 
 function parseAttributes(tag: string): Record<string, string> {
   const attrs: Record<string, string> = {};
-  const attrRegex = /(\w+)=["']([^"']*)["']/g;
+  const attrRegex = /(\w+)=["']((?:[^"'\\]|\\.)*?)["']/g;
   let match;
 
   while ((match = attrRegex.exec(tag)) !== null) {
