@@ -31,7 +31,7 @@ export default async function LessonPage(props: PageProps) {
 
     return (
       <div className="min-h-screen bg-white flex flex-col">
-        <nav className="bg-white sticky top-0 z-50" style={{boxShadow: '0px 0px 0px 1px rgba(0, 0, 0, 0.055), 0px 2px 3px -1px rgba(0, 0, 0, 0.05), 0px 2px 5px 0px rgba(0, 0, 0, 0.03)'}}>
+        <nav className="bg-white sticky top-0 z-50" style={{boxShadow: '0px 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 2px 3px -1px rgba(0, 0, 0, 0.06), 0px 2px 5px 0px rgba(0, 0, 0, 0.04)'}}>
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <a href="/spark/lessons" className="text-sm font-medium text-gray-600 hover:text-gray-900">
               ← Back to curriculum
