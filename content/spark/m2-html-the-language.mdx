@@ -1,0 +1,102 @@
+---
+title: HTML, the language
+module: 2
+phase: "0 — Foundations"
+promise: Hand-write semantic, accessible HTML, and start designing in the browser.
+threads:
+  - the-browser-speaks-more-than-one-language
+  - craft-is-the-differentiator
+  - a11y-from-day-one
+---
+
+<Section title="The DOM is a tree">
+
+Every HTML page is a tree. Elements nest inside other elements. The browser reads this structure top to bottom, left to right, building a mental map before it renders a pixel.
+
+This tree matters more than you think. Screen readers walk it. Search engines parse it. Your CSS selectors climb it. JavaScript manipulates it. If the tree is wrong, everything downstream breaks.
+
+A tree has a root, branches, and leaves. In HTML, the root is `<html>`. It branches into `<head>` and `<body>`. Everything else nests from there.
+
+The thread *the-browser-speaks-more-than-one-language* starts here. The browser doesn't just see HTML. It sees structure. Meaning. Relationship. The tree is how it communicates all three.
+
+</Section>
+
+<Section title="Semantic HTML beats div soup">
+
+You could build the tree with nothing but `<div>` and classes. Don't.
+
+Semantic elements are the names HTML gives to common page structures. Use them. They tell the browser, the screen reader, and the search engine what each part *is*.
+
+This is *craft-is-the-differentiator*. Care about how you build it. A semantic page is easier to style, faster to load, more accessible by default, and honest in its structure.
+
+</Section>
+
+<Section title="Links and buttons are different things">
+
+A link navigates. A button performs an action.
+
+If clicking it changes the URL or goes somewhere, use `<a href="/">`. The browser handles navigation. The user can right-click and open in a new tab. The user can copy the link. Middle-click opens it in the background. Keyboard users can tab to it and press Enter.
+
+If clicking it opens a modal, toggles visibility, submits a form, or runs JavaScript, use `<button>`. The browser handles focus, keyboard interaction (Space and Enter both activate), and assistive technology.
+
+The `target` attribute makes a link open in a new window. Use it sparingly. `target="_blank"` is useful for external links, but respect the user's preference for how links behave.
+
+</Section>
+
+<Section title="Forms and labels are accessibility first">
+
+The thread *a11y-from-day-one* lives here.
+
+Every form field needs a label. Not a placeholder. Not a hint. A real `<label>` element connected to the input via `for` and `id`.
+
+When they match, clicking the label focuses the input. On checkboxes and radio buttons, it enlarges the clickable area.
+
+A screen reader announces the label when the input is focused. A sighted user can click the label to focus the field. This works from day one. No JavaScript. No framework.
+
+Form inputs also have `type` attributes. `type="email"` tells the browser to validate email format and shows an email keyboard on mobile. Use the right type.
+
+</Section>
+
+<Section title="SVG is a language inside HTML">
+
+SVG stands for Scalable Vector Graphics. It's a markup language that lives inside HTML.
+
+SVGs scale infinitely without losing quality. Text stays crisp. Lines stay sharp. This matters for logos, icons, and illustrations.
+
+You can write SVG the way you write HTML, with elements and attributes. The `viewBox` attribute defines the coordinate system. `width` and `height` set the rendered size.
+
+</Section>
+
+<Section title="currentColor inherits">
+
+`currentColor` is a CSS keyword that means "use the color of this element's text."
+
+It's useful in SVGs and icons. Instead of hardcoding a color, you reference the inherited color. Change the text color, and the icon changes too.
+
+This is efficient, flexible, and maintains a single source of truth for color.
+
+</Section>
+
+<Section title="Build: A type specimen page">
+
+Write a semantic HTML page that showcases typography. No CSS frameworks. No classes for layout. Just HTML structure and a few style tags for fonts and spacing.
+
+The page should have a header with navigation, a main section with heading levels and paragraph samples, a sidebar with a list of typefaces, and a footer.
+
+This page uses semantic elements throughout. Every heading is in order. Every link has an `href`. The navigation is a real list. The sidebar is an `<aside>`. The page is screen-reader clean and keyboard navigable without a line of JavaScript.
+
+</Section>
+
+<Section title="Checkpoint">
+
+1. What is the relationship between an HTML element's `id` and a label's `for` attribute?
+2. When should you use a link versus a button?
+3. Write a form field with a label that properly connects them. Include input `type="email"`.
+4. What does `currentColor` mean in CSS?
+5. Describe the semantic difference between using `<div class="button">` and `<button>`.
+6. Tab through a semantic page. Does every interactive element get focus?
+7. Explain what "semantic HTML" means.
+
+If you can answer these clearly, you understand the module.
+
+</Section>
