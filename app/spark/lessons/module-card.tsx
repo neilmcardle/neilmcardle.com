@@ -57,7 +57,7 @@ export function ModuleCard({ mod }: ModuleCardProps) {
         {/* Content - number behind title */}
         <div className="relative flex flex-col items-center justify-center text-center flex-1 px-4">
           {/* Large number behind */}
-          <span className="absolute inset-0 flex items-center justify-center font-bold leading-none pointer-events-none" style={{fontFamily: 'var(--font-playfair)', fontSize: '280px', color: 'rgba(0,0,0,0.08)'}}>
+          <span className="absolute inset-0 flex items-center justify-center font-bold leading-none pointer-events-none" style={{fontFamily: 'var(--font-playfair)', fontSize: '280px', color: 'rgba(0,0,0,0.05)', transform: 'translateY(-40px)'}}>
             {String(mod.module).padStart(2, '0')}
           </span>
 
