@@ -1,8 +1,5 @@
-import { MDXRemote } from 'next-mdx-remote/rsc';
 import { loadModule } from '@/lib/spark/content';
-import { Section } from '@/components/spark/Section';
-import { Check } from '@/components/spark/Check';
-import { CodeBlock } from '@/components/spark/CodeBlock';
+import { parseContentIntoSections } from '@/lib/spark/contentParser';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -52,15 +49,26 @@ export default async function LessonPage(props: PageProps) {
           </div>
         </header>
 
-        <main className="max-w-3xl mx-auto px-6 py-16 lg:py-20 prose prose-invert dark:prose-invert max-w-none">
-          <MDXRemote
-            source={module.mdxSource}
-            components={{
-              Section,
-              Check,
-              CodeBlock,
-            }}
-          />
+        <main className="max-w-3xl mx-auto px-6 py-16 lg:py-20">
+          <div className="space-y-20">
+            {(() => {
+              const parsedSections = parseContentIntoSections(module.mdxSource);
+              return parsedSections.map((section, i) => (
+                <section
+                  key={i}
+                  className="pb-16 border-b border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0"
+                  id={`section-${i}`}
+                >
+                  <h2 className="text-3xl lg:text-4xl font-bold mb-8 text-slate-900 dark:text-white leading-tight">
+                    {section.title}
+                  </h2>
+                  <div className="text-base text-slate-700 dark:text-slate-300 space-y-4 leading-relaxed whitespace-pre-wrap font-mono text-sm">
+                    {section.content}
+                  </div>
+                </section>
+              ));
+            })()}
+          </div>
         </main>
 
         <nav className="max-w-2xl mx-auto px-6 py-8">
