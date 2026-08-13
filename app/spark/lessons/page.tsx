@@ -14,22 +14,6 @@ interface ModuleWithMeta {
   promise: string;
 }
 
-const phaseOrder: Record<string, number> = {
-  '0 — Foundations': 0,
-  '1 JS & React': 1,
-  '2 DE core': 2,
-  '3 Full-stack': 3,
-  '4': 4,
-};
-
-const phaseLabels: Record<string, string> = {
-  '0 — Foundations': '0 — FOUNDATIONS',
-  '1 JS & React': '1 — JS & REACT',
-  '2 DE core': '2 — DE CORE',
-  '3 Full-stack': '3 — FULL-STACK',
-  '4': '4 — CAPSTONE',
-};
-
 export default async function LessonsPage() {
   const slugs = await getAllModules();
 
@@ -50,18 +34,7 @@ export default async function LessonsPage() {
     }
   }
 
-  const modulesByPhase = modules.reduce(
-    (acc, mod) => {
-      if (!acc[mod.phase]) acc[mod.phase] = [];
-      acc[mod.phase].push(mod);
-      return acc;
-    },
-    {} as Record<string, ModuleWithMeta[]>
-  );
-
-  const sortedPhases = Object.keys(modulesByPhase).sort(
-    (a, b) => (phaseOrder[a] ?? 999) - (phaseOrder[b] ?? 999)
-  );
+  const sortedModules = modules.sort((a, b) => a.module - b.module);
 
   return (
     <div className="min-h-screen bg-white">
@@ -77,53 +50,45 @@ export default async function LessonsPage() {
         </div>
       </header>
 
-      {/* Modules by phase */}
+      {/* All modules in grid */}
       <main className="max-w-6xl mx-auto px-6 py-16">
-        {sortedPhases.map((phase) => (
-          <section key={phase} className="mb-20">
-            <h2 className="text-xs font-semibold text-gray-500 mb-8 uppercase tracking-widest">
-              {phaseLabels[phase] || phase}
-            </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {sortedModules.map((mod) => (
+            <Link
+              key={mod.slug}
+              href={`/spark/lessons/${mod.slug}`}
+              className="group relative block"
+            >
+              {/* Background number */}
+              <div className="absolute -top-8 -left-4 text-8xl font-bold text-gray-100 -z-10 leading-none select-none pointer-events-none">
+                {String(mod.module).padStart(2, '0')}
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {modulesByPhase[phase].map((mod) => (
-                <Link
-                  key={mod.slug}
-                  href={`/spark/lessons/${mod.slug}`}
-                  className="group relative block"
-                >
-                  {/* Background number */}
-                  <div className="absolute -top-8 -left-4 text-8xl font-bold text-gray-100 -z-10 leading-none select-none pointer-events-none">
-                    {String(mod.module).padStart(2, '0')}
-                  </div>
+              {/* Card */}
+              <div className="relative p-8 bg-gray-50 border border-gray-200 rounded-lg hover:border-gray-400 transition-all hover:shadow-md">
+                <div className="mb-4">
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Module {mod.module}
+                  </span>
+                </div>
 
-                  {/* Card */}
-                  <div className="relative p-8 bg-gray-50 border border-gray-200 rounded-lg hover:border-gray-400 transition-all hover:shadow-md">
-                    <div className="mb-4">
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                        Module {mod.module}
-                      </span>
-                    </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
+                  {mod.title}
+                </h3>
 
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
-                      {mod.title}
-                    </h3>
+                <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                  {mod.promise}
+                </p>
 
-                    <p className="text-gray-600 text-sm leading-relaxed mb-6">
-                      {mod.promise}
-                    </p>
-
-                    <div className="pt-4 border-t border-gray-200">
-                      <span className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
-                        Read module →
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ))}
+                <div className="pt-4 border-t border-gray-200">
+                  <span className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                    Read module →
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
       </main>
     </div>
   );
