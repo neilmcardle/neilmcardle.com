@@ -4,6 +4,7 @@ import "./globals.css";
 import "../styles/immersive.css";
 import "../styles/vendor/draft-js.css";
 import "../styles/vendor/google-fonts.css";
+import "dialkit/styles.css";
 import { AuthProvider } from "@/lib/hooks/useAuth";
 import { SubscriptionProvider } from "@/lib/hooks/useSubscription";
 import { ThemeProvider } from "@/lib/contexts/ThemeContext";
@@ -13,6 +14,7 @@ import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";
 import { GeistMono } from "geist/font/mono";
 import { Cantarell } from "next/font/google";
+import { DialRoot } from "dialkit";
 
 const cantarell = Cantarell({
   subsets: ["latin"],
@@ -96,6 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ThemeProvider>
               <div className="min-h-screen flex flex-col">
                 <main className="flex-1">{children}</main>
+                <DialRoot />
               </div>
               <Toaster />
               <SonnerToaster />
