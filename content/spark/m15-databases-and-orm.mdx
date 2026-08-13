@@ -1,5 +1,5 @@
 ---
-module: M15
+module: 16
 title: Databases & ORM
 duration: 2 weeks
 difficulty: intermediate
@@ -24,9 +24,9 @@ threads:
 
 ## Why This Matters
 
-Your data lives here now. Everything you built in M14 — the waitlist signups, the blog post drafts, the comment threads — was in memory. Refresh the browser, gone. Real products need real persistence.
+Your data lives here now. Everything you built in Data & APIs in depth ,  the waitlist signups, the blog post drafts, the comment threads ,  was in memory. Refresh the browser, gone. Real products need real persistence.
 
-A database is not magic storage. It's a precise, reliable engine for organizing information into tables and relationships. You'll think differently once you understand it: not "where do I save this?" but "what shape should this data have?" That shape — your schema — is the contract between your code and your data. Get it right once, and the database takes care of the rest.
+A database is not magic storage. It's a precise, reliable engine for organizing information into tables and relationships. You'll think differently once you understand it: not "where do I save this?" but "what shape should this data have?" That shape ,  your schema ,  is the contract between your code and your data. Get it right once, and the database takes care of the rest.
 
 This module teaches you to think in tables and relationships. We use Drizzle, a TypeScript ORM, to write queries without leaving your code. Then we peek underneath to see the actual SQL, because understanding what the ORM generates is what separates "I know how to use the tool" from "I know what's happening."
 
@@ -117,7 +117,7 @@ export type NewUser = typeof users.$inferInsert;
 - `.references()` creates a foreign key relationship. `onDelete: 'cascade'` means if a user is deleted, their posts and comments are too.
 - The type exports (`User`, `NewUser`) are automatically inferred from the schema. No manual type duplication.
 
-**Migrations.** A schema doesn't magically appear in your database. You create a migration — a file that says "create this table" or "add this column." Drizzle's migration system tracks them, so you can version your schema like you version your code.
+**Migrations.** A schema doesn't magically appear in your database. You create a migration ,  a file that says "create this table" or "add this column." Drizzle's migration system tracks them, so you can version your schema like you version your code.
 
 ```bash
 # Generate a migration from your schema changes
@@ -247,7 +247,7 @@ const postWithComments = await db.query.posts.findFirst({
 });
 ```
 
-The `.with` syntax is key. It tells Drizzle to fetch related data (the post's comments). Without it, you'd only get the post — then you'd need a separate query to get the comments. That's the N+1 problem, which we'll cover next.
+The `.with` syntax is key. It tells Drizzle to fetch related data (the post's comments). Without it, you'd only get the post ,  then you'd need a separate query to get the comments. That's the N+1 problem, which we'll cover next.
 
 ### Update
 
@@ -409,7 +409,7 @@ const allPostsWithAuthors = await db.query.posts.findMany({
 // No loop. No extra queries. Drizzle handles it.
 ```
 
-But wait — Drizzle still makes two queries under the hood (we saw this in Part 5). Why isn't that N+1?
+But wait ,  Drizzle still makes two queries under the hood (we saw this in Part 5). Why isn't that N+1?
 
 Because Drizzle is smart. It fetches all posts in one query, collects all the `user_id`s, then fetches all those users in *one* query. Two queries total, not 101. This is called a "batch fetch."
 
@@ -455,9 +455,9 @@ The key: always think about how many queries you're making. One query is fast. N
 
 ---
 
-## Build: Persist M14's Data
+## Build: Persist Data & APIs in depth's Data
 
-Your assignment: take the waitlist and blog platform from M14 and give it real persistence.
+Your assignment: take the waitlist and blog platform from Data & APIs in depth and give it real persistence.
 
 ### Step 1: Define Your Schema
 
@@ -589,7 +589,7 @@ export async function deleteComment(commentId: string) {
 
 ### Step 4: Wire It Up
 
-In your M14 API routes, replace in-memory storage with database calls:
+In your Data & APIs in depth API routes, replace in-memory storage with database calls:
 
 ```typescript
 // app/api/waitlist/route.ts

@@ -1,7 +1,7 @@
 ---
-title: "M11: Motion & Interaction Engineering"
-module: 11
-description: "Implement high-craft motion and microinteractions. Know when to withhold them. Motion is communication—every animation must earn its place."
+title: "Motion & Interaction Engineering"
+module: 12
+description: "Implement high-craft motion and microinteractions. Know when to withhold them. Motion is communication, every animation must earn its place."
 duration: "4–5 hours"
 difficulty: "intermediate"
 threads:
@@ -16,7 +16,7 @@ checklist:
 
 # Module 11: Motion & Interaction Engineering
 
-Motion is how an interface tells you a story. A button that springs into place when pressed feels alive. A page that fades in feels intentional. A transition that stutters feels broken. The hardest skill in motion design is knowing when *not* to animate—when silence is louder than movement.
+Motion is how an interface tells you a story. A button that springs into place when pressed feels alive. A page that fades in feels intentional. A transition that stutters feels broken. The hardest skill in motion design is knowing when *not* to animate, when silence is louder than movement.
 
 This module teaches you motion as communication: from CSS basics through Framer Motion's power tools, and finally to the discipline of restraint.
 
@@ -39,13 +39,13 @@ button:hover {
 }
 ```
 
-The user clicks the button. The background shifts smoothly over 300ms using `ease-out` (fast start, slow end—natural deceleration). No JavaScript. No framework. This is the baseline.
+The user clicks the button. The background shifts smoothly over 300ms using `ease-out` (fast start, slow end, natural deceleration). No JavaScript. No framework. This is the baseline.
 
 **Key properties:**
-- `transition-duration` — how long (150ms for micro, 300–500ms for navigations)
-- `transition-timing-function` — the curve (linear, ease-in, ease-out, ease-in-out, cubic-bezier)
-- `transition-delay` — stagger for cascades
-- `transition-property` — what changes (use specific properties, not `all`)
+- `transition-duration` ,  how long (150ms for micro, 300–500ms for navigations)
+- `transition-timing-function` ,  the curve (linear, ease-in, ease-out, ease-in-out, cubic-bezier)
+- `transition-delay` ,  stagger for cascades
+- `transition-property` ,  what changes (use specific properties, not `all`)
 
 ### Avoid `transition: all`
 
@@ -83,7 +83,7 @@ button {
 }
 ```
 
-Animations run once (or repeat). They're for loading states, entrance effects, and choreographed sequences. The `animation-fill-mode: forwards` holds the final state—without it, the element snaps back.
+Animations run once (or repeat). They're for loading states, entrance effects, and choreographed sequences. The `animation-fill-mode: forwards` holds the final state, without it, the element snaps back.
 
 **Timing matters:**
 - Micro-interactions (hover, focus): 100–200ms
@@ -124,9 +124,9 @@ export function FadeInCard() {
 }
 ```
 
-- `initial` — the starting state (before animation)
-- `animate` — the target state (animate to this)
-- `transition` — the timing curve and duration
+- `initial` ,  the starting state (before animation)
+- `animate` ,  the target state (animate to this)
+- `transition` ,  the timing curve and duration
 
 The component mounts with `opacity: 0`, then Framer Motion animates to `opacity: 1` over 500ms.
 
@@ -143,9 +143,9 @@ The component mounts with `opacity: 0`, then Framer Motion animates to `opacity:
 ```
 
 Springs don't respect duration. Instead, they oscillate around the target, then settle. Adjust:
-- `stiffness` — how quickly it accelerates (100–300 for natural, 300+ for snappy)
-- `damping` — how much resistance (10–30 typical; higher = faster settle)
-- `mass` — how heavy the object feels (1 default, 0.5 = floaty, 2 = weighty)
+- `stiffness` ,  how quickly it accelerates (100–300 for natural, 300+ for snappy)
+- `damping` ,  how much resistance (10–30 typical; higher = faster settle)
+- `mass` ,  how heavy the object feels (1 default, 0.5 = floaty, 2 = weighty)
 
 Springs feel responsive. They don't feel scripted. Use them for button clicks, entrance animations, and states the user triggers directly.
 
@@ -185,7 +185,7 @@ export function CardList() {
 }
 ```
 
-`variants` are named animation states. `staggerChildren: 0.1` delays each child's animation by 100ms—so five cards animate in sequence over 500ms instead of all at once. This creates rhythm without hardcoding delays.
+`variants` are named animation states. `staggerChildren: 0.1` delays each child's animation by 100ms, so five cards animate in sequence over 500ms instead of all at once. This creates rhythm without hardcoding delays.
 
 ---
 
@@ -253,7 +253,7 @@ stiffness = 200, damping = 15
 
 ## 4. Gestures: Responding to the User
 
-Motion isn't just about states—it's about *input*. Framer Motion captures gestures.
+Motion isn't just about states, it's about *input*. Framer Motion captures gestures.
 
 ### Hover & tap
 
@@ -267,9 +267,9 @@ Motion isn't just about states—it's about *input*. Framer Motion captures gest
 </motion.button>
 ```
 
-- `whileHover` — animates when hovered
-- `whileTap` — animates when pressed (touches or clicks)
-- `whileFocus` — animates when focused (keyboard navigation)
+- `whileHover` ,  animates when hovered
+- `whileTap` ,  animates when pressed (touches or clicks)
+- `whileFocus` ,  animates when focused (keyboard navigation)
 
 The button grows slightly on hover, shrinks on press. Instant visual feedback that the interface is listening.
 
@@ -289,7 +289,7 @@ The button grows slightly on hover, shrinks on press. Instant visual feedback th
 </motion.div>
 ```
 
-`drag="x"` constrains to horizontal. `drag="y"` to vertical. `drag` allows both. `dragConstraints` are the bounds—the element stops at the edges.
+`drag="x"` constrains to horizontal. `drag="y"` to vertical. `drag` allows both. `dragConstraints` are the bounds, the element stops at the edges.
 
 ---
 
@@ -541,7 +541,7 @@ The press is *user-triggered*, so immediate visual feedback is worth animating.
 </motion.div>
 ```
 
-The spin communicates "something is happening." Keep it to 2 seconds per rotation—any slower and it feels broken, faster and it feels frantic.
+The spin communicates "something is happening." Keep it to 2 seconds per rotation, any slower and it feels broken, faster and it feels frantic.
 
 #### Don't animate: Non-interactive state change
 
@@ -571,10 +571,10 @@ You'll design and build a 4-screen onboarding with a real reduced-motion path.
 
 ### Spec
 
-1. **Welcome screen** — Hero text, fade in, CTA button
-2. **Feature 1** — Icon + description, slide in from left, staggered
-3. **Feature 2** — Icon + description, slide in from right, staggered
-4. **Final screen** — Call-to-action, spring entrance, focus state
+1. **Welcome screen** ,  Hero text, fade in, CTA button
+2. **Feature 1** ,  Icon + description, slide in from left, staggered
+3. **Feature 2** ,  Icon + description, slide in from right, staggered
+4. **Final screen** ,  Call-to-action, spring entrance, focus state
 
 Each screen transitions via fade + slide. Buttons respond to clicks with spring bounces. Skip buttons exist to jump to the end. The *entire flow* respects `prefers-reduced-motion`.
 
@@ -734,9 +734,9 @@ export function OnboardingFlow() {
 
 - **Screen transitions:** Fade + slide (incoming from right if `step % 2 === 0`, from left otherwise). Outgoing goes opposite direction. Creates a directional flow.
 - **Text stagger:** Title and subtitle fade in with a slight delay, creating rhythm without `staggerChildren`.
-- **Button feedback:** `whileTap` scales to 0.95 on press—instant tactile feedback.
+- **Button feedback:** `whileTap` scales to 0.95 on press, instant tactile feedback.
 - **Dots:** Progress indicator animates scale as the active step changes.
-- **Reduced motion:** When enabled, all transitions use `duration: 0` or remove the spring entirely, falling back to instant or linear tween. The UI structure is identical—no branching, no two code paths.
+- **Reduced motion:** When enabled, all transitions use `duration: 0` or remove the spring entirely, falling back to instant or linear tween. The UI structure is identical, no branching, no two code paths.
 
 ### Extend it
 
@@ -752,7 +752,7 @@ export function OnboardingFlow() {
 Before shipping any motion work, verify:
 
 ### Motion serves meaning
-- [ ] Every animation has a "why" — it communicates something or responds to user input
+- [ ] Every animation has a "why" ,  it communicates something or responds to user input
 - [ ] No decorative motion; no animations purely because they're "cool"
 - [ ] Hover states give tactile feedback; screen transitions create directional flow
 
@@ -766,7 +766,7 @@ Before shipping any motion work, verify:
 - [ ] The hook (`useReducedMotion`) is integrated into every animated component
 - [ ] Both paths (motion and no-motion) are tested in the browser
 - [ ] Reduced-motion path is instant (duration: 0) or so fast it feels snapped into place
-- [ ] No separate code branches for motion vs. reduced-motion—same component, conditional transitions
+- [ ] No separate code branches for motion vs. reduced-motion, same component, conditional transitions
 - [ ] macOS/Windows accessibility settings are tested, not emulated in DevTools alone
 
 ### 60fps, nothing stutters
@@ -787,7 +787,7 @@ Before shipping any motion work, verify:
 ## Threads
 
 ### craft-is-the-differentiator
-Motion is polish. It's the difference between an app that feels responsive and one that feels sluggish. But polish is only felt when it's *right*. A spring that overshoots by 5% feels alive; 20% feels broken. A 300ms fade feels intentional; 1.5 seconds feels slow. The craft is in the millimeters—the calibration, the restraint, the knowledge of when *not* to move. This is what separates an app you enjoy using from one you endure.
+Motion is polish. It's the difference between an app that feels responsive and one that feels sluggish. But polish is only felt when it's *right*. A spring that overshoots by 5% feels alive; 20% feels broken. A 300ms fade feels intentional; 1.5 seconds feels slow. The craft is in the millimeters, the calibration, the restraint, the knowledge of when *not* to move. This is what separates an app you enjoy using from one you endure.
 
 ### when-not-to-animate
 The real skill. Any designer can throw motion at a problem. The masters know that silence is louder. A state that changes instantly is clearer than one that animates. A loading spinner that's too subtle won't communicate; too dramatic wastes time. The hierarchy is: user input (animate), app response (subtle), state (none), entrance (okay to be dramatic). Decorative motion is a smell. If an animation doesn't serve communication or feedback, it's clutter. Restraint is what separates craft from noise.
@@ -796,16 +796,16 @@ The real skill. Any designer can throw motion at a problem. The masters know tha
 
 ## Further Reading
 
-- **Framer Motion docs:** https://www.framer.com/motion/ — especially gestures and variants
-- **Web Animations Working Group:** https://www.w3.org/TR/web-animations-1/ — the spec behind everything
-- **Spring physics:** https://www.framer.com/motion/animation/#spring — calibration guide
-- **A List Apart: "Designing with Motion":** https://alistapart.com/ — thoughtful essays on when/why to animate
-- **Apple Human Interface Guidelines: Animation:** https://developer.apple.com/design/human-interface-guidelines/components/ — iOS/macOS baseline (they get it right)
+- **Framer Motion docs:** https://www.framer.com/motion/ ,  especially gestures and variants
+- **Web Animations Working Group:** https://www.w3.org/TR/web-animations-1/ ,  the spec behind everything
+- **Spring physics:** https://www.framer.com/motion/animation/#spring ,  calibration guide
+- **A List Apart: "Designing with Motion":** https://alistapart.com/ ,  thoughtful essays on when/why to animate
+- **Apple Human Interface Guidelines: Animation:** https://developer.apple.com/design/human-interface-guidelines/components/ ,  iOS/macOS baseline (they get it right)
 
 ---
 
 ## Summary
 
-Motion is communication. Every frame you draw has a job: respond to input, clarify state, guide attention, or tell a story. CSS transitions handle 80% of everyday work. Framer Motion handles the other 20% that needs coordination. Springs feel alive; easing feels designed. The hardest skill is knowing when to stop—when silence is louder than movement. And `prefers-reduced-motion` is not a feature flag; it's a requirement.
+Motion is communication. Every frame you draw has a job: respond to input, clarify state, guide attention, or tell a story. CSS transitions handle 80% of everyday work. Framer Motion handles the other 20% that needs coordination. Springs feel alive; easing feels designed. The hardest skill is knowing when to stop, when silence is louder than movement. And `prefers-reduced-motion` is not a feature flag; it's a requirement.
 
 Ship motion that's intentional, accessible, and fast. Everything else is decoration.

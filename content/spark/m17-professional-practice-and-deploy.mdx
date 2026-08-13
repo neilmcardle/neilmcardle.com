@@ -1,5 +1,5 @@
 ---
-module: 17
+module: 18
 title: "Professional Practice & Deploy"
 description: "Work like an engineer on a team. Git workflows, PRs, testing, debugging, and deployment."
 duration: "4–5 hours"
@@ -18,7 +18,7 @@ themes:
 
 ## Module Promise
 
-You will learn to work like a professional engineer: committing thoughtfully, writing PRs that explain *why*, reading code you didn't write, testing components, debugging methodically, deploying safely, and using AI as a thinking partner—not a replacement for thinking.
+You will learn to work like a professional engineer: committing thoughtfully, writing PRs that explain *why*, reading code you didn't write, testing components, debugging methodically, deploying safely, and using AI as a thinking partner, not a replacement for thinking.
 
 Code is read more than it's written. Debugging is a skill. Collaboration is everything.
 
@@ -141,7 +141,7 @@ counter.
 2. Click any chapter title
 3. Type 61+ characters
 4. Confirm you see the red warning and a character count
-5. Try to submit the form — it should be disabled
+5. Try to submit the form ,  it should be disabled
 6. Delete one character (now at 60)
 7. Confirm the warning disappears and form is enabled
 
@@ -171,7 +171,7 @@ counter.
 
 ### Why This Skill Matters
 
-You will spend 80% of your time reading code—your own, teammates', and open-source libraries. Writing is the other 20%.
+You will spend 80% of your time reading code, your own, teammates', and open-source libraries. Writing is the other 20%.
 
 Debugging unfamiliar code, integrating third-party components, or jumping into a legacy feature all require this skill.
 
@@ -358,10 +358,10 @@ describe('Button', () => {
 
 **What each test does:**
 
-1. **Renders with label** — The component accepts a label and displays it. This is the happy path.
-2. **Calls onClick when clicked** — User interaction works. Uses `vi.fn()` to spy on the callback.
-3. **Does not call onClick when disabled** — Edge case. Disabled buttons shouldn't fire callbacks even if clicked.
-4. **Disables the button** — Another edge case. The `disabled` attribute is actually set on the DOM element.
+1. **Renders with label** ,  The component accepts a label and displays it. This is the happy path.
+2. **Calls onClick when clicked** ,  User interaction works. Uses `vi.fn()` to spy on the callback.
+3. **Does not call onClick when disabled** ,  Edge case. Disabled buttons shouldn't fire callbacks even if clicked.
+4. **Disables the button** ,  Another edge case. The `disabled` attribute is actually set on the DOM element.
 
 Notice: We're testing **behavior**, not implementation. We don't care how the component renders it. We care that:
 - The label shows up
@@ -566,8 +566,8 @@ Example: You're debugging the RichTextEditor. The user types, but the text doesn
 2. Set breakpoint on the onChange handler (line ~120)
 3. Type in the editor
 4. Breakpoint pauses execution
-5. Inspect: e.currentTarget.innerHTML — is the new text there? YES.
-6. Inspect: value prop — is it the old value? YES. Bug found!
+5. Inspect: e.currentTarget.innerHTML ,  is the new text there? YES.
+6. Inspect: value prop ,  is it the old value? YES. Bug found!
 7. The parent isn't passing the new value back. Check the parent component's onChange handler.
 ```
 

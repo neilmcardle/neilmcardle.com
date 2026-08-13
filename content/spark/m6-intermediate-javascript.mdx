@@ -1,13 +1,13 @@
 ---
 title: "Intermediate JavaScript: Fetch and Real Data"
-module: 6
-phase: "1 — JS & React"
+module: 7
+phase: "1 ,  JS & React"
 promise: "Fetch and work with real data in the UI."
 concepts:
-  - "Async/await — waiting for data without blocking"
-  - "The fetch API — making HTTP requests from the browser"
-  - "APIs & JSON — reading API docs, parsing responses"
-  - "ES modules — import/export for organizing code"
+  - "Async/await ,  waiting for data without blocking"
+  - "The fetch API ,  making HTTP requests from the browser"
+  - "APIs & JSON ,  reading API docs, parsing responses"
+  - "ES modules ,  import/export for organizing code"
 threads:
   - error-location-is-a-hint
 ---
@@ -90,11 +90,11 @@ console.log(response.body);         // ReadableStream { ... }
 ```
 
 The Response object has:
-- `status` — the HTTP status code (200, 404, 500, etc.)
-- `statusText` — the status as words ("OK", "Not Found", "Internal Server Error")
-- `ok` — boolean, true if status is 200-299, false otherwise
-- `headers` — an object of response headers
-- `body` — the response as a stream (rarely used directly)
+- `status` ,  the HTTP status code (200, 404, 500, etc.)
+- `statusText` ,  the status as words ("OK", "Not Found", "Internal Server Error")
+- `ok` ,  boolean, true if status is 200-299, false otherwise
+- `headers` ,  an object of response headers
+- `body` ,  the response as a stream (rarely used directly)
 
 To read the body, use methods like `.json()` or `.text()`:
 
@@ -118,7 +118,7 @@ if (!response.ok) {
 
 <Section title="APIs and JSON: Reading the Documentation">
 
-An **API** (Application Programming Interface) is a URL that returns data instead of a web page. You fetch from it like any other URL. Most APIs return **JSON** — a text format for structured data.
+An **API** (Application Programming Interface) is a URL that returns data instead of a web page. You fetch from it like any other URL. Most APIs return **JSON** ,  a text format for structured data.
 
 JSON looks like JavaScript objects:
 
@@ -193,8 +193,8 @@ async function fetchUser(userId) {
 The `try` block contains code that might fail. If anything throws an error, execution jumps to the `catch` block. The error object has a `.message` property.
 
 Common errors:
-- **Network error (throw happens inside fetch):** "Failed to fetch" — network down, CORS blocked, bad URL
-- **HTTP error (throw happens after checking response.ok):** "HTTP 404: Could not find user" — you threw this
+- **Network error (throw happens inside fetch):** "Failed to fetch" ,  network down, CORS blocked, bad URL
+- **HTTP error (throw happens after checking response.ok):** "HTTP 404: Could not find user" ,  you threw this
 - **JSON parse error (throw happens inside .json()):** The response was not valid JSON
 - **Property access error (throw happens when accessing user.name):** The API returned a different shape than expected, and the property doesn't exist
 

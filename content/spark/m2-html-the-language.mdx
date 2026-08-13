@@ -1,7 +1,7 @@
 ---
 title: HTML, the language
-module: 2
-phase: "0 — Foundations"
+module: 3
+phase: "0 ,  Foundations"
 promise: Hand-write semantic, accessible HTML, and start designing in the browser.
 threads:
   - the-browser-speaks-more-than-one-language
@@ -67,16 +67,16 @@ Compare these:
 Both render identically. The semantic version is shorter, clearer, and works better for assistive technology. That's *craft-is-the-differentiator*. Care about how you build it. A semantic page is easier to style, faster to load, more accessible by default, and honest in its structure.
 
 Key semantic elements:
-- `<header>` — introductory content at the top of a section
-- `<nav>` — navigation links
-- `<main>` — the primary content of the page (use once per page)
-- `<article>` — a self-contained piece of content
-- `<section>` — a thematic grouping of content
-- `<aside>` — tangential content, sidebars
-- `<footer>` — closing content of a section
-- `<h1>` through `<h6>` — headings in order (never skip levels)
-- `<strong>` — importance (vs. `<b>`, which is just bold)
-- `<em>` — emphasis (vs. `<i>`, which is just italic)
+- `<header>` ,  introductory content at the top of a section
+- `<nav>` ,  navigation links
+- `<main>` ,  the primary content of the page (use once per page)
+- `<article>` ,  a self-contained piece of content
+- `<section>` ,  a thematic grouping of content
+- `<aside>` ,  tangential content, sidebars
+- `<footer>` ,  closing content of a section
+- `<h1>` through `<h6>` ,  headings in order (never skip levels)
+- `<strong>` ,  importance (vs. `<b>`, which is just bold)
+- `<em>` ,  emphasis (vs. `<i>`, which is just italic)
 
 </Section>
 
@@ -128,7 +128,7 @@ Use `<button>` for actions. The browser handles all keyboard interaction: Space 
 <a href="/next">Next</a>
 ```
 
-The `type` attribute on buttons defaults to `"button"`. Use `type="submit"` to submit a form, `type="reset"` to clear form fields. Never use a div or span that looks like a button—use the real element.
+The `type` attribute on buttons defaults to `"button"`. Use `type="submit"` to submit a form, `type="reset"` to clear form fields. Never use a div or span that looks like a button, use the real element.
 
 The key difference: **links change the URL. Buttons don't.** If clicking it changes the URL, it's a link. If it performs an action on the same page, it's a button.
 
@@ -161,7 +161,7 @@ When the `for` and `id` match, something powerful happens:
 
 This works from day one. No JavaScript. No framework. This is *a11y-from-day-one* in action.
 
-Use the right `type` for each input. `type="email"` validates email format and shows an email keyboard on mobile. `type="number"` shows a numeric keyboard. `type="password"` hides the text. Use these. They're not just styling—they change how the browser and device behave.
+Use the right `type` for each input. `type="email"` validates email format and shows an email keyboard on mobile. `type="number"` shows a numeric keyboard. `type="password"` hides the text. Use these. They're not just styling, they change how the browser and device behave.
 
 For checkboxes and radio buttons, the label becomes the clickable area:
 
@@ -185,7 +185,7 @@ You can write SVG the way you write HTML, with elements and attributes. An SVG s
 ```html
 <svg viewBox="0 0 24 24" width="24" height="24">
   <circle cx="12" cy="12" r="10" stroke="currentColor" fill="none" stroke-width="2"/>
-  <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2"/>
+  <path d="Shipping UI ,  Next.js + Desktop/Electron 8v8M8 12h8" stroke="currentColor" stroke-width="2"/>
 </svg>
 ```
 
@@ -430,11 +430,11 @@ As you write this, notice:
 1. **Keyboard navigation passes.** Tab through the page. Every interactive element (links, form fields, buttons) receives visible focus. Use Tab to move forward, Shift+Tab to move backward. No focus traps. No elements skipped.
 
 2. **No div where semantic element exists.** Search the HTML for these patterns:
-   - `<div class="button">` — should be `<button>`
-   - `<div class="nav">` — should be `<nav>`
-   - `<div class="header">` — should be `<header>`
-   - `<div class="footer">` — should be `<footer>`
-   - `<div class="aside">` — should be `<aside>`
+   - `<div class="button">` ,  should be `<button>`
+   - `<div class="nav">` ,  should be `<nav>`
+   - `<div class="header">` ,  should be `<header>`
+   - `<div class="footer">` ,  should be `<footer>`
+   - `<div class="aside">` ,  should be `<aside>`
 
 3. **Form labels are properly connected.** For every input, verify:
    - The input has an `id` attribute
