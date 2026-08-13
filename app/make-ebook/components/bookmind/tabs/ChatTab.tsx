@@ -25,7 +25,7 @@ import { linkCitations } from "../../../utils/citationLinker";
 import { hasUsedTrial, markTrialUsed } from "../../../utils/bookMindTrial";
 import type { Chapter } from "../../../types";
 
-const CHAR_DELAY = 0.0083;
+const CHAR_DELAY = 0.003;
 
 interface ChatTabProps {
   bookId?: string;
@@ -418,24 +418,139 @@ export default function ChatTab({
   );
 }
 
+interface TextSegment {
+  type: 'text' | 'bold' | 'italic' | 'code' | 'list' | 'break' | 'heading';
+  content: string;
+  level?: number;
+}
+
+function parseMarkdown(text: string): TextSegment[] {
+  const segments: TextSegment[] = [];
+  const paragraphs = text.split('\n\n');
+
+  paragraphs.forEach((para, paraIdx) => {
+    if (!para.trim()) return;
+
+    // Check if paragraph starts with bold text (treat as heading)
+    const headingMatch = para.match(/^\*\*(.+?)\*\*/);
+    if (headingMatch) {
+      segments.push({ type: 'heading', content: headingMatch[1], level: 3 });
+      // Parse the rest of the paragraph after the heading
+      const rest = para.slice(headingMatch[0].length).trim();
+      if (rest) {
+        parseInline(rest, segments);
+      }
+    } else {
+      parseInline(para, segments);
+    }
+
+    if (paraIdx < paragraphs.length - 1) {
+      segments.push({ type: 'break', content: '' });
+    }
+  });
+
+  return segments.length > 0 ? segments : [{ type: 'text', content: text }];
+}
+
+function parseInline(text: string, segments: TextSegment[]) {
+  let lastIndex = 0;
+  const markdownRegex = /\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`|^- (.+?)$/gm;
+  let match;
+
+  while ((match = markdownRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ type: 'text', content: text.slice(lastIndex, match.index) });
+    }
+
+    if (match[1]) {
+      segments.push({ type: 'bold', content: match[1] });
+    } else if (match[2]) {
+      segments.push({ type: 'italic', content: match[2] });
+    } else if (match[3]) {
+      segments.push({ type: 'code', content: match[3] });
+    } else if (match[4]) {
+      segments.push({ type: 'list', content: match[4] });
+    }
+
+    lastIndex = markdownRegex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    segments.push({ type: 'text', content: text.slice(lastIndex) });
+  }
+}
+
 function StreamingMessage({ content, charDelay }: { content: string; charDelay: number }) {
-  const chars = content.split('');
+  const segments = parseMarkdown(content);
+  let charIndex = 0;
+
   return (
-    <div className="[&>p+p]:mt-2.5 [&>p]:m-0">
-      {chars.map((char, idx) => (
-        <motion.span
-          key={`${idx}-${char}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            delay: idx * charDelay,
-            duration: 0.05,
-          }}
-          style={{ display: 'inline' }}
-        >
-          {char}
-        </motion.span>
-      ))}
+    <div className="space-y-4">
+      {segments.map((segment, segIdx) => {
+        if (segment.type === 'break') {
+          return <div key={segIdx} className="h-0" />;
+        }
+
+        const chars = segment.content.split('');
+        const startIdx = charIndex;
+        charIndex += chars.length;
+
+        // Typography hierarchy
+        const styleMap = {
+          heading: {
+            element: 'h3',
+            className: 'text-lg font-semibold mt-4 mb-2',
+            style: { fontFamily: 'Georgia, serif' },
+          },
+          bold: {
+            element: 'span',
+            className: 'font-semibold',
+            style: {},
+          },
+          italic: {
+            element: 'span',
+            className: 'italic',
+            style: {},
+          },
+          code: {
+            element: 'code',
+            className: 'bg-gray-200 dark:bg-[#3a3a3a] px-1.5 py-0.5 rounded font-mono text-sm',
+            style: {},
+          },
+          list: {
+            element: 'li',
+            className: 'ml-4 list-disc',
+            style: {},
+          },
+          text: {
+            element: 'span',
+            className: '',
+            style: {},
+          },
+        } as const;
+
+        const style = styleMap[segment.type];
+        const Element = style.element as any;
+
+        return (
+          <Element key={segIdx} className={style.className} style={style.style}>
+            {chars.map((char, idx) => (
+              <motion.span
+                key={`${startIdx}-${idx}-${char}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{
+                  delay: (startIdx + idx) * charDelay,
+                  duration: 0.05,
+                }}
+                style={{ display: 'inline' }}
+              >
+                {char}
+              </motion.span>
+            ))}
+          </Element>
+        );
+      })}
     </div>
   );
 }
