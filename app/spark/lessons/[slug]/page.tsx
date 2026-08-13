@@ -29,6 +29,21 @@ export default async function LessonPage(props: PageProps) {
 
     const parsedSections = parseContentIntoSections(module.mdxSource);
 
+    let nextModuleTitle = null;
+    let nextModuleSlug = null;
+
+    if (module.frontmatter.module < 18) {
+      nextModuleSlug = allModuleSlugs.find(s => parseInt(s.match(/^m(\d+)/)?.[1] || '0') === module.frontmatter.module + 1);
+      if (nextModuleSlug) {
+        try {
+          const nextModule = await loadModule(nextModuleSlug);
+          nextModuleTitle = nextModule.frontmatter.title;
+        } catch (error) {
+          console.error(`Failed to load next module ${nextModuleSlug}:`, error);
+        }
+      }
+    }
+
     return (
       <div className="min-h-screen bg-white flex flex-col">
         <nav className="bg-white sticky top-0 z-50" style={{boxShadow: '0px 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 2px 3px -1px rgba(0, 0, 0, 0.06), 0px 2px 5px 0px rgba(0, 0, 0, 0.04)'}}>
@@ -43,34 +58,6 @@ export default async function LessonPage(props: PageProps) {
         </nav>
 
         <div className="flex flex-1">
-          {/* Left Sidebar */}
-          <aside className="hidden lg:flex w-56 bg-gray-50 p-6 flex-col sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto" style={{boxShadow: 'inset -1px 0 0 rgba(0, 0, 0, 0.06)'}}>
-            <div className="space-y-4">
-              <div>
-                <p className="font-semibold text-gray-900 mb-3 text-xs uppercase tracking-widest">Modules</p>
-                <div className="space-y-1">
-                  {allModuleSlugs.map((moduleSlug) => {
-                    const moduleNum = parseInt(moduleSlug.match(/^m(\d+)/)?.[1] || '0');
-                    const isActive = module.frontmatter.module === moduleNum;
-                    return (
-                      <a
-                        key={moduleSlug}
-                        href={`/spark/lessons/${moduleSlug}`}
-                        className={`block px-3 py-2 rounded text-xs transition-colors ${
-                          isActive
-                            ? 'bg-blue-100 text-blue-900 font-semibold'
-                            : 'text-gray-600 hover:bg-gray-200'
-                        }`}
-                      >
-                        M{moduleNum}
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </aside>
-
           {/* Center Content */}
           <main className="flex-1 px-6 py-12 lg:py-16">
             <div className="max-w-3xl mx-auto">
@@ -109,7 +96,7 @@ export default async function LessonPage(props: PageProps) {
           </main>
 
           {/* Right Sidebar */}
-          <aside className="hidden xl:flex w-56 bg-gray-50 p-6 flex-col sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto" style={{boxShadow: 'inset 1px 0 0 rgba(0, 0, 0, 0.06)'}}>
+          <aside className="hidden xl:flex w-56 p-6 flex-col sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
             <div className="space-y-8 text-sm">
               <div>
                 <p className="font-semibold text-gray-900 mb-3 text-xs uppercase tracking-widest">On this page</p>
@@ -118,7 +105,7 @@ export default async function LessonPage(props: PageProps) {
                     <a
                       key={i}
                       href={`#section-${i}`}
-                      className="block px-3 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors text-xs"
+                      className="block px-3 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors text-xs"
                     >
                       {section.title}
                     </a>
@@ -126,17 +113,14 @@ export default async function LessonPage(props: PageProps) {
                 </div>
               </div>
 
-              {module.frontmatter.module < 18 && (() => {
-                const nextModuleSlug = allModuleSlugs.find(s => parseInt(s.match(/^m(\d+)/)?.[1] || '0') === module.frontmatter.module + 1);
-                return nextModuleSlug ? (
-                  <div className="pt-4" style={{borderTop: '1px solid rgba(0, 0, 0, 0.06)'}}>
-                    <p className="font-semibold text-gray-900 mb-3 text-xs uppercase tracking-widest">Next</p>
-                    <a href={`/spark/lessons/${nextModuleSlug}`} className="block px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded text-center font-medium text-sm transition-colors">
-                      M{module.frontmatter.module + 1}
-                    </a>
-                  </div>
-                ) : null;
-              })()}
+              {nextModuleSlug && nextModuleTitle && (
+                <div className="pt-4">
+                  <p className="font-semibold text-gray-900 mb-3 text-xs uppercase tracking-widest">Up Next</p>
+                  <a href={`/spark/lessons/${nextModuleSlug}`} className="block px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded text-center font-medium text-sm transition-colors">
+                    {nextModuleTitle}
+                  </a>
+                </div>
+              )}
             </div>
           </aside>
         </div>
