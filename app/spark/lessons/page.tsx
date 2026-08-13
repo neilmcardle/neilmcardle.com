@@ -22,6 +22,14 @@ const phaseOrder: Record<string, number> = {
   '4': 4,
 };
 
+const phaseLabels: Record<string, string> = {
+  '0 — Foundations': '0 — FOUNDATIONS',
+  '1 JS & React': '1 — JS & REACT',
+  '2 DE core': '2 — DE CORE',
+  '3 Full-stack': '3 — FULL-STACK',
+  '4': '4 — CAPSTONE',
+};
+
 export default async function LessonsPage() {
   const slugs = await getAllModules();
 
@@ -56,40 +64,61 @@ export default async function LessonsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-4xl mx-auto px-6 py-12">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">Spark</h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400">
+      <header className="border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <h1 className="text-5xl font-bold text-gray-900 mb-3" style={{fontFamily: 'var(--font-playfair)'}}>
+            Spark
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl">
             From design foundations to full-stack engineering. Learn by reading real code and building real things.
           </p>
         </div>
       </header>
 
       {/* Modules by phase */}
-      <main className="max-w-4xl mx-auto px-6 py-12">
+      <main className="max-w-6xl mx-auto px-6 py-16">
         {sortedPhases.map((phase) => (
-          <section key={phase} className="mb-12">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 uppercase text-sm tracking-wide">
-              {phase}
+          <section key={phase} className="mb-20">
+            <h2 className="text-xs font-semibold text-gray-500 mb-8 uppercase tracking-widest">
+              {phaseLabels[phase] || phase}
             </h2>
 
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {modulesByPhase[phase].map((mod) => (
                 <Link
                   key={mod.slug}
                   href={`/spark/lessons/${mod.slug}`}
-                  className="block p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition"
+                  className="group relative block"
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                      M{mod.module}: {mod.title}
-                    </h3>
+                  {/* Background number */}
+                  <div className="absolute -top-8 -left-4 text-8xl font-bold text-gray-100 -z-10 leading-none select-none pointer-events-none">
+                    {String(mod.module).padStart(2, '0')}
                   </div>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm">
-                    {mod.promise}
-                  </p>
+
+                  {/* Card */}
+                  <div className="relative p-8 bg-gray-50 border border-gray-200 rounded-lg hover:border-gray-400 transition-all hover:shadow-md">
+                    <div className="mb-4">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        Module {mod.module}
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
+                      {mod.title}
+                    </h3>
+
+                    <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                      {mod.promise}
+                    </p>
+
+                    <div className="pt-4 border-t border-gray-200">
+                      <span className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                        Read module →
+                      </span>
+                    </div>
+                  </div>
                 </Link>
               ))}
             </div>
