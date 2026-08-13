@@ -57,10 +57,10 @@ export default async function LessonsPage() {
             <Link
               key={mod.slug}
               href={`/spark/lessons/${mod.slug}`}
-              className="group relative block overflow-hidden"
+              className="group relative block"
             >
               {/* Background number */}
-              <div className="absolute top-4 left-0 text-9xl font-bold text-gray-50 -z-10 leading-none select-none pointer-events-none opacity-50" style={{fontFamily: 'var(--font-playfair)'}}>
+              <div className="absolute inset-0 text-9xl font-bold text-gray-100 -z-10 leading-none select-none pointer-events-none opacity-30 p-4" style={{fontFamily: 'var(--font-playfair)'}}>
                 {String(mod.module).padStart(2, '0')}
               </div>
 
