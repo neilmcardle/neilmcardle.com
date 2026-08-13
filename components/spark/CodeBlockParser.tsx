@@ -114,10 +114,15 @@ export function CodeBlockParser({ children }: CodeBlockParserProps) {
 
 function parseAttributes(tag: string): Record<string, string> {
   const attrs: Record<string, string> = {};
-  const attrRegex = /(\w+)=["']((?:[^"'\\]|\\.)*?)["']/g;
+  const doubleQuoteRegex = /(\w+)="((?:[^"\\]|\\.)*?)"/g;
+  const singleQuoteRegex = /(\w+)='((?:[^'\\]|\\.)*?)'/g;
   let match;
 
-  while ((match = attrRegex.exec(tag)) !== null) {
+  while ((match = doubleQuoteRegex.exec(tag)) !== null) {
+    attrs[match[1]] = match[2];
+  }
+
+  while ((match = singleQuoteRegex.exec(tag)) !== null) {
     attrs[match[1]] = match[2];
   }
 
