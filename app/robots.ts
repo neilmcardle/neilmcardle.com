@@ -17,6 +17,7 @@ export default function robots(): MetadataRoute.Robots {
           "/cabin",
           "/kids-academy",
           "/wepray",
+          "/spark/",
         ],
       },
     ],
