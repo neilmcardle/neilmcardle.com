@@ -339,13 +339,6 @@ export default function ChatTab({
             {messages.map((message: BookMindMessage) => (
               <MessageBubble key={message.id} message={message} chapters={chapters} onNavigate={handleNavigate} onRegenerate={() => handleRegenerate(message.id)} onContinue={() => handleContinue(message.id)} onOpenReadingView={() => setReadingView({ open: true, content: message.content })} onRemember={handleRemember} disabled={isLoading} isPro={isPro} />
             ))}
-            {isLoading && messages[messages.length - 1]?.role === "user" && (
-              <div className="flex justify-start" style={{ animation: 'fade-up 300ms cubic-bezier(0.23,1,0.32,1) both' }}>
-                <div className="bg-gray-100 dark:bg-[#262626] rounded-card rounded-tl-sm px-3 py-2.5">
-                  <ShimmerLoader />
-                </div>
-              </div>
-            )}
             {error && <div className="text-11 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 rounded-control px-3 py-2.5">{error}</div>}
           </>
         )}
@@ -480,7 +473,7 @@ function MessageBubble({
   const chapterRefs = citationSegments.filter(s => s.type === "chapter");
   const uniqueRefs = Array.from(new Map(chapterRefs.filter((s): s is Extract<typeof s, { type: "chapter" }> => s.type === "chapter").map(s => [s.chapterIndex, s])).values());
 
-  if (!message.content) {
+  if (!message.content || !message.content.trim()) {
     return null;
   }
 
