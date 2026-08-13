@@ -159,6 +159,9 @@ export default function ChatTab({
     if (!input.trim() || isLoading) return;
     const msg = input.trim();
     setInput("");
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+    }
     ensureSession();
     await sendMessage(msg, {
       selectedChapterIndex,
@@ -226,6 +229,9 @@ export default function ChatTab({
 
   const handleSlashSelect = (cmd: typeof SLASH_COMMANDS[0]) => {
     setInput('');
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+    }
     ensureSession();
     sendMessage(cmd.label, {
       selectedChapterIndex,
