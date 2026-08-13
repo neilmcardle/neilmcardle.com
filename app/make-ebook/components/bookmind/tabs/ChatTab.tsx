@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { motion } from "motion/react";
 import {
   useBookMind,
   BookMindAction,
@@ -23,6 +24,8 @@ import { toast } from "sonner";
 import { linkCitations } from "../../../utils/citationLinker";
 import { hasUsedTrial, markTrialUsed } from "../../../utils/bookMindTrial";
 import type { Chapter } from "../../../types";
+
+const CHAR_DELAY = 0.015;
 
 interface ChatTabProps {
   bookId?: string;
@@ -106,6 +109,9 @@ export default function ChatTab({
     open: false,
     content: "",
   });
+
+  // Locked streaming speed: 67 chars/sec (15ms per character)
+  const CHAR_DELAY = 0.015;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -419,6 +425,22 @@ export default function ChatTab({
   );
 }
 
+function StreamingMessage({ content, charDelay }: { content: string; charDelay: number }) {
+  const totalDuration = Math.min(content.length * charDelay, 2);
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{
+        duration: totalDuration,
+        ease: 'easeOut',
+      }}
+      className="[&>p+p]:mt-2.5 [&>p]:m-0"
+      dangerouslySetInnerHTML={{ __html: formatMessage(content) }}
+    />
+  );
+}
+
 // MessageBubble is split out so each message owns its own hover state
 // without re-rendering the whole list.
 
@@ -442,7 +464,6 @@ function MessageBubble({
   onContinue,
   onOpenReadingView,
   onRemember,
-  disabled,
   isPro = true,
 }: MessageBubbleProps) {
   const isUser = message.role === "user";
@@ -460,6 +481,8 @@ function MessageBubble({
           <ShimmerLoader />
         ) : structured ? (
           <CardRenderer response={structured} chapters={chapters.map(c => ({ id: c.id, title: c.title }))} onNavigate={onNavigate} />
+        ) : isAssistant ? (
+          <StreamingMessage content={message.content} charDelay={CHAR_DELAY} />
         ) : (
           <div className="[&>p+p]:mt-2.5 [&>p]:m-0" dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }} />
         )}
@@ -484,3 +507,4 @@ function MessageBubble({
     </div>
   );
 }
+
