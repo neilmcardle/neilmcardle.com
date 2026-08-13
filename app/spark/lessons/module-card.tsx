@@ -41,10 +41,10 @@ export function ModuleCard({ mod }: ModuleCardProps) {
         {/* Checkbox */}
         <button
           onClick={toggleComplete}
-          className="absolute top-4 left-4 w-6 h-6 rounded border-2 transition-colors flex items-center justify-center z-20"
+          className="absolute top-4 right-4 w-6 h-6 rounded border-2 transition-colors flex items-center justify-center z-20"
           style={{
-            background: isComplete ? '#3b82f6' : 'transparent',
-            borderColor: isComplete ? '#3b82f6' : '#d1d5db',
+            background: isComplete ? '#374151' : 'transparent',
+            borderColor: isComplete ? '#374151' : '#d1d5db',
           }}
         >
           {isComplete && (
