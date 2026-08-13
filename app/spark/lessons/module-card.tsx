@@ -62,8 +62,8 @@ export function ModuleCard({ mod }: ModuleCardProps) {
         </div>
 
         {/* Content - centered around the large number */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center flex-1">
-          <h3 className="text-3xl font-bold text-gray-900 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
+        <div className="relative z-10 flex flex-col items-center justify-center text-center flex-1 px-4">
+          <h3 className="text-7xl font-bold text-gray-900 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
             {mod.title}
           </h3>
         </div>
