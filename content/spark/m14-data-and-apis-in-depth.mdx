@@ -13,12 +13,12 @@ checkpoint:
   - "Endpoint handles requests and responds correctly"
   - "Validation catches bad input"
   - "Errors are reported clearly to the client"
-  - "(Optional) endpoint integrated with M14's database"
+  - "(Optional) endpoint integrated with Data & APIs in depth's database"
 threads:
   - "language-vs-framework"
   - "your-code-vs-the-platform"
 difficulty: "intermediate"
-prereq: "M05 (forms), M06 (async)"
+prereq: "JavaScript fundamentals (forms), Intermediate JavaScript: Fetch and Real Data (async)"
 estimated_time: "6–8 hours"
 ---
 
@@ -295,7 +295,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email } = EmailSchema.parse(body);
 
-    // For now, just pretend we saved it. In M15 you'll use a real database.
+    // For now, just pretend we saved it. In Databases & ORM you'll use a real database.
     // Simulate a random ID like a database would generate
     const id = Math.random().toString(36).slice(2, 9);
 
