@@ -426,18 +426,24 @@ export default function ChatTab({
 }
 
 function StreamingMessage({ content, charDelay }: { content: string; charDelay: number }) {
-  const totalDuration = Math.min(content.length * charDelay, 2);
+  const chars = content.split('');
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{
-        duration: totalDuration,
-        ease: 'easeOut',
-      }}
-      className="[&>p+p]:mt-2.5 [&>p]:m-0"
-      dangerouslySetInnerHTML={{ __html: formatMessage(content) }}
-    />
+    <div className="[&>p+p]:mt-2.5 [&>p]:m-0">
+      {chars.map((char, idx) => (
+        <motion.span
+          key={`${idx}-${char}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{
+            delay: idx * charDelay,
+            duration: 0.05,
+          }}
+          style={{ display: 'inline' }}
+        >
+          {char}
+        </motion.span>
+      ))}
+    </div>
   );
 }
 
@@ -477,14 +483,14 @@ function MessageBubble({
   return (
     <div className={`group flex flex-col ${isUser ? "items-end" : "items-start"}`} style={{ animation: 'fade-up 300ms cubic-bezier(0.23,1,0.32,1) both' }}>
       <div className={`max-w-[85%] rounded-card px-3 py-2.5 text-125 leading-relaxed ${isUser ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-tr-sm" : "bg-gray-100 dark:bg-[#303030] text-gray-800 dark:text-[#f5f5f5] rounded-tl-sm"}`}>
-        {!message.content ? (
-          <ShimmerLoader />
-        ) : structured ? (
-          <CardRenderer response={structured} chapters={chapters.map(c => ({ id: c.id, title: c.title }))} onNavigate={onNavigate} />
-        ) : isAssistant ? (
-          <StreamingMessage content={message.content} charDelay={CHAR_DELAY} />
-        ) : (
-          <div className="[&>p+p]:mt-2.5 [&>p]:m-0" dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }} />
+        {message.content && (
+          structured ? (
+            <CardRenderer response={structured} chapters={chapters.map(c => ({ id: c.id, title: c.title }))} onNavigate={onNavigate} />
+          ) : isAssistant ? (
+            <StreamingMessage content={message.content} charDelay={CHAR_DELAY} />
+          ) : (
+            <div className="[&>p+p]:mt-2.5 [&>p]:m-0" dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }} />
+          )
         )}
 
         {isAssistant && message.content && !structured && uniqueRefs.length > 0 && (
