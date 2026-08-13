@@ -96,7 +96,7 @@ export default async function LessonPage(props: PageProps) {
           </main>
 
           {/* Right Sidebar */}
-          <aside className="hidden xl:flex w-52 p-6 flex-col flex-shrink-0 overflow-y-auto border-l border-gray-100 sticky top-16 h-[calc(100vh-4rem)]">
+          <aside className="hidden xl:flex w-52 p-6 flex-col flex-shrink-0 overflow-y-auto border-l border-gray-100 sticky top-16 h-[calc(100vh-4rem)] mr-6">
             <div className="space-y-8 text-sm">
               <div>
                 <p className="font-semibold text-gray-900 mb-3 text-xs uppercase tracking-widest">On this page</p>
