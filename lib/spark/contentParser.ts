@@ -6,30 +6,45 @@ export interface ParsedSection {
 export function parseContentIntoSections(mdxSource: string): ParsedSection[] {
   const sections: ParsedSection[] = [];
 
-  const lines = mdxSource.split('\n');
-  let currentSection: ParsedSection | null = null;
-  let currentContent: string[] = [];
+  const sectionRegex = /<Section\s+title=["']([^"']+)["'][^>]*>([\s\S]*?)<\/Section>/g;
+  let match;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  while ((match = sectionRegex.exec(mdxSource)) !== null) {
+    const title = match[1];
+    const rawContent = match[2].trim();
 
-    if (line.startsWith('## ')) {
-      if (currentSection) {
-        currentSection.content = currentContent.join('\n').trim();
-        sections.push(currentSection);
-      }
-
-      const title = line.replace(/^## /, '').trim();
-      currentSection = { title, content: '' };
-      currentContent = [];
-    } else if (currentSection) {
-      currentContent.push(line);
-    }
+    sections.push({
+      title,
+      content: rawContent,
+    });
   }
 
-  if (currentSection) {
-    currentSection.content = currentContent.join('\n').trim();
-    sections.push(currentSection);
+  if (sections.length === 0) {
+    const lines = mdxSource.split('\n');
+    let currentSection: ParsedSection | null = null;
+    let currentContent: string[] = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      if (line.startsWith('## ')) {
+        if (currentSection) {
+          currentSection.content = currentContent.join('\n').trim();
+          sections.push(currentSection);
+        }
+
+        const title = line.replace(/^## /, '').trim();
+        currentSection = { title, content: '' };
+        currentContent = [];
+      } else if (currentSection) {
+        currentContent.push(line);
+      }
+    }
+
+    if (currentSection) {
+      currentSection.content = currentContent.join('\n').trim();
+      sections.push(currentSection);
+    }
   }
 
   return sections;
