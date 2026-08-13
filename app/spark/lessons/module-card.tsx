@@ -37,7 +37,7 @@ export function ModuleCard({ mod }: ModuleCardProps) {
       className="group relative block"
     >
       {/* Card */}
-      <div className="relative p-8 bg-gray-50 rounded-lg shadow-sm hover:shadow-md shadow-border hover:shadow-border-hover transition-shadow aspect-square flex flex-col overflow-hidden">
+      <div className="relative p-8 bg-transparent rounded-lg shadow-border hover:shadow-border-hover transition-shadow aspect-square flex flex-col overflow-hidden">
         {/* Checkbox */}
         <button
           onClick={toggleComplete}
