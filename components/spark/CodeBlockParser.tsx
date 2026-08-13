@@ -40,7 +40,7 @@ export function CodeBlockParser({ children }: CodeBlockParserProps) {
       {parts.map((part, i) => {
         if (typeof part === 'string') {
           return (
-            <p key={i} className="text-slate-700 dark:text-slate-50 leading-relaxed whitespace-pre-wrap">
+            <p key={i} className="text-gray-700 leading-relaxed whitespace-pre-wrap">
               {part}
             </p>
           );

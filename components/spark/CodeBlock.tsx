@@ -34,15 +34,15 @@ export function CodeBlock({ children, language = 'js' }: CodeBlockProps) {
   const label = languageLabels[language] || language.toUpperCase();
 
   return (
-    <div className="my-6 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+    <div className="my-6 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-        <span className="text-xs font-mono font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-100 border-b border-gray-200">
+        <span className="text-xs font-mono font-semibold text-gray-600 uppercase tracking-wide">
           {label}
         </span>
         <button
           onClick={copyToClipboard}
-          className="flex items-center gap-2 px-3 py-1 rounded text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+          className="flex items-center gap-2 px-3 py-1 rounded text-xs font-medium text-gray-600 hover:bg-gray-200 transition-colors"
           title="Copy to clipboard"
         >
           {copied ? (
@@ -60,8 +60,8 @@ export function CodeBlock({ children, language = 'js' }: CodeBlockProps) {
       </div>
 
       {/* Code */}
-      <pre className="p-4 overflow-x-auto text-sm leading-relaxed">
-        <code className="font-mono text-slate-900 dark:text-slate-50 whitespace-pre">
+      <pre className="p-4 overflow-x-auto text-sm leading-relaxed bg-white">
+        <code className="font-mono text-gray-900 whitespace-pre">
           {children}
         </code>
       </pre>
