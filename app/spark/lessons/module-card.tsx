@@ -54,15 +54,15 @@ export function ModuleCard({ mod }: ModuleCardProps) {
           )}
         </button>
 
-        {/* Content - number above title */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center flex-1 px-4">
-          {/* Large number */}
-          <span className="text-8xl font-bold leading-none mb-4" style={{fontFamily: 'var(--font-playfair)', color: 'rgba(0,0,0,0.1)'}}>
+        {/* Content - number behind title */}
+        <div className="relative flex flex-col items-center justify-center text-center flex-1 px-4">
+          {/* Large number behind */}
+          <span className="absolute inset-0 flex items-center justify-center text-9xl font-bold leading-none pointer-events-none" style={{fontFamily: 'var(--font-playfair)', color: 'rgba(0,0,0,0.08)'}}>
             {String(mod.module).padStart(2, '0')}
           </span>
 
-          {/* Title */}
-          <h3 className="text-4xl font-bold text-gray-900 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
+          {/* Title on top */}
+          <h3 className="relative z-10 text-4xl font-bold text-gray-900 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
             {mod.title || 'Module'}
           </h3>
         </div>
