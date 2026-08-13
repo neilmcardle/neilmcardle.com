@@ -59,22 +59,22 @@ export default async function LessonsPage() {
               href={`/spark/lessons/${mod.slug}`}
               className="group relative block"
             >
-              {/* Background number */}
-              <div className="absolute inset-0 text-9xl font-bold text-gray-100 -z-10 leading-none select-none pointer-events-none opacity-30 p-4" style={{fontFamily: 'var(--font-playfair)'}}>
-                {String(mod.module).padStart(2, '0')}
-              </div>
-
               {/* Card */}
               <div className="relative p-8 bg-gray-50 rounded-lg shadow-sm hover:shadow-md shadow-border hover:shadow-border-hover transition-shadow">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight" style={{fontFamily: 'var(--font-playfair)'}}>
+                {/* Background number */}
+                <span className="absolute top-4 right-4 text-8xl font-bold text-gray-200 leading-none select-none pointer-events-none opacity-40" style={{fontFamily: 'var(--font-playfair)'}}>
+                  {String(mod.module).padStart(2, '0')}
+                </span>
+
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight relative z-10" style={{fontFamily: 'var(--font-playfair)'}}>
                   {mod.title}
                 </h3>
 
-                <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                <p className="text-gray-600 text-sm leading-relaxed mb-6 relative z-10">
                   {mod.promise}
                 </p>
 
-                <div className="pt-4 border-t border-gray-200">
+                <div className="pt-4 border-t border-gray-200 relative z-10">
                   <span className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors">
                     Read module →
                   </span>
