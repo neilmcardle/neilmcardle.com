@@ -81,12 +81,12 @@ export function generateCoverDataUrl(args: GenerateCoverArgs): string {
   const cx = width / 2;
   const cy = height / 2;
 
-  const surname = extractSurname(args.author);
+  const authorDisplay = (args.author || '').trim() || 'Author';
   const tag = (args.genre && args.genre.trim()) ? args.genre.trim() : 'makeEbook';
 
-  // Author surname — small caps, wide tracking, 75% opacity
+  // Author — small caps, wide tracking, 75% opacity
   const authorFont = `600 ${Math.round(height * 0.022)}px "Helvetica Neue", Arial, sans-serif`;
-  drawTrackedText(ctx, surname.toUpperCase(), cx, cy - height * 0.12, authorFont, 6, fg, 0.75);
+  drawTrackedText(ctx, authorDisplay.toUpperCase(), cx, cy - height * 0.12, authorFont, 6, fg, 0.75);
 
   // Rule
   drawRule(ctx, cx, cy - height * 0.085, width * 0.055, fg, 0.5);
@@ -106,13 +106,6 @@ export function generateCoverDataUrl(args: GenerateCoverArgs): string {
 }
 
 // —— helpers ────────────────────────────────────────────────────────────
-
-function extractSurname(author: string): string {
-  const trimmed = (author || '').trim();
-  if (!trimmed) return 'Author';
-  const parts = trimmed.split(/\s+/);
-  return parts[parts.length - 1];
-}
 
 // Canvas has no letter-spacing property, so we draw each glyph individually
 // with an extra gap between them. Used for small-caps tracking on author +
