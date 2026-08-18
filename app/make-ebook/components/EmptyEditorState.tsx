@@ -164,7 +164,7 @@ function PaperPanel({
   const words = pasteValue.trim() ? pasteValue.trim().split(/\s+/).filter(Boolean).length : 0;
 
   return (
-    <div className="relative flex flex-col bg-[#2c2c2c] border border-[#3a3a3a] rounded-[20px] overflow-hidden">
+    <div className="relative flex flex-col bg-[#252525] border border-[#3a3a3a] rounded-[20px] overflow-hidden">
       {/* Body */}
       <div className="flex-1 flex flex-col px-7 sm:px-10 py-9 sm:py-10">
         <h2 className="font-bold text-white leading-[1.1] tracking-[-0.02em]" style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(26px, 3.2vw, 32px)' }}>

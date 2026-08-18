@@ -162,7 +162,7 @@ export default function LivePreviewPanel({
   const { loc, percentage } = calcLocAndPercent(chapters, selectedChapter, currentPage, totalPages, viewMode);
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-[#2c2c2c]">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-[#252525]">
       {/* Header */}
       <div className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-[#2f2f2f]">
         <div className="flex items-center justify-between mb-2">

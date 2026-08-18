@@ -62,11 +62,11 @@ export default function InspectorPanel(props: InspectorPanelProps) {
   );
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#252525]">
+    <div className="flex flex-col h-full w-full sm:w-full md:w-[360px] lg:w-full bg-white dark:bg-[#252525]">
       <Tabs
         value={active}
         onValueChange={(v) => setActive(v as TabKey)}
-        className="flex flex-col h-full bg-white dark:bg-[#252525]"
+        className="flex flex-col h-full w-full bg-white dark:bg-[#252525]"
       >
         {/* Trial banner. Shown instead of the Flow mode toggle. */}
         {!isPro && (

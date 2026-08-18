@@ -38,7 +38,7 @@ export function MobilePreviewModal({
           <h3 className="text-sm font-semibold text-[#050505] dark:text-white">Live Preview</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-[#2f2f2f] rounded transition-colors -mr-2"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-[#262626] rounded transition-colors -mr-2"
             aria-label="Close preview"
           >
             <svg className="w-4 h-4 text-gray-400 dark:text-[#a3a3a3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
