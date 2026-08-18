@@ -1237,11 +1237,11 @@ function MakeEbookPage() {
             The close button is a thin bar above the Inspector because
             InspectorPanel does not own its own chrome. */}
         {mobileBookMindOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 flex flex-col animate-slide-in-from-bottom bg-white dark:bg-[#2c2c2c]">
+          <div className="lg:hidden fixed inset-0 z-50 flex flex-col animate-slide-in-from-bottom bg-white dark:bg-[#252525]">
             <div className="flex items-center justify-end px-3 py-2 border-b border-gray-200 dark:border-[#2f2f2f] flex-shrink-0">
               <button
                 onClick={() => setMobileBookMindOpen(false)}
-                className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
                 aria-label="Close Book Mind"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
