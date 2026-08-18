@@ -33,7 +33,7 @@ function Switch({ on }: { on: boolean }) {
       aria-hidden
     >
       <span
-        className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-transform ${
+        className={`absolute top-1 left-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-transform ${
           on ? 'translate-x-4' : ''
         }`}
       />
@@ -58,7 +58,7 @@ export default function ModeMenu({
         <button
           title="Writing modes"
           aria-label="Writing modes"
-          className="flex items-center gap-1.5 px-3 h-10 rounded-full bg-gray-100 dark:bg-[#1c1c1c] border border-gray-200 dark:border-[#333] hover:bg-gray-200 dark:hover:bg-[#2e2e2e] transition-colors group"
+          className="flex items-center gap-2 px-3 h-10 rounded-full bg-gray-100 dark:bg-[#1c1c1c] border border-gray-200 dark:border-[#333] hover:bg-gray-200 dark:hover:bg-[#2e2e2e] transition-colors group"
         >
           <svg
             className={`w-4 h-4 transition-colors ${flowOn ? 'text-[#008ff0]' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4]'}`}
@@ -76,19 +76,19 @@ export default function ModeMenu({
           </span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={8} className="w-72 p-1.5 bg-white dark:bg-[#252525] border border-gray-200 dark:border-[#2f2f2f]">
+      <DropdownMenuContent align="end" sideOffset={8} className="w-72 p-2 bg-white dark:bg-[#252525] border border-gray-200 dark:border-[#2f2f2f]">
         {/* Focus — universal */}
         <DropdownMenuItem
           onSelect={(e) => { e.preventDefault(); onToggleFocus(); }}
           className="flex items-start gap-3 px-3 py-2.5 rounded-md cursor-pointer focus:bg-gray-50 dark:focus:bg-[#262626]"
         >
-          <svg className="w-4 h-4 mt-0.5 text-gray-500 dark:text-[#a3a3a3] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round">
+          <svg className="w-4 h-4 mt-1 text-gray-500 dark:text-[#a3a3a3] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round">
             <circle cx="12" cy="12" r="3" />
             <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
           </svg>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 dark:text-[#e5e5e5]">Focus mode</p>
-            <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-snug mt-0.5">
+            <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-snug mt-1">
               Hide chrome and write without distractions.
             </p>
           </div>
@@ -101,12 +101,12 @@ export default function ModeMenu({
             onSelect={(e) => { e.preventDefault(); onToggleFlow(); }}
             className="flex items-start gap-3 px-3 py-2.5 rounded-md cursor-pointer focus:bg-gray-50 dark:focus:bg-[#262626]"
           >
-            <svg className="w-4 h-4 mt-0.5 text-[#008ff0] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mt-1 text-[#008ff0] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6L12 2z" />
             </svg>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 dark:text-[#e5e5e5]">Flow mode</p>
-              <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-snug mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-snug mt-1">
                 AI suggests the next sentence when you pause. Tab to accept.
               </p>
             </div>

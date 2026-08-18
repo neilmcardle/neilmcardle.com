@@ -242,7 +242,7 @@ export default function GhostTextOverlay({
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => { void generate(); }}
           aria-label="Generate AI suggestion"
-          className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/95 dark:bg-[#1e1e1e]/95 border border-gray-200 dark:border-[#2f2f2f] shadow-sm backdrop-blur-sm transition-colors hover:border-[#008ff0]/40 hover:bg-[#008ff0]/5 dark:hover:bg-[#008ff0]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#008ff0]/40 cursor-pointer"
+          className="flex items-center gap-2 px-2 py-1 rounded-full bg-white/95 dark:bg-[#1e1e1e]/95 border border-gray-200 dark:border-[#2f2f2f] shadow-sm backdrop-blur-sm transition-colors hover:border-[#008ff0]/40 hover:bg-[#008ff0]/5 dark:hover:bg-[#008ff0]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#008ff0]/40 cursor-pointer"
         >
           <svg className="w-3 h-3 text-[#008ff0]" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6L12 2z" />

@@ -36,7 +36,7 @@ const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSec
               </div>
               <div className="mx-4 mb-4 rounded-xl overflow-hidden border border-[#2f2f2f]">
                 {/* Toolbar */}
-                <div className="bg-[#262626] flex items-center gap-0.5 px-2.5 py-2 border-b border-[#2f2f2f]">
+                <div className="bg-[#262626] flex items-center gap-2 px-3 py-2 border-b border-[#2f2f2f]">
                   {[['B','font-bold'],['I','italic'],['U','underline']].map(([l,c],i) => (
                     <button key={i} className={`w-7 h-7 flex items-center justify-center rounded text-white/70 text-xs ${c}`}>{l}</button>
                   ))}
@@ -89,7 +89,7 @@ const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSec
                     <span className="text-white/25 text-[10px]">{ch.words}w</span>
                   </div>
                 ))}
-                <div className="px-3 py-2.5 border-t border-[#2f2f2f] flex items-center gap-1.5">
+                <div className="px-3 py-2.5 border-t border-[#2f2f2f] flex items-center gap-2">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className="text-white/25"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   <span className="text-white/25 text-[12px]">Add chapter</span>
                 </div>
@@ -114,7 +114,7 @@ const EditorShowcaseSection = forwardRef<HTMLElement>(function EditorShowcaseSec
                     ))}
                   </div>
                   <div className="bg-[#262626] rounded-lg p-3.5 mb-5 border border-[#2f2f2f]">
-                    <div className="flex items-baseline gap-2.5 mb-1.5">
+                    <div className="flex items-baseline gap-2.5 mb-2">
                       <span className="text-white/80 text-xl" style={{ fontFamily: 'Georgia, serif' }}>Aa</span>
                       <div>
                         <div className="text-white/60 text-[11px]">Libre Baskerville &middot; 11pt</div>

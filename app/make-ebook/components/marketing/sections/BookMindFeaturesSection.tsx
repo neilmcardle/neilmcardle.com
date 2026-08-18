@@ -198,7 +198,7 @@ function PreflightDemo() {
 
         {visible && (
           <div className="mt-3 pt-3 border-t border-gray-100 transition-all duration-500" style={{ transitionDelay: '800ms' }}>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Disclosure (ready to paste)</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-2">Disclosure (ready to paste)</p>
             <p className="text-xs text-gray-600 italic leading-relaxed">
               "This book was written by a human author with AI assistance for editing and suggestions. All creative decisions are the author's own."
             </p>
@@ -276,15 +276,15 @@ function InsightsDemo() {
               transitionDelay: `${i * 200}ms`,
             }}
           >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className={`text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded ${card.color}`}>
+            <div className="flex items-center justify-between mb-2">
+              <span className={`text-[9px] font-semibold uppercase tracking-wide px-2 py-1 rounded ${card.color}`}>
                 {card.type}
               </span>
-              <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-medium">
+              <span className="text-[10px] text-blue-600 bg-blue-50 px-2 py-1 rounded font-medium">
                 {card.chapter}
               </span>
             </div>
-            <p className="text-xs font-medium text-gray-900 mb-0.5">{card.title}</p>
+            <p className="text-xs font-medium text-gray-900 mb-1">{card.title}</p>
             <p className="text-[11px] text-gray-500 italic leading-snug">{card.quote}</p>
           </div>
         ))}

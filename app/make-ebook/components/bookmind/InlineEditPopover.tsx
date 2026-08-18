@@ -280,7 +280,7 @@ export default function InlineEditPopover({
               <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium">
                 {isLoading && !hasAnyResult ? "Generating 3 alternatives…" : "Alternatives"}
               </p>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 {results.map((r, i) => (
                   <button
                     key={i}
@@ -331,7 +331,7 @@ export default function InlineEditPopover({
                 aria-label="Accept this suggestion"
                 className="group w-full text-left rounded-lg p-2 -m-2 cursor-pointer transition-colors hover:bg-[#008ff0]/5 dark:hover:bg-[#008ff0]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#008ff0]/40"
               >
-                <p className="text-2xs uppercase tracking-wider text-[#008ff0] font-medium mb-1 flex items-center gap-1.5">
+                <p className="text-2xs uppercase tracking-wider text-[#008ff0] font-medium mb-1 flex items-center gap-2">
                   Suggestion
                   <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] normal-case tracking-normal text-gray-400 dark:text-[#737373]">
                     click to accept
@@ -377,14 +377,14 @@ export default function InlineEditPopover({
             </>
           )}
         </p>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
           {hasAnyResult && (
             <>
               {numAlternatives < MAX_ALTERNATIVES && (
                 <button
                   onClick={handleMoreTakes}
                   disabled={isLoading}
-                  className="px-2.5 py-1 text-xs font-medium text-[#008ff0] border border-[#008ff0]/30 hover:bg-[#008ff0]/5 dark:hover:bg-[#008ff0]/10 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
+                  className="px-3 py-1 text-xs font-medium text-[#008ff0] border border-[#008ff0]/30 hover:bg-[#008ff0]/5 dark:hover:bg-[#008ff0]/10 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
                 >
                   More takes
                 </button>
@@ -392,7 +392,7 @@ export default function InlineEditPopover({
               <button
                 onClick={handleRegenerate}
                 disabled={isLoading}
-                className="px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-[#a3a3a3] border border-gray-200 dark:border-[#3a3a3a] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
+                className="px-3 py-1 text-xs font-medium text-gray-600 dark:text-[#a3a3a3] border border-gray-200 dark:border-[#3a3a3a] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
               >
                 Try again
               </button>

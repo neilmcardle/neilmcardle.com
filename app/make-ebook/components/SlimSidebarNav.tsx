@@ -110,7 +110,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
   if (loading) {
     return (
       <Tooltip text="Loading...">
-        <div className="relative flex flex-col items-center justify-center w-full h-14 rounded-lg bg-gray-50 dark:bg-[#2f2f2f] animate-pulse" />
+        <div className="relative w-12 h-12 rounded-lg bg-gray-100 dark:bg-[#262626] animate-pulse" />
       </Tooltip>
     );
   }
@@ -119,12 +119,10 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
     return (
       <Tooltip text="Sign In">
         <button
-          className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
+          className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#262626] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
           aria-label="User menu"
         >
-          <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-            <img src="/user-icon.svg" alt="user icon" className="w-5 h-5 dark:invert" />
-          </div>
+          <img src="/user-icon.svg" alt="user icon" className="w-5 h-5 text-gray-600 dark:text-[#626262] dark:invert" />
         </button>
       </Tooltip>
     );
@@ -135,12 +133,10 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+            className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#262626] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
             aria-label="User menu"
           >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
-              <img src="/user-icon.svg" alt="user icon" className="w-5 h-5 dark:invert" />
-            </div>
+            <img src="/user-icon.svg" alt="user icon" className="w-5 h-5 text-gray-600 dark:text-[#626262] dark:invert" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56 bg-white dark:bg-[#252525]" align="end" sideOffset={8} forceMount>
@@ -220,10 +216,10 @@ function ThemeToggleButton() {
     <Tooltip text={`Theme: ${label}`}>
       <button
         onClick={toggleTheme}
-        className="relative flex flex-col items-center w-full py-1.5 rounded-lg group"
+        className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#262626] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
         aria-label={`Theme: ${label}. Click to change.`}
       >
-        <div className="w-10 h-10 rounded-full flex items-center justify-center transition-opacity group-hover:opacity-60">
+        <div className="text-gray-600 dark:text-[#626262]">
           {theme === 'makeebook'
             ? <BookOpen className="w-5 h-5" />
             : theme === 'dark'
@@ -248,7 +244,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
   };
 
   return (
-  <aside className="hidden lg:flex flex-col w-16 bg-white dark:bg-[#2c2c2c] h-screen items-center relative z-50">
+  <aside className="hidden lg:flex flex-col w-16 bg-gray-50 dark:bg-[#151515] h-screen items-center relative z-50 border-r border-gray-200 dark:border-[#2a2a2a]">
       {/* Logo at top */}
       <div className="flex-shrink-0 pt-6 pb-6">
         <Tooltip text="makeEBook">
@@ -270,31 +266,26 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
       </div>
 
       {/* Navigation Items */}
-      <nav className="flex-1 flex flex-col gap-2 w-full px-2 pt-1 overflow-y-auto">
+      <nav className="flex-1 flex flex-col gap-2 w-full px-2 pt-4 overflow-y-auto">
         {/* Library */}
         <Tooltip text={hasSyncConflicts ? 'Library — action needed' : 'Library'}>
           <button
             onClick={() => handleViewClick('library')}
-            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === 'library' && isPanelOpen ? 'bg-gray-900 dark:bg-white' : 'hover:bg-gray-200 dark:hover:bg-[#2a2a2a]'}`}
             aria-label={hasSyncConflicts ? 'Library — action needed' : 'Library'}
           >
-            <div className="relative w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80">
-              <svg className={`w-5 h-5 transition-colors ${activeView === 'library' && isPanelOpen ? 'text-[#008ff0]' : 'text-gray-500 dark:text-[#737373]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                <rect x="4" y="4" width="3" height="16" rx="0.5" />
-                <rect x="10" y="7" width="3" height="13" rx="0.5" />
-                <rect x="16" y="5" width="3" height="15" rx="0.5" />
-                <path d="M3 20h18" />
-              </svg>
-              {hasSyncConflicts && (
-                <span
-                  aria-hidden
-                  className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-[#1e1e1e]"
-                />
-              )}
-            </div>
-            <span className={`text-2xs font-medium -mt-2 transition-colors group-hover:opacity-80 ${activeView === 'library' && isPanelOpen ? 'text-[#008ff0]' : 'text-gray-400 dark:text-[#525252]'}`}>
-              Library{libraryCount > 0 ? ` (${libraryCount})` : ''}
-            </span>
+            <svg className={`w-5 h-5 transition-colors ${activeView === 'library' && isPanelOpen ? 'text-white dark:text-gray-900' : 'text-gray-600 dark:text-[#626262]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+              <rect x="4" y="4" width="3" height="16" rx="0.5" />
+              <rect x="10" y="7" width="3" height="13" rx="0.5" />
+              <rect x="16" y="5" width="3" height="15" rx="0.5" />
+              <path d="M3 20h18" />
+            </svg>
+            {hasSyncConflicts && (
+              <span
+                aria-hidden
+                className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-gray-50 dark:ring-[#151515]"
+              />
+            )}
           </button>
         </Tooltip>
 
@@ -303,19 +294,14 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           <button
             data-tour="book-details"
             onClick={() => handleViewClick('book')}
-            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === 'book' && isPanelOpen ? 'bg-gray-900 dark:bg-white' : 'hover:bg-gray-200 dark:hover:bg-[#2a2a2a]'}`}
             aria-label="Book"
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80">
-              <svg className={`w-5 h-5 transition-colors ${activeView === 'book' && isPanelOpen ? 'text-[#008ff0]' : 'text-gray-500 dark:text-[#737373]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                <path d="M8 7h8M8 11h8M8 15h5" />
-              </svg>
-            </div>
-            <span className={`text-2xs font-medium -mt-2 transition-colors group-hover:opacity-80 ${activeView === 'book' && isPanelOpen ? 'text-[#008ff0]' : 'text-gray-400 dark:text-[#525252]'}`}>
-              Book
-            </span>
+            <svg className={`w-5 h-5 transition-colors ${activeView === 'book' && isPanelOpen ? 'text-white dark:text-gray-900' : 'text-gray-600 dark:text-[#626262]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              <path d="M8 7h8M8 11h8M8 15h5" />
+            </svg>
           </button>
         </Tooltip>
 
@@ -324,19 +310,14 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           <button
             data-tour="chapters"
             onClick={() => handleViewClick('chapters')}
-            className="relative flex flex-col items-center w-full py-1.5 rounded-lg group outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === 'chapters' && isPanelOpen ? 'bg-gray-900 dark:bg-white' : 'hover:bg-gray-200 dark:hover:bg-[#2a2a2a]'}`}
             aria-label="Chapters"
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:opacity-80">
-              <svg className={`w-5 h-5 transition-colors ${activeView === 'chapters' && isPanelOpen ? 'text-[#008ff0]' : 'text-gray-500 dark:text-[#737373]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <path d="M14 2v6h6" />
-                <path d="M16 13H8M16 17H8M10 9H8" />
-              </svg>
-            </div>
-            <span className={`text-2xs font-medium -mt-2 transition-colors group-hover:opacity-80 ${activeView === 'chapters' && isPanelOpen ? 'text-[#008ff0]' : 'text-gray-400 dark:text-[#525252]'}`}>
-              Chapters{chaptersCount > 0 ? ` (${chaptersCount})` : ''}
-            </span>
+            <svg className={`w-5 h-5 transition-colors ${activeView === 'chapters' && isPanelOpen ? 'text-white dark:text-gray-900' : 'text-gray-600 dark:text-[#626262]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <path d="M14 2v6h6" />
+              <path d="M16 13H8M16 17H8M10 9H8" />
+            </svg>
           </button>
         </Tooltip>
 
@@ -345,7 +326,7 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
       </nav>
 
       {/* Bottom section - Theme Toggle and User */}
-      <div className="flex-shrink-0 flex flex-col gap-2 w-full px-2 pb-6">
+      <div className="flex-shrink-0 flex flex-col gap-3 w-full px-2 pb-6 border-t border-gray-200 dark:border-[#2a2a2a] pt-4">
         {/* User Dropdown */}
         <UserDropdownSlim onStartTour={onStartTour} />
       </div>

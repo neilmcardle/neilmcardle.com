@@ -31,14 +31,14 @@ export function MobilePreviewModal({
   const screenBg = theme === 'light' ? '#faf9f5' : theme === 'sepia' ? '#f4ecd8' : '#1a1a1a';
 
   return (
-    <div className="fixed inset-0 z-[130] flex flex-col lg:hidden overflow-hidden bg-white dark:bg-[#1e1e1e]">
+    <div className="fixed inset-0 z-[130] flex flex-col lg:hidden overflow-hidden bg-white dark:bg-[#1a1a1a]">
       {/* Header */}
       <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-[#2f2f2f]">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-[#050505] dark:text-white">Live Preview</h3>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#2f2f2f] rounded transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-[#2f2f2f] rounded transition-colors -mr-2"
             aria-label="Close preview"
           >
             <svg className="w-4 h-4 text-gray-400 dark:text-[#a3a3a3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

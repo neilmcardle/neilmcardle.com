@@ -87,14 +87,14 @@ export default function GenerateCoverModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-[#2f2f2f]">
           <div>
             <h2 className="text-base font-semibold text-[#050505] dark:text-white">Generate cover</h2>
-            <p className="text-xs text-gray-500 dark:text-[#a3a3a3] mt-0.5">
+            <p className="text-xs text-gray-500 dark:text-[#a3a3a3] mt-1">
               Uses your title, author, and genre. Pick a colour.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-500 dark:text-[#a3a3a3]"
+            className="p-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-500 dark:text-[#a3a3a3] -mr-2"
             aria-label="Close"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">

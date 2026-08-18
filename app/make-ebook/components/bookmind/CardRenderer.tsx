@@ -59,9 +59,9 @@ export default function CardRenderer({
               key={idx}
               className="p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-100 dark:border-[#2f2f2f]"
             >
-              <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex items-start justify-between gap-2 mb-2">
                 <span
-                  className={`text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded ${CARD_TYPE_COLORS[card.type]}`}
+                  className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded ${CARD_TYPE_COLORS[card.type]}`}
                 >
                   {CARD_TYPE_LABELS[card.type]}
                 </span>

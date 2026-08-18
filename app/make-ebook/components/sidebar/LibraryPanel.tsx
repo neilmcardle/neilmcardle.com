@@ -82,7 +82,7 @@ export default function LibraryPanel({
         </div>
 
         {/* Action buttons */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-3 -mr-3">
           {libraryBooks.length > 0 && (
             <button
               onClick={() => setMultiSelectMode(!multiSelectMode)}
@@ -112,7 +112,7 @@ export default function LibraryPanel({
           </button>
           <button
             onClick={showImportDialog}
-            className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] hover:text-gray-700 dark:hover:text-[#d4d4d4] transition-all duration-150"
+            className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] hover:text-gray-700 dark:hover:text-[#d4d4d4] transition-all duration-150 pr-3"
             title="Import document"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -159,7 +159,7 @@ export default function LibraryPanel({
           <div
             ref={containerRef}
             onMouseLeave={() => setHovered(null)}
-            className="relative flex flex-col gap-0.5 px-2"
+            className="relative flex flex-col gap-2 px-2"
           >
             {/* Gliding highlight */}
             <span
@@ -217,14 +217,14 @@ export default function LibraryPanel({
 
                   {/* Actions (visible when selected and not in multi-select) */}
                   {!multiSelectMode && isSelected && (
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleLoadBook(book.id);
                           setSelectedBookId(null);
                         }}
-                        className="px-2.5 py-1.5 text-11 font-medium rounded-chip bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-85 transition-opacity active:scale-[0.96]"
+                        className="px-3 py-2 text-11 font-medium rounded-chip bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-85 transition-opacity active:scale-[0.96]"
                       >
                         Open
                       </button>
@@ -233,7 +233,7 @@ export default function LibraryPanel({
                           e.stopPropagation();
                           handleDeleteBook(book.id);
                         }}
-                        className="p-1.5 rounded-chip text-gray-400 dark:text-[#737373] hover:bg-gray-200 dark:hover:bg-[#2d2d2d] hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
+                        className="p-2 rounded-chip text-gray-400 dark:text-[#737373] hover:bg-gray-200 dark:hover:bg-[#2d2d2d] hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
                         title="Delete book"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>

@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { BookRecord } from "../../../types";
-import { getMemory, removeRule, removeCharacter, addRule, addDecision, setCharacter } from "../../../utils/bookmindMemory";
+import { getMemory, removeRule, removeCharacter, addRule, setCharacter } from "../../../utils/bookmindMemory";
 import { BookMindIcon as BookIcon } from "../../BookMindShared";
 
 interface MemoryTabProps {
@@ -13,7 +13,7 @@ interface MemoryTabProps {
 
 type MemoryEntry = {
   id: string;
-  type: "rule" | "character" | "analytical" | "decision";
+  type: "rule" | "character" | "analytical";
   title: string;
   content: string;
   timestamp?: number;
@@ -30,7 +30,6 @@ export default function MemoryTab({
   const [newRule, setNewRule] = useState("");
   const [newCharName, setNewCharName] = useState("");
   const [newCharDesc, setNewCharDesc] = useState("");
-  const [newDecision, setNewDecision] = useState("");
 
   if (!book) {
     return <EmptyState message="Open a book to view memory." />;
@@ -76,16 +75,6 @@ export default function MemoryTab({
     });
   }
 
-  if (memory.decisions) {
-    entries.push({
-      id: "decisions",
-      type: "decision",
-      title: "Editorial Decisions",
-      content: `${Object.keys(memory.decisions).length} decisions recorded`,
-      timestamp: Date.now(),
-    });
-  }
-
   const handleAddRule = () => {
     if (!userId || !book || !newRule.trim()) return;
     addRule(userId, book.id, newRule.trim());
@@ -101,12 +90,6 @@ export default function MemoryTab({
     onUpdate?.();
   };
 
-  const handleAddDecision = () => {
-    if (!userId || !book || !newDecision.trim()) return;
-    addDecision(userId, book.id, newDecision.trim());
-    setNewDecision("");
-    onUpdate?.();
-  };
 
   const handleDeleteRule = (rule: string) => {
     if (!userId || !book) return;
@@ -160,30 +143,30 @@ export default function MemoryTab({
 
       {/* Add to Memory section */}
       <div className="flex-shrink-0 border-b border-gray-200 dark:border-[#2f2f2f] px-4 py-3 space-y-2">
-        <div className="flex gap-1.5">
+        <div className="flex gap-2">
           <input
             type="text"
             value={newRule}
             onChange={(e) => setNewRule(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAddRule()}
             placeholder="Add a rule..."
-            className="flex-1 text-11 px-2.5 py-1.5 rounded bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#888] outline-none focus:border-gray-300 dark:focus:border-[#3a3a3a]"
+            className="flex-1 text-11 px-3 py-2 rounded bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#888] outline-none focus:border-gray-300 dark:focus:border-[#3a3a3a]"
           />
           <button
             onClick={handleAddRule}
             disabled={!newRule.trim()}
-            className="px-2.5 py-1.5 text-11 font-medium rounded bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors active:scale-[0.96]"
+            className="px-3 py-2 text-11 font-medium rounded bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors active:scale-[0.96]"
           >
             Add
           </button>
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-2">
           <input
             type="text"
             value={newCharName}
             onChange={(e) => setNewCharName(e.target.value)}
             placeholder="Character name..."
-            className="flex-1 text-11 px-2.5 py-1.5 rounded bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#888] outline-none focus:border-gray-300 dark:focus:border-[#3a3a3a]"
+            className="flex-1 text-11 px-3 py-2 rounded bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#888] outline-none focus:border-gray-300 dark:focus:border-[#3a3a3a]"
           />
           <input
             type="text"
@@ -191,29 +174,12 @@ export default function MemoryTab({
             onChange={(e) => setNewCharDesc(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAddCharacter()}
             placeholder="Description..."
-            className="flex-1 text-11 px-2.5 py-1.5 rounded bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#888] outline-none focus:border-gray-300 dark:focus:border-[#3a3a3a]"
+            className="flex-1 text-11 px-3 py-2 rounded bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#888] outline-none focus:border-gray-300 dark:focus:border-[#3a3a3a]"
           />
           <button
             onClick={handleAddCharacter}
             disabled={!newCharName.trim() || !newCharDesc.trim()}
-            className="px-2.5 py-1.5 text-11 font-medium rounded bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors active:scale-[0.96]"
-          >
-            Add
-          </button>
-        </div>
-        <div className="flex gap-1.5">
-          <input
-            type="text"
-            value={newDecision}
-            onChange={(e) => setNewDecision(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddDecision()}
-            placeholder="Add a decision..."
-            className="flex-1 text-11 px-2.5 py-1.5 rounded bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#888] outline-none focus:border-gray-300 dark:focus:border-[#3a3a3a]"
-          />
-          <button
-            onClick={handleAddDecision}
-            disabled={!newDecision.trim()}
-            className="px-2.5 py-1.5 text-11 font-medium rounded bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors active:scale-[0.96]"
+            className="px-3 py-2 text-11 font-medium rounded bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors active:scale-[0.96]"
           >
             Add
           </button>
@@ -273,11 +239,6 @@ function MemoryCard({
       text: "text-amber-600 dark:text-amber-400",
       label: "Analysis",
     },
-    decision: {
-      bg: "bg-emerald-500/10 dark:bg-emerald-500/15",
-      text: "text-emerald-600 dark:text-emerald-400",
-      label: "Decision",
-    },
   };
 
   const colors = typeColors[entry.type];
@@ -287,8 +248,8 @@ function MemoryCard({
       className="group p-3 rounded-lg bg-gray-50 dark:bg-[#262626] border border-gray-100 dark:border-[#2f2f2f] hover:border-gray-200 dark:hover:border-[#3a3a3a] transition-all"
       style={{ animation: "fade-up 300ms cubic-bezier(0.23,1,0.32,1) both" }}
     >
-      <div className="flex items-start justify-between gap-2 mb-1.5">
-        <span className={`text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded ${colors.bg} ${colors.text}`}>
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <span className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded ${colors.bg} ${colors.text}`}>
           {colors.label}
         </span>
         {!isDeleting ? (
@@ -317,12 +278,21 @@ function MemoryCard({
           </div>
         )}
       </div>
-      <h3 className="text-12 font-medium text-gray-900 dark:text-white mb-1">
-        {entry.title}
-      </h3>
-      <p className="text-11 text-gray-600 dark:text-[#a3a3a3] leading-relaxed">
-        {entry.content}
-      </p>
+      {entry.type === "character" && (
+        <p className="text-11 text-gray-600 dark:text-[#a3a3a3] leading-relaxed">
+          <span className="text-gray-900 dark:text-white font-medium">{entry.title}</span> {entry.content}
+        </p>
+      )}
+      {entry.type !== "rule" && entry.type !== "character" && (
+        <h3 className="text-12 font-medium text-gray-900 dark:text-white mb-1">
+          {entry.title}
+        </h3>
+      )}
+      {entry.type !== "character" && (
+        <p className="text-11 text-gray-600 dark:text-[#a3a3a3] leading-relaxed">
+          {entry.content}
+        </p>
+      )}
     </div>
   );
 }

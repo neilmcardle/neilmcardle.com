@@ -53,7 +53,7 @@ interface RichTextEditorProps
 type FormatState = Record<string, boolean>;
 
 const BTN =
-  'w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed overflow-visible';
+  'w-full px-2 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed overflow-visible';
 const BTN_ACTIVE = 'bg-gray-200 shadow-inner';
 
 const INLINE = [
@@ -890,10 +890,10 @@ export default function RichTextEditor({
         isMobileKeyboardOpen ? 'lg:block hidden' : ''
       }`}>
         {/* Sleek horizontal toolbar */}
-        <div className="flex items-center px-6 py-2 gap-1 overflow-x-auto overflow-y-visible scrollbar-hide">
+        <div className="flex items-center px-6 py-2 gap-2 overflow-x-auto overflow-y-visible scrollbar-hide">
           {/* Undo / Redo — co-located with the formatting controls so editing
               actions live in one place (was an orphaned rail above the editor). */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => { focusEditor(); document.execCommand('undo'); }}
@@ -922,7 +922,7 @@ export default function RichTextEditor({
           <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
           {/* Format buttons (B, I, U, S) */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {INLINE.map(b => (
               <button
                 key={b.cmd}
@@ -951,7 +951,7 @@ export default function RichTextEditor({
               connected control (not separate pills) so the highlighted item
               reads as "the current style" rather than a toggle that's stuck on.
               This is why "P" looking active no longer implies a hidden state. */}
-          <div role="group" aria-label="Paragraph style" className="flex items-center gap-0.5 flex-shrink-0 rounded-lg p-0.5">
+          <div role="group" aria-label="Paragraph style" className="flex items-center gap-2 flex-shrink-0 rounded-lg p-2">
             {HEADINGS.map(h => {
               const active = !!formats[`heading${h.level}`];
               return (
@@ -980,7 +980,7 @@ export default function RichTextEditor({
           <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
           {/* Alignment buttons */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => applyInlineOrAlign('justifyLeft')}
@@ -1035,7 +1035,7 @@ export default function RichTextEditor({
           <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
           {/* Indent / Outdent */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={() => {
@@ -1117,7 +1117,7 @@ export default function RichTextEditor({
           <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
           {/* Endnote, Link, Anchor buttons */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onMouseDown={e => e.preventDefault()}
               onClick={handleEndnoteClick}
@@ -1253,9 +1253,9 @@ export default function RichTextEditor({
           )}
           
           {/* Main toolbar - horizontally scrollable */}
-          <div className="flex items-center px-6 py-1.5 gap-1 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center px-6 py-2 gap-1 overflow-x-auto scrollbar-hide">
             {/* Undo/Redo */}
-            <div className="flex items-center gap-0.5 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onMouseDown={e => e.preventDefault()}
                 onClick={() => {
@@ -1284,7 +1284,7 @@ export default function RichTextEditor({
             <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
             {/* Format buttons */}
-            <div className="flex items-center gap-0.5 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               {INLINE.map(b => (
                 <button
                   key={b.cmd}
@@ -1306,7 +1306,7 @@ export default function RichTextEditor({
             <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
             {/* Headings P, H1, H2 */}
-            <div className="flex items-center gap-0.5 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               {HEADINGS.slice(0, 3).map(h => (
                 <button
                   key={h.level}
@@ -1328,7 +1328,7 @@ export default function RichTextEditor({
             <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
             {/* Alignment buttons */}
-            <div className="flex items-center gap-0.5 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onMouseDown={e => e.preventDefault()}
                 onClick={() => applyInlineOrAlign('justifyLeft')}
@@ -1725,8 +1725,8 @@ export default function RichTextEditor({
                 className="w-full px-3 py-2 border border-gray-300 dark:border-[#444] rounded-lg bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
               />
               {!hasEndnotes && (
-                <p className="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-start gap-1.5">
-                  <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                <p className="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-start gap-2">
+                  <svg className="w-4 h-4 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                   <span>Your first endnote will automatically create an Endnotes chapter at the end of your book.</span>

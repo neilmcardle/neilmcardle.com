@@ -78,7 +78,7 @@ export default function PreflightExportDialog({
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-500 hover:text-gray-900 dark:text-[#a3a3a3] dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
+            className="p-2 text-gray-500 hover:text-gray-900 dark:text-[#a3a3a3] dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors -mr-2"
             aria-label="Close"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -146,7 +146,7 @@ function ProBody({
                 <span className="text-sm font-medium text-gray-900 dark:text-white">
                   {check.label}
                 </span>
-                <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed mt-0.5">
+                <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed mt-1">
                   {check.message}
                 </p>
               </div>
@@ -209,11 +209,11 @@ function FreeBody({
     <>
       <div className="px-6 py-5 space-y-4">
         <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-[#252525] border border-gray-200 dark:border-[#3a3a3a]">
-          <svg className="w-5 h-5 text-gray-400 dark:text-[#737373] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+          <svg className="w-5 h-5 text-gray-400 dark:text-[#737373] flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1 text-balance">
+            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2 text-balance">
               Pre-flight check skipped
             </p>
             <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed text-pretty">
@@ -247,5 +247,5 @@ function StatusDot({ status }: { status: "pass" | "warn" | "block" }) {
     warn: "bg-amber-500",
     block: "bg-red-500",
   };
-  return <span className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${colors[status]}`} />;
+  return <span className={`mt-2 w-2 h-2 rounded-full flex-shrink-0 ${colors[status]}`} />;
 }

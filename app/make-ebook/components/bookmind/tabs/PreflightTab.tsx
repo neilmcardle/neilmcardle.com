@@ -72,15 +72,8 @@ export default function PreflightTab({ book, coverFile, liveTitle, liveAuthor, l
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#2c2c2c] text-gray-900 dark:text-white">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#2f2f2f] flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <svg className="w-5 h-5 text-gray-500 dark:text-[#a3a3a3]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>
-          <span className="text-sm font-medium">Pre-flight</span>
-        </div>
+    <div className="flex flex-col h-full bg-white dark:bg-[#252525] text-gray-900 dark:text-white">
+      <div className="flex items-center justify-end px-4 py-3 flex-shrink-0">
         {allClear && (
           <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
             Ready to export
@@ -102,7 +95,7 @@ export default function PreflightTab({ book, coverFile, liveTitle, liveAuthor, l
                   <span className="text-xs font-medium text-gray-900 dark:text-white">
                     {check.label}
                   </span>
-                  <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed mt-0.5">
+                  <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed mt-1">
                     {check.message}
                   </p>
                 </div>
@@ -208,8 +201,8 @@ function StatusDot({ status }: { status: "pass" | "warn" | "block" }) {
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#2c2c2c] text-gray-900 dark:text-white">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#2f2f2f] flex-shrink-0">
+    <div className="flex flex-col h-full bg-white dark:bg-[#252525] text-gray-900 dark:text-white">
+      <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
         <div className="flex items-center gap-2">
           <svg className="w-5 h-5 text-gray-500 dark:text-[#a3a3a3]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
             <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />

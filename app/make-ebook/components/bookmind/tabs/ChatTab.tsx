@@ -280,8 +280,16 @@ export default function ChatTab({
     deleteSession(sessionId);
   };
 
+  const getAvatarExpression = (): 'neutral' | 'thinking' | 'happy' | 'curious' | 'listening' => {
+    if (isLoading) return 'thinking';
+    if (messages.length === 0) return 'curious';
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === 'assistant') return 'happy';
+    return 'listening';
+  };
+
   const Header = (
-    <div className="flex items-center justify-between px-3 py-2 flex-shrink-0 border-b border-gray-100 dark:border-[#2f2f2f]">
+    <div className="flex items-center justify-between px-3 py-3 flex-shrink-0 gap-3">
       <div></div>
       <div className="flex items-center gap-1">
         {sortedSessions.length > 0 && (
@@ -294,7 +302,7 @@ export default function ChatTab({
               </button>
             </PopoverTrigger>
             <PopoverContent align="end" sideOffset={4} className="w-64 p-0 max-h-96 overflow-y-auto bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-[#3a3a3a] rounded-card shadow-lg dark:shadow-black/40">
-              <div className="px-2.5 py-2 border-b border-gray-100 dark:border-[#2f2f2f] flex items-center justify-between sticky top-0 bg-white dark:bg-[#252525]">
+              <div className="px-3 py-2 flex items-center justify-between sticky top-0 bg-white dark:bg-[#252525]">
                 <span className="text-10 font-medium text-gray-500 dark:text-[#a3a3a3] uppercase tracking-wide">Recent</span>
                 <span className="text-10 text-gray-400 dark:text-[#737373]">{sortedSessions.length}</span>
               </div>
@@ -303,13 +311,13 @@ export default function ChatTab({
                   const isCurrent = session.id === currentSessionId;
                   const preview = session.messages.find(m => m.role === "user")?.content ?? "";
                   return (
-                    <li key={session.id} className={`group relative flex items-start gap-1.5 px-2 py-1.5 transition-colors ${isCurrent ? "bg-gray-50 dark:bg-[#2f2f2f]" : "hover:bg-gray-50 dark:hover:bg-[#2d2d2d]"}`} style={{ animation: `fade-up 300ms cubic-bezier(0.23,1,0.32,1) ${idx * 40}ms both` }}>
+                    <li key={session.id} className={`group relative flex items-start gap-2 px-2 py-2 transition-colors ${isCurrent ? "bg-gray-50 dark:bg-[#2f2f2f]" : "hover:bg-gray-50 dark:hover:bg-[#2d2d2d]"}`} style={{ animation: `fade-up 300ms cubic-bezier(0.23,1,0.32,1) ${idx * 40}ms both` }}>
                       <button onClick={() => handleLoadSession(session.id)} className="flex-1 min-w-0 text-left pr-6">
                         <p className={`text-12 font-medium truncate ${isCurrent ? "text-[#008ff0]" : "text-gray-900 dark:text-white"}`}>{session.name}</p>
-                        {preview && <p className="text-10 text-gray-500 dark:text-[#a3a3a3] truncate mt-0.5">{preview}</p>}
-                        <p className="text-10 text-gray-400 dark:text-[#737373] mt-0.5">{formatSessionTimestamp(session.updatedAt)}</p>
+                        {preview && <p className="text-10 text-gray-500 dark:text-[#a3a3a3] truncate mt-1">{preview}</p>}
+                        <p className="text-10 text-gray-400 dark:text-[#737373] mt-1">{formatSessionTimestamp(session.updatedAt)}</p>
                       </button>
-                      <button onClick={(e) => handleDeleteSession(e, session.id)} className="absolute right-1.5 top-1.5 opacity-0 group-hover:opacity-100 size-5 rounded-control flex items-center justify-center text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-all" title="Delete">
+                      <button onClick={(e) => handleDeleteSession(e, session.id)} className="absolute right-1.5 top-2 opacity-0 group-hover:opacity-100 size-5 rounded-control flex items-center justify-center text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-all" title="Delete">
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                       </button>
                     </li>
@@ -327,7 +335,7 @@ export default function ChatTab({
   );
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#303030] text-gray-900 dark:text-white overflow-hidden">
+    <div className="flex flex-col h-full bg-white dark:bg-[#252525] text-gray-900 dark:text-white overflow-hidden">
       {Header}
 
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 min-h-0">
@@ -355,9 +363,9 @@ export default function ChatTab({
       {trialMode && trialExhausted ? (
         <div className="flex-shrink-0 px-3 pb-3 pt-2">
           <div className="rounded-card border border-blue-200 dark:border-blue-950 bg-blue-50 dark:bg-blue-950/20 px-3 py-3 text-center">
-            <p className="text-12 font-semibold text-gray-900 dark:text-white mb-1">Free analysis used</p>
-            <p className="text-11 text-gray-600 dark:text-[#a3a3a3] mb-3">Upgrade to Pro for unlimited Book Mind chat.</p>
-            <button onClick={onUpgrade} className="px-3 py-1.5 text-125 font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-pill hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors">Upgrade</button>
+            <p className="text-12 font-semibold text-gray-900 dark:text-white mb-2">Free analysis used</p>
+            <p className="text-11 text-gray-600 dark:text-[#a3a3a3] mb-4">Upgrade to Pro for unlimited Book Mind chat.</p>
+            <button onClick={onUpgrade} className="px-4 py-2 text-125 font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-pill hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors">Upgrade</button>
           </div>
         </div>
       ) : (
@@ -368,15 +376,15 @@ export default function ChatTab({
                 <button key={action} onClick={() => handleQuickAction(action)} disabled={isLoading} className="group flex items-start gap-2 p-2.5 rounded-card border border-gray-200 dark:border-[#2f2f2f] hover:border-gray-300 dark:hover:border-[#3a3a3a] hover:bg-gray-50 dark:hover:bg-[#363636] hover:shadow-md dark:hover:shadow-black/20 transition-all duration-150 text-left disabled:opacity-50 active:scale-[0.96]" style={{ animation: `fade-up 350ms cubic-bezier(0.23,1,0.32,1) ${idx * 60}ms both` }}>
                   <div className="flex-1 min-w-0">
                     <span className="text-125 font-semibold text-gray-900 dark:text-white block leading-tight">{label}</span>
-                    <span className="text-10 text-gray-500 dark:text-[#737373] mt-0.5 block">{description}</span>
+                    <span className="text-10 text-gray-500 dark:text-[#737373] mt-1 block">{description}</span>
                   </div>
                 </button>
               ))}
             </div>
           )}
           {activeSelectedText && (
-            <div className="rounded-control bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[#2f2f2f] px-2.5 py-2">
-              <div className="flex items-center justify-between mb-1">
+            <div className="rounded-control bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[#2f2f2f] px-4 py-2">
+              <div className="flex items-center justify-between mb-2">
                 <span className="text-10 font-medium uppercase tracking-wider text-[#008ff0]">Discussing selection</span>
                 <button onClick={() => setDismissedText(externalSelectedText ?? null)} className="text-10 text-gray-400 hover:text-gray-600 dark:hover:text-[#d4d4d4] transition-colors">Clear</button>
               </div>
@@ -385,19 +393,19 @@ export default function ChatTab({
           )}
           {showSlashMenu && filteredSlash.length > 0 && (
             <div className="rounded-card bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-[#3a3a3a] shadow-md dark:shadow-black/40 overflow-hidden" style={{ animation: 'pop-in 200ms cubic-bezier(0.23,1,0.32,1) both' }}>
-              <div className="px-2.5 py-1.5 border-b border-gray-100 dark:border-[#3a3a3a] bg-white dark:bg-[#252525]">
+              <div className="px-4 py-2 bg-white dark:bg-[#252525]">
                 <span className="text-10 text-gray-400 dark:text-[#737373] font-medium uppercase tracking-wide">Commands</span>
               </div>
               {filteredSlash.map((cmd, idx) => (
-                <button key={cmd.cmd} onClick={() => handleSlashSelect(cmd)} className="w-full flex items-start gap-2 px-2.5 py-1.5 text-left hover:bg-gray-50 dark:hover:bg-[#2f2f2f] transition-colors" style={{ animation: `fade-up 250ms cubic-bezier(0.23,1,0.32,1) ${idx * 40}ms both` }}>
+                <button key={cmd.cmd} onClick={() => handleSlashSelect(cmd)} className="w-full flex items-start gap-2 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-[#2f2f2f] transition-colors" style={{ animation: `fade-up 250ms cubic-bezier(0.23,1,0.32,1) ${idx * 40}ms both` }}>
                   <span className="text-11 font-mono text-[#008ff0] flex-shrink-0">{cmd.cmd}</span>
                   <span className="text-11 text-gray-600 dark:text-[#a3a3a3] min-w-0">{cmd.label}</span>
                 </button>
               ))}
             </div>
           )}
-          <div className="flex items-end gap-1.5 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] px-3 py-2">
-            <textarea ref={inputRef} value={input} onChange={e => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 100) + "px"; }} onKeyDown={handleKeyDown} placeholder={chapters.length > 0 ? "Ask anything about your book…" : "Open a book first…"} disabled={chapters.length === 0} rows={1} className="chat-composer flex-1 bg-transparent text-12 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#888] resize-none max-h-[100px] leading-relaxed disabled:opacity-50 py-0.5" style={{ border: 'none', outline: 'none', boxShadow: 'none', appearance: 'none', WebkitAppearance: 'none', padding: '0', fontFamily: 'inherit', fontSize: '0.875rem' }} />
+          <div className="flex items-end gap-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] px-4 py-2">
+            <textarea ref={inputRef} value={input} onChange={e => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 100) + "px"; }} onKeyDown={handleKeyDown} placeholder={chapters.length > 0 ? "Ask anything about your book…" : "Open a book first…"} disabled={chapters.length === 0} rows={1} className="chat-composer flex-1 bg-transparent text-12 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#888] resize-none max-h-[100px] leading-relaxed disabled:opacity-50 py-1" style={{ border: 'none', outline: 'none', boxShadow: 'none', appearance: 'none', WebkitAppearance: 'none', padding: '0', fontFamily: 'inherit', fontSize: '0.875rem' }} />
             {isLoading ? (
               <button onClick={stop} className="flex-shrink-0 size-6 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition-colors" title="Stop">
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1" /></svg>
@@ -520,7 +528,7 @@ function StreamingMessage({ content, charDelay }: { content: string; charDelay: 
           },
           code: {
             element: 'code',
-            className: 'bg-gray-200 dark:bg-[#3a3a3a] px-1.5 py-0.5 rounded font-mono text-sm',
+            className: 'bg-gray-200 dark:bg-[#3a3a3a] px-2 py-1 rounded font-mono text-sm',
             style: {},
           },
           list: {
@@ -610,7 +618,7 @@ function MessageBubble({
         )}
 
         {isAssistant && !structured && uniqueRefs.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-gray-200 dark:border-[#3a3a3a]">
+          <div className="mt-2 pt-2">
             <p className="text-10 uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium mb-1">Sources</p>
             <div className="flex flex-wrap gap-1">
               {uniqueRefs.map((ref, i) => (
@@ -622,7 +630,7 @@ function MessageBubble({
       </div>
 
       {isAssistant && (
-        <div className="mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <MessageActions content={message.content} onRegenerate={onRegenerate} onContinue={onContinue} onOpenReadingView={isPro ? onOpenReadingView : undefined} onRemember={isPro ? onRemember : undefined} isPro={isPro} />
         </div>
       )}

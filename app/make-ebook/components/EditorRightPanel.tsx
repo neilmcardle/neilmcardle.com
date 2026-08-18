@@ -1,43 +1,35 @@
 'use client';
 
-// Right-hand side panel of the desktop editor. Hosts either the Book
-// Mind Inspector (a four-tab workspace: Chat / Insights / Issues /
-// Pre-flight) or the live preview, depending on the LayoutSwitcher
-// mode. Extracted from page.tsx so the two surfaces (editor / right
-// panel) can iterate independently. The ResizableRightPanel wrapper
-// handles the user-facing width resize and width persistence.
-//
-// Legacy note: the old `BookMindPanel.tsx` file still exists but is
-// unreachable from the live UI — the LayoutSwitcher now uses
-// `'inspector'` instead of `'book-mind'`. Deleting the legacy file is
-// a separate atomic-removal step later in Phase A.
+// Right-hand side panel of the desktop editor. Now hosts only the live
+// preview. Book Mind moved to a floating window (see FloatingBookMindWindow).
+// Extracted from page.tsx so the two surfaces (editor / right panel) can
+// iterate independently. The ResizableRightPanel wrapper handles the
+// user-facing width resize and width persistence.
 
 import React from 'react';
 import ResizableRightPanel from './ResizableRightPanel';
-import InspectorPanel from './bookmind/InspectorPanel';
 import LivePreviewPanel from './LivePreviewPanel';
+import InspectorPanel from './bookmind/InspectorPanel';
 import type { RightPanelMode } from './LayoutSwitcher';
 import type { Chapter as BookChapter } from '../types';
-import type { AnalyticalKind } from '../utils/bookmindMemory';
 
 interface EditorRightPanelProps {
   mode: RightPanelMode;
   onClose: () => void;
 
-  // Shared
   chapters: BookChapter[];
   selectedChapter: number;
   onChapterSelect: (index: number) => void;
 
-  // Book Mind context
+  // Book Mind / Inspector props
   bookId?: string;
   userId?: string;
-  title: string;
-  author: string;
-  genre: string;
+  title?: string;
+  author?: string;
+  genre?: string;
   selectedText?: string;
   coverFile?: string | null;
-  onRefreshAnalytical?: (kind: AnalyticalKind) => void;
+  onRefreshAnalytical?: (kind: any) => void;
   onAddDisclosureChapter?: (content: string) => void;
   isPro?: boolean;
   onUpgrade?: () => void;
@@ -65,8 +57,16 @@ export default function EditorRightPanel({
 
   return (
     <ResizableRightPanel>
-      {mode === 'inspector' && (
-        <div className="h-full">
+      <div data-tour="preview" className="h-full overflow-hidden">
+        {mode === 'live-preview' && (
+          <LivePreviewPanel
+            chapters={chapters}
+            selectedChapter={selectedChapter}
+            onChapterSelect={onChapterSelect}
+            onClose={onClose}
+          />
+        )}
+        {mode === 'inspector' && (
           <InspectorPanel
             bookId={bookId}
             userId={userId}
@@ -84,18 +84,8 @@ export default function EditorRightPanel({
             isPro={isPro}
             onUpgrade={onUpgrade}
           />
-        </div>
-      )}
-      {mode === 'live-preview' && (
-        <div data-tour="preview" className="h-full overflow-hidden">
-          <LivePreviewPanel
-            chapters={chapters}
-            selectedChapter={selectedChapter}
-            onChapterSelect={onChapterSelect}
-            onClose={onClose}
-          />
-        </div>
-      )}
+        )}
+      </div>
     </ResizableRightPanel>
   );
 }

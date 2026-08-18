@@ -41,7 +41,7 @@ export default function InteractiveLivePreview() {
       {/* Header */}
       <div className="flex-shrink-0 px-4 pt-3 pb-3 border-b border-gray-200">
         <p className="text-2xs font-semibold text-gray-600 uppercase tracking-widest mb-2.5">Live Preview</p>
-        <div className="flex gap-1.5">
+        <div className="flex gap-2">
           {(Object.entries(PREVIEW_DEVICES) as [PreviewDevice, typeof PREVIEW_DEVICES.kindle][]).map(([key, val]) => (
             <button
               key={key}

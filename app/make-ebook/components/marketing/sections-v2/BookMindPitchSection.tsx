@@ -22,7 +22,7 @@ export default function BookMindPitchSection() {
               that lives inside your draft.
             </h2>
             <p className="mt-6 text-xl sm:text-2xl text-white/70 max-w-xl text-pretty" style={{ fontFamily: 'Georgia, serif', lineHeight: 1.5 }}>
-              Select a sentence. Press <span className="font-mono bg-white/10 px-1.5 py-0.5 rounded text-[0.85em]"><ModKey keyName="K" /></span>. Three rewrites appear, not one. Keep the one that sounds like you, branch on it, or leave the page untouched.
+              Select a sentence. Press <span className="font-mono bg-white/10 px-2 py-1 rounded text-[0.85em]"><ModKey keyName="K" /></span>. Three rewrites appear, not one. Keep the one that sounds like you, branch on it, or leave the page untouched.
             </p>
           </div>
         </FadeIn>
@@ -34,7 +34,7 @@ export default function BookMindPitchSection() {
                 <p style={{ fontFamily: 'Georgia, serif', fontSize: 17, lineHeight: 1.75, color: 'rgba(255,255,255,.70)' }}>
                   Sarah pressed on, even as the familiar doubt crept in.{' '}
                   <span
-                    className="px-1 py-0.5 rounded-[3px]"
+                    className="px-1 py-1 rounded-[3px]"
                     style={{
                       background: 'rgba(37,99,235,.18)',
                       boxShadow: 'inset 0 0 0 1px rgba(37,99,235,.45)',
@@ -48,12 +48,12 @@ export default function BookMindPitchSection() {
 
               <div className="border-t border-[#2f2f2f]">
                 <div className="px-4 py-3.5 flex items-center gap-2.5 border-b border-[#2f2f2f] bg-[#262626]">
-                  <span className="font-mono text-[11px] text-white/35 bg-[#1e1e1e] border border-[#2f2f2f] px-1.5 py-0.5 rounded"><ModKey keyName="K" /></span>
+                  <span className="font-mono text-[11px] text-white/35 bg-[#1e1e1e] border border-[#2f2f2f] px-2 py-1 rounded"><ModKey keyName="K" /></span>
                   <span className="font-mono text-[13px] text-white/80">rewrite tighter, keep the rhythm</span>
                   <span className="inline-block w-0.5 h-3.5 bg-white/80" style={{ animation: 'blink 1s step-end infinite' }} />
                   <span className="ml-auto flex gap-1">
-                    <kbd className="font-mono bg-[#1e1e1e] border border-[#2f2f2f] text-white/40 text-[10px] px-1.5 py-0.5 rounded">↑↓</kbd>
-                    <kbd className="font-mono bg-[#1e1e1e] border border-[#2f2f2f] text-white/40 text-[10px] px-1.5 py-0.5 rounded">↵</kbd>
+                    <kbd className="font-mono bg-[#1e1e1e] border border-[#2f2f2f] text-white/40 text-[10px] px-2 py-1 rounded">↑↓</kbd>
+                    <kbd className="font-mono bg-[#1e1e1e] border border-[#2f2f2f] text-white/40 text-[10px] px-2 py-1 rounded">↵</kbd>
                   </span>
                 </div>
                 <div className="divide-y divide-[#2f2f2f]">
@@ -98,7 +98,7 @@ function Take({ n, tag, featured = false, delay = 0, children }: { n: number; ta
     >
       <span className="font-mono text-[11px] text-white/25 pt-0.5 w-4 flex-shrink-0 select-none">{n}</span>
       <div>
-        <div className="text-[9px] uppercase tracking-[0.18em] text-white/35 font-semibold mb-1.5">{tag}</div>
+        <div className="text-[9px] uppercase tracking-[0.18em] text-white/35 font-semibold mb-2">{tag}</div>
         <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 13.5, lineHeight: 1.5, color: 'rgba(255,255,255,.75)' }}>{children}</div>
       </div>
     </div>

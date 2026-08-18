@@ -141,7 +141,7 @@ Do NOT flag grammar, spelling, or punctuation. Return ONLY the JSON array. If no
   return (
     <div className="absolute top-0 right-0 w-48 pt-16 pr-2 space-y-2 pointer-events-auto">
       {isGenerating && visible.length === 0 && (
-        <div className="flex items-center gap-1.5 px-2 py-1 text-2xs text-gray-400 dark:text-[#737373]">
+        <div className="flex items-center gap-2 px-2 py-1 text-2xs text-gray-400 dark:text-[#737373]">
           <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2" />
             <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
@@ -152,9 +152,9 @@ Do NOT flag grammar, spelling, or punctuation. Return ONLY the JSON array. If no
       {visible.map(annotation => (
         <div
           key={annotation.id}
-          className="group flex items-start gap-1.5 px-2 py-1.5 rounded-lg bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm border border-gray-100 dark:border-[#2f2f2f] shadow-sm"
+          className="group flex items-start gap-2 px-2 py-2 rounded-lg bg-white/80 dark:bg-[#1e1e1e]/80 backdrop-blur-sm border border-gray-100 dark:border-[#2f2f2f] shadow-sm"
         >
-          <span className={`text-[9px] font-semibold uppercase tracking-wide px-1 py-0.5 rounded flex-shrink-0 mt-0.5 ${TYPE_COLORS[annotation.type] || TYPE_COLORS.craft}`}>
+          <span className={`text-[9px] font-semibold uppercase tracking-wide px-1 py-1 rounded flex-shrink-0 mt-1 ${TYPE_COLORS[annotation.type] || TYPE_COLORS.craft}`}>
             {annotation.type}
           </span>
           <div className="flex-1 min-w-0">
@@ -162,14 +162,14 @@ Do NOT flag grammar, spelling, or punctuation. Return ONLY the JSON array. If no
               {annotation.note}
             </p>
             {annotation.quote && (
-              <p className="text-[10px] text-gray-400 dark:text-[#636363] italic mt-0.5 truncate">
+              <p className="text-[10px] text-gray-400 dark:text-[#636363] italic mt-1 truncate">
                 &ldquo;{annotation.quote}&rdquo;
               </p>
             )}
           </div>
           <button
             onClick={() => handleDismiss(annotation.id)}
-            className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-700 dark:hover:text-white transition-all mt-0.5"
+            className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-700 dark:hover:text-white transition-all mt-1"
             title="Dismiss"
           >
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

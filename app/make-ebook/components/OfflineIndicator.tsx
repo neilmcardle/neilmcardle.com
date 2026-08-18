@@ -21,7 +21,7 @@ export function OfflineIndicator({
   }
 
   return (
-    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+    <div className={`flex items-center gap-2 px-3 py-2 rounded-full text-xs font-medium transition-colors ${
       isOnline 
         ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
         : 'bg-gray-100 dark:bg-[#262626] text-gray-600 dark:text-[#a3a3a3]'
@@ -56,7 +56,7 @@ export function OfflineIndicator({
       {isOnline && pendingSyncCount > 0 && !isSyncing && (
         <button
           onClick={onSyncAction}
-          className="ml-1 p-0.5 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded transition-colors"
+          className="ml-1 p-1 hover:bg-gray-100 dark:hover:bg-[#2f2f2f] rounded transition-colors"
           title="Sync now"
         >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,7 +107,7 @@ export function OfflineBanner({ isOnline }: { isOnline: boolean }) {
   if (isOnline) return null;
 
   return (
-    <div className="bg-gray-700 text-white text-center py-1.5 px-4 text-xs">
+    <div className="bg-gray-700 text-white text-center py-2 px-4 text-xs">
       <span className="inline-flex items-center gap-2">
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414" />

@@ -164,7 +164,7 @@ export default function LivePreviewPanel({
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-[#2c2c2c]">
       {/* Header */}
-      <div className="flex-shrink-0 p-3 border-b border-gray-200 dark:border-[#2f2f2f]">
+      <div className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-[#2f2f2f]">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Live Preview</h3>
           {onClose && (
@@ -183,12 +183,12 @@ export default function LivePreviewPanel({
         {/* Controls row */}
         <div className="flex items-center justify-between gap-2">
           {/* Device selector */}
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             {(Object.entries(deviceDimensions) as [DeviceType, typeof deviceDimensions.kindle][]).map(([key, val]) => (
               <button
                 key={key}
                 onClick={() => setDevice(key)}
-                className={`px-2 py-1 text-xs rounded transition-colors ${
+                className={`px-2 py-2 text-xs rounded transition-colors ${
                   device === key
                     ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
                     : 'bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a]'
@@ -205,7 +205,7 @@ export default function LivePreviewPanel({
               <button
                 onClick={() => setViewMode('scroll')}
                 title="Continuous scroll"
-                className={`px-2 py-1 text-xs transition-colors ${
+                className={`px-2 py-2 text-xs transition-colors ${
                   viewMode === 'scroll'
                     ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
                     : 'bg-gray-100 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-200 dark:hover:bg-[#2f2f2f]'
@@ -218,7 +218,7 @@ export default function LivePreviewPanel({
               <button
                 onClick={() => setViewMode('page')}
                 title="Page turn"
-                className={`px-2 py-1 text-xs transition-colors border-l border-gray-200 dark:border-[#2f2f2f] ${
+                className={`px-2 py-2 text-xs transition-colors border-l border-gray-200 dark:border-[#2f2f2f] ${
                   viewMode === 'page'
                     ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
                     : 'bg-gray-100 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-200 dark:hover:bg-[#2f2f2f]'

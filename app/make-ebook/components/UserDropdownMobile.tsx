@@ -87,7 +87,7 @@ export function UserDropdownMobile() {
           )}
           {!showUpgradeRow && (
             <>
-              <div className="px-2 py-1.5">
+              <div className="px-2 py-2">
                 <ManageBillingButton variant="ghost" size="sm" className="w-full justify-start" />
               </div>
               <DropdownMenuSeparator />

@@ -95,11 +95,11 @@ export default function HistoryPanel({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#3a3a3a]">
+        <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-[#3a3a3a]">
           <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">History</h2>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors flex-shrink-0 -mr-1"
             aria-label="Close"
           >
             <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -121,7 +121,7 @@ export default function HistoryPanel({
             }`}
           >
             Versions
-            {versions.length > 0 && <span className="ml-1.5 text-gray-400 dark:text-[#666]">{versions.length}</span>}
+            {versions.length > 0 && <span className="ml-2 text-gray-400 dark:text-[#666]">{versions.length}</span>}
           </button>
           <button
             role="tab"
@@ -134,7 +134,7 @@ export default function HistoryPanel({
             }`}
           >
             Exports
-            {exports.length > 0 && <span className="ml-1.5 text-gray-400 dark:text-[#666]">{exports.length}</span>}
+            {exports.length > 0 && <span className="ml-2 text-gray-400 dark:text-[#666]">{exports.length}</span>}
           </button>
         </div>
 
@@ -242,7 +242,7 @@ function VersionsTab({
                     </span>
                     {isLatest && <LatestPill tone="green" />}
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-[#a3a3a3]">
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
                     <span>{version.wordCount.toLocaleString()} words</span>
                     <span>•</span>
                     <span>{version.chapterCount} chapters</span>
@@ -283,7 +283,7 @@ function VersionsTab({
                 <div className="flex gap-2">
                   <button
                     onClick={() => onRestore(version.chapters, version.metadata)}
-                    className="flex-1 py-2 px-3 rounded-lg bg-black dark:bg-white text-white dark:text-black text-xs font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+                    className="flex-1 py-2 px-3 rounded-lg bg-black dark:bg-white text-white dark:text-black text-xs font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -368,8 +368,8 @@ function ExportsTab({
                     </span>
                     {isLatest && <LatestPill tone="blue" />}
                   </div>
-                  <div className="text-xs text-gray-700 dark:text-[#d4d4d4] truncate mt-0.5">{exp.title}</div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-[#a3a3a3]">
+                  <div className="text-xs text-gray-700 dark:text-[#d4d4d4] truncate mt-1">{exp.title}</div>
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
                     <span>{exp.wordCount.toLocaleString()} words</span>
                     <span>•</span>
                     <span>{exp.chapterCount} chapters</span>
@@ -386,7 +386,7 @@ function ExportsTab({
                 <div className="flex gap-2">
                   <button
                     onClick={() => onPreview(exp.id)}
-                    className="flex-1 py-2 px-3 rounded-lg bg-black dark:bg-white text-white dark:text-black text-xs font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+                    className="flex-1 py-2 px-3 rounded-lg bg-black dark:bg-white text-white dark:text-black text-xs font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -396,7 +396,7 @@ function ExportsTab({
                   </button>
                   <button
                     onClick={() => onDownload(exp.id)}
-                    className="flex-1 py-2 px-3 rounded-lg border border-gray-200 dark:border-[#2f2f2f] text-xs font-medium hover:bg-gray-50 dark:hover:bg-[#2f2f2f] transition-colors flex items-center justify-center gap-1.5 text-gray-700 dark:text-[#d4d4d4]"
+                    className="flex-1 py-2 px-3 rounded-lg border border-gray-200 dark:border-[#2f2f2f] text-xs font-medium hover:bg-gray-50 dark:hover:bg-[#2f2f2f] transition-colors flex items-center justify-center gap-2 text-gray-700 dark:text-[#d4d4d4]"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -442,7 +442,7 @@ function LatestPill({ tone }: { tone: 'green' | 'blue' }) {
     tone === 'green'
       ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
       : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400';
-  return <span className={`text-2xs px-1.5 py-0.5 rounded ${classes}`}>Latest</span>;
+  return <span className={`text-2xs px-2 py-1 rounded ${classes}`}>Latest</span>;
 }
 
 function Chevron({ expanded }: { expanded: boolean }) {
@@ -494,13 +494,13 @@ function ClearAllFooter({
               onConfirm();
               setConfirmClear(false);
             }}
-            className="px-3 py-1.5 rounded text-xs font-medium bg-red-600 text-white hover:bg-red-700"
+            className="px-3 py-2 rounded text-xs font-medium bg-red-600 text-white hover:bg-red-700"
           >
             Yes, clear all
           </button>
           <button
             onClick={() => setConfirmClear(false)}
-            className="px-3 py-1.5 rounded text-xs font-medium border border-gray-200 dark:border-[#2f2f2f] hover:bg-gray-100 dark:hover:bg-[#2f2f2f]"
+            className="px-3 py-2 rounded text-xs font-medium border border-gray-200 dark:border-[#2f2f2f] hover:bg-gray-100 dark:hover:bg-[#2f2f2f]"
           >
             Cancel
           </button>
@@ -530,7 +530,7 @@ export function HistoryButton({ versionCount, exportCount, onClickAction }: Hist
   return (
     <button
       onClick={onClickAction}
-      className="flex items-center gap-1.5 px-3 h-10 rounded-lg text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors"
+      className="flex items-center gap-2 px-3 h-10 rounded-lg text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors"
       title="View version and export history"
       aria-label="History"
     >

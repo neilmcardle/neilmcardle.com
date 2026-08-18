@@ -54,21 +54,8 @@ export default function IssuesTab({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#2c2c2c] text-gray-900 dark:text-white">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#2f2f2f] flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <svg className="w-5 h-5 text-gray-500 dark:text-[#a3a3a3]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-            <line x1="12" y1="9" x2="12" y2="13" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
-          <span className="text-sm font-medium">Issues</span>
-          {visibleCards.length > 0 && (
-            <span className="text-xs text-gray-400 dark:text-[#737373]">
-              {visibleCards.length}
-            </span>
-          )}
-        </div>
+    <div className="flex flex-col h-full bg-white dark:bg-[#252525] text-gray-900 dark:text-white">
+      <div className="flex items-center justify-end px-4 py-3 flex-shrink-0">
         <div className="flex items-center gap-2">
           {entry && !fresh && (
             <span className="text-2xs text-amber-600 dark:text-amber-400">May be out of date</span>
@@ -133,8 +120,8 @@ export default function IssuesTab({
                   key={issueId(card, idx)}
                   className="p-3 rounded-xl bg-gray-50 dark:bg-[#262626] border border-gray-100 dark:border-[#2f2f2f]"
                 >
-                  <div className="flex items-start justify-between gap-2 mb-1.5">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded text-amber-600 bg-amber-500/10 dark:text-amber-400 dark:bg-amber-500/15">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded text-amber-600 bg-amber-500/10 dark:text-amber-400 dark:bg-amber-500/15">
                       Issue
                     </span>
                     <div className="flex items-center gap-1">
@@ -202,17 +189,7 @@ function resolveChapterIndex(
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#2c2c2c] text-gray-900 dark:text-white">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#2f2f2f] flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <svg className="w-5 h-5 text-gray-500 dark:text-[#a3a3a3]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-            <line x1="12" y1="9" x2="12" y2="13" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
-          <span className="text-sm font-medium">Issues</span>
-        </div>
-      </div>
+    <div className="flex flex-col h-full bg-white dark:bg-[#252525] text-gray-900 dark:text-white">
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center space-y-3 max-w-[260px]">
           <BookIcon className="w-8 h-8 text-gray-300 dark:text-[#737373] mx-auto" />

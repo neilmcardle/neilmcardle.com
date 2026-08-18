@@ -52,7 +52,7 @@ export default function ComparisonSection() {
               <div key={i} className={`grid grid-cols-[2fr_1.2fr_1fr_1fr_1fr] items-center ${i !== ROWS.length - 1 ? 'border-b border-[#2f2f2f]' : ''}`}>
                 <div className="p-5 text-sm">
                   <div className="font-medium text-white/85">{r.feat}</div>
-                  <div className="text-[12px] text-white/35 mt-0.5">{r.sub}</div>
+                  <div className="text-[12px] text-white/35 mt-1">{r.sub}</div>
                 </div>
                 <div className="p-5 text-sm text-white font-semibold bg-blue-600/[0.08] border-x border-blue-600/20">{r.us}</div>
                 <div className="p-5 text-sm text-white/55">{r.scrivener}</div>
@@ -66,7 +66,7 @@ export default function ComparisonSection() {
             {ROWS.map((r, i) => (
               <div key={i} className="bg-[#262626] border border-[#2f2f2f] rounded-2xl p-5">
                 <div className="font-medium text-white/85">{r.feat}</div>
-                <div className="text-[12px] text-white/35 mt-0.5 mb-4">{r.sub}</div>
+                <div className="text-[12px] text-white/35 mt-1 mb-4">{r.sub}</div>
                 <div className="space-y-1.5 text-sm">
                   <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-md bg-blue-600/[0.08] border border-blue-600/20">
                     <span className="font-semibold text-white">makeEbook</span>

@@ -237,12 +237,12 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                     value={styleForm[field]}
                     onChange={e => setStyleForm(s => ({ ...s, [field]: e.target.value }))}
                     placeholder={field === 'pov' ? 'POV' : field === 'tense' ? 'Tense' : 'Tone'}
-                    className="w-full text-xs px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
+                    className="w-full text-xs px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
                   />
                 ))}
-                <div className="flex gap-1.5 pt-1">
-                  <button onClick={saveStyle} className="text-xs px-3 py-1.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors">Save</button>
-                  <button onClick={() => setEditingStyle(false)} className="text-xs px-3 py-1.5 rounded-lg text-gray-500 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white transition-colors">Cancel</button>
+                <div className="flex gap-2 pt-1">
+                  <button onClick={saveStyle} className="text-xs px-3 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors">Save</button>
+                  <button onClick={() => setEditingStyle(false)} className="text-xs px-3 py-2 rounded-lg text-gray-500 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white transition-colors">Cancel</button>
                 </div>
               </div>
             ) : (
@@ -267,12 +267,12 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                       value={editingChar.name}
                       onChange={e => setEditingChar(c => c && { ...c, name: e.target.value })}
                       placeholder="Name"
-                      className="w-full text-xs px-2 py-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white"
+                      className="w-full text-xs px-2 py-2 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white"
                     />
                     <select
                       value={editingChar.role}
                       onChange={e => setEditingChar(c => c && { ...c, role: e.target.value })}
-                      className="w-full text-xs px-2 py-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white"
+                      className="w-full text-xs px-2 py-2 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white"
                     >
                       {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                     </select>
@@ -281,10 +281,10 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                       onChange={e => setEditingChar(c => c && { ...c, description: e.target.value })}
                       placeholder="Description"
                       rows={2}
-                      className="w-full text-xs px-2 py-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white resize-none leading-relaxed"
+                      className="w-full text-xs px-2 py-2 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white resize-none leading-relaxed"
                       style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
                     />
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-2">
                       <button onClick={saveChar} className="text-xs px-3 py-1 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors">Save</button>
                       <button onClick={() => setEditingChar(null)} className="text-xs px-3 py-1 rounded-lg text-gray-500 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white transition-colors">Cancel</button>
                     </div>
@@ -292,15 +292,15 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                 ) : (
                   <div className="group flex items-start gap-2">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-1.5">
+                      <div className="flex items-baseline gap-2">
                         <span className="text-xs font-medium text-gray-900 dark:text-white">{char.name}</span>
                         <span className="text-2xs text-gray-400 dark:text-[#737373]">{char.role}</span>
                       </div>
                       {char.description && (
-                        <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed mt-0.5">{char.description}</p>
+                        <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed mt-1">{char.description}</p>
                       )}
                     </div>
-                    <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5">
+                    <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-1">
                       <button
                         onClick={() => setEditingChar({ id: char.id, name: char.name, role: char.role, description: char.description })}
                         className="text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
@@ -333,12 +333,12 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                   onChange={e => setNewChar(c => ({ ...c, name: e.target.value }))}
                   placeholder="Name"
                   autoFocus
-                  className="w-full text-xs px-2 py-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
+                  className="w-full text-xs px-2 py-2 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
                 />
                 <select
                   value={newChar.role}
                   onChange={e => setNewChar(c => ({ ...c, role: e.target.value }))}
-                  className="w-full text-xs px-2 py-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white"
+                  className="w-full text-xs px-2 py-2 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white"
                 >
                   {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
@@ -347,9 +347,9 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                   onChange={e => setNewChar(c => ({ ...c, description: e.target.value }))}
                   onKeyDown={e => e.key === 'Enter' && saveCharAdd()}
                   placeholder="Description (optional)"
-                  className="w-full text-xs px-2 py-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
+                  className="w-full text-xs px-2 py-2 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
                 />
-                <div className="flex gap-1.5">
+                <div className="flex gap-2">
                   <button onClick={saveCharAdd} disabled={!newChar.name.trim()} className="text-xs px-3 py-1 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium disabled:opacity-40 hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors">Add</button>
                   <button onClick={() => setAddingChar(false)} className="text-xs px-3 py-1 rounded-lg text-gray-500 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white transition-colors">Cancel</button>
                 </div>
@@ -378,15 +378,15 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                         value={editingLoc.name}
                         onChange={e => setEditingLoc(l => l && { ...l, name: e.target.value })}
                         placeholder="Location name"
-                        className="w-full text-xs px-2 py-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white"
+                        className="w-full text-xs px-2 py-2 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white"
                       />
                       <input
                         value={editingLoc.description}
                         onChange={e => setEditingLoc(l => l && { ...l, description: e.target.value })}
                         placeholder="Description"
-                        className="w-full text-xs px-2 py-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white"
+                        className="w-full text-xs px-2 py-2 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white"
                       />
-                      <div className="flex gap-1.5">
+                      <div className="flex gap-2">
                         <button onClick={saveLoc} className="text-xs px-3 py-1 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors">Save</button>
                         <button onClick={() => setEditingLoc(null)} className="text-xs px-3 py-1 rounded-lg text-gray-500 dark:text-[#a3a3a3] transition-colors">Cancel</button>
                       </div>
@@ -395,9 +395,9 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                     <div className="group flex items-start gap-2">
                       <div className="flex-1 min-w-0">
                         <span className="text-xs font-medium text-gray-900 dark:text-white">{loc.name}</span>
-                        {loc.description && <p className="text-xs text-gray-500 dark:text-[#a3a3a3] mt-0.5 leading-relaxed">{loc.description}</p>}
+                        {loc.description && <p className="text-xs text-gray-500 dark:text-[#a3a3a3] mt-1 leading-relaxed">{loc.description}</p>}
                       </div>
-                      <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5">
+                      <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-1">
                         <button onClick={() => setEditingLoc({ id: loc.id, name: loc.name, description: loc.description })} className="text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors">
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                         </button>
@@ -411,9 +411,9 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
               ))}
               {addingLoc ? (
                 <div className="space-y-1.5 p-2 rounded-lg bg-gray-50 dark:bg-[#232323]">
-                  <input value={newLoc.name} onChange={e => setNewLoc(l => ({ ...l, name: e.target.value }))} placeholder="Location name" autoFocus className="w-full text-xs px-2 py-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]" />
-                  <input value={newLoc.description} onChange={e => setNewLoc(l => ({ ...l, description: e.target.value }))} onKeyDown={e => e.key === 'Enter' && saveLocAdd()} placeholder="Description (optional)" className="w-full text-xs px-2 py-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]" />
-                  <div className="flex gap-1.5">
+                  <input value={newLoc.name} onChange={e => setNewLoc(l => ({ ...l, name: e.target.value }))} placeholder="Location name" autoFocus className="w-full text-xs px-2 py-2 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]" />
+                  <input value={newLoc.description} onChange={e => setNewLoc(l => ({ ...l, description: e.target.value }))} onKeyDown={e => e.key === 'Enter' && saveLocAdd()} placeholder="Description (optional)" className="w-full text-xs px-2 py-2 rounded-md bg-white dark:bg-[#2a2a2a] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]" />
+                  <div className="flex gap-2">
                     <button onClick={saveLocAdd} disabled={!newLoc.name.trim()} className="text-xs px-3 py-1 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium disabled:opacity-40 hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors">Add</button>
                     <button onClick={() => setAddingLoc(false)} className="text-xs px-3 py-1 rounded-lg text-gray-500 dark:text-[#a3a3a3] transition-colors">Cancel</button>
                   </div>
@@ -432,15 +432,15 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
             {(profile?.keyFacts ?? []).map((fact, i) => (
               <div key={i} className="group flex items-start gap-2">
                 <span className="text-xs text-gray-700 dark:text-[#d4d4d4] flex-1 leading-relaxed">{fact}</span>
-                <button onClick={() => { removeProfileFact(userId, bookId, fact); bump(); }} className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all mt-0.5">
+                <button onClick={() => { removeProfileFact(userId, bookId, fact); bump(); }} className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all mt-1">
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
             ))}
           </div>
-          <div className="flex gap-1.5">
-            <input value={newFact} onChange={e => setNewFact(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddFact()} placeholder="Add a key fact…" className="flex-1 text-xs px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]" />
-            <button onClick={handleAddFact} disabled={!newFact.trim()} className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium disabled:opacity-40 hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors">Add</button>
+          <div className="flex gap-2">
+            <input value={newFact} onChange={e => setNewFact(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddFact()} placeholder="Add a key fact…" className="flex-1 text-xs px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]" />
+            <button onClick={handleAddFact} disabled={!newFact.trim()} className="text-xs px-3 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium disabled:opacity-40 hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors">Add</button>
           </div>
         </section>
 
@@ -452,15 +452,15 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
             {writingRules.map((rule, i) => (
               <div key={i} className="group flex items-start gap-2">
                 <span className="text-xs text-gray-700 dark:text-[#d4d4d4] flex-1 leading-relaxed">{rule}</span>
-                <button onClick={() => { removeProfileRule(userId, bookId, rule); bump(); }} className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all mt-0.5">
+                <button onClick={() => { removeProfileRule(userId, bookId, rule); bump(); }} className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all mt-1">
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
             ))}
           </div>
-          <div className="flex gap-1.5">
-            <input value={newRule} onChange={e => setNewRule(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddRule()} placeholder="Add a rule…" className="flex-1 text-xs px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]" />
-            <button onClick={handleAddRule} disabled={!newRule.trim()} className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium disabled:opacity-40 hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors">Add</button>
+          <div className="flex gap-2">
+            <input value={newRule} onChange={e => setNewRule(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddRule()} placeholder="Add a rule…" className="flex-1 text-xs px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]" />
+            <button onClick={handleAddRule} disabled={!newRule.trim()} className="text-xs px-3 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium disabled:opacity-40 hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors">Add</button>
           </div>
         </section>
 

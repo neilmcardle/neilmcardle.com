@@ -43,7 +43,7 @@ export default function FaqSection() {
                     {item.q}
                   </h3>
                   <span
-                    className="text-white/30 flex-shrink-0 mt-0.5 transition-transform duration-200"
+                    className="text-white/30 flex-shrink-0 mt-1 transition-transform duration-200"
                     style={{ transform: open === i ? 'rotate(45deg)' : 'none' }}
                     aria-hidden
                   >

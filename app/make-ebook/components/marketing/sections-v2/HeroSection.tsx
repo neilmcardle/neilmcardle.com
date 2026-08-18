@@ -102,7 +102,7 @@ function HeroVisual() {
               className="flex gap-3.5 items-start"
               style={{ opacity: 0, animation: `bm-in 0.35s ease forwards ${1.3 + i * 0.55}s` }}
             >
-              <span className="font-mono text-emerald-400 text-[12px] mt-0.5 flex-shrink-0">✓</span>
+              <span className="font-mono text-emerald-400 text-[12px] mt-1 flex-shrink-0">✓</span>
               <p className="m-0 text-[14.5px] leading-relaxed" style={{ fontFamily: 'Georgia, serif' }}>
                 <span className="text-white/40">{label}:</span>
                 {' '}

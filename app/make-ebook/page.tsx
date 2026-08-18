@@ -31,6 +31,7 @@ import RichTextEditor from "./components/RichTextEditor";
 import EditorLeftNav from "./components/EditorLeftNav";
 import SyncConflictBanner from "./components/sidebar/SyncConflictBanner";
 import InspectorPanel from "./components/bookmind/InspectorPanel";
+import FloatingBookMindWindow from "./components/FloatingBookMindWindow";
 import InlineEditPopover, { InlineEditRequest } from "./components/bookmind/InlineEditPopover";
 import ComposePalette, { ComposePaletteRequest } from "./components/bookmind/ComposePalette";
 import GhostTextOverlay from "./components/bookmind/GhostTextOverlay";
@@ -242,6 +243,9 @@ function MakeEbookPage() {
 
   // Right panel layout mode
   const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>('none');
+
+  // Book Mind floating window
+  const [bookMindOpen, setBookMindOpen] = useState(false);
 
   // Selected editor text — passed to the Inspector Chat tab for context.
   // Also captures the bounding rect for the ⌘K floating hint.
@@ -2748,6 +2752,9 @@ function MakeEbookPage() {
                   focus={{ active: focus.active, settings: focus.settings }}
                   onInlineEditRequest={handleInlineEditRequest}
                   onComposeRequest={handleComposeRequest}
+                  isBookMindLoading={false}
+                  onOpenBookMind={hasBookMind ? () => setBookMindOpen(true) : undefined}
+                  onBookMindHistory={hasBookMind ? () => setHistoryModal('versions') : undefined}
                 />
               </section>
               )}
@@ -2789,6 +2796,39 @@ function MakeEbookPage() {
 
         {/* Terms/Privacy links moved to mobile editor footer */}
       </div>
+
+
+      {/* Book Mind floating window */}
+      {hasBookMind && bookMindOpen && (
+        <FloatingBookMindWindow
+          isOpen={bookMindOpen}
+          onClose={() => setBookMindOpen(false)}
+          chapters={chapters}
+          selectedChapter={selectedChapter}
+          onChapterSelect={setSelectedChapter}
+          bookId={currentBookId}
+          userId={user?.id}
+          title={title}
+          author={author}
+          genre={genre}
+          selectedText={selectedEditorText}
+          coverFile={coverUrl}
+          onRefreshAnalytical={handleRefreshAnalytical}
+          onAddDisclosureChapter={(content: string) => {
+            const newChapter = {
+              id: `ch-${Date.now()}`,
+              title: 'AI Disclosure',
+              content,
+              type: 'backmatter' as const,
+            };
+            setChapters(prev => [...prev, newChapter]);
+            setSelectedChapter(chapters.length);
+            toast.success('AI Disclosure chapter added');
+          }}
+          isPro={isPro}
+          onUpgrade={() => setExportUpgradeOpen(true)}
+        />
+      )}
 
       {/* Book Mind Cmd-K inline edit popover + selection hint badge.
           Renders at the top level (via portal inside the component) so

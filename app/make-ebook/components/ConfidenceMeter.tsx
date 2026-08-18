@@ -14,7 +14,7 @@ export function ConfidenceMeter({ value, label, showPercent = true }: Confidence
   return (
     <div className="flex items-center gap-2">
       {label && <span className="text-11 text-gray-600 dark:text-[#a3a3a3] min-w-max">{label}</span>}
-      <div className="flex-1 flex items-center gap-1.5">
+      <div className="flex-1 flex items-center gap-2">
         <div className="flex-1 h-1.5 bg-gray-200 dark:bg-[#3a3a3a] rounded-pill overflow-hidden">
           <div
             className={`h-full rounded-pill transition-all duration-300 ${

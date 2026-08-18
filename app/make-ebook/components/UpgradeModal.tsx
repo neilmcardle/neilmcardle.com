@@ -109,7 +109,7 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
           </h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-500 hover:text-gray-700 dark:text-[#a3a3a3] dark:hover:text-[#e5e5e5] rounded-lg hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
+            className="p-2 text-gray-500 hover:text-gray-700 dark:text-[#a3a3a3] dark:hover:text-[#e5e5e5] rounded-lg hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors -mr-2"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -170,7 +170,7 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
                   : 'border-gray-200 dark:border-[#2f2f2f] hover:border-gray-400 dark:hover:border-[#3a3a3a]'
               }`}
             >
-              <div className="absolute top-3 right-3 bg-gray-900 dark:bg-white text-white dark:text-black text-xs font-semibold px-2.5 py-1 rounded">
+              <div className="absolute top-3 right-3 bg-gray-900 dark:bg-white text-white dark:text-black text-xs font-semibold px-3 py-1 rounded">
                 BEST VALUE
               </div>
               
@@ -207,10 +207,10 @@ export default function UpgradeModal({ isOpen, onClose, feature }: UpgradeModalP
             <div className="space-y-2">
               {features.map((f, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#2f2f2f] rounded-lg">
-                  <f.icon className="w-5 h-5 text-gray-900 dark:text-white mt-0.5 flex-shrink-0" />
+                  <f.icon className="w-5 h-5 text-gray-900 dark:text-white mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{f.title}</h4>
-                    <p className="text-xs text-gray-600 dark:text-[#a3a3a3] mt-0.5">{f.desc}</p>
+                    <p className="text-xs text-gray-600 dark:text-[#a3a3a3] mt-1">{f.desc}</p>
                   </div>
                 </div>
               ))}

@@ -246,7 +246,7 @@ export default function ComposePalette({
         <>
           {/* Filter input */}
           <div className="px-3 pt-3 pb-2">
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626]">
+            <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-gray-100 dark:bg-[#262626]">
               <span className="text-xs text-gray-400 dark:text-[#737373] font-mono">/</span>
               <input
                 ref={filterRef}
@@ -267,7 +267,7 @@ export default function ComposePalette({
                 onClick={() => handleSelectCommand(cmd)}
                 className="w-full flex items-start gap-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-[#232323] transition-colors"
               >
-                <span className="text-xs font-mono text-[#008ff0] dark:text-[#008ff0] whitespace-nowrap mt-0.5">
+                <span className="text-xs font-mono text-[#008ff0] dark:text-[#008ff0] whitespace-nowrap mt-1">
                   {cmd.label}
                 </span>
                 <span className="text-xs text-gray-600 dark:text-[#a3a3a3] leading-relaxed">
@@ -291,7 +291,7 @@ export default function ComposePalette({
               <span className="text-xs text-gray-400 dark:text-[#737373]">{selectedCommand.description}</span>
             </div>
             {selectedCommand.id !== "continue" && !result && (
-              <div className="flex gap-1.5">
+              <div className="flex gap-2">
                 <input
                   ref={instructionRef}
                   value={instruction}
@@ -299,12 +299,12 @@ export default function ComposePalette({
                   onKeyDown={handleInstructionKey}
                   placeholder="Describe what you want..."
                   disabled={isLoading}
-                  className="flex-1 text-xs px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373] disabled:opacity-50"
+                  className="flex-1 text-xs px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373] disabled:opacity-50"
                 />
                 <button
                   onClick={() => handleGenerate(selectedCommand, instruction)}
                   disabled={isLoading || (!instruction.trim() && selectedCommand.id !== "continue")}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-[#008ff0] text-white font-medium disabled:opacity-50 hover:bg-[#3560e6] transition-colors"
+                  className="text-xs px-3 py-2 rounded-lg bg-[#008ff0] text-white font-medium disabled:opacity-50 hover:bg-[#3560e6] transition-colors"
                 >
                   {isLoading ? "..." : "Go"}
                 </button>
@@ -343,7 +343,7 @@ export default function ComposePalette({
                 <button
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => { setResult(null); handleGenerate(selectedCommand, instruction); }}
-                  className="text-xs px-2.5 py-1 text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white rounded transition-colors"
+                  className="text-xs px-3 py-1 text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white rounded transition-colors"
                 >
                   Try again
                 </button>

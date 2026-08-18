@@ -152,10 +152,10 @@ const config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
         // Beautiful UI precise border radius scale
-        'control': '7px',    // interactive controls, buttons
+        'control': '8px', // standardized to 8px    // interactive controls, buttons
         'chip': '8px',       // compact chips, badges
-        'card': '10px',      // card containers
-        'modal': '14px',     // modal dialogs
+        'card': '8px', // standardized to 8px      // card containers
+        'modal': '8px', // standardized to 8px     // modal dialogs
         'pill': '24px',      // full-width pills
       },
       keyframes: {

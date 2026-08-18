@@ -131,7 +131,7 @@ export default function FindReplacePanel({
             <button
               onClick={handleReplaceAll}
               disabled={totalMatches === 0 || !replaceTerm}
-              className="px-3 py-1.5 text-sm font-medium rounded-lg bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-[#333] dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 text-sm font-medium rounded-lg bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-[#333] dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Replace All ({totalMatches})
             </button>
@@ -169,7 +169,7 @@ export default function FindReplacePanel({
                     <button
                       onClick={() => handleReplaceInChapter(m.chapterIndex)}
                       disabled={!replaceTerm}
-                      className="px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+                      className="px-3 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
                     >
                       Replace
                     </button>
@@ -182,7 +182,7 @@ export default function FindReplacePanel({
 
         {/* Footer hint */}
         <div className="px-5 py-2.5 border-t border-gray-200 dark:border-[#2f2f2f] text-xs text-gray-400 dark:text-[#737373]">
-          <kbd className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] font-mono">Esc</kbd> to close
+          <kbd className="px-2 py-1 rounded bg-gray-100 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] font-mono">Esc</kbd> to close
         </div>
       </div>
     </div>

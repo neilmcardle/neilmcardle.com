@@ -26,7 +26,7 @@ function Toggle({
       <div className="min-w-0">
         <p className="text-sm text-white/90 leading-tight">{label}</p>
         {description && (
-          <p className="text-xs text-white/45 mt-0.5 leading-tight">{description}</p>
+          <p className="text-xs text-white/45 mt-1 leading-tight">{description}</p>
         )}
       </div>
       <button
@@ -73,7 +73,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
       <button
         onClick={() => setOpen((p) => !p)}
         title={open ? "Close settings" : "Focus settings"}
-        className={`flex items-center gap-1.5 px-3 h-8 rounded-full text-xs font-medium transition-all duration-300 shadow-lg backdrop-blur-md border ${
+        className={`flex items-center gap-2 px-3 h-8 rounded-full text-xs font-medium transition-all duration-300 shadow-lg backdrop-blur-md border ${
           open
             ? "bg-white text-gray-900 border-transparent opacity-100"
             : "bg-[#111]/70 border-white/10 text-white/50 opacity-60 hover:opacity-100 hover:text-white/80"
@@ -117,7 +117,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
           {/* Column width */}
           <div className="py-2.5 border-b border-white/10">
             <p className="text-sm text-white/90 mb-2">Column width</p>
-            <div className="flex items-center gap-0.5 p-1 rounded-full bg-white/8 border border-white/10">
+            <div className="flex items-center gap-2 p-1 rounded-full bg-white/8 border border-white/10">
               {COL_OPTIONS.map(({ value, label }) => (
                 <button
                   key={value}
@@ -160,7 +160,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
               <button
                 key={value}
                 onClick={() => onChangeSetting("ambientSound", value)}
-                className={`px-2 py-1.5 rounded-lg text-2xs font-medium transition-colors text-center ${
+                className={`px-2 py-2 rounded-lg text-2xs font-medium transition-colors text-center ${
                   settings.ambientSound === value
                     ? "bg-white text-gray-900"
                     : "bg-white/8 text-white/55 hover:bg-white/12 hover:text-white/90"
@@ -192,7 +192,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
           <div className="border-t border-white/10 mt-4 pt-3">
             <button
               onClick={onExit}
-              className="w-full py-1.5 rounded-full border border-white/15 text-xs text-white/50 hover:text-white/90 hover:border-white/30 transition-colors"
+              className="w-full py-2 rounded-full border border-white/15 text-xs text-white/50 hover:text-white/90 hover:border-white/30 transition-colors"
             >
               Exit focus mode <span className="opacity-40 ml-1">Esc</span>
             </button>
@@ -211,7 +211,7 @@ export function FocusModeButton({ onClick }: { onClick: () => void }) {
     <button
       onClick={onClick}
       title={`Enter focus mode  ${isMac ? '⌘⇧F' : 'Ctrl+Shift+F'}`}
-      className="flex items-center gap-1.5 px-3 h-10 rounded-lg bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors group"
+      className="flex items-center gap-2 px-3 h-10 rounded-lg bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors group"
     >
       <svg
         className="w-6 h-6 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4] transition-colors"

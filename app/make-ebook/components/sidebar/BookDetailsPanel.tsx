@@ -67,13 +67,13 @@ export default function BookDetailsPanel({
   const [generateOpen, setGenerateOpen] = useState(false);
   return (
     <div data-tour="book-details" className="border-b border-gray-200 dark:border-[#2f2f2f] pb-3">
-      <div className="flex items-center gap-2.5 py-3 px-3">
+      <div className="flex items-center gap-2 py-3 px-3">
         <svg className="w-4 h-4 flex-shrink-0 text-gray-600 dark:text-[#a3a3a3]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
           <path d="M8 7h8M8 11h8M8 15h5" />
         </svg>
-        <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+        <div className="flex flex-col gap-2 flex-1 min-w-0">
           <span className="text-125 font-semibold text-gray-900 dark:text-[#e5e5e5]">Book</span>
           {title && (
             <span className="text-11 text-gray-500 dark:text-[#a3a3a3] truncate">{title}</span>
@@ -84,7 +84,7 @@ export default function BookDetailsPanel({
       <div className="space-y-3 px-3 py-2">
         {/* Cover Image */}
         <div>
-          <label className="block text-11 font-medium text-gray-600 dark:text-[#a3a3a3] mb-1.5">Cover Image</label>
+          <label className="block text-11 font-medium text-gray-600 dark:text-[#a3a3a3] mb-2">Cover Image</label>
           <div className="w-full aspect-[2/3] max-h-52 bg-gray-50 dark:bg-[#262626] rounded-card border border-gray-200 dark:border-[#2f2f2f] overflow-hidden flex items-center justify-center mb-2">
             {coverFile
               ? <img src={coverFile} alt="Cover" className="w-full h-full object-cover outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10" />
@@ -95,7 +95,7 @@ export default function BookDetailsPanel({
             accept="image/*"
             onChange={handleCoverChange}
             disabled={lockedSections.cover}
-            className="w-full text-12 text-gray-400 file:mr-3 file:py-1.5 file:px-2.5 file:rounded-chip file:border-0 file:text-11 file:font-medium file:bg-gray-100 dark:file:bg-[#2d2d2d] file:text-gray-700 dark:file:text-[#d4d4d4] hover:file:bg-gray-200 dark:hover:file:bg-[#333] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full text-12 text-gray-400 file:mr-2 file:py-2 file:px-3 file:rounded-chip file:border-0 file:text-11 file:font-medium file:bg-gray-100 dark:file:bg-[#2d2d2d] file:text-gray-700 dark:file:text-[#d4d4d4] hover:file:bg-gray-200 dark:hover:file:bg-[#333] disabled:opacity-50 disabled:cursor-not-allowed"
           />
           {setCoverFile && (
             <button
@@ -115,33 +115,33 @@ export default function BookDetailsPanel({
 
         {/* Title */}
         <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Title</label>
+          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-2">Title</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             disabled={lockedSections.bookInfo}
-            className="w-full px-2.5 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
+            className="w-full px-3 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
             placeholder="Book title"
           />
         </div>
 
         {/* Author */}
         <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Author</label>
+          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-2">Author</label>
           <input
             type="text"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
             disabled={lockedSections.bookInfo}
-            className="w-full px-2.5 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
+            className="w-full px-3 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
             placeholder="Author name"
           />
         </div>
 
         {/* Blurb */}
         <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Description</label>
+          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-2">Description</label>
           <textarea
             value={blurb}
             onChange={(e) => setBlurb(e.target.value)}
@@ -154,20 +154,20 @@ export default function BookDetailsPanel({
 
         {/* Publisher */}
         <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Publisher</label>
+          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-2">Publisher</label>
           <input
             type="text"
             value={publisher}
             onChange={(e) => setPublisher(e.target.value)}
             disabled={lockedSections.bookInfo}
-            className="w-full px-2.5 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
+            className="w-full px-3 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
             placeholder="Publisher name"
           />
         </div>
 
         {/* Publication Date */}
         <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Publication Date</label>
+          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-2">Publication Date</label>
           <input
             type="date"
             value={pubDate}
@@ -179,7 +179,7 @@ export default function BookDetailsPanel({
 
         {/* Language */}
         <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Language</label>
+          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-2">Language</label>
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
@@ -194,29 +194,29 @@ export default function BookDetailsPanel({
 
         {/* Genre */}
         <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Genre</label>
+          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-2">Genre</label>
           <input
             type="text"
             value={genre}
             onChange={(e) => setGenre(e.target.value)}
             disabled={lockedSections.bookInfo}
-            className="w-full px-2.5 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
+            className="w-full px-3 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
             placeholder="e.g. Fiction, Mystery"
           />
         </div>
 
         {/* ISBN */}
         <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">ISBN (optional)</label>
+          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-2">ISBN (optional)</label>
           <input
             type="text"
             value={isbn}
             onChange={(e) => setIsbn(e.target.value)}
             disabled={lockedSections.bookInfo}
-            className="w-full px-2.5 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
+            className="w-full px-3 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
             placeholder="978-0-123456-78-9"
           />
-          <p className="mt-1.5 text-10 text-gray-500 dark:text-[#a3a3a3] leading-relaxed">
+          <p className="mt-2 text-10 text-gray-500 dark:text-[#a3a3a3] leading-relaxed">
             ISBNs must be purchased from official agencies (e.g., £93 from{' '}
             <a href="https://www.nielsenisbnstore.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-[#d4d4d4] transition-colors">
               Nielsen UK
@@ -227,15 +227,15 @@ export default function BookDetailsPanel({
 
         {/* Tags */}
         <div>
-          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-1">Tags</label>
-          <div className="flex gap-1.5 mb-2">
+          <label className="block text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-2">Tags</label>
+          <div className="flex gap-2 mb-2">
             <input
               type="text"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
               disabled={lockedSections.bookInfo}
-              className="flex-1 px-2.5 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
+              className="flex-1 px-3 py-2 text-12 rounded-card bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-gray-400 dark:focus:border-[#3a3a3a] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[#e5e5e5] placeholder-gray-400 dark:placeholder-[#737373]"
               placeholder="e.g., fiction, thriller, mystery"
             />
             <button
@@ -248,11 +248,11 @@ export default function BookDetailsPanel({
             </button>
           </div>
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-11 rounded-chip bg-gray-100 dark:bg-[#2d2d2d] text-gray-700 dark:text-[#d4d4d4]"
+                  className="inline-flex items-center gap-2 px-3 py-2 text-11 rounded-chip bg-gray-100 dark:bg-[#2d2d2d] text-gray-700 dark:text-[#d4d4d4]"
                 >
                   {tag}
                   <button

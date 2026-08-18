@@ -263,7 +263,7 @@ function PaperActionRow({
       <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/[0.08] text-white/50 flex-shrink-0">{icon}</span>
       <span className="flex-1 min-w-0">
         <span className="block text-[15px] text-white" style={{ fontFamily: 'Georgia, serif' }}>{label}</span>
-        <span className="block text-[12px] text-white/40 mt-0.5">{description}</span>
+        <span className="block text-[12px] text-white/40 mt-1">{description}</span>
       </span>
       <svg className="w-4 h-4 text-white/25 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M9 6l6 6-6 6" />
