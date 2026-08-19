@@ -6,9 +6,15 @@
    accepted Cmd-K rewrites. Fades from a soft blue flash to transparent
    over 2 seconds so the user sees exactly where the new text landed. */
 @keyframes bm-highlight-fade {
-  0% { background-color: rgba(0, 143, 240, 0.22); }
-  60% { background-color: rgba(0, 143, 240, 0.08); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: rgba(0, 143, 240, 0.22);
+  }
+  60% {
+    background-color: rgba(0, 143, 240, 0.08);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 .bm-edit-highlight {
   animation: bm-highlight-fade 2s ease-out forwards;
@@ -111,10 +117,11 @@ body {
   }
 }
 
-body, .bg-app {
+body,
+.bg-app {
   background: #faf9f5;
   color: #141413;
-  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
 }
 
 /* Dark mode base styles */
@@ -132,12 +139,12 @@ html.dark {
   .text-balance {
     text-wrap: balance;
   }
-  
+
   /* Safe area padding for mobile devices with notches/home indicators */
   .safe-area-pb {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-  
+
   .safe-area-pt {
     padding-top: env(safe-area-inset-top, 0px);
   }
@@ -267,21 +274,21 @@ html.dark {
      --me-accent  #008ff0  Chapter active state, focus ring
 ─────────────────────────────────────────────────────────────────────────── */
 :root {
-  --me-base:             #1e1e1e;
-  --me-surface:          #262626;
-  --me-raised:           #2f2f2f;
+  --me-base: #1e1e1e;
+  --me-surface: #262626;
+  --me-raised: #2f2f2f;
 
-  --me-text-primary:     #0a0a0a;
-  --me-text-secondary:   #555555;
-  --me-text-muted:       #888888;
+  --me-text-primary: #0a0a0a;
+  --me-text-secondary: #555555;
+  --me-text-muted: #888888;
   --me-text-placeholder: #a0a0a0;
 
-  --me-accent:           #008ff0;
+  --me-accent: #008ff0;
 }
 .dark {
-  --me-text-primary:     #f5f5f5;
-  --me-text-secondary:   #a3a3a3;
-  --me-text-muted:       #737373;
+  --me-text-primary: #f5f5f5;
+  --me-text-secondary: #a3a3a3;
+  --me-text-muted: #737373;
   --me-text-placeholder: #666666;
 }
 
@@ -290,12 +297,12 @@ html.dark {
    sidebar gets a `.dark` wrapper), so this block only needs the paper content
    tokens consumed by the `me:` utilities on the writing surfaces. */
 .makeebook {
-  --me-content:          #f7f4ea;
-  --me-content-raised:   #fffdf7;
-  --me-ink:              #2a2a28;
-  --me-ink-secondary:    #57534e;
-  --me-ink-muted:        #8a8378;
-  --me-paper-border:     rgba(0, 0, 0, 0.06);
+  --me-content: #f7f4ea;
+  --me-content-raised: #fffdf7;
+  --me-ink: #2a2a28;
+  --me-ink-secondary: #57534e;
+  --me-ink-muted: #8a8378;
+  --me-paper-border: rgba(0, 0, 0, 0.06);
 }
 
 /* Make borders much lighter for subtle divider lines */
@@ -313,25 +320,26 @@ html.dark {
     font-family: var(--font-inter), sans-serif;
   }
   /* Card-like containers */
-  .card, .sidebar-card {
-    border-radius: 1rem !important;   /* Large soft corners */
+  .card,
+  .sidebar-card {
+    border-radius: 1rem !important; /* Large soft corners */
     background: #fff;
     border: 1px solid #ececec;
-    box-shadow: 0 1px 6px 0 rgba(60,60,60,0.03);
+    box-shadow: 0 1px 6px 0 rgba(60, 60, 60, 0.03);
   }
 
   html.dark .card,
   html.dark .sidebar-card {
     background: #1a1a1a;
     border: 1px solid #333333;
-    box-shadow: 0 1px 6px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.2);
   }
 
   html.paper .card,
   html.paper .sidebar-card {
     background: #f9f4e6 !important;
     border: 1px solid #d9d0b8 !important;
-    box-shadow: 0 1px 6px 0 rgba(100,80,40,0.06);
+    box-shadow: 0 1px 6px 0 rgba(100, 80, 40, 0.06);
   }
 
   /* Pill-shaped main buttons */
@@ -392,7 +400,7 @@ html.paper ::-webkit-scrollbar-thumb:hover {
   border: 1px solid #ececec;
 }
 
-html[data-theme='dark'] .section {
+html[data-theme="dark"] .section {
   background: #1a1a1a;
   border: 1px solid #333333;
 }
@@ -412,7 +420,7 @@ html.paper .section {
   border-radius: 9999px;
   background: #f4f4f5;
   border: 1px solid #ececec;
-  color: #86868B;
+  color: #86868b;
   font-size: 0.85rem;
   padding: 0.25rem 0.75rem;
   display: inline-flex;
@@ -421,7 +429,7 @@ html.paper .section {
   margin-bottom: 0.5rem;
 }
 
-html[data-theme='dark'] .tag-pill {
+html[data-theme="dark"] .tag-pill {
   background: #2a2a2a;
   border: 1px solid #444444;
   color: #b0b0b0;
@@ -447,13 +455,13 @@ html.dark .tag-pill {
   outline: none;
 }
 
-html[data-theme='dark'] .input-search {
+html[data-theme="dark"] .input-search {
   border: 1px solid #444444;
   background: #1e1e1e;
   color: #e5e5e5;
 }
 
-html[data-theme='dark'] .input-search:focus {
+html[data-theme="dark"] .input-search:focus {
   border: 1.5px solid #666666;
 }
 
@@ -468,7 +476,9 @@ html.dark .input-search:focus {
 }
 
 /* General input/textarea style */
-input, select, textarea {
+input,
+select,
+textarea {
   border-radius: 0.875rem;
   border: 1px solid #ececec;
   background: #fafbfc;
@@ -493,7 +503,9 @@ textarea.chat-composer:focus {
   outline: none !important;
   box-shadow: none !important;
 }
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   border: 1.5px solid #d4d4d4;
   outline: none;
 }
@@ -532,17 +544,17 @@ html.paper textarea::placeholder {
   opacity: 1;
 }
 
-html[data-theme='dark'] input,
-html[data-theme='dark'] select,
-html[data-theme='dark'] textarea {
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
   border: 1px solid #444444;
   background: #1e1e1e;
   color: #e5e5e5;
 }
 
-html[data-theme='dark'] input:focus,
-html[data-theme='dark'] select:focus,
-html[data-theme='dark'] textarea:focus {
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] select:focus,
+html[data-theme="dark"] textarea:focus {
   border: 1.5px solid #666666;
 }
 
@@ -557,22 +569,22 @@ html.dark button:focus {
   box-shadow: none;
 }
 
-html[data-theme='dark'] button:focus {
+html[data-theme="dark"] button:focus {
   outline: none;
   box-shadow: none;
 }
 
 /* Subtle shadow for floating containers */
 .shadow-card {
-  box-shadow: 0 2px 12px 0 rgba(60,60,60,0.06);
+  box-shadow: 0 2px 12px 0 rgba(60, 60, 60, 0.06);
 }
 
 html.dark .shadow-card {
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.3);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
 }
 
-html[data-theme='dark'] .shadow-card {
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.3);
+html[data-theme="dark"] .shadow-card {
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* ============================================
@@ -581,7 +593,9 @@ html[data-theme='dark'] .shadow-card {
 
 .palette-icon {
   filter: grayscale(1) opacity(0.45);
-  transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease;
+  transition:
+    transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.4s ease;
 }
 
 button:hover .palette-icon {
@@ -594,13 +608,15 @@ button:hover .palette-icon {
    ============================================ */
 
 @property --me-angle {
-  syntax: '<angle>';
+  syntax: "<angle>";
   initial-value: 0deg;
   inherits: false;
 }
 
 @keyframes me-spin {
-  to { --me-angle: 360deg; }
+  to {
+    --me-angle: 360deg;
+  }
 }
 
 /* Wrapper div: the animated border itself */
@@ -610,13 +626,13 @@ button:hover .palette-icon {
   padding: 1.5px;
   background: conic-gradient(
     from var(--me-angle),
-    rgba(234, 88,  12,  1)    0%,
-    rgba(234, 88,  12,  1)    20%,
-    rgba(251, 191, 36,  0.9)  37%,
-    rgba(255, 255, 255, 1)    50%,
-    rgba(251, 191, 36,  0.9)  63%,
-    rgba(234, 88,  12,  1)    80%,
-    rgba(234, 88,  12,  1)    100%
+    rgba(234, 88, 12, 1) 0%,
+    rgba(234, 88, 12, 1) 20%,
+    rgba(251, 191, 36, 0.9) 37%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(251, 191, 36, 0.9) 63%,
+    rgba(234, 88, 12, 1) 80%,
+    rgba(234, 88, 12, 1) 100%
   );
   animation: me-spin 8s linear infinite;
 }
@@ -625,13 +641,13 @@ button:hover .palette-icon {
 .me-card-border {
   background: conic-gradient(
     from var(--me-angle),
-    rgba(210, 210, 210, 1)   0%,
-    rgba(210, 210, 210, 1)   20%,
+    rgba(210, 210, 210, 1) 0%,
+    rgba(210, 210, 210, 1) 20%,
     rgba(240, 240, 240, 0.9) 37%,
-    rgba(255, 255, 255, 1)   50%,
+    rgba(255, 255, 255, 1) 50%,
     rgba(240, 240, 240, 0.9) 63%,
-    rgba(210, 210, 210, 1)   80%,
-    rgba(210, 210, 210, 1)   100%
+    rgba(210, 210, 210, 1) 80%,
+    rgba(210, 210, 210, 1) 100%
   );
   animation: me-spin 8s linear infinite;
 }
@@ -680,13 +696,13 @@ button:hover .palette-icon {
    (browsers only interpolate typed custom properties). Modern browsers
    only — graceful degradation is just "no race, plain border hover". */
 @property --trace-angle {
-  syntax: '<angle>';
+  syntax: "<angle>";
   inherits: false;
   initial-value: 0deg;
 }
 
 .project-card-trace::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -696,18 +712,18 @@ button:hover .palette-icon {
     from var(--trace-angle),
     transparent 0deg 280deg,
     rgba(251, 249, 243, 0.25) 310deg,
-    rgba(251, 249, 243, 1)    340deg,
+    rgba(251, 249, 243, 1) 340deg,
     rgba(251, 249, 243, 0.25) 352deg,
     transparent 360deg
   );
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
-          mask:
+  mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
-          mask-composite: exclude;
+  mask-composite: exclude;
   opacity: 0;
 }
 
@@ -722,21 +738,37 @@ button:hover .palette-icon {
 }
 
 @keyframes project-card-trace {
-  0%   { opacity: 1; --trace-angle:   0deg; }
-  95%  { opacity: 1; }
-  100% { opacity: 0; --trace-angle: 360deg; }
+  0% {
+    opacity: 1;
+    --trace-angle: 0deg;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    --trace-angle: 360deg;
+  }
 }
 
 /* Mobile CTA button — border flash, no conic-gradient or mask-composite
    so it works in Firefox and all other browsers without artifacts. */
 @keyframes mobile-border-glint {
-  0%   { opacity: 0; }
-  8%   { opacity: 1; }
-  30%  { opacity: 0; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 .mobile-border-glint::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: -1px;
   border-radius: 9px;
@@ -759,27 +791,37 @@ button:hover .palette-icon {
    the visible text. CSS's percentage-based background-position can be
    counter-intuitive — don't swap these without testing. */
 @keyframes thinking-shimmer {
-  0%   { background-position:  200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .thinking-shimmer {
   background: linear-gradient(
     90deg,
     rgba(251, 249, 243, 0.45) 0%,
-    rgba(251, 249, 243, 1)    50%,
+    rgba(251, 249, 243, 1) 50%,
     rgba(251, 249, 243, 0.45) 100%
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;
-          background-clip: text;
+  background-clip: text;
   color: transparent;
   animation: thinking-shimmer 2.2s linear infinite;
 }
 
 @keyframes slide-in-from-right {
-  from { transform: translateX(100%); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .animate-slide-in-right {
@@ -788,8 +830,12 @@ button:hover .palette-icon {
 }
 
 @keyframes slide-in-from-bottom {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 .animate-slide-in-from-bottom {
@@ -805,13 +851,13 @@ html.dark .bg-cream {
   background-color: #2a2416;
 }
 
-html[data-theme='dark'] .bg-cream {
+html[data-theme="dark"] .bg-cream {
   background-color: #2a2416;
 }
 
 /* ── Editor content typography ──────────────────────────────────────────── */
 [contenteditable] h1 {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.875rem;
   font-weight: 700;
   line-height: 1.2;
@@ -819,7 +865,7 @@ html[data-theme='dark'] .bg-cream {
   letter-spacing: -0.02em;
 }
 [contenteditable] h2 {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.375rem;
   font-weight: 700;
   line-height: 1.3;
@@ -827,7 +873,7 @@ html[data-theme='dark'] .bg-cream {
   letter-spacing: -0.01em;
 }
 [contenteditable] h3 {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.125rem;
   font-weight: 600;
   line-height: 1.4;
@@ -854,7 +900,7 @@ html.dark .ProseMirror {
   color: #e5e5e5;
 }
 
-html[data-theme='dark'] .ProseMirror {
+html[data-theme="dark"] .ProseMirror {
   background: #1e1e1e;
   color: #e5e5e5;
 }
@@ -871,7 +917,7 @@ html.dark .ProseMirror p.is-editor-empty:first-child::before {
   color: #666666;
 }
 
-html[data-theme='dark'] .ProseMirror p.is-editor-empty:first-child::before {
+html[data-theme="dark"] .ProseMirror p.is-editor-empty:first-child::before {
   color: #666666;
 }
 
@@ -906,11 +952,14 @@ html[data-theme='dark'] .ProseMirror p.is-editor-empty:first-child::before {
 /* chapter active / not active */
 .chapter-pill {
   background: #181a1d;
-  color: rgba(255,255,255,0.75);
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  color: rgba(255, 255, 255, 0.75);
+  transition:
+    background 0.18s,
+    color 0.18s,
+    box-shadow 0.18s;
 }
 .chapter-pill-active {
-  background: #008ff0;      /* a blue highlight, or pick your brand color */
+  background: #008ff0; /* a blue highlight, or pick your brand color */
   color: #fff;
   box-shadow: 0 2px 8px -3px #008ff033;
 }
@@ -921,7 +970,7 @@ html[data-theme='dark'] .ProseMirror p.is-editor-empty:first-child::before {
 
 html.dark .chapter-pill {
   background: #2a2a2a;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 html.dark .chapter-pill-active {
@@ -935,18 +984,18 @@ html.dark .chapter-pill:not(.chapter-pill-active):hover {
   color: #fff;
 }
 
-html[data-theme='dark'] .chapter-pill {
+html[data-theme="dark"] .chapter-pill {
   background: #2a2a2a;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
 }
 
-html[data-theme='dark'] .chapter-pill-active {
+html[data-theme="dark"] .chapter-pill-active {
   background: #008ff0;
   color: #fff;
   box-shadow: 0 2px 8px -3px #008ff033;
 }
 
-html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
+html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
   background: #3a3a3a;
   color: #fff;
 }
@@ -982,17 +1031,17 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
     opacity: 0;
     pointer-events: none;
     z-index: 9999;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
   html.dark [data-tooltip]::after {
     background: #e5e5e5;
     color: #1a1a1a;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
   html.paper [data-tooltip]::after {
     background: #3d3426;
     color: #f9f4e6;
-    box-shadow: 0 2px 8px rgba(50,40,20,0.2);
+    box-shadow: 0 2px 8px rgba(50, 40, 20, 0.2);
   }
   [data-tooltip]:hover::after {
     opacity: 1;
@@ -1004,7 +1053,6 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
       left: 8px !important;
     }
   }
-
 }
 
 /* ── Focus mode ─────────────────────────────────────────────────────────────── */
@@ -1054,32 +1102,90 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
    Uses @property to animate radial-gradient positions
    ============================================ */
 
-@property --iw1x { syntax: '<percentage>'; initial-value: 20%; inherits: false; }
-@property --iw1y { syntax: '<percentage>'; initial-value: 40%; inherits: false; }
-@property --iw2x { syntax: '<percentage>'; initial-value: 80%; inherits: false; }
-@property --iw2y { syntax: '<percentage>'; initial-value: 65%; inherits: false; }
-@property --iw3x { syntax: '<percentage>'; initial-value: 55%; inherits: false; }
-@property --iw3y { syntax: '<percentage>'; initial-value: 20%; inherits: false; }
+@property --iw1x {
+  syntax: "<percentage>";
+  initial-value: 20%;
+  inherits: false;
+}
+@property --iw1y {
+  syntax: "<percentage>";
+  initial-value: 40%;
+  inherits: false;
+}
+@property --iw2x {
+  syntax: "<percentage>";
+  initial-value: 80%;
+  inherits: false;
+}
+@property --iw2y {
+  syntax: "<percentage>";
+  initial-value: 65%;
+  inherits: false;
+}
+@property --iw3x {
+  syntax: "<percentage>";
+  initial-value: 55%;
+  inherits: false;
+}
+@property --iw3y {
+  syntax: "<percentage>";
+  initial-value: 20%;
+  inherits: false;
+}
 
 @keyframes ink-drift {
-  0%, 100% { --iw1x: 20%; --iw1y: 40%; --iw2x: 80%; --iw2y: 65%; --iw3x: 55%; --iw3y: 20%; }
-  33%       { --iw1x: 38%; --iw1y: 62%; --iw2x: 62%; --iw2y: 38%; --iw3x: 72%; --iw3y: 48%; }
-  66%       { --iw1x: 62%; --iw1y: 28%; --iw2x: 35%; --iw2y: 72%; --iw3x: 28%; --iw3y: 68%; }
+  0%,
+  100% {
+    --iw1x: 20%;
+    --iw1y: 40%;
+    --iw2x: 80%;
+    --iw2y: 65%;
+    --iw3x: 55%;
+    --iw3y: 20%;
+  }
+  33% {
+    --iw1x: 38%;
+    --iw1y: 62%;
+    --iw2x: 62%;
+    --iw2y: 38%;
+    --iw3x: 72%;
+    --iw3y: 48%;
+  }
+  66% {
+    --iw1x: 62%;
+    --iw1y: 28%;
+    --iw2x: 35%;
+    --iw2y: 72%;
+    --iw3x: 28%;
+    --iw3y: 68%;
+  }
 }
 
 .hero-ink-wash {
   position: relative;
   background:
-    radial-gradient(ellipse 70% 55% at var(--iw1x) var(--iw1y), rgba(20,20,20,0.042) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 45% at var(--iw2x) var(--iw2y), rgba(20,20,20,0.028) 0%, transparent 55%),
-    radial-gradient(ellipse 65% 60% at var(--iw3x) var(--iw3y), rgba(20,20,20,0.020) 0%, transparent 65%),
+    radial-gradient(
+      ellipse 70% 55% at var(--iw1x) var(--iw1y),
+      rgba(20, 20, 20, 0.042) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 55% 45% at var(--iw2x) var(--iw2y),
+      rgba(20, 20, 20, 0.028) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 65% 60% at var(--iw3x) var(--iw3y),
+      rgba(20, 20, 20, 0.02) 0%,
+      transparent 65%
+    ),
     #fafaf9;
   animation: ink-drift 14s ease-in-out infinite;
 }
 
 /* Paper grain texture overlay — parent needs position:relative + overflow:hidden */
 .paper-grain::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -1095,11 +1201,15 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 }
 
 .spotlight-card::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(380px circle at var(--mx, -100%) var(--my, -100%), rgba(255,255,255,0.35), transparent 65%);
+  background: radial-gradient(
+    380px circle at var(--mx, -100%) var(--my, -100%),
+    rgba(255, 255, 255, 0.35),
+    transparent 65%
+  );
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
@@ -1108,24 +1218,41 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 
 /* ── Ink splodge click effect ─────────────────────────────────────────────── */
 @keyframes ink-splodge {
-  0%   { transform: translate(-50%, -50%) scale(0.05) rotate(var(--rot, 0deg)); opacity: 0; }
-  8%   { opacity: var(--ink-opacity, 0.22); }
-  85%  { transform: translate(-50%, -50%) scale(1)    rotate(var(--rot, 0deg)); opacity: var(--ink-opacity, 0.22); }
-  100% { transform: translate(-50%, -50%) scale(1.04) rotate(var(--rot, 0deg)); opacity: 0; }
+  0% {
+    transform: translate(-50%, -50%) scale(0.05) rotate(var(--rot, 0deg));
+    opacity: 0;
+  }
+  8% {
+    opacity: var(--ink-opacity, 0.22);
+  }
+  85% {
+    transform: translate(-50%, -50%) scale(1) rotate(var(--rot, 0deg));
+    opacity: var(--ink-opacity, 0.22);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.04) rotate(var(--rot, 0deg));
+    opacity: 0;
+  }
 }
 
 .ink-drop {
   position: absolute;
   pointer-events: none;
-  animation: ink-splodge 2800ms cubic-bezier(0.08, 0.6, 0.4, 1.0) forwards;
+  animation: ink-splodge 2800ms cubic-bezier(0.08, 0.6, 0.4, 1) forwards;
   mix-blend-mode: multiply;
   z-index: 10;
 }
 
 @keyframes ink-trail {
-  0%   { opacity: 1; }
-  50%  { opacity: 0.8; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .ink-trail-dot {
@@ -1155,8 +1282,17 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 .glass-tile-bg {
   background-color: #0a0a0c;
   background-image:
-    radial-gradient(75% 75% at 50% 50%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%),
-    radial-gradient(60% 55% at 50% 105%, rgba(138, 127, 112, 0.35) 0%, rgba(138, 127, 112, 0.2) 45%, rgba(138, 127, 112, 0) 100%),
+    radial-gradient(
+      75% 75% at 50% 50%,
+      rgba(0, 0, 0, 0) 55%,
+      rgba(0, 0, 0, 0.55) 100%
+    ),
+    radial-gradient(
+      60% 55% at 50% 105%,
+      rgba(138, 127, 112, 0.35) 0%,
+      rgba(138, 127, 112, 0.2) 45%,
+      rgba(138, 127, 112, 0) 100%
+    ),
     linear-gradient(180deg, #1a1a1c 0%, #101012 55%, #0a0a0c 100%);
 }
 
@@ -1170,7 +1306,9 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
   flex-shrink: 0;
-  transition: border-color 220ms ease, background-color 220ms ease;
+  transition:
+    border-color 220ms ease,
+    background-color 220ms ease;
 }
 .hpp-svg {
   display: block;
@@ -1237,55 +1375,130 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 /* makeEbook: lines type out, then the second line's AI ghost completion
    fades in dim before solidifying as if accepted. */
 @keyframes hpp-me-line-in {
-  0%, 100% { stroke-dasharray: 0 200; }
-  10%      { stroke-dasharray: 0 200; }
-  25%      { stroke-dasharray: 200 0; }
-  90%      { stroke-dasharray: 200 0; }
+  0%,
+  100% {
+    stroke-dasharray: 0 200;
+  }
+  10% {
+    stroke-dasharray: 0 200;
+  }
+  25% {
+    stroke-dasharray: 200 0;
+  }
+  90% {
+    stroke-dasharray: 200 0;
+  }
 }
 /* No static stroke-dasharray / opacity defaults: when the animation is
    paused or unsupported, the element falls back to its visible end state
    so the preview never reads as a blank panel. Keyframes still drive the
    hidden moments during playback. */
-.hpp-me-line { animation: hpp-me-line-in 6s ease-in-out infinite; }
-.hpp-me-l1 { animation-delay: 0s; }
-.hpp-me-l2 { animation-delay: 1s; }
-.hpp-me-l3 { animation-delay: 3.5s; }
-@keyframes hpp-me-ghost {
-  0%, 42%, 100% { opacity: 0; }
-  48%, 55%      { opacity: 0.35; }
-  60%, 85%      { opacity: 1; }
+.hpp-me-line {
+  animation: hpp-me-line-in 6s ease-in-out infinite;
 }
-.hpp-me-ghost { animation: hpp-me-ghost 6s ease-in-out infinite; }
+.hpp-me-l1 {
+  animation-delay: 0s;
+}
+.hpp-me-l2 {
+  animation-delay: 1s;
+}
+.hpp-me-l3 {
+  animation-delay: 3.5s;
+}
+@keyframes hpp-me-ghost {
+  0%,
+  42%,
+  100% {
+    opacity: 0;
+  }
+  48%,
+  55% {
+    opacity: 0.35;
+  }
+  60%,
+  85% {
+    opacity: 1;
+  }
+}
+.hpp-me-ghost {
+  animation: hpp-me-ghost 6s ease-in-out infinite;
+}
 
 /* DoodleWire: sketch fades, polished button morphs in */
 @keyframes hpp-dw-sketch {
-  0%, 35%  { opacity: 1; }
-  45%, 95% { opacity: 0; }
-  100%     { opacity: 1; }
+  0%,
+  35% {
+    opacity: 1;
+  }
+  45%,
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 @keyframes hpp-dw-poly {
-  0%, 35%  { opacity: 0; transform: scale(0.96); }
-  45%, 95% { opacity: 1; transform: scale(1); }
-  100%     { opacity: 0; transform: scale(0.96); }
+  0%,
+  35% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  45%,
+  95% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
 }
-.hpp-dw-sketch { animation: hpp-dw-sketch 5s ease-in-out infinite; transform-origin: 80px 45px; }
-.hpp-dw-poly   { animation: hpp-dw-poly   5s ease-in-out infinite; transform-origin: 80px 45px; transform-box: fill-box; }
-.hpp-dw-label  { animation: hpp-dw-poly   5s ease-in-out infinite; transform-origin: 80px 45px; transform-box: fill-box; }
+.hpp-dw-sketch {
+  animation: hpp-dw-sketch 5s ease-in-out infinite;
+  transform-origin: 80px 45px;
+}
+.hpp-dw-poly {
+  animation: hpp-dw-poly 5s ease-in-out infinite;
+  transform-origin: 80px 45px;
+  transform-box: fill-box;
+}
+.hpp-dw-label {
+  animation: hpp-dw-poly 5s ease-in-out infinite;
+  transform-origin: 80px 45px;
+  transform-box: fill-box;
+}
 
 /* Vector Paint: stroke draws, nib follows, both reset */
 @keyframes hpp-vp-draw {
-  0%   { stroke-dashoffset: 320; }
-  50%  { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: -320; }
+  0% {
+    stroke-dashoffset: 320;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -320;
+  }
 }
 .hpp-vp-stroke {
   stroke-dasharray: 320;
   animation: hpp-vp-draw 4.5s ease-in-out infinite;
 }
 @keyframes hpp-vp-nib {
-  0%   { offset-distance: 0%; opacity: 1; }
-  50%  { offset-distance: 100%; opacity: 1; }
-  60%, 100% { offset-distance: 100%; opacity: 0; }
+  0% {
+    offset-distance: 0%;
+    opacity: 1;
+  }
+  50% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+  60%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
 }
 .hpp-vp-nib {
   offset-path: path("M20 70 C 40 20, 90 20, 80 60 S 130 80, 140 30");
@@ -1295,16 +1508,36 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 
 /* Icon Animator: cycles through spin → bounce → pulse */
 @keyframes hpp-ia-cycle {
-  0%   { transform: rotate(0deg)   translateY(0)    scale(1); }
-  20%  { transform: rotate(180deg) translateY(0)    scale(1); }
-  30%  { transform: rotate(360deg) translateY(0)    scale(1); }
-  40%  { transform: rotate(360deg) translateY(-6px) scale(1); }
-  50%  { transform: rotate(360deg) translateY(0)    scale(1); }
-  60%  { transform: rotate(360deg) translateY(-3px) scale(1); }
-  70%  { transform: rotate(360deg) translateY(0)    scale(1); }
-  80%  { transform: rotate(360deg) translateY(0)    scale(1.15); }
-  90%  { transform: rotate(360deg) translateY(0)    scale(0.95); }
-  100% { transform: rotate(360deg) translateY(0)    scale(1); }
+  0% {
+    transform: rotate(0deg) translateY(0) scale(1);
+  }
+  20% {
+    transform: rotate(180deg) translateY(0) scale(1);
+  }
+  30% {
+    transform: rotate(360deg) translateY(0) scale(1);
+  }
+  40% {
+    transform: rotate(360deg) translateY(-6px) scale(1);
+  }
+  50% {
+    transform: rotate(360deg) translateY(0) scale(1);
+  }
+  60% {
+    transform: rotate(360deg) translateY(-3px) scale(1);
+  }
+  70% {
+    transform: rotate(360deg) translateY(0) scale(1);
+  }
+  80% {
+    transform: rotate(360deg) translateY(0) scale(1.15);
+  }
+  90% {
+    transform: rotate(360deg) translateY(0) scale(0.95);
+  }
+  100% {
+    transform: rotate(360deg) translateY(0) scale(1);
+  }
 }
 .hpp-ia-glyph {
   transform-origin: 80px 42px;
@@ -1316,54 +1549,130 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
    The wavy version fades out while the straight one fades in, reading as
    the prompt sharpening from fuzzy to specific. Rows stagger left-to-right. */
 @keyframes hpp-pr-wavy-out {
-  0%, 35%, 95%, 100% { opacity: 1; }
-  45%, 80%           { opacity: 0; }
+  0%,
+  35%,
+  95%,
+  100% {
+    opacity: 1;
+  }
+  45%,
+  80% {
+    opacity: 0;
+  }
 }
 @keyframes hpp-pr-sharp-in {
-  0%, 35%, 95%, 100% { opacity: 0; }
-  45%, 80%           { opacity: 1; }
+  0%,
+  35%,
+  95%,
+  100% {
+    opacity: 0;
+  }
+  45%,
+  80% {
+    opacity: 1;
+  }
 }
 /* Wavy is the static fallback (the "before" state of the rubric). Sharp
    stays hidden by default so a paused preview reads as the fuzzy prompt. */
-.hpp-pr-wavy  { animation: hpp-pr-wavy-out 5s ease-in-out infinite; }
-.hpp-pr-sharp { opacity: 0; animation: hpp-pr-sharp-in 5s ease-in-out infinite; }
-.hpp-pr-r1 { animation-delay: 0s; }
-.hpp-pr-r2 { animation-delay: 0.3s; }
-.hpp-pr-r3 { animation-delay: 0.6s; }
+.hpp-pr-wavy {
+  animation: hpp-pr-wavy-out 5s ease-in-out infinite;
+}
+.hpp-pr-sharp {
+  opacity: 0;
+  animation: hpp-pr-sharp-in 5s ease-in-out infinite;
+}
+.hpp-pr-r1 {
+  animation-delay: 0s;
+}
+.hpp-pr-r2 {
+  animation-delay: 0.3s;
+}
+.hpp-pr-r3 {
+  animation-delay: 0.6s;
+}
 
 /* Spark: wireframe sketches on the left reveal in sync with their matching
    code lines on the right. Designer learning to ship engineering. */
 @keyframes hpp-sp-pair {
-  0%, 100% { opacity: 0; }
-  12%, 88% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0;
+  }
+  12%,
+  88% {
+    opacity: 1;
+  }
 }
 /* Fallback to fully visible when animation is paused/unsupported. */
-.hpp-sp-sketch, .hpp-sp-code {
+.hpp-sp-sketch,
+.hpp-sp-code {
   animation: hpp-sp-pair 5s ease-in-out infinite;
 }
-.hpp-sp-p1 { animation-delay: 0s; }
-.hpp-sp-p2 { animation-delay: 0.45s; }
-.hpp-sp-p3 { animation-delay: 0.9s; }
+.hpp-sp-p1 {
+  animation-delay: 0s;
+}
+.hpp-sp-p2 {
+  animation-delay: 0.45s;
+}
+.hpp-sp-p3 {
+  animation-delay: 0.9s;
+}
 
 /* Touchtype: keys light up in sequence */
 @keyframes hpp-tt-press {
-  0%, 100% { fill: transparent; stroke: currentColor; }
-  20%, 30% { fill: currentColor; stroke: currentColor; }
+  0%,
+  100% {
+    fill: transparent;
+    stroke: currentColor;
+  }
+  20%,
+  30% {
+    fill: currentColor;
+    stroke: currentColor;
+  }
 }
-.hpp-tt-key { animation: hpp-tt-press 3.5s ease-in-out infinite; }
-.hpp-tt-k0 { animation-delay: 0s; }
-.hpp-tt-k1 { animation-delay: 0.25s; }
-.hpp-tt-k2 { animation-delay: 0.5s; }
-.hpp-tt-k3 { animation-delay: 0.75s; }
-.hpp-tt-k4 { animation-delay: 1s; }
-.hpp-tt-k5 { animation-delay: 1.25s; }
-.hpp-tt-k6 { animation-delay: 1.5s; }
+.hpp-tt-key {
+  animation: hpp-tt-press 3.5s ease-in-out infinite;
+}
+.hpp-tt-k0 {
+  animation-delay: 0s;
+}
+.hpp-tt-k1 {
+  animation-delay: 0.25s;
+}
+.hpp-tt-k2 {
+  animation-delay: 0.5s;
+}
+.hpp-tt-k3 {
+  animation-delay: 0.75s;
+}
+.hpp-tt-k4 {
+  animation-delay: 1s;
+}
+.hpp-tt-k5 {
+  animation-delay: 1.25s;
+}
+.hpp-tt-k6 {
+  animation-delay: 1.5s;
+}
 
 /* Kids Alphabet: letters fade in/out */
 @keyframes hpp-ka-letter {
-  0%, 25%   { opacity: 0; transform: scale(0.7); }
-  33%, 58%  { opacity: 1; transform: scale(1); }
-  66%, 100% { opacity: 0; transform: scale(1.15); }
+  0%,
+  25% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  33%,
+  58% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  66%,
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
 }
 .hpp-ka-letter {
   opacity: 0;
@@ -1373,18 +1682,38 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 /* Freeze-frame fallback: when the animation is paused/unsupported, A stays
    visible so the panel still reads as an alphabet glyph. B and C remain
    hidden in the rest state so they don't pile on top of A. */
-.hpp-ka-a { opacity: 1; animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 0s; }
-.hpp-ka-b { animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 1.5s; }
-.hpp-ka-c { animation: hpp-ka-letter 4.5s ease-in-out infinite; animation-delay: 3s; }
+.hpp-ka-a {
+  opacity: 1;
+  animation: hpp-ka-letter 4.5s ease-in-out infinite;
+  animation-delay: 0s;
+}
+.hpp-ka-b {
+  animation: hpp-ka-letter 4.5s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+.hpp-ka-c {
+  animation: hpp-ka-letter 4.5s ease-in-out infinite;
+  animation-delay: 3s;
+}
 
 /* Triangles: two adjacent triangles share an edge and pulse alternately,
    like turn-by-turn fills in the game. */
 @keyframes hpp-tr-fill {
-  0%, 100% { fill-opacity: 1; }
-  50%      { fill-opacity: 0.15; }
+  0%,
+  100% {
+    fill-opacity: 1;
+  }
+  50% {
+    fill-opacity: 0.15;
+  }
 }
-.hpp-tr-a { animation: hpp-tr-fill 3s ease-in-out infinite; }
-.hpp-tr-b { animation: hpp-tr-fill 3s ease-in-out infinite; animation-delay: 1.5s; }
+.hpp-tr-a {
+  animation: hpp-tr-fill 3s ease-in-out infinite;
+}
+.hpp-tr-b {
+  animation: hpp-tr-fill 3s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
 
 /* Homepage previews — animations disabled for the non-glass-tile cards
    (Vector Paint, Icon Animator, Promptr, Spark, Touchtype, Kids Alphabet).
@@ -1406,11 +1735,22 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 .hpp-ka-c {
   animation: none !important;
 }
-.hpp-pr-sharp { opacity: 1 !important; }
-.hpp-pr-wavy { display: none; }
-.hpp-vp-nib { display: none; }
-.hpp-ka-letter { opacity: 0; }
-.hpp-ka-a { opacity: 1 !important; transform: scale(1) !important; }
+.hpp-pr-sharp {
+  opacity: 1 !important;
+}
+.hpp-pr-wavy {
+  display: none;
+}
+.hpp-vp-nib {
+  display: none;
+}
+.hpp-ka-letter {
+  opacity: 0;
+}
+.hpp-ka-a {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
 
 /* Homepage typography: kill single-word widows. text-wrap: pretty fixes the
    last line of body prose; balance evens out short headings. Scoped to the
@@ -1467,13 +1807,21 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 .gold-btn {
   position: relative;
   color: #2a1e06;
-  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 50%, var(--gold-deep) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--gold-bright) 0%,
+    var(--gold) 50%,
+    var(--gold-deep) 100%
+  );
   border: 1px solid rgba(120, 90, 30, 0.45);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.55),
     0 8px 22px -8px rgba(216, 180, 106, 0.55),
     0 2px 6px rgba(0, 0, 0, 0.45);
-  transition: filter 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+  transition:
+    filter 200ms ease,
+    transform 200ms ease,
+    box-shadow 200ms ease;
 }
 .gold-btn:hover {
   filter: brightness(1.05);
@@ -1495,7 +1843,7 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 }
 
 .gold-btn-trace::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -1512,11 +1860,11 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
-          mask:
+  mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
-          mask-composite: exclude;
+  mask-composite: exclude;
   opacity: 0;
 }
 .gold-btn-trace:hover::after {
@@ -1558,17 +1906,28 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 }
 
 @keyframes cta-badge-shake {
-  0%, 100% { transform: translateX(0) rotate(0deg); }
-  25% { transform: translateX(-2px) rotate(-1deg); }
-  55% { transform: translateX(1.5px) rotate(0.8deg); }
-  80% { transform: translateX(-0.75px) rotate(-0.3deg); }
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(-2px) rotate(-1deg);
+  }
+  55% {
+    transform: translateX(1.5px) rotate(0.8deg);
+  }
+  80% {
+    transform: translateX(-0.75px) rotate(-0.3deg);
+  }
 }
 .home-prose .gold-btn-badge {
   background: #9e9482;
   border: 1px solid #9e9482;
   color: #131312;
   transform-origin: 50% 50%;
-  transition: background-color 240ms ease, border-color 240ms ease;
+  transition:
+    background-color 240ms ease,
+    border-color 240ms ease;
 }
 
 /* Plays when ShakeOnView toggles `is-shaking` — on load and on each scroll-in. */
@@ -1601,7 +1960,7 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
 }
 
 .gold-trace::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -1618,34 +1977,51 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
-          mask:
+  mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
-          mask-composite: exclude;
+  mask-composite: exclude;
   opacity: 1;
 }
 .gold-trace:hover::after {
   animation: gold-trace-spin 4s linear infinite;
 }
 @keyframes gold-trace-spin {
-  from { --trace-angle: 0deg; }
-  to   { --trace-angle: 360deg; }
+  from {
+    --trace-angle: 0deg;
+  }
+  to {
+    --trace-angle: 360deg;
+  }
 }
 
 @keyframes testimonial-drawer-stretch {
-  0%, 42% { transform: scaleY(1); }
-  64%     { transform: scaleY(1.018); }
-  82%     { transform: scaleY(0.997); }
-  93%     { transform: scaleY(1.005); }
-  100%    { transform: scaleY(1); }
+  0%,
+  42% {
+    transform: scaleY(1);
+  }
+  64% {
+    transform: scaleY(1.018);
+  }
+  82% {
+    transform: scaleY(0.997);
+  }
+  93% {
+    transform: scaleY(1.005);
+  }
+  100% {
+    transform: scaleY(1);
+  }
 }
 .testimonial-drawer-stretch {
   transform-origin: top center;
   animation: testimonial-drawer-stretch 2400ms ease-out both;
 }
 @media (prefers-reduced-motion: reduce) {
-  .testimonial-drawer-stretch { animation: none; }
+  .testimonial-drawer-stretch {
+    animation: none;
+  }
 }
 
 .profile-sheet {
@@ -1674,8 +2050,14 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   animation: sheet-row-in 0.45s ease both;
 }
 @keyframes sheet-row-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .img-grain {
@@ -1683,4 +2065,10 @@ html[data-theme='dark'] .chapter-pill:not(.chapter-pill-active):hover {
   background-repeat: repeat;
   opacity: 0.16;
   mix-blend-mode: overlay;
+}
+
+@media (max-width: 359px) {
+  .hero-card-scaler {
+    zoom: 0.88;
+  }
 }

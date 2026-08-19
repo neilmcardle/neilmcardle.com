@@ -1,15 +1,17 @@
-import Image from "next/image";
 import Link from "next/link";
-import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
+import {
+  HomepageProjectPreview,
+  type ProjectKey,
+} from "@/components/HomepageProjectPreview";
 import GradualBlur from "@/components/GradualBlur";
 import BorderGlow from "@/components/BorderGlow";
 import ElectricBorder from "@/components/ElectricBorder";
-import ShakeOnView from "@/components/ShakeOnView";
-import HeroCta from "@/components/HeroCta";
+import HeroCard from "@/components/HeroCard";
 
 const SUBSCRIBE_URL = "https://buy.stripe.com/9B600l7XfblGdOxgk8fIs01";
 
-const WAITLIST_URL = "mailto:neil@neilmcardle.com?subject=Join%20the%20waitlist";
+const WAITLIST_URL =
+  "mailto:neil@neilmcardle.com?subject=Join%20the%20waitlist";
 
 const PRICE = { amount: "£5,000", suffix: "+ VAT" } as const;
 
@@ -20,13 +22,6 @@ const AVAILABILITY = {
   openLine: "One client at a time. One slot open now.",
   fullLine: "One client at a time. Currently full, join the waitlist.",
 } as const;
-
-const CLIENTS: { name: string; note: string }[] = [
-  { name: "Avis Budget Group", note: "Product design" },
-  { name: "Banner of Truth", note: "Visual design" },
-  { name: "Dan Roberts Group", note: "Branding" },
-  { name: "Gatewick House & Gardens", note: "Branding" },
-];
 
 const WHO_FOR = {
   fit: [
@@ -103,83 +98,326 @@ const FAQS: { q: string; a: string }[] = [
 ];
 
 export default function Homepage() {
-  const ctaLabel = AVAILABILITY.open ? "Let's work together" : "Join the waitlist";
+  const ctaLabel = AVAILABILITY.open
+    ? "Let's work together"
+    : "Join the waitlist";
   const ctaHref = AVAILABILITY.open ? SUBSCRIBE_URL : WAITLIST_URL;
-
 
   return (
     <>
-    <div className="min-h-screen bg-black relative isolate overflow-hidden">
+      <HeroCard />
+      <div className="min-h-screen bg-black relative isolate overflow-hidden">
+        {}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[760px]"
+          aria-hidden="true"
+          style={{
+            background:
+              "radial-gradient(68% 46% at 50% 24%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 48%, transparent 74%)",
+          }}
+        />
 
-      {/* Legibility scrim — darkens the centre where the hero text sits. */}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[760px]"
-        aria-hidden="true"
-        style={{
-          background:
-            "radial-gradient(68% 46% at 50% 24%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 48%, transparent 74%)",
-        }}
-      />
-
-      <div className="home-prose relative z-10 max-w-6xl mx-auto pl-6 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pt-12 sm:pt-24 lg:pt-12 pb-20">
-        <header className="mb-24 sm:mb-32 pt-4 sm:pt-10 flex flex-col items-center text-center">
-          <svg
-            width="34"
-            height="34"
-            viewBox="0 0 78 78"
-            fill="none"
-            role="img"
-            aria-label="Neil McArdle"
-            className="mb-10 text-cream"
-          >
-            <path
-              d="M0,0v76.8c0,.5.4,1,1,1h37c.5,0,1-.4,1-1v-37.8L0,0Z"
-              fill="currentColor"
-            />
-            <path
-              d="M78,78V1.2c0-.5-.4-1-1-1h-37c-.5,0-1,.4-1,1v37.8l39,39Z"
-              fill="currentColor"
-            />
-          </svg>
-
-          <div className="relative mb-8">
-            <Image
-              src="/me.png"
-              alt="Neil McArdle"
-              width={120}
-              height={120}
-              priority
-              className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover grayscale"
-            />
-          </div>
-
-          <h1
-            className="text-cream"
-            style={{
-              fontFamily: "var(--font-eb-garamond)",
-              fontSize: "clamp(2.5rem, 8vw, 4.25rem)",
-              fontWeight: 800,
-              letterSpacing: "0.2em",
-              lineHeight: 1.2,
-            }}
-          >
-            NEIL McARDLE
-          </h1>
-
-          <p
-            className="mb-4 text-tan"
+        <div
+          id="intro"
+          className="home-prose relative z-10 max-w-6xl mx-auto pl-6 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pt-12 sm:pt-24 lg:pt-12 pb-20"
+        >
+          <h2
+            className="text-cream max-w-3xl mb-24"
             style={{
               fontFamily: "var(--font-inter)",
-              fontSize: "0.8125rem",
-              letterSpacing: "0.13em",
-              textTransform: "uppercase",
+              fontSize: "clamp(2rem, 6vw, 3.25rem)",
+              fontWeight: 400,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.05,
             }}
           >
-            Artist · Designer · London
-          </p>
+            Your product, designed and built.
+          </h2>
 
+          <section id="how-it-works" className="mb-28 scroll-mt-8">
+            <SectionHeader label="How it works" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8">
+              {STEPS.map((s) => (
+                <div key={s.n}>
+                  <div
+                    className="text-gold mb-3"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "0.75rem",
+                      letterSpacing: "0.13em",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {s.n}
+                  </div>
+                  <h3
+                    className="text-cream mb-2"
+                    style={{
+                      fontFamily: "var(--font-eb-garamond)",
+                      fontSize: "1.375rem",
+                      fontWeight: 700,
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    {s.title}
+                  </h3>
+                  <p
+                    className="text-cream/65"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "0.9375rem",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {s.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
 
-          <section className="mb-4 mt-8 text-center">
+          <section id="work" className="mb-28 scroll-mt-20">
+            <SectionHeader label="Selected work" />
+
+            <div className="space-y-16 sm:space-y-24">
+              <ProductFeature
+                tileKey="makeebook"
+                category="Product · AI · Designed and built solo"
+                name="makeEbook"
+                description="An AI-first platform that takes a manuscript to a store-ready ebook. Brand, product, and engineering end to end, with Claude under the hood."
+                href="https://makeebook.ink"
+                linkLabel="makeebook.ink"
+                external
+              />
+              <ProductFeature
+                tileKey="doodlewire"
+                category="Product · iOS · Designed and built solo"
+                name="DoodleWire"
+                description="Doodle a UI and on-device ML snaps your strokes into clean wireframe elements, then exports HTML or React. Designed, built, and shipped through Apple review solo."
+                href="/doodlewire"
+                linkLabel="View project"
+                appStoreUrl="https://apps.apple.com/us/app/doodlewire/id6771274835"
+                reverse
+              />
+            </div>
+
+            {}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14 mt-20">
+              {TESTIMONIALS.map((t) => (
+                <figure key={t.name} className="border-l-2 border-gold/40 pl-6">
+                  <blockquote
+                    className="text-cream/85"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "clamp(1.0625rem, 1.6vw, 1.25rem)",
+                      lineHeight: 1.55,
+                    }}
+                  >
+                    {t.quote}
+                  </blockquote>
+                  <figcaption
+                    className="mt-4 text-tan"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "0.6875rem",
+                      letterSpacing: "0.13em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {t.name}, {t.org}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+
+          {}
+
+          {}
+          <section id="pricing" className="mb-24 scroll-mt-12">
+            <SectionHeader label="Work with me" />
+            <div className="max-w-2xl mx-auto">
+              <div
+                className="soft-card rounded-[1.75rem] overflow-hidden"
+                style={{ background: "#000000" }}
+              >
+                <div className="p-8 sm:p-10">
+                  {}
+                  <div className="flex items-start justify-between gap-4">
+                    <h3
+                      className="text-cream"
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: "1.75rem",
+                        fontWeight: 400,
+                        letterSpacing: "-0.01em",
+                      }}
+                    >
+                      Monthly
+                    </h3>
+                    <span
+                      className="shrink-0 text-tan"
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: "0.8125rem",
+                        letterSpacing: "0.13em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Pause anytime
+                    </span>
+                  </div>
+
+                  {}
+                  <div className="my-7 border-t border-dashed border-white/15" />
+
+                  {}
+                  <div className="flex items-end flex-wrap gap-x-3 gap-y-1">
+                    <span
+                      className="text-cream leading-none"
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: "clamp(2.75rem, 8vw, 4rem)",
+                        fontWeight: 400,
+                        letterSpacing: "-0.02em",
+                      }}
+                    >
+                      {PRICE.amount}
+                    </span>
+                    <span
+                      className="text-tan mb-1.5"
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: "0.875rem",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      /month
+                    </span>
+                    <span
+                      className="text-tan mb-2"
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: "0.625rem",
+                        letterSpacing: "0.13em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {PRICE.suffix}
+                    </span>
+                  </div>
+
+                  {}
+                  <p
+                    className="mt-5 text-cream/70"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "0.9375rem",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    A senior product designer and a front-end engineer is two
+                    hires and &pound;150k+ a year. This is both, for one flat
+                    monthly fee, with nothing lost in the handoff between them.
+                  </p>
+
+                  {}
+                  <div className="soft-inset relative mt-8 rounded-[1rem] p-6 sm:p-7">
+                    <span
+                      className="absolute -top-2 left-5 bg-[#1a1a1d] px-2 text-gold"
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: "0.625rem",
+                        letterSpacing: "0.13em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Included
+                    </span>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3.5">
+                      {PLAN_FEATURES.map((f) => (
+                        <li
+                          key={f}
+                          className="flex items-start gap-2.5 text-cream/85"
+                          style={{
+                            fontFamily: "var(--font-inter)",
+                            fontSize: "0.9375rem",
+                            lineHeight: 1.45,
+                          }}
+                        >
+                          <svg
+                            className="w-4 h-4 mt-0.5 flex-shrink-0 text-gold"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M20 6L9 17l-5-5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {}
+                  <div className="mt-8 flex justify-center">
+                    <CtaButton href={ctaHref} label={ctaLabel} />
+                  </div>
+                  <p
+                    className="mt-3 text-center text-tan"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "0.6875rem",
+                      letterSpacing: "0.08em",
+                    }}
+                  >
+                    Email, payment, you&apos;re in. Two minutes.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {}
+          <section id="faq" className="mb-24 scroll-mt-12">
+            <SectionHeader label="FAQ" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+              {FAQS.map((item) => (
+                <div key={item.q}>
+                  <h3
+                    className="text-cream mb-2"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "1rem",
+                      fontWeight: 600,
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {item.q}
+                  </h3>
+                  <p
+                    className="text-cream/70"
+                    style={{
+                      fontFamily: "var(--font-inter)",
+                      fontSize: "0.9375rem",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {item.a}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {}
+          <section className="mb-24 text-center">
             <h2
               className="text-cream mb-8"
               style={{
@@ -190,456 +428,133 @@ export default function Homepage() {
                 lineHeight: 1.05,
               }}
             >
-              Your product, designed and built.
+              Tell me more.
             </h2>
-          
-            <div className="mt-9 flex flex-col items-center gap-5">
-              <HeroCta href={ctaHref} />
-            </div>
           </section>
-          <nav
-            aria-label="Primary"
-            className="mt-12 flex items-center gap-6 text-tan"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "0.75rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.13em",
-            }}
-          >
-            <a href="#work" className="py-2 -my-2 hover:text-cream transition-colors">
-              Work
-            </a>
-            <span className="w-1 h-1 rounded-full bg-tan/40" aria-hidden="true" />
-            <a href="#pricing" className="py-2 -my-2 hover:text-cream transition-colors">
-              Pricing
-            </a>
-            <span className="w-1 h-1 rounded-full bg-tan/40" aria-hidden="true" />
-            <a href="mailto:neil@neilmcardle.com" className="py-2 -my-2 hover:text-cream transition-colors">
-              Email
-            </a>
-          </nav>
 
-          <div className="mt-16 w-full max-w-2xl">
+          <footer className="pt-12 flex flex-col items-center sm:flex-row sm:justify-between gap-6">
             <p
-              className="text-tan/70 mb-4"
-              style={{
-                fontFamily: "var(--font-inter)",
-                fontSize: "0.625rem",
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-              }}
+              className="text-tan"
+              style={{ fontFamily: "var(--font-inter)", fontSize: "0.75rem" }}
             >
-              Selected clients
+              © 2026 Neil McArdle
             </p>
-            <div className="flex flex-col items-center gap-2.5 text-cream/55">
-              {CLIENTS.map((c) => (
-                <span
-                  key={c.name}
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.9375rem",
-                    fontWeight: 500,
-                  }}
+            <div className="flex items-center gap-5 order-first sm:order-none mx-auto sm:mx-0">
+              <a
+                href="https://www.linkedin.com/in/neilmcardle/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="inline-flex p-2 -m-2 text-tan hover:text-cream transition-colors"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
                 >
-                  {c.name}
-                </span>
-              ))}
+                  <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
+                </svg>
+              </a>
+              <a
+                href="https://github.com/neilmcardle"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="inline-flex p-2 -m-2 text-tan hover:text-cream transition-colors"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+              </a>
+              <a
+                href="https://x.com/BetterNeil"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="X"
+                className="inline-flex p-2 -m-2 text-tan hover:text-cream transition-colors"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
             </div>
-          </div>
-        </header>
-
-<section className="mb-28">
-          <SectionHeader label="How it works" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8">
-            {STEPS.map((s) => (
-              <div key={s.n}>
-                <div
-                  className="text-gold mb-3"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.75rem",
-                    letterSpacing: "0.13em",
-                    fontWeight: 600,
-                  }}
-                >
-                  {s.n}
-                </div>
-                <h3
-                  className="text-cream mb-2"
-                  style={{
-                    fontFamily: "var(--font-eb-garamond)",
-                    fontSize: "1.375rem",
-                    fontWeight: 700,
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {s.title}
-                </h3>
-                <p
-                  className="text-cream/65"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.9375rem",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {s.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {}
-        <section id="work" className="mb-28 scroll-mt-20">
-          <SectionHeader label="Selected work" />
-
-          <div className="space-y-16 sm:space-y-24">
-            <ProductFeature
-              tileKey="makeebook"
-              category="Product · AI · Designed and built solo"
-              name="makeEbook"
-              description="An AI-first platform that takes a manuscript to a store-ready ebook. Brand, product, and engineering end to end, with Claude under the hood."
-              href="https://makeebook.ink"
-              linkLabel="makeebook.ink"
-              external
-            />
-            <ProductFeature
-              tileKey="doodlewire"
-              category="Product · iOS · Designed and built solo"
-              name="DoodleWire"
-              description="Doodle a UI and on-device ML snaps your strokes into clean wireframe elements, then exports HTML or React. Designed, built, and shipped through Apple review solo."
-              href="/doodlewire"
-              linkLabel="View project"
-              appStoreUrl="https://apps.apple.com/us/app/doodlewire/id6771274835"
-              reverse
-            />
-          </div>
-
-          {/* Client words. */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14 mt-20">
-            {TESTIMONIALS.map((t) => (
-              <figure key={t.name} className="border-l-2 border-gold/40 pl-6">
-                <blockquote
-                  className="text-cream/85"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "clamp(1.0625rem, 1.6vw, 1.25rem)",
-                    lineHeight: 1.55,
-                  }}
-                >
-                  {t.quote}
-                </blockquote>
-                <figcaption
-                  className="mt-4 text-tan"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.6875rem",
-                    letterSpacing: "0.13em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {t.name}, {t.org}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </section>
-
-        {/* How it works — three steps, no card, kept light. */}
-        
-
-        {/* Work with me — the offer, kept to one quiet section. One designer who
-            designs and builds, one client at a time, one public price. The
-            Subscribe CTA points at SUBSCRIBE_URL. */}
-        <section id="pricing" className="mb-24 scroll-mt-12">
-          <SectionHeader label="Work with me" />
-          <div className="max-w-2xl mx-auto">
-          <div className="soft-card rounded-[1.75rem] overflow-hidden" style={{ background: '#000000' }}>
-            <div className="p-8 sm:p-10">
-              {/* Header: plan name + pause pill */}
-              <div className="flex items-start justify-between gap-4">
-                <h3
-                  className="text-cream"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "1.75rem",
-                    fontWeight: 400,
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  Monthly
-                </h3>
-                <span
-                  className="shrink-0 text-tan"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.8125rem",
-                    letterSpacing: "0.13em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Pause anytime
-                </span>
-              </div>
-
-              {/* Dotted divider */}
-              <div className="my-7 border-t border-dashed border-white/15" />
-
-              {/* Price */}
-              <div className="flex items-end flex-wrap gap-x-3 gap-y-1">
-                <span
-                  className="text-cream leading-none"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "clamp(2.75rem, 8vw, 4rem)",
-                    fontWeight: 400,
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  {PRICE.amount}
-                </span>
-                <span
-                  className="text-tan mb-1.5"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.875rem",
-                    letterSpacing: "0.08em",
-                  }}
-                >
-                  /month
-                </span>
-                <span
-                  className="text-tan mb-2"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.625rem",
-                    letterSpacing: "0.13em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {PRICE.suffix}
-                </span>
-              </div>
-
-              {/* ROI reframe — the number against the alternative. */}
-              <p
-                className="mt-5 text-cream/70"
+            <div className="flex flex-wrap items-center justify-center gap-5">
+              <Link
+                href="/archive"
+                className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
                 style={{
                   fontFamily: "var(--font-inter)",
-                  fontSize: "0.9375rem",
-                  lineHeight: 1.6,
+                  fontSize: "0.875rem",
                 }}
               >
-                A senior product designer and a front-end engineer is two hires
-                and &pound;150k+ a year. This is both, for one flat monthly fee,
-                with nothing lost in the handoff between them.
-              </p>
-
-              {/* Included panel — labelled inner surface, the centrepiece. */}
-              <div className="soft-inset relative mt-8 rounded-[1rem] p-6 sm:p-7">
-                <span
-                  className="absolute -top-2 left-5 bg-[#1a1a1d] px-2 text-gold"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.625rem",
-                    letterSpacing: "0.13em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Included
-                </span>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3.5">
-                  {PLAN_FEATURES.map((f) => (
-                    <li
-                      key={f}
-                      className="flex items-start gap-2.5 text-cream/85"
-                      style={{
-                        fontFamily: "var(--font-inter)",
-                        fontSize: "0.9375rem",
-                        lineHeight: 1.45,
-                      }}
-                    >
-                      <svg
-                        className="w-4 h-4 mt-0.5 flex-shrink-0 text-gold"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        aria-hidden="true"
-                      >
-                        <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* CTA */}
-              <div className="mt-8 flex justify-center">
-                <CtaButton href={ctaHref} label={ctaLabel} />
-              </div>
-              <p
-                className="mt-3 text-center text-tan"
+                Archive
+              </Link>
+              <Link
+                href="/paintings"
+                className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
                 style={{
                   fontFamily: "var(--font-inter)",
-                  fontSize: "0.6875rem",
-                  letterSpacing: "0.08em",
+                  fontSize: "0.875rem",
                 }}
               >
-                Email, payment, you&apos;re in. Two minutes.
-              </p>
-
+                Paintings
+              </Link>
+              <a
+                href="mailto:neil@neilmcardle.com"
+                className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "0.875rem",
+                }}
+              >
+                Email
+              </a>
+              <Link
+                href="/terms"
+                className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "0.875rem",
+                }}
+              >
+                Terms
+              </Link>
+              <Link
+                href="/privacy"
+                className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "0.875rem",
+                }}
+              >
+                Privacy
+              </Link>
             </div>
-          </div>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section id="faq" className="mb-24 scroll-mt-12">
-          <SectionHeader label="FAQ" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-            {FAQS.map((item) => (
-              <div key={item.q}>
-                <h3
-                  className="text-cream mb-2"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "1rem",
-                    fontWeight: 600,
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {item.q}
-                </h3>
-                <p
-                  className="text-cream/70"
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    fontSize: "0.9375rem",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {item.a}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="mb-24 text-center">
-          <h2
-            className="text-cream mb-8"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "clamp(2rem, 6vw, 3.25rem)",
-              fontWeight: 400,
-              letterSpacing: "-0.02em",
-              lineHeight: 1.05,
-            }}
-          >
-            Tell me more.
-          </h2>
-          
-        </section>
-
-        <footer className="pt-12 flex flex-col items-center sm:flex-row sm:justify-between gap-6">
-          <p
-            className="text-tan"
-            style={{ fontFamily: "var(--font-inter)", fontSize: "0.75rem" }}
-          >
-            © 2026 Neil McArdle
-          </p>
-          <div className="flex items-center gap-5 order-first sm:order-none mx-auto sm:mx-0">
-            <a
-              href="https://www.linkedin.com/in/neilmcardle/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-              className="inline-flex p-2 -m-2 text-tan hover:text-cream transition-colors"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
-              </svg>
-            </a>
-            <a
-              href="https://github.com/neilmcardle"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub"
-              className="inline-flex p-2 -m-2 text-tan hover:text-cream transition-colors"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-              </svg>
-            </a>
-            <a
-              href="https://x.com/BetterNeil"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="X"
-              className="inline-flex p-2 -m-2 text-tan hover:text-cream transition-colors"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-            </a>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-5">
-            <Link
-              href="/archive"
-              className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
-              style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
-            >
-              Archive
-            </Link>
-            <Link
-              href="/paintings"
-              className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
-              style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
-            >
-              Paintings
-            </Link>
-            <a
-              href="mailto:neil@neilmcardle.com"
-              className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
-              style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
-            >
-              Email
-            </a>
-            <Link
-              href="/terms"
-              className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
-              style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
-            >
-              Terms
-            </Link>
-            <Link
-              href="/privacy"
-              className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
-              style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
-            >
-              Privacy
-            </Link>
-          </div>
-        </footer>
+          </footer>
+        </div>
       </div>
-    </div>
-    <GradualBlur
-      target="page"
-      position="bottom"
-      height="6rem"
-      strength={2}
-      divCount={5}
-      curve="bezier"
-    />
+      <GradualBlur
+        target="page"
+        position="bottom"
+        height="6rem"
+        strength={2}
+        divCount={5}
+        curve="bezier"
+      />
     </>
   );
 }
-
 
 function ProductFeature({
   tileKey,
@@ -682,12 +597,15 @@ function ProductFeature({
     </BorderGlow>
   );
 
-
-
-  
   const mediaCls = `block ${reverse ? "md:order-2" : ""}`;
   const media = external ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={mediaCls} aria-label={name}>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={mediaCls}
+      aria-label={name}
+    >
       {mediaInner}
     </a>
   ) : (
@@ -713,7 +631,11 @@ function ProductFeature({
       strokeWidth={1.6}
       aria-hidden="true"
     >
-      <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M7 17L17 7M7 7h10v10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 
@@ -756,7 +678,13 @@ function ProductFeature({
         </p>
         <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3">
           {external ? (
-            <a href={href} target="_blank" rel="noopener noreferrer" className={ctaCls} style={ctaStyle}>
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={ctaCls}
+              style={ctaStyle}
+            >
               {linkLabel}
               {ctaArrow}
             </a>
@@ -774,7 +702,13 @@ function ProductFeature({
               aria-label={`Download ${name} on the App Store`}
               className="group/ios inline-flex items-center gap-2 text-tan hover:text-cream transition-colors"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden
+              >
                 <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
               </svg>
               <span
@@ -842,7 +776,6 @@ function CtaButton({
     </ElectricBorder>
   );
 }
-
 
 function SectionIcon({ label }: { label: string }) {
   const common = {
@@ -942,4 +875,3 @@ function SectionHeader({ label }: { label: string }) {
     </div>
   );
 }
-
