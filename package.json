@@ -10,7 +10,8 @@
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
-    "test:accounts": "tsx scripts/setup-test-accounts.ts"
+    "test:accounts": "tsx scripts/setup-test-accounts.ts",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=18.17.0",
@@ -125,8 +126,12 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/ui": "^4.1.10",
+    "gitleaks": "^1.0.0",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.3.0",
     "postcss": "^8",
+    "prettier": "^3.9.6",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.21.0",
     "typescript": "^5",
