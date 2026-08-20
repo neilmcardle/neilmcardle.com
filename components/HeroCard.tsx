@@ -102,7 +102,7 @@ export default function HeroCard() {
     <section className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden bg-[#010101] px-3 py-[48px]">
       <div
         className="hero-card-scaler shrink-0"
-        style={{ perspective: "900px", zoom: CARD_FIT }}
+        style={{ perspective: "900px", zoom: CARD_FIT, touchAction: "pan-y" }}
         onPointerMove={handlePointerMove}
         onPointerEnter={handlePointerEnter}
         onPointerLeave={handlePointerLeave}
