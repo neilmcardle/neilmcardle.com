@@ -2072,3 +2072,16 @@ html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
     zoom: 0.88;
   }
 }
+
+@keyframes hero-glint-sweep {
+  from {
+    transform: translateX(-220px) rotate(-18deg);
+  }
+  to {
+    transform: translateX(560px) rotate(-18deg);
+  }
+}
+
+.hero-glint-sweeping {
+  animation: hero-glint-sweep 1.6s cubic-bezier(0.4, 0, 0.3, 1) both;
+}

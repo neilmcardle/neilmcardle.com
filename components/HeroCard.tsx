@@ -29,6 +29,8 @@ const CARD_FIT = "min(1, (100svh - 176px) / 480px, (100vw - 24px) / 336px)";
 const LABEL_STACK =
   '-apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-inter), sans-serif';
 
+const SWEEP_CLASS = "hero-glint-sweeping";
+
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
 export default function HeroCard() {
@@ -38,15 +40,35 @@ export default function HeroCard() {
   const pointerRef = useRef({ x: 0.5, y: 0.5 });
   const frameRef = useRef<number | null>(null);
   const reducedRef = useRef(false);
+  const coarseRef = useRef(false);
+
+  const runSweep = useCallback(() => {
+    const glint = glintRef.current;
+    const band = bandRef.current;
+    if (!glint || !band || reducedRef.current) return;
+    glint.style.opacity = "1";
+    band.style.transform = "";
+    band.classList.remove(SWEEP_CLASS);
+    void band.offsetWidth;
+    band.classList.add(SWEEP_CLASS);
+  }, []);
 
   useEffect(() => {
     reducedRef.current = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    coarseRef.current = !window.matchMedia("(hover: hover) and (pointer: fine)")
+      .matches;
+
+    let timer: number | undefined;
+    if (coarseRef.current) {
+      timer = window.setTimeout(runSweep, 450);
+    }
     return () => {
+      if (timer !== undefined) window.clearTimeout(timer);
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
     };
-  }, []);
+  }, [runSweep]);
 
   const paint = useCallback(() => {
     frameRef.current = null;
@@ -59,7 +81,7 @@ export default function HeroCard() {
   }, []);
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (reducedRef.current) return;
+    if (reducedRef.current || coarseRef.current) return;
     const rect = event.currentTarget.getBoundingClientRect();
     pointerRef.current = {
       x: clamp01((event.clientX - rect.left) / rect.width),
@@ -70,12 +92,13 @@ export default function HeroCard() {
   };
 
   const handlePointerEnter = () => {
-    if (reducedRef.current) return;
+    if (reducedRef.current || coarseRef.current) return;
     if (cardRef.current) cardRef.current.style.transition = "none";
     if (glintRef.current) glintRef.current.style.opacity = "1";
   };
 
   const handlePointerLeave = () => {
+    if (coarseRef.current) return;
     if (frameRef.current !== null) {
       cancelAnimationFrame(frameRef.current);
       frameRef.current = null;
@@ -86,6 +109,10 @@ export default function HeroCard() {
       cardRef.current.style.transform = "rotateX(0deg) rotateY(0deg)";
     }
     if (glintRef.current) glintRef.current.style.opacity = "0";
+  };
+
+  const handleTap = () => {
+    if (coarseRef.current) runSweep();
   };
 
   const scrollToNextSection = () => {
@@ -102,11 +129,12 @@ export default function HeroCard() {
     <section className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden bg-[#010101] px-3 py-[48px]">
       <div
         className="hero-card-scaler shrink-0"
-        style={{ perspective: "900px", zoom: CARD_FIT, touchAction: "pan-y" }}
+        style={{ perspective: "900px", zoom: CARD_FIT }}
         onPointerMove={handlePointerMove}
         onPointerEnter={handlePointerEnter}
         onPointerLeave={handlePointerLeave}
         onPointerCancel={handlePointerLeave}
+        onClick={handleTap}
       >
         <div
           ref={cardRef}
