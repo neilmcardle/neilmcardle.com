@@ -89,9 +89,13 @@ export default function HeroCard() {
   };
 
   const scrollToNextSection = () => {
-    document
-      .getElementById(SCROLL_TARGET_ID)
-      ?.scrollIntoView({ block: "start" });
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    document.getElementById(SCROLL_TARGET_ID)?.scrollIntoView({
+      block: "start",
+      behavior: reduce ? "auto" : "smooth",
+    });
   };
 
   return (
