@@ -1,13 +1,9 @@
-'use client';
+"use client";
 
-// Floating Book Mind window. Fixed position at bottom-right, 360px wide.
-// Replaces the right-sidebar inspector panel as part of the Linear
-// Design System alignment. Controlled by a separate toggle from header.
-
-import React from 'react';
-import InspectorPanel from './bookmind/InspectorPanel';
-import type { Chapter as BookChapter } from '../types';
-import type { AnalyticalKind } from '../utils/bookmindMemory';
+import React from "react";
+import InspectorPanel from "./bookmind/InspectorPanel";
+import type { Chapter as BookChapter } from "../types";
+import type { AnalyticalKind } from "../utils/bookmindMemory";
 
 interface FloatingBookMindWindowProps {
   isOpen: boolean;
@@ -51,7 +47,7 @@ export default function FloatingBookMindWindow({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 w-[360px] h-[600px] sm:inset-4 sm:w-auto sm:h-auto md:bottom-auto md:right-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[80vw] md:max-w-md md:h-[70vh] bg-white dark:bg-[#252525] rounded-lg shadow-2xl border border-gray-200 dark:border-[#404040] z-[200] flex flex-col overflow-hidden">
+    <div className="fixed bottom-4 right-4 w-[480px] h-[700px] max-sm:inset-4 max-sm:w-auto max-sm:h-auto bg-white dark:bg-[#252525] rounded-lg shadow-2xl border border-gray-200 dark:border-[#404040] z-[200] flex flex-col overflow-hidden">
       <InspectorPanel
         bookId={bookId}
         userId={userId}
