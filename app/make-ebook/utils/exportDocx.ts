@@ -7,9 +7,9 @@ import {
   AlignmentType,
   PageBreak,
   convertInchesToTwip,
-} from 'docx';
-import { saveAs } from 'file-saver';
-import { Chapter } from '../types';
+} from "docx";
+import { saveAs } from "file-saver";
+import { Chapter } from "../types";
 
 interface ExportDocxOptions {
   title: string;
@@ -18,20 +18,13 @@ interface ExportDocxOptions {
   chapters: Chapter[];
 }
 
-// ── HTML → docx paragraphs ────────────────────────────────────────────────────
-
-/** Parse a single inline HTML string into TextRun fragments */
 function parseInlineHtml(html: string): TextRun[] {
   if (!html) return [];
 
-  // Work on a temporary div via regex — no DOM available in all contexts
   const runs: TextRun[] = [];
 
-  // Normalise <br> to newline sentinel
-  let text = html.replace(/<br\s*\/?>/gi, '\n');
+  let text = html.replace(/<br\s*\/?>/gi, "\n");
 
-  // Strip all remaining tags while tracking bold/italic/underline state
-  // We walk through tokens: either a tag or raw text
   const TOKEN = /(<\/?(?:strong|b|em|i|u|s|strike|a)[^>]*>|[^<]+|<[^>]+>)/gi;
   let bold = false;
   let italic = false;
@@ -42,33 +35,56 @@ function parseInlineHtml(html: string): TextRun[] {
   while ((match = TOKEN.exec(text)) !== null) {
     const token = match[1];
 
-    if (/^<(strong|b)>/i.test(token)) { bold = true; continue; }
-    if (/^<\/(strong|b)>/i.test(token)) { bold = false; continue; }
-    if (/^<(em|i)>/i.test(token)) { italic = true; continue; }
-    if (/^<\/(em|i)>/i.test(token)) { italic = false; continue; }
-    if (/^<u>/i.test(token)) { underline = true; continue; }
-    if (/^<\/u>/i.test(token)) { underline = false; continue; }
-    if (/^<(s|strike)>/i.test(token)) { strike = true; continue; }
-    if (/^<\/(s|strike)>/i.test(token)) { strike = false; continue; }
-    if (/^<[^>]+>$/.test(token)) continue; // skip other tags
+    if (/^<(strong|b)>/i.test(token)) {
+      bold = true;
+      continue;
+    }
+    if (/^<\/(strong|b)>/i.test(token)) {
+      bold = false;
+      continue;
+    }
+    if (/^<(em|i)>/i.test(token)) {
+      italic = true;
+      continue;
+    }
+    if (/^<\/(em|i)>/i.test(token)) {
+      italic = false;
+      continue;
+    }
+    if (/^<u>/i.test(token)) {
+      underline = true;
+      continue;
+    }
+    if (/^<\/u>/i.test(token)) {
+      underline = false;
+      continue;
+    }
+    if (/^<(s|strike)>/i.test(token)) {
+      strike = true;
+      continue;
+    }
+    if (/^<\/(s|strike)>/i.test(token)) {
+      strike = false;
+      continue;
+    }
+    if (/^<[^>]+>$/.test(token)) continue;
 
-    // Decode common HTML entities
     const decoded = token
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
       .replace(/&quot;/g, '"')
-      .replace(/&#160;/g, '\u00a0')
-      .replace(/&nbsp;/g, '\u00a0')
-      .replace(/&#8211;/g, '\u2013')
-      .replace(/&#8212;/g, '\u2014')
-      .replace(/&#8216;/g, '\u2018')
-      .replace(/&#8217;/g, '\u2019')
-      .replace(/&#8220;/g, '\u201c')
-      .replace(/&#8221;/g, '\u201d')
-      .replace(/&#8230;/g, '\u2026');
+      .replace(/&#160;/g, "\u00a0")
+      .replace(/&nbsp;/g, "\u00a0")
+      .replace(/&#8211;/g, "\u2013")
+      .replace(/&#8212;/g, "\u2014")
+      .replace(/&#8216;/g, "\u2018")
+      .replace(/&#8217;/g, "\u2019")
+      .replace(/&#8220;/g, "\u201c")
+      .replace(/&#8221;/g, "\u201d")
+      .replace(/&#8230;/g, "\u2026");
 
-    if (decoded.trim() === '' && !decoded.includes('\n')) continue;
+    if (decoded.trim() === "" && !decoded.includes("\n")) continue;
 
     runs.push(
       new TextRun({
@@ -81,27 +97,31 @@ function parseInlineHtml(html: string): TextRun[] {
     );
   }
 
-  return runs.length > 0 ? runs : [new TextRun({ text: '' })];
+  return runs.length > 0 ? runs : [new TextRun({ text: "" })];
 }
 
-/** Convert a block-level HTML tag name to a docx HeadingLevel */
-function tagToHeadingLevel(tag: string): HeadingLevel | null {
+function tagToHeadingLevel(
+  tag: string,
+): (typeof HeadingLevel)[keyof typeof HeadingLevel] | null {
   switch (tag.toLowerCase()) {
-    case 'h1': return HeadingLevel.HEADING_1;
-    case 'h2': return HeadingLevel.HEADING_2;
-    case 'h3': return HeadingLevel.HEADING_3;
-    default: return null;
+    case "h1":
+      return HeadingLevel.HEADING_1;
+    case "h2":
+      return HeadingLevel.HEADING_2;
+    case "h3":
+      return HeadingLevel.HEADING_3;
+    default:
+      return null;
   }
 }
 
-/** Convert raw chapter HTML into an array of docx Paragraphs */
 function htmlToParagraphs(html: string): Paragraph[] {
   if (!html.trim()) return [];
 
   const paragraphs: Paragraph[] = [];
 
-  // Match block-level elements: headings, p, li, blockquote, hr
-  const BLOCK = /<(h[1-3]|p|li|blockquote|hr)([^>]*)>([\s\S]*?)<\/\1>|<hr\s*\/?>/gi;
+  const BLOCK =
+    /<(h[1-3]|p|li|blockquote|hr)([^>]*)>([\s\S]*?)<\/\1>|<hr\s*\/?>/gi;
 
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -109,15 +129,14 @@ function htmlToParagraphs(html: string): Paragraph[] {
   while ((match = BLOCK.exec(html)) !== null) {
     lastIndex = match.index + match[0].length;
 
-    const tag = match[1] ?? 'hr';
-    const inner = match[3] ?? '';
+    const tag = match[1] ?? "hr";
+    const inner = match[3] ?? "";
 
-    if (tag.toLowerCase() === 'hr') {
-      // Scene break — em-dash centred
+    if (tag.toLowerCase() === "hr") {
       paragraphs.push(
         new Paragraph({
           alignment: AlignmentType.CENTER,
-          children: [new TextRun({ text: '* * *' })],
+          children: [new TextRun({ text: "* * *" })],
           spacing: { before: 200, after: 200 },
         }),
       );
@@ -134,10 +153,13 @@ function htmlToParagraphs(html: string): Paragraph[] {
           children: runs,
         }),
       );
-    } else if (tag.toLowerCase() === 'blockquote') {
+    } else if (tag.toLowerCase() === "blockquote") {
       paragraphs.push(
         new Paragraph({
-          indent: { left: convertInchesToTwip(0.5), right: convertInchesToTwip(0.5) },
+          indent: {
+            left: convertInchesToTwip(0.5),
+            right: convertInchesToTwip(0.5),
+          },
           children: runs,
           spacing: { before: 100, after: 100 },
         }),
@@ -152,7 +174,6 @@ function htmlToParagraphs(html: string): Paragraph[] {
     }
   }
 
-  // Any remaining plain text after the last block tag
   const tail = html.slice(lastIndex).trim();
   if (tail && !/^</.test(tail)) {
     paragraphs.push(
@@ -163,27 +184,31 @@ function htmlToParagraphs(html: string): Paragraph[] {
     );
   }
 
-  return paragraphs.length > 0 ? paragraphs : [new Paragraph({ children: [new TextRun({ text: '' })] })];
+  return paragraphs.length > 0
+    ? paragraphs
+    : [new Paragraph({ children: [new TextRun({ text: "" })] })];
 }
 
-// ── Main export function ──────────────────────────────────────────────────────
-
-export async function exportDocx({ title, author, publisher, chapters }: ExportDocxOptions): Promise<void> {
-  const safeName = (title || 'ebook').replace(/[^a-z0-9]+/gi, '_');
+export async function exportDocx({
+  title,
+  author,
+  publisher,
+  chapters,
+}: ExportDocxOptions): Promise<void> {
+  const safeName = (title || "ebook").replace(/[^a-z0-9]+/gi, "_");
 
   const sections: Paragraph[] = [];
 
-  // Title page
   sections.push(
     new Paragraph({
       heading: HeadingLevel.TITLE,
-      children: [new TextRun({ text: title || 'Untitled', bold: true })],
+      children: [new TextRun({ text: title || "Untitled", bold: true })],
       alignment: AlignmentType.CENTER,
       spacing: { before: convertInchesToTwip(2), after: 200 },
     }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      children: [new TextRun({ text: author || '' })],
+      children: [new TextRun({ text: author || "" })],
       spacing: { after: 120 },
     }),
   );
@@ -198,16 +223,13 @@ export async function exportDocx({ title, author, publisher, chapters }: ExportD
     );
   }
 
-  // Chapters
   for (const chapter of chapters) {
-    // Page break before each chapter
     sections.push(
       new Paragraph({
         children: [new PageBreak()],
       }),
     );
 
-    // Chapter heading
     if (chapter.title) {
       sections.push(
         new Paragraph({
@@ -219,15 +241,14 @@ export async function exportDocx({ title, author, publisher, chapters }: ExportD
       );
     }
 
-    // Chapter body
-    const bodyParagraphs = htmlToParagraphs(chapter.content || '');
+    const bodyParagraphs = htmlToParagraphs(chapter.content || "");
     sections.push(...bodyParagraphs);
   }
 
   const doc = new Document({
-    creator: author || 'makeEbook',
-    title: title || 'Untitled',
-    description: publisher || '',
+    creator: author || "makeEbook",
+    title: title || "Untitled",
+    description: publisher || "",
     sections: [
       {
         properties: {

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, {
   useRef,
@@ -10,14 +10,16 @@ import React, {
   MouseEvent,
   ChangeEvent,
   KeyboardEvent,
-} from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import DOMPurify from 'dompurify';
-import { useTheme } from '../../../lib/contexts/ThemeContext';
+} from "react";
+import Link from "next/link";
+import Image from "next/image";
+import DOMPurify from "dompurify";
+import { useTheme } from "../../../lib/contexts/ThemeContext";
 
-interface RichTextEditorProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
+interface RichTextEditorProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "onChange"
+> {
   value: string;
   onChange: (html: string) => void;
   disabled?: boolean;
@@ -31,83 +33,103 @@ interface RichTextEditorProps
   chapterId?: string;
   hasEndnotes?: boolean;
   hideToolbar?: boolean;
-  // Book Mind inline edit (⌘K). When the user presses Cmd/Ctrl+K with a
-  // non-empty selection, we capture the selection's text, its live
-  // Range (for later replacement), and its bounding rect (for anchoring
-  // the floating popover). The consumer is responsible for showing the
-  // popover and, on accept, calling back to insert new text.
+
   onInlineEditRequest?: (args: {
     selectedText: string;
     range: Range;
     rect: DOMRect;
   }) => void;
-  // Book Mind compose mode (/). When the user types "/" at the start of
-  // a line (empty block or after a newline), we capture the range and
-  // bounding rect so the consumer can show the ComposePalette.
-  onComposeRequest?: (args: {
-    range: Range;
-    rect: DOMRect;
-  }) => void;
+
+  onComposeRequest?: (args: { range: Range; rect: DOMRect }) => void;
 }
 
 type FormatState = Record<string, boolean>;
 
 const BTN =
-  'w-full px-2 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed overflow-visible';
-const BTN_ACTIVE = 'bg-gray-200 shadow-inner';
+  "w-full px-2 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed overflow-visible";
+const BTN_ACTIVE = "bg-gray-200 shadow-inner";
 
 const INLINE = [
-  { cmd: 'bold', label: 'B', title: 'Bold' },
-  { cmd: 'italic', label: 'I', title: 'Italic', className: 'italic' },
-  { cmd: 'underline', label: 'U', title: 'Underline', className: 'underline' },
-  { cmd: 'strikeThrough', label: 'S', title: 'Strikethrough', className: 'line-through' },
+  { cmd: "bold", label: "B", title: "Bold" },
+  { cmd: "italic", label: "I", title: "Italic", className: "italic" },
+  { cmd: "underline", label: "U", title: "Underline", className: "underline" },
+  {
+    cmd: "strikeThrough",
+    label: "S",
+    title: "Strikethrough",
+    className: "line-through",
+  },
 ];
 
 const ALIGN = [
-  { cmd: 'justifyLeft', label: 'L', title: 'Align Left' },
-  { cmd: 'justifyCenter', label: 'C', title: 'Align Center' },
-  { cmd: 'justifyRight', label: 'R', title: 'Align Right' },
-  { cmd: 'justifyFull', label: 'J', title: 'Justify' },
+  { cmd: "justifyLeft", label: "L", title: "Align Left" },
+  { cmd: "justifyCenter", label: "C", title: "Align Center" },
+  { cmd: "justifyRight", label: "R", title: "Align Right" },
+  { cmd: "justifyFull", label: "J", title: "Justify" },
 ];
 
 const HEADINGS = [
-  { level: 0, label: 'P', title: 'Body Text' },
-  { level: 1, label: 'H1', title: 'Heading 1' },
-  { level: 2, label: 'H2', title: 'Heading 2' },
-  { level: 3, label: 'H3', title: 'Heading 3' },
+  { level: 0, label: "P", title: "Body Text" },
+  { level: 1, label: "H1", title: "Heading 1" },
+  { level: 2, label: "H2", title: "Heading 2" },
+  { level: 3, label: "H3", title: "Heading 3" },
 ];
 
 const ACTIONS = [
-  { cmd: 'endnote', label: '¹', title: 'Insert Endnote' },
-  { cmd: 'link', label: '🔗', title: 'Insert Link' },
+  { cmd: "endnote", label: "¹", title: "Insert Endnote" },
+  { cmd: "link", label: "🔗", title: "Insert Link" },
 ];
 
-// EPUB-safe DOMPurify configuration
 const EPUB_SAFE_CONFIG = {
   ALLOWED_TAGS: [
-    'p', 'br', 'strong', 'em', 'u', 's', 'sub', 'sup',
-    'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote',
-    'pre', 'code', 'a', 'img', 'hr', 'figure', 'figcaption'
+    "p",
+    "br",
+    "strong",
+    "em",
+    "u",
+    "s",
+    "sub",
+    "sup",
+    "h1",
+    "h2",
+    "h3",
+    "ul",
+    "ol",
+    "li",
+    "blockquote",
+    "pre",
+    "code",
+    "a",
+    "img",
+    "hr",
+    "figure",
+    "figcaption",
   ],
-  ALLOWED_ATTR: [
-    'href', 'src', 'alt', 'title', 'class', 'id'
-  ],
+  ALLOWED_ATTR: ["href", "src", "alt", "title", "class", "id"],
   ALLOW_DATA_ATTR: false,
-  FORBID_TAGS: ['script', 'style', 'object', 'embed', 'iframe', 'form', 'input'],
-  FORBID_ATTR: ['style', 'onclick', 'onload', 'onerror', 'data-*'],
+  FORBID_TAGS: [
+    "script",
+    "style",
+    "object",
+    "embed",
+    "iframe",
+    "form",
+    "input",
+  ],
+  FORBID_ATTR: ["style", "onclick", "onload", "onerror", "data-*"],
   KEEP_CONTENT: true,
-  USE_PROFILES: { html: true }
+  USE_PROFILES: { html: true },
 };
 
 export default function RichTextEditor({
   value,
   onChange,
   disabled = false,
-  placeholder = 'Start writing...',
+  placeholder = "Start writing...",
   minHeight = 300,
   showWordCount = false,
   onFocusStateChange,
-  className = '',
+  className = "",
   externalVersion,
   onCreateEndnote,
   chapterId,
@@ -123,19 +145,16 @@ export default function RichTextEditor({
   const [focused, setFocused] = useState(false);
   const [formats, setFormats] = useState<FormatState>({});
   const lastExternalValueRef = useRef<string>(value);
-  
-  // Mobile focus mode - collapses toolbar when keyboard is open
+
   const [isMobileKeyboardOpen, setIsMobileKeyboardOpen] = useState(false);
   const [showCompactToolbar, setShowCompactToolbar] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const initialViewportHeight = useRef<number | null>(null);
 
-  // Endnote modal state
   const [showEndnoteModal, setShowEndnoteModal] = useState(false);
-  const [endnoteContent, setEndnoteContent] = useState('');
+  const [endnoteContent, setEndnoteContent] = useState("");
   const savedCursorPosition = useRef<Range | null>(null);
 
-  // Inline toast for non-blocking feedback (replaces alert())
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = useCallback((msg: string) => {
@@ -144,49 +163,46 @@ export default function RichTextEditor({
     toastTimer.current = setTimeout(() => setToast(null), 3000);
   }, []);
 
-  // Image caption modal state
   const [showImageCaptionModal, setShowImageCaptionModal] = useState(false);
-  const [imageCaption, setImageCaption] = useState('');
+  const [imageCaption, setImageCaption] = useState("");
   const [pendingImageSrc, setPendingImageSrc] = useState<string | null>(null);
 
-  // Detect mobile keyboard open/close using visualViewport API
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    // Only apply on mobile (touch devices with small screens)
-    const isMobile = window.matchMedia('(max-width: 1023px)').matches && 'ontouchstart' in window;
+    if (typeof window === "undefined") return;
+
+    const isMobile =
+      window.matchMedia("(max-width: 1023px)").matches &&
+      "ontouchstart" in window;
     if (!isMobile) return;
 
     const viewport = window.visualViewport;
     if (!viewport) return;
 
-    // Store initial viewport height
     if (initialViewportHeight.current === null) {
       initialViewportHeight.current = viewport.height;
     }
 
     const handleResize = () => {
       if (initialViewportHeight.current === null) return;
-      
-      // Keyboard is likely open if viewport shrinks significantly (>150px)
+
       const heightDiff = initialViewportHeight.current - viewport.height;
       const keyboardOpen = heightDiff > 150;
-      
+
       setIsMobileKeyboardOpen(keyboardOpen);
-      
-      // Show compact toolbar when keyboard opens AND editor is focused
+
       if (keyboardOpen && focused) {
         setShowCompactToolbar(true);
-        
-        // Auto-scroll to ensure cursor is visible
+
         setTimeout(() => {
           const selection = window.getSelection();
           if (selection && selection.rangeCount > 0) {
             const range = selection.getRangeAt(0);
             const rect = range.getBoundingClientRect();
             if (rect.bottom > viewport.height - 60) {
-              // Cursor is hidden behind keyboard, scroll it into view
-              editorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              editorRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
             }
           }
         }, 100);
@@ -195,13 +211,13 @@ export default function RichTextEditor({
       }
     };
 
-    viewport.addEventListener('resize', handleResize);
-    return () => viewport.removeEventListener('resize', handleResize);
+    viewport.addEventListener("resize", handleResize);
+    return () => viewport.removeEventListener("resize", handleResize);
   }, [focused]);
 
   useLayoutEffect(() => {
     if (editorRef.current) {
-      editorRef.current.innerHTML = value || '';
+      editorRef.current.innerHTML = value || "";
       lastExternalValueRef.current = value;
       ensureInitialParagraph();
     }
@@ -210,7 +226,7 @@ export default function RichTextEditor({
   useEffect(() => {
     if (focused) return;
     if (value !== lastExternalValueRef.current && editorRef.current) {
-      editorRef.current.innerHTML = value || '';
+      editorRef.current.innerHTML = value || "";
       lastExternalValueRef.current = value;
       ensureInitialParagraph();
     }
@@ -218,7 +234,7 @@ export default function RichTextEditor({
 
   useEffect(() => {
     if (externalVersion !== undefined && editorRef.current && !focused) {
-      editorRef.current.innerHTML = value || '';
+      editorRef.current.innerHTML = value || "";
       lastExternalValueRef.current = value;
       ensureInitialParagraph();
     }
@@ -226,9 +242,9 @@ export default function RichTextEditor({
 
   const ensureInitialParagraph = () => {
     if (!editorRef.current) return;
-    const html = editorRef.current.innerHTML.replace(/\s|&nbsp;|<br>/gi, '');
+    const html = editorRef.current.innerHTML.replace(/\s|&nbsp;|<br>/gi, "");
     if (!html) {
-      editorRef.current.innerHTML = '<p><br></p>';
+      editorRef.current.innerHTML = "<p><br></p>";
     }
   };
 
@@ -257,8 +273,8 @@ export default function RichTextEditor({
   const applyHeading = (level: number) => {
     if (disabled) return;
     focusEditor();
-    const tagName = level === 0 ? 'p' : `h${level}`;
-    document.execCommand('formatBlock', false, tagName);
+    const tagName = level === 0 ? "p" : `h${level}`;
+    document.execCommand("formatBlock", false, tagName);
     emitChange();
     refreshStates();
   };
@@ -266,7 +282,7 @@ export default function RichTextEditor({
   const applyUndo = () => {
     if (disabled) return;
     focusEditor();
-    document.execCommand('undo');
+    document.execCommand("undo");
     emitChange();
     refreshStates();
   };
@@ -274,7 +290,7 @@ export default function RichTextEditor({
   const applyRedo = () => {
     if (disabled) return;
     focusEditor();
-    document.execCommand('redo');
+    document.execCommand("redo");
     emitChange();
     refreshStates();
   };
@@ -282,30 +298,31 @@ export default function RichTextEditor({
   const handleEndnoteClick = () => {
     if (disabled || !onCreateEndnote) return;
 
-    // Save current cursor position
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) {
-      showToast('Please click in the editor to position your cursor.');
+      showToast("Please click in the editor to position your cursor.");
       return;
     }
 
     const range = selection.getRangeAt(0).cloneRange();
     savedCursorPosition.current = range;
 
-    // Open modal for user to enter endnote content
-    setEndnoteContent('');
+    setEndnoteContent("");
     setShowEndnoteModal(true);
   };
 
   const handleAddEndnote = () => {
-    if (!endnoteContent.trim() || !onCreateEndnote || !savedCursorPosition.current) return;
+    if (
+      !endnoteContent.trim() ||
+      !onCreateEndnote ||
+      !savedCursorPosition.current
+    )
+      return;
 
-    // Call the callback to create endnote and get the link
     const endnoteLink = onCreateEndnote(endnoteContent.trim(), chapterId);
 
     if (endnoteLink && endnoteLink.trim()) {
-      // Insert the endnote marker at the saved cursor position
-      const tempDiv = document.createElement('div');
+      const tempDiv = document.createElement("div");
       tempDiv.innerHTML = endnoteLink;
       const endnoteElement = tempDiv.firstChild;
 
@@ -313,7 +330,6 @@ export default function RichTextEditor({
         const range = savedCursorPosition.current;
         range.insertNode(endnoteElement);
 
-        // Position cursor after the inserted marker
         const selection = window.getSelection();
         if (selection) {
           selection.removeAllRanges();
@@ -322,33 +338,30 @@ export default function RichTextEditor({
           selection.addRange(range);
         }
 
-        // Trigger change event
         emitChange();
       }
     }
 
-    // Close modal and reset
     setShowEndnoteModal(false);
-    setEndnoteContent('');
+    setEndnoteContent("");
     savedCursorPosition.current = null;
 
-    // Refocus editor
     focusEditor();
   };
 
   const handleLinkClick = () => {
     if (disabled) return;
-    
+
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) {
-      showToast('Please select some text to turn into a link.');
+      showToast("Please select some text to turn into a link.");
       return;
     }
-    
-    const url = prompt('Enter the URL:');
+
+    const url = prompt("Enter the URL:");
     if (url) {
       focusEditor();
-      document.execCommand('createLink', false, url);
+      document.execCommand("createLink", false, url);
       emitChange();
       refreshStates();
     }
@@ -356,176 +369,165 @@ export default function RichTextEditor({
 
   const handleAnchorClick = () => {
     if (disabled) return;
-    
-    const anchorId = prompt('Enter anchor ID (for linking from index):\n\nExample: chapter-introduction\n\nThis will create: <a id="chapter-introduction"></a>');
+
+    const anchorId = prompt(
+      'Enter anchor ID (for linking from index):\n\nExample: chapter-introduction\n\nThis will create: <a id="chapter-introduction"></a>',
+    );
     if (anchorId && anchorId.trim()) {
-      // Clean the anchor ID to be URL-safe
-      const cleanId = anchorId.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-      
+      const cleanId = anchorId
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-_]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+
       if (cleanId) {
         const anchorHtml = `<a id="${cleanId}"></a>`;
-        
+
         focusEditor();
-        document.execCommand('insertHTML', false, anchorHtml);
+        document.execCommand("insertHTML", false, anchorHtml);
         emitChange();
         refreshStates();
-        
+
         showToast(`Anchor created! Link to it with: #${cleanId}`);
       }
     }
   };
 
-  // Clean pasted content for EPUB compatibility
   const cleanPastedContent = (html: string): string => {
     try {
-      // Preserve existing code blocks before any processing
       const preservedCodeBlocks = new Map<string, string>();
       let codeBlockCounter = 0;
-      
+
       let cleaned = html;
-      
-      // GOOGLE DOCS SPECIFIC: Preserve paragraph structure
-      // Google Docs uses <p> tags with inline styles, and <span> for formatting
-      // Also uses <br> between paragraphs in some cases
-      
-      // Convert Google Docs paragraph separator spans to paragraph breaks
-      cleaned = cleaned.replace(/<span[^>]*style="[^"]*white-space:\s*pre[^"]*"[^>]*>\s*<\/span>/gi, '</p><p>');
-      
-      // Preserve paragraph breaks from Google Docs (they use margin-bottom on p tags)
-      // Convert consecutive <br> tags to paragraph breaks
-      cleaned = cleaned.replace(/(<br\s*\/?>\s*){2,}/gi, '</p><p>');
-      
-      // Extract and preserve existing code blocks with HTML escaping
-      // Handle <pre> blocks first (including nested <code>)
-      cleaned = cleaned.replace(/<pre[^>]*>[\s\S]*?<\/pre>/gi, (match) => {
-        const placeholder = `__SECURE_CODE_BLOCK_${Date.now()}_${codeBlockCounter++}__`;
-        // For pre blocks, preserve structure but escape inner text content
-        const safeCodeBlock = match.replace(/>([^<]*)</g, (textMatch, text) => {
-          const escapedText = text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#x27;');
-          return `>${escapedText}<`;
-        });
-        preservedCodeBlocks.set(placeholder, safeCodeBlock);
-        return placeholder;
-      });
-      
-      // Handle standalone <code> blocks
-      cleaned = cleaned.replace(/<code[^>]*>[\s\S]*?<\/code>/gi, (match) => {
-        const placeholder = `__SECURE_CODE_BLOCK_${Date.now()}_${codeBlockCounter++}__`;
-        // Extract and escape the text content
-        const safeCodeBlock = match.replace(/>([^<]*)</g, (textMatch, text) => {
-          const escapedText = text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#x27;');
-          return `>${escapedText}<`;
-        });
-        preservedCodeBlocks.set(placeholder, safeCodeBlock);
-        return placeholder;
-      });
 
-      // Detect code fences (```...```)
-      cleaned = cleaned.replace(/```(\w*)\s*\n([\s\S]*?)\n```/g, (match, language, code) => {
-        const placeholder = `__SECURE_CODE_BLOCK_${Date.now()}_${codeBlockCounter++}__`;
-        // HTML-escape the code content to preserve angle brackets and special chars
-        const escapedCode = code
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#x27;');
-        const codeBlock = `<pre><code${language ? ` class="language-${language}"` : ''}>${escapedCode}</code></pre>`;
-        preservedCodeBlocks.set(placeholder, codeBlock);
-        return placeholder;
-      });
-
-      // First pass: Remove Word-specific elements and attributes
-      cleaned = cleaned
-        // Remove Word namespace declarations and comments
-        .replace(/<!--\[if [^>]*>[\s\S]*?<!\[endif\]-->/gi, '')
-        .replace(/<!--[\s\S]*?-->/g, '')
-        .replace(/<o:p[^>]*>[\s\S]*?<\/o:p>/gi, '')
-        .replace(/<\/o:p>/gi, '')
-        .replace(/<o:[^>]*>/gi, '')
-        // Remove mso-* CSS properties and styles
-        .replace(/\s*mso-[^:]*:[^;"]*;?/gi, '')
-        .replace(/\s*style\s*=\s*["'][^"']*["']/gi, '')
-        .replace(/\s*class\s*=\s*["'][^"']*["']/gi, '')
-        // Convert common Word formatting to standard HTML
-        .replace(/<b\b[^>]*>/gi, '<strong>')
-        .replace(/<\/b>/gi, '</strong>')
-        .replace(/<i\b[^>]*>/gi, '<em>')
-        .replace(/<\/i>/gi, '</em>')
-        .replace(/<strike\b[^>]*>/gi, '<s>')
-        .replace(/<\/strike>/gi, '</s>')
-        // Convert div-heavy structure to paragraphs
-        .replace(/<div[^>]*>/gi, '<p>')
-        .replace(/<\/div>/gi, '</p>')
-        // Keep single br tags but convert double br to paragraph break
-        .replace(/<br[^>]*>\s*<br[^>]*>/gi, '</p><p>');
-      
-      // Remove spans but keep their content (Google Docs uses lots of spans)
-      cleaned = cleaned.replace(/<span[^>]*>([\s\S]*?)<\/span>/gi, '$1');
-      
-      // Normalize line breaks - but keep paragraph structure
-      cleaned = cleaned.replace(/\r\n|\r/g, '\n');
-      
-      // Convert standalone newlines inside content to spaces, but not between tags
-      cleaned = cleaned.replace(/>(\s*)\n(\s*)</g, '>$1 $2<');
-
-      // Detect and wrap code blocks (indented text or monospace fonts)
       cleaned = cleaned.replace(
-        /<p[^>]*>\s*(\s{4,}[^<]+|[^<]*font-family[^>]*monospace[^<]*)<\/p>/gi,
-        '<pre><code>$1</code></pre>'
+        /<span[^>]*style="[^"]*white-space:\s*pre[^"]*"[^>]*>\s*<\/span>/gi,
+        "</p><p>",
       );
 
-      // Second pass: Use DOMPurify with EPUB-safe configuration
+      cleaned = cleaned.replace(/(<br\s*\/?>\s*){2,}/gi, "</p><p>");
+
+      cleaned = cleaned.replace(/<pre[^>]*>[\s\S]*?<\/pre>/gi, (match) => {
+        const placeholder = `__SECURE_CODE_BLOCK_${Date.now()}_${codeBlockCounter++}__`;
+
+        const safeCodeBlock = match.replace(/>([^<]*)</g, (textMatch, text) => {
+          const escapedText = text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#x27;");
+          return `>${escapedText}<`;
+        });
+        preservedCodeBlocks.set(placeholder, safeCodeBlock);
+        return placeholder;
+      });
+
+      cleaned = cleaned.replace(/<code[^>]*>[\s\S]*?<\/code>/gi, (match) => {
+        const placeholder = `__SECURE_CODE_BLOCK_${Date.now()}_${codeBlockCounter++}__`;
+
+        const safeCodeBlock = match.replace(/>([^<]*)</g, (textMatch, text) => {
+          const escapedText = text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#x27;");
+          return `>${escapedText}<`;
+        });
+        preservedCodeBlocks.set(placeholder, safeCodeBlock);
+        return placeholder;
+      });
+
+      cleaned = cleaned.replace(
+        /```(\w*)\s*\n([\s\S]*?)\n```/g,
+        (match, language, code) => {
+          const placeholder = `__SECURE_CODE_BLOCK_${Date.now()}_${codeBlockCounter++}__`;
+
+          const escapedCode = code
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#x27;");
+          const codeBlock = `<pre><code${language ? ` class="language-${language}"` : ""}>${escapedCode}</code></pre>`;
+          preservedCodeBlocks.set(placeholder, codeBlock);
+          return placeholder;
+        },
+      );
+
+      cleaned = cleaned
+        // Remove Word namespace declarations and comments
+        .replace(/<!--\[if [^>]*>[\s\S]*?<!\[endif\]-->/gi, "")
+        .replace(/<!--[\s\S]*?-->/g, "")
+        .replace(/<o:p[^>]*>[\s\S]*?<\/o:p>/gi, "")
+        .replace(/<\/o:p>/gi, "")
+        .replace(/<o:[^>]*>/gi, "")
+        // Remove mso-* CSS properties and styles
+        .replace(/\s*mso-[^:]*:[^;"]*;?/gi, "")
+        .replace(/\s*style\s*=\s*["'][^"']*["']/gi, "")
+        .replace(/\s*class\s*=\s*["'][^"']*["']/gi, "")
+        // Convert common Word formatting to standard HTML
+        .replace(/<b\b[^>]*>/gi, "<strong>")
+        .replace(/<\/b>/gi, "</strong>")
+        .replace(/<i\b[^>]*>/gi, "<em>")
+        .replace(/<\/i>/gi, "</em>")
+        .replace(/<strike\b[^>]*>/gi, "<s>")
+        .replace(/<\/strike>/gi, "</s>")
+        // Convert div-heavy structure to paragraphs
+        .replace(/<div[^>]*>/gi, "<p>")
+        .replace(/<\/div>/gi, "</p>")
+        // Keep single br tags but convert double br to paragraph break
+        .replace(/<br[^>]*>\s*<br[^>]*>/gi, "</p><p>");
+
+      cleaned = cleaned.replace(/<span[^>]*>([\s\S]*?)<\/span>/gi, "$1");
+
+      cleaned = cleaned.replace(/\r\n|\r/g, "\n");
+
+      cleaned = cleaned.replace(/>(\s*)\n(\s*)</g, ">$1 $2<");
+
+      cleaned = cleaned.replace(
+        /<p[^>]*>\s*(\s{4,}[^<]+|[^<]*font-family[^>]*monospace[^<]*)<\/p>/gi,
+        "<pre><code>$1</code></pre>",
+      );
+
       const purified = DOMPurify.sanitize(cleaned, EPUB_SAFE_CONFIG);
 
-      // Restore preserved code blocks with proper sanitization
       let result = purified;
       preservedCodeBlocks.forEach((codeBlock, placeholder) => {
-        // Safely sanitize the code block content only
         const sanitizedCodeBlock = DOMPurify.sanitize(codeBlock, {
-          ALLOWED_TAGS: ['pre', 'code'],
-          ALLOWED_ATTR: ['class'], // Only allow class attribute for language highlighting
+          ALLOWED_TAGS: ["pre", "code"],
+          ALLOWED_ATTR: ["class"], // Only allow class attribute for language highlighting
           KEEP_CONTENT: true,
-          RETURN_DOM: false
+          RETURN_DOM: false,
         });
         result = result.replace(placeholder, sanitizedCodeBlock);
       });
 
-      // Third pass: Clean up empty elements but preserve code block formatting
-      // And preserve paragraph spacing
       result = result
         // Remove truly empty paragraphs (no content at all)
-        .replace(/<p>\s*<\/p>/g, '')
+        .replace(/<p>\s*<\/p>/g, "")
         // Keep paragraph breaks with br tags
-        .replace(/<p>\s*<br[^>]*>\s*<\/p>/g, '<p><br></p>')
+        .replace(/<p>\s*<br[^>]*>\s*<\/p>/g, "<p><br></p>")
         // Use markers to preserve code blocks during whitespace normalization
         .replace(/<(pre|code)[^>]*>[\s\S]*?<\/\1>/g, (match) => {
-          return '___CODE_PRESERVE___' + match + '___/CODE_PRESERVE___';
+          return "___CODE_PRESERVE___" + match + "___/CODE_PRESERVE___";
         });
-      
-      // Normalize multiple spaces to single space (but not newlines)
-      result = result.replace(/  +/g, ' ');
-      
-      // Restore code blocks
-      result = result.replace(/___CODE_PRESERVE___([\s\S]*?)___\/CODE_PRESERVE___/g, '$1');
-      
-      // Clean up consecutive paragraph breaks (more than 2 becomes 2)
-      result = result.replace(/(<\/p>\s*<p>){3,}/gi, '</p><p><br></p><p>');
-      
+
+      result = result.replace(/  +/g, " ");
+
+      result = result.replace(
+        /___CODE_PRESERVE___([\s\S]*?)___\/CODE_PRESERVE___/g,
+        "$1",
+      );
+
+      result = result.replace(/(<\/p>\s*<p>){3,}/gi, "</p><p><br></p><p>");
+
       return result.trim();
     } catch (error) {
-      console.warn('Error cleaning pasted content:', error);
-      // Fallback: just use DOMPurify with basic config
+      console.warn("Error cleaning pasted content:", error);
+
       return DOMPurify.sanitize(html, EPUB_SAFE_CONFIG);
     }
   };
@@ -533,16 +535,15 @@ export default function RichTextEditor({
   const refreshStates = useCallback(() => {
     const s: FormatState = {};
     try {
-      s.bold = document.queryCommandState('bold');
-      s.italic = document.queryCommandState('italic');
-      s.underline = document.queryCommandState('underline');
-      s.strikeThrough = document.queryCommandState('strikeThrough');
-      s.justifyLeft = document.queryCommandState('justifyLeft');
-      s.justifyCenter = document.queryCommandState('justifyCenter');
-      s.justifyRight = document.queryCommandState('justifyRight');
-      s.justifyFull = document.queryCommandState('justifyFull');
-      
-      // Detect current heading level or body text
+      s.bold = document.queryCommandState("bold");
+      s.italic = document.queryCommandState("italic");
+      s.underline = document.queryCommandState("underline");
+      s.strikeThrough = document.queryCommandState("strikeThrough");
+      s.justifyLeft = document.queryCommandState("justifyLeft");
+      s.justifyCenter = document.queryCommandState("justifyCenter");
+      s.justifyRight = document.queryCommandState("justifyRight");
+      s.justifyFull = document.queryCommandState("justifyFull");
+
       const selection = window.getSelection();
       if (selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
@@ -559,17 +560,17 @@ export default function RichTextEditor({
               s[`heading${level}`] = true;
               isHeading = true;
               break;
-            } else if (tagName === 'p') {
-              s['heading0'] = true;
+            } else if (tagName === "p") {
+              s["heading0"] = true;
               isHeading = true;
               break;
             }
           }
           element = element.parentElement;
         }
-        // If no specific block element found, assume it's body text
+
         if (!isHeading) {
-          s['heading0'] = true;
+          s["heading0"] = true;
         }
       }
     } catch {
@@ -582,32 +583,24 @@ export default function RichTextEditor({
     const listener = () => {
       if (focused) refreshStates();
     };
-    document.addEventListener('selectionchange', listener);
-    return () => document.removeEventListener('selectionchange', listener);
+    document.addEventListener("selectionchange", listener);
+    return () => document.removeEventListener("selectionchange", listener);
   }, [focused, refreshStates]);
 
   const handleInput = () => {
     emitChange();
 
-    // Detect "/" typed at the start of a line to trigger the compose
-    // palette. We check on input (not keydown) because the character
-    // needs to be in the DOM before we can inspect the surrounding text.
     if (onComposeRequest) {
       const sel = window.getSelection();
       if (sel && sel.isCollapsed && sel.rangeCount > 0) {
         const range = sel.getRangeAt(0);
         const node = range.startContainer;
         if (node.nodeType === Node.TEXT_NODE) {
-          const text = node.textContent ?? '';
+          const text = node.textContent ?? "";
           const offset = range.startOffset;
-          // Check if the only content on this line is "/" (possibly
-          // preceded by whitespace). This avoids triggering on URLs
-          // or mid-sentence slashes.
+
           const beforeCursor = text.slice(0, offset).trimStart();
-          if (beforeCursor === '/') {
-            // Use the caret rect for popover anchoring. A collapsed
-            // range may report zero dimensions in some browsers, so
-            // we fall back to the parent element's rect if needed.
+          if (beforeCursor === "/") {
             let rect = range.getBoundingClientRect();
             if (rect.height === 0 && node.parentElement) {
               rect = node.parentElement.getBoundingClientRect();
@@ -627,16 +620,15 @@ export default function RichTextEditor({
     onFocusStateChange?.(true);
     refreshStates();
     ensureInitialParagraph();
-    
-    // On mobile, scroll the editor to near the top of viewport for optimal writing space
-    if (window.innerWidth < 1024 && editorRef.current) { // lg breakpoint is 1024px
+
+    if (window.innerWidth < 1024 && editorRef.current) {
       setTimeout(() => {
         if (editorRef.current) {
           const editorRect = editorRef.current.getBoundingClientRect();
-          const scrollOffset = window.scrollY + editorRect.top - 4; // 4px from top as requested
-          window.scrollTo({ top: scrollOffset, behavior: 'smooth' });
+          const scrollOffset = window.scrollY + editorRect.top - 4;
+          window.scrollTo({ top: scrollOffset, behavior: "smooth" });
         }
-      }, 100); // Small delay to ensure keyboard is starting to appear
+      }, 100);
     }
   };
 
@@ -651,13 +643,10 @@ export default function RichTextEditor({
         emitChange();
         setFocused(false);
         onFocusStateChange?.(false);
-        
-        // Reset viewport zoom on mobile after editing (fixes iOS zoom issue)
-        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-          // Reset the initial viewport height reference so it's recalculated next time
+
+        if (typeof window !== "undefined" && window.innerWidth < 1024) {
           initialViewportHeight.current = null;
-          
-          // Force scroll to reset any iOS zoom artifacts
+
           setTimeout(() => {
             window.scrollTo(window.scrollX, window.scrollY);
           }, 100);
@@ -670,7 +659,6 @@ export default function RichTextEditor({
     e.preventDefault();
   };
 
-  // Image insertion handlers
   const handleImageButtonClick = () => {
     if (disabled) return;
     fileInputRef.current?.click();
@@ -681,15 +669,15 @@ export default function RichTextEditor({
     if (file) {
       insertImageFile(file);
     }
-    // reset value so same image can be re-selected
-    if (fileInputRef.current) fileInputRef.current.value = '';
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const insertImageFile = (file: File) => {
     const reader = new FileReader();
-    reader.onload = ev => {
+    reader.onload = (ev) => {
       const src = ev.target?.result;
-      if (typeof src === 'string') {
+      if (typeof src === "string") {
         insertImageAtCaret(src);
       }
     };
@@ -697,16 +685,14 @@ export default function RichTextEditor({
   };
 
   const insertImageAtCaret = (src: string) => {
-    // Save the image source and open caption modal
     setPendingImageSrc(src);
 
-    // Save current cursor position
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       savedCursorPosition.current = selection.getRangeAt(0).cloneRange();
     }
 
-    setImageCaption('');
+    setImageCaption("");
     setShowImageCaptionModal(true);
   };
 
@@ -716,7 +702,6 @@ export default function RichTextEditor({
     focusEditor();
     if (!editorRef.current) return;
 
-    // Restore cursor position if saved
     const selection = window.getSelection();
     if (!selection) return;
 
@@ -725,37 +710,33 @@ export default function RichTextEditor({
       selection.addRange(savedCursorPosition.current);
     }
 
-    // Create figure element with image and optional caption
-    const figure = document.createElement('figure');
-    figure.style.margin = '1em 0';
-    figure.style.textAlign = 'center';
+    const figure = document.createElement("figure");
+    figure.style.margin = "1em 0";
+    figure.style.textAlign = "center";
 
-    const img = document.createElement('img');
+    const img = document.createElement("img");
     img.src = pendingImageSrc;
-    img.alt = imageCaption || 'Image';
-    img.style.maxWidth = '100%';
-    img.style.display = 'block';
-    img.style.margin = '0 auto';
+    img.alt = imageCaption || "Image";
+    img.style.maxWidth = "100%";
+    img.style.display = "block";
+    img.style.margin = "0 auto";
 
     figure.appendChild(img);
 
-    // Add caption if provided
     if (imageCaption.trim()) {
-      const figcaption = document.createElement('figcaption');
+      const figcaption = document.createElement("figcaption");
       figcaption.textContent = imageCaption.trim();
-      figcaption.style.marginTop = '0.5em';
-      figcaption.style.fontSize = '0.9em';
-      figcaption.style.fontStyle = 'italic';
-      figcaption.style.color = '#666';
+      figcaption.style.marginTop = "0.5em";
+      figcaption.style.fontSize = "0.9em";
+      figcaption.style.fontStyle = "italic";
+      figcaption.style.color = "#666";
       figure.appendChild(figcaption);
     }
 
-    // Insert figure at caret
     const range = selection.getRangeAt(0);
     range.collapse(false);
     range.insertNode(figure);
 
-    // Move caret after the figure
     range.setStartAfter(figure);
     range.collapse(true);
     selection.removeAllRanges();
@@ -763,23 +744,20 @@ export default function RichTextEditor({
 
     emitChange();
 
-    // Close modal and reset
     setShowImageCaptionModal(false);
-    setImageCaption('');
+    setImageCaption("");
     setPendingImageSrc(null);
     savedCursorPosition.current = null;
 
-    // Refocus editor
     focusEditor();
   };
 
-  // Drag-and-drop support
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     if (disabled) return;
     e.preventDefault();
     e.stopPropagation();
-    const files = Array.from(e.dataTransfer.files).filter(f =>
-      f.type.startsWith('image/')
+    const files = Array.from(e.dataTransfer.files).filter((f) =>
+      f.type.startsWith("image/"),
     );
     if (files.length > 0) {
       files.forEach(insertImageFile);
@@ -788,417 +766,548 @@ export default function RichTextEditor({
 
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
     if (disabled) return;
-    
+
     const clipboardData = e.clipboardData;
     const items = clipboardData.items;
-    
-    // Check for images first (higher priority)
+
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
-      if (item.kind === 'file' && item.type.startsWith('image/')) {
+      if (item.kind === "file" && item.type.startsWith("image/")) {
         e.preventDefault();
         const file = item.getAsFile();
         if (file) insertImageFile(file);
         return;
       }
     }
-    
-    // Handle HTML content (Word documents, rich text)
-    const htmlData = clipboardData.getData('text/html');
+
+    const htmlData = clipboardData.getData("text/html");
     if (htmlData && htmlData.trim()) {
       e.preventDefault();
-      
-      // Clean the HTML content for EPUB compatibility
+
       const cleanedHtml = cleanPastedContent(htmlData);
-      
-      // Insert cleaned HTML at cursor position
+
       focusEditor();
       if (cleanedHtml) {
-        document.execCommand('insertHTML', false, cleanedHtml);
+        document.execCommand("insertHTML", false, cleanedHtml);
         emitChange();
         refreshStates();
       }
       return;
     }
-    
-    // Fallback to plain text
-    const textData = clipboardData.getData('text/plain');
+
+    const textData = clipboardData.getData("text/plain");
     if (textData && textData.trim()) {
       e.preventDefault();
-      
-      // Convert line breaks to paragraphs, preserving blank lines as paragraph spacing
+
       const lines = textData.split(/\r\n|\n|\r/);
       const htmlParts: string[] = [];
       let consecutiveEmpty = 0;
-      
+
       for (const line of lines) {
         const trimmed = line.trim();
         if (trimmed.length === 0) {
           consecutiveEmpty++;
-          // Add a spacing paragraph for consecutive empty lines (paragraph break)
+
           if (consecutiveEmpty === 1) {
-            htmlParts.push('<p><br></p>');
+            htmlParts.push("<p><br></p>");
           }
         } else {
           consecutiveEmpty = 0;
           htmlParts.push(`<p>${trimmed}</p>`);
         }
       }
-      
-      const htmlContent = htmlParts.join('');
+
+      const htmlContent = htmlParts.join("");
       const cleanedHtml = cleanPastedContent(htmlContent);
-      
+
       focusEditor();
       if (cleanedHtml) {
-        document.execCommand('insertHTML', false, cleanedHtml);
+        document.execCommand("insertHTML", false, cleanedHtml);
         emitChange();
         refreshStates();
       }
     }
   };
 
-  // Metrics
-  const currentHtml = editorRef.current?.innerHTML || value || '';
+  const currentHtml = editorRef.current?.innerHTML || value || "";
   const plain = currentHtml
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/\s+/g, ' ')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
     .trim();
-  const wordCount = plain ? plain.split(' ').length : 0;
+  const wordCount = plain ? plain.split(" ").length : 0;
   const charCount = plain.length;
 
-  // --- Placeholder logic: show absolutely positioned placeholder when empty ---
   const showPlaceholder =
-    (!focused && (value === '' || value === '<p><br></p>' || value === '<p></p>' || value === '<br>' || value === '<br/>'));
+    !focused &&
+    (value === "" ||
+      value === "<p><br></p>" ||
+      value === "<p></p>" ||
+      value === "<br>" ||
+      value === "<br/>");
 
   return (
     <div
       className={`relative border-none rounded bg-white dark:bg-[#1e1e1e] me:bg-[var(--me-content)] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
-      {/* Inline toast notification */}
       {toast && (
         <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-[#111] text-sm rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
           {toast}
         </div>
       )}
 
-      {/* Full Toolbar - Hidden on mobile when keyboard is open */}
-      {!hideToolbar && <div className={`transition-all duration-200 overflow-visible ${
-        isMobileKeyboardOpen ? 'lg:block hidden' : ''
-      }`}>
-        {/* Sleek horizontal toolbar */}
-        <div className="flex items-center px-6 py-2 gap-2 overflow-x-auto overflow-y-visible scrollbar-hide">
-          {/* Undo / Redo — co-located with the formatting controls so editing
-              actions live in one place (was an orphaned rail above the editor). */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => { focusEditor(); document.execCommand('undo'); }}
-              title="Undo"
-              aria-label="Undo"
-              type="button"
-              disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
-            >
-              <img src="/undo-icon.svg" alt="" aria-hidden="true" className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
-            </button>
-            <button
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => { focusEditor(); document.execCommand('redo'); }}
-              title="Redo"
-              aria-label="Redo"
-              type="button"
-              disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
-            >
-              <img src="/redo-icon.svg" alt="" aria-hidden="true" className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
-
-          {/* Format buttons (B, I, U, S) */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {INLINE.map(b => (
+      {!hideToolbar && (
+        <div
+          className={`transition-all duration-200 overflow-visible ${
+            isMobileKeyboardOpen ? "lg:block hidden" : ""
+          }`}
+        >
+          <div className="flex items-center px-6 py-2 gap-2 overflow-x-auto overflow-y-visible scrollbar-hide">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <button
-                key={b.cmd}
-                onMouseDown={e => e.preventDefault()}
-                onClick={() => applyInlineOrAlign(b.cmd)}
-                title={b.title}
-                aria-label={b.title}
-                aria-pressed={!!formats[b.cmd]}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  focusEditor();
+                  document.execCommand("undo");
+                }}
+                title="Undo"
+                aria-label="Undo"
                 type="button"
                 disabled={disabled}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-[0.96] transition-transform touch-manipulation ${
-                  formats[b.cmd]
-                    ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20 text-[#008ff0]'
-                    : 'bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]'
-                } ${b.className || ''}`}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
               >
-                {b.label}
+                <img
+                  src="/undo-icon.svg"
+                  alt=""
+                  aria-hidden="true"
+                  className="w-4 h-4 dark:invert"
+                  style={{ borderRadius: 0, boxShadow: "none" }}
+                />
               </button>
-            ))}
-          </div>
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  focusEditor();
+                  document.execCommand("redo");
+                }}
+                title="Redo"
+                aria-label="Redo"
+                type="button"
+                disabled={disabled}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
+              >
+                <img
+                  src="/redo-icon.svg"
+                  alt=""
+                  aria-hidden="true"
+                  className="w-4 h-4 dark:invert"
+                  style={{ borderRadius: 0, boxShadow: "none" }}
+                />
+              </button>
+            </div>
 
-          {/* Divider */}
-          <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
-          {/* Paragraph style — a segmented single-select. Rendered as one
-              connected control (not separate pills) so the highlighted item
-              reads as "the current style" rather than a toggle that's stuck on.
-              This is why "P" looking active no longer implies a hidden state. */}
-          <div role="group" aria-label="Paragraph style" className="flex items-center gap-2 flex-shrink-0 rounded-lg p-2">
-            {HEADINGS.map(h => {
-              const active = !!formats[`heading${h.level}`];
-              return (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {INLINE.map((b) => (
                 <button
-                  key={h.level}
-                  onMouseDown={e => e.preventDefault()}
-                  onClick={() => applyHeading(h.level)}
-                  title={h.title}
-                  aria-label={h.title}
-                  aria-pressed={active}
+                  key={b.cmd}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => applyInlineOrAlign(b.cmd)}
+                  title={b.title}
+                  aria-label={b.title}
+                  aria-pressed={!!formats[b.cmd]}
                   type="button"
                   disabled={disabled}
-                  className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold transition-colors touch-manipulation ${
-                    active
-                      ? 'bg-gray-200 dark:bg-[#3a3a3a] text-gray-900 dark:text-white'
-                      : 'text-gray-500 dark:text-[#a3a3a3] hover:text-gray-700 dark:hover:text-[#d4d4d4]'
-                  }`}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-[0.96] transition-transform touch-manipulation ${
+                    formats[b.cmd]
+                      ? "bg-[#008ff0]/15 dark:bg-[#008ff0]/20 text-[#008ff0]"
+                      : "bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]"
+                  } ${b.className || ""}`}
                 >
-                  {h.label}
+                  {b.label}
                 </button>
-              );
-            })}
-          </div>
+              ))}
+            </div>
 
-          {/* Divider */}
-          <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
-          {/* Alignment buttons */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => applyInlineOrAlign('justifyLeft')}
-              title="Align left"
-              aria-label="Align left"
-              aria-pressed={!!formats['justifyLeft']}
-              type="button"
-              disabled={disabled}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
-                formats['justifyLeft']
-                  ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20'
-                  : 'bg-gray-100 dark:bg-[#1e1e1e]'
-              }`}
+            <div
+              role="group"
+              aria-label="Paragraph style"
+              className="flex items-center gap-2 flex-shrink-0 rounded-lg p-2"
             >
-              <img src="/left-align-icon.svg" alt="" aria-hidden="true" className="w-4 h-4" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyLeft'] ? 'invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)' : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
-            </button>
-            <button
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => applyInlineOrAlign('justifyCenter')}
-              title="Align center"
-              aria-label="Align center"
-              aria-pressed={!!formats['justifyCenter']}
-              type="button"
-              disabled={disabled}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
-                formats['justifyCenter']
-                  ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20'
-                  : 'bg-gray-100 dark:bg-[#1e1e1e]'
-              }`}
-            >
-              <img src="/centrally-align-icon.svg" alt="" aria-hidden="true" className="w-4 h-4" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyCenter'] ? 'invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)' : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
-            </button>
-            <button
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => applyInlineOrAlign('justifyRight')}
-              title="Align right"
-              aria-label="Align right"
-              aria-pressed={!!formats['justifyRight']}
-              type="button"
-              disabled={disabled}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
-                formats['justifyRight']
-                  ? 'bg-[#008ff0]/15 dark:bg-[#008ff0]/20'
-                  : 'bg-gray-100 dark:bg-[#1e1e1e]'
-              }`}
-            >
-              <img src="/right-align-icon.svg" alt="" aria-hidden="true" className="w-4 h-4" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyRight'] ? 'invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)' : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
-            </button>
-          </div>
+              {HEADINGS.map((h) => {
+                const active = !!formats[`heading${h.level}`];
+                return (
+                  <button
+                    key={h.level}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => applyHeading(h.level)}
+                    title={h.title}
+                    aria-label={h.title}
+                    aria-pressed={active}
+                    type="button"
+                    disabled={disabled}
+                    className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold transition-colors touch-manipulation ${
+                      active
+                        ? "bg-gray-200 dark:bg-[#3a3a3a] text-gray-900 dark:text-white"
+                        : "text-gray-500 dark:text-[#a3a3a3] hover:text-gray-700 dark:hover:text-[#d4d4d4]"
+                    }`}
+                  >
+                    {h.label}
+                  </button>
+                );
+              })}
+            </div>
 
-          {/* Divider */}
-          <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
-          {/* Indent / Outdent */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => {
-                focusEditor();
-                const sel = window.getSelection();
-                if (!sel || sel.rangeCount === 0) return;
-                // Find the block element containing the cursor
-                let el: Element | null = sel.getRangeAt(0).startContainer.nodeType === 3
-                  ? (sel.getRangeAt(0).startContainer as Text).parentElement
-                  : sel.getRangeAt(0).startContainer as Element;
-                while (el && el !== editorRef.current) {
-                  if (['P','DIV','H1','H2','H3','H4','LI'].includes(el.tagName)) break;
-                  el = el.parentElement;
-                }
-                if (!el) return;
-                // Find first text node in this block
-                let firstText: Text | null = null;
-                const find = (n: Node) => { if (firstText) return; if (n.nodeType === 3) { firstText = n as Text; return; } n.childNodes.forEach(find); };
-                find(el);
-                if (!firstText) return;
-                const txt = firstText.textContent || '';
-                const count = txt.startsWith('\u2003\u2003') ? 2 : txt.startsWith('\u2003') ? 1 : 0;
-                if (count > 0) {
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => applyInlineOrAlign("justifyLeft")}
+                title="Align left"
+                aria-label="Align left"
+                aria-pressed={!!formats["justifyLeft"]}
+                type="button"
+                disabled={disabled}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
+                  formats["justifyLeft"]
+                    ? "bg-[#008ff0]/15 dark:bg-[#008ff0]/20"
+                    : "bg-gray-100 dark:bg-[#1e1e1e]"
+                }`}
+              >
+                <img
+                  src="/left-align-icon.svg"
+                  alt=""
+                  aria-hidden="true"
+                  className="w-4 h-4"
+                  style={{
+                    borderRadius: 0,
+                    boxShadow: "none",
+                    filter: formats["justifyLeft"]
+                      ? "invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)"
+                      : theme === "dark"
+                        ? "invert(1)"
+                        : "invert(0)",
+                  }}
+                />
+              </button>
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => applyInlineOrAlign("justifyCenter")}
+                title="Align center"
+                aria-label="Align center"
+                aria-pressed={!!formats["justifyCenter"]}
+                type="button"
+                disabled={disabled}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
+                  formats["justifyCenter"]
+                    ? "bg-[#008ff0]/15 dark:bg-[#008ff0]/20"
+                    : "bg-gray-100 dark:bg-[#1e1e1e]"
+                }`}
+              >
+                <img
+                  src="/centrally-align-icon.svg"
+                  alt=""
+                  aria-hidden="true"
+                  className="w-4 h-4"
+                  style={{
+                    borderRadius: 0,
+                    boxShadow: "none",
+                    filter: formats["justifyCenter"]
+                      ? "invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)"
+                      : theme === "dark"
+                        ? "invert(1)"
+                        : "invert(0)",
+                  }}
+                />
+              </button>
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => applyInlineOrAlign("justifyRight")}
+                title="Align right"
+                aria-label="Align right"
+                aria-pressed={!!formats["justifyRight"]}
+                type="button"
+                disabled={disabled}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
+                  formats["justifyRight"]
+                    ? "bg-[#008ff0]/15 dark:bg-[#008ff0]/20"
+                    : "bg-gray-100 dark:bg-[#1e1e1e]"
+                }`}
+              >
+                <img
+                  src="/right-align-icon.svg"
+                  alt=""
+                  aria-hidden="true"
+                  className="w-4 h-4"
+                  style={{
+                    borderRadius: 0,
+                    boxShadow: "none",
+                    filter: formats["justifyRight"]
+                      ? "invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)"
+                      : theme === "dark"
+                        ? "invert(1)"
+                        : "invert(0)",
+                  }}
+                />
+              </button>
+            </div>
+
+            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  focusEditor();
+                  const sel = window.getSelection();
+                  if (!sel || sel.rangeCount === 0) return;
+
+                  let el: Element | null =
+                    sel.getRangeAt(0).startContainer.nodeType === 3
+                      ? (sel.getRangeAt(0).startContainer as Text).parentElement
+                      : (sel.getRangeAt(0).startContainer as Element);
+                  while (el && el !== editorRef.current) {
+                    if (
+                      ["P", "DIV", "H1", "H2", "H3", "H4", "LI"].includes(
+                        el.tagName,
+                      )
+                    )
+                      break;
+                    el = el.parentElement;
+                  }
+                  if (!el) return;
+
+                  const find = (n: Node): Text | null => {
+                    if (n.nodeType === 3) return n as Text;
+                    for (const child of Array.from(n.childNodes)) {
+                      const found = find(child);
+                      if (found) return found;
+                    }
+                    return null;
+                  };
+                  const firstText = find(el);
+                  if (!firstText) return;
+                  const txt = firstText.textContent || "";
+                  const count = txt.startsWith("\u2003\u2003")
+                    ? 2
+                    : txt.startsWith("\u2003")
+                      ? 1
+                      : 0;
+                  if (count > 0) {
+                    const r = document.createRange();
+                    r.setStart(firstText, 0);
+                    r.setEnd(firstText, count);
+                    sel.removeAllRanges();
+                    sel.addRange(r);
+                    document.execCommand("delete");
+                  }
+                }}
+                title="Outdent"
+                aria-label="Outdent"
+                type="button"
+                disabled={disabled}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
+              >
+                <svg
+                  className="w-3.5 h-3.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.6}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 6h18M9 12h12M9 18h12" />
+                  <path d="M7 9l-4 3 4 3" />
+                </svg>
+              </button>
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  focusEditor();
+                  const sel = window.getSelection();
+                  if (!sel || sel.rangeCount === 0) return;
+
+                  let el: Element | null =
+                    sel.getRangeAt(0).startContainer.nodeType === 3
+                      ? (sel.getRangeAt(0).startContainer as Text).parentElement
+                      : (sel.getRangeAt(0).startContainer as Element);
+                  while (el && el !== editorRef.current) {
+                    if (
+                      ["P", "DIV", "H1", "H2", "H3", "H4", "LI"].includes(
+                        el.tagName,
+                      )
+                    )
+                      break;
+                    el = el.parentElement;
+                  }
+                  if (!el) return;
+
+                  let firstText: Text | null = null;
+                  const find = (n: Node) => {
+                    if (firstText) return;
+                    if (n.nodeType === 3) {
+                      firstText = n as Text;
+                      return;
+                    }
+                    n.childNodes.forEach(find);
+                  };
+                  find(el);
+                  if (!firstText) return;
+
                   const r = document.createRange();
-                  r.setStart(firstText, 0); r.setEnd(firstText, count);
-                  sel.removeAllRanges(); sel.addRange(r);
-                  document.execCommand('delete');
-                }
-              }}
-              title="Outdent"
-              aria-label="Outdent"
+                  r.setStart(firstText, 0);
+                  r.collapse(true);
+                  sel.removeAllRanges();
+                  sel.addRange(r);
+                  document.execCommand("insertText", false, "\u2003\u2003");
+                }}
+                title="Indent"
+                aria-label="Indent"
+                type="button"
+                disabled={disabled}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
+              >
+                <svg
+                  className="w-3.5 h-3.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.6}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 6h18M9 12h12M9 18h12" />
+                  <path d="M3 9l4 3-4 3" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={handleEndnoteClick}
+                title="Insert endnote"
+                aria-label="Insert endnote"
+                type="button"
+                disabled={disabled || !onCreateEndnote}
+                className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation disabled:opacity-50"
+              >
+                <Image
+                  src="/endnote-icon.svg"
+                  alt=""
+                  aria-hidden="true"
+                  width={14}
+                  height={14}
+                  className="w-3.5 h-3.5 dark:invert"
+                  style={{ borderRadius: 0, boxShadow: "none" }}
+                />
+              </button>
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={handleLinkClick}
+                title="Insert link"
+                aria-label="Insert link"
+                type="button"
+                disabled={disabled}
+                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
+              >
+                <Image
+                  src="/link-icon.svg"
+                  alt=""
+                  aria-hidden="true"
+                  width={14}
+                  height={14}
+                  className="w-3.5 h-3.5 dark:invert"
+                  style={{ borderRadius: 0, boxShadow: "none" }}
+                />
+              </button>
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={handleAnchorClick}
+                title="Insert anchor"
+                aria-label="Insert anchor"
+                type="button"
+                disabled={disabled}
+                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
+              >
+                <Image
+                  src="/anchor-icon.svg"
+                  alt=""
+                  aria-hidden="true"
+                  width={14}
+                  height={14}
+                  className="w-3.5 h-3.5 dark:invert"
+                  style={{ borderRadius: 0, boxShadow: "none" }}
+                />
+              </button>
+            </div>
+
+            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleImageButtonClick}
+              title="Insert image"
+              aria-label="Insert image"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
+              className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation flex-shrink-0"
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 6h18M9 12h12M9 18h12" /><path d="M7 9l-4 3 4 3" />
-              </svg>
+              <img
+                src="/image-icon.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-3.5 h-3.5 dark:invert"
+                style={{ borderRadius: 0, boxShadow: "none" }}
+              />
             </button>
+
             <button
-              onMouseDown={e => e.preventDefault()}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
                 focusEditor();
-                const sel = window.getSelection();
-                if (!sel || sel.rangeCount === 0) return;
-                // Find the block element containing the cursor
-                let el: Element | null = sel.getRangeAt(0).startContainer.nodeType === 3
-                  ? (sel.getRangeAt(0).startContainer as Text).parentElement
-                  : sel.getRangeAt(0).startContainer as Element;
-                while (el && el !== editorRef.current) {
-                  if (['P','DIV','H1','H2','H3','H4','LI'].includes(el.tagName)) break;
-                  el = el.parentElement;
-                }
-                if (!el) return;
-                // Find first text node in this block
-                let firstText: Text | null = null;
-                const find = (n: Node) => { if (firstText) return; if (n.nodeType === 3) { firstText = n as Text; return; } n.childNodes.forEach(find); };
-                find(el);
-                if (!firstText) return;
-                // Move cursor to start of block and insert em-spaces
-                const r = document.createRange();
-                r.setStart(firstText, 0); r.collapse(true);
-                sel.removeAllRanges(); sel.addRange(r);
-                document.execCommand('insertText', false, '\u2003\u2003');
+                document.execCommand("removeFormat");
+                emitChange();
+                refreshStates();
               }}
-              title="Indent"
-              aria-label="Indent"
+              title="Remove all formatting (bold, italic, etc.)"
+              aria-label="Remove all formatting"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
+              className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation flex-shrink-0"
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 6h18M9 12h12M9 18h12" /><path d="M3 9l4 3-4 3" />
-              </svg>
+              <img
+                src="/clear-erase-icon.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-3.5 h-3.5 dark:invert"
+                style={{ borderRadius: 0, boxShadow: "none" }}
+              />
             </button>
           </div>
-
-          {/* Divider */}
-          <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
-
-          {/* Endnote, Link, Anchor buttons */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button
-              onMouseDown={e => e.preventDefault()}
-              onClick={handleEndnoteClick}
-              title="Insert endnote"
-              aria-label="Insert endnote"
-              type="button"
-              disabled={disabled || !onCreateEndnote}
-              className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation disabled:opacity-50"
-            >
-              <Image src="/endnote-icon.svg" alt="" aria-hidden="true" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
-            </button>
-            <button
-              onMouseDown={e => e.preventDefault()}
-              onClick={handleLinkClick}
-              title="Insert link"
-              aria-label="Insert link"
-              type="button"
-              disabled={disabled}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
-            >
-              <Image src="/link-icon.svg" alt="" aria-hidden="true" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
-            </button>
-            <button
-              onMouseDown={e => e.preventDefault()}
-              onClick={handleAnchorClick}
-              title="Insert anchor"
-              aria-label="Insert anchor"
-              type="button"
-              disabled={disabled}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
-            >
-              <Image src="/anchor-icon.svg" alt="" aria-hidden="true" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
-
-          {/* Insert Image button */}
-          <button
-            onMouseDown={e => e.preventDefault()}
-            onClick={handleImageButtonClick}
-            title="Insert image"
-            aria-label="Insert image"
-            type="button"
-            disabled={disabled}
-            className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation flex-shrink-0"
-          >
-            <img src="/image-icon.svg" alt="" aria-hidden="true" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
-          </button>
-
-          {/* Clear formatting button */}
-          <button
-            onMouseDown={e => e.preventDefault()}
-            onClick={() => {
-              focusEditor();
-              document.execCommand('removeFormat');
-              emitChange();
-              refreshStates();
-            }}
-            title="Remove all formatting (bold, italic, etc.)"
-            aria-label="Remove all formatting"
-            type="button"
-            disabled={disabled}
-            className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation flex-shrink-0"
-          >
-            <img src="/clear-erase-icon.svg" alt="" aria-hidden="true" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
-          </button>
         </div>
-      </div>}
+      )}
 
-      {/* Compact Floating Toolbar - Appears on mobile when keyboard is open */}
       {!hideToolbar && showCompactToolbar && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[200] bg-white dark:bg-[#1e1e1e] border-t border-gray-200 dark:border-[#2f2f2f] shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-          {/* More menu popover */}
+        <div
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-[200] bg-white dark:bg-[#1e1e1e] border-t border-gray-200 dark:border-[#2f2f2f] shadow-lg"
+          style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+        >
           {showMoreMenu && (
             <div className="absolute bottom-full left-0 right-0 bg-white dark:bg-[#1e1e1e] border-t border-gray-200 dark:border-[#2f2f2f] shadow-lg p-3">
               <div className="flex flex-wrap gap-2">
-                {/* Endnote */}
                 <button
-                  onMouseDown={e => e.preventDefault()}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     handleEndnoteClick();
                     setShowMoreMenu(false);
@@ -1206,44 +1315,63 @@ export default function RichTextEditor({
                   disabled={!onCreateEndnote}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] text-sm font-medium text-gray-700 dark:text-[#d4d4d4] active:bg-gray-200 disabled:opacity-50"
                 >
-                  <Image src="/endnote-icon.svg" alt="" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+                  <Image
+                    src="/endnote-icon.svg"
+                    alt=""
+                    width={14}
+                    height={14}
+                    className="w-3.5 h-3.5 dark:invert"
+                    style={{ borderRadius: 0, boxShadow: "none" }}
+                  />
                   Endnote
                 </button>
-                {/* Anchor */}
+
                 <button
-                  onMouseDown={e => e.preventDefault()}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     handleAnchorClick();
                     setShowMoreMenu(false);
                   }}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] text-sm font-medium text-gray-700 dark:text-[#d4d4d4] active:bg-gray-200"
                 >
-                  <Image src="/anchor-icon.svg" alt="" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+                  <Image
+                    src="/anchor-icon.svg"
+                    alt=""
+                    width={14}
+                    height={14}
+                    className="w-3.5 h-3.5 dark:invert"
+                    style={{ borderRadius: 0, boxShadow: "none" }}
+                  />
                   Anchor
                 </button>
-                {/* Insert Image */}
+
                 <button
-                  onMouseDown={e => e.preventDefault()}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     handleImageButtonClick();
                     setShowMoreMenu(false);
                   }}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] text-sm font-medium text-gray-700 dark:text-[#d4d4d4] active:bg-gray-200"
                 >
-                  <img src="/image-icon.svg" alt="" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+                  <img
+                    src="/image-icon.svg"
+                    alt=""
+                    className="w-3.5 h-3.5 dark:invert"
+                    style={{ borderRadius: 0, boxShadow: "none" }}
+                  />
                   Image
                 </button>
-                {/* H3 */}
+
                 <button
-                  onMouseDown={e => e.preventDefault()}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     applyHeading(3);
                     setShowMoreMenu(false);
                   }}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium active:bg-gray-200 ${
-                    formats['heading3']
-                      ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
-                      : 'bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]'
+                    formats["heading3"]
+                      ? "bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]"
+                      : "bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]"
                   }`}
                 >
                   H3
@@ -1251,50 +1379,60 @@ export default function RichTextEditor({
               </div>
             </div>
           )}
-          
-          {/* Main toolbar - horizontally scrollable */}
+
           <div className="flex items-center px-6 py-2 gap-1 overflow-x-auto scrollbar-hide">
-            {/* Undo/Redo */}
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
-                onMouseDown={e => e.preventDefault()}
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   focusEditor();
-                  document.execCommand('undo');
+                  document.execCommand("undo");
                 }}
                 className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a]"
                 title="Undo"
               >
-                <Image src="/undo-icon.svg" alt="Undo" width={16} height={16} className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+                <Image
+                  src="/undo-icon.svg"
+                  alt="Undo"
+                  width={16}
+                  height={16}
+                  className="w-4 h-4 dark:invert"
+                  style={{ borderRadius: 0, boxShadow: "none" }}
+                />
               </button>
               <button
-                onMouseDown={e => e.preventDefault()}
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   focusEditor();
-                  document.execCommand('redo');
+                  document.execCommand("redo");
                 }}
                 className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a]"
                 title="Redo"
               >
-                <Image src="/redo-icon.svg" alt="Redo" width={16} height={16} className="w-4 h-4 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+                <Image
+                  src="/redo-icon.svg"
+                  alt="Redo"
+                  width={16}
+                  height={16}
+                  className="w-4 h-4 dark:invert"
+                  style={{ borderRadius: 0, boxShadow: "none" }}
+                />
               </button>
             </div>
 
-            {/* Divider */}
             <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
-            {/* Format buttons */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              {INLINE.map(b => (
+              {INLINE.map((b) => (
                 <button
                   key={b.cmd}
-                  onMouseDown={e => e.preventDefault()}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => applyInlineOrAlign(b.cmd)}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-[0.96] transition-transform ${
                     formats[b.cmd]
-                      ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
-                      : 'bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]'
-                  } ${b.className || ''}`}
+                      ? "bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]"
+                      : "bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]"
+                  } ${b.className || ""}`}
                   title={b.title}
                 >
                   {b.label}
@@ -1302,20 +1440,18 @@ export default function RichTextEditor({
               ))}
             </div>
 
-            {/* Divider */}
             <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
-            {/* Headings P, H1, H2 */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              {HEADINGS.slice(0, 3).map(h => (
+              {HEADINGS.slice(0, 3).map((h) => (
                 <button
                   key={h.level}
-                  onMouseDown={e => e.preventDefault()}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => applyHeading(h.level)}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-[0.96] transition-transform ${
                     formats[`heading${h.level}`]
-                      ? 'bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]'
-                      : 'bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]'
+                      ? "bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]"
+                      : "bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]"
                   }`}
                   title={h.title}
                 >
@@ -1324,85 +1460,136 @@ export default function RichTextEditor({
               ))}
             </div>
 
-            {/* Divider */}
             <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
-            {/* Alignment buttons */}
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
-                onMouseDown={e => e.preventDefault()}
-                onClick={() => applyInlineOrAlign('justifyLeft')}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => applyInlineOrAlign("justifyLeft")}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
-                  formats['justifyLeft']
-                    ? 'bg-[#181a1d] dark:bg-white'
-                    : 'bg-gray-100 dark:bg-[#1e1e1e]'
+                  formats["justifyLeft"]
+                    ? "bg-[#181a1d] dark:bg-white"
+                    : "bg-gray-100 dark:bg-[#1e1e1e]"
                 }`}
                 title="Align Left"
               >
-                <img src="/left-align-icon.svg" alt="Left" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyLeft'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+                <img
+                  src="/left-align-icon.svg"
+                  alt="Left"
+                  className="w-3.5 h-3.5"
+                  style={{
+                    borderRadius: 0,
+                    boxShadow: "none",
+                    filter: formats["justifyLeft"]
+                      ? theme === "dark"
+                        ? "invert(0)"
+                        : "invert(1)"
+                      : theme === "dark"
+                        ? "invert(1)"
+                        : "invert(0)",
+                  }}
+                />
               </button>
               <button
-                onMouseDown={e => e.preventDefault()}
-                onClick={() => applyInlineOrAlign('justifyCenter')}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => applyInlineOrAlign("justifyCenter")}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
-                  formats['justifyCenter']
-                    ? 'bg-[#181a1d] dark:bg-white'
-                    : 'bg-gray-100 dark:bg-[#1e1e1e]'
+                  formats["justifyCenter"]
+                    ? "bg-[#181a1d] dark:bg-white"
+                    : "bg-gray-100 dark:bg-[#1e1e1e]"
                 }`}
                 title="Align Center"
               >
-                <img src="/centrally-align-icon.svg" alt="Center" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyCenter'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+                <img
+                  src="/centrally-align-icon.svg"
+                  alt="Center"
+                  className="w-3.5 h-3.5"
+                  style={{
+                    borderRadius: 0,
+                    boxShadow: "none",
+                    filter: formats["justifyCenter"]
+                      ? theme === "dark"
+                        ? "invert(0)"
+                        : "invert(1)"
+                      : theme === "dark"
+                        ? "invert(1)"
+                        : "invert(0)",
+                  }}
+                />
               </button>
               <button
-                onMouseDown={e => e.preventDefault()}
-                onClick={() => applyInlineOrAlign('justifyRight')}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => applyInlineOrAlign("justifyRight")}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
-                  formats['justifyRight']
-                    ? 'bg-[#181a1d] dark:bg-white'
-                    : 'bg-gray-100 dark:bg-[#1e1e1e]'
+                  formats["justifyRight"]
+                    ? "bg-[#181a1d] dark:bg-white"
+                    : "bg-gray-100 dark:bg-[#1e1e1e]"
                 }`}
                 title="Align Right"
               >
-                <img src="/right-align-icon.svg" alt="Right" className="w-3.5 h-3.5" style={{ borderRadius: 0, boxShadow: 'none', filter: formats['justifyRight'] ? (theme === 'dark' ? 'invert(0)' : 'invert(1)') : (theme === 'dark' ? 'invert(1)' : 'invert(0)') }} />
+                <img
+                  src="/right-align-icon.svg"
+                  alt="Right"
+                  className="w-3.5 h-3.5"
+                  style={{
+                    borderRadius: 0,
+                    boxShadow: "none",
+                    filter: formats["justifyRight"]
+                      ? theme === "dark"
+                        ? "invert(0)"
+                        : "invert(1)"
+                      : theme === "dark"
+                        ? "invert(1)"
+                        : "invert(0)",
+                  }}
+                />
               </button>
             </div>
 
-            {/* Divider */}
             <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
-            {/* Link button */}
             <button
-              onMouseDown={e => e.preventDefault()}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => handleLinkClick()}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a] flex-shrink-0"
               title="Insert Link"
             >
-              <Image src="/link-icon.svg" alt="Link" width={14} height={14} className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+              <Image
+                src="/link-icon.svg"
+                alt="Link"
+                width={14}
+                height={14}
+                className="w-3.5 h-3.5 dark:invert"
+                style={{ borderRadius: 0, boxShadow: "none" }}
+              />
             </button>
 
-            {/* Clear formatting */}
             <button
-              onMouseDown={e => e.preventDefault()}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
                 focusEditor();
-                document.execCommand('removeFormat');
+                document.execCommand("removeFormat");
                 emitChange();
                 refreshStates();
               }}
               className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a] flex-shrink-0"
               title="Remove all formatting (bold, italic, etc.)"
             >
-              <img src="/clear-erase-icon.svg" alt="Clear" className="w-3.5 h-3.5 dark:invert" style={{ borderRadius: 0, boxShadow: 'none' }} />
+              <img
+                src="/clear-erase-icon.svg"
+                alt="Clear"
+                className="w-3.5 h-3.5 dark:invert"
+                style={{ borderRadius: 0, boxShadow: "none" }}
+              />
             </button>
 
-            {/* More button */}
             <button
-              onMouseDown={e => e.preventDefault()}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => setShowMoreMenu(!showMoreMenu)}
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform flex-shrink-0 ${
                 showMoreMenu
-                  ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400'
-                  : 'bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]'
+                  ? "bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400"
+                  : "bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]"
               }`}
               title="More options"
             >
@@ -1413,12 +1600,10 @@ export default function RichTextEditor({
               </svg>
             </button>
 
-            {/* Divider */}
             <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
 
-            {/* Done button to dismiss keyboard */}
             <button
-              onMouseDown={e => e.preventDefault()}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
                 editorRef.current?.blur();
                 setShowCompactToolbar(false);
@@ -1431,13 +1616,10 @@ export default function RichTextEditor({
           </div>
         </div>
       )}
-      
-      {/* Editable area */}
+
       <div className="flex-1 min-w-0 relative flex flex-col min-h-0">
         {showPlaceholder && (
-          <div
-            className="absolute left-6 top-6 text-[#737373] text-lg pointer-events-none select-none z-10"
-          >
+          <div className="absolute left-6 top-6 text-[#737373] text-lg pointer-events-none select-none z-10">
             {placeholder}
           </div>
         )}
@@ -1446,23 +1628,18 @@ export default function RichTextEditor({
           className="editor-root p-6 text-base focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-y-auto flex-1 min-h-0 overflow-x-hidden text-gray-900 dark:text-white/80 me:text-[var(--me-ink)]"
           style={{
             minHeight: Math.max(minHeight, 200),
-            maxHeight: 'calc(100vh - 300px)',
-            height: '100%',
-            position: 'relative',
-            contain: 'layout style',
+            maxHeight: "calc(100vh - 300px)",
+            height: "100%",
+            position: "relative",
+            contain: "layout style",
             fontFamily: 'Georgia, "Times New Roman", serif',
-            fontSize: '15px',
-            lineHeight: '1.75',
+            fontSize: "15px",
+            lineHeight: "1.75",
           }}
           contentEditable={!disabled}
           suppressContentEditableWarning
           onKeyDown={(e) => {
-            // Book Mind Cmd-K. With a non-empty selection it opens the
-            // inline-edit popover; with a collapsed caret it opens the
-            // compose palette at the cursor. The keypress is always
-            // swallowed inside the editor so Chrome's address-bar focus
-            // never grabs it from under the user.
-            if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+            if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
               const sel = window.getSelection();
               if (sel && sel.rangeCount > 0) {
                 const range = sel.getRangeAt(0);
@@ -1484,7 +1661,8 @@ export default function RichTextEditor({
                   e.stopPropagation();
                   let rect = range.getBoundingClientRect();
                   if (rect.height === 0 && range.startContainer.parentElement) {
-                    rect = range.startContainer.parentElement.getBoundingClientRect();
+                    rect =
+                      range.startContainer.parentElement.getBoundingClientRect();
                   }
                   onComposeRequest({
                     range: range.cloneRange(),
@@ -1493,15 +1671,14 @@ export default function RichTextEditor({
                   return;
                 }
               }
-              // No handler matched but still swallow so the browser
-              // doesn't intercept.
+
               e.preventDefault();
               e.stopPropagation();
               return;
             }
-            if (e.key === 'Tab') {
+            if (e.key === "Tab") {
               e.preventDefault();
-              document.execCommand('insertText', false, '\u2003\u2003');
+              document.execCommand("insertText", false, "\u2003\u2003");
             }
           }}
           onInput={handleInput}
@@ -1547,8 +1724,9 @@ export default function RichTextEditor({
             font-size: 0.85rem;
             line-height: 1.4;
             overflow-x: auto;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-              'Liberation Mono', 'Courier New', monospace;
+            font-family:
+              ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+              "Liberation Mono", "Courier New", monospace;
             white-space: pre;
             margin: 0.8rem 0;
           }
@@ -1557,56 +1735,64 @@ export default function RichTextEditor({
             display: block;
             margin: 1em 0;
             border-radius: 6px;
-            box-shadow: 0 1px 4px 0 rgba(0,0,0,0.07);
+            box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.07);
           }
         `}</style>
         {showWordCount && (
           <div className="px-4 pb-2 text-3xs text-[#86868B] dark:text-[#a3a3a3] flex justify-between items-center select-none">
-            {/* Terms/Privacy links - only on mobile */}
             <div className="lg:hidden flex items-center space-x-2">
-              <a href="https://makeebook.ink/terms" className="hover:underline" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://makeebook.ink/terms"
+                className="hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Terms
               </a>
               <span className="text-gray-300">|</span>
-              <a href="https://makeebook.ink/privacy" className="hover:underline" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://makeebook.ink/privacy"
+                className="hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Privacy
               </a>
             </div>
-            {/* Spacer for desktop when links are hidden */}
+
             <div className="hidden lg:block"></div>
-            {/* Word count - always on the right */}
+
             <div>
               Words: {wordCount} | Characters: {charCount}
             </div>
           </div>
         )}
-        {/* Hidden image file picker */}
+
         <input
           type="file"
           accept="image/*"
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
           ref={fileInputRef}
           onChange={handleFileInputChange}
           tabIndex={-1}
         />
       </div>
 
-      {/* Desktop Toolbar - Hidden (now using top toolbar for all devices) */}
       <div
         onMouseDown={toolbarMouseDown}
         className={`hidden w-32 border-l bg-[#F7F7F7] flex-col gap-4 p-2 overflow-y-auto ${
-          focused ? 'opacity-100' : 'opacity-70'
+          focused ? "opacity-100" : "opacity-70"
         } transition`}
       >
         <Section label="Text">
           <div className="grid grid-cols-4 gap-1">
-            {INLINE.map(b => (
+            {INLINE.map((b) => (
               <button
                 key={b.cmd}
-                onMouseDown={e => e.preventDefault()}
+                onMouseDown={(e) => e.preventDefault()}
                 title={b.title}
                 type="button"
-                className={`${BTN} ${formats[b.cmd] ? BTN_ACTIVE : ''} ${b.className || ''}`}
+                className={`${BTN} ${formats[b.cmd] ? BTN_ACTIVE : ""} ${b.className || ""}`}
                 onClick={() => applyInlineOrAlign(b.cmd)}
                 disabled={disabled}
               >
@@ -1618,13 +1804,13 @@ export default function RichTextEditor({
 
         <Section label="Headings">
           <div className="grid grid-cols-3 gap-1">
-            {HEADINGS.map(h => (
+            {HEADINGS.map((h) => (
               <button
                 key={h.level}
-                onMouseDown={e => e.preventDefault()}
+                onMouseDown={(e) => e.preventDefault()}
                 title={h.title}
                 type="button"
-                className={`${BTN} ${formats[`heading${h.level}`] ? BTN_ACTIVE : ''}`}
+                className={`${BTN} ${formats[`heading${h.level}`] ? BTN_ACTIVE : ""}`}
                 onClick={() => applyHeading(h.level)}
                 disabled={disabled}
               >
@@ -1636,7 +1822,7 @@ export default function RichTextEditor({
 
         <Section label="Insert">
           <button
-            onMouseDown={e => e.preventDefault()}
+            onMouseDown={(e) => e.preventDefault()}
             title="Insert Image"
             type="button"
             className={BTN}
@@ -1649,24 +1835,30 @@ export default function RichTextEditor({
 
         <Section label="Actions">
           <div className="grid grid-cols-2 gap-1">
-            {ACTIONS.map(action => (
+            {ACTIONS.map((action) => (
               <button
                 key={action.cmd}
-                onMouseDown={e => e.preventDefault()}
+                onMouseDown={(e) => e.preventDefault()}
                 title={action.title}
                 type="button"
                 className="w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
                 onClick={() => {
-                  if (action.cmd === 'endnote') {
+                  if (action.cmd === "endnote") {
                     handleEndnoteClick();
-                  } else if (action.cmd === 'link') {
+                  } else if (action.cmd === "link") {
                     handleLinkClick();
                   }
                 }}
-                disabled={disabled || (action.cmd === 'endnote' && !onCreateEndnote)}
+                disabled={
+                  disabled || (action.cmd === "endnote" && !onCreateEndnote)
+                }
               >
                 <Image
-                  src={action.cmd === 'endnote' ? '/endnote-icon.svg' : '/link-icon.svg'}
+                  src={
+                    action.cmd === "endnote"
+                      ? "/endnote-icon.svg"
+                      : "/link-icon.svg"
+                  }
                   alt={action.title}
                   width={12}
                   height={12}
@@ -1679,13 +1871,13 @@ export default function RichTextEditor({
 
         <Section label="Clear formatting">
           <button
-            onMouseDown={e => e.preventDefault()}
+            onMouseDown={(e) => e.preventDefault()}
             title="Clear formatting"
             type="button"
             className={BTN}
             onClick={() => {
               focusEditor();
-              document.execCommand('removeFormat');
+              document.execCommand("removeFormat");
               emitChange();
               refreshStates();
             }}
@@ -1696,12 +1888,19 @@ export default function RichTextEditor({
         </Section>
       </div>
 
-      {/* Endnote Modal */}
       {showEndnoteModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50" onClick={() => setShowEndnoteModal(false)}>
-          <div className="bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50"
+          onClick={() => setShowEndnoteModal(false)}
+        >
+          <div
+            className="bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl w-full max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="px-6 py-4 border-b border-gray-200 dark:border-[#2f2f2f]">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Endnote</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Add Endnote
+              </h3>
             </div>
             <div className="px-6 py-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4] mb-2">
@@ -1711,11 +1910,11 @@ export default function RichTextEditor({
                 value={endnoteContent}
                 onChange={(e) => setEndnoteContent(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                     e.preventDefault();
                     handleAddEndnote();
                   }
-                  if (e.key === 'Escape') {
+                  if (e.key === "Escape") {
                     setShowEndnoteModal(false);
                   }
                 }}
@@ -1726,10 +1925,23 @@ export default function RichTextEditor({
               />
               {!hasEndnotes && (
                 <p className="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-start gap-2">
-                  <svg className="w-4 h-4 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  <svg
+                    className="w-4 h-4 flex-shrink-0 mt-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.6}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                    />
                   </svg>
-                  <span>Your first endnote will automatically create an Endnotes chapter at the end of your book.</span>
+                  <span>
+                    Your first endnote will automatically create an Endnotes
+                    chapter at the end of your book.
+                  </span>
                 </p>
               )}
             </div>
@@ -1752,12 +1964,19 @@ export default function RichTextEditor({
         </div>
       )}
 
-      {/* Image Caption Modal */}
       {showImageCaptionModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50" onClick={() => setShowImageCaptionModal(false)}>
-          <div className="bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50"
+          onClick={() => setShowImageCaptionModal(false)}
+        >
+          <div
+            className="bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl w-full max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="px-6 py-4 border-b border-gray-200 dark:border-[#2f2f2f]">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Image Caption</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Add Image Caption
+              </h3>
             </div>
             <div className="px-6 py-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4] mb-2">
@@ -1768,11 +1987,11 @@ export default function RichTextEditor({
                 value={imageCaption}
                 onChange={(e) => setImageCaption(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     e.preventDefault();
                     handleAddImageWithCaption();
                   }
-                  if (e.key === 'Escape') {
+                  if (e.key === "Escape") {
                     setShowImageCaptionModal(false);
                     setPendingImageSrc(null);
                   }
@@ -1805,12 +2024,17 @@ export default function RichTextEditor({
           </div>
         </div>
       )}
-
     </div>
   );
 }
 
-function Section({ label, children }: { label: string; children: React.ReactNode }) {
+function Section({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-1">
       <div className="text-2xs font-semibold tracking-wide uppercase text-[#86868B] select-none">

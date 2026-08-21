@@ -18,15 +18,15 @@ export async function generateEpub(book: BookData) {
       <rootfiles>
         <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
       </rootfiles>
-    </container>`
+    </container>`,
   );
 
-  // Add cover image if present
   if (cover && coverInfo) {
-    zip.file(`OEBPS/cover.${coverInfo.ext}`, coverInfo.base64, { base64: true });
+    zip.file(`OEBPS/cover.${coverInfo.ext}`, coverInfo.base64, {
+      base64: true,
+    });
   }
 
-  // Add cover.xhtml page
   if (cover && coverInfo) {
     zip.file(
       "OEBPS/cover.xhtml",
@@ -38,7 +38,7 @@ export async function generateEpub(book: BookData) {
         <body style="margin:0;padding:0;text-align:center;background:#fff;">
           <img src="cover.${coverInfo.ext}" alt="Cover" style="max-width:100vw;max-height:100vh;object-fit:contain;display:block;margin:auto;" />
         </body>
-      </html>`
+      </html>`,
     );
   }
 
@@ -57,10 +57,10 @@ export async function generateEpub(book: BookData) {
           <h2>${htmlEscape(ch.title || `Chapter ${idx + 1}`)}</h2>
           ${ch.content}
         </body>
-      </html>`
+      </html>`,
     );
     manifestItems.push(
-      `<item id="chapter${idx + 1}" href="${filename}" media-type="application/xhtml+xml"/>`
+      `<item id="chapter${idx + 1}" href="${filename}" media-type="application/xhtml+xml"/>`,
     );
     spineItems.push(`<itemref idref="chapter${idx + 1}"/>`);
   });
@@ -77,18 +77,26 @@ export async function generateEpub(book: BookData) {
       </head>
       <docTitle><text>${htmlEscape(title || "Untitled Book")}</text></docTitle>
       <navMap>
-        ${cover ? `<navPoint id="navPoint-0" playOrder="0">
+        ${
+          cover
+            ? `<navPoint id="navPoint-0" playOrder="0">
           <navLabel><text>Cover</text></navLabel>
           <content src="cover.xhtml"/>
-        </navPoint>` : ""}
-        ${chapters.map((ch, idx) => `
+        </navPoint>`
+            : ""
+        }
+        ${chapters
+          .map(
+            (ch, idx) => `
           <navPoint id="navPoint-${idx + 1}" playOrder="${idx + 1}">
             <navLabel><text>${htmlEscape(ch.title || `Chapter ${idx + 1}`)}</text></navLabel>
             <content src="chapter${idx + 1}.xhtml"/>
           </navPoint>
-        `).join("")}
+        `,
+          )
+          .join("")}
       </navMap>
-    </ncx>`
+    </ncx>`,
   );
 
   zip.file(
@@ -104,7 +112,7 @@ export async function generateEpub(book: BookData) {
       </metadata>
       <manifest>
         <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
-        ${cover ? `<item id="cover-image" href="cover.${coverInfo.ext}" media-type="${coverInfo.mime}"/>` : ""}
+        ${cover && coverInfo ? `<item id="cover-image" href="cover.${coverInfo.ext}" media-type="${coverInfo.mime}"/>` : ""}
         ${cover ? `<item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>` : ""}
         ${manifestItems.join("\n")}
       </manifest>
@@ -112,7 +120,7 @@ export async function generateEpub(book: BookData) {
         ${cover ? `<itemref idref="cover" linear="yes"/>` : ""}
         ${spineItems.join("\n")}
       </spine>
-    </package>`
+    </package>`,
   );
 
   const content = await zip.generateAsync({ type: "blob" });

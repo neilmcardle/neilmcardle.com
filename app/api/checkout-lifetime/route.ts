@@ -1,72 +1,79 @@
-export const runtime = 'nodejs'
+export const runtime = "nodejs";
 
-import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
-import { createServerClient } from '@supabase/ssr'
-import { CookieOptions } from '@supabase/ssr'
-import { getUserById, updateUser } from '@/lib/db/users'
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+import { createServerClient } from "@supabase/ssr";
+import { CookieOptions } from "@supabase/ssr";
+import { getUserById, updateUser } from "@/lib/db/users";
 
-/**
- * Create a checkout session for the one-time lifetime purchase.
- */
 export async function POST(req: NextRequest) {
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
-      return NextResponse.json({ error: 'Stripe is not configured' }, { status: 500 })
+      return NextResponse.json(
+        { error: "Stripe is not configured" },
+        { status: 500 },
+      );
     }
 
     if (!process.env.STRIPE_LIFETIME_PRICE_ID) {
-      return NextResponse.json({ error: 'Stripe Lifetime price not configured' }, { status: 500 })
+      return NextResponse.json(
+        { error: "Stripe Lifetime price not configured" },
+        { status: 500 },
+      );
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-06-20',
-    })
+      apiVersion: "2025-08-27.basil",
+    });
 
-    // Auth is optional here.
-    let supabaseUserId: string | null = null
-    let existingCustomerId: string | null = null
+    let supabaseUserId: string | null = null;
+    let existingCustomerId: string | null = null;
 
     try {
-      const tempResponse = new NextResponse()
+      const tempResponse = new NextResponse();
       const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
           cookies: {
             get(name: string) {
-              return req.cookies.get(name)?.value
+              return req.cookies.get(name)?.value;
             },
             set(name: string, value: string, options: CookieOptions) {
-              tempResponse.cookies.set({ name, value, ...options })
+              tempResponse.cookies.set({ name, value, ...options });
             },
             remove(name: string, options: CookieOptions) {
-              tempResponse.cookies.set({ name, value: '', ...options })
+              tempResponse.cookies.set({ name, value: "", ...options });
             },
           },
-        }
-      )
+        },
+      );
 
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (user) {
-        supabaseUserId = user.id
-        const { user: dbUser } = await getUserById(user.id)
+        supabaseUserId = user.id;
+        const { user: dbUser } = await getUserById(user.id);
 
         if (dbUser) {
           if (dbUser.hasLifetimeAccess) {
-            return NextResponse.json({ error: 'You already have lifetime access' }, { status: 400 })
+            return NextResponse.json(
+              { error: "You already have lifetime access" },
+              { status: 400 },
+            );
           }
 
-          existingCustomerId = dbUser.stripeCustomerId ?? null
+          existingCustomerId = dbUser.stripeCustomerId ?? null;
 
           if (!existingCustomerId) {
             const customer = await stripe.customers.create({
               email: user.email!,
               metadata: { supabase_user_id: user.id },
-            })
-            existingCustomerId = customer.id
-            await updateUser(user.id, { stripeCustomerId: existingCustomerId })
+            });
+            existingCustomerId = customer.id;
+            await updateUser(user.id, { stripeCustomerId: existingCustomerId });
           }
         }
       }
@@ -74,50 +81,55 @@ export async function POST(req: NextRequest) {
       // No authenticated user; proceed.
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      mode: 'payment',
-      payment_method_types: ['card'],
-      line_items: [{ price: process.env.STRIPE_LIFETIME_PRICE_ID, quantity: 1 }],
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: [
+        { price: process.env.STRIPE_LIFETIME_PRICE_ID, quantity: 1 },
+      ],
       success_url: `${appUrl}/make-ebook?checkout=success&type=lifetime`,
       cancel_url: `${appUrl}/make-ebook?checkout=canceled`,
-      billing_address_collection: 'auto',
+      billing_address_collection: "auto",
       metadata: {
-        purchase_type: 'lifetime',
+        purchase_type: "lifetime",
         ...(supabaseUserId ? { supabase_user_id: supabaseUserId } : {}),
       },
-    }
+    };
 
     if (existingCustomerId) {
-      sessionParams.customer = existingCustomerId
+      sessionParams.customer = existingCustomerId;
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams)
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
-    console.log(`✅ Lifetime checkout session created: ${session.id}`)
+    console.log(`✅ Lifetime checkout session created: ${session.id}`);
 
-    return NextResponse.json({ url: session.url }, { status: 200 })
+    return NextResponse.json({ url: session.url }, { status: 200 });
   } catch (error: any) {
-    console.error('Error creating lifetime checkout session:', error)
+    console.error("Error creating lifetime checkout session:", error);
 
-    if (error.type === 'StripeCardError') {
+    if (error.type === "StripeCardError") {
       return NextResponse.json(
-        { error: 'Your card was declined. Please try a different payment method.' },
-        { status: 400 }
-      )
+        {
+          error:
+            "Your card was declined. Please try a different payment method.",
+        },
+        { status: 400 },
+      );
     }
 
-    if (error.type === 'StripeRateLimitError') {
+    if (error.type === "StripeRateLimitError") {
       return NextResponse.json(
-        { error: 'Too many requests. Please try again in a moment.' },
-        { status: 429 }
-      )
+        { error: "Too many requests. Please try again in a moment." },
+        { status: 429 },
+      );
     }
 
     return NextResponse.json(
-      { error: error.message || 'Failed to create checkout session' },
-      { status: 500 }
-    )
+      { error: error.message || "Failed to create checkout session" },
+      { status: 500 },
+    );
   }
 }

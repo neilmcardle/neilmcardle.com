@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "target": "ES6",
     "skipLibCheck": true,
@@ -24,15 +20,9 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@lib/*": [
-        "lib/*"
-      ],
-      "@components/*": [
-        "components/*"
-      ]
+      "@/*": ["./*"],
+      "@lib/*": ["lib/*"],
+      "@components/*": ["components/*"]
     }
   },
   "include": [
@@ -43,6 +33,11 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "prototype-shell",
+    "tessera-app",
+    ".next",
+    "out",
+    "ios"
   ]
 }

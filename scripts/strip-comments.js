@@ -1,97 +1,112 @@
-#!/usr/bin/env node
-
+const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const { execSync } = require("child_process");
+const ts = require("typescript");
+
+const DIRECTIVE =
+  /^[/*\s]*(@ts-|eslint|prettier-ignore|istanbul|c8 |v8 ignore|webpack|@jsx|#__PURE__|@license|@preserve|<reference)/;
 
 function getStagedFiles() {
   try {
-    const output = execSync("git diff --cached --name-only", {
+    return execSync("git diff --cached --name-only --diff-filter=ACM", {
       encoding: "utf-8",
-    });
-    return output
+    })
       .split("\n")
-      .filter((file) => file && /\.(ts|tsx|js|jsx)$/.test(file))
+      .filter((file) => file && /\.(ts|tsx|js|jsx|mjs|cjs)$/.test(file))
       .map((file) => path.resolve(process.cwd(), file))
       .filter((file) => fs.existsSync(file));
-  } catch (err) {
+  } catch {
     return [];
   }
 }
 
-function stripComments(content) {
-  let result = "";
-  let i = 0;
-  let inString = false;
-  let stringChar = "";
-
-  while (i < content.length) {
-    const char = content[i];
-    const nextChar = content[i + 1];
-
-    if (
-      (char === '"' || char === "'" || char === "`") &&
-      (i === 0 || content[i - 1] !== "\\")
-    ) {
-      if (!inString) {
-        inString = true;
-        stringChar = char;
-      } else if (char === stringChar) {
-        inString = false;
-      }
-    }
-
-    // Skip comments when not in string
-    if (!inString) {
-      // Single-line comment
-      if (char === "/" && nextChar === "/") {
-        const lineEnd = content.indexOf("\n", i);
-        if (lineEnd === -1) {
-          break;
-        }
-        i = lineEnd;
-        result += "\n";
-        continue;
-      }
-
-      // Multi-line comment
-      if (char === "/" && nextChar === "*") {
-        const commentEnd = content.indexOf("*/", i + 2);
-        if (commentEnd === -1) {
-          break;
-        }
-        i = commentEnd + 2;
-        const commentContent = content.substring(
-          i - (commentEnd + 2 - i),
-          commentEnd + 2,
-        );
-        const lineBreaks = (commentContent.match(/\n/g) || []).length;
-        result += "\n".repeat(lineBreaks);
-        continue;
-      }
-    }
-
-    result += char;
-    i++;
-  }
-
-  return result;
+function scriptKind(file) {
+  if (file.endsWith(".tsx")) return ts.ScriptKind.TSX;
+  if (file.endsWith(".ts")) return ts.ScriptKind.TS;
+  if (file.endsWith(".jsx")) return ts.ScriptKind.JSX;
+  return ts.ScriptKind.JS;
 }
 
-const stagedFiles = getStagedFiles();
-let modified = 0;
+function collectRanges(source, text) {
+  const ranges = [];
+  const seen = new Set();
 
-stagedFiles.forEach((file) => {
+  const add = (pos, end) => {
+    const key = `${pos}:${end}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    if (DIRECTIVE.test(text.slice(pos, end))) return;
+    ranges.push({ pos, end });
+  };
+
+  const visit = (node) => {
+    if (ts.isJsxExpression(node) && !node.expression) {
+      const inner = text.slice(node.getStart(source), node.getEnd());
+      if (!DIRECTIVE.test(inner.replace(/^\{/, ""))) {
+        add(node.getStart(source), node.getEnd());
+      }
+      return;
+    }
+    for (const range of ts.getLeadingCommentRanges(text, node.getFullStart()) ||
+      []) {
+      add(range.pos, range.end);
+    }
+    for (const range of ts.getTrailingCommentRanges(text, node.getEnd()) ||
+      []) {
+      add(range.pos, range.end);
+    }
+    node.forEachChild(visit);
+  };
+
+  visit(source);
+  return ranges.sort((a, b) => b.pos - a.pos);
+}
+
+function stripComments(text, file) {
+  const source = ts.createSourceFile(
+    file,
+    text,
+    ts.ScriptTarget.Latest,
+    true,
+    scriptKind(file),
+  );
+  let out = text;
+  for (const { pos, end } of collectRanges(source, text)) {
+    out = out.slice(0, pos) + out.slice(end);
+  }
+  return out
+    .split("\n")
+    .filter((line, i, lines) => {
+      if (line.trim() !== "") return true;
+      return i > 0 && lines[i - 1].trim() !== "";
+    })
+    .join("\n");
+}
+
+let changed = 0;
+for (const file of getStagedFiles()) {
   const original = fs.readFileSync(file, "utf-8");
-  const stripped = stripComments(original);
-
-  if (original !== stripped) {
-    fs.writeFileSync(file, stripped, "utf-8");
-    execSync(`git add "${file}"`);
-    modified++;
+  let stripped;
+  try {
+    stripped = stripComments(original, file);
+  } catch {
+    continue;
   }
-});
+  if (stripped === original) continue;
 
-if (modified > 0) {
-  console.log(`Comment stripper: removed comments from ${modified} file(s)`);
+  const check = ts.createSourceFile(
+    file,
+    stripped,
+    ts.ScriptTarget.Latest,
+    true,
+    scriptKind(file),
+  );
+  if (check.parseDiagnostics && check.parseDiagnostics.length > 0) {
+    console.log(`    skipped ${path.basename(file)} (would not parse)`);
+    continue;
+  }
+  fs.writeFileSync(file, stripped, "utf-8");
+  execSync(`git add "${file}"`);
+  changed += 1;
 }
+console.log(`    ✓ comments stripped from ${changed} file(s)`);

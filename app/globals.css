@@ -2085,3 +2085,16 @@ html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
 .hero-glint-sweeping {
   animation: hero-glint-sweep 1.6s cubic-bezier(0.4, 0, 0.3, 1) both;
 }
+
+@keyframes foil-glint-sweep {
+  from {
+    transform: translateX(-130%) rotate(-18deg);
+  }
+  to {
+    transform: translateX(250%) rotate(-18deg);
+  }
+}
+
+.foil-glint-sweeping {
+  animation: foil-glint-sweep 1.6s cubic-bezier(0.4, 0, 0.3, 1) both;
+}

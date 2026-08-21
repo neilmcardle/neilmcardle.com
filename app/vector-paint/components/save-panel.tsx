@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react"
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   Trash2,
   ArchiveRestoreIcon as WindowRestore,
   X,
   ShoppingBag,
   Pencil,
-} from "lucide-react"
+} from "lucide-react";
 import {
   VECTOR_PAINT_PRODUCTS,
   type VectorPaintProductId,
-} from "@/lib/vector-paint/products"
+} from "@/lib/vector-paint/products";
 
 interface SavedDrawing {
-  name: string
-  data: string
-  format?: VectorPaintProductId
+  name: string;
+  data: string;
+  format?: VectorPaintProductId;
 }
 
 interface SavePanelProps {
-  savedDrawings: Array<SavedDrawing>
-  loadSavedDrawing: (index: number) => void
-  deleteSavedDrawing: (index: number) => void
-  renameSavedDrawing: (index: number, name: string) => void
-  onOrderPrint: (index: number) => void
-  onClose: () => void
-  deleteDisabled?: boolean
+  savedDrawings: Array<SavedDrawing>;
+  loadSavedDrawing: (index: number) => void;
+  deleteSavedDrawing: (index: number) => void;
+  renameSavedDrawing: (index: number, name: string) => void;
+  onOrderPrint: (index: number) => void;
+  onClose: () => void;
+  deleteDisabled?: boolean;
 }
 
 export default function SavePanel({
@@ -38,37 +38,37 @@ export default function SavePanel({
   onClose,
   deleteDisabled = false,
 }: SavePanelProps) {
-  const [editingIndex, setEditingIndex] = useState<number | null>(null)
-  const [editingValue, setEditingValue] = useState("")
-  const editInputRef = useRef<HTMLInputElement | null>(null)
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingValue, setEditingValue] = useState("");
+  const editInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (editingIndex !== null) {
-      editInputRef.current?.focus()
-      editInputRef.current?.select()
+      editInputRef.current?.focus();
+      editInputRef.current?.select();
     }
-  }, [editingIndex])
+  }, [editingIndex]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && editingIndex === null) onClose()
-    }
-    document.addEventListener("keydown", onKey)
-    return () => document.removeEventListener("keydown", onKey)
-  }, [onClose, editingIndex])
+      if (e.key === "Escape" && editingIndex === null) onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose, editingIndex]);
 
   const startRename = (index: number) => {
-    setEditingIndex(index)
-    setEditingValue(savedDrawings[index].name)
-  }
+    setEditingIndex(index);
+    setEditingValue(savedDrawings[index].name);
+  };
 
   const commitRename = () => {
-    if (editingIndex === null) return
-    renameSavedDrawing(editingIndex, editingValue)
-    setEditingIndex(null)
-  }
+    if (editingIndex === null) return;
+    renameSavedDrawing(editingIndex, editingValue);
+    setEditingIndex(null);
+  };
 
-  const cancelRename = () => setEditingIndex(null)
+  const cancelRename = () => setEditingIndex(null);
 
   return (
     <div
@@ -89,7 +89,7 @@ export default function SavePanel({
         fontFamily: "var(--font-inter)",
       }}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
+        if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
@@ -168,7 +168,9 @@ export default function SavePanel({
                 lineHeight: 1.6,
               }}
             >
-              <p style={{ margin: 0, marginBottom: 4, color: "rgba(0,0,0,0.7)" }}>
+              <p
+                style={{ margin: 0, marginBottom: 4, color: "rgba(0,0,0,0.7)" }}
+              >
                 Nothing saved yet.
               </p>
               <p style={{ margin: 0 }}>
@@ -207,23 +209,23 @@ export default function SavePanel({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 interface DrawingCardProps {
-  index: number
-  drawing: SavedDrawing
-  isEditing: boolean
-  editingValue: string
-  editInputRef: React.RefObject<HTMLInputElement | null>
-  onStartRename: () => void
-  onChangeRename: (v: string) => void
-  onCommitRename: () => void
-  onCancelRename: () => void
-  onLoad: () => void
-  onPrint: () => void
-  onDelete: () => void
-  deleteDisabled: boolean
+  index: number;
+  drawing: SavedDrawing;
+  isEditing: boolean;
+  editingValue: string;
+  editInputRef: React.RefObject<HTMLInputElement>;
+  onStartRename: () => void;
+  onChangeRename: (v: string) => void;
+  onCommitRename: () => void;
+  onCancelRename: () => void;
+  onLoad: () => void;
+  onPrint: () => void;
+  onDelete: () => void;
+  deleteDisabled: boolean;
 }
 
 function DrawingCard({
@@ -240,7 +242,9 @@ function DrawingCard({
   onDelete,
   deleteDisabled,
 }: DrawingCardProps) {
-  const product = drawing.format ? VECTOR_PAINT_PRODUCTS[drawing.format] : undefined
+  const product = drawing.format
+    ? VECTOR_PAINT_PRODUCTS[drawing.format]
+    : undefined;
 
   return (
     <article
@@ -255,12 +259,12 @@ function DrawingCard({
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow =
-          "0 1px 2px rgba(0,0,0,0.04), 0 12px 28px rgba(0,0,0,0.08)"
-        e.currentTarget.style.borderColor = "rgba(0,0,0,0.14)"
+          "0 1px 2px rgba(0,0,0,0.04), 0 12px 28px rgba(0,0,0,0.08)";
+        e.currentTarget.style.borderColor = "rgba(0,0,0,0.14)";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = "none"
-        e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"
+        e.currentTarget.style.boxShadow = "none";
+        e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)";
       }}
     >
       <div
@@ -283,7 +287,8 @@ function DrawingCard({
             maxHeight: "100%",
             objectFit: "contain",
             background: "#ffffff",
-            boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)",
+            boxShadow:
+              "0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)",
           }}
         />
       </div>
@@ -296,8 +301,8 @@ function DrawingCard({
             onChange={(e) => onChangeRename(e.target.value)}
             onBlur={onCommitRename}
             onKeyDown={(e) => {
-              if (e.key === "Enter") onCommitRename()
-              if (e.key === "Escape") onCancelRename()
+              if (e.key === "Enter") onCommitRename();
+              if (e.key === "Escape") onCancelRename();
             }}
             aria-label={`Rename ${drawing.name}`}
             style={{
@@ -345,7 +350,11 @@ function DrawingCard({
             >
               {drawing.name}
             </span>
-            <Pencil size={11} style={{ color: "rgba(0,0,0,0.35)", flexShrink: 0 }} aria-hidden />
+            <Pencil
+              size={11}
+              style={{ color: "rgba(0,0,0,0.35)", flexShrink: 0 }}
+              aria-hidden
+            />
           </button>
         )}
 
@@ -366,10 +375,10 @@ function DrawingCard({
           onClick={onPrint}
           style={primaryButtonStyle}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(0,0,0,1)"
+            e.currentTarget.style.background = "rgba(0,0,0,1)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(0,0,0,0.88)"
+            e.currentTarget.style.background = "rgba(0,0,0,0.88)";
           }}
         >
           <ShoppingBag size={14} />
@@ -384,7 +393,11 @@ function DrawingCard({
             marginTop: 8,
           }}
         >
-          <SecondaryButton onClick={onLoad} icon={<WindowRestore size={13} />} label="Open" />
+          <SecondaryButton
+            onClick={onLoad}
+            icon={<WindowRestore size={13} />}
+            label="Open"
+          />
           <SecondaryButton
             onClick={onDelete}
             icon={<Trash2 size={13} />}
@@ -396,7 +409,7 @@ function DrawingCard({
         </div>
       </div>
     </article>
-  )
+  );
 }
 
 function SecondaryButton({
@@ -407,19 +420,19 @@ function SecondaryButton({
   disabled,
   disabledTitle,
 }: {
-  onClick: () => void
-  icon: React.ReactNode
-  label: string
-  danger?: boolean
-  disabled?: boolean
-  disabledTitle?: string
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+  danger?: boolean;
+  disabled?: boolean;
+  disabledTitle?: string;
 }) {
-  const baseColor = danger ? "rgba(180,40,40,0.85)" : "rgba(0,0,0,0.65)"
+  const baseColor = danger ? "rgba(180,40,40,0.85)" : "rgba(0,0,0,0.65)";
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      title={disabled ? disabledTitle ?? label : label}
+      title={disabled ? (disabledTitle ?? label) : label}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -438,23 +451,23 @@ function SecondaryButton({
         transition: "background 0.15s, border-color 0.15s, opacity 0.15s",
       }}
       onMouseEnter={(e) => {
-        if (disabled) return
+        if (disabled) return;
         e.currentTarget.style.background = danger
           ? "rgba(220,60,60,0.06)"
-          : "rgba(0,0,0,0.03)"
+          : "rgba(0,0,0,0.03)";
         e.currentTarget.style.borderColor = danger
           ? "rgba(220,60,60,0.2)"
-          : "rgba(0,0,0,0.16)"
+          : "rgba(0,0,0,0.16)";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = "transparent"
-        e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"
+        e.currentTarget.style.background = "transparent";
+        e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)";
       }}
     >
       {icon}
       {label}
     </button>
-  )
+  );
 }
 
 const primaryButtonStyle: CSSProperties = {
@@ -474,4 +487,4 @@ const primaryButtonStyle: CSSProperties = {
   letterSpacing: "-0.005em",
   cursor: "pointer",
   transition: "background 0.15s",
-}
+};

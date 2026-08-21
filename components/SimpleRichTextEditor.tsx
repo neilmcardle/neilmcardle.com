@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Bold,
   Italic,
@@ -16,15 +16,20 @@ import {
   Heading1,
   Heading2,
   LinkIcon,
-} from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SimpleRichTextEditorProps {
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
-  className?: string
-  minHeight?: string
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+  minHeight?: string;
 }
 
 export function SimpleRichTextEditor({
@@ -34,76 +39,71 @@ export function SimpleRichTextEditor({
   className = "",
   minHeight = "150px",
 }: SimpleRichTextEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null)
-  const [linkUrl, setLinkUrl] = useState("")
-  const [linkText, setLinkText] = useState("")
-  const [showLinkPopover, setShowLinkPopover] = useState(false)
-  const [isInitialized, setIsInitialized] = useState(false)
+  const editorRef = useRef<HTMLDivElement>(null);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkText, setLinkText] = useState("");
+  const [showLinkPopover, setShowLinkPopover] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize editor with value only once
   useEffect(() => {
     if (editorRef.current && !isInitialized) {
-      editorRef.current.innerHTML = value
-      setIsInitialized(true)
+      editorRef.current.innerHTML = value;
+      setIsInitialized(true);
     }
-  }, [value, isInitialized])
+  }, [value, isInitialized]);
 
-  // Handle editor content changes
   const handleInput = () => {
     if (editorRef.current) {
-      const newContent = editorRef.current.innerHTML
-      onChange(newContent)
+      const newContent = editorRef.current.innerHTML;
+      onChange(newContent);
     }
-  }
+  };
 
-  // Format commands
   const formatText = (command: string, value = "") => {
-    document.execCommand(command, false, value)
-    handleInput()
-    editorRef.current?.focus()
-  }
+    document.execCommand(command, false, value);
+    handleInput();
+    editorRef.current?.focus();
+  };
 
-  // Apply heading format
   const applyHeading = (level: number) => {
-    // First clear any existing heading format
-    document.execCommand("removeFormat", false, "")
+    document.execCommand("removeFormat", false, "");
 
-    // Then apply the new heading format
     if (level === 1) {
-      document.execCommand("fontSize", false, "6") // Larger size for H1
-      document.execCommand("bold", false, "")
+      document.execCommand("fontSize", false, "6");
+      document.execCommand("bold", false, "");
     } else if (level === 2) {
-      document.execCommand("fontSize", false, "5") // Smaller size for H2
-      document.execCommand("bold", false, "")
+      document.execCommand("fontSize", false, "5");
+      document.execCommand("bold", false, "");
     }
 
-    handleInput()
-    editorRef.current?.focus()
-  }
+    handleInput();
+    editorRef.current?.focus();
+  };
 
-  // Insert link with security improvements
   const insertLink = () => {
     if (linkUrl && linkText) {
-      // Validate URL (only allow http, https, mailto protocols)
-      const urlPattern = /^(https?:\/\/|mailto:)/i
-      let secureUrl = linkUrl
+      const urlPattern = /^(https?:\/\/|mailto:)/i;
+      let secureUrl = linkUrl;
 
-      // If URL doesn't start with a valid protocol, prepend https://
       if (!urlPattern.test(secureUrl)) {
-        secureUrl = `https://${secureUrl}`
+        secureUrl = `https://${secureUrl}`;
       }
 
-      // Sanitize the link text to prevent XSS
-      const sanitizedText = linkText.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+      const sanitizedText = linkText
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
 
-      // Create link with security attributes
-      formatText("insertHTML", `<a href="${secureUrl}" target="_blank" rel="noopener noreferrer">${sanitizedText}</a>`)
+      formatText(
+        "insertHTML",
+        `<a href="${secureUrl}" target="_blank" rel="noopener noreferrer">${sanitizedText}</a>`,
+      );
 
-      setLinkUrl("")
-      setLinkText("")
-      setShowLinkPopover(false)
+      setLinkUrl("");
+      setLinkText("");
+      setShowLinkPopover(false);
     }
-  }
+  };
 
   return (
     <>
@@ -131,7 +131,12 @@ export function SimpleRichTextEditor({
           <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("bold")}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => formatText("bold")}
+                >
                   <Bold className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -140,7 +145,12 @@ export function SimpleRichTextEditor({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("italic")}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => formatText("italic")}
+                >
                   <Italic className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -149,7 +159,12 @@ export function SimpleRichTextEditor({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("underline")}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => formatText("underline")}
+                >
                   <Underline className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -160,7 +175,12 @@ export function SimpleRichTextEditor({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => applyHeading(1)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => applyHeading(1)}
+                >
                   <Heading1 className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -169,7 +189,12 @@ export function SimpleRichTextEditor({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => applyHeading(2)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => applyHeading(2)}
+                >
                   <Heading2 className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -180,7 +205,12 @@ export function SimpleRichTextEditor({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("justifyLeft")}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => formatText("justifyLeft")}
+                >
                   <AlignLeft className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -189,7 +219,12 @@ export function SimpleRichTextEditor({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("justifyCenter")}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => formatText("justifyCenter")}
+                >
                   <AlignCenter className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -198,7 +233,12 @@ export function SimpleRichTextEditor({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("justifyRight")}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => formatText("justifyRight")}
+                >
                   <AlignRight className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -223,7 +263,12 @@ export function SimpleRichTextEditor({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => formatText("insertOrderedList")}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => formatText("insertOrderedList")}
+                >
                   <ListOrdered className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -234,14 +279,20 @@ export function SimpleRichTextEditor({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-60 cursor-not-allowed" disabled>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 opacity-60 cursor-not-allowed"
+                  disabled
+                >
                   <LinkIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
                 <p>
-                  Link functionality is disabled in this demo version only. In the full makeEbook product, you'll be
-                  able to add eReader-compatible links to your content.
+                  Link functionality is disabled in this demo version only. In
+                  the full makeEbook product, you'll be able to add
+                  eReader-compatible links to your content.
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -260,9 +311,9 @@ export function SimpleRichTextEditor({
             } as React.CSSProperties
           }
           onInput={handleInput}
-          placeholder={placeholder}
+          data-placeholder={placeholder}
         />
       </div>
     </>
-  )
+  );
 }

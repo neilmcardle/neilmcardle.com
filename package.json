@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
@@ -122,9 +123,10 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.7",
     "@types/node": "^22",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "@vitest/ui": "^4.1.10",
     "gitleaks": "^1.0.0",
     "husky": "^9.1.7",

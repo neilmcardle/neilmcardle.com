@@ -4,7 +4,6 @@ import {
   type ProjectKey,
 } from "@/components/HomepageProjectPreview";
 import GradualBlur from "@/components/GradualBlur";
-import BorderGlow from "@/components/BorderGlow";
 import ElectricBorder from "@/components/ElectricBorder";
 import HeroCard from "@/components/HeroCard";
 
@@ -107,7 +106,6 @@ export default function Homepage() {
     <>
       <HeroCard />
       <div className="min-h-screen bg-black relative isolate overflow-hidden">
-        {}
         <div
           className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[760px]"
           aria-hidden="true"
@@ -201,7 +199,6 @@ export default function Homepage() {
               />
             </div>
 
-            {}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14 mt-20">
               {TESTIMONIALS.map((t) => (
                 <figure key={t.name} className="border-l-2 border-gold/40 pl-6">
@@ -231,9 +228,6 @@ export default function Homepage() {
             </div>
           </section>
 
-          {}
-
-          {}
           <section id="pricing" className="mb-24 scroll-mt-12">
             <SectionHeader label="Work with me" />
             <div className="max-w-2xl mx-auto">
@@ -242,7 +236,6 @@ export default function Homepage() {
                 style={{ background: "#000000" }}
               >
                 <div className="p-8 sm:p-10">
-                  {}
                   <div className="flex items-start justify-between gap-4">
                     <h3
                       className="text-cream"
@@ -268,10 +261,8 @@ export default function Homepage() {
                     </span>
                   </div>
 
-                  {}
                   <div className="my-7 border-t border-dashed border-white/15" />
 
-                  {}
                   <div className="flex items-end flex-wrap gap-x-3 gap-y-1">
                     <span
                       className="text-cream leading-none"
@@ -307,7 +298,6 @@ export default function Homepage() {
                     </span>
                   </div>
 
-                  {}
                   <p
                     className="mt-5 text-cream/70"
                     style={{
@@ -321,7 +311,6 @@ export default function Homepage() {
                     monthly fee, with nothing lost in the handoff between them.
                   </p>
 
-                  {}
                   <div className="soft-inset relative mt-8 rounded-[1rem] p-6 sm:p-7">
                     <span
                       className="absolute -top-2 left-5 bg-[#1a1a1d] px-2 text-gold"
@@ -365,7 +354,6 @@ export default function Homepage() {
                     </ul>
                   </div>
 
-                  {}
                   <div className="mt-8 flex justify-center">
                     <CtaButton href={ctaHref} label={ctaLabel} />
                   </div>
@@ -384,7 +372,6 @@ export default function Homepage() {
             </div>
           </section>
 
-          {}
           <section id="faq" className="mb-24 scroll-mt-12">
             <SectionHeader label="FAQ" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
@@ -416,7 +403,6 @@ export default function Homepage() {
             </div>
           </section>
 
-          {}
           <section className="mb-24 text-center">
             <h2
               className="text-cream mb-8"
@@ -578,23 +564,13 @@ function ProductFeature({
   reverse?: boolean;
 }) {
   const mediaInner = (
-    <BorderGlow
-      className="block w-full"
-      backgroundColor="#000000"
-      borderRadius={16}
-      glowColor="40 62 64"
-      glowRadius={34}
-      glowIntensity={1}
-      edgeSensitivity={32}
-      coneSpread={22}
-      colors={["#f0d091", "#d8b46a", "#b8923f"]}
-    >
+    <div className="block w-full">
       <div className="relative aspect-[4/3] flex items-center justify-center">
-        <div className="relative w-[44%] max-w-[230px] drop-shadow-[0_26px_55px_rgba(0,0,0,0.7)] transition-transform duration-500 ease-out group-hover:scale-[1.05]">
+        <div className="relative w-[64%] max-w-[330px] drop-shadow-[0_26px_55px_rgba(0,0,0,0.7)] transition-transform duration-500 ease-out group-hover:scale-[1.03]">
           <HomepageProjectPreview k={tileKey} />
         </div>
       </div>
-    </BorderGlow>
+    </div>
   );
 
   const mediaCls = `block ${reverse ? "md:order-2" : ""}`;

@@ -1,11 +1,28 @@
 "use client";
-import React, { Suspense, useState, useRef, useLayoutEffect, useEffect, useCallback } from "react";
+import React, {
+  Suspense,
+  useState,
+  useRef,
+  useLayoutEffect,
+  useEffect,
+  useCallback,
+} from "react";
 import { track } from "@vercel/analytics";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useFeatureAccess } from "@/lib/hooks/useSubscription";
 import { BookToolbar } from "@/components/BookToolbar";
 import { useSearchParams, useRouter } from "next/navigation";
-import { PlusIcon, TrashIcon, CloseIcon, SaveIcon, DownloadIcon, BookIcon, LockIcon, MetadataIcon, MenuIcon } from "./components/icons";
+import {
+  PlusIcon,
+  TrashIcon,
+  CloseIcon,
+  SaveIcon,
+  DownloadIcon,
+  BookIcon,
+  LockIcon,
+  MetadataIcon,
+  MenuIcon,
+} from "./components/icons";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import {
   DropdownMenu,
@@ -32,17 +49,18 @@ import EditorLeftNav from "./components/EditorLeftNav";
 import SyncConflictBanner from "./components/sidebar/SyncConflictBanner";
 import InspectorPanel from "./components/bookmind/InspectorPanel";
 import FloatingBookMindWindow from "./components/FloatingBookMindWindow";
-import InlineEditPopover, { InlineEditRequest } from "./components/bookmind/InlineEditPopover";
-import ComposePalette, { ComposePaletteRequest } from "./components/bookmind/ComposePalette";
+import InlineEditPopover, {
+  InlineEditRequest,
+} from "./components/bookmind/InlineEditPopover";
+import ComposePalette, {
+  ComposePaletteRequest,
+} from "./components/bookmind/ComposePalette";
 import GhostTextOverlay from "./components/bookmind/GhostTextOverlay";
-import PreflightExportDialog, { ExportFormat } from "./components/PreflightExportDialog";
+import PreflightExportDialog, {
+  ExportFormat,
+} from "./components/PreflightExportDialog";
 import UpgradeModal from "./components/UpgradeModal";
-// MarginAnnotation disabled — keeping the file, removing the import to
-// avoid the unused-import lint warning. Re-enable when we revisit.
-// import MarginAnnotation from "./components/bookmind/MarginAnnotation";
-// SelectionHint was removed — replaced by a permanent ⌘K chip in
-// EditorHeader that's always visible for Pro users without conditional
-// timing, localStorage dismissal, or selection detection.
+
 import { toast } from "sonner";
 import EditorRightPanel from "./components/EditorRightPanel";
 import EditorCanvas from "./components/EditorCanvas";
@@ -62,19 +80,25 @@ import FindReplacePanel from "./components/FindReplacePanel";
 import { useFindReplace } from "./hooks/useFindReplace";
 import { useOnboarding } from "./hooks/useOnboarding";
 import OnboardingTour from "./components/OnboardingTour";
-import { loadBookLibrary, saveBookToLibrary, loadBookById } from "./utils/bookLibrary";
-// ensureManuscriptBrief is now called lazily from useBookMind on first
-// chat send, not automatically on book open. No import needed here.
+import {
+  loadBookLibrary,
+  saveBookToLibrary,
+  loadBookById,
+} from "./utils/bookLibrary";
+
 import { ensureAnalyticalCache } from "./utils/analyticalCache";
 import type { AnalyticalKind } from "./utils/bookmindMemory";
 import { ensureBookProfile } from "./utils/bookmindProfile";
-// Extracted utilities & components
+
 import { getContentChapterNumber } from "./utils/pageUtils";
 import { ChapterCapsuleMarker } from "./components/ChapterCapsuleMarker";
 import { HandleDragIcon } from "./components/HandleDragIcon";
-import { MobilePreviewModal, mobileDeviceDimensions } from "./components/MobilePreviewModal";
+import {
+  MobilePreviewModal,
+  mobileDeviceDimensions,
+} from "./components/MobilePreviewModal";
 import { UserDropdownMobile } from "./components/UserDropdownMobile";
-// Extracted hooks
+
 import { useEndnotes } from "./hooks/useEndnotes";
 import { useSaveBook } from "./hooks/useSaveBook";
 import { useDocumentImport } from "./hooks/useDocumentImport";
@@ -89,39 +113,35 @@ import { useSignupConversion } from "@/lib/hooks/useSignupConversion";
 function MakeEbookPage() {
   const { user, signOut, loading: authLoading } = useAuth();
 
-  // Fires the Google Ads signup conversion exactly once when the auth
-  // callback redirects here with ?signup=success. No-op on every other
-  // visit (marketing landing, returning users, reloads).
   useSignupConversion();
 
-  // Check if user has Pro access for Cloud Sync
-  const hasCloudSync = useFeatureAccess('cloud_sync');
-  const hasBookMind = useFeatureAccess('book_mind_ai');
-  const isPro = hasBookMind; // Pro == Book Mind access; reuse the gate
+  const hasCloudSync = useFeatureAccess("cloud_sync");
+  const hasBookMind = useFeatureAccess("book_mind_ai");
+  const isPro = hasBookMind;
 
-  // Export-time pre-flight dialog state
-  const [preflightFormat, setPreflightFormat] = useState<ExportFormat | null>(null);
+  const [preflightFormat, setPreflightFormat] = useState<ExportFormat | null>(
+    null,
+  );
   const [exportUpgradeOpen, setExportUpgradeOpen] = useState(false);
 
-  // Next/navigation helpers
   const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user?.id || typeof window === 'undefined') return;
+    if (!user?.id || typeof window === "undefined") return;
     const flagKey = `mf_editor_opened_${user.id}`;
     if (!localStorage.getItem(flagKey)) {
-      localStorage.setItem(flagKey, '1');
-      track('editor_opened_first_time');
+      localStorage.setItem(flagKey, "1");
+      track("editor_opened_first_time");
     }
   }, [user?.id]);
 
   useEffect(() => {
     if (!searchParams) return;
-    if (searchParams.get('checkout') === 'success') {
-      const type = searchParams.get('type') === 'lifetime' ? 'lifetime' : 'pro';
-      track('checkout_completed', { tier: type });
-      router.replace('/make-ebook');
+    if (searchParams.get("checkout") === "success") {
+      const type = searchParams.get("type") === "lifetime" ? "lifetime" : "pro";
+      track("checkout_completed", { tier: type });
+      router.replace("/make-ebook");
     }
   }, [searchParams, router]);
 
@@ -148,77 +168,83 @@ function MakeEbookPage() {
     dragItemIndex,
   } = useChapters();
 
-  // Find & Replace across all chapters
-  const findReplace = useFindReplace(chapters, handleChapterContentChange, handleSelectChapter);
+  const findReplace = useFindReplace(
+    chapters,
+    handleChapterContentChange,
+    handleSelectChapter,
+  );
 
-  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
+  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(
+    null,
+  );
 
-  // Wrap handleRemoveChapter to use the custom confirm dialog. The chapter
-  // list bins skip this wrapper in favour of the inline confirm popover —
-  // see `confirmChapterDelete` and the chapter row markup. Other callers
-  // (e.g. menus, mobile sheets) keep the modal flow.
-  const handleRemoveChapter = useCallback((idx: number) => {
-    handleRemoveChapterRaw(idx, (message, onConfirm) => {
-      setDialogState({
-        open: true,
-        title: 'Delete Chapter',
-        message,
-        variant: 'destructive',
-        confirmLabel: 'Delete',
-        onConfirm: () => {
-          setDialogState(prev => ({ ...prev, open: false }));
-          const deletedChapterId = chapters[idx]?.id;
-          onConfirm();
-          if (deletedChapterId) {
-            setEndnoteReferences(prev => prev.filter(ref => ref.chapterId !== deletedChapterId));
-          }
-        },
+  const handleRemoveChapter = useCallback(
+    (idx: number) => {
+      handleRemoveChapterRaw(idx, (message, onConfirm) => {
+        setDialogState({
+          open: true,
+          title: "Delete Chapter",
+          message,
+          variant: "destructive",
+          confirmLabel: "Delete",
+          onConfirm: () => {
+            setDialogState((prev) => ({ ...prev, open: false }));
+            const deletedChapterId = chapters[idx]?.id;
+            onConfirm();
+            if (deletedChapterId) {
+              setEndnoteReferences((prev) =>
+                prev.filter((ref) => ref.chapterId !== deletedChapterId),
+              );
+            }
+          },
+        });
       });
-    });
-  }, [handleRemoveChapterRaw, chapters]);
+    },
+    [handleRemoveChapterRaw, chapters],
+  );
 
-  // Inline-popover variant: no modal. Used by the chapter list bins.
-  const confirmChapterDelete = useCallback((idx: number) => {
-    const deletedChapterId = chapters[idx]?.id;
-    handleRemoveChapterRaw(idx);
-    if (deletedChapterId) {
-      setEndnoteReferences(prev => prev.filter(ref => ref.chapterId !== deletedChapterId));
-    }
-    setPendingDeleteIndex(null);
-  }, [handleRemoveChapterRaw, chapters]);
+  const confirmChapterDelete = useCallback(
+    (idx: number) => {
+      const deletedChapterId = chapters[idx]?.id;
+      handleRemoveChapterRaw(idx);
+      if (deletedChapterId) {
+        setEndnoteReferences((prev) =>
+          prev.filter((ref) => ref.chapterId !== deletedChapterId),
+        );
+      }
+      setPendingDeleteIndex(null);
+    },
+    [handleRemoveChapterRaw, chapters],
+  );
 
-  // Auto-cancel the inline delete prompt: Escape, 5s timeout, or any click
-  // outside the active confirm cluster.
   useEffect(() => {
     if (pendingDeleteIndex === null) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setPendingDeleteIndex(null);
+      if (e.key === "Escape") setPendingDeleteIndex(null);
     };
     const onPointer = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target?.closest('[data-chapter-delete-confirm]')) return;
+      if (target?.closest("[data-chapter-delete-confirm]")) return;
       setPendingDeleteIndex(null);
     };
     const timer = window.setTimeout(() => setPendingDeleteIndex(null), 5000);
-    document.addEventListener('keydown', onKey);
-    document.addEventListener('mousedown', onPointer);
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onPointer);
     return () => {
       window.clearTimeout(timer);
-      document.removeEventListener('keydown', onKey);
-      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onPointer);
     };
   }, [pendingDeleteIndex]);
 
-  // Track previous user state to detect login/logout
   const prevUserRef = useRef(user);
   useEffect(() => {
-    // If user was logged in and is now logged out, reset to marketing landing page
     if (prevUserRef.current && !user) {
       setChapters([]);
       setShowMarketingPage(true);
       setCurrentBookId(undefined);
     }
-    // If user was logged out and is now logged in, go to editor dashboard
+
     if (!prevUserRef.current && user) {
       setShowMarketingPage(false);
     }
@@ -226,111 +252,123 @@ function MakeEbookPage() {
   }, [user, setChapters]);
 
   const {
-    tags, setTags, tagInput, setTagInput, handleAddTag, handleRemoveTag
+    tags,
+    setTags,
+    tagInput,
+    setTagInput,
+    handleAddTag,
+    handleRemoveTag,
   } = useTags();
 
-  // Cover state and helpers
-  const { coverUrl, setCoverUrl, handleCoverChange, clearCover } = useCover(null);
+  const { coverUrl, setCoverUrl, handleCoverChange, clearCover } =
+    useCover(null);
 
-  // Locked sections state
-  const { lockedSections, setLockedSections, toggleSection } = useLockedSections();
+  const { lockedSections, setLockedSections, toggleSection } =
+    useLockedSections();
 
-  const [tab, setTab] = useState<"setup" | "ai" | "preview" | "library">("setup");
-  const [sidebarView, setSidebarView] = useState<'library' | 'book' | 'chapters' | null>(null);
-  
-  // Derived state: panel is open when sidebarView is not null
+  const [tab, setTab] = useState<"setup" | "ai" | "preview" | "library">(
+    "setup",
+  );
+  const [sidebarView, setSidebarView] = useState<
+    "library" | "book" | "chapters" | null
+  >(null);
+
   const isPanelOpen = sidebarView !== null;
 
-  // Right panel layout mode
-  const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>('none');
+  const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>("none");
 
-  // Book Mind floating window
   const [bookMindOpen, setBookMindOpen] = useState(false);
 
-  // Selected editor text — passed to the Inspector Chat tab for context.
-  // Also captures the bounding rect for the ⌘K floating hint.
-  const [selectedEditorText, setSelectedEditorText] = useState<string | undefined>(undefined);
-  const [cmdkHintRect, setCmdkHintRect] = useState<{ top: number; left: number } | null>(null);
+  const [selectedEditorText, setSelectedEditorText] = useState<
+    string | undefined
+  >(undefined);
+  const [cmdkHintRect, setCmdkHintRect] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
   const cmdkHintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const handleSelection = () => {
       const sel = window.getSelection();
       if (!sel || !sel.rangeCount) return;
-      // Only capture selections inside the editor's contentEditable.
-      // Selections in the chat panel, popovers, or other UI elements
-      // should not become manuscript context.
+
       const node = sel.anchorNode;
-      const editorEl = node?.parentElement?.closest?.('[contenteditable="true"]');
+      const editorEl = node?.parentElement?.closest?.(
+        '[contenteditable="true"]',
+      );
       if (!editorEl) return;
       const text = sel.toString().trim();
       if (text && text.length > 10) {
         setSelectedEditorText(text);
-        // Check if the selection is inside the editor
+
         try {
           const node = sel?.anchorNode;
-          const editorEl = node?.parentElement?.closest?.('[contenteditable="true"]');
+          const editorEl = node?.parentElement?.closest?.(
+            '[contenteditable="true"]',
+          );
           if (editorEl && sel && sel.rangeCount > 0) {
             const rect = sel.getRangeAt(0).getBoundingClientRect();
             setCmdkHintRect({ top: rect.bottom + 6, left: rect.left });
-            // Auto-dismiss after 3 seconds
+
             if (cmdkHintTimer.current) clearTimeout(cmdkHintTimer.current);
-            cmdkHintTimer.current = setTimeout(() => setCmdkHintRect(null), 3000);
+            cmdkHintTimer.current = setTimeout(
+              () => setCmdkHintRect(null),
+              3000,
+            );
           }
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       } else {
         setCmdkHintRect(null);
       }
     };
-    document.addEventListener('selectionchange', handleSelection);
+    document.addEventListener("selectionchange", handleSelection);
     return () => {
-      document.removeEventListener('selectionchange', handleSelection);
+      document.removeEventListener("selectionchange", handleSelection);
       if (cmdkHintTimer.current) clearTimeout(cmdkHintTimer.current);
     };
   }, []);
 
-  // Book Mind Cmd-K inline edit request. Opened by RichTextEditor when
-  // the user hits ⌘K with a non-empty selection. The range is saved so
-  // the accept handler can restore it and replace the exact same bytes
-  // the user originally highlighted — independent of whatever the caret
-  // is doing by the time they press Accept.
-  const [inlineEditRequest, setInlineEditRequest] = useState<InlineEditRequest>({
-    open: false,
-    anchorRect: null,
-    selectedText: "",
-    range: null,
-  });
+  const [inlineEditRequest, setInlineEditRequest] = useState<InlineEditRequest>(
+    {
+      open: false,
+      anchorRect: null,
+      selectedText: "",
+      range: null,
+    },
+  );
 
-  // Flow mode — opt-in ghost text + margin annotations. Persisted to
-  // localStorage so the setting survives page reloads. Off by default.
   const [flowMode, setFlowMode] = useState(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem("me_flow_mode") === "1";
   });
   const handleToggleFlowMode = useCallback(() => {
-    setFlowMode(prev => {
+    setFlowMode((prev) => {
       const next = !prev;
-      try { localStorage.setItem("me_flow_mode", next ? "1" : "0"); } catch { /* quota */ }
+      try {
+        localStorage.setItem("me_flow_mode", next ? "1" : "0");
+      } catch {
+        /* quota */
+      }
       return next;
     });
   }, []);
 
-  // Ghost text accept handler — inserts the suggestion at the current
-  // caret position via execCommand so undo works.
   const handleGhostAccept = useCallback((text: string) => {
-    const editorEl = document.querySelector('[contenteditable="true"]') as HTMLElement | null;
+    const editorEl = document.querySelector(
+      '[contenteditable="true"]',
+    ) as HTMLElement | null;
     if (editorEl) editorEl.focus();
     const escaped = text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\n/g, '<br>');
-    document.execCommand('insertHTML', false, escaped);
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\n/g, "<br>");
+    document.execCommand("insertHTML", false, escaped);
   }, []);
 
-  // Compose palette state — triggered by typing "/" at the start of a
-  // line in the editor. The range points at the "/" character so we can
-  // delete it before inserting the generated text.
   const [composeRequest, setComposeRequest] = useState<ComposePaletteRequest>({
     open: false,
     anchorRect: null,
@@ -350,21 +388,16 @@ function MakeEbookPage() {
   );
 
   const handleComposeClose = useCallback(() => {
-    setComposeRequest(prev => ({ ...prev, open: false }));
+    setComposeRequest((prev) => ({ ...prev, open: false }));
   }, []);
 
-  // Insert composed text at the cursor position. Deletes the "/" that
-  // triggered the palette first, then inserts the generated text.
   const handleComposeInsert = useCallback(
     (text: string) => {
-      const editorEl = document.querySelector('[contenteditable="true"]') as HTMLElement | null;
+      const editorEl = document.querySelector(
+        '[contenteditable="true"]',
+      ) as HTMLElement | null;
       if (editorEl) editorEl.focus();
 
-      // Restore the caret to where the user invoked compose. Clicking
-      // the Insert button blurs the editor — calling focus() alone
-      // leaves the caret at the element default, not the saved range —
-      // so execCommand('insertHTML') below would either insert in the
-      // wrong place or silently no-op.
       const range = composeRequest.range;
       if (range) {
         const sel = window.getSelection();
@@ -378,44 +411,39 @@ function MakeEbookPage() {
             // browser considers the current caret.
           }
 
-          // Delete the "/" trigger character — but only if it sits
-          // directly before the caret. Cmd-K can open the palette
-          // without a trigger slash; we must not strip a stray "/"
-          // earlier on the line (e.g. inside a URL).
           const node = range.startContainer;
           if (node.nodeType === Node.TEXT_NODE) {
-            const text = node.textContent ?? '';
-            const charBefore = range.startOffset > 0 ? text.charAt(range.startOffset - 1) : '';
-            if (charBefore === '/') {
+            const text = node.textContent ?? "";
+            const charBefore =
+              range.startOffset > 0 ? text.charAt(range.startOffset - 1) : "";
+            if (charBefore === "/") {
               range.setStart(node, range.startOffset - 1);
               range.setEnd(node, range.startOffset);
               sel.removeAllRanges();
               sel.addRange(range);
-              document.execCommand('delete');
+              document.execCommand("delete");
             }
           }
         }
       }
 
-      // Insert the generated text with a highlight
       const highlightId = `bm-compose-${Date.now()}`;
       const escaped = text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\n\n/g, '</p><p>')
-        .replace(/\n/g, '<br>');
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\n\n/g, "</p><p>")
+        .replace(/\n/g, "<br>");
       const html = `<span id="${highlightId}" class="bm-edit-highlight">${escaped}</span>`;
-      document.execCommand('insertHTML', false, html);
+      document.execCommand("insertHTML", false, html);
 
-      // Clean up the highlight span after animation
       setTimeout(() => {
         const el = document.getElementById(highlightId);
         if (el && el.parentNode) {
           while (el.firstChild) el.parentNode.insertBefore(el.firstChild, el);
           el.parentNode.removeChild(el);
           if (editorEl) {
-            editorEl.dispatchEvent(new Event('input', { bubbles: true }));
+            editorEl.dispatchEvent(new Event("input", { bubbles: true }));
           }
         }
       }, 2200);
@@ -437,31 +465,20 @@ function MakeEbookPage() {
   );
 
   const handleInlineEditClose = useCallback(() => {
-    setInlineEditRequest(prev => ({ ...prev, open: false }));
+    setInlineEditRequest((prev) => ({ ...prev, open: false }));
   }, []);
 
-
-
-  // Accept: restore the saved range, write the new text in, let the
-  // editor's own input handler propagate the change through onChange.
-  // Wraps the insertion in a highlight span that fades out over 2s so
-  // the user sees exactly where the new text landed.
-  //
-  // Also captures the pre-edit chapter content so the sonner toast can
-  // offer a reliable "Undo" action that works even when the browser's
-  // native execCommand undo stack gets confused after programmatic
-  // range manipulation (a known contentEditable limitation).
   const handleInlineEditAccept = useCallback(
     (newText: string) => {
       const range = inlineEditRequest.range;
       if (!range) return;
 
-      // Snapshot the chapter content BEFORE insertion so the toast
-      // Undo action can restore it reliably.
-      const preEditContent = chapters[selectedChapter]?.content ?? '';
+      const preEditContent = chapters[selectedChapter]?.content ?? "";
       const chapterIdx = selectedChapter;
 
-      const editorEl = document.querySelector('[contenteditable="true"]') as HTMLElement | null;
+      const editorEl = document.querySelector(
+        '[contenteditable="true"]',
+      ) as HTMLElement | null;
       if (editorEl) editorEl.focus();
 
       const sel = window.getSelection();
@@ -469,75 +486,90 @@ function MakeEbookPage() {
       sel.removeAllRanges();
       sel.addRange(range);
 
-      // Escape HTML, convert newlines, wrap in a highlight span that
-      // fades out to show where the new text was placed.
       const highlightId = `bm-edit-${Date.now()}`;
       const escaped = newText
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\n/g, '<br>');
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\n/g, "<br>");
       const html = `<span id="${highlightId}" class="bm-edit-highlight">${escaped}</span>`;
-      document.execCommand('insertHTML', false, html);
+      document.execCommand("insertHTML", false, html);
 
-      // After the fade animation completes, unwrap the highlight span
-      // so it doesn't leave phantom markup in the editor's HTML.
       setTimeout(() => {
         const el = document.getElementById(highlightId);
         if (el && el.parentNode) {
           while (el.firstChild) el.parentNode.insertBefore(el.firstChild, el);
           el.parentNode.removeChild(el);
-          // Trigger onChange so the cleaned HTML propagates to state.
+
           if (editorEl) {
-            const evt = new Event('input', { bubbles: true });
+            const evt = new Event("input", { bubbles: true });
             editorEl.dispatchEvent(evt);
           }
         }
       }, 2200);
 
-      // Toast with a reliable manual undo (bypasses the browser's
-      // undo stack, which can fail after programmatic range edits).
-      toast.success('Edit applied', {
-        description: 'The rewrite is highlighted in the text.',
+      toast.success("Edit applied", {
+        description: "The rewrite is highlighted in the text.",
         action: {
-          label: 'Undo',
+          label: "Undo",
           onClick: () => {
             handleChapterContentChange(chapterIdx, preEditContent);
             if (editorEl) {
               editorEl.innerHTML = preEditContent;
-              const evt = new Event('input', { bubbles: true });
+              const evt = new Event("input", { bubbles: true });
               editorEl.dispatchEvent(evt);
             }
-            toast('Edit undone');
+            toast("Edit undone");
           },
         },
       });
     },
-    [inlineEditRequest.range, chapters, selectedChapter, handleChapterContentChange],
+    [
+      inlineEditRequest.range,
+      chapters,
+      selectedChapter,
+      handleChapterContentChange,
+    ],
   );
-  // Book metadata state (consolidated hook)
+
   const {
-    title, setTitle, author, setAuthor, blurb, setBlurb,
-    publisher, setPublisher, pubDate, setPubDate, isbn, setIsbn,
-    language, setLanguage, genre, setGenre,
-    resetMetadata, loadMetadata,
-    currentBookId, setCurrentBookId,
-    endnotes, setEndnotes, endnoteReferences, setEndnoteReferences,
-    nextEndnoteNumber, setNextEndnoteNumber,
+    title,
+    setTitle,
+    author,
+    setAuthor,
+    blurb,
+    setBlurb,
+    publisher,
+    setPublisher,
+    pubDate,
+    setPubDate,
+    isbn,
+    setIsbn,
+    language,
+    setLanguage,
+    genre,
+    setGenre,
+    resetMetadata,
+    loadMetadata,
+    currentBookId,
+    setCurrentBookId,
+    endnotes,
+    setEndnotes,
+    endnoteReferences,
+    setEndnoteReferences,
+    nextEndnoteNumber,
+    setNextEndnoteNumber,
   } = useBookState();
 
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const isLoadingBookRef = useRef(false);
-  // clearEditorState and markClean are defined after hooks that need them; refs break the forward-reference
+
   const clearEditorStateFnRef = useRef<() => void>(() => {});
   const markCleanFnRef = useRef<() => void>(() => {});
 
-  // Show marketing landing page when no books and user hasn't started editing
-  // If user is already signed in on mount, go straight to the editor
   const [showMarketingPage, setShowMarketingPage] = useState(!user);
 
-  // EPUB Reader modal state
   const [showEPUBReader, setShowEPUBReader] = useState(false);
   const [epubBlob, setEpubBlob] = useState<Blob | null>(null);
 
@@ -553,19 +585,21 @@ function MakeEbookPage() {
   const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
-  // Generic dialog state for replacing alert()/confirm()
   const [dialogState, setDialogState] = useState<{
     open: boolean;
     title: string;
     message: string;
-    variant: 'confirm' | 'alert' | 'destructive';
+    variant: "confirm" | "alert" | "destructive";
     confirmLabel?: string;
     onConfirm: () => void;
-  }>({ open: false, title: '', message: '', variant: 'alert', onConfirm: () => {} });
+  }>({
+    open: false,
+    title: "",
+    message: "",
+    variant: "alert",
+    onConfirm: () => {},
+  });
 
-  // Refresh a single analytical kind from an Inspector tab's Refresh
-  // button. Loads the book fresh, clears the stale entry, and re-runs
-  // just that one kind.
   const handleRefreshAnalytical = useCallback(
     async (kind: AnalyticalKind) => {
       if (!currentBookId || !user?.id) return;
@@ -574,57 +608,64 @@ function MakeEbookPage() {
       try {
         await ensureAnalyticalCache({
           userId: user.id,
-          book: { ...book, bookmindMemory: {
-            ...book.bookmindMemory,
-            rules: book.bookmindMemory?.rules ?? [],
-            characters: book.bookmindMemory?.characters ?? {},
-            decisions: book.bookmindMemory?.decisions ?? [],
-            analytical: {
-              ...book.bookmindMemory?.analytical,
-              [kind]: undefined,
+          book: {
+            ...book,
+            bookmindMemory: {
+              ...book.bookmindMemory,
+              rules: book.bookmindMemory?.rules ?? [],
+              characters: book.bookmindMemory?.characters ?? {},
+              decisions: book.bookmindMemory?.decisions ?? [],
+              analytical: {
+                ...book.bookmindMemory?.analytical,
+                [kind]: undefined,
+              },
             },
-          }},
+          },
         });
       } catch (err) {
-        console.warn('[book-mind] refresh analytical:', kind, err);
+        console.warn("[book-mind] refresh analytical:", kind, err);
       }
     },
     [currentBookId, user?.id],
   );
 
-  // Collapsible sidebar sections state
   const [sidebarLibraryExpanded, setSidebarLibraryExpanded] = useState(true);
   const [sidebarChaptersExpanded, setSidebarChaptersExpanded] = useState(true);
-  const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] = useState(false);
+  const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] =
+    useState(false);
 
-  // Mobile accordion: only one section open at a time
-  const expandMobileSection = (section: 'library' | 'book' | 'chapters') => {
-    setSidebarLibraryExpanded(section === 'library' ? !sidebarLibraryExpanded : false);
-    setSidebarBookDetailsExpanded(section === 'book' ? !sidebarBookDetailsExpanded : false);
-    setSidebarChaptersExpanded(section === 'chapters' ? !sidebarChaptersExpanded : false);
+  const expandMobileSection = (section: "library" | "book" | "chapters") => {
+    setSidebarLibraryExpanded(
+      section === "library" ? !sidebarLibraryExpanded : false,
+    );
+    setSidebarBookDetailsExpanded(
+      section === "book" ? !sidebarBookDetailsExpanded : false,
+    );
+    setSidebarChaptersExpanded(
+      section === "chapters" ? !sidebarChaptersExpanded : false,
+    );
   };
 
-  // When a sidebar view is opened, ensure its panel is expanded by default
   useEffect(() => {
     if (!sidebarView) return;
-    if (sidebarView === 'library') setSidebarLibraryExpanded(true);
-    if (sidebarView === 'book') setSidebarBookDetailsExpanded(true);
-    if (sidebarView === 'chapters') setSidebarChaptersExpanded(true);
+    if (sidebarView === "library") setSidebarLibraryExpanded(true);
+    if (sidebarView === "book") setSidebarBookDetailsExpanded(true);
+    if (sidebarView === "chapters") setSidebarChaptersExpanded(true);
   }, [sidebarView]);
 
   const [saveFeedback, setSaveFeedback] = useState(false);
   const [bookJustLoaded, setBookJustLoaded] = useState(false);
   const [chapterJustAdded, setChapterJustAdded] = useState<string | null>(null);
-  
-  // Mobile keyboard detection for focus mode
+
   const [isMobileKeyboardOpen, setIsMobileKeyboardOpen] = useState(false);
   const initialViewportHeight = useRef<number | null>(null);
 
-  // Detect mobile keyboard open/close
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    const isMobile = window.matchMedia('(max-width: 1023px)').matches && 'ontouchstart' in window;
+    if (typeof window === "undefined") return;
+
+    const isMobile =
+      window.matchMedia("(max-width: 1023px)").matches &&
+      "ontouchstart" in window;
     if (!isMobile) return;
 
     const viewport = window.visualViewport;
@@ -640,47 +681,44 @@ function MakeEbookPage() {
       setIsMobileKeyboardOpen(heightDiff > 150);
     };
 
-    viewport.addEventListener('resize', handleResize);
-    return () => viewport.removeEventListener('resize', handleResize);
+    viewport.addEventListener("resize", handleResize);
+    return () => viewport.removeEventListener("resize", handleResize);
   }, []);
-  
-  // Split preview state (inside main) — off by default; right panel LayoutSwitcher is preferred
 
-  // Onboarding tour
   const onboarding = useOnboarding({
     userId: user?.id,
     stepCallbacks: {
-      'book-details': () => setSidebarView('book'),
-      'chapters': () => setSidebarView('chapters'),
-      'editor': () => setSidebarView(null),
-      'preview': () => {
+      "book-details": () => setSidebarView("book"),
+      chapters: () => setSidebarView("chapters"),
+      editor: () => setSidebarView(null),
+      preview: () => {
         setSidebarView(null);
-        // Onboarding tour step: show the live preview panel on the right.
-        setRightPanelMode('live-preview');
+
+        setRightPanelMode("live-preview");
       },
-      'export': () => setSidebarView('book'),
-      'auto-save': () => setSidebarView(null),
-      'mobile-menu': () => {},
-      'mobile-editor': () => setMobileSidebarOpen(false),
-      'mobile-preview': () => setMobileSidebarOpen(false),
+      export: () => setSidebarView("book"),
+      "auto-save": () => setSidebarView(null),
+      "mobile-menu": () => {},
+      "mobile-editor": () => setMobileSidebarOpen(false),
+      "mobile-preview": () => setMobileSidebarOpen(false),
     },
   });
 
-  // Word stats hook
   const { bookStats, sessionStats } = useWordStats(chapters, user?.id);
-  const writingGoals = useWritingGoals({ userId: user?.id, wordsThisSession: sessionStats.wordsThisSession });
+  const writingGoals = useWritingGoals({
+    userId: user?.id,
+    wordsThisSession: sessionStats.wordsThisSession,
+  });
 
-  // Version history hook
-  const { 
-    versions, 
-    saveVersion, 
-    deleteVersion, 
-    clearHistory, 
+  const {
+    versions,
+    saveVersion,
+    deleteVersion,
+    clearHistory,
     formatTimestamp,
-    hasVersions 
+    hasVersions,
   } = useVersionHistory({ bookId: currentBookId, userId: user?.id });
 
-  // Export history hook
   const {
     exports: exportHistory,
     isLoading: exportHistoryLoading,
@@ -690,115 +728,187 @@ function MakeEbookPage() {
     clearHistory: clearExportHistory,
   } = useExportHistory({ bookId: currentBookId, maxExports: 5 });
 
-  const [historyModal, setHistoryModal] = useState<'versions' | 'exports' | null>(null);
+  const [historyModal, setHistoryModal] = useState<
+    "versions" | "exports" | null
+  >(null);
 
-  // ── Extracted hooks ────────────────────────────────────────────────────────
   const cloudSync = useCloudSync({ user, isLoadingBookRef, setLibraryBooks });
 
   const endnotesHook = useEndnotes({
-    chapters, setChapters,
-    endnotes, setEndnotes,
-    endnoteReferences, setEndnoteReferences,
-    nextEndnoteNumber, setNextEndnoteNumber,
-    selectedChapter, setSelectedChapter,
+    chapters,
+    setChapters,
+    endnotes,
+    setEndnotes,
+    endnoteReferences,
+    setEndnoteReferences,
+    nextEndnoteNumber,
+    setNextEndnoteNumber,
+    selectedChapter,
+    setSelectedChapter,
     setDialogState,
   });
 
   const docImport = useDocumentImport({
-    resetMetadata, setTitle, setAuthor,
-    setChapters, setSelectedChapter, setTags,
-    clearCover, setSidebarView,
+    resetMetadata,
+    setTitle,
+    setAuthor,
+    setChapters,
+    setSelectedChapter,
+    setTags,
+    clearCover,
+    setSidebarView,
   });
 
   const library = useLibrary({
-    libraryBooks, setLibraryBooks,
-    user, hasCloudSync, currentBookId, isLoadingBookRef,
-    setShowMarketingPage, loadMetadata,
-    setTags, setCoverUrl, setChapters, setEndnoteReferences,
-    setEndnotes, setNextEndnoteNumber, setCurrentBookId,
-    setSelectedChapter, setMobileSidebarOpen, setSidebarView,
-    setBookJustLoaded, setDialogState,
+    libraryBooks,
+    setLibraryBooks,
+    user,
+    hasCloudSync,
+    currentBookId,
+    isLoadingBookRef,
+    setShowMarketingPage,
+    loadMetadata,
+    setTags,
+    setCoverUrl,
+    setChapters,
+    setEndnoteReferences,
+    setEndnotes,
+    setNextEndnoteNumber,
+    setCurrentBookId,
+    setSelectedChapter,
+    setMobileSidebarOpen,
+    setSidebarView,
+    setBookJustLoaded,
+    setDialogState,
     clearEditorState: () => clearEditorStateFnRef.current(),
   });
 
   const saveBook = useSaveBook({
-    title, author, blurb, publisher, pubDate, isbn, language, genre, tags,
-    chapters, setChapters, setEndnoteReferences,
-    coverUrl, endnotes, endnoteReferences,
-    currentBookId, setCurrentBookId,
-    user, hasCloudSync,
-    saveVersion, saveExport, exportHistory, getExportBlob,
-    setDialogState, setLibraryBooks, setSaveFeedback,
-    setSaveDialogOpen, newBookConfirmOpen, setNewBookConfirmOpen,
-    setEpubBlob, setShowEPUBReader,
+    title,
+    author,
+    blurb,
+    publisher,
+    pubDate,
+    isbn,
+    language,
+    genre,
+    tags,
+    chapters,
+    setChapters,
+    setEndnoteReferences,
+    coverUrl,
+    endnotes,
+    endnoteReferences,
+    currentBookId,
+    setCurrentBookId,
+    user,
+    hasCloudSync,
+    saveVersion,
+    saveExport,
+    exportHistory,
+    getExportBlob,
+    setDialogState,
+    setLibraryBooks,
+    setSaveFeedback,
+    setSaveDialogOpen,
+    newBookConfirmOpen,
+    setNewBookConfirmOpen,
+    setEpubBlob,
+    setShowEPUBReader,
     closeExportHistoryModal: () => setHistoryModal(null),
     markClean: () => markCleanFnRef.current(),
     clearEditorState: () => clearEditorStateFnRef.current(),
   });
-  // Focus mode
+
   const focus = useFocusMode();
   useTypewriterMode(focus.active && focus.settings.typewriterMode);
   useParagraphFocus(focus.active && focus.settings.paragraphFocus);
 
-  // Close sidebar and right panel when focus mode activates with hideChrome on
   useEffect(() => {
     if (focus.active && focus.settings.hideChrome) {
       setSidebarView(null);
-      setRightPanelMode('none');
+      setRightPanelMode("none");
     }
   }, [focus.active, focus.settings.hideChrome]);
-  // ──────────────────────────────────────────────────────────────────────────
 
-  // Auto-save hook - Creates draft book if needed to prevent data loss
   const handleAutoSave = useCallback(() => {
     saveBook.saveBookDirectly(false);
-    // After saving, refresh the book profile in the background if the
-    // manuscript has changed since the last extraction.
+
     if (currentBookId && user?.id && isPro) {
       const book = loadBookById(user.id, currentBookId);
       if (book) {
-        ensureBookProfile({ userId: user.id, book }).then(result => {
-          if (result.ok && ((result.newCharacters?.length ?? 0) + (result.newLocations?.length ?? 0)) > 0) {
-            const parts: string[] = [];
-            if (result.newCharacters?.length) parts.push(`${result.newCharacters.length} character${result.newCharacters.length > 1 ? 's' : ''}`);
-            if (result.newLocations?.length)  parts.push(`${result.newLocations.length} location${result.newLocations.length > 1 ? 's' : ''}`);
-            toast(`Book Mind added ${parts.join(' and ')} to your profile`, { duration: 4000 });
-          }
-        }).catch(() => {});
+        ensureBookProfile({ userId: user.id, book })
+          .then((result) => {
+            if (
+              result.ok &&
+              (result.newCharacters?.length ?? 0) +
+                (result.newLocations?.length ?? 0) >
+                0
+            ) {
+              const parts: string[] = [];
+              if (result.newCharacters?.length)
+                parts.push(
+                  `${result.newCharacters.length} character${result.newCharacters.length > 1 ? "s" : ""}`,
+                );
+              if (result.newLocations?.length)
+                parts.push(
+                  `${result.newLocations.length} location${result.newLocations.length > 1 ? "s" : ""}`,
+                );
+              toast(`Book Mind added ${parts.join(" and ")} to your profile`, {
+                duration: 4000,
+              });
+            }
+          })
+          .catch(() => {});
       }
     }
-  }, [currentBookId, title, author, blurb, publisher, pubDate, isbn, language, genre, tags, chapters, coverUrl, endnoteReferences, user?.id, isPro]);
+  }, [
+    currentBookId,
+    title,
+    author,
+    blurb,
+    publisher,
+    pubDate,
+    isbn,
+    language,
+    genre,
+    tags,
+    chapters,
+    coverUrl,
+    endnoteReferences,
+    user?.id,
+    isPro,
+  ]);
 
-  // Helper to determine if there's meaningful content to auto-save
-  const hasContent = (title && title.trim() !== '') ||
-                     (author && author.trim() !== '') ||
-                     chapters.length > 0;
+  const hasContent =
+    (title && title.trim() !== "") ||
+    (author && author.trim() !== "") ||
+    chapters.length > 0;
 
   const { isDirty, isSaving, lastSaved, markDirty, markClean } = useAutoSave({
     onSave: handleAutoSave,
     interval: 30000, // 30 seconds
     enabled: hasContent, // Enable auto-save as soon as user enters any data
   });
-  // Wire up the ref so useSaveBook gets the real markClean
+
   markCleanFnRef.current = markClean;
 
-  // Warn before leaving with unsaved changes
   useUnsavedChangesWarning(isDirty);
 
-  // Keyboard shortcuts
   useEditorShortcuts({
     onSave: () => {
       saveBook.handleSaveBook();
     },
     onExport: () => {
-      setPreflightFormat('epub');
+      setPreflightFormat("epub");
     },
     onPreview: () => {
-      // ⌘P toggles the right-panel live preview.
-      setRightPanelMode((prev) => (prev === 'live-preview' ? 'none' : 'live-preview'));
+      setRightPanelMode((prev) =>
+        prev === "live-preview" ? "none" : "live-preview",
+      );
     },
     onNewChapter: () => {
-      handleAddChapter('content', '');
+      handleAddChapter("content", "");
     },
     onFindReplace: () => {
       findReplace.isOpen ? findReplace.close() : findReplace.open();
@@ -806,64 +916,95 @@ function MakeEbookPage() {
     enabled: chapters.length > 0,
   });
 
-  // Mark dirty on content changes (skip while loading a book).
   useEffect(() => {
     if (initialized && chapters.length > 0 && !isLoadingBookRef.current) {
       markDirty();
     }
-  }, [chapters, title, author, blurb, publisher, pubDate, genre, tags, coverUrl]);
+  }, [
+    chapters,
+    title,
+    author,
+    blurb,
+    publisher,
+    pubDate,
+    genre,
+    tags,
+    coverUrl,
+  ]);
 
-  // Auto-fix typography handler
   const handleAutoFixTypography = useCallback(() => {
     const { fixedChapters, totalChanges } = autoFixAllChapters(chapters);
     if (totalChanges > 0) {
       setChapters(fixedChapters as Chapter[]);
       setDialogState({
         open: true,
-        title: 'Typography Fixed',
-        message: `Fixed ${totalChanges} typography issue${totalChanges === 1 ? '' : 's'} across all chapters.`,
-        variant: 'alert',
-        onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
+        title: "Typography Fixed",
+        message: `Fixed ${totalChanges} typography issue${totalChanges === 1 ? "" : "s"} across all chapters.`,
+        variant: "alert",
+        onConfirm: () => setDialogState((prev) => ({ ...prev, open: false })),
       });
     } else {
       setDialogState({
         open: true,
-        title: 'No Issues Found',
-        message: 'No typography issues found to fix.',
-        variant: 'alert',
-        onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
+        title: "No Issues Found",
+        message: "No typography issues found to fix.",
+        variant: "alert",
+        onConfirm: () => setDialogState((prev) => ({ ...prev, open: false })),
       });
     }
   }, [chapters, setChapters]);
 
+  const handleToggleChapterLock = useCallback(
+    (index: number) => {
+      setChapters((prev) =>
+        prev.map((ch, i) => (i === index ? { ...ch, locked: !ch.locked } : ch)),
+      );
+    },
+    [setChapters],
+  );
 
-  // Toggle chapter locked state
-  const handleToggleChapterLock = useCallback((index: number) => {
-    setChapters(prev => prev.map((ch, i) => i === index ? { ...ch, locked: !ch.locked } : ch));
-  }, [setChapters]);
-
-  // Restore a version from history
-  const handleRestoreVersion = useCallback((restoredChapters: Chapter[], metadata: { blurb?: string; publisher?: string; pubDate?: string; genre?: string; tags?: string[] }) => {
-    setDialogState({
-      open: true,
-      title: 'Restore Version',
-      message: 'Restore this version? Your current work will be replaced.',
-      variant: 'destructive',
-      confirmLabel: 'Restore',
-      onConfirm: () => {
-        setDialogState(prev => ({ ...prev, open: false }));
-        setChapters(restoredChapters);
-        if (metadata.blurb) setBlurb(metadata.blurb);
-        if (metadata.publisher) setPublisher(metadata.publisher);
-        if (metadata.pubDate) setPubDate(metadata.pubDate);
-        if (metadata.genre) setGenre(metadata.genre);
-        if (metadata.tags) setTags(metadata.tags);
-        setSelectedChapter(0);
-        setHistoryModal(null);
-        markDirty();
+  const handleRestoreVersion = useCallback(
+    (
+      restoredChapters: Chapter[],
+      metadata: {
+        blurb?: string;
+        publisher?: string;
+        pubDate?: string;
+        genre?: string;
+        tags?: string[];
       },
-    });
-  }, [setChapters, setBlurb, setPublisher, setPubDate, setGenre, setTags, setSelectedChapter, markDirty]);
+    ) => {
+      setDialogState({
+        open: true,
+        title: "Restore Version",
+        message: "Restore this version? Your current work will be replaced.",
+        variant: "destructive",
+        confirmLabel: "Restore",
+        onConfirm: () => {
+          setDialogState((prev) => ({ ...prev, open: false }));
+          setChapters(restoredChapters);
+          if (metadata.blurb) setBlurb(metadata.blurb);
+          if (metadata.publisher) setPublisher(metadata.publisher);
+          if (metadata.pubDate) setPubDate(metadata.pubDate);
+          if (metadata.genre) setGenre(metadata.genre);
+          if (metadata.tags) setTags(metadata.tags);
+          setSelectedChapter(0);
+          setHistoryModal(null);
+          markDirty();
+        },
+      });
+    },
+    [
+      setChapters,
+      setBlurb,
+      setPublisher,
+      setPubDate,
+      setGenre,
+      setTags,
+      setSelectedChapter,
+      markDirty,
+    ],
+  );
 
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [markerStyle, setMarkerStyle] = useState({ top: 0, height: 0 });
@@ -879,16 +1020,19 @@ function MakeEbookPage() {
     }
   }, [selectedChapter, chapters.length]);
 
-  // Click outside to close dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setChapterTypeDropdownOpen(false);
       }
     }
     if (chapterTypeDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [chapterTypeDropdownOpen]);
 
@@ -911,38 +1055,32 @@ function MakeEbookPage() {
     setSelectedChapter(0);
     setSidebarView(null);
 
-    // Trigger onboarding tour for first-time users
     if (!onboarding.isOnboardingComplete) {
       setTimeout(() => onboarding.startTour(), 800);
     }
   }
-  // Wire up the ref so hooks that received () => clearEditorStateFnRef.current() get the real fn
+
   clearEditorStateFnRef.current = clearEditorState;
 
   function handleNewBookConfirm() {
-    // Save current book before starting new one
-    if (title || author || chapters.some(ch => ch.content.trim())) {
-      // Save first, then clear editor state in the callback
+    if (title || author || chapters.some((ch) => ch.content.trim())) {
       saveForNewBook();
     } else {
-      // No content to save, just clear and start new
       clearEditorState();
       setNewBookConfirmOpen(false);
     }
   }
 
   function saveForNewBook() {
-    // If there's already a book ID and it exists in library, show save dialog
     if (currentBookId) {
-      const library = loadBookLibrary();
+      const library = loadBookLibrary(user?.id ?? "");
       const existingBook = library.find((b: any) => b.id === currentBookId);
       if (existingBook) {
         setSaveDialogOpen(true);
         return;
       }
     }
-    
-    // No existing book, save and then clear
+
     saveBook.saveBookDirectly(false);
     saveBook.saveVersionSnapshot();
     clearEditorState();
@@ -950,69 +1088,52 @@ function MakeEbookPage() {
   }
 
   function handleNewBook() {
-    // Legacy function for backwards compatibility
-    setShowMarketingPage(false); // Dismiss marketing page when starting a new book
+    setShowMarketingPage(false);
     handleNewBookConfirm();
   }
 
-  // Create a new book from pasted manuscript text. Takes the pasted
-  // content and drops it into a single content chapter, then navigates to
-  // the Book details sidebar so the user can set a title/author next.
-  // Safe to call without the New Book confirmation dialog because this
-  // handler only fires from EmptyEditorState, which is only rendered when
-  // chapters.length === 0 (nothing to lose).
   function handlePasteManuscript(text: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
     const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
-    track('manuscript_pasted', { wordCount });
+    track("manuscript_pasted", { wordCount });
     setShowMarketingPage(false);
     const newChapter: Chapter = {
       id: `chapter-${Date.now()}`,
-      type: 'content',
-      title: 'Chapter 1',
+      type: "content",
+      title: "Chapter 1",
       content: trimmed,
     };
     setChapters([newChapter]);
-    setTitle('Pasted manuscript');
-    setAuthor('');
+    setTitle("Pasted manuscript");
+    setAuthor("");
     setSelectedChapter(0);
     markDirty();
-    setSidebarView('book');
+    setSidebarView("book");
   }
 
-
   function handleStartWriting() {
-    // Called from marketing page when user wants to enter the editor
     setShowMarketingPage(false);
     if (libraryBooks.length > 0) {
-      // If they have books, load the most recent one
-      const mostRecent = libraryBooks.reduce((a, b) => (a.savedAt > b.savedAt ? a : b));
+      const mostRecent = libraryBooks.reduce((a, b) =>
+        a.savedAt > b.savedAt ? a : b,
+      );
       library.handleLoadBook(mostRecent.id);
     } else {
-      // Otherwise start a new book
       clearEditorState();
     }
   }
 
   function handleGoToHome() {
-    // Clear current book and show landing page
     setChapters([]);
     setTitle("");
     setAuthor("");
     setCurrentBookId(undefined);
     setSelectedChapter(0);
-    setSidebarView(null); // Close any open panels
+    setSidebarView(null);
   }
 
   useEffect(() => {
-    // Don't load the library until auth has settled. Without this,
-    // the effect fires on mount with user=null, reads an empty
-    // library (loadBookLibrary('') returns []), and immediately sets
-    // libraryLoading=false — so the loading indicator is never seen
-    // and the UI flashes "No saved books" for authenticated users.
-    // For anonymous visitors (auth finished but no user), stop the
-    // loading state so they see the clean empty UI.
     if (authLoading) return;
     if (!user?.id) {
       setLibraryLoading(false);
@@ -1023,49 +1144,51 @@ function MakeEbookPage() {
     setLibraryBooks(books);
     setLibraryLoading(false);
 
-  const loadBookId = searchParams ? searchParams.get('load') : null;
+    const loadBookId = searchParams ? searchParams.get("load") : null;
     if (loadBookId) {
-      const bookToLoad = books.find(book => book.id === loadBookId);
+      const bookToLoad = books.find((book) => book.id === loadBookId);
       if (bookToLoad) {
-        setShowMarketingPage(false); // Dismiss marketing page when loading a book
+        setShowMarketingPage(false);
         library.handleLoadBook(loadBookId);
-        router.replace('/make-ebook', { scroll: false });
+        router.replace("/make-ebook", { scroll: false });
         setInitialized(true);
         return;
       } else {
-        router.replace('/make-ebook', { scroll: false });
+        router.replace("/make-ebook", { scroll: false });
         if (!initialized) setInitialized(true);
         return;
       }
     }
 
-    // Don't auto-load books on initial visit - let marketing page show first
-    // Only set initialized to true so we don't keep re-running this effect
     if (!initialized) setInitialized(true);
-  }, [authLoading, user?.id, searchParams, initialized, currentBookId, chapters.length]);
+  }, [
+    authLoading,
+    user?.id,
+    searchParams,
+    initialized,
+    currentBookId,
+    chapters.length,
+  ]);
 
-  // Scroll indicator effect for mobile sidebar
   useEffect(() => {
     const handleScroll = () => {
       if (scrollContainerRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
-        const hasMoreContent = scrollTop + clientHeight < scrollHeight - 10; // 10px threshold
+        const { scrollTop, scrollHeight, clientHeight } =
+          scrollContainerRef.current;
+        const hasMoreContent = scrollTop + clientHeight < scrollHeight - 10;
         setShowScrollIndicator(hasMoreContent);
       }
     };
 
     const container = scrollContainerRef.current;
     if (container && mobileSidebarOpen) {
-      // Check initially
       handleScroll();
-      // Add scroll listener
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
+
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
     }
-  }, [mobileSidebarOpen, tab]); // Re-check when tab changes as content changes
+  }, [mobileSidebarOpen, tab]);
 
-
-  // Show marketing landing page for visitors (before they start editing)
   if (showMarketingPage && chapters.length === 0) {
     return (
       <MarketingLandingPage
@@ -1078,16 +1201,17 @@ function MakeEbookPage() {
   return (
     <>
       <TrialBanner />
-      {/* Main Content - Full height without header */}
+
       <div className="bg-white dark:bg-[#1e1e1e] text-[#15161a] dark:text-[#e5e5e5]">
-        
-        {/* New Book Confirmation Dialog */}
         {newBookConfirmOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-[#1e1e1e] rounded shadow-2xl p-6 max-w-md w-full">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Start New Book?</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
+                Start New Book?
+              </h2>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                This will save your current book and start a new one. All your current work will be preserved in the library.
+                This will save your current book and start a new one. All your
+                current work will be preserved in the library.
               </p>
               <div className="flex gap-3">
                 <button
@@ -1107,13 +1231,15 @@ function MakeEbookPage() {
           </div>
         )}
 
-        {/* Save Dialog */}
         {saveDialogOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-[#1e1e1e] rounded shadow-2xl p-6 max-w-md w-full">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Save Book</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
+                Save Book
+              </h2>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                This book already exists in your library. Do you want to overwrite the existing version or save as a new version?
+                This book already exists in your library. Do you want to
+                overwrite the existing version or save as a new version?
               </p>
               <div className="flex gap-3">
                 <button
@@ -1139,24 +1265,36 @@ function MakeEbookPage() {
           </div>
         )}
 
-        {/* Import Document Dialog */}
         {docImport.importDialogOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl p-6 max-w-md w-full">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Import Document</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                  Import Document
+                </h2>
                 <button
                   onClick={() => docImport.setImportDialogOpen(false)}
                   className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
                 >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-5 h-5 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.6}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
 
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                Upload a document to automatically parse chapters and create a new book.
+                Upload a document to automatically parse chapters and create a
+                new book.
               </p>
 
               <div className="mb-4 p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-center">
@@ -1169,8 +1307,18 @@ function MakeEbookPage() {
                 />
 
                 <div className="mb-3">
-                  <svg className="w-10 h-10 mx-auto text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <svg
+                    className="w-10 h-10 mx-auto text-gray-400 dark:text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.6}
+                      d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
                 </div>
 
@@ -1179,7 +1327,7 @@ function MakeEbookPage() {
                   disabled={docImport.importing}
                   className="px-4 py-2 rounded-lg bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-50"
                 >
-                  {docImport.importing ? 'Importing...' : 'Choose File'}
+                  {docImport.importing ? "Importing..." : "Choose File"}
                 </button>
 
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
@@ -1189,12 +1337,17 @@ function MakeEbookPage() {
 
               {docImport.importError && (
                 <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-4">
-                  <p className="text-sm text-red-600 dark:text-red-400">{docImport.importError}</p>
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {docImport.importError}
+                  </p>
                 </div>
               )}
-              
+
               <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                <p>• Chapters are detected by headings like "Chapter 1", "Prologue", etc.</p>
+                <p>
+                  • Chapters are detected by headings like "Chapter 1",
+                  "Prologue", etc.
+                </p>
                 <p>• The document title will be extracted if possible</p>
                 <p>• You can edit all details after import</p>
               </div>
@@ -1202,7 +1355,6 @@ function MakeEbookPage() {
           </div>
         )}
 
-        {/* Unified History modal — version + export history with tabs */}
         {historyModal && (
           <HistoryPanel
             initialTab={historyModal}
@@ -1221,7 +1373,6 @@ function MakeEbookPage() {
           />
         )}
 
-        {/* Mobile Preview Modal — full-screen live preview on small viewports */}
         {mobilePreviewOpen && (
           <MobilePreviewModal
             chapters={chapters}
@@ -1231,11 +1382,6 @@ function MakeEbookPage() {
           />
         )}
 
-        {/* Mobile Book Mind Drawer — full-screen, lg:hidden.
-            Hosts the full Inspector (four tabs) so mobile users get the
-            same Chat / Insights / Issues / Pre-flight surface as desktop.
-            The close button is a thin bar above the Inspector because
-            InspectorPanel does not own its own chrome. */}
         {mobileBookMindOpen && (
           <div className="lg:hidden fixed inset-0 z-50 flex flex-col animate-slide-in-from-bottom bg-white dark:bg-[#252525]">
             <div className="flex items-center justify-end px-3 py-2 border-b border-gray-200 dark:border-[#2f2f2f] flex-shrink-0">
@@ -1244,7 +1390,15 @@ function MakeEbookPage() {
                 className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
                 aria-label="Close Book Mind"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -1268,13 +1422,13 @@ function MakeEbookPage() {
                 onAddDisclosureChapter={(content: string) => {
                   const newChapter = {
                     id: `ch-${Date.now()}`,
-                    title: 'AI Disclosure',
+                    title: "AI Disclosure",
                     content,
-                    type: 'backmatter' as const,
+                    type: "backmatter" as const,
                   };
-                  setChapters(prev => [...prev, newChapter]);
+                  setChapters((prev) => [...prev, newChapter]);
                   setSelectedChapter(chapters.length);
-                  toast.success('AI Disclosure chapter added');
+                  toast.success("AI Disclosure chapter added");
                 }}
                 isPro={isPro}
                 onUpgrade={() => setExportUpgradeOpen(true)}
@@ -1283,24 +1437,24 @@ function MakeEbookPage() {
           </div>
         )}
 
-        {/* Mobile Sidebar Overlay */}
-        <div className={`fixed top-0 left-0 right-0 bottom-0 z-[100] lg:hidden transition-[visibility] duration-200 ease-out ${
-          mobileSidebarOpen ? 'visible' : 'invisible'
-        }`}>
-          {/* Backdrop */}
+        <div
+          className={`fixed top-0 left-0 right-0 bottom-0 z-[100] lg:hidden transition-[visibility] duration-200 ease-out ${
+            mobileSidebarOpen ? "visible" : "invisible"
+          }`}
+        >
           <div
             className={`absolute inset-0 bg-black/20 transition-opacity duration-200 ease-out ${
-              mobileSidebarOpen ? 'opacity-100' : 'opacity-0'
+              mobileSidebarOpen ? "opacity-100" : "opacity-0"
             }`}
             onClick={() => setMobileSidebarOpen(false)}
           />
-          {/* Sidebar Panel */}
-          <div className={`absolute top-0 left-0 h-full w-full bg-white dark:bg-[#1e1e1e] shadow-2xl transform transition-transform duration-200 ease-out ${
-            mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}>
+
+          <div
+            className={`absolute top-0 left-0 h-full w-full bg-white dark:bg-[#1e1e1e] shadow-2xl transform transition-transform duration-200 ease-out ${
+              mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
+          >
             <div className="flex flex-col h-full">
-              
-              {/* Logo Header - Sticky */}
               <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-[#2f2f2f]">
                 <div className="flex items-center justify-between pr-0">
                   <button
@@ -1325,34 +1479,48 @@ function MakeEbookPage() {
                     className="px-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
                     aria-label="Close sidebar"
                   >
-                    <img src="/close-sidebar-icon.svg" alt="Close" className="w-5 h-5 dark:invert" />
+                    <img
+                      src="/close-sidebar-icon.svg"
+                      alt="Close"
+                      className="w-5 h-5 dark:invert"
+                    />
                   </button>
                 </div>
               </div>
 
-              {/* Scrollable Content Area */}
               <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
-                
-                {/* Note: All sections use same collapsible pattern as desktop */}
                 <div className="px-4 space-y-2 py-2">
-                  
-                  {/* Library Section */}
                   <div className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
                     <button
-                      onClick={() => expandMobileSection('library')}
+                      onClick={() => expandMobileSection("library")}
                       className="flex items-center justify-between py-2 w-full text-left"
                     >
                       <div className="flex items-center gap-2">
-                        <svg className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1.6}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <rect x="4" y="4" width="3" height="16" rx="0.5" />
                           <rect x="10" y="7" width="3" height="13" rx="0.5" />
                           <rect x="16" y="5" width="3" height="15" rx="0.5" />
                           <path d="M3 20h18" />
                         </svg>
-                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Library</span>
-                        <span className="text-xs text-gray-600 dark:text-gray-400">({libraryBooks.length})</span>
+                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">
+                          Library
+                        </span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                          ({libraryBooks.length})
+                        </span>
                         {cloudSync.syncConflicts.length > 0 && (
-                          <span aria-label="Action needed" className="w-2 h-2 rounded-full bg-red-500" />
+                          <span
+                            aria-label="Action needed"
+                            className="w-2 h-2 rounded-full bg-red-500"
+                          />
                         )}
                       </div>
                       {sidebarLibraryExpanded ? (
@@ -1368,23 +1536,56 @@ function MakeEbookPage() {
                           conflicts={cloudSync.syncConflicts}
                           onResolve={cloudSync.handleResolveSyncConflict}
                         />
-                        {/* Action buttons */}
+
                         <div className="flex items-center gap-1 pb-2 mb-1 border-b border-gray-100 dark:border-gray-800">
                           {libraryBooks.length > 0 && (
                             <button
                               onClick={() => {
-                                library.setMultiSelectMode(!library.multiSelectMode);
-                                if (library.multiSelectMode) library.setSelectedBookIds(new Set());
+                                library.setMultiSelectMode(
+                                  !library.multiSelectMode,
+                                );
+                                if (library.multiSelectMode)
+                                  library.setSelectedBookIds(new Set());
                               }}
-                              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${library.multiSelectMode ? 'bg-blue-100 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'}`}
-                              title={library.multiSelectMode ? "Cancel selection" : "Select multiple"}
+                              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${library.multiSelectMode ? "bg-blue-100 dark:bg-blue-900/30" : "hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"}`}
+                              title={
+                                library.multiSelectMode
+                                  ? "Cancel selection"
+                                  : "Select multiple"
+                              }
                             >
-                              <svg className={`w-4 h-4 ${library.multiSelectMode ? 'text-blue-600 dark:text-blue-400' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                                <circle className={library.multiSelectMode ? '' : 'dark:stroke-white'} cx="12" cy="12" r="9" />
-                                <path className={library.multiSelectMode ? '' : 'dark:stroke-white'} d="M8.5 12l2.5 2.5 4.5-4.5" />
+                              <svg
+                                className={`w-4 h-4 ${library.multiSelectMode ? "text-blue-600 dark:text-blue-400" : ""}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.6}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <circle
+                                  className={
+                                    library.multiSelectMode
+                                      ? ""
+                                      : "dark:stroke-white"
+                                  }
+                                  cx="12"
+                                  cy="12"
+                                  r="9"
+                                />
+                                <path
+                                  className={
+                                    library.multiSelectMode
+                                      ? ""
+                                      : "dark:stroke-white"
+                                  }
+                                  d="M8.5 12l2.5 2.5 4.5-4.5"
+                                />
                               </svg>
-                              <span className={`text-2xs font-medium ${library.multiSelectMode ? 'text-blue-600 dark:text-blue-400' : 'text-[#050505] dark:text-[#e5e5e5]'}`}>
-                                {library.multiSelectMode ? 'Cancel' : 'Select'}
+                              <span
+                                className={`text-2xs font-medium ${library.multiSelectMode ? "text-blue-600 dark:text-blue-400" : "text-[#050505] dark:text-[#e5e5e5]"}`}
+                              >
+                                {library.multiSelectMode ? "Cancel" : "Select"}
                               </span>
                             </button>
                           )}
@@ -1396,12 +1597,31 @@ function MakeEbookPage() {
                             className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                             title="New book"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                              <path className="dark:stroke-white" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                              <path className="dark:stroke-white" d="M14 2v6h6" />
-                              <path className="dark:stroke-white" d="M9 14h6M12 11v6" />
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.6}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path
+                                className="dark:stroke-white"
+                                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                              />
+                              <path
+                                className="dark:stroke-white"
+                                d="M14 2v6h6"
+                              />
+                              <path
+                                className="dark:stroke-white"
+                                d="M9 14h6M12 11v6"
+                              />
                             </svg>
-                            <span className="text-2xs font-medium text-[#050505] dark:text-[#e5e5e5]">New</span>
+                            <span className="text-2xs font-medium text-[#050505] dark:text-[#e5e5e5]">
+                              New
+                            </span>
                           </button>
                           <button
                             onClick={() => {
@@ -1411,11 +1631,27 @@ function MakeEbookPage() {
                             className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                             title="Import document"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                              <path className="dark:stroke-white" d="M12 3v12M7.5 10l4.5 5 4.5-5" />
-                              <path className="dark:stroke-white" d="M4 19h16" />
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.6}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path
+                                className="dark:stroke-white"
+                                d="M12 3v12M7.5 10l4.5 5 4.5-5"
+                              />
+                              <path
+                                className="dark:stroke-white"
+                                d="M4 19h16"
+                              />
                             </svg>
-                            <span className="text-2xs font-medium text-[#050505] dark:text-[#e5e5e5]">Import</span>
+                            <span className="text-2xs font-medium text-[#050505] dark:text-[#e5e5e5]">
+                              Import
+                            </span>
                           </button>
                         </div>
                         {library.multiSelectMode && libraryBooks.length > 0 && (
@@ -1424,7 +1660,10 @@ function MakeEbookPage() {
                               onClick={library.toggleSelectAll}
                               className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
                             >
-                              {library.selectedBookIds.size === libraryBooks.length ? 'Deselect All' : 'Select All'}
+                              {library.selectedBookIds.size ===
+                              libraryBooks.length
+                                ? "Deselect All"
+                                : "Select All"}
                             </button>
                             <span className="text-xs text-gray-600 dark:text-gray-400">
                               {library.selectedBookIds.size} selected
@@ -1439,119 +1678,151 @@ function MakeEbookPage() {
                           </div>
                         )}
                         <div className="mt-2 space-y-1 pl-2">
-                        {libraryLoading ? (
-                          <div className="space-y-2 py-2 px-2">
-                            {[1, 2, 3].map(i => (
-                              <div key={i} className="animate-pulse flex items-center gap-2">
-                                <div className="h-3 bg-gray-200 dark:bg-[#2f2f2f] rounded w-3/4" />
-                                <div className="h-2 bg-gray-100 dark:bg-[#262626] rounded w-1/4" />
-                              </div>
-                            ))}
-                          </div>
-                        ) : libraryBooks.length === 0 ? (
-                          <div className="text-xs text-gray-600 dark:text-gray-400 py-4 px-2 text-center">
-                            No saved books yet
-                          </div>
-                        ) : (
-                          libraryBooks.map((book) => {
-                            const isSelected = selectedBookId === book.id;
-                            const isChecked = library.selectedBookIds.has(book.id);
-                            return (
-                              <div
-                                key={book.id}
-                                className={`group flex items-center justify-between py-2 px-2 rounded transition-colors ${
-                                  isSelected || isChecked
-                                    ? 'bg-gray-100 dark:bg-[#262626]'
-                                    : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
-                                }`}
-                              >
-                                {library.multiSelectMode && (
-                                  <label className="flex items-center mr-2 cursor-pointer">
-                                    <input
-                                      type="checkbox"
-                                      checked={isChecked}
-                                      onChange={() => library.toggleBookSelection(book.id)}
-                                      className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:focus:ring-blue-400 cursor-pointer"
-                                    />
-                                  </label>
-                                )}
-                                <button
-                                  onClick={() => library.multiSelectMode ? library.toggleBookSelection(book.id) : setSelectedBookId(isSelected ? null : book.id)}
-                                  className="flex-1 text-left"
+                          {libraryLoading ? (
+                            <div className="space-y-2 py-2 px-2">
+                              {[1, 2, 3].map((i) => (
+                                <div
+                                  key={i}
+                                  className="animate-pulse flex items-center gap-2"
                                 >
-                                  <div className={`text-sm font-medium truncate ${
+                                  <div className="h-3 bg-gray-200 dark:bg-[#2f2f2f] rounded w-3/4" />
+                                  <div className="h-2 bg-gray-100 dark:bg-[#262626] rounded w-1/4" />
+                                </div>
+                              ))}
+                            </div>
+                          ) : libraryBooks.length === 0 ? (
+                            <div className="text-xs text-gray-600 dark:text-gray-400 py-4 px-2 text-center">
+                              No saved books yet
+                            </div>
+                          ) : (
+                            libraryBooks.map((book) => {
+                              const isSelected = selectedBookId === book.id;
+                              const isChecked = library.selectedBookIds.has(
+                                book.id,
+                              );
+                              return (
+                                <div
+                                  key={book.id}
+                                  className={`group flex items-center justify-between py-2 px-2 rounded transition-colors ${
                                     isSelected || isChecked
-                                      ? 'text-gray-900 dark:text-gray-100'
-                                      : 'text-gray-600 dark:text-gray-400'
-                                  }`}>
-                                    {book.title || 'Untitled'}
-                                  </div>
-                                  <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                                    {book.author || 'Unknown'}
-                                  </div>
-                                </button>
-                                {!library.multiSelectMode && isSelected && (
-                                  <div className="flex items-center gap-1">
-                                    <button
-                                      onClick={() => {
-                                        library.handleLoadBook(book.id);
-                                        setSelectedBookId(null);
-                                      }}
-                                      className="px-2 py-1 text-xs rounded bg-black dark:bg-white text-white dark:text-black hover:opacity-80"
-                                      title="Load book"
-                                    >
-                                      Open
-                                    </button>
-                                    <button
-                                      onClick={() => library.handleExportLibraryBook(book.id)}
-                                      className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded hidden"
-                                      title="Export as EPUB"
-                                    >
-                                      <img
-                                        src="/export-download-icon.svg"
-                                        alt="Export"
-                                        className="w-4 h-4 dark:hidden"
+                                      ? "bg-gray-100 dark:bg-[#262626]"
+                                      : "hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                                  }`}
+                                >
+                                  {library.multiSelectMode && (
+                                    <label className="flex items-center mr-2 cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={() =>
+                                          library.toggleBookSelection(book.id)
+                                        }
+                                        className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:focus:ring-blue-400 cursor-pointer"
                                       />
-                                      <img
-                                        src="/dark-export-download-icon.svg"
-                                        alt="Export"
-                                        className="w-4 h-4 hidden dark:block"
-                                      />
-                                    </button>
-                                    <button
-                                      onClick={() => library.handleDeleteBook(book.id)}
-                                      className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
-                                      title="Delete"
+                                    </label>
+                                  )}
+                                  <button
+                                    onClick={() =>
+                                      library.multiSelectMode
+                                        ? library.toggleBookSelection(book.id)
+                                        : setSelectedBookId(
+                                            isSelected ? null : book.id,
+                                          )
+                                    }
+                                    className="flex-1 text-left"
+                                  >
+                                    <div
+                                      className={`text-sm font-medium truncate ${
+                                        isSelected || isChecked
+                                          ? "text-gray-900 dark:text-gray-100"
+                                          : "text-gray-600 dark:text-gray-400"
+                                      }`}
                                     >
-                                      <TrashIcon className="w-4 h-4 dark:invert" />
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })
-                        )}
+                                      {book.title || "Untitled"}
+                                    </div>
+                                    <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                                      {book.author || "Unknown"}
+                                    </div>
+                                  </button>
+                                  {!library.multiSelectMode && isSelected && (
+                                    <div className="flex items-center gap-1">
+                                      <button
+                                        onClick={() => {
+                                          library.handleLoadBook(book.id);
+                                          setSelectedBookId(null);
+                                        }}
+                                        className="px-2 py-1 text-xs rounded bg-black dark:bg-white text-white dark:text-black hover:opacity-80"
+                                        title="Load book"
+                                      >
+                                        Open
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          library.handleExportLibraryBook(
+                                            book.id,
+                                          )
+                                        }
+                                        className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded hidden"
+                                        title="Export as EPUB"
+                                      >
+                                        <img
+                                          src="/export-download-icon.svg"
+                                          alt="Export"
+                                          className="w-4 h-4 dark:hidden"
+                                        />
+                                        <img
+                                          src="/dark-export-download-icon.svg"
+                                          alt="Export"
+                                          className="w-4 h-4 hidden dark:block"
+                                        />
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          library.handleDeleteBook(book.id)
+                                        }
+                                        className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                                        title="Delete"
+                                      >
+                                        <TrashIcon className="w-4 h-4 dark:invert" />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })
+                          )}
                         </div>
                       </>
                     )}
                   </div>
 
-                  {/* Book Details Section */}
-                  <div className={`border-b border-gray-200 dark:border-[#2f2f2f] pb-2 transition-colors duration-1000 ease-out ${
-                    bookJustLoaded ? 'bg-gray-100/80 dark:bg-gray-700/20' : ''
-                  }`}>
+                  <div
+                    className={`border-b border-gray-200 dark:border-[#2f2f2f] pb-2 transition-colors duration-1000 ease-out ${
+                      bookJustLoaded ? "bg-gray-100/80 dark:bg-gray-700/20" : ""
+                    }`}
+                  >
                     <button
-                      onClick={() => expandMobileSection('book')}
+                      onClick={() => expandMobileSection("book")}
                       className="flex items-center justify-between py-2 w-full text-left"
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <svg className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1.6}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                           <path d="M8 7h8M8 11h8M8 15h5" />
                         </svg>
                         <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                          <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Book</span>
+                          <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">
+                            Book
+                          </span>
                           {title && (
                             <span className="text-xs text-gray-600 dark:text-gray-400 truncate">
                               {title}
@@ -1568,7 +1839,6 @@ function MakeEbookPage() {
 
                     {sidebarBookDetailsExpanded && (
                       <div className="mt-2 space-y-3 pl-2 pr-2">
-                        {/* Action buttons row */}
                         <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
                           <button
                             onClick={() => saveBook.handleSaveBook()}
@@ -1577,57 +1847,104 @@ function MakeEbookPage() {
                             title={saveFeedback ? "Saved!" : "Save book"}
                           >
                             {saveFeedback ? (
-                              <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 13l4 4L19 7" />
+                              <svg
+                                className="w-4 h-4 text-green-600 dark:text-green-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.6}
+                                  d="M5 13l4 4L19 7"
+                                />
                               </svg>
                             ) : (
                               <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
                             )}
-                            <span className={`text-xs font-medium ${saveFeedback ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}`}>
-                              {saveFeedback ? 'Saved!' : 'Save'}
+                            <span
+                              className={`text-xs font-medium ${saveFeedback ? "text-green-600 dark:text-green-400" : "text-gray-700 dark:text-gray-300"}`}
+                            >
+                              {saveFeedback ? "Saved!" : "Save"}
                             </span>
                           </button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <button className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors">
                                 <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Export</span>
+                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                  Export
+                                </span>
                                 <ChevronDown className="w-3 h-3 text-gray-400" />
                               </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start" className="w-44 z-[200]">
-                              <DropdownMenuItem onClick={() => setPreflightFormat('epub')} className="flex items-center gap-2 cursor-pointer">
+                            <DropdownMenuContent
+                              align="start"
+                              className="w-44 z-[200]"
+                            >
+                              <DropdownMenuItem
+                                onClick={() => setPreflightFormat("epub")}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
                                 <DownloadIcon className="w-4 h-4" />
                                 <div>
-                                  <div className="text-sm font-medium">EPUB</div>
-                                  <div className="text-xs text-gray-500">Kindle, Kobo, Apple Books</div>
+                                  <div className="text-sm font-medium">
+                                    EPUB
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    Kindle, Kobo, Apple Books
+                                  </div>
                                 </div>
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setPreflightFormat('pdf')} className="flex items-center gap-2 cursor-pointer">
+                              <DropdownMenuItem
+                                onClick={() => setPreflightFormat("pdf")}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
                                 <DownloadIcon className="w-4 h-4" />
                                 <div>
                                   <div className="text-sm font-medium">PDF</div>
-                                  <div className="text-xs text-gray-500">Print & sharing</div>
+                                  <div className="text-xs text-gray-500">
+                                    Print & sharing
+                                  </div>
                                 </div>
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setPreflightFormat('docx')} className="flex items-center gap-2 cursor-pointer">
+                              <DropdownMenuItem
+                                onClick={() => setPreflightFormat("docx")}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
                                 <DownloadIcon className="w-4 h-4" />
                                 <div>
-                                  <div className="text-sm font-medium">Word</div>
-                                  <div className="text-xs text-gray-500">Editors & agents</div>
+                                  <div className="text-sm font-medium">
+                                    Word
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    Editors & agents
+                                  </div>
                                 </div>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
-                        {/* Cover Image */}
+
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Cover Image</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            Cover Image
+                          </label>
                           <div className="w-full aspect-[2/3] max-h-52 bg-gray-100 dark:bg-[#2a2a2a] rounded border border-gray-200 dark:border-[#2f2f2f] overflow-hidden flex items-center justify-center mb-2">
-                            {coverUrl
-                              ? <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
-                              : <img src="/image-icon.svg" alt="" className="w-8 h-8 opacity-30 dark:opacity-20" />
-                            }
+                            {coverUrl ? (
+                              <img
+                                src={coverUrl}
+                                alt="Cover"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <img
+                                src="/image-icon.svg"
+                                alt=""
+                                className="w-8 h-8 opacity-30 dark:opacity-20"
+                              />
+                            )}
                           </div>
                           <input
                             type="file"
@@ -1638,9 +1955,10 @@ function MakeEbookPage() {
                           />
                         </div>
 
-                        {/* Title */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Title</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            Title
+                          </label>
                           <input
                             type="text"
                             value={title}
@@ -1650,10 +1968,11 @@ function MakeEbookPage() {
                             placeholder="Book title"
                           />
                         </div>
-                        
-                        {/* Author */}
+
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Author</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            Author
+                          </label>
                           <input
                             type="text"
                             value={author}
@@ -1663,10 +1982,11 @@ function MakeEbookPage() {
                             placeholder="Author name"
                           />
                         </div>
-                        
-                        {/* Blurb */}
+
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Description</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            Description
+                          </label>
                           <textarea
                             value={blurb}
                             onChange={(e) => setBlurb(e.target.value)}
@@ -1676,10 +1996,11 @@ function MakeEbookPage() {
                             rows={3}
                           />
                         </div>
-                        
-                        {/* Publisher */}
+
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Publisher</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            Publisher
+                          </label>
                           <input
                             type="text"
                             value={publisher}
@@ -1689,10 +2010,11 @@ function MakeEbookPage() {
                             placeholder="Publisher name"
                           />
                         </div>
-                        
-                        {/* Publication Date */}
+
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Publication Date</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            Publication Date
+                          </label>
                           <input
                             type="date"
                             value={pubDate}
@@ -1701,10 +2023,11 @@ function MakeEbookPage() {
                             className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
                           />
                         </div>
-                        
-                        {/* Language */}
+
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Language</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            Language
+                          </label>
                           <select
                             value={language}
                             onChange={(e) => setLanguage(e.target.value)}
@@ -1718,10 +2041,11 @@ function MakeEbookPage() {
                             ))}
                           </select>
                         </div>
-                        
-                        {/* Genre */}
+
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Genre</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            Genre
+                          </label>
                           <input
                             type="text"
                             value={genre}
@@ -1731,10 +2055,11 @@ function MakeEbookPage() {
                             placeholder="e.g. Fiction, Mystery"
                           />
                         </div>
-                        
-                        {/* ISBN */}
+
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">ISBN</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            ISBN
+                          </label>
                           <input
                             type="text"
                             value={isbn}
@@ -1744,16 +2069,19 @@ function MakeEbookPage() {
                             placeholder="ISBN number"
                           />
                         </div>
-                        
-                        {/* Tags */}
+
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Tags</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            Tags
+                          </label>
                           <div className="flex gap-2 mb-2">
                             <input
                               type="text"
                               value={tagInput}
                               onChange={(e) => setTagInput(e.target.value)}
-                              onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+                              onKeyPress={(e) =>
+                                e.key === "Enter" && handleAddTag()
+                              }
                               disabled={lockedSections.bookInfo}
                               className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
                               placeholder="e.g., fiction, thriller, mystery, romance"
@@ -1789,20 +2117,31 @@ function MakeEbookPage() {
                     )}
                   </div>
 
-                  {/* Chapters Section */}
                   <div className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
                     <button
-                      onClick={() => expandMobileSection('chapters')}
+                      onClick={() => expandMobileSection("chapters")}
                       className="flex items-center justify-between py-2 w-full text-left"
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <svg className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1.6}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                           <path d="M14 2v6h6" />
                           <path d="M16 13H8M16 17H8M10 9H8" />
                         </svg>
-                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">Chapters</span>
-                        <span className="text-xs text-gray-600 dark:text-gray-400">({chapters.length})</span>
+                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">
+                          Chapters
+                        </span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                          ({chapters.length})
+                        </span>
                       </div>
                       {sidebarChaptersExpanded ? (
                         <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
@@ -1813,134 +2152,196 @@ function MakeEbookPage() {
 
                     {sidebarChaptersExpanded && (
                       <div className="mt-1 space-y-1">
-                        {/* Add chapter button */}
                         <div className="flex items-center gap-1 pb-2 mb-1 border-b border-gray-100 dark:border-gray-800">
                           <div className="relative">
                             <button
-                              onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
+                              onClick={() =>
+                                setChapterTypeDropdownOpen(
+                                  !chapterTypeDropdownOpen,
+                                )
+                              }
                               className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
                               title="Add chapter"
                             >
                               <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Add</span>
+                              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                Add
+                              </span>
                             </button>
 
                             {chapterTypeDropdownOpen && (
-                              <div ref={dropdownRef} className="absolute left-0 top-full mt-1 w-56 bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl border border-gray-200 dark:border-[#2f2f2f] z-50 py-2 max-h-96 overflow-y-auto">
+                              <div
+                                ref={dropdownRef}
+                                className="absolute left-0 top-full mt-1 w-56 bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl border border-gray-200 dark:border-[#2f2f2f] z-50 py-2 max-h-96 overflow-y-auto"
+                              >
                                 <div className="space-y-3 px-2">
-                                  {/* Front Matter */}
                                   <div>
                                     <div className="px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
                                       Front Matter
                                     </div>
-                                    {CHAPTER_TEMPLATES.frontmatter.map((template) => (
-                                      <button
-                                        key={template.title}
-                                        onClick={() => {
-                                          const newChapterId = handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
-                                          setChapterTypeDropdownOpen(false);
-                                          setSidebarChaptersExpanded(true);
-                                          setChapterJustAdded(newChapterId);
-                                          setTimeout(() => setChapterJustAdded(null), 1000);
-                                        }}
-                                        className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
-                                      >
-                                        {template.title}
-                                      </button>
-                                    ))}
+                                    {CHAPTER_TEMPLATES.frontmatter.map(
+                                      (template) => (
+                                        <button
+                                          key={template.title}
+                                          onClick={() => {
+                                            const newChapterId =
+                                              handleAddChapter(
+                                                "frontmatter",
+                                                template.title ===
+                                                  "Custom Front Matter"
+                                                  ? ""
+                                                  : template.title,
+                                              );
+                                            setChapterTypeDropdownOpen(false);
+                                            setSidebarChaptersExpanded(true);
+                                            setChapterJustAdded(newChapterId);
+                                            setTimeout(
+                                              () => setChapterJustAdded(null),
+                                              1000,
+                                            );
+                                          }}
+                                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                                        >
+                                          {template.title}
+                                        </button>
+                                      ),
+                                    )}
                                   </div>
 
-                                  {/* Main Content */}
                                   <div>
                                     <div className="px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
                                       Main Content
                                     </div>
-                                    {CHAPTER_TEMPLATES.content.map((template) => (
-                                      <button
-                                        key={template.title}
-                                        onClick={() => {
-                                          const newChapterId = handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
-                                          setChapterTypeDropdownOpen(false);
-                                          setSidebarChaptersExpanded(true);
-                                          setChapterJustAdded(newChapterId);
-                                          setTimeout(() => setChapterJustAdded(null), 1000);
-                                        }}
-                                        className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
-                                      >
-                                        {template.title}
-                                      </button>
-                                    ))}
+                                    {CHAPTER_TEMPLATES.content.map(
+                                      (template) => (
+                                        <button
+                                          key={template.title}
+                                          onClick={() => {
+                                            const newChapterId =
+                                              handleAddChapter(
+                                                "content",
+                                                template.title ===
+                                                  "Custom Chapter"
+                                                  ? ""
+                                                  : template.title,
+                                              );
+                                            setChapterTypeDropdownOpen(false);
+                                            setSidebarChaptersExpanded(true);
+                                            setChapterJustAdded(newChapterId);
+                                            setTimeout(
+                                              () => setChapterJustAdded(null),
+                                              1000,
+                                            );
+                                          }}
+                                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                                        >
+                                          {template.title}
+                                        </button>
+                                      ),
+                                    )}
                                   </div>
 
-                                  {/* Back Matter */}
                                   <div>
                                     <div className="px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
                                       Back Matter
                                     </div>
-                                    {CHAPTER_TEMPLATES.backmatter.map((template) => (
-                                      <button
-                                        key={template.title}
-                                        onClick={() => {
-                                          const newChapterId = handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
-                                          setChapterTypeDropdownOpen(false);
-                                          setSidebarChaptersExpanded(true);
-                                          setChapterJustAdded(newChapterId);
-                                          setTimeout(() => setChapterJustAdded(null), 1000);
-                                        }}
-                                        className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
-                                      >
-                                        {template.title}
-                                      </button>
-                                    ))}
+                                    {CHAPTER_TEMPLATES.backmatter.map(
+                                      (template) => (
+                                        <button
+                                          key={template.title}
+                                          onClick={() => {
+                                            const newChapterId =
+                                              handleAddChapter(
+                                                "backmatter",
+                                                template.title ===
+                                                  "Custom Back Matter"
+                                                  ? ""
+                                                  : template.title,
+                                              );
+                                            setChapterTypeDropdownOpen(false);
+                                            setSidebarChaptersExpanded(true);
+                                            setChapterJustAdded(newChapterId);
+                                            setTimeout(
+                                              () => setChapterJustAdded(null),
+                                              1000,
+                                            );
+                                          }}
+                                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                                        >
+                                          {template.title}
+                                        </button>
+                                      ),
+                                    )}
                                   </div>
                                 </div>
                               </div>
                             )}
                           </div>
                         </div>
-                        <p className="text-2xs text-gray-600 dark:text-gray-400 px-2 mb-1">Drag to reorder</p>
+                        <p className="text-2xs text-gray-600 dark:text-gray-400 px-2 mb-1">
+                          Drag to reorder
+                        </p>
                         {chapters.map((ch, i) => {
                           const isSelected = selectedChapter === i;
-                          const titleText = ch.title?.trim() || 'Title';
-                          
+                          const titleText = ch.title?.trim() || "Title";
+
                           const getChapterInfo = () => {
-                            if (ch.type === 'frontmatter') {
+                            if (ch.type === "frontmatter") {
                               return {
-                                typeLabel: 'Frontmatter',
-                                title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                                typeLabel: "Frontmatter",
+                                title:
+                                  titleText && titleText !== "Title"
+                                    ? titleText
+                                    : "Title",
                               };
                             }
-                            if (ch.type === 'backmatter') {
+                            if (ch.type === "backmatter") {
                               return {
-                                typeLabel: 'Backmatter',
-                                title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                                typeLabel: "Backmatter",
+                                title:
+                                  titleText && titleText !== "Title"
+                                    ? titleText
+                                    : "Title",
                               };
                             }
-                            const contentChapterNum = getContentChapterNumber(chapters, i);
+                            const contentChapterNum = getContentChapterNumber(
+                              chapters,
+                              i,
+                            );
                             return {
                               typeLabel: `Chapter ${contentChapterNum}`,
-                              title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                              title:
+                                titleText && titleText !== "Title"
+                                  ? titleText
+                                  : "Title",
                             };
                           };
 
-                          const { typeLabel, title: chapterTitle } = getChapterInfo();
+                          const { typeLabel, title: chapterTitle } =
+                            getChapterInfo();
                           const isJustAdded = chapterJustAdded === ch.id;
-                          
+
                           return (
                             <div
                               key={ch.id}
                               className={`group flex items-center gap-2 px-2 py-2 rounded text-sm cursor-pointer select-none transition-all duration-1000 ease-out ${
                                 dragOverIndex === i
-                                  ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                                  ? "border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20"
                                   : isSelected
-                                    ? 'bg-gray-100 dark:bg-[#262626] border border-transparent'
+                                    ? "bg-gray-100 dark:bg-[#262626] border border-transparent"
                                     : isJustAdded
-                                      ? 'bg-gray-100/80 dark:bg-gray-700/20 border border-transparent'
-                                      : 'border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                                      ? "bg-gray-100/80 dark:bg-gray-700/20 border border-transparent"
+                                      : "border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
                               }`}
-                              style={{
-                                opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
-                              } as React.CSSProperties}
+                              style={
+                                {
+                                  opacity:
+                                    dragItemIndex === i &&
+                                    ghostPillPosition.visible
+                                      ? 0.3
+                                      : 1,
+                                } as React.CSSProperties
+                              }
                               draggable
                               onDragStart={() => handleDragStart(i)}
                               onDragEnter={() => handleDragEnter(i)}
@@ -1955,15 +2356,18 @@ function MakeEbookPage() {
                             >
                               <HandleDragIcon isSelected={isSelected} />
                               <div className="flex flex-col flex-1 min-w-0">
-                                <span className={`text-2xs ${isSelected ? 'text-gray-400 dark:text-gray-400' : 'text-gray-500 dark:text-gray-500'}`}>
+                                <span
+                                  className={`text-2xs ${isSelected ? "text-gray-400 dark:text-gray-400" : "text-gray-500 dark:text-gray-500"}`}
+                                >
                                   {typeLabel}
                                 </span>
-                                <span className={`text-sm truncate ${isSelected ? 'text-gray-900 dark:text-gray-100 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
+                                <span
+                                  className={`text-sm truncate ${isSelected ? "text-gray-900 dark:text-gray-100 font-medium" : "text-gray-600 dark:text-gray-400"}`}
+                                >
                                   {chapterTitle}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">
-                                {/* Edit button - Mobile only */}
                                 <button
                                   className="lg:hidden opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
                                   onClick={(e) => {
@@ -1985,32 +2389,70 @@ function MakeEbookPage() {
                                     className="w-4 h-4 hidden dark:block"
                                   />
                                 </button>
-                                {/* Lock button */}
+
                                 <button
-                                  className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? 'opacity-100 text-gray-600 dark:text-gray-300' : 'opacity-0 group-hover:opacity-100 text-gray-400 dark:text-gray-500'}`}
+                                  className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? "opacity-100 text-gray-600 dark:text-gray-300" : "opacity-0 group-hover:opacity-100 text-gray-400 dark:text-gray-500"}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleToggleChapterLock(i);
                                   }}
-                                  aria-label={ch.locked ? 'Unlock chapter' : 'Lock chapter'}
-                                  title={ch.locked ? 'Unlock chapter' : 'Mark complete and lock'}
+                                  aria-label={
+                                    ch.locked
+                                      ? "Unlock chapter"
+                                      : "Lock chapter"
+                                  }
+                                  title={
+                                    ch.locked
+                                      ? "Unlock chapter"
+                                      : "Mark complete and lock"
+                                  }
                                 >
                                   {ch.locked ? (
-                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                    <svg
+                                      className="w-4 h-4"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth={1.6}
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <rect
+                                        x="3"
+                                        y="11"
+                                        width="18"
+                                        height="11"
+                                        rx="2"
+                                        ry="2"
+                                      />
+                                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                                     </svg>
                                   ) : (
-                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                      <path d="M7 11V7a5 5 0 0 1 10 0"/>
+                                    <svg
+                                      className="w-4 h-4"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth={1.6}
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <rect
+                                        x="3"
+                                        y="11"
+                                        width="18"
+                                        height="11"
+                                        rx="2"
+                                        ry="2"
+                                      />
+                                      <path d="M7 11V7a5 5 0 0 1 10 0" />
                                     </svg>
                                   )}
                                 </button>
-                                {/* Delete button — hidden when locked. Inline
-                                    confirm cluster mirrors the desktop list. */}
-                                {chapters.length > 1 && !ch.locked && (
-                                  pendingDeleteIndex === i ? (
+
+                                {chapters.length > 1 &&
+                                  !ch.locked &&
+                                  (pendingDeleteIndex === i ? (
                                     <div
                                       data-chapter-delete-confirm
                                       role="group"
@@ -2018,27 +2460,52 @@ function MakeEbookPage() {
                                       className="flex items-center gap-0.5 animate-in fade-in zoom-in-95 slide-in-from-right-1 duration-150"
                                       onClick={(e) => e.stopPropagation()}
                                     >
-                                      <span className="px-1.5 text-2xs font-medium text-gray-500 dark:text-gray-400 italic" style={{ fontFamily: 'Georgia, serif' }}>
+                                      <span
+                                        className="px-1.5 text-2xs font-medium text-gray-500 dark:text-gray-400 italic"
+                                        style={{ fontFamily: "Georgia, serif" }}
+                                      >
                                         Delete?
                                       </span>
                                       <button
                                         autoFocus
-                                        onClick={(e) => { e.stopPropagation(); confirmChapterDelete(i); }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          confirmChapterDelete(i);
+                                        }}
                                         className="p-1 rounded bg-red-600 hover:bg-red-700 text-white transition-colors shadow-sm"
                                         aria-label="Confirm delete"
                                         title="Delete (Enter)"
                                       >
-                                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round">
+                                        <svg
+                                          className="w-3.5 h-3.5"
+                                          viewBox="0 0 24 24"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          strokeWidth={2.6}
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                        >
                                           <polyline points="20 6 9 17 4 12" />
                                         </svg>
                                       </button>
                                       <button
-                                        onClick={(e) => { e.stopPropagation(); setPendingDeleteIndex(null); }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setPendingDeleteIndex(null);
+                                        }}
                                         className="p-1 rounded text-gray-500 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-colors"
                                         aria-label="Cancel"
                                         title="Cancel (Esc)"
                                       >
-                                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                                        <svg
+                                          className="w-3.5 h-3.5"
+                                          viewBox="0 0 24 24"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          strokeWidth={2.2}
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                        >
                                           <line x1="18" y1="6" x2="6" y2="18" />
                                           <line x1="6" y1="6" x2="18" y2="18" />
                                         </svg>
@@ -2055,8 +2522,7 @@ function MakeEbookPage() {
                                     >
                                       <BinIcon className="w-4 h-4" />
                                     </button>
-                                  )
-                                )}
+                                  ))}
                               </div>
                             </div>
                           );
@@ -2064,11 +2530,9 @@ function MakeEbookPage() {
                       </div>
                     )}
                   </div>
-
                 </div>
               </div>
 
-              {/* Footer - Compact */}
               <footer className="flex-shrink-0 py-1.5 px-4 border-t border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#1e1e1e]">
                 <div className="flex items-center justify-between">
                   <UserDropdownMobile />
@@ -2078,12 +2542,31 @@ function MakeEbookPage() {
                         setMobileSidebarOpen(false);
                         onboarding.resetOnboarding();
                         if (chapters.length === 0) clearEditorState();
-                        setTimeout(() => onboarding.startTour(), chapters.length === 0 ? 800 : 400);
+                        setTimeout(
+                          () => onboarding.startTour(),
+                          chapters.length === 0 ? 800 : 400,
+                        );
                       }}
                       className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
-                    >Tour</button>
-                    <a href="https://makeebook.ink/terms" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors">Terms</a>
-                    <a href="https://makeebook.ink/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors">Privacy</a>
+                    >
+                      Tour
+                    </button>
+                    <a
+                      href="https://makeebook.ink/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
+                    >
+                      Terms
+                    </a>
+                    <a
+                      href="https://makeebook.ink/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
+                    >
+                      Privacy
+                    </a>
                   </div>
                 </div>
               </footer>
@@ -2091,31 +2574,43 @@ function MakeEbookPage() {
           </div>
         </div>
 
-        {/* Mobile Chapters Panel */}
-        <div className={`fixed top-0 right-0 bottom-0 z-[100] lg:hidden transition-[visibility] duration-200 ease-out ${
-          mobileChaptersOpen ? 'visible' : 'invisible'
-        }`} style={{ left: 0 }}>
-          {/* Backdrop */}
+        <div
+          className={`fixed top-0 right-0 bottom-0 z-[100] lg:hidden transition-[visibility] duration-200 ease-out ${
+            mobileChaptersOpen ? "visible" : "invisible"
+          }`}
+          style={{ left: 0 }}
+        >
           <div
             className={`absolute inset-0 bg-black/20 transition-opacity duration-200 ease-out ${
-              mobileChaptersOpen ? 'opacity-100' : 'opacity-0'
+              mobileChaptersOpen ? "opacity-100" : "opacity-0"
             }`}
             onClick={() => setMobileChaptersOpen(false)}
           />
-          {/* Chapters Panel */}
-          <div className={`absolute top-0 right-0 h-full w-full bg-white dark:bg-[#1e1e1e] shadow-2xl transform transition-transform duration-200 ease-out ${
-            mobileChaptersOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}>
+
+          <div
+            className={`absolute top-0 right-0 h-full w-full bg-white dark:bg-[#1e1e1e] shadow-2xl transform transition-transform duration-200 ease-out ${
+              mobileChaptersOpen ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
             <div className="flex flex-col h-full">
-              {/* Header with Close Button */}
               <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.6}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                     <path d="M14 2v6h6" />
                     <path d="M16 13H8M16 17H8M10 9H8" />
                   </svg>
-                  <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">Chapters list</h3>
+                  <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">
+                    Chapters list
+                  </h3>
                 </div>
                 <button
                   onClick={() => setMobileChaptersOpen(false)}
@@ -2123,68 +2618,104 @@ function MakeEbookPage() {
                   aria-label="Close chapters menu"
                   style={{ minWidth: 56, minHeight: 56 }}
                 >
-                  <span className="absolute inset-0" style={{ zIndex: 1 }}></span>
-                  <img alt="Close" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" className="w-5 h-5 dark:invert" style={{ color: 'transparent', zIndex: 2 }} src="/close-sidebar-icon.svg" />
-                  <span className="text-base font-medium text-[#23242a] dark:text-[#e5e5e5] underline" style={{ zIndex: 2 }}>Close</span>
+                  <span
+                    className="absolute inset-0"
+                    style={{ zIndex: 1 }}
+                  ></span>
+                  <img
+                    alt="Close"
+                    loading="lazy"
+                    width="28"
+                    height="28"
+                    decoding="async"
+                    data-nimg="1"
+                    className="w-5 h-5 dark:invert"
+                    style={{ color: "transparent", zIndex: 2 }}
+                    src="/close-sidebar-icon.svg"
+                  />
+                  <span
+                    className="text-base font-medium text-[#23242a] dark:text-[#e5e5e5] underline"
+                    style={{ zIndex: 2 }}
+                  >
+                    Close
+                  </span>
                 </button>
               </div>
-              
-              {/* Chapters Content */}
+
               <div className="flex-1 overflow-y-auto px-4 pb-4">
-                <p className="text-2xs text-[#737373] dark:text-gray-400 mb-3">Drag to reorder</p>
-                
-                {/* Chapter Pills */}
+                <p className="text-2xs text-[#737373] dark:text-gray-400 mb-3">
+                  Drag to reorder
+                </p>
+
                 <div className="flex flex-col gap-2">
                   {chapters.map((ch, i) => {
                     const isSelected = selectedChapter === i;
-                    const titleText = ch.title?.trim() || 'Title';
-                    
-                    // Calculate chapter type label and title
+                    const titleText = ch.title?.trim() || "Title";
+
                     const getChapterInfo = () => {
-                      if (ch.type === 'frontmatter') {
+                      if (ch.type === "frontmatter") {
                         return {
-                          typeLabel: 'Frontmatter',
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                          typeLabel: "Frontmatter",
+                          title:
+                            titleText && titleText !== "Title"
+                              ? titleText
+                              : "Title",
                         };
                       }
-                      if (ch.type === 'backmatter') {
+                      if (ch.type === "backmatter") {
                         return {
-                          typeLabel: 'Backmatter', 
-                          title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                          typeLabel: "Backmatter",
+                          title:
+                            titleText && titleText !== "Title"
+                              ? titleText
+                              : "Title",
                         };
                       }
-                      // Content chapters
-                      const contentChapterNum = getContentChapterNumber(chapters, i);
+
+                      const contentChapterNum = getContentChapterNumber(
+                        chapters,
+                        i,
+                      );
                       return {
                         typeLabel: `Chapter ${contentChapterNum}`,
-                        title: titleText && titleText !== 'Title' ? titleText : 'Title'
+                        title:
+                          titleText && titleText !== "Title"
+                            ? titleText
+                            : "Title",
                       };
                     };
 
                     const { typeLabel, title } = getChapterInfo();
                     const isJustAdded = chapterJustAdded === ch.id;
-                    
+
                     return (
                       <div
                         key={i}
-                        ref={el => { chapterRefs.current[i] = el }}
+                        ref={(el) => {
+                          chapterRefs.current[i] = el;
+                        }}
                         className={`group flex items-center gap-2 px-3 py-2 rounded text-sm cursor-pointer select-none relative focus:outline-none transition-all duration-1000 ease-out ${
-                          dragOverIndex === i 
-                            ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20' 
+                          dragOverIndex === i
+                            ? "border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20"
                             : isSelected
-                              ? 'bg-gray-100 dark:bg-[#262626] border border-transparent'
+                              ? "bg-gray-100 dark:bg-[#262626] border border-transparent"
                               : isJustAdded
-                                ? 'bg-gray-100/80 dark:bg-gray-700/20 border border-transparent'
-                                : 'border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                                ? "bg-gray-100/80 dark:bg-gray-700/20 border border-transparent"
+                                : "border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
                         }`}
-                        style={{ 
-                          userSelect: 'none', 
-                          WebkitUserSelect: 'none', 
-                          WebkitTouchCallout: 'none',
-                          // @ts-ignore - WebkitUserDrag is valid but not in TypeScript types
-                          WebkitUserDrag: 'none',
-                          opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1,
-                        } as React.CSSProperties}
+                        style={
+                          {
+                            userSelect: "none",
+                            WebkitUserSelect: "none",
+                            WebkitTouchCallout: "none",
+                            // @ts-ignore - WebkitUserDrag is valid but not in TypeScript types
+                            WebkitUserDrag: "none",
+                            opacity:
+                              dragItemIndex === i && ghostPillPosition.visible
+                                ? 0.3
+                                : 1,
+                          } as React.CSSProperties
+                        }
                         draggable
                         onDragStart={() => handleDragStart(i)}
                         onDragEnter={() => handleDragEnter(i)}
@@ -2197,40 +2728,79 @@ function MakeEbookPage() {
                       >
                         <HandleDragIcon isSelected={isSelected} />
                         <div className="flex flex-col flex-1 min-w-0">
-                          <span className={`text-2xs ${isSelected ? 'text-gray-400 dark:text-gray-400' : 'text-gray-500 dark:text-gray-500'}`}>
+                          <span
+                            className={`text-2xs ${isSelected ? "text-gray-400 dark:text-gray-400" : "text-gray-500 dark:text-gray-500"}`}
+                          >
                             {typeLabel}
                           </span>
-                          <span className={`text-sm truncate ${isSelected ? 'text-gray-900 dark:text-gray-100 font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
+                          <span
+                            className={`text-sm truncate ${isSelected ? "text-gray-900 dark:text-gray-100 font-medium" : "text-gray-600 dark:text-gray-400"}`}
+                          >
                             {title}
                           </span>
                         </div>
-                        {/* Lock button */}
+
                         <button
-                          className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? 'opacity-100 text-gray-600 dark:text-gray-300' : 'opacity-0 group-hover:opacity-100 text-gray-400 dark:text-gray-500'}`}
+                          className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? "opacity-100 text-gray-600 dark:text-gray-300" : "opacity-0 group-hover:opacity-100 text-gray-400 dark:text-gray-500"}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleToggleChapterLock(i);
                           }}
-                          aria-label={ch.locked ? 'Unlock chapter' : 'Lock chapter'}
-                          title={ch.locked ? 'Unlock chapter' : 'Mark complete and lock'}
+                          aria-label={
+                            ch.locked ? "Unlock chapter" : "Lock chapter"
+                          }
+                          title={
+                            ch.locked
+                              ? "Unlock chapter"
+                              : "Mark complete and lock"
+                          }
                         >
                           {ch.locked ? (
-                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            <svg
+                              className="w-4 h-4"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.6}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <rect
+                                x="3"
+                                y="11"
+                                width="18"
+                                height="11"
+                                rx="2"
+                                ry="2"
+                              />
+                              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                             </svg>
                           ) : (
-                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                              <path d="M7 11V7a5 5 0 0 1 10 0"/>
+                            <svg
+                              className="w-4 h-4"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.6}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <rect
+                                x="3"
+                                y="11"
+                                width="18"
+                                height="11"
+                                rx="2"
+                                ry="2"
+                              />
+                              <path d="M7 11V7a5 5 0 0 1 10 0" />
                             </svg>
                           )}
                         </button>
-                        {/* Delete button — hidden when locked. Bin opens an
-                            inline confirm cluster anchored beside it; modal
-                            removed in favour of a lighter, in-place choice. */}
-                        {chapters.length > 1 && !ch.locked && (
-                          pendingDeleteIndex === i ? (
+
+                        {chapters.length > 1 &&
+                          !ch.locked &&
+                          (pendingDeleteIndex === i ? (
                             <div
                               data-chapter-delete-confirm
                               role="group"
@@ -2238,27 +2808,52 @@ function MakeEbookPage() {
                               className="flex items-center gap-0.5 animate-in fade-in zoom-in-95 slide-in-from-right-1 duration-150"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <span className="px-1.5 text-2xs font-medium text-gray-500 dark:text-gray-400 italic" style={{ fontFamily: 'Georgia, serif' }}>
+                              <span
+                                className="px-1.5 text-2xs font-medium text-gray-500 dark:text-gray-400 italic"
+                                style={{ fontFamily: "Georgia, serif" }}
+                              >
                                 Delete?
                               </span>
                               <button
                                 autoFocus
-                                onClick={(e) => { e.stopPropagation(); confirmChapterDelete(i); }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  confirmChapterDelete(i);
+                                }}
                                 className="p-1 rounded bg-red-600 hover:bg-red-700 text-white transition-colors shadow-sm"
                                 aria-label="Confirm delete"
                                 title="Delete (Enter)"
                               >
-                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round">
+                                <svg
+                                  className="w-3.5 h-3.5"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth={2.6}
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
                                   <polyline points="20 6 9 17 4 12" />
                                 </svg>
                               </button>
                               <button
-                                onClick={(e) => { e.stopPropagation(); setPendingDeleteIndex(null); }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setPendingDeleteIndex(null);
+                                }}
                                 className="p-1 rounded text-gray-500 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-colors"
                                 aria-label="Cancel"
                                 title="Cancel (Esc)"
                               >
-                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                                <svg
+                                  className="w-3.5 h-3.5"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth={2.2}
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
                                   <line x1="18" y1="6" x2="6" y2="18" />
                                   <line x1="6" y1="6" x2="18" y2="18" />
                                 </svg>
@@ -2275,59 +2870,81 @@ function MakeEbookPage() {
                             >
                               <BinIcon className="w-4 h-4" />
                             </button>
-                          )
-                        )}
+                          ))}
                       </div>
                     );
                   })}
 
-                  {/* Add Chapter Button */}
                   <div className="relative mt-2">
                     <button
-                      onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
+                      onClick={() =>
+                        setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)
+                      }
                       aria-label="Add new chapter"
                       className="hover:opacity-70 transition-opacity flex items-center gap-2 w-full px-3 py-2 bg-white dark:bg-[#262626] rounded border border-gray-200 dark:border-[#2f2f2f] shadow-sm"
                     >
                       <PlusIcon className="w-4 h-4" />
-                      <span className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5]">Add Chapter</span>
+                      <span className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5]">
+                        Add Chapter
+                      </span>
                     </button>
                     {chapterTypeDropdownOpen && (
-                      <div ref={dropdownRef} className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#1e1e1e] rounded border border-[#E8E8E8] dark:border-[#2f2f2f] shadow-lg max-h-96 overflow-y-auto">
+                      <div
+                        ref={dropdownRef}
+                        className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#1e1e1e] rounded border border-[#E8E8E8] dark:border-[#2f2f2f] shadow-lg max-h-96 overflow-y-auto"
+                      >
                         <div className="p-3">
                           <div className="space-y-4">
                             <div>
                               <div className="mb-3">
                                 <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">Front Matter</span>
+                                  <span className="text-[#050505] dark:text-white">
+                                    Front Matter
+                                  </span>
                                 </h4>
                               </div>
                               <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.frontmatter.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      const newChapterId = handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                      setSidebarChaptersExpanded(true);
-                                      // Trigger highlight animation
-                                      setChapterJustAdded(newChapterId);
-                                      setTimeout(() => setChapterJustAdded(null), 1000);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
-                                    </div>
-                                  </button>
-                                ))}
+                                {CHAPTER_TEMPLATES.frontmatter.map(
+                                  (template) => (
+                                    <button
+                                      key={template.title}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const newChapterId = handleAddChapter(
+                                          "frontmatter",
+                                          template.title ===
+                                            "Custom Front Matter"
+                                            ? ""
+                                            : template.title,
+                                        );
+                                        setChapterTypeDropdownOpen(false);
+                                        setSidebarChaptersExpanded(true);
+
+                                        setChapterJustAdded(newChapterId);
+                                        setTimeout(
+                                          () => setChapterJustAdded(null),
+                                          1000,
+                                        );
+                                      }}
+                                      className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
+                                    >
+                                      <div className="text-sm font-medium">
+                                        <span className="text-[#15161a] dark:text-white">
+                                          {template.title}
+                                        </span>
+                                      </div>
+                                    </button>
+                                  ),
+                                )}
                               </div>
                             </div>
                             <div>
                               <div className="mb-3">
                                 <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">Main Content</span>
+                                  <span className="text-[#050505] dark:text-white">
+                                    Main Content
+                                  </span>
                                 </h4>
                               </div>
                               <div className="space-y-1">
@@ -2337,17 +2954,27 @@ function MakeEbookPage() {
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      const newChapterId = handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
+                                      const newChapterId = handleAddChapter(
+                                        "content",
+                                        template.title === "Custom Chapter"
+                                          ? ""
+                                          : template.title,
+                                      );
                                       setChapterTypeDropdownOpen(false);
                                       setSidebarChaptersExpanded(true);
-                                      // Trigger highlight animation
+
                                       setChapterJustAdded(newChapterId);
-                                      setTimeout(() => setChapterJustAdded(null), 1000);
+                                      setTimeout(
+                                        () => setChapterJustAdded(null),
+                                        1000,
+                                      );
                                     }}
                                     className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
                                   >
                                     <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
+                                      <span className="text-[#15161a] dark:text-white">
+                                        {template.title}
+                                      </span>
                                     </div>
                                   </button>
                                 ))}
@@ -2356,30 +2983,45 @@ function MakeEbookPage() {
                             <div>
                               <div className="mb-3">
                                 <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">Back Matter</span>
+                                  <span className="text-[#050505] dark:text-white">
+                                    Back Matter
+                                  </span>
                                 </h4>
                               </div>
                               <div className="space-y-1">
-                                {CHAPTER_TEMPLATES.backmatter.map((template) => (
-                                  <button
-                                    key={template.title}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      const newChapterId = handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
-                                      setChapterTypeDropdownOpen(false);
-                                      setSidebarChaptersExpanded(true);
-                                      // Trigger highlight animation
-                                      setChapterJustAdded(newChapterId);
-                                      setTimeout(() => setChapterJustAdded(null), 1000);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
-                                  >
-                                    <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">{template.title}</span>
-                                    </div>
-                                  </button>
-                                ))}
+                                {CHAPTER_TEMPLATES.backmatter.map(
+                                  (template) => (
+                                    <button
+                                      key={template.title}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const newChapterId = handleAddChapter(
+                                          "backmatter",
+                                          template.title ===
+                                            "Custom Back Matter"
+                                            ? ""
+                                            : template.title,
+                                        );
+                                        setChapterTypeDropdownOpen(false);
+                                        setSidebarChaptersExpanded(true);
+
+                                        setChapterJustAdded(newChapterId);
+                                        setTimeout(
+                                          () => setChapterJustAdded(null),
+                                          1000,
+                                        );
+                                      }}
+                                      className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
+                                    >
+                                      <div className="text-sm font-medium">
+                                        <span className="text-[#15161a] dark:text-white">
+                                          {template.title}
+                                        </span>
+                                      </div>
+                                    </button>
+                                  ),
+                                )}
                               </div>
                             </div>
                           </div>
@@ -2393,9 +3035,7 @@ function MakeEbookPage() {
           </div>
         </div>
 
-        {/* Main layout: Mobile-optimized */}
         <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
-          {/* Desktop left navigation — slim rail + collapsible content sidebar */}
           {!(focus.active && focus.settings.hideChrome) && (
             <EditorLeftNav
               isPanelOpen={isPanelOpen}
@@ -2408,12 +3048,17 @@ function MakeEbookPage() {
                 if (chapters.length === 0) {
                   clearEditorState();
                 }
-                // Always explicitly start tour — resetOnboarding state update is
-                // async, so clearEditorState's internal check sees stale
-                // isOnboardingComplete otherwise.
-                setTimeout(() => onboarding.startTour(), chapters.length === 0 ? 800 : 100);
+
+                setTimeout(
+                  () => onboarding.startTour(),
+                  chapters.length === 0 ? 800 : 100,
+                );
               }}
-              onBookMindToggle={() => setRightPanelMode((prev) => (prev === 'inspector' ? 'none' : 'inspector'))}
+              onBookMindToggle={() =>
+                setRightPanelMode((prev) =>
+                  prev === "inspector" ? "none" : "inspector",
+                )
+              }
               rightPanelMode={rightPanelMode}
               libraryBooks={libraryBooks}
               selectedBookId={selectedBookId}
@@ -2481,102 +3126,121 @@ function MakeEbookPage() {
             />
           )}
 
-          {/* Main Editor Panel - Mobile Optimised */}
-          <main data-editor-scroll className={`flex-1 flex flex-col bg-white dark:bg-[#1e1e1e] ${chapters.length === 0 ? 'px-0 py-0' : 'px-2 py-8'} ${chapters.length > 0 ? 'lg:pl-0' : 'lg:pl-0'} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}>
-            
-            {/* Mobile Header - Compact Status Bar - Hidden when no chapters (landing page) */}
+          <main
+            data-editor-scroll
+            className={`flex-1 flex flex-col bg-white dark:bg-[#1e1e1e] ${chapters.length === 0 ? "px-0 py-0" : "px-2 py-8"} ${chapters.length > 0 ? "lg:pl-0" : "lg:pl-0"} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}
+          >
             {chapters.length > 0 && (
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1e1e1e]">
-              <div className="flex items-center justify-between px-2 py-1.5 gap-1 border-b border-gray-200 dark:border-[#2f2f2f]">
-                {/* Left: Menu Button */}
-                <div className="flex items-center gap-0.5">
-                  <button
-                    data-tour="mobile-menu"
-                    onClick={() => setMobileSidebarOpen(true)}
-                    className="p-1.5 ml-[5px] rounded-lg hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors flex-shrink-0"
-                    aria-label="Open menu"
-                  >
-                    <img
-                      src="/hamburger-menu-icon.svg"
-                      alt="Menu"
-                      className="w-5 h-5 dark:hidden"
-                    />
-                    <img
-                      src="/dark-hamburger-menu-icon.svg"
-                      alt="Menu"
-                      className="w-5 h-5 hidden dark:block"
-                    />
-                  </button>
-                </div>
-                {/* Right: Preview + Stats Dropdowns */}
-                {chapters.length > 0 && (
-                  <div className="flex items-center gap-0.5 flex-shrink-0">
-                    {/* Chapter Nav Dropdown - Mobile */}
-                    <div className="lg:hidden">
-                      <ChapterNavDropdown
-                        chapters={chapters}
-                        selectedChapter={selectedChapter}
-                        onChapterSelect={setSelectedChapter}
-                        bookTitle={title}
+              <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1e1e1e]">
+                <div className="flex items-center justify-between px-2 py-1.5 gap-1 border-b border-gray-200 dark:border-[#2f2f2f]">
+                  <div className="flex items-center gap-0.5">
+                    <button
+                      data-tour="mobile-menu"
+                      onClick={() => setMobileSidebarOpen(true)}
+                      className="p-1.5 ml-[5px] rounded-lg hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors flex-shrink-0"
+                      aria-label="Open menu"
+                    >
+                      <img
+                        src="/hamburger-menu-icon.svg"
+                        alt="Menu"
+                        className="w-5 h-5 dark:hidden"
                       />
+                      <img
+                        src="/dark-hamburger-menu-icon.svg"
+                        alt="Menu"
+                        className="w-5 h-5 hidden dark:block"
+                      />
+                    </button>
+                  </div>
+
+                  {chapters.length > 0 && (
+                    <div className="flex items-center gap-0.5 flex-shrink-0">
+                      <div className="lg:hidden">
+                        <ChapterNavDropdown
+                          chapters={chapters}
+                          selectedChapter={selectedChapter}
+                          onChapterSelect={setSelectedChapter}
+                          bookTitle={title}
+                        />
+                      </div>
+
+                      <button
+                        onClick={() => setMobileBookMindOpen(true)}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        aria-label="Book Mind"
+                        title="Book Mind"
+                      >
+                        <svg
+                          className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.6}
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                          />
+                        </svg>
+                      </button>
+
+                      <button
+                        data-tour="mobile-preview"
+                        onClick={() => setMobilePreviewOpen(true)}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        aria-label="Preview book"
+                        title="Preview"
+                      >
+                        <svg
+                          className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1.6}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                      </button>
                     </div>
-                    {/* Book Mind Button - Mobile. Pro users get the full
-                        Inspector; Free users get a one-message trial on
-                        the Chat tab. The Inspector handles the gate. */}
-                    <button
-                      onClick={() => setMobileBookMindOpen(true)}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                      aria-label="Book Mind"
-                      title="Book Mind"
-                    >
-                      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
-                    </button>
-                    {/* Preview Button */}
-                    <button
-                      data-tour="mobile-preview"
-                      onClick={() => setMobilePreviewOpen(true)}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                      aria-label="Preview book"
-                      title="Preview"
-                    >
-                      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                    </button>
+                  )}
+                </div>
+
+                {isDirty && (
+                  <div className="flex items-center justify-center gap-2 px-3 py-1 bg-stone-100 dark:bg-stone-800/50 border-t border-stone-200 dark:border-stone-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                    <span className="text-xs text-stone-600 dark:text-stone-400">
+                      Unsaved changes
+                    </span>
+                    {!isSaving && (
+                      <button
+                        onClick={() => {
+                          saveBook.saveBookDirectly(false);
+                          markClean();
+                        }}
+                        className="flex items-center gap-1 px-2 py-0.5 hover:bg-stone-200 dark:hover:bg-stone-700 rounded transition-colors"
+                      >
+                        <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
+                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                          Save
+                        </span>
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
-              {/* Floating Unsaved Bar - only shows when dirty */}
-              {isDirty && (
-                <div className="flex items-center justify-center gap-2 px-3 py-1 bg-stone-100 dark:bg-stone-800/50 border-t border-stone-200 dark:border-stone-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  <span className="text-xs text-stone-600 dark:text-stone-400">Unsaved changes</span>
-                  {!isSaving && (
-                    <button
-                      onClick={() => { saveBook.saveBookDirectly(false); markClean(); }}
-                      className="flex items-center gap-1 px-2 py-0.5 hover:bg-stone-200 dark:hover:bg-stone-700 rounded transition-colors"
-                    >
-                      <SaveIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
-                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Save</span>
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
             )}
 
-            {/* Desktop Header with Title and Toolbar */}
-            <div className="hidden lg:block">
-              {/* Chapter content starts here */}
-            </div>
+            <div className="hidden lg:block"></div>
 
-            {/* MOBILE OPTIMISED EDITOR - Full Viewport (including tablets) */}
-            <div data-tour="mobile-editor" className={`lg:hidden flex flex-col ${chapters.length === 0 ? '' : 'gap-2 pt-[52px]'} flex-1 min-h-0 overflow-y-auto pb-0`}>
+            <div
+              data-tour="mobile-editor"
+              className={`lg:hidden flex flex-col ${chapters.length === 0 ? "" : "gap-2 pt-[52px]"} flex-1 min-h-0 overflow-y-auto pb-0`}
+            >
               {chapters.length === 0 ? (
-                // Empty editor state — mobile
                 <EmptyEditorState
                   onNewBook={handleNewBook}
                   onPasteManuscript={handlePasteManuscript}
@@ -2587,185 +3251,231 @@ function MakeEbookPage() {
                   onOpenBook={(id) => library.handleLoadBook(id)}
                 />
               ) : (
-              <>
-              {/* Compact Chapter Header - Always visible on mobile for title editing */}
-              <div className="flex-shrink-0 bg-white dark:bg-[#1e1e1e] border-none pb-1 px-2 transition-all duration-200">
-                {/* Chapter Title Input - Clean UI */}
-                <div className="mt-0">
-                  <div className="flex items-center gap-0 py-1">
-                    <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 dark:hidden" style={{ color: 'transparent' }} src="/chapter-title-icon.svg" />
-                    <img alt="Chapter" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" className="w-6 h-6 flex-shrink-0 hidden dark:block" style={{ color: 'transparent' }} src="/dark-chapter-title-icon.svg" />
-                    <input
-                      className="flex-1 bg-transparent text-base sm:text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#a0a0a0] placeholder:font-normal touch-manipulation min-w-0"
-                      style={{ border: 'none', backgroundColor: 'transparent', boxShadow: 'none', fontSize: 'max(16px, 1.125rem)' }}
-                      placeholder="Give your chapter a title..."
-                      value={chapters[selectedChapter]?.title ?? ""}
-                      onChange={(e) =>
-                        handleChapterTitleChange(selectedChapter, e.target.value)
-                      }
-                    />
+                <>
+                  <div className="flex-shrink-0 bg-white dark:bg-[#1e1e1e] border-none pb-1 px-2 transition-all duration-200">
+                    <div className="mt-0">
+                      <div className="flex items-center gap-0 py-1">
+                        <img
+                          alt="Chapter"
+                          loading="lazy"
+                          width="24"
+                          height="24"
+                          decoding="async"
+                          data-nimg="1"
+                          className="w-6 h-6 flex-shrink-0 dark:hidden"
+                          style={{ color: "transparent" }}
+                          src="/chapter-title-icon.svg"
+                        />
+                        <img
+                          alt="Chapter"
+                          loading="lazy"
+                          width="24"
+                          height="24"
+                          decoding="async"
+                          data-nimg="1"
+                          className="w-6 h-6 flex-shrink-0 hidden dark:block"
+                          style={{ color: "transparent" }}
+                          src="/dark-chapter-title-icon.svg"
+                        />
+                        <input
+                          className="flex-1 bg-transparent text-base sm:text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#a0a0a0] placeholder:font-normal touch-manipulation min-w-0"
+                          style={{
+                            border: "none",
+                            backgroundColor: "transparent",
+                            boxShadow: "none",
+                            fontSize: "max(16px, 1.125rem)",
+                          }}
+                          placeholder="Give your chapter a title..."
+                          value={chapters[selectedChapter]?.title ?? ""}
+                          onChange={(e) =>
+                            handleChapterTitleChange(
+                              selectedChapter,
+                              e.target.value,
+                            )
+                          }
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Rich Text Editor - Maximized for Writing */}
-              <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
-                {/* Undo/Redo - Hidden when keyboard is open (compact toolbar takes over) */}
-                <div className={`mt-2 mb-1 flex-shrink-0 flex items-start justify-between px-2 transition-all duration-200 ${
-                  isMobileKeyboardOpen ? 'hidden' : ''
-                }`}>
-                  {/* <label className="block text-xs text-[#737373] mb-0">Chapter content</label> */}
-                  <div className="flex items-start gap-2">
-                    <div className="flex flex-col items-center">
-                      <button
-                        title="Undo content changes"
-                        type="button"
-                        className="hover:opacity-70 transition-opacity"
-                        onClick={() => {
-                          const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
-                          if (editorElement) {
-                            editorElement.focus();
-                            document.execCommand('undo');
-                          }
-                        }}
-                      >
-                        <div className="bg-white dark:bg-[#262626] rounded-full p-2">
-                          <Image
-                            src="/undo-icon.svg"
-                            alt="Undo"
-                            width={16}
-                            height={16}
-                            className="w-4 h-4 dark:invert"
-                            style={{ borderRadius: '0', boxShadow: 'none' }}
-                          />
+                  <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
+                    <div
+                      className={`mt-2 mb-1 flex-shrink-0 flex items-start justify-between px-2 transition-all duration-200 ${
+                        isMobileKeyboardOpen ? "hidden" : ""
+                      }`}
+                    >
+                      <div className="flex items-start gap-2">
+                        <div className="flex flex-col items-center">
+                          <button
+                            title="Undo content changes"
+                            type="button"
+                            className="hover:opacity-70 transition-opacity"
+                            onClick={() => {
+                              const editorElement = document.querySelector(
+                                '[contenteditable="true"]',
+                              ) as HTMLElement;
+                              if (editorElement) {
+                                editorElement.focus();
+                                document.execCommand("undo");
+                              }
+                            }}
+                          >
+                            <div className="bg-white dark:bg-[#262626] rounded-full p-2">
+                              <Image
+                                src="/undo-icon.svg"
+                                alt="Undo"
+                                width={16}
+                                height={16}
+                                className="w-4 h-4 dark:invert"
+                                style={{ borderRadius: "0", boxShadow: "none" }}
+                              />
+                            </div>
+                          </button>
+                          <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">
+                            Undo
+                          </span>
                         </div>
-                      </button>
-                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Undo</span>
+                        <div className="flex flex-col items-center">
+                          <button
+                            title="Redo content changes"
+                            type="button"
+                            className="hover:opacity-70 transition-opacity"
+                            onClick={() => {
+                              const editorElement = document.querySelector(
+                                '[contenteditable="true"]',
+                              ) as HTMLElement;
+                              if (editorElement) {
+                                editorElement.focus();
+                                document.execCommand("redo");
+                              }
+                            }}
+                          >
+                            <div className="bg-white dark:bg-[#262626] rounded-full p-2">
+                              <Image
+                                src="/redo-icon.svg"
+                                alt="Redo"
+                                width={16}
+                                height={16}
+                                className="w-4 h-4 dark:invert"
+                                style={{ borderRadius: "0", boxShadow: "none" }}
+                              />
+                            </div>
+                          </button>
+                          <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">
+                            Redo
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-center">
-                      <button
-                        title="Redo content changes"
-                        type="button"
-                        className="hover:opacity-70 transition-opacity"
-                        onClick={() => {
-                          const editorElement = document.querySelector('[contenteditable="true"]') as HTMLElement;
-                          if (editorElement) {
-                            editorElement.focus();
-                            document.execCommand('redo');
-                          }
-                        }}
-                      >
-                        <div className="bg-white dark:bg-[#262626] rounded-full p-2">
-                          <Image
-                            src="/redo-icon.svg"
-                            alt="Redo"
-                            width={16}
-                            height={16}
-                            className="w-4 h-4 dark:invert"
-                            style={{ borderRadius: '0', boxShadow: 'none' }}
-                          />
+                    <div
+                      className="flex-1 min-h-0"
+                      style={{ minHeight: "400px" }}
+                    >
+                      {chapters[selectedChapter]?.locked && (
+                        <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-[#262626] border-b border-gray-200 dark:border-[#2f2f2f] text-xs text-gray-500 dark:text-gray-400">
+                          <LockIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>
+                            This chapter is locked. Click the lock icon in the
+                            chapter list to edit.
+                          </span>
                         </div>
-                      </button>
-                      <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">Redo</span>
+                      )}
+                      <RichTextEditor
+                        value={chapters[selectedChapter]?.content || ""}
+                        onChange={(html) =>
+                          handleChapterContentChange(selectedChapter, html)
+                        }
+                        minHeight={300}
+                        placeholder={
+                          selectedChapter === 0
+                            ? "Write your first chapter here..."
+                            : "Now add some content to your chapter..."
+                        }
+                        className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
+                        onCreateEndnote={endnotesHook.handleCreateEndnote}
+                        chapterId={chapters[selectedChapter]?.id}
+                        hasEndnotes={endnotes.length > 0}
+                        disabled={!!chapters[selectedChapter]?.locked}
+                        hideToolbar={focus.active && focus.settings.hideToolbar}
+                      />
                     </div>
                   </div>
-                </div>
-                <div className="flex-1 min-h-0" style={{ minHeight: '400px' }}>
-                  {chapters[selectedChapter]?.locked && (
-                    <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-[#262626] border-b border-gray-200 dark:border-[#2f2f2f] text-xs text-gray-500 dark:text-gray-400">
-                      <LockIcon className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>This chapter is locked. Click the lock icon in the chapter list to edit.</span>
-                    </div>
-                  )}
-                  <RichTextEditor
-                    value={chapters[selectedChapter]?.content || ""}
-                    onChange={(html) => handleChapterContentChange(selectedChapter, html)}
-                    minHeight={300}
-                    placeholder={
-                      selectedChapter === 0
-                        ? "Write your first chapter here..."
-                        : "Now add some content to your chapter..."
-                    }
-                    className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
-                    onCreateEndnote={endnotesHook.handleCreateEndnote}
-                    chapterId={chapters[selectedChapter]?.id}
-                    hasEndnotes={endnotes.length > 0}
-                    disabled={!!chapters[selectedChapter]?.locked}
-                    hideToolbar={focus.active && focus.settings.hideToolbar}
-                  />
-                </div>
-              </div>
-              </>
+                </>
               )}
             </div>
 
-            {/* DESKTOP layout */}
             <div className="hidden lg:flex flex-col flex-1 min-h-0 overflow-hidden">
               {chapters.length === 0 ? (
-                // Empty editor state — desktop (shown when no book is loaded)
                 <EmptyEditorState
                   onNewBook={handleNewBook}
                   onPasteManuscript={handlePasteManuscript}
                   onUploadFile={docImport.showImportDialog}
-                  onOpenLibrary={() => setSidebarView('library')}
+                  onOpenLibrary={() => setSidebarView("library")}
                   libraryBooks={libraryBooks}
                   libraryLoading={libraryLoading}
                   onOpenBook={(id) => library.handleLoadBook(id)}
                 />
               ) : (
-              /* Editor Area — live preview now lives exclusively in EditorRightPanel */
-              <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2 bg-white dark:bg-[#1e1e1e]">
-                <EditorHeader
-                  isDirty={isDirty}
-                  isSaving={isSaving}
-                  lastSaved={lastSaved}
-                  hasCloudSync={hasCloudSync}
-                  onSaveNow={() => { saveBook.saveBookDirectly(false); markClean(); }}
-                  chapters={chapters}
-                  selectedChapter={selectedChapter}
-                  onChapterSelect={setSelectedChapter}
-                  bookTitle={title}
-                  versionCount={versions.length}
-                  exportCount={exportHistory.length}
-                  onShowHistory={() => setHistoryModal('versions')}
-                  focusActive={focus.active}
-                  onToggleFocusMode={focus.toggleFocusMode}
-                  flowMode={flowMode}
-                  onToggleFlowMode={handleToggleFlowMode}
-                  rightPanelMode={rightPanelMode}
-                  onRightPanelModeChange={setRightPanelMode}
-                  onExportEPUB={() => setPreflightFormat('epub')}
-                  onExportPDF={() => setPreflightFormat('pdf')}
-                  onExportDocx={() => setPreflightFormat('docx')}
-                  hideChrome={focus.active && focus.settings.hideChrome}
-                />
-                <EditorCanvas
-                  chapters={chapters}
-                  selectedChapter={selectedChapter}
-                  onChapterTitleChange={handleChapterTitleChange}
-                  onChapterContentChange={handleChapterContentChange}
-                  onCreateEndnote={endnotesHook.handleCreateEndnote}
-                  endnotesCount={endnotes.length}
-                  bookStats={bookStats}
-                  sessionStats={sessionStats}
-                  todayWords={writingGoals.todayWords}
-                  focus={{ active: focus.active, settings: focus.settings }}
-                  onInlineEditRequest={handleInlineEditRequest}
-                  onComposeRequest={handleComposeRequest}
-                  isBookMindLoading={false}
-                  onOpenBookMind={hasBookMind ? () => setBookMindOpen(true) : undefined}
-                  onBookMindHistory={hasBookMind ? () => setHistoryModal('versions') : undefined}
-                />
-              </section>
+                <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2 bg-white dark:bg-[#1e1e1e]">
+                  <EditorHeader
+                    isDirty={isDirty}
+                    isSaving={isSaving}
+                    lastSaved={lastSaved}
+                    hasCloudSync={hasCloudSync}
+                    onSaveNow={() => {
+                      saveBook.saveBookDirectly(false);
+                      markClean();
+                    }}
+                    chapters={chapters}
+                    selectedChapter={selectedChapter}
+                    onChapterSelect={setSelectedChapter}
+                    bookTitle={title}
+                    versionCount={versions.length}
+                    exportCount={exportHistory.length}
+                    onShowHistory={() => setHistoryModal("versions")}
+                    focusActive={focus.active}
+                    onToggleFocusMode={focus.toggleFocusMode}
+                    flowMode={flowMode}
+                    onToggleFlowMode={handleToggleFlowMode}
+                    rightPanelMode={rightPanelMode}
+                    onRightPanelModeChange={setRightPanelMode}
+                    onExportEPUB={() => setPreflightFormat("epub")}
+                    onExportPDF={() => setPreflightFormat("pdf")}
+                    onExportDocx={() => setPreflightFormat("docx")}
+                    hideChrome={focus.active && focus.settings.hideChrome}
+                  />
+                  <EditorCanvas
+                    chapters={chapters}
+                    selectedChapter={selectedChapter}
+                    onChapterTitleChange={handleChapterTitleChange}
+                    onChapterContentChange={handleChapterContentChange}
+                    onCreateEndnote={endnotesHook.handleCreateEndnote}
+                    endnotesCount={endnotes.length}
+                    bookStats={bookStats}
+                    sessionStats={sessionStats}
+                    todayWords={writingGoals.todayWords}
+                    focus={{ active: focus.active, settings: focus.settings }}
+                    onInlineEditRequest={handleInlineEditRequest}
+                    onComposeRequest={handleComposeRequest}
+                    isBookMindLoading={false}
+                    onOpenBookMind={
+                      hasBookMind ? () => setBookMindOpen(true) : undefined
+                    }
+                    onBookMindHistory={
+                      hasBookMind
+                        ? () => setHistoryModal("versions")
+                        : undefined
+                    }
+                  />
+                </section>
               )}
             </div>
           </main>
 
-          {/* Right panel — Book Mind or Live Preview, hidden in full focus mode */}
           {!(focus.active && focus.settings.hideChrome) && (
             <EditorRightPanel
               mode={rightPanelMode}
-              onClose={() => setRightPanelMode('none')}
+              onClose={() => setRightPanelMode("none")}
               chapters={chapters}
               selectedChapter={selectedChapter}
               onChapterSelect={setSelectedChapter}
@@ -2780,25 +3490,21 @@ function MakeEbookPage() {
               onAddDisclosureChapter={(content: string) => {
                 const newChapter = {
                   id: `ch-${Date.now()}`,
-                  title: 'AI Disclosure',
+                  title: "AI Disclosure",
                   content,
-                  type: 'backmatter' as const,
+                  type: "backmatter" as const,
                 };
-                setChapters(prev => [...prev, newChapter]);
+                setChapters((prev) => [...prev, newChapter]);
                 setSelectedChapter(chapters.length);
-                toast.success('AI Disclosure chapter added');
+                toast.success("AI Disclosure chapter added");
               }}
               isPro={isPro}
               onUpgrade={() => setExportUpgradeOpen(true)}
             />
           )}
         </div>
-
-        {/* Terms/Privacy links moved to mobile editor footer */}
       </div>
 
-
-      {/* Book Mind floating window */}
       {hasBookMind && bookMindOpen && (
         <FloatingBookMindWindow
           isOpen={bookMindOpen}
@@ -2817,25 +3523,19 @@ function MakeEbookPage() {
           onAddDisclosureChapter={(content: string) => {
             const newChapter = {
               id: `ch-${Date.now()}`,
-              title: 'AI Disclosure',
+              title: "AI Disclosure",
               content,
-              type: 'backmatter' as const,
+              type: "backmatter" as const,
             };
-            setChapters(prev => [...prev, newChapter]);
+            setChapters((prev) => [...prev, newChapter]);
             setSelectedChapter(chapters.length);
-            toast.success('AI Disclosure chapter added');
+            toast.success("AI Disclosure chapter added");
           }}
           isPro={isPro}
           onUpgrade={() => setExportUpgradeOpen(true)}
         />
       )}
 
-      {/* Book Mind Cmd-K inline edit popover + selection hint badge.
-          Renders at the top level (via portal inside the component) so
-          it floats above every other surface and isn't clipped by any
-          overflow: hidden ancestor. Only active for Pro users because
-          the underlying inlineEdit call goes through the Pro-gated
-          Book Mind API. */}
       {hasBookMind && (
         <>
           <InlineEditPopover
@@ -2852,52 +3552,52 @@ function MakeEbookPage() {
             bookId={currentBookId}
             userId={user?.id}
           />
-          {/* Flow mode: ghost text + margin annotations. Both fire
-              background Haiku calls while the author writes. Off by
-              default, toggled via the Inspector panel header. */}
+
           <GhostTextOverlay
             enabled={flowMode && chapters.length > 0}
             bookId={currentBookId}
             userId={user?.id}
             onAccept={handleGhostAccept}
           />
-          {/* MarginAnnotation — disabled for now. The component works but
-              the background Haiku calls add cost without clear user value
-              yet. Keeping the code for when we revisit. */}
-          {/* <MarginAnnotation
-            enabled={flowMode && chapters.length > 0}
-            bookId={currentBookId}
-            userId={user?.id}
-            chapterContent={chapters[selectedChapter]?.content ?? ""}
-            chapterTitle={chapters[selectedChapter]?.title ?? ""}
-          /> */}
-          {/* Floating shortcut hint — appears briefly below selected
-              text on desktop to teach the user that inline AI editing
-              exists. Hidden on mobile/tablet (no physical keyboard) and
-              shows the platform-correct modifier (⌘K on Mac, Ctrl+K
-              on Windows/Linux). */}
-          {cmdkHintRect && !inlineEditRequest.open && typeof navigator !== 'undefined' && !/Mobi|Android|iPad|iPhone/i.test(navigator.userAgent) && (
-            <div
-              style={{
-                position: 'fixed',
-                top: cmdkHintRect.top,
-                left: cmdkHintRect.left,
-                zIndex: 900,
-                pointerEvents: 'none',
-              }}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-900/90 dark:bg-[#2a2a2a]/95 text-white text-[11px] font-medium shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-1 duration-200"
-            >
-              <svg className="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
-              <span>{typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform) ? '⌘' : 'Ctrl+'}K for AI writer</span>
-            </div>
-          )}
+
+          {cmdkHintRect &&
+            !inlineEditRequest.open &&
+            typeof navigator !== "undefined" &&
+            !/Mobi|Android|iPad|iPhone/i.test(navigator.userAgent) && (
+              <div
+                style={{
+                  position: "fixed",
+                  top: cmdkHintRect.top,
+                  left: cmdkHintRect.left,
+                  zIndex: 900,
+                  pointerEvents: "none",
+                }}
+                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-900/90 dark:bg-[#2a2a2a]/95 text-white text-[11px] font-medium shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-1 duration-200"
+              >
+                <svg
+                  className="w-3 h-3 opacity-70"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+                <span>
+                  {typeof navigator !== "undefined" &&
+                  /Mac/i.test(navigator.platform)
+                    ? "⌘"
+                    : "Ctrl+"}
+                  K for AI writer
+                </span>
+              </div>
+            )}
         </>
       )}
 
-      {/* EPUB Reader Modal */}
       <EPUBReaderModal
         isOpen={showEPUBReader}
         onClose={() => setShowEPUBReader(false)}
@@ -2905,8 +3605,6 @@ function MakeEbookPage() {
         bookTitle={title}
       />
 
-
-      {/* Generic Confirm/Alert Dialog */}
       <ConfirmDialog
         open={dialogState.open}
         title={dialogState.title}
@@ -2914,15 +3612,9 @@ function MakeEbookPage() {
         variant={dialogState.variant}
         confirmLabel={dialogState.confirmLabel}
         onConfirm={dialogState.onConfirm}
-        onCancel={() => setDialogState(prev => ({ ...prev, open: false }))}
+        onCancel={() => setDialogState((prev) => ({ ...prev, open: false }))}
       />
 
-      {/* Sync conflict resolution lives inline in the Library panel now —
-          a red dot on the Library sidebar icon flags that action is needed.
-          The old blocking modal was annoying users on every login. See
-          SyncConflictBanner + SlimSidebarNav. */}
-
-      {/* Onboarding Tour */}
       <OnboardingTour
         isTourActive={onboarding.isTourActive}
         currentStep={onboarding.currentStep}
@@ -2933,7 +3625,6 @@ function MakeEbookPage() {
         onSkip={onboarding.skipTour}
       />
 
-      {/* Focus Mode Panel — floating, always on top when focus is active */}
       {focus.active && (
         <FocusModePanel
           settings={focus.settings}
@@ -2942,14 +3633,12 @@ function MakeEbookPage() {
         />
       )}
 
-      {/* Ambient audio — renders nothing to the DOM, just manages audio */}
       <AmbientPlayer
         sound={focus.settings.ambientSound}
         volume={focus.settings.ambientVolume}
         active={focus.active && focus.settings.ambientSound !== "none"}
       />
 
-      {/* Find & Replace Panel */}
       <FindReplacePanel
         isOpen={findReplace.isOpen}
         onClose={findReplace.close}
@@ -2968,14 +3657,21 @@ function MakeEbookPage() {
 
       <PreflightExportDialog
         open={preflightFormat !== null}
-        format={preflightFormat ?? 'epub'}
-        input={{ title, author, chapters, coverFile: coverUrl, language, genre }}
+        format={preflightFormat ?? "epub"}
+        input={{
+          title,
+          author,
+          chapters,
+          coverFile: coverUrl,
+          language,
+          genre,
+        }}
         isPro={isPro}
         onClose={() => setPreflightFormat(null)}
         onDownload={() => {
-          if (preflightFormat === 'epub') saveBook.handleExportEPUB();
-          else if (preflightFormat === 'pdf') saveBook.handleExportPDF();
-          else if (preflightFormat === 'docx') saveBook.handleExportDocx();
+          if (preflightFormat === "epub") saveBook.handleExportEPUB();
+          else if (preflightFormat === "pdf") saveBook.handleExportPDF();
+          else if (preflightFormat === "docx") saveBook.handleExportDocx();
         }}
         onUpgrade={() => setExportUpgradeOpen(true)}
       />
@@ -2988,8 +3684,7 @@ function MakeEbookPage() {
     </>
   );
 }
-// User Dropdown Component for Mobile
-// Export page without ProtectedRoute wrapper - the MarketingLandingPage handles auth
+
 export default function MakeEbookPageWrapper() {
   return (
     <Suspense fallback={<div>Creating makeEbook...</div>}>
