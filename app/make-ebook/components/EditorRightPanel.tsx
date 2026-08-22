@@ -1,17 +1,11 @@
-'use client';
+"use client";
 
-// Right-hand side panel of the desktop editor. Now hosts only the live
-// preview. Book Mind moved to a floating window (see FloatingBookMindWindow).
-// Extracted from page.tsx so the two surfaces (editor / right panel) can
-// iterate independently. The ResizableRightPanel wrapper handles the
-// user-facing width resize and width persistence.
-
-import React from 'react';
-import ResizableRightPanel from './ResizableRightPanel';
-import LivePreviewPanel from './LivePreviewPanel';
-import InspectorPanel from './bookmind/InspectorPanel';
-import type { RightPanelMode } from './LayoutSwitcher';
-import type { Chapter as BookChapter } from '../types';
+import React from "react";
+import ResizableRightPanel from "./ResizableRightPanel";
+import LivePreviewPanel from "./LivePreviewPanel";
+import InspectorPanel from "./bookmind/InspectorPanel";
+import type { RightPanelMode } from "./LayoutSwitcher";
+import type { Chapter as BookChapter } from "../types";
 
 interface EditorRightPanelProps {
   mode: RightPanelMode;
@@ -21,7 +15,6 @@ interface EditorRightPanelProps {
   selectedChapter: number;
   onChapterSelect: (index: number) => void;
 
-  // Book Mind / Inspector props
   bookId?: string;
   userId?: string;
   title?: string;
@@ -31,6 +24,7 @@ interface EditorRightPanelProps {
   coverFile?: string | null;
   onRefreshAnalytical?: (kind: any) => void;
   onAddDisclosureChapter?: (content: string) => void;
+  onExport?: () => void;
   isPro?: boolean;
   onUpgrade?: () => void;
 }
@@ -50,15 +44,16 @@ export default function EditorRightPanel({
   coverFile,
   onRefreshAnalytical,
   onAddDisclosureChapter,
+  onExport,
   isPro,
   onUpgrade,
 }: EditorRightPanelProps) {
-  if (mode === 'none') return null;
+  if (mode === "none") return null;
 
   return (
     <ResizableRightPanel>
       <div data-tour="preview" className="h-full overflow-hidden">
-        {mode === 'live-preview' && (
+        {mode === "live-preview" && (
           <LivePreviewPanel
             chapters={chapters}
             selectedChapter={selectedChapter}
@@ -66,7 +61,7 @@ export default function EditorRightPanel({
             onClose={onClose}
           />
         )}
-        {mode === 'inspector' && (
+        {mode === "inspector" && (
           <InspectorPanel
             bookId={bookId}
             userId={userId}
@@ -80,6 +75,7 @@ export default function EditorRightPanel({
             onNavigateToChapter={onChapterSelect}
             onRefreshAnalytical={onRefreshAnalytical}
             onAddDisclosureChapter={onAddDisclosureChapter}
+            onExport={onExport}
             onClose={onClose}
             isPro={isPro}
             onUpgrade={onUpgrade}

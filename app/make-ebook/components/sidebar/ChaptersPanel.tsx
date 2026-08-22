@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { PlusIcon } from '../icons';
-import BinIcon from '../icons/BinIcon';
-import EmptyStateHint from '../EmptyStateHint';
+import React, { useEffect, useState } from "react";
+import { PlusIcon } from "../icons";
+import BinIcon from "../icons/BinIcon";
+import EmptyStateHint from "../EmptyStateHint";
 
 interface Chapter {
   id: string;
-  type: 'frontmatter' | 'content' | 'backmatter';
+  type: "frontmatter" | "content" | "backmatter";
   title: string;
   content: string;
   locked?: boolean;
@@ -18,11 +18,12 @@ interface ChaptersPanelProps {
   chapters: Chapter[];
   selectedChapter: number;
   handleSelectChapter: (index: number) => void;
-  handleAddChapter: (type: 'frontmatter' | 'content' | 'backmatter', title?: string) => void;
+  handleAddChapter: (
+    type: "frontmatter" | "content" | "backmatter",
+    title?: string,
+  ) => void;
   handleRemoveChapter: (index: number) => void;
-  // Direct-delete variant: skips the modal in favour of the inline confirm
-  // popover rendered by this component. Falls back to handleRemoveChapter if
-  // omitted, so callers that haven't been updated keep the old behaviour.
+
   confirmChapterDelete?: (index: number) => void;
   handleToggleChapterLock?: (index: number) => void;
   handleDragStart: (index: number) => void;
@@ -35,46 +36,59 @@ interface ChaptersPanelProps {
   dragItemIndex: number | null;
   ghostPillPosition: { visible: boolean; x: number; y: number };
   getContentChapterNumber: (chapters: Chapter[], index: number) => number;
+  chapterWordCounts?: number[];
 }
 
 const CHAPTER_TEMPLATES = {
   frontmatter: [
-    { title: 'Title Page' },
-    { title: 'Copyright' },
-    { title: 'Dedication' },
-    { title: 'Foreword' },
-    { title: 'Preface' },
-    { title: 'Acknowledgements' },
-    { title: 'Introduction' },
-    { title: 'Prologue' },
-    { title: 'Custom Front Matter' },
+    { title: "Title Page" },
+    { title: "Copyright" },
+    { title: "Dedication" },
+    { title: "Foreword" },
+    { title: "Preface" },
+    { title: "Acknowledgements" },
+    { title: "Introduction" },
+    { title: "Prologue" },
+    { title: "Custom Front Matter" },
   ],
   content: [
-    { title: 'Chapter' },
-    { title: 'Part' },
-    { title: 'Section' },
-    { title: 'Custom Chapter' },
+    { title: "Chapter" },
+    { title: "Part" },
+    { title: "Section" },
+    { title: "Custom Chapter" },
   ],
   backmatter: [
-    { title: 'Epilogue' },
-    { title: 'Afterword' },
-    { title: 'Appendix' },
-    { title: 'Notes' },
-    { title: 'Glossary' },
-    { title: 'Bibliography' },
-    { title: 'Index' },
-    { title: 'About the Author' },
-    { title: 'Custom Back Matter' },
+    { title: "Epilogue" },
+    { title: "Afterword" },
+    { title: "Appendix" },
+    { title: "Notes" },
+    { title: "Glossary" },
+    { title: "Bibliography" },
+    { title: "Index" },
+    { title: "About the Author" },
+    { title: "Custom Back Matter" },
   ],
 };
 
-function HandleDragIcon({ isSelected: _isSelected }: { isSelected: boolean }) {
+function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
   return (
     <span
-      className="relative w-4 h-5 shrink-0 flex items-center justify-center text-gray-400 dark:text-[#737373]"
+      className={`relative w-4 h-5 shrink-0 flex items-center justify-center ${
+        isSelected
+          ? "text-white/45 dark:text-gray-400"
+          : "text-gray-400 dark:text-[#737373]"
+      }`}
       aria-hidden="true"
     >
-      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        className="w-4 h-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <line x1="3" y1="14" x2="21" y2="14" />
         <line x1="3" y1="10" x2="21" y2="10" />
         <polyline points="15.4 5 12 1.5 8.6 5" />
@@ -102,48 +116,66 @@ export default function ChaptersPanel({
   dragItemIndex,
   ghostPillPosition,
   getContentChapterNumber,
+  chapterWordCounts,
 }: ChaptersPanelProps) {
   const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
-  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
+  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(
+    null,
+  );
 
-  // Auto-cancel the inline delete prompt: Escape, 5s timeout, or any click
-  // outside the active confirm cluster.
   useEffect(() => {
     if (pendingDeleteIndex === null) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setPendingDeleteIndex(null);
+      if (e.key === "Escape") setPendingDeleteIndex(null);
     };
     const onPointer = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target?.closest('[data-chapter-delete-confirm]')) return;
+      if (target?.closest("[data-chapter-delete-confirm]")) return;
       setPendingDeleteIndex(null);
     };
     const timer = window.setTimeout(() => setPendingDeleteIndex(null), 5000);
-    document.addEventListener('keydown', onKey);
-    document.addEventListener('mousedown', onPointer);
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onPointer);
     return () => {
       window.clearTimeout(timer);
-      document.removeEventListener('keydown', onKey);
-      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onPointer);
     };
   }, [pendingDeleteIndex]);
 
   return (
-    <div data-tour="chapters" className="border-b border-gray-200 dark:border-[#2f2f2f] pb-3">
+    <div
+      data-tour="chapters"
+      className="border-b border-gray-200 dark:border-[#2f2f2f] pb-3"
+    >
       <div className="flex items-center justify-between py-3 px-3">
         <div className="flex items-center gap-2">
-          <svg className="w-4 h-4 text-gray-600 dark:text-[#a3a3a3]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className="w-4 h-4 text-gray-600 dark:text-[#a3a3a3]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <path d="M14 2v6h6" />
             <path d="M16 13H8M16 17H8M10 9H8" />
           </svg>
-          <span className="text-125 font-semibold text-gray-900 dark:text-[#e5e5e5]">Chapters</span>
-          <span className="text-11 text-gray-500 dark:text-[#a3a3a3]">({chapters.length})</span>
+          <span className="text-125 font-semibold text-gray-900 dark:text-[#e5e5e5]">
+            Chapters
+          </span>
+          <span className="text-11 text-gray-500 dark:text-[#a3a3a3]">
+            ({chapters.length})
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
             <button
-              onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
+              onClick={() =>
+                setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)
+              }
               className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] hover:text-gray-700 dark:hover:text-[#d4d4d4] transition-all duration-150"
               title="Add chapter"
             >
@@ -154,12 +186,19 @@ export default function ChaptersPanel({
               <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-[#252525] rounded-card shadow-lg border border-gray-200 dark:border-[#2f2f2f] z-50 py-1 max-h-96 overflow-y-auto">
                 <div className="space-y-1">
                   <div>
-                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[#a3a3a3] uppercase tracking-[0.08em]">Front Matter</div>
+                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[#a3a3a3] uppercase tracking-[0.08em]">
+                      Front Matter
+                    </div>
                     {CHAPTER_TEMPLATES.frontmatter.map((template) => (
                       <button
                         key={template.title}
                         onClick={() => {
-                          handleAddChapter('frontmatter', template.title === 'Custom Front Matter' ? '' : template.title);
+                          handleAddChapter(
+                            "frontmatter",
+                            template.title === "Custom Front Matter"
+                              ? ""
+                              : template.title,
+                          );
                           setChapterTypeDropdownOpen(false);
                         }}
                         className="w-full text-left px-3 py-2 rounded-[6px] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-125 text-gray-900 dark:text-[#e5e5e5] transition-colors"
@@ -170,12 +209,19 @@ export default function ChaptersPanel({
                   </div>
 
                   <div>
-                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[#a3a3a3] uppercase tracking-[0.08em]">Main Content</div>
+                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[#a3a3a3] uppercase tracking-[0.08em]">
+                      Main Content
+                    </div>
                     {CHAPTER_TEMPLATES.content.map((template) => (
                       <button
                         key={template.title}
                         onClick={() => {
-                          handleAddChapter('content', template.title === 'Custom Chapter' ? '' : template.title);
+                          handleAddChapter(
+                            "content",
+                            template.title === "Custom Chapter"
+                              ? ""
+                              : template.title,
+                          );
                           setChapterTypeDropdownOpen(false);
                         }}
                         className="w-full text-left px-3 py-2 rounded-[6px] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-125 text-gray-900 dark:text-[#e5e5e5] transition-colors"
@@ -186,12 +232,19 @@ export default function ChaptersPanel({
                   </div>
 
                   <div>
-                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[#a3a3a3] uppercase tracking-[0.08em]">Back Matter</div>
+                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[#a3a3a3] uppercase tracking-[0.08em]">
+                      Back Matter
+                    </div>
                     {CHAPTER_TEMPLATES.backmatter.map((template) => (
                       <button
                         key={template.title}
                         onClick={() => {
-                          handleAddChapter('backmatter', template.title === 'Custom Back Matter' ? '' : template.title);
+                          handleAddChapter(
+                            "backmatter",
+                            template.title === "Custom Back Matter"
+                              ? ""
+                              : template.title,
+                          );
                           setChapterTypeDropdownOpen(false);
                         }}
                         className="w-full text-left px-3 py-2 rounded-[6px] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-125 text-gray-900 dark:text-[#e5e5e5] transition-colors"
@@ -212,8 +265,18 @@ export default function ChaptersPanel({
           <EmptyStateHint
             compact
             icon={
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.6}
+                  d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                />
               </svg>
             }
             title="No chapters yet"
@@ -221,28 +284,39 @@ export default function ChaptersPanel({
           />
         ) : (
           <>
-            <p className="text-10 text-gray-500 dark:text-[#737373] px-2 py-2 mb-2">Drag to reorder</p>
+            <p className="text-10 text-gray-500 dark:text-[#737373] px-2 py-2 mb-2">
+              Drag to reorder
+            </p>
             {chapters.map((ch, i) => {
               const isSelected = selectedChapter === i;
-              const titleText = ch.title?.trim() || 'Title';
+              const titleText = ch.title?.trim() || "Title";
+              const wordCount = chapterWordCounts?.[i];
 
               const typeLabel =
-                ch.type === 'frontmatter' ? 'Frontmatter'
-                : ch.type === 'backmatter' ? 'Backmatter'
-                : `Chapter ${getContentChapterNumber(chapters, i)}`;
-              const chapterTitle = titleText && titleText !== 'Title' ? titleText : 'Title';
+                ch.type === "frontmatter"
+                  ? "Frontmatter"
+                  : ch.type === "backmatter"
+                    ? "Backmatter"
+                    : `Chapter ${getContentChapterNumber(chapters, i)}`;
+              const chapterTitle =
+                titleText && titleText !== "Title" ? titleText : "Title";
 
               return (
                 <div
                   key={ch.id}
                   className={`group flex items-center gap-2 px-3 py-2 rounded-[7px] transition-all cursor-pointer select-none ${
                     dragOverIndex === i
-                      ? 'border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                      ? "border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20"
                       : isSelected
-                        ? 'bg-gray-100 dark:bg-[#2d2d2d]'
-                        : 'hover:bg-gray-100 dark:hover:bg-[#2d2d2d]'
+                        ? "bg-gray-900 dark:bg-white"
+                        : "hover:bg-gray-100 dark:hover:bg-[#2d2d2d]"
                   }`}
-                  style={{ opacity: dragItemIndex === i && ghostPillPosition.visible ? 0.3 : 1 }}
+                  style={{
+                    opacity:
+                      dragItemIndex === i && ghostPillPosition.visible
+                        ? 0.3
+                        : 1,
+                  }}
                   draggable
                   onDragStart={() => handleDragStart(i)}
                   onDragEnter={() => handleDragEnter(i)}
@@ -255,38 +329,92 @@ export default function ChaptersPanel({
                 >
                   <HandleDragIcon isSelected={isSelected} />
                   <div className="flex flex-col flex-1 min-w-0 gap-2">
-                    <span className={`text-10 ${isSelected ? 'text-gray-600 dark:text-[#a3a3a3]' : 'text-gray-500 dark:text-[#737373]'}`}>
+                    <span
+                      className={`text-10 ${isSelected ? "text-white/55 dark:text-gray-500" : "text-gray-500 dark:text-[#737373]"}`}
+                    >
                       {typeLabel}
                     </span>
-                    <span className={`text-125 truncate ${isSelected ? 'text-gray-900 dark:text-[#f5f5f5] font-semibold' : 'text-gray-700 dark:text-[#d4d4d4]'}`}>
+                    <span
+                      className={`text-125 truncate ${isSelected ? "text-white dark:text-gray-900 font-semibold" : "text-gray-700 dark:text-[#d4d4d4]"}`}
+                    >
                       {chapterTitle}
                     </span>
                   </div>
+                  {wordCount !== undefined && (
+                    <span
+                      className={`text-10 tabular-nums flex-shrink-0 transition-opacity group-hover:opacity-0 ${
+                        isSelected
+                          ? "text-white/55 dark:text-gray-500"
+                          : "text-gray-400 dark:text-[#5c5c5c]"
+                      }`}
+                    >
+                      {wordCount.toLocaleString()}
+                    </span>
+                  )}
                   {handleToggleChapterLock && (
                     <button
-                      className={`transition-all p-2 rounded-chip flex-shrink-0 ${ch.locked ? 'opacity-100 text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#333]' : 'opacity-0 group-hover:opacity-100 text-gray-400 dark:text-[#737373] group-hover:hover:bg-gray-200 dark:group-hover:hover:bg-[#333]'}`}
+                      className={`transition-all p-2 rounded-chip flex-shrink-0 ${
+                        isSelected
+                          ? `${ch.locked ? "opacity-100" : "opacity-0 group-hover:opacity-100"} text-white/70 dark:text-gray-600 hover:bg-white/15 dark:hover:bg-black/10`
+                          : ch.locked
+                            ? "opacity-100 text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#333]"
+                            : "opacity-0 group-hover:opacity-100 text-gray-400 dark:text-[#737373] group-hover:hover:bg-gray-200 dark:group-hover:hover:bg-[#333]"
+                      }`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleToggleChapterLock(i);
                       }}
-                      aria-label={ch.locked ? 'Unlock chapter' : 'Lock chapter'}
-                      title={ch.locked ? 'Unlock chapter' : 'Mark complete and lock'}
+                      aria-label={ch.locked ? "Unlock chapter" : "Lock chapter"}
+                      title={
+                        ch.locked ? "Unlock chapter" : "Mark complete and lock"
+                      }
                     >
                       {ch.locked ? (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <svg
+                          className="w-4 h-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={1.6}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect
+                            x="3"
+                            y="11"
+                            width="18"
+                            height="11"
+                            rx="2"
+                            ry="2"
+                          />
                           <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                         </svg>
                       ) : (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <svg
+                          className="w-4 h-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={1.6}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect
+                            x="3"
+                            y="11"
+                            width="18"
+                            height="11"
+                            rx="2"
+                            ry="2"
+                          />
                           <path d="M7 11V7a5 5 0 0 1 10 0" />
                         </svg>
                       )}
                     </button>
                   )}
-                  {chapters.length > 1 && !ch.locked && (
-                    pendingDeleteIndex === i ? (
+                  {chapters.length > 1 &&
+                    !ch.locked &&
+                    (pendingDeleteIndex === i ? (
                       <div
                         data-chapter-delete-confirm
                         role="group"
@@ -308,17 +436,36 @@ export default function ChaptersPanel({
                           aria-label="Confirm delete"
                           title="Delete (Enter)"
                         >
-                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round">
+                          <svg
+                            className="w-3.5 h-3.5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2.6}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
                         </button>
                         <button
-                          onClick={(e) => { e.stopPropagation(); setPendingDeleteIndex(null); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPendingDeleteIndex(null);
+                          }}
                           className="p-2 rounded-chip text-gray-500 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors flex-shrink-0"
                           aria-label="Cancel"
                           title="Cancel (Esc)"
                         >
-                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                          <svg
+                            className="w-3.5 h-3.5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2.2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
                             <line x1="18" y1="6" x2="6" y2="18" />
                             <line x1="6" y1="6" x2="18" y2="18" />
                           </svg>
@@ -326,7 +473,11 @@ export default function ChaptersPanel({
                       </div>
                     ) : (
                       <button
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-chip hover:bg-gray-200 dark:hover:bg-[#333] text-gray-500 dark:text-[#737373] flex-shrink-0"
+                        className={`opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-chip flex-shrink-0 ${
+                          isSelected
+                            ? "text-white/70 dark:text-gray-600 hover:bg-white/15 dark:hover:bg-black/10"
+                            : "text-gray-500 dark:text-[#737373] hover:bg-gray-200 dark:hover:bg-[#333]"
+                        }`}
                         onClick={(e) => {
                           e.stopPropagation();
                           setPendingDeleteIndex(i);
@@ -335,8 +486,7 @@ export default function ChaptersPanel({
                       >
                         <BinIcon className="w-4 h-4" />
                       </button>
-                    )
-                  )}
+                    ))}
                 </div>
               );
             })}

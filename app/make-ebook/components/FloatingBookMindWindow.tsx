@@ -22,6 +22,7 @@ interface FloatingBookMindWindowProps {
   coverFile?: string | null;
   onRefreshAnalytical?: (kind: AnalyticalKind) => void;
   onAddDisclosureChapter?: (content: string) => void;
+  onExport?: () => void;
   isPro?: boolean;
   onUpgrade?: () => void;
 }
@@ -41,6 +42,7 @@ export default function FloatingBookMindWindow({
   coverFile,
   onRefreshAnalytical,
   onAddDisclosureChapter,
+  onExport,
   isPro,
   onUpgrade,
 }: FloatingBookMindWindowProps) {
@@ -61,6 +63,7 @@ export default function FloatingBookMindWindow({
         onNavigateToChapter={onChapterSelect}
         onRefreshAnalytical={onRefreshAnalytical}
         onAddDisclosureChapter={onAddDisclosureChapter}
+        onExport={onExport}
         onClose={onClose}
         isPro={isPro}
         onUpgrade={onUpgrade}

@@ -452,13 +452,19 @@ function MakeEbookPage() {
   );
 
   const handleInlineEditRequest = useCallback(
-    (args: { selectedText: string; range: Range; rect: DOMRect }) => {
+    (args: {
+      selectedText: string;
+      range: Range;
+      rect: DOMRect;
+      instruction?: string;
+    }) => {
       if (!hasBookMind) return;
       setInlineEditRequest({
         open: true,
         anchorRect: args.rect,
         selectedText: args.selectedText,
         range: args.range,
+        initialInstruction: args.instruction,
       });
     },
     [hasBookMind],
@@ -1133,14 +1139,18 @@ function MakeEbookPage() {
     setSidebarView(null);
   }
 
+  const devPreview =
+    typeof window !== "undefined" &&
+    window.location.search.includes("devpreview");
+
   useEffect(() => {
     if (authLoading) return;
-    if (!user?.id) {
+    if (!user?.id && !devPreview) {
       setLibraryLoading(false);
       return;
     }
 
-    const books = loadBookLibrary(user.id);
+    const books = loadBookLibrary(user?.id ?? "");
     setLibraryBooks(books);
     setLibraryLoading(false);
 
@@ -1189,7 +1199,7 @@ function MakeEbookPage() {
     }
   }, [mobileSidebarOpen, tab]);
 
-  if (showMarketingPage && chapters.length === 0) {
+  if (showMarketingPage && chapters.length === 0 && !devPreview) {
     return (
       <MarketingLandingPage
         onStartWritingAction={handleStartWriting}
@@ -1430,6 +1440,7 @@ function MakeEbookPage() {
                   setSelectedChapter(chapters.length);
                   toast.success("AI Disclosure chapter added");
                 }}
+                onExport={() => setPreflightFormat("epub")}
                 isPro={isPro}
                 onUpgrade={() => setExportUpgradeOpen(true)}
               />
@@ -3092,6 +3103,8 @@ function MakeEbookPage() {
               dragItemIndex={dragItemIndex}
               ghostPillPosition={ghostPillPosition}
               getContentChapterNumber={getContentChapterNumber}
+              chapterWordCounts={bookStats.chapterStats.map((c) => c.wordCount)}
+              totalWords={bookStats.totalWords}
               title={title}
               setTitle={setTitle}
               author={author}
@@ -3449,14 +3462,19 @@ function MakeEbookPage() {
                     selectedChapter={selectedChapter}
                     onChapterTitleChange={handleChapterTitleChange}
                     onChapterContentChange={handleChapterContentChange}
+                    onChapterSelect={handleSelectChapter}
                     onCreateEndnote={endnotesHook.handleCreateEndnote}
                     endnotesCount={endnotes.length}
                     bookStats={bookStats}
                     sessionStats={sessionStats}
                     todayWords={writingGoals.todayWords}
                     focus={{ active: focus.active, settings: focus.settings }}
-                    onInlineEditRequest={handleInlineEditRequest}
-                    onComposeRequest={handleComposeRequest}
+                    onInlineEditRequest={
+                      hasBookMind ? handleInlineEditRequest : undefined
+                    }
+                    onComposeRequest={
+                      hasBookMind ? handleComposeRequest : undefined
+                    }
                     isBookMindLoading={false}
                     onOpenBookMind={
                       hasBookMind ? () => setBookMindOpen(true) : undefined
@@ -3498,6 +3516,7 @@ function MakeEbookPage() {
                 setSelectedChapter(chapters.length);
                 toast.success("AI Disclosure chapter added");
               }}
+              onExport={() => setPreflightFormat("epub")}
               isPro={isPro}
               onUpgrade={() => setExportUpgradeOpen(true)}
             />
@@ -3531,6 +3550,7 @@ function MakeEbookPage() {
             setSelectedChapter(chapters.length);
             toast.success("AI Disclosure chapter added");
           }}
+          onExport={() => setPreflightFormat("epub")}
           isPro={isPro}
           onUpgrade={() => setExportUpgradeOpen(true)}
         />

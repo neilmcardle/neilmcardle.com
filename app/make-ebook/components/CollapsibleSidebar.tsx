@@ -1,22 +1,17 @@
-'use client';
+"use client";
 
-// Thin composer over the four sidebar panels. What used to be a 1113-line
-// monolith is now a layout shell (width resize, close button, scrollable
-// content region) that delegates each section to a dedicated panel under
-// ./sidebar/. See CLAUDE.md → "Known non-obvious gotchas" for the reasoning
-// behind the split.
+import React, { useState, useRef, useEffect } from "react";
 
-import React, { useState, useRef, useEffect } from 'react';
-
-import LibraryPanel from './sidebar/LibraryPanel';
-import BookDetailsPanel from './sidebar/BookDetailsPanel';
-import ChaptersPanel from './sidebar/ChaptersPanel';
-import SyncConflictBanner from './sidebar/SyncConflictBanner';
-import { BookRecord } from '../types';
+import LibraryPanel from "./sidebar/LibraryPanel";
+import BookDetailsPanel from "./sidebar/BookDetailsPanel";
+import ChaptersPanel from "./sidebar/ChaptersPanel";
+import BookSummaryHeader from "./sidebar/BookSummaryHeader";
+import SyncConflictBanner from "./sidebar/SyncConflictBanner";
+import { BookRecord } from "../types";
 
 interface Chapter {
   id: string;
-  type: 'frontmatter' | 'content' | 'backmatter';
+  type: "frontmatter" | "content" | "backmatter";
   title: string;
   content: string;
   locked?: boolean;
@@ -32,14 +27,12 @@ interface Book {
 }
 
 interface CollapsibleSidebarProps {
-  // Panel visibility (always rendered, animated via CSS)
   isPanelOpen: boolean;
-  // Active view from slim sidebar
-  activeView: 'library' | 'book' | 'chapters' | null;
-  // Close handler
+
+  activeView: "library" | "book" | "chapters" | null;
+
   onClose: () => void;
 
-  // Library props
   libraryBooks: Book[];
   selectedBookId: string | null;
   setSelectedBookId: (id: string | null) => void;
@@ -48,7 +41,6 @@ interface CollapsibleSidebarProps {
   showNewBookConfirmation: () => void;
   showImportDialog: () => void;
 
-  // Multi-select props
   multiSelectMode: boolean;
   setMultiSelectMode: (value: boolean) => void;
   selectedBookIds: Set<string>;
@@ -56,16 +48,16 @@ interface CollapsibleSidebarProps {
   toggleSelectAll: () => void;
   handleDeleteSelectedBooks: () => void;
 
-  // Cloud sync conflict resolution — rendered above the library list when
-  // present. Replaces the old blocking modal that fired on every login.
   syncConflicts: { local: BookRecord; cloud: BookRecord }[];
-  onResolveSyncConflict: (choice: 'local' | 'cloud' | 'both') => void;
+  onResolveSyncConflict: (choice: "local" | "cloud" | "both") => void;
 
-  // Chapters props
   chapters: Chapter[];
   selectedChapter: number;
   handleSelectChapter: (index: number) => void;
-  handleAddChapter: (type: 'frontmatter' | 'content' | 'backmatter', title?: string) => void;
+  handleAddChapter: (
+    type: "frontmatter" | "content" | "backmatter",
+    title?: string,
+  ) => void;
   handleRemoveChapter: (index: number) => void;
   confirmChapterDelete?: (index: number) => void;
   handleToggleChapterLock?: (index: number) => void;
@@ -79,8 +71,9 @@ interface CollapsibleSidebarProps {
   dragItemIndex: number | null;
   ghostPillPosition: { visible: boolean; x: number; y: number };
   getContentChapterNumber: (chapters: Chapter[], index: number) => number;
+  chapterWordCounts?: number[];
+  totalWords?: number;
 
-  // Book Details props
   title: string;
   setTitle: (value: string) => void;
   author: string;
@@ -105,11 +98,13 @@ interface CollapsibleSidebarProps {
   coverFile: string | null;
   handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setCoverFile?: (dataUrl: string) => void;
-  lockedSections: { bookInfo: boolean; publishing: boolean; tags: boolean; cover: boolean };
+  lockedSections: {
+    bookInfo: boolean;
+    publishing: boolean;
+    tags: boolean;
+    cover: boolean;
+  };
 
-  // Expanded state (kept in props for compatibility with existing call sites,
-  // though the split panels no longer use these directly — they could be
-  // removed in a future cleanup pass when page.tsx is refactored.)
   sidebarLibraryExpanded: boolean;
   setSidebarLibraryExpanded: (value: boolean) => void;
   sidebarChaptersExpanded: boolean;
@@ -125,11 +120,12 @@ const DEFAULT_WIDTH = 350;
 export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   const { isPanelOpen, activeView, onClose } = props;
 
-  // ── Resizable width ──────────────────────────────────────────────
   const [width, setWidth] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('me-left-panel-width');
-      return saved ? Math.min(Math.max(parseInt(saved, 10), MIN_WIDTH), MAX_WIDTH) : DEFAULT_WIDTH;
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("me-left-panel-width");
+      return saved
+        ? Math.min(Math.max(parseInt(saved, 10), MIN_WIDTH), MAX_WIDTH)
+        : DEFAULT_WIDTH;
     }
     return DEFAULT_WIDTH;
   });
@@ -144,15 +140,18 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     isResizing.current = true;
     startX.current = e.clientX;
     startWidth.current = width;
-    if (sidebarRef.current) sidebarRef.current.style.transition = 'none';
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
+    if (sidebarRef.current) sidebarRef.current.style.transition = "none";
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
   };
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       if (!isResizing.current) return;
-      const next = Math.min(Math.max(startWidth.current + e.clientX - startX.current, MIN_WIDTH), MAX_WIDTH);
+      const next = Math.min(
+        Math.max(startWidth.current + e.clientX - startX.current, MIN_WIDTH),
+        MAX_WIDTH,
+      );
       if (sidebarRef.current) sidebarRef.current.style.width = `${next}px`;
       if (innerRef.current) {
         innerRef.current.style.width = `${next}px`;
@@ -162,23 +161,30 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     const onUp = () => {
       if (!isResizing.current) return;
       isResizing.current = false;
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
       if (sidebarRef.current) {
-        sidebarRef.current.style.transition = '';
+        sidebarRef.current.style.transition = "";
         const final = Math.min(
-          Math.max(Math.round(parseFloat(sidebarRef.current.style.width) || startWidth.current), MIN_WIDTH),
-          MAX_WIDTH
+          Math.max(
+            Math.round(
+              parseFloat(sidebarRef.current.style.width) || startWidth.current,
+            ),
+            MIN_WIDTH,
+          ),
+          MAX_WIDTH,
         );
         setWidth(final);
-        try { localStorage.setItem('me-left-panel-width', String(final)); } catch {}
+        try {
+          localStorage.setItem("me-left-panel-width", String(final));
+        } catch {}
       }
     };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
     return () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
     };
   }, []);
 
@@ -186,7 +192,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     <aside
       ref={sidebarRef}
       className={`hidden lg:block h-full z-40 transition-all duration-300 ease-in-out overflow-hidden relative ${
-        isPanelOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        isPanelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
       style={{ width: isPanelOpen ? width : 0 }}
     >
@@ -195,7 +201,6 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         className="flex flex-col h-full bg-white dark:bg-[#1e1e1e] border-r border-gray-200 dark:border-[#2a2a2a]"
         style={{ width, minWidth: width }}
       >
-        {/* Close button row */}
         <div className="flex justify-end px-4 pt-2 pb-2">
           <button
             onClick={onClose}
@@ -203,38 +208,45 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             title="Close panel"
             aria-label="Close panel"
           >
-            <img src="/close-sidebar-icon.svg" alt="Close" className="w-5 h-5 dark:hidden" />
-            <img src="/dark-close-sidebar-icon.svg" alt="Close" className="w-5 h-5 hidden dark:block" />
+            <img
+              src="/close-sidebar-icon.svg"
+              alt="Close"
+              className="w-5 h-5 dark:hidden"
+            />
+            <img
+              src="/dark-close-sidebar-icon.svg"
+              alt="Close"
+              className="w-5 h-5 hidden dark:block"
+            />
           </button>
         </div>
 
-        {/* Scrollable content area — exactly one panel is rendered based on activeView */}
         <div className="flex-1 overflow-y-auto px-4 pb-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#C0C0C0] hover:scrollbar-thumb-[#C0C0C0] dark:scrollbar-thumb-[#C0C0C0] dark:hover:scrollbar-thumb-[#C0C0C0]">
-          {activeView === 'library' && (
+          {activeView === "library" && (
             <>
               <SyncConflictBanner
                 conflicts={props.syncConflicts}
                 onResolve={props.onResolveSyncConflict}
               />
               <LibraryPanel
-              libraryBooks={props.libraryBooks}
-              selectedBookId={props.selectedBookId}
-              setSelectedBookId={props.setSelectedBookId}
-              handleLoadBook={props.handleLoadBook}
-              handleDeleteBook={props.handleDeleteBook}
-              showNewBookConfirmation={props.showNewBookConfirmation}
-              showImportDialog={props.showImportDialog}
-              multiSelectMode={props.multiSelectMode}
-              setMultiSelectMode={props.setMultiSelectMode}
-              selectedBookIds={props.selectedBookIds}
-              toggleBookSelection={props.toggleBookSelection}
-              toggleSelectAll={props.toggleSelectAll}
-              handleDeleteSelectedBooks={props.handleDeleteSelectedBooks}
-            />
+                libraryBooks={props.libraryBooks}
+                selectedBookId={props.selectedBookId}
+                setSelectedBookId={props.setSelectedBookId}
+                handleLoadBook={props.handleLoadBook}
+                handleDeleteBook={props.handleDeleteBook}
+                showNewBookConfirmation={props.showNewBookConfirmation}
+                showImportDialog={props.showImportDialog}
+                multiSelectMode={props.multiSelectMode}
+                setMultiSelectMode={props.setMultiSelectMode}
+                selectedBookIds={props.selectedBookIds}
+                toggleBookSelection={props.toggleBookSelection}
+                toggleSelectAll={props.toggleSelectAll}
+                handleDeleteSelectedBooks={props.handleDeleteSelectedBooks}
+              />
             </>
           )}
 
-          {activeView === 'book' && (
+          {activeView === "book" && (
             <BookDetailsPanel
               title={props.title}
               setTitle={props.setTitle}
@@ -264,32 +276,43 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
             />
           )}
 
-          {activeView === 'chapters' && (
-            <ChaptersPanel
-              chapters={props.chapters}
-              selectedChapter={props.selectedChapter}
-              handleSelectChapter={props.handleSelectChapter}
-              handleAddChapter={props.handleAddChapter}
-              handleRemoveChapter={props.handleRemoveChapter}
-              confirmChapterDelete={props.confirmChapterDelete}
-              handleToggleChapterLock={props.handleToggleChapterLock}
-              handleDragStart={props.handleDragStart}
-              handleDragEnter={props.handleDragEnter}
-              handleDragEnd={props.handleDragEnd}
-              handleTouchStart={props.handleTouchStart}
-              handleTouchMove={props.handleTouchMove}
-              handleTouchEnd={props.handleTouchEnd}
-              dragOverIndex={props.dragOverIndex}
-              dragItemIndex={props.dragItemIndex}
-              ghostPillPosition={props.ghostPillPosition}
-              getContentChapterNumber={props.getContentChapterNumber}
-            />
+          {activeView === "chapters" && (
+            <>
+              <BookSummaryHeader
+                title={props.title}
+                author={props.author}
+                genre={props.genre}
+                totalWords={props.totalWords ?? 0}
+                completedChapters={
+                  props.chapters.filter((c) => c.locked).length
+                }
+                totalChapters={props.chapters.length}
+              />
+              <ChaptersPanel
+                chapters={props.chapters}
+                selectedChapter={props.selectedChapter}
+                handleSelectChapter={props.handleSelectChapter}
+                handleAddChapter={props.handleAddChapter}
+                handleRemoveChapter={props.handleRemoveChapter}
+                confirmChapterDelete={props.confirmChapterDelete}
+                handleToggleChapterLock={props.handleToggleChapterLock}
+                handleDragStart={props.handleDragStart}
+                handleDragEnter={props.handleDragEnter}
+                handleDragEnd={props.handleDragEnd}
+                handleTouchStart={props.handleTouchStart}
+                handleTouchMove={props.handleTouchMove}
+                handleTouchEnd={props.handleTouchEnd}
+                dragOverIndex={props.dragOverIndex}
+                dragItemIndex={props.dragItemIndex}
+                ghostPillPosition={props.ghostPillPosition}
+                getContentChapterNumber={props.getContentChapterNumber}
+                chapterWordCounts={props.chapterWordCounts}
+              />
+            </>
           )}
-
         </div>
       </div>
 
-      {/* Resize handle — right edge of left panel */}
       <div
         className="absolute right-0 top-0 h-full w-1 cursor-col-resize z-50 hidden lg:block hover:bg-gray-300 dark:hover:bg-[#3a3a3a] transition-colors"
         onMouseDown={handleResizeStart}

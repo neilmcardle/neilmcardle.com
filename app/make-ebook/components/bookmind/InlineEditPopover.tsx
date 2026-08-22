@@ -1,11 +1,12 @@
 "use client";
 
-// Floating prompt bar with branching takes. Fires up to three parallel
-// inlineEdit() calls so the user can cycle through alternative rewrites
-// with Cmd-Up/Down. Tab accepts, Esc cancels. Viewport-aware so the
-// result area scrolls rather than spilling off-screen.
-
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import { createPortal } from "react-dom";
 import { useBookMind } from "../../hooks/useBookMind";
 import { toast } from "sonner";
@@ -16,6 +17,7 @@ export interface InlineEditRequest {
   anchorRect: DOMRect | null;
   selectedText: string;
   range: Range | null;
+  initialInstruction?: string;
 }
 
 interface InlineEditPopoverProps {
@@ -32,8 +34,6 @@ const ANCHOR_GAP = 8;
 const INITIAL_ALTERNATIVES = 1;
 const MAX_ALTERNATIVES = 3;
 
-// Fixed-height regions of the popover (header + input + action bar).
-// The result area gets whatever vertical space remains.
 const CHROME_HEIGHT = 180;
 
 export default function InlineEditPopover({
@@ -59,15 +59,16 @@ export default function InlineEditPopover({
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const autoRunRef = useRef<string | null>(null);
 
-  const hasAnyResult = results.some(r => r !== null);
+  const hasAnyResult = results.some((r) => r !== null);
   const activeResult = results[activeIndex] ?? null;
-  const completedCount = results.filter(r => r !== null).length;
+  const completedCount = results.filter((r) => r !== null).length;
 
-  // Reset on every new open.
   useEffect(() => {
     if (request.open) {
-      setInstruction("");
+      setInstruction(request.initialInstruction ?? "");
+      autoRunRef.current = request.initialInstruction ?? null;
       setNumAlternatives(INITIAL_ALTERNATIVES);
       setResults(Array(INITIAL_ALTERNATIVES).fill(null));
       setActiveIndex(0);
@@ -77,9 +78,6 @@ export default function InlineEditPopover({
     }
   }, [request.open]);
 
-  // Position: anchored below selection, flips above if needed.
-  // maxHeight constrains the popover to available viewport space so the
-  // result area scrolls instead of extending below the screen.
   const layout = useMemo(() => {
     if (!request.anchorRect) return { top: 0, left: 0, maxHeight: 500 };
     const rect = request.anchorRect;
@@ -88,7 +86,8 @@ export default function InlineEditPopover({
 
     let left = rect.left + rect.width / 2 - POPOVER_WIDTH / 2;
     if (left < VIEWPORT_MARGIN) left = VIEWPORT_MARGIN;
-    if (left + POPOVER_WIDTH > vw - VIEWPORT_MARGIN) left = vw - POPOVER_WIDTH - VIEWPORT_MARGIN;
+    if (left + POPOVER_WIDTH > vw - VIEWPORT_MARGIN)
+      left = vw - POPOVER_WIDTH - VIEWPORT_MARGIN;
 
     const spaceBelow = vh - rect.bottom - ANCHOR_GAP - VIEWPORT_MARGIN;
     const spaceAbove = rect.top - ANCHOR_GAP - VIEWPORT_MARGIN;
@@ -108,42 +107,51 @@ export default function InlineEditPopover({
     return { top: Math.max(VIEWPORT_MARGIN, top), left, maxHeight };
   }, [request.anchorRect]);
 
-  // Close on outside click (deferred so the opening click doesn't fire it).
   useEffect(() => {
     if (!request.open) return;
     const handle = (e: MouseEvent) => {
       if (popoverRef.current?.contains(e.target as Node)) return;
       onClose();
     };
-    const t = setTimeout(() => document.addEventListener("mousedown", handle), 50);
-    return () => { clearTimeout(t); document.removeEventListener("mousedown", handle); };
+    const t = setTimeout(
+      () => document.addEventListener("mousedown", handle),
+      50,
+    );
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("mousedown", handle);
+    };
   }, [request.open, onClose]);
 
-  // Escape closes.
   useEffect(() => {
     if (!request.open) return;
     const handle = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { e.preventDefault(); onClose(); }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
     };
     document.addEventListener("keydown", handle);
     return () => document.removeEventListener("keydown", handle);
   }, [request.open, onClose]);
 
-  // ⌘↑/↓ cycle, Tab/⌘Enter accept — document-level so they work even
-  // when the input isn't focused.
   useEffect(() => {
     if (!request.open || !hasAnyResult) return;
     const handle = (e: KeyboardEvent) => {
       if (e.key === "ArrowUp" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setActiveIndex(i => (i - 1 + numAlternatives) % numAlternatives);
+        setActiveIndex((i) => (i - 1 + numAlternatives) % numAlternatives);
       } else if (e.key === "ArrowDown" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setActiveIndex(i => (i + 1) % numAlternatives);
+        setActiveIndex((i) => (i + 1) % numAlternatives);
       } else if (e.key === "Tab" && activeResult) {
         e.preventDefault();
         handleAccept();
-      } else if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && activeResult) {
+      } else if (
+        e.key === "Enter" &&
+        (e.metaKey || e.ctrlKey) &&
+        activeResult
+      ) {
         e.preventDefault();
         handleAccept();
       }
@@ -153,33 +161,43 @@ export default function InlineEditPopover({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [request.open, hasAnyResult, activeResult, activeIndex]);
 
-  const handleSubmit = useCallback(async (count?: number) => {
-    if (!instruction.trim() || isLoading) return;
-    const n = count ?? numAlternatives;
-    setIsLoading(true);
-    setError(null);
-    setResults(Array(n).fill(null));
-    setActiveIndex(0);
+  const handleSubmit = useCallback(
+    async (count?: number) => {
+      if (!instruction.trim() || isLoading) return;
+      const n = count ?? numAlternatives;
+      setIsLoading(true);
+      setError(null);
+      setResults(Array(n).fill(null));
+      setActiveIndex(0);
 
-    const promises = Array.from({ length: n }, async (_, i) => {
-      try {
-        const rewritten = await inlineEdit({
-          selectedText: request.selectedText,
-          instruction: instruction.trim(),
-        });
-        setResults(prev => {
-          const next = [...prev];
-          next[i] = rewritten;
-          return next;
-        });
-      } catch (err) {
-        if (i === 0) setError(err instanceof Error ? err.message : "Rewrite failed");
-      }
-    });
+      const promises = Array.from({ length: n }, async (_, i) => {
+        try {
+          const rewritten = await inlineEdit({
+            selectedText: request.selectedText,
+            instruction: instruction.trim(),
+          });
+          setResults((prev) => {
+            const next = [...prev];
+            next[i] = rewritten;
+            return next;
+          });
+        } catch (err) {
+          if (i === 0)
+            setError(err instanceof Error ? err.message : "Rewrite failed");
+        }
+      });
 
-    await Promise.allSettled(promises);
-    setIsLoading(false);
-  }, [instruction, isLoading, inlineEdit, request.selectedText, numAlternatives]);
+      await Promise.allSettled(promises);
+      setIsLoading(false);
+    },
+    [instruction, isLoading, inlineEdit, request.selectedText, numAlternatives],
+  );
+  useEffect(() => {
+    if (!request.open || !autoRunRef.current) return;
+    if (autoRunRef.current !== instruction) return;
+    autoRunRef.current = null;
+    void handleSubmit();
+  }, [request.open, instruction, handleSubmit]);
 
   const handleRegenerate = useCallback(() => {
     setResults(Array(numAlternatives).fill(null));
@@ -194,15 +212,14 @@ export default function InlineEditPopover({
 
   const handleAccept = useCallback(() => {
     if (!activeResult) return;
-    // Preserve the leading/trailing whitespace of the original selection.
-    // Models routinely trim output even when not asked to, which leaves the
-    // rewrite glued to the previous word when the selection included a
-    // leading space (e.g. selecting " is bad" → "is excellent" → "thisis excellent").
+
     const leading = request.selectedText.match(/^\s+/)?.[0] ?? "";
     const trailing = request.selectedText.match(/\s+$/)?.[0] ?? "";
     const core = activeResult.replace(/^\s+/, "").replace(/\s+$/, "");
     onAccept(leading + core + trailing);
-    toast.success("Replaced", { description: `Undo with ${undoCombo} if you change your mind.` });
+    toast.success("Replaced", {
+      description: `Undo with ${undoCombo} if you change your mind.`,
+    });
     onClose();
   }, [activeResult, onAccept, onClose, request.selectedText, undoCombo]);
 
@@ -234,20 +251,30 @@ export default function InlineEditPopover({
       role="dialog"
       aria-label="Edit selection with Book Mind"
     >
-      {/* Header: selection preview */}
       <div className="px-4 pt-3 pb-2 border-b border-gray-100 dark:border-[#262626] flex-shrink-0">
         <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium mb-1">
           Editing
         </p>
         <p className="text-xs text-gray-500 dark:text-[#a3a3a3] italic truncate">
-          &ldquo;{request.selectedText.length > 80 ? request.selectedText.slice(0, 80) + "…" : request.selectedText}&rdquo;
+          &ldquo;
+          {request.selectedText.length > 80
+            ? request.selectedText.slice(0, 80) + "…"
+            : request.selectedText}
+          &rdquo;
         </p>
       </div>
 
-      {/* Instruction input */}
       <div className="px-4 pt-3 pb-2 flex-shrink-0">
         <div className="flex items-start gap-2">
-          <svg className="w-4 h-4 text-[#008ff0] flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className="w-4 h-4 text-[#008ff0] flex-shrink-0 mt-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
             <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
           </svg>
@@ -265,7 +292,6 @@ export default function InlineEditPopover({
         </div>
       </div>
 
-      {/* Results area — flex-1 so it takes remaining space and scrolls */}
       {(isLoading || hasAnyResult || error) && (
         <div className="flex-1 min-h-0 overflow-y-auto border-t border-gray-100 dark:border-[#262626]">
           {error && (
@@ -274,11 +300,12 @@ export default function InlineEditPopover({
             </div>
           )}
 
-          {/* Dot indicator for alternatives — only show when multiple */}
           {(hasAnyResult || isLoading) && numAlternatives > 1 && (
             <div className="px-4 pt-3 pb-1 flex items-center gap-3">
               <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium">
-                {isLoading && !hasAnyResult ? "Generating 3 alternatives…" : "Alternatives"}
+                {isLoading && !hasAnyResult
+                  ? "Generating 3 alternatives…"
+                  : "Alternatives"}
               </p>
               <div className="flex items-center gap-2">
                 {results.map((r, i) => (
@@ -295,7 +322,9 @@ export default function InlineEditPopover({
                     }`}
                     title={r !== null ? `Alternative ${i + 1}` : "Generating…"}
                   >
-                    {r !== null ? i + 1 : (
+                    {r !== null ? (
+                      i + 1
+                    ) : (
                       <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-[#525252] animate-pulse" />
                     )}
                   </button>
@@ -309,10 +338,8 @@ export default function InlineEditPopover({
             </div>
           )}
 
-          {/* Active result with original comparison */}
           {activeResult && (
             <div className="px-4 pt-2 pb-3 space-y-3">
-              {/* Original — faded and crossed out so the eye goes to the rewrite */}
               <div>
                 <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium mb-1">
                   Original
@@ -323,8 +350,7 @@ export default function InlineEditPopover({
                     : request.selectedText}
                 </p>
               </div>
-              {/* Rewrite — full contrast. The whole block is a button: clicking
-                  anywhere inside the suggestion accepts it, mirroring Tab. */}
+
               <button
                 type="button"
                 onClick={handleAccept}
@@ -344,12 +370,27 @@ export default function InlineEditPopover({
             </div>
           )}
 
-          {/* Loading spinner when nothing has arrived yet */}
           {isLoading && !hasAnyResult && (
             <div className="px-4 py-4 flex items-center gap-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
-              <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2" />
-                <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              <svg
+                className="w-3 h-3 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeOpacity="0.2"
+                />
+                <path
+                  d="M22 12a10 10 0 0 1-10 10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
               </svg>
               Rewriting…
             </div>
@@ -357,7 +398,6 @@ export default function InlineEditPopover({
         </div>
       )}
 
-      {/* Action bar — pinned at the bottom, always visible */}
       <div className="px-3 py-2 border-t border-gray-100 dark:border-[#262626] bg-gray-50 dark:bg-[#181818] flex items-center justify-between gap-2 flex-shrink-0">
         <p className="text-2xs text-gray-400 dark:text-[#737373] leading-tight min-w-0 truncate">
           {hasAnyResult ? (
@@ -367,13 +407,11 @@ export default function InlineEditPopover({
                   <Kbd>{modKey}↑↓</Kbd> cycle &middot;{" "}
                 </>
               )}
-              <Kbd>Tab</Kbd> accept &middot;{" "}
-              <Kbd>Esc</Kbd> cancel
+              <Kbd>Tab</Kbd> accept &middot; <Kbd>Esc</Kbd> cancel
             </>
           ) : (
             <>
-              <Kbd>Enter</Kbd> rewrite &middot;{" "}
-              <Kbd>Esc</Kbd> cancel
+              <Kbd>Enter</Kbd> rewrite &middot; <Kbd>Esc</Kbd> cancel
             </>
           )}
         </p>

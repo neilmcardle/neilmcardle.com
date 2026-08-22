@@ -1,22 +1,14 @@
-'use client';
+"use client";
 
-// Desktop left navigation: the slim icon rail + the collapsible content
-// sidebar. Extracted from page.tsx as a thin composition so the huge block
-// of prop plumbing lives in one place. The component itself doesn't own any
-// state — that all stays in page.tsx — it's purely a composition boundary.
-//
-// If you find yourself adding state *inside* EditorLeftNav, pause: it almost
-// certainly belongs in a hook, not a component.
-
-import React from 'react';
-import SlimSidebarNav from './SlimSidebarNav';
-import CollapsibleSidebar from './CollapsibleSidebar';
-import type { RightPanelMode } from './LayoutSwitcher';
-import type { BookRecord } from '../types';
+import React from "react";
+import SlimSidebarNav from "./SlimSidebarNav";
+import CollapsibleSidebar from "./CollapsibleSidebar";
+import type { RightPanelMode } from "./LayoutSwitcher";
+import type { BookRecord } from "../types";
 
 interface Chapter {
   id: string;
-  type: 'frontmatter' | 'content' | 'backmatter';
+  type: "frontmatter" | "content" | "backmatter";
   title: string;
   content: string;
   locked?: boolean;
@@ -31,19 +23,16 @@ interface Book {
 }
 
 export interface EditorLeftNavProps {
-  // Visibility control
   isPanelOpen: boolean;
-  activeView: 'library' | 'book' | 'chapters' | null;
-  onViewChange: (view: 'library' | 'book' | 'chapters' | null) => void;
+  activeView: "library" | "book" | "chapters" | null;
+  onViewChange: (view: "library" | "book" | "chapters" | null) => void;
   onClose: () => void;
 
-  // Slim nav: logo, tour, book mind toggle
   onLogoClick: () => void;
   onStartTour: () => void;
   onBookMindToggle: () => void;
   rightPanelMode: RightPanelMode;
 
-  // Library
   libraryBooks: Book[];
   selectedBookId: string | null;
   setSelectedBookId: (id: string | null) => void;
@@ -58,15 +47,16 @@ export interface EditorLeftNavProps {
   toggleSelectAll: () => void;
   handleDeleteSelectedBooks: () => void;
 
-  // Cloud sync conflicts (replaces the old login-blocking modal)
   syncConflicts: { local: BookRecord; cloud: BookRecord }[];
-  onResolveSyncConflict: (choice: 'local' | 'cloud' | 'both') => void;
+  onResolveSyncConflict: (choice: "local" | "cloud" | "both") => void;
 
-  // Chapters
   chapters: Chapter[];
   selectedChapter: number;
   handleSelectChapter: (index: number) => void;
-  handleAddChapter: (type: 'frontmatter' | 'content' | 'backmatter', title?: string) => void;
+  handleAddChapter: (
+    type: "frontmatter" | "content" | "backmatter",
+    title?: string,
+  ) => void;
   handleRemoveChapter: (index: number) => void;
   confirmChapterDelete?: (index: number) => void;
   handleToggleChapterLock?: (index: number) => void;
@@ -80,8 +70,9 @@ export interface EditorLeftNavProps {
   dragItemIndex: number | null;
   ghostPillPosition: { visible: boolean; x: number; y: number };
   getContentChapterNumber: (chapters: Chapter[], index: number) => number;
+  chapterWordCounts?: number[];
+  totalWords?: number;
 
-  // Book metadata
   title: string;
   setTitle: (value: string) => void;
   author: string;
@@ -106,11 +97,13 @@ export interface EditorLeftNavProps {
   coverFile: string | null;
   handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setCoverFile?: (dataUrl: string) => void;
-  lockedSections: { bookInfo: boolean; publishing: boolean; tags: boolean; cover: boolean };
+  lockedSections: {
+    bookInfo: boolean;
+    publishing: boolean;
+    tags: boolean;
+    cover: boolean;
+  };
 
-  // Mobile accordion state — passed through for compatibility; the split
-  // panels no longer read these, but they're still used by the mobile
-  // accordion rendered inline in page.tsx.
   sidebarLibraryExpanded: boolean;
   setSidebarLibraryExpanded: (value: boolean) => void;
   sidebarChaptersExpanded: boolean;
@@ -131,7 +124,7 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         onLogoClick={props.onLogoClick}
         onStartTour={props.onStartTour}
         onBookMindToggle={props.onBookMindToggle}
-        isBookMindOpen={props.rightPanelMode === 'inspector'}
+        isBookMindOpen={props.rightPanelMode === "inspector"}
         hasSyncConflicts={props.syncConflicts.length > 0}
       />
 
@@ -171,6 +164,8 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         dragItemIndex={props.dragItemIndex}
         ghostPillPosition={props.ghostPillPosition}
         getContentChapterNumber={props.getContentChapterNumber}
+        chapterWordCounts={props.chapterWordCounts}
+        totalWords={props.totalWords}
         title={props.title}
         setTitle={props.setTitle}
         author={props.author}

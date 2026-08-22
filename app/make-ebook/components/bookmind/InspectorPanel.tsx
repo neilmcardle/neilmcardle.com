@@ -22,6 +22,7 @@ interface InspectorPanelProps {
   onNavigateToChapter?: (chapterIndex: number) => void;
   onRefreshAnalytical?: (kind: AnalyticalKind) => void;
   onAddDisclosureChapter?: (content: string) => void;
+  onExport?: () => void;
   onClose?: () => void;
   isPro?: boolean;
   onUpgrade?: () => void;
@@ -167,6 +168,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
             liveChapters={props.chapters}
             liveGenre={props.genre}
             onAddDisclosureChapter={props.onAddDisclosureChapter}
+            onExport={props.onExport}
           />
         </TabsContent>
       </Tabs>

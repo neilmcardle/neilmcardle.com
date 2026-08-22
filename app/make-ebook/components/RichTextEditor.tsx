@@ -15,6 +15,8 @@ import Link from "next/link";
 import Image from "next/image";
 import DOMPurify from "dompurify";
 import { useTheme } from "../../../lib/contexts/ThemeContext";
+import EditorContextMenu, { ContextMenuGroup } from "./EditorContextMenu";
+import { useIsMac } from "./marketing/sections-v2/PlatformKey";
 
 interface RichTextEditorProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -38,6 +40,7 @@ interface RichTextEditorProps extends Omit<
     selectedText: string;
     range: Range;
     rect: DOMRect;
+    instruction?: string;
   }) => void;
 
   onComposeRequest?: (args: { range: Range; rect: DOMRect }) => void;
@@ -154,6 +157,14 @@ export default function RichTextEditor({
   const [showEndnoteModal, setShowEndnoteModal] = useState(false);
   const [endnoteContent, setEndnoteContent] = useState("");
   const savedCursorPosition = useRef<Range | null>(null);
+
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    selectedText: string;
+    range: Range;
+    rect: DOMRect;
+  } | null>(null);
 
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -657,6 +668,259 @@ export default function RichTextEditor({
 
   const toolbarMouseDown = (e: MouseEvent) => {
     e.preventDefault();
+  };
+
+  const isMac = useIsMac();
+  const modKey = isMac ? "\u2318" : "Ctrl+";
+
+  const handleContextMenu = (e: MouseEvent<HTMLDivElement>) => {
+    if (disabled) return;
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      selectedText: sel.isCollapsed ? "" : sel.toString().trim(),
+      range: range.cloneRange(),
+      rect: range.getBoundingClientRect(),
+    });
+  };
+
+  const buildContextGroups = (): ContextMenuGroup[] => {
+    if (!contextMenu) return [];
+    const { selectedText, range, rect } = contextMenu;
+    const hasSelection = selectedText.length > 0;
+
+    const sparkle = (
+      <svg
+        className="w-3.5 h-3.5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="m12 3 2 5 5 2-5 2-2 5-2-5-5-2 5-2z" />
+      </svg>
+    );
+
+    const ai: ContextMenuGroup["items"] = [];
+    if (hasSelection && onInlineEditRequest) {
+      ai.push({
+        id: "rewrite",
+        label: "Rewrite",
+        accent: true,
+        icon: sparkle,
+        onSelect: () =>
+          onInlineEditRequest({
+            selectedText,
+            range,
+            rect,
+            instruction: "Rewrite this passage.",
+          }),
+      });
+      ai.push({
+        id: "tighten",
+        label: "Tighten",
+        icon: (
+          <svg
+            className="w-3.5 h-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M4 7h16M7 12h10M10 17h4" />
+          </svg>
+        ),
+        onSelect: () =>
+          onInlineEditRequest({
+            selectedText,
+            range,
+            rect,
+            instruction: "Tighten this passage. Same meaning, fewer words.",
+          }),
+      });
+      ai.push({
+        id: "ask",
+        label: "Ask Book Mind",
+        shortcut: `${modKey}K`,
+        icon: (
+          <svg
+            className="w-3.5 h-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 3a6 6 0 0 1 6 6c0 2.4-1.4 3.6-2 4.8V16H8v-2.2c-.6-1.2-2-2.4-2-4.8a6 6 0 0 1 6-6z" />
+            <path d="M9 20h6" />
+          </svg>
+        ),
+        onSelect: () => onInlineEditRequest({ selectedText, range, rect }),
+      });
+    }
+    if (!hasSelection && onComposeRequest) {
+      ai.push({
+        id: "continue",
+        label: "Continue writing",
+        accent: true,
+        shortcut: `${modKey}K`,
+        icon: sparkle,
+        onSelect: () => onComposeRequest({ range, rect }),
+      });
+    }
+
+    const format: ContextMenuGroup["items"] = hasSelection
+      ? [
+          {
+            id: "bold",
+            label: "Bold",
+            shortcut: `${modKey}B`,
+            icon: (
+              <span className="w-3.5 text-center text-[12px] font-bold leading-none">
+                B
+              </span>
+            ),
+            onSelect: () => applyInlineOrAlign("bold"),
+          },
+          {
+            id: "italic",
+            label: "Italic",
+            shortcut: `${modKey}I`,
+            icon: (
+              <span className="w-3.5 text-center text-[12px] font-bold italic leading-none">
+                I
+              </span>
+            ),
+            onSelect: () => applyInlineOrAlign("italic"),
+          },
+        ]
+      : [];
+
+    const insert: ContextMenuGroup["items"] = [];
+    if (hasSelection && onCreateEndnote) {
+      insert.push({
+        id: "endnote",
+        label: "Add endnote",
+        icon: (
+          <svg
+            className="w-3.5 h-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M4 6h16M4 11h16M4 16h9" />
+            <circle cx="18" cy="17" r="3" />
+          </svg>
+        ),
+        onSelect: () => handleEndnoteClick(),
+      });
+    }
+    if (!hasSelection) {
+      insert.push({
+        id: "image",
+        label: "Insert image",
+        icon: (
+          <svg
+            className="w-3.5 h-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <circle cx="8.5" cy="10" r="1.5" />
+            <path d="m21 16-5-5-6 6" />
+          </svg>
+        ),
+        onSelect: () => handleImageButtonClick(),
+      });
+      insert.push({
+        id: "anchor",
+        label: "Insert anchor",
+        icon: (
+          <svg
+            className="w-3.5 h-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="5" r="2" />
+            <path d="M12 7v14M5 13a7 7 0 0 0 14 0" />
+          </svg>
+        ),
+        onSelect: () => handleAnchorClick(),
+      });
+    }
+
+    const clipboard: ContextMenuGroup["items"] = hasSelection
+      ? [
+          {
+            id: "copy",
+            label: "Copy",
+            shortcut: `${modKey}C`,
+            icon: (
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="9" y="9" width="12" height="12" rx="2" />
+                <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+              </svg>
+            ),
+            onSelect: () => document.execCommand("copy"),
+          },
+          {
+            id: "cut",
+            label: "Cut",
+            shortcut: `${modKey}X`,
+            icon: (
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="18" cy="18" r="3" />
+                <path d="M8.6 15.4 18 4M15.4 15.4 6 4" />
+              </svg>
+            ),
+            onSelect: () => document.execCommand("cut"),
+          },
+        ]
+      : [];
+
+    return [
+      { id: "ai", items: ai },
+      { id: "format", items: format },
+      { id: "insert", items: insert },
+      { id: "clipboard", items: clipboard },
+    ];
   };
 
   const handleImageButtonClick = () => {
@@ -1638,6 +1902,7 @@ export default function RichTextEditor({
           }}
           contentEditable={!disabled}
           suppressContentEditableWarning
+          onContextMenu={handleContextMenu}
           onKeyDown={(e) => {
             if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
               const sel = window.getSelection();
@@ -2023,6 +2288,15 @@ export default function RichTextEditor({
             </div>
           </div>
         </div>
+      )}
+
+      {contextMenu && (
+        <EditorContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          groups={buildContextGroups()}
+          onClose={() => setContextMenu(null)}
+        />
       )}
     </div>
   );
