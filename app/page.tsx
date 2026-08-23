@@ -188,6 +188,15 @@ export default function Homepage() {
                 external
               />
               <ProductFeature
+                tileKey="coverly"
+                category="Product · Research tool · Designed and built solo"
+                name="Coverly"
+                description="Comp research for book cover designers. Thousands of covers searchable by design attributes rather than genre, with boards and PDF comp-deck export. Free, with email sign-up."
+                href="/coverly"
+                linkLabel="View project"
+                reverse
+              />
+              <ProductFeature
                 tileKey="doodlewire"
                 category="Product · iOS · Designed and built solo"
                 name="DoodleWire"
@@ -195,7 +204,6 @@ export default function Homepage() {
                 href="/doodlewire"
                 linkLabel="View project"
                 appStoreUrl="https://apps.apple.com/us/app/doodlewire/id6771274835"
-                reverse
               />
             </div>
 

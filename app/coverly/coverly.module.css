@@ -1,0 +1,46 @@
+/* Marquee for the Coverly hero, ported from the Coverly app's own landing.
+   Kept in a CSS module rather than globals.css so it can't collide with
+   unrelated work in that file (vector-paint sets the same precedent). */
+
+.field {
+  transform: translate(-50%, -50%) rotate(-16deg) scale(1.55);
+}
+
+.col {
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+/* Columns hold three identical copies; translating exactly one copy
+   (-33.333%) loops seamlessly and keeps the strip covered at all times. */
+@keyframes marqueeUp {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-33.333%);
+  }
+}
+
+@keyframes marqueeDown {
+  from {
+    transform: translateY(-33.333%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.up {
+  animation-name: marqueeUp;
+}
+.down {
+  animation-name: marqueeDown;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .col {
+    animation: none !important;
+  }
+}
