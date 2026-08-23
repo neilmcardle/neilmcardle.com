@@ -70,3 +70,16 @@ describe("section titles", () => {
     expect(result.sections[0].title).toBe("What's a component?");
   });
 });
+
+describe("slug handling", () => {
+  it("refuses to read outside the content directory", async () => {
+    await expect(loadModule("../../package")).rejects.toThrow();
+    await expect(loadModule("..%2F..%2Fpackage")).rejects.toThrow();
+    await expect(loadModule("/etc/passwd")).rejects.toThrow();
+  });
+
+  it("still loads real slugs", async () => {
+    const result = await loadModule("m8-react-fundamentals");
+    expect(result.meta.module).toBe(9);
+  });
+});

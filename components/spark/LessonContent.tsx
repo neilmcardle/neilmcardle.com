@@ -233,6 +233,8 @@ function parseBlocks(source: string): Block[] {
   return blocks;
 }
 
+const SAFE_HREF = /^(?:https?:\/\/|mailto:|[./#])/i;
+
 const INLINE =
   /(`[^`]+`)|(\*\*[^*]+\*\*)|(\[[^\]]+\]\([^)]+\))|(\*[^*\s][^*]*\*)|(_[^_\s][^_]*_)/g;
 
@@ -264,7 +266,7 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
       );
     } else if (token.startsWith("[")) {
       const linkMatch = token.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-      if (linkMatch) {
+      if (linkMatch && SAFE_HREF.test(linkMatch[2])) {
         const external = /^https?:\/\//.test(linkMatch[2]);
         nodes.push(
           <a

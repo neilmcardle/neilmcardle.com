@@ -22,7 +22,16 @@ export default function SparkPage() {
             textTransform: "uppercase",
           }}
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
           <span>Neil McArdle</span>
@@ -68,14 +77,21 @@ export default function SparkPage() {
           designers, by a designer, so they can build for themselves.
         </p>
 
-        <div className="space-y-5 text-white/70 max-w-xl mb-12" style={{ fontFamily: "var(--font-inter)", fontSize: "0.9375rem", lineHeight: 1.7 }}>
+        <div
+          className="space-y-5 text-white/70 max-w-xl mb-12"
+          style={{
+            fontFamily: "var(--font-inter)",
+            fontSize: "0.9375rem",
+            lineHeight: 1.7,
+          }}
+        >
           <p>
-            Most designers can read HTML, CSS, and a bit of JavaScript. They
-            can prompt their way to a working app. What they cannot do is sit
-            down cold and build from scratch. Spark fixes that.
+            Most designers can read HTML, CSS, and a bit of JavaScript. They can
+            prompt their way to a working app. What they cannot do is sit down
+            cold and build from scratch. Spark fixes that.
           </p>
           <p>
-            Fourteen modules, fundamentals up. From how a computer executes
+            Nineteen modules, fundamentals up. From how a computer executes
             code, to a full-stack capstone shipped without AI. Built in public,
             evening by evening, on the very platform learners learn on.
           </p>
@@ -104,7 +120,8 @@ export default function SparkPage() {
         >
           + Building in public
         </div>
-        <p className="text-white/70 mb-2 max-w-xl"
+        <p
+          className="text-white/70 mb-2 max-w-xl"
           style={{
             fontFamily: "var(--font-playfair)",
             fontSize: "0.9375rem",
@@ -113,7 +130,15 @@ export default function SparkPage() {
             fontStyle: "normal",
           }}
         >
-          Building Spark in public, evening by evening. <a href="https://x.com/BetterNeil" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">Follow along on X →</a>
+          Building Spark in public, evening by evening.{" "}
+          <a
+            href="https://x.com/BetterNeil"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white hover:underline"
+          >
+            Follow along on X →
+          </a>
         </p>
       </div>
     </div>

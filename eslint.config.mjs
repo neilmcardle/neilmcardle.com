@@ -5,6 +5,7 @@ const config = [
   {
     ignores: [
       ".next/**",
+      ".claude/**",
       "out/**",
       "build/**",
       "**/dist/**",

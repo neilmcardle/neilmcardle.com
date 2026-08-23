@@ -81,7 +81,7 @@
     "drizzle-kit": "^0.18.1",
     "drizzle-orm": "^0.45.2",
     "embla-carousel-react": "8.5.1",
-    "epubjs": "^0.4.2",
+    "epubjs": "^0.3.93",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.38.0",
     "geist": "^1.7.2",

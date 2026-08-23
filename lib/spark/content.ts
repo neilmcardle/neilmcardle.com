@@ -37,7 +37,13 @@ export function moduleNumberFromSlug(slug: string): number {
   return match ? parseInt(match[1], 10) + 1 : 0;
 }
 
+const SLUG = /^[a-z0-9][a-z0-9-]*$/;
+
 export async function loadModule(slug: string): Promise<LoadModuleResult> {
+  if (!SLUG.test(slug)) {
+    throw new Error(`Module not found: ${slug}`);
+  }
+
   const modulePath = path.join(
     process.cwd(),
     "content",
