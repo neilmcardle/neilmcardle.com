@@ -1,16 +1,13 @@
 "use client";
 
-// Pre-flight check at export time. Pro users see the KDP checks as advisory
-// information; export is never blocked, only informed. Free users see a
-// compact "skipped" strip with an upgrade pitch and can still proceed.
-// Fires `preflight_viewed` with source='export', `preflight_blocks_present`
-// when blocking-level issues are detected at export time, and
-// `upgrade_clicked` from the Free upgrade CTA.
-
 import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { track } from "@vercel/analytics";
-import { runPreflightChecks, PreflightInput, CheckResult } from "../utils/preflightChecks";
+import {
+  runPreflightChecks,
+  PreflightInput,
+  CheckResult,
+} from "../utils/preflightChecks";
 
 export type ExportFormat = "epub" | "pdf" | "docx";
 
@@ -44,7 +41,11 @@ export default function PreflightExportDialog({
 
   useEffect(() => {
     if (!open) return;
-    track("preflight_viewed", { source: "export", tier: isPro ? "pro" : "free", format });
+    track("preflight_viewed", {
+      source: "export",
+      tier: isPro ? "pro" : "free",
+      format,
+    });
     if (isPro && blocks.length > 0) {
       track("preflight_blocks_present", { format, blockCount: blocks.length });
     }
@@ -66,7 +67,9 @@ export default function PreflightExportDialog({
   const dialog = (
     <div
       className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         className="bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden border border-gray-200 dark:border-[#2f2f2f] flex flex-col"
@@ -81,8 +84,18 @@ export default function PreflightExportDialog({
             className="p-2 text-gray-500 hover:text-gray-900 dark:text-[#a3a3a3] dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors -mr-2"
             aria-label="Close"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -113,7 +126,13 @@ export default function PreflightExportDialog({
 }
 
 function ProBody({
-  checks, blocks, warns, allClear, formatLabel, onDownload, onClose,
+  checks,
+  blocks,
+  warns,
+  allClear,
+  formatLabel,
+  onDownload,
+  onClose,
 }: {
   checks: CheckResult[];
   blocks: CheckResult[];
@@ -123,7 +142,6 @@ function ProBody({
   onDownload: () => void;
   onClose: () => void;
 }) {
-  // Export is never blocked. The checks inform; the author decides.
   let buttonLabel = `Download ${formatLabel}`;
   if (blocks.length > 0) {
     buttonLabel = `Download anyway (${blocks.length} ${blocks.length === 1 ? "issue" : "issues"})`;
@@ -139,7 +157,7 @@ function ProBody({
         </p>
 
         <ul className="space-y-2.5">
-          {checks.map(check => (
+          {checks.map((check) => (
             <li key={check.id} className="flex items-start gap-2.5">
               <StatusDot status={check.status} />
               <div className="flex-1 min-w-0">
@@ -157,7 +175,9 @@ function ProBody({
         {blocks.length > 0 && (
           <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40">
             <p className="text-xs font-medium text-red-700 dark:text-red-400">
-              {blocks.length} likely {blocks.length === 1 ? "issue" : "issues"} for Amazon KDP. You can still export, but the book may be rejected or delisted until fixed.
+              {blocks.length} likely {blocks.length === 1 ? "issue" : "issues"}{" "}
+              for Amazon KDP. You can still export, but the book may be rejected
+              or delisted until fixed.
             </p>
           </div>
         )}
@@ -165,7 +185,9 @@ function ProBody({
         {allClear && warns.length > 0 && (
           <div className="p-3 rounded-xl bg-gray-50 dark:bg-[#252525] border border-gray-200 dark:border-[#3a3a3a]">
             <p className="text-xs text-gray-600 dark:text-[#a3a3a3]">
-              {warns.length} {warns.length === 1 ? "recommendation" : "recommendations"} worth addressing before publishing.
+              {warns.length}{" "}
+              {warns.length === 1 ? "recommendation" : "recommendations"} worth
+              addressing before publishing.
             </p>
           </div>
         )}
@@ -187,8 +209,11 @@ function ProBody({
           Cancel
         </button>
         <button
-          onClick={() => { onDownload(); onClose(); }}
-          className="px-5 py-2.5 text-sm font-semibold bg-action-primary-500 dark:bg-action-primary-dark text-white dark:text-gray-900 rounded-full hover:bg-action-primary-600 dark:hover:bg-orange-400 transition-colors"
+          onClick={() => {
+            onDownload();
+            onClose();
+          }}
+          className="px-5 py-2.5 text-sm font-semibold bg-action-primary-500 dark:bg-action-primary-dark text-white rounded-full hover:bg-action-primary-600 dark:hover:bg-orange-400 transition-colors"
         >
           {buttonLabel}
         </button>
@@ -198,7 +223,10 @@ function ProBody({
 }
 
 function FreeBody({
-  formatLabel, onDownload, onUpgrade, onClose,
+  formatLabel,
+  onDownload,
+  onUpgrade,
+  onClose,
 }: {
   formatLabel: string;
   onDownload: () => void;
@@ -209,15 +237,27 @@ function FreeBody({
     <>
       <div className="px-6 py-5 space-y-4">
         <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-[#252525] border border-gray-200 dark:border-[#3a3a3a]">
-          <svg className="w-5 h-5 text-gray-400 dark:text-[#737373] flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          <svg
+            className="w-5 h-5 text-gray-400 dark:text-[#737373] flex-shrink-0 mt-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.8}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
           </svg>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2 text-balance">
               Pre-flight check skipped
             </p>
             <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed text-pretty">
-              Amazon delists books that fail KDP requirements. Pro shows a pre-flight check for word count, title, and metadata before you export. You can still export without it.
+              Amazon delists books that fail KDP requirements. Pro shows a
+              pre-flight check for word count, title, and metadata before you
+              export. You can still export without it.
             </p>
           </div>
         </div>
@@ -225,14 +265,21 @@ function FreeBody({
 
       <div className="px-6 py-4 border-t border-gray-200 dark:border-[#2f2f2f] flex items-center justify-between gap-3">
         <button
-          onClick={() => { onDownload(); onClose(); }}
+          onClick={() => {
+            onDownload();
+            onClose();
+          }}
           className="text-sm font-medium text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white transition-colors"
         >
           Download {formatLabel} anyway
         </button>
         <button
-          onClick={() => { track("upgrade_clicked", { source: "preflight_export" }); onUpgrade(); onClose(); }}
-          className="px-5 py-2.5 text-sm font-semibold bg-action-primary-500 dark:bg-action-primary-dark text-white dark:text-gray-900 rounded-full hover:bg-action-primary-600 dark:hover:bg-orange-400 transition-colors"
+          onClick={() => {
+            track("upgrade_clicked", { source: "preflight_export" });
+            onUpgrade();
+            onClose();
+          }}
+          className="px-5 py-2.5 text-sm font-semibold bg-action-primary-500 dark:bg-action-primary-dark text-white rounded-full hover:bg-action-primary-600 dark:hover:bg-orange-400 transition-colors"
         >
           Upgrade to Pro
         </button>
@@ -242,10 +289,11 @@ function FreeBody({
 }
 
 function StatusDot({ status }: { status: "pass" | "warn" | "block" }) {
-  const colors: Record<typeof status, string> = {
-    pass: "bg-emerald-500",
-    warn: "bg-amber-500",
-    block: "bg-red-500",
-  };
-  return <span className={`mt-2 w-2 h-2 rounded-full flex-shrink-0 ${colors[status]}`} />;
+  const tone =
+    status === "warn"
+      ? "bg-amber-500"
+      : status === "block"
+        ? "bg-red-500"
+        : "bg-emerald-500";
+  return <span className={`mt-2 w-2 h-2 rounded-full flex-shrink-0 ${tone}`} />;
 }

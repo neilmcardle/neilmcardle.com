@@ -81,7 +81,7 @@ export default function EditorContextMenu({
     <div
       ref={ref}
       role="menu"
-      className="fixed z-[300] p-1.5 rounded-[10px] bg-[#1c1c1c] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.32)] animate-in fade-in zoom-in-95 duration-100"
+      className="me-rise-in fixed z-[300] p-1.5 rounded-[10px] bg-[#1c1c1c] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.32)]"
       style={{ top: pos.top, left: pos.left, width: MENU_WIDTH }}
       onContextMenu={(e) => e.preventDefault()}
     >

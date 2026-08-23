@@ -2099,13 +2099,7 @@ html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
   animation: foil-glint-sweep 1.6s cubic-bezier(0.4, 0, 0.3, 1) both;
 }
 
-/* ── Spark ───────────────────────────────────────────────────────────────────
-   The course surface has its own palette. Gold is the portfolio accent from
-   tailwind.config.ts, reused here so the lesson reader reads as the same
-   product as the black /spark landing page rather than default Tailwind blue.
-   Not wired to `dark:` on purpose: the chrome is always dark and the reading
-   column is always paper, regardless of the user's theme preference.
-─────────────────────────────────────────────────────────────────────────── */
+/* ── Spark ───────────────────────────────────────────────────────────────── */
 :root {
   --spark-ink: #0a0a0a;
   --spark-paper: #faf9f5;
@@ -2124,10 +2118,6 @@ html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
   --spark-sage: #a3b899;
   --spark-ease: cubic-bezier(0.23, 1, 0.32, 1);
 
-  /* A composed three-layer shadow standing in for a 1px border. Reads as an
-     edge but keeps depth, and because it is transparent it sits correctly on
-     any light background rather than only the one it was picked against.
-     Light surfaces only: black at these alphas is invisible on #0a0a0a. */
   --spark-shadow-border:
     0px 0px 0px 1px rgba(0, 0, 0, 0.06), 0px 1px 2px -1px rgba(0, 0, 0, 0.06),
     0px 2px 4px 0px rgba(0, 0, 0, 0.04);
@@ -2193,9 +2183,6 @@ button.spark-card:hover,
   text-decoration-color: currentColor;
 }
 
-/* Semantic code highlighting. Keywords recede, the identifiers the lesson is
-   actually about advance in gold. A generic syntax theme cannot do this
-   because it does not know what the section is teaching. */
 .spark-mono,
 .spark-code,
 .spark-code code,
@@ -2259,9 +2246,6 @@ button.spark-card:hover,
   box-shadow: inset 2px 0 0 var(--spark-gold);
 }
 
-/* One idea at a time without taking scrolling away. Sections that are not in
-   focus drop back; blur is removed under reduced motion because it is a
-   vestibular trigger where opacity is not. */
 .spark-section {
   transition:
     opacity 420ms var(--spark-ease),
@@ -2341,9 +2325,6 @@ button.spark-card:hover,
   animation: spark-glare 3.2s ease-in-out infinite;
 }
 
-/* Users who ask for reduced motion or higher contrast get the plain document:
-   no blur and no dimming. The focus effect is an enhancement, never the only
-   way to read a section. */
 @media (prefers-reduced-motion: reduce), (prefers-contrast: more) {
   .spark-section[data-focused="false"] {
     opacity: 1;
@@ -2358,4 +2339,103 @@ button.spark-card:hover,
   .spark-glare {
     animation: none;
   }
+}
+
+:root {
+  --me-dur-fast: 120ms;
+  --me-dur: 200ms;
+  --me-dur-slow: 300ms;
+  --me-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --me-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes me-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes me-chapter-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes me-tick-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes me-tick-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes me-ring-out {
+  from {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+@keyframes me-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.12);
+  }
+}
+
+.me-rise-in {
+  animation: me-rise-in var(--me-dur) var(--me-ease-out) both;
+}
+
+.me-chapter-in {
+  animation: me-chapter-in var(--me-dur-slow) var(--me-ease-out) both;
+}
+
+.me-tick-pop {
+  animation: me-tick-pop 340ms var(--me-ease-out);
+}
+
+.me-tick-draw {
+  stroke-dasharray: 24;
+  animation: me-tick-draw 260ms var(--me-ease-out) both;
+}
+
+.me-ring-out {
+  animation: me-ring-out 520ms var(--me-ease-out) both;
+}
+
+.me-breathe {
+  animation: me-breathe 1.6s ease-in-out infinite;
 }

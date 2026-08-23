@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface Chapter {
   id: string;
@@ -22,6 +22,8 @@ export default function ChapterScrollRail({
 }: ChapterScrollRailProps) {
   const [progress, setProgress] = useState(0);
   const [scrollable, setScrollable] = useState(false);
+  const [scrubbing, setScrubbing] = useState(false);
+  const idleTimer = useRef<number | null>(null);
 
   useEffect(() => {
     setProgress(0);
@@ -45,15 +47,23 @@ export default function ChapterScrollRail({
       setProgress(Math.min(1, Math.max(0, el.scrollTop / range)));
     };
 
+    const onScroll = () => {
+      read();
+      setScrubbing(true);
+      if (idleTimer.current) window.clearTimeout(idleTimer.current);
+      idleTimer.current = window.setTimeout(() => setScrubbing(false), 700);
+    };
+
     read();
-    el.addEventListener("scroll", read, { passive: true });
+    el.addEventListener("scroll", onScroll, { passive: true });
     el.addEventListener("input", read);
 
     const observer = new ResizeObserver(read);
     observer.observe(el);
 
     return () => {
-      el.removeEventListener("scroll", read);
+      if (idleTimer.current) window.clearTimeout(idleTimer.current);
+      el.removeEventListener("scroll", onScroll);
       el.removeEventListener("input", read);
       observer.disconnect();
     };
@@ -87,14 +97,14 @@ export default function ChapterScrollRail({
             >
               {isCurrent && (
                 <span
-                  className="block w-full rounded-full bg-gray-900 dark:bg-white"
+                  className="block w-full rounded-full bg-gray-900 dark:bg-white transition-[height,transform] duration-[var(--me-dur)] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
                   style={
-                    scrollable
+                    scrollable && scrubbing
                       ? {
                           height: `${THUMB_RATIO * 100}%`,
                           transform: `translateY(${(progress * (1 - THUMB_RATIO) * 100) / THUMB_RATIO}%)`,
                         }
-                      : { height: "100%" }
+                      : { height: "100%", transform: "translateY(0)" }
                   }
                 />
               )}

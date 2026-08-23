@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import ChapterCompleteToggle from "../ChapterCompleteToggle";
 
 interface SheetChapter {
   id: string;
@@ -127,41 +128,12 @@ export default function ChaptersSheet({
                 }`}
               >
                 {onToggleComplete && (
-                  <button
-                    type="button"
-                    onClick={() => onToggleComplete(i)}
-                    aria-pressed={!!chapter.completed}
-                    aria-label={
-                      chapter.completed
-                        ? "Mark as still in progress"
-                        : "Mark chapter complete"
-                    }
-                    className={`flex items-center justify-center w-11 h-11 -ml-2 flex-shrink-0`}
-                  >
-                    <span
-                      className={`flex items-center justify-center w-5 h-5 rounded-full border ${
-                        chapter.completed
-                          ? isSelected
-                            ? "bg-white dark:bg-gray-900 border-transparent text-gray-900 dark:text-white"
-                            : "bg-gray-900 dark:bg-white border-transparent text-white dark:text-gray-900"
-                          : isSelected
-                            ? "border-white/40 dark:border-gray-400 text-transparent"
-                            : "border-gray-300 dark:border-[#4a4a4a] text-transparent"
-                      }`}
-                    >
-                      <svg
-                        className="w-3 h-3"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="4 12 9 17 20 6" />
-                      </svg>
-                    </span>
-                  </button>
+                  <ChapterCompleteToggle
+                    completed={!!chapter.completed}
+                    selected={isSelected}
+                    onToggle={() => onToggleComplete(i)}
+                    hitArea="touch"
+                  />
                 )}
 
                 <button

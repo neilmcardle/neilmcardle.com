@@ -24,20 +24,22 @@ export default function EPUBReaderModal({
   const [canGoPrev, setCanGoPrev] = useState(false);
   const [canGoNext, setCanGoNext] = useState(true);
   const [isReady, setIsReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen || !epubBlob || !viewerRef.current) return;
 
     setIsReady(false);
-    const urlToRevoke: string | null = null;
+    setError(null);
+
+    let cancelled = false;
 
     const initializeEpub = async () => {
       try {
         const arrayBuffer = await epubBlob.arrayBuffer();
+
         const book = ePub(arrayBuffer);
         bookRef.current = book;
-
-        await book.ready;
 
         const rendition = book.renderTo(viewerRef.current!, {
           width: "100%",
@@ -46,7 +48,16 @@ export default function EPUBReaderModal({
         });
         renditionRef.current = rendition;
 
-        await rendition.display();
+        await Promise.race([
+          rendition.display(),
+          new Promise((_, reject) =>
+            window.setTimeout(
+              () => reject(new Error("The preview took too long to open.")),
+              15000,
+            ),
+          ),
+        ]);
+        if (cancelled) return;
         setIsReady(true);
 
         rendition.on("relocated", (location: any) => {
@@ -55,20 +66,21 @@ export default function EPUBReaderModal({
           setCanGoNext(!location.atEnd);
         });
       } catch (err) {
+        if (cancelled) return;
         console.error("Failed to initialize EPUB:", err);
-        setIsReady(true);
+        setError(
+          err instanceof Error ? err.message : "This EPUB could not be opened.",
+        );
       }
     };
 
     initializeEpub();
 
     return () => {
+      cancelled = true;
       setIsReady(false);
       renditionRef.current?.destroy();
       bookRef.current?.destroy();
-      if (urlToRevoke) {
-        URL.revokeObjectURL(urlToRevoke);
-      }
     };
   }, [isOpen, epubBlob]);
 
@@ -113,9 +125,22 @@ export default function EPUBReaderModal({
       <div className="w-full h-full pt-16 pb-20">
         <div
           ref={viewerRef}
-          className="w-full h-full bg-[#faf9f5] dark:bg-white"
+          className={`w-full h-full bg-[#faf9f5] dark:bg-white ${error ? "hidden" : ""}`}
           style={{ maxWidth: "800px", margin: "0 auto" }}
         />
+        {error && (
+          <div className="flex flex-col items-center justify-center h-full gap-3 px-8 text-center">
+            <p className="text-sm font-medium text-[#141413] dark:text-white">
+              This preview could not be opened.
+            </p>
+            <p className="text-11 text-[#141413]/60 dark:text-[#a3a3a3] max-w-sm">
+              {error}
+            </p>
+            <p className="text-11 text-[#141413]/60 dark:text-[#a3a3a3]">
+              Your download is unaffected. The file itself is fine.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f0eee6]/95 dark:bg-[#1e1e1e]/90 backdrop-blur-sm border-t border-[#e4e4de] dark:border-[#333] flex items-center justify-center gap-4 z-10">
@@ -127,7 +152,11 @@ export default function EPUBReaderModal({
           ← Previous
         </button>
         <div className="text-sm text-[#141413]/60 dark:text-[#a3a3a3]">
-          {isReady ? "Use arrow keys to navigate" : "Loading..."}
+          {error
+            ? "Preview unavailable"
+            : isReady
+              ? "Use arrow keys to navigate"
+              : "Loading..."}
         </div>
         <button
           onClick={handleNextPage}

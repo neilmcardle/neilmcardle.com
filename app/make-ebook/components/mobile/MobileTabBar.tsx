@@ -58,11 +58,7 @@ function Tab({
       type="button"
       onClick={onSelect}
       aria-current={active ? "page" : undefined}
-      className={`flex flex-col items-center justify-center gap-1 h-14 rounded-[10px] transition-colors ${
-        active
-          ? "bg-gray-100 dark:bg-[#262626]"
-          : "active:bg-gray-100 dark:active:bg-[#262626]"
-      }`}
+      className="relative z-10 flex flex-col items-center justify-center gap-1 h-14 rounded-[10px]"
     >
       {tab === "bookmind" ? (
         <BookMindMark
@@ -112,6 +108,8 @@ export default function MobileTabBar({
     { tab: "export", onSelect: onExport },
   ];
 
+  const activeIndex = tabs.findIndex((t) => t.tab === active);
+
   return (
     <nav
       aria-label="Editor sections"
@@ -119,11 +117,22 @@ export default function MobileTabBar({
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div
-        className="grid gap-1 px-2 py-1.5"
+        className="relative grid gap-1 px-2 py-1.5"
         style={{
           gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`,
         }}
       >
+        {activeIndex >= 0 && (
+          <span
+            aria-hidden="true"
+            className="absolute top-1.5 h-14 rounded-[10px] bg-gray-100 dark:bg-[#262626] transition-transform duration-[var(--me-dur-slow)] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
+            style={{
+              left: 8,
+              width: `calc((100% - 16px - ${(tabs.length - 1) * 4}px) / ${tabs.length})`,
+              transform: `translateX(calc(${activeIndex} * (100% + 4px)))`,
+            }}
+          />
+        )}
         {tabs.map(({ tab, onSelect }) => (
           <Tab
             key={tab}

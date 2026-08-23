@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { SaveIcon, DownloadIcon } from "./icons";
+import { SaveIcon } from "./icons";
 import AutoSaveIndicator from "./AutoSaveIndicator";
 import ChapterNavDropdown from "./ChapterNavDropdown";
 import ModeMenu from "./ModeMenu";
@@ -98,7 +98,7 @@ export default function EditorHeader({
         {isDirty && !isSaving && (
           <button
             onClick={onSaveNow}
-            className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[#1c1c1c] border border-gray-200 dark:border-[#333] hover:bg-gray-200 dark:hover:bg-[#2e2e2e] transition-colors text-xs font-medium text-gray-700 dark:text-[#d4d4d4]"
+            className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-transparent hover:bg-gray-200 dark:hover:bg-[#333] transition-colors duration-[var(--me-dur)] text-125 font-medium text-gray-700 dark:text-[#d4d4d4]"
             title={`Save now (${isMac ? "⌘S" : "Ctrl+S"})`}
           >
             <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
@@ -130,7 +130,7 @@ export default function EditorHeader({
             <button
               title="More actions"
               aria-label="More actions"
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-[#1c1c1c] border border-gray-200 dark:border-[#333] text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-200 dark:hover:bg-[#2e2e2e] transition-colors"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-transparent text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-200 dark:hover:bg-[#333] transition-colors duration-[var(--me-dur)]"
             >
               <svg
                 className="w-5 h-5"
@@ -210,7 +210,7 @@ export default function EditorHeader({
           <DropdownMenuTrigger asChild>
             <button
               data-tour="export"
-              className="flex items-center gap-2 h-10 px-5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors shadow-sm"
+              className="flex items-center gap-2 h-10 px-5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-13 font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors duration-[var(--me-dur)] shadow-sm"
               title="Export book"
             >
               <svg
@@ -240,7 +240,19 @@ export default function EditorHeader({
               onClick={onExportEPUB}
               className="flex items-center gap-2 cursor-pointer"
             >
-              <DownloadIcon className="w-4 h-4" />
+              <svg
+                className="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-[#737373]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.7}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6" />
+              </svg>
               <div>
                 <div className="text-sm font-medium">EPUB</div>
                 <div className="text-xs text-gray-500">
@@ -252,7 +264,19 @@ export default function EditorHeader({
               onClick={onExportPDF}
               className="flex items-center gap-2 cursor-pointer"
             >
-              <DownloadIcon className="w-4 h-4" />
+              <svg
+                className="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-[#737373]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.7}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6" />
+              </svg>
               <div>
                 <div className="text-sm font-medium">PDF</div>
                 <div className="text-xs text-gray-500">Print & sharing</div>
@@ -262,7 +286,19 @@ export default function EditorHeader({
               onClick={onExportDocx}
               className="flex items-center gap-2 cursor-pointer"
             >
-              <DownloadIcon className="w-4 h-4" />
+              <svg
+                className="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-[#737373]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.7}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6" />
+              </svg>
               <div>
                 <div className="text-sm font-medium">Word</div>
                 <div className="text-xs text-gray-500">Editors & agents</div>

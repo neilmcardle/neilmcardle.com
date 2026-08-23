@@ -95,7 +95,10 @@ export default function EditorCanvas({
 
   return (
     <>
-      <div className="flex-shrink-0 px-6 pt-6 pb-4 bg-white dark:bg-[#1e1e1e] dark:border-b dark:border-[#2f2f2f]">
+      <div
+        key={chapter?.id ?? selectedChapter}
+        className="me-chapter-in flex-shrink-0 px-6 pt-6 pb-4 bg-white dark:bg-[#1e1e1e] dark:border-b dark:border-[#2f2f2f]"
+      >
         <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-gray-400 dark:text-white/30 mb-2 select-none">
           {sectionLabel}
         </div>

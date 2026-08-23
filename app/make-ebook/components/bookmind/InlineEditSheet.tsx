@@ -46,7 +46,7 @@ export default function InlineEditSheet({
     <div
       role="dialog"
       aria-label="Rewrite with Book Mind"
-      className="fixed left-3 right-3 z-[1000] flex flex-col p-1.5 rounded-[12px] bg-[#101010] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
+      className="me-rise-in fixed left-3 right-3 z-[1000] flex flex-col p-1.5 rounded-[12px] bg-[#101010] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
       style={{
         bottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
         maxHeight: "70vh",
@@ -128,7 +128,7 @@ export default function InlineEditSheet({
           {error && <p className="py-2 text-11 text-red-400">{error}</p>}
 
           {isLoading && !hasAnyResult && (
-            <p className="py-3 text-11 text-white/45">Rewriting…</p>
+            <p className="me-breathe py-3 text-11 text-white/45">Rewriting…</p>
           )}
 
           {activeResult && (

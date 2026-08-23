@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { PlusIcon } from "../icons";
 import BinIcon from "../icons/BinIcon";
 import EmptyStateHint from "../EmptyStateHint";
+import ChapterCompleteToggle from "../ChapterCompleteToggle";
 
 interface Chapter {
   id: string;
@@ -332,44 +333,11 @@ export default function ChaptersPanel({
                 >
                   <HandleDragIcon isSelected={isSelected} />
                   {handleToggleChapterComplete && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleChapterComplete(i);
-                      }}
-                      aria-pressed={!!ch.completed}
-                      aria-label={
-                        ch.completed
-                          ? "Mark as still in progress"
-                          : "Mark chapter complete"
-                      }
-                      title={
-                        ch.completed
-                          ? "Mark as still in progress"
-                          : "Mark chapter complete"
-                      }
-                      className={`flex items-center justify-center w-5 h-5 rounded-full border flex-shrink-0 transition-colors ${
-                        ch.completed
-                          ? isSelected
-                            ? "bg-white dark:bg-gray-900 border-transparent text-gray-900 dark:text-white"
-                            : "bg-gray-900 dark:bg-white border-transparent text-white dark:text-gray-900"
-                          : isSelected
-                            ? "border-white/40 dark:border-gray-400 text-transparent hover:border-white/70 dark:hover:border-gray-600"
-                            : "border-gray-300 dark:border-[#4a4a4a] text-transparent hover:border-gray-400 dark:hover:border-[#6a6a6a]"
-                      }`}
-                    >
-                      <svg
-                        className="w-3 h-3"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="4 12 9 17 20 6" />
-                      </svg>
-                    </button>
+                    <ChapterCompleteToggle
+                      completed={!!ch.completed}
+                      selected={isSelected}
+                      onToggle={() => handleToggleChapterComplete(i)}
+                    />
                   )}
                   <div className="flex flex-col flex-1 min-w-0 gap-2">
                     <span

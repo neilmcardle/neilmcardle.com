@@ -3249,7 +3249,10 @@ function MakeEbookPage() {
                     onSelectChapter={handleSelectChapter}
                   />
 
-                  <div className="flex-shrink-0 bg-white dark:bg-[#1e1e1e] border-none pb-1 px-2 transition-all duration-200">
+                  <div
+                    key={chapters[selectedChapter]?.id ?? selectedChapter}
+                    className="me-chapter-in flex-shrink-0 bg-white dark:bg-[#1e1e1e] border-none pb-1 px-2"
+                  >
                     <div className="mt-0">
                       <div className="flex items-center gap-0 py-1">
                         <img
