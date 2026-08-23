@@ -2374,7 +2374,7 @@ function MakeEbookPage() {
                               </div>
                               <div className="flex items-center gap-1">
                                 <button
-                                  className="lg:hidden opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                                  className="lg:hidden me-reveal p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleSelectChapter(i);
@@ -2396,7 +2396,7 @@ function MakeEbookPage() {
                                 </button>
 
                                 <button
-                                  className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? "opacity-100 text-gray-600 dark:text-gray-300" : "opacity-0 group-hover:opacity-100 text-gray-400 dark:text-gray-500"}`}
+                                  className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? "opacity-100 text-gray-600 dark:text-gray-300" : "me-reveal text-gray-400 dark:text-gray-500"}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleToggleChapterLock(i);
@@ -2518,7 +2518,7 @@ function MakeEbookPage() {
                                     </div>
                                   ) : (
                                     <button
-                                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded text-gray-600 dark:text-gray-400"
+                                      className="me-reveal p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded text-gray-600 dark:text-gray-400"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setPendingDeleteIndex(i);
@@ -2745,7 +2745,7 @@ function MakeEbookPage() {
                         </div>
 
                         <button
-                          className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? "opacity-100 text-gray-600 dark:text-gray-300" : "opacity-0 group-hover:opacity-100 text-gray-400 dark:text-gray-500"}`}
+                          className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? "opacity-100 text-gray-600 dark:text-gray-300" : "me-reveal text-gray-400 dark:text-gray-500"}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleToggleChapterLock(i);
@@ -2865,7 +2865,7 @@ function MakeEbookPage() {
                             </div>
                           ) : (
                             <button
-                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded text-gray-600 dark:text-gray-400"
+                              className="me-reveal p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded text-gray-600 dark:text-gray-400"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setPendingDeleteIndex(i);

@@ -455,7 +455,7 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                         </p>
                       )}
                     </div>
-                    <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-1">
+                    <div className="flex-shrink-0 flex items-center gap-1 me-reveal mt-1">
                       <button
                         onClick={() =>
                           setEditingChar({
@@ -627,7 +627,7 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                           </p>
                         )}
                       </div>
-                      <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-1">
+                      <div className="flex-shrink-0 flex items-center gap-1 me-reveal mt-1">
                         <button
                           onClick={() =>
                             setEditingLoc({
@@ -741,7 +741,7 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                     removeProfileFact(userId, bookId, fact);
                     bump();
                   }}
-                  className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all mt-1"
+                  className="flex-shrink-0 me-reveal text-gray-400 hover:text-red-500 dark:hover:text-red-400 mt-1"
                 >
                   <svg
                     className="w-3 h-3"
@@ -797,7 +797,7 @@ export default function ProfileTab({ bookId, userId }: ProfileTabProps) {
                     removeProfileRule(userId, bookId, rule);
                     bump();
                   }}
-                  className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all mt-1"
+                  className="flex-shrink-0 me-reveal text-gray-400 hover:text-red-500 dark:hover:text-red-400 mt-1"
                 >
                   <svg
                     className="w-3 h-3"

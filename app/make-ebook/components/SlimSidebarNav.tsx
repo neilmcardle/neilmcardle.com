@@ -1,25 +1,33 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { useAuth } from '@/lib/hooks/useAuth';
-import { useTheme } from '@/lib/contexts/ThemeContext';
-import { useSubscription } from '@/lib/hooks/useSubscription';
-import SubscriptionBadge from './SubscriptionBadge';
-import UpgradeModal from './UpgradeModal';
+import React, { useState } from "react";
+import Image from "next/image";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { useTheme } from "@/lib/contexts/ThemeContext";
+import { useSubscription } from "@/lib/hooks/useSubscription";
+import SubscriptionBadge from "./SubscriptionBadge";
+import UpgradeModal from "./UpgradeModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { LogOut, CreditCard, Sparkles, BookOpen, Moon, Sun, Check } from 'lucide-react';
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  LogOut,
+  CreditCard,
+  Sparkles,
+  BookOpen,
+  Moon,
+  Sun,
+  Check,
+} from "lucide-react";
 
 interface SlimSidebarNavProps {
-  activeView: 'library' | 'book' | 'chapters' | null;
-  onViewChange: (view: 'library' | 'book' | 'chapters' | null) => void;
+  activeView: "library" | "book" | "chapters" | null;
+  onViewChange: (view: "library" | "book" | "chapters" | null) => void;
   libraryCount: number;
   chaptersCount: number;
   isPanelOpen: boolean;
@@ -30,8 +38,13 @@ interface SlimSidebarNavProps {
   hasSyncConflicts?: boolean;
 }
 
-// Tooltip Component
-function Tooltip({ children, text }: { children: React.ReactNode; text: string }) {
+function Tooltip({
+  children,
+  text,
+}: {
+  children: React.ReactNode;
+  text: string;
+}) {
   const [position, setPosition] = React.useState<{ top: number } | null>(null);
   const triggerRef = React.useRef<HTMLDivElement>(null);
 
@@ -47,7 +60,7 @@ function Tooltip({ children, text }: { children: React.ReactNode; text: string }
   };
 
   return (
-    <div 
+    <div
       ref={triggerRef}
       className="group relative"
       onMouseEnter={updatePosition}
@@ -55,8 +68,8 @@ function Tooltip({ children, text }: { children: React.ReactNode; text: string }
     >
       {children}
       {position && (
-        <div 
-          className="fixed left-[80px] px-2 py-1 bg-gray-900 dark:bg-[#2f2f2f] text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999] -translate-y-1/2 group-hover:-translate-y-[calc(50%+10px)] transition-transform"
+        <div
+          className="fixed left-[80px] px-2 py-1 bg-gray-900 dark:bg-[#2f2f2f] text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-[9999] -translate-y-1/2 group-hover:-translate-y-[calc(50%+10px)] transition-[opacity,transform] duration-[var(--me-dur)]"
           style={{ top: `${position.top}px` }}
         >
           {text}
@@ -67,24 +80,20 @@ function Tooltip({ children, text }: { children: React.ReactNode; text: string }
   );
 }
 
-// User Dropdown Component
 function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
   const { user, signOut, loading } = useAuth();
   const { tier, isGrandfathered, stripeCustomerId } = useSubscription();
   const [loggingOut, setLoggingOut] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
-  // Free users get a single Upgrade row in the dropdown — the only place
-  // upgrade messaging should appear in the product per CLAUDE.md policy.
-  // Pro and Lifetime users never see this row.
-  const showUpgradeRow = tier === 'free' && !isGrandfathered;
+  const showUpgradeRow = tier === "free" && !isGrandfathered;
 
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
       await signOut();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       setLoggingOut(false);
     }
@@ -92,20 +101,20 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
 
   const handleOpenBilling = async () => {
     try {
-      const response = await fetch('/api/customer-portal', {
-        method: 'POST',
-        credentials: 'include',
+      const response = await fetch("/api/customer-portal", {
+        method: "POST",
+        credentials: "include",
       });
-      if (!response.ok) throw new Error('Failed to open billing portal');
+      if (!response.ok) throw new Error("Failed to open billing portal");
       const { url } = await response.json();
       if (url) window.location.href = url;
     } catch (err) {
-      console.error('Portal error:', err);
+      console.error("Portal error:", err);
     }
   };
 
-  // Show billing button only for paying Pro users (non-grandfathered).
-  const showBillingButton = tier === 'pro' && !isGrandfathered && stripeCustomerId;
+  const showBillingButton =
+    tier === "pro" && !isGrandfathered && stripeCustomerId;
 
   if (loading) {
     return (
@@ -122,36 +131,54 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
           className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#262626] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
           aria-label="User menu"
         >
-          <img src="/user-icon.svg" alt="user icon" className="w-5 h-5 text-gray-600 dark:text-[#626262] dark:invert" />
+          <img
+            src="/user-icon.svg"
+            alt="user icon"
+            className="w-5 h-5 text-gray-600 dark:text-[#626262] dark:invert"
+          />
         </button>
       </Tooltip>
     );
   }
 
   return (
-    <Tooltip text={user.email || 'User'}>
+    <Tooltip text={user.email || "User"}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
             className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#262626] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
             aria-label="User menu"
           >
-            <img src="/user-icon.svg" alt="user icon" className="w-5 h-5 text-gray-600 dark:text-[#626262] dark:invert" />
+            <img
+              src="/user-icon.svg"
+              alt="user icon"
+              className="w-5 h-5 text-gray-600 dark:text-[#626262] dark:invert"
+            />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 bg-white dark:bg-[#252525]" align="end" sideOffset={8} forceMount>
+        <DropdownMenuContent
+          className="w-56 bg-white dark:bg-[#252525]"
+          align="end"
+          sideOffset={8}
+          forceMount
+        >
           <DropdownMenuLabel className="font-normal pt-2 pb-2">
             <div className="flex flex-col space-y-2">
               <div className="flex items-center">
                 <SubscriptionBadge />
               </div>
-              <p className="text-sm font-medium leading-none truncate">{user?.email || 'user@email.com'}</p>
+              <p className="text-sm font-medium leading-none truncate">
+                {user?.email || "user@email.com"}
+              </p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           {showUpgradeRow && (
             <>
-              <DropdownMenuItem onClick={() => setUpgradeOpen(true)} className="font-medium">
+              <DropdownMenuItem
+                onClick={() => setUpgradeOpen(true)}
+                className="font-medium"
+              >
                 <Sparkles className="mr-2 h-4 w-4" />
                 <span>Upgrade to Pro</span>
               </DropdownMenuItem>
@@ -169,48 +196,91 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
           )}
           {onStartTour && (
             <DropdownMenuItem onClick={onStartTour}>
-              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="mr-2 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.6}
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               <span>Take the tour</span>
             </DropdownMenuItem>
           )}
           <DropdownMenuItem asChild>
-            <a href="https://makeebook.ink/terms" target="_blank" rel="noopener noreferrer">
-              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <a
+              href="https://makeebook.ink/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg
+                className="mr-2 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.6}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
               <span>Terms</span>
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <a href="https://makeebook.ink/privacy" target="_blank" rel="noopener noreferrer">
-              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            <a
+              href="https://makeebook.ink/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg
+                className="mr-2 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.6}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
               </svg>
               <span>Privacy</span>
             </a>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout} disabled={loggingOut} className="pr-2">
+          <DropdownMenuItem
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="pr-2"
+          >
             <LogOut className="mr-2 h-4 w-4" />
             <span>{loggingOut ? "Logging out..." : "Log out"}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {/* Rendered at the Tooltip level so the modal survives the dropdown
-          closing on click — the Upgrade row dismisses the menu, then this
-          modal opens from the same click. */}
-      <UpgradeModal isOpen={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
+
+      <UpgradeModal
+        isOpen={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+      />
     </Tooltip>
   );
 }
 
-// Theme Toggle Button Component
 function ThemeToggleButton() {
   const { theme, toggleTheme } = useTheme();
 
-  const label = theme === 'makeebook' ? 'makeEbook' : theme === 'dark' ? 'Dark' : 'Light';
+  const label =
+    theme === "makeebook" ? "makeEbook" : theme === "dark" ? "Dark" : "Light";
 
   return (
     <Tooltip text={`Theme: ${label}`}>
@@ -220,32 +290,41 @@ function ThemeToggleButton() {
         aria-label={`Theme: ${label}. Click to change.`}
       >
         <div className="text-gray-600 dark:text-[#626262]">
-          {theme === 'makeebook'
-            ? <BookOpen className="w-5 h-5" />
-            : theme === 'dark'
-            ? <Moon className="w-5 h-5" />
-            : <Sun className="w-5 h-5" />}
+          {theme === "makeebook" ? (
+            <BookOpen className="w-5 h-5" />
+          ) : theme === "dark" ? (
+            <Moon className="w-5 h-5" />
+          ) : (
+            <Sun className="w-5 h-5" />
+          )}
         </div>
       </button>
     </Tooltip>
   );
 }
 
-export default function SlimSidebarNav({ activeView, onViewChange, libraryCount, chaptersCount, isPanelOpen, onLogoClick, onStartTour, onBookMindToggle, isBookMindOpen, hasSyncConflicts }: SlimSidebarNavProps) {
-  
-  const handleViewClick = (view: 'library' | 'book' | 'chapters') => {
-    // If clicking the same view and panel is open, close it
+export default function SlimSidebarNav({
+  activeView,
+  onViewChange,
+  libraryCount,
+  chaptersCount,
+  isPanelOpen,
+  onLogoClick,
+  onStartTour,
+  onBookMindToggle,
+  isBookMindOpen,
+  hasSyncConflicts,
+}: SlimSidebarNavProps) {
+  const handleViewClick = (view: "library" | "book" | "chapters") => {
     if (activeView === view && isPanelOpen) {
       onViewChange(null);
     } else {
-      // Otherwise, open panel with this view
       onViewChange(view);
     }
   };
 
   return (
-  <aside className="hidden lg:flex flex-col w-16 bg-gray-50 dark:bg-[#151515] h-screen items-center relative z-50 border-r border-gray-200 dark:border-[#2a2a2a]">
-      {/* Logo at top */}
+    <aside className="hidden lg:flex flex-col w-16 bg-gray-50 dark:bg-[#151515] h-screen items-center relative z-50 border-r border-gray-200 dark:border-[#2a2a2a]">
       <div className="flex-shrink-0 pt-6 pb-6">
         <Tooltip text="makeEBook">
           <button
@@ -265,16 +344,26 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
         </Tooltip>
       </div>
 
-      {/* Navigation Items */}
       <nav className="flex-1 flex flex-col gap-2 w-full px-2 pt-4 overflow-y-auto">
-        {/* Library */}
-        <Tooltip text={hasSyncConflicts ? 'Library — action needed' : 'Library'}>
+        <Tooltip
+          text={hasSyncConflicts ? "Library — action needed" : "Library"}
+        >
           <button
-            onClick={() => handleViewClick('library')}
-            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === 'library' && isPanelOpen ? 'bg-gray-900 dark:bg-white' : 'hover:bg-gray-200 dark:hover:bg-[#2a2a2a]'}`}
-            aria-label={hasSyncConflicts ? 'Library — action needed' : 'Library'}
+            onClick={() => handleViewClick("library")}
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "library" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"}`}
+            aria-label={
+              hasSyncConflicts ? "Library — action needed" : "Library"
+            }
           >
-            <svg className={`w-5 h-5 transition-colors ${activeView === 'library' && isPanelOpen ? 'text-white dark:text-gray-900' : 'text-gray-600 dark:text-[#626262]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              className={`w-5 h-5 transition-colors ${activeView === "library" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[#626262]"}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <rect x="4" y="4" width="3" height="16" rx="0.5" />
               <rect x="10" y="7" width="3" height="13" rx="0.5" />
               <rect x="16" y="5" width="3" height="15" rx="0.5" />
@@ -289,15 +378,22 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           </button>
         </Tooltip>
 
-        {/* Book Details */}
         <Tooltip text="Book">
           <button
             data-tour="book-details"
-            onClick={() => handleViewClick('book')}
-            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === 'book' && isPanelOpen ? 'bg-gray-900 dark:bg-white' : 'hover:bg-gray-200 dark:hover:bg-[#2a2a2a]'}`}
+            onClick={() => handleViewClick("book")}
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "book" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"}`}
             aria-label="Book"
           >
-            <svg className={`w-5 h-5 transition-colors ${activeView === 'book' && isPanelOpen ? 'text-white dark:text-gray-900' : 'text-gray-600 dark:text-[#626262]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              className={`w-5 h-5 transition-colors ${activeView === "book" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[#626262]"}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
               <path d="M8 7h8M8 11h8M8 15h5" />
@@ -305,29 +401,31 @@ export default function SlimSidebarNav({ activeView, onViewChange, libraryCount,
           </button>
         </Tooltip>
 
-        {/* Chapters */}
         <Tooltip text="Chapters">
           <button
             data-tour="chapters"
-            onClick={() => handleViewClick('chapters')}
-            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === 'chapters' && isPanelOpen ? 'bg-gray-900 dark:bg-white' : 'hover:bg-gray-200 dark:hover:bg-[#2a2a2a]'}`}
+            onClick={() => handleViewClick("chapters")}
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "chapters" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"}`}
             aria-label="Chapters"
           >
-            <svg className={`w-5 h-5 transition-colors ${activeView === 'chapters' && isPanelOpen ? 'text-white dark:text-gray-900' : 'text-gray-600 dark:text-[#626262]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              className={`w-5 h-5 transition-colors ${activeView === "chapters" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[#626262]"}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <path d="M14 2v6h6" />
               <path d="M16 13H8M16 17H8M10 9H8" />
             </svg>
           </button>
         </Tooltip>
-
-
-
       </nav>
 
-      {/* Bottom section - Theme Toggle and User */}
       <div className="flex-shrink-0 flex flex-col gap-3 w-full px-2 pb-6 border-t border-gray-200 dark:border-[#2a2a2a] pt-4">
-        {/* User Dropdown */}
         <UserDropdownSlim onStartTour={onStartTour} />
       </div>
     </aside>

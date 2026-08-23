@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { track } from "@vercel/analytics";
 import { useSubscription } from "@/lib/hooks/useSubscription";
-import { Sparkles, Cloud, BookOpen, Clock, X, Check } from "lucide-react";
+import { Sparkles, Cloud, BookOpen, Clock, Check } from "lucide-react";
+import { Modal, ModalHeader, ModalBody } from "./Modal";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -113,188 +113,160 @@ export default function UpgradeModal({
     },
   ];
 
-  const modalContent = (
-    <div
-      className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-      style={{ pointerEvents: "auto" }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
-    >
-      <div
-        className="bg-white dark:bg-[#1e1e1e] rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-[#2f2f2f]"
-        style={{ pointerEvents: "auto" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="sticky top-0 bg-white dark:bg-[#1e1e1e] border-b border-gray-200 dark:border-[#2f2f2f] px-6 py-4 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-            Choose Your Plan
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 text-gray-500 hover:text-gray-700 dark:text-[#a3a3a3] dark:hover:text-[#e5e5e5] rounded-lg hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors -mr-2"
-            aria-label="Close modal"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="p-6 space-y-6">
-          {feature && (
-            <div className="bg-gray-50 dark:bg-[#111] border border-gray-300 dark:border-[#2f2f2f] rounded-lg p-4">
-              <p className="text-sm text-gray-700 dark:text-[#d4d4d4] text-center">
-                <strong>{feature}</strong> is a Pro feature
-              </p>
-            </div>
-          )}
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div
-              onClick={() => setSelectedPlan("monthly")}
-              className={`cursor-pointer rounded-lg border-2 p-6 transition-all ${
-                selectedPlan === "monthly"
-                  ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[#111]"
-                  : "border-gray-200 dark:border-[#2f2f2f] hover:border-gray-400 dark:hover:border-[#3a3a3a]"
-              }`}
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <div
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    selectedPlan === "monthly"
-                      ? "border-gray-900 dark:border-white bg-gray-900 dark:bg-white"
-                      : "border-gray-400 dark:border-[#3a3a3a]"
-                  }`}
-                >
-                  {selectedPlan === "monthly" && (
-                    <Check className="w-3 h-3 text-white dark:text-black" />
-                  )}
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Pro Monthly
-                </h3>
-              </div>
-
-              <div className="mb-4">
-                <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                  $9
-                  <span className="text-lg text-gray-600 dark:text-[#a3a3a3]">
-                    /mo
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-[#a3a3a3] mt-1">
-                  Cancel anytime, no commitment
-                </p>
-              </div>
-            </div>
-
-            <div
-              onClick={() => setSelectedPlan("lifetime")}
-              className={`cursor-pointer rounded-lg border-2 p-6 transition-all relative ${
-                selectedPlan === "lifetime"
-                  ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[#111]"
-                  : "border-gray-200 dark:border-[#2f2f2f] hover:border-gray-400 dark:hover:border-[#3a3a3a]"
-              }`}
-            >
-              <div className="absolute top-3 right-3 bg-gray-900 dark:bg-white text-white dark:text-black text-xs font-semibold px-3 py-1 rounded">
-                BEST VALUE
-              </div>
-
-              <div className="flex items-center gap-2 mb-4">
-                <div
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    selectedPlan === "lifetime"
-                      ? "border-gray-900 dark:border-white bg-gray-900 dark:bg-white"
-                      : "border-gray-400 dark:border-[#3a3a3a]"
-                  }`}
-                >
-                  {selectedPlan === "lifetime" && (
-                    <Check className="w-3 h-3 text-white dark:text-black" />
-                  )}
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Pro Lifetime
-                </h3>
-              </div>
-
-              <div className="mb-4">
-                <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                  $149
-                  <span className="text-lg text-gray-600 dark:text-[#a3a3a3]">
-                    {" "}
-                    once
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-[#a3a3a3] mt-1">
-                  One-time payment, forever access
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-[#2f2f2f]">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
-              Pro includes:
-            </h3>
-
-            <div className="space-y-2">
-              {features.map((f, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#2f2f2f] rounded-lg"
-                >
-                  <f.icon className="w-5 h-5 text-gray-900 dark:text-white mt-1 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
-                      {f.title}
-                    </h4>
-                    <p className="text-xs text-gray-600 dark:text-[#a3a3a3] mt-1">
-                      {f.desc}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-gray-50 dark:bg-[#111] rounded-lg p-4">
-            <p className="text-xs text-gray-600 dark:text-[#a3a3a3]">
-              <strong>Free tier includes:</strong> Unlimited books, EPUB/PDF
-              export, professional typography, offline mode, version history,
-              export history
+  return (
+    <Modal open={isOpen} onClose={onClose} width="lg" label="Choose your plan">
+      <ModalHeader title="Choose your plan" onClose={onClose} />
+      <ModalBody className="space-y-6">
+        {feature && (
+          <div className="bg-gray-50 dark:bg-[#111] border border-gray-300 dark:border-[#2f2f2f] rounded-lg p-4">
+            <p className="text-sm text-gray-700 dark:text-[#d4d4d4] text-center">
+              <strong>{feature}</strong> is a Pro feature
             </p>
           </div>
+        )}
 
-          {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-              <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
-            </div>
-          )}
-
-          <button
-            onClick={() =>
-              handleCheckout(
-                selectedPlan === "monthly" ? "subscription" : "lifetime",
-              )
-            }
-            disabled={checkoutLoading || isLoading}
-            className="w-full py-3.5 bg-action-primary-500 dark:bg-action-primary-dark text-white font-semibold rounded-full transition-all hover:bg-action-primary-600 dark:hover:bg-orange-400 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg uppercase tracking-wide text-sm"
+        <div className="grid md:grid-cols-2 gap-6">
+          <div
+            onClick={() => setSelectedPlan("monthly")}
+            className={`cursor-pointer rounded-lg border-2 p-6 transition-all ${
+              selectedPlan === "monthly"
+                ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[#111]"
+                : "border-gray-200 dark:border-[#2f2f2f] hover:border-gray-400 dark:hover:border-[#3a3a3a]"
+            }`}
           >
-            {checkoutLoading
-              ? "Redirecting..."
-              : selectedPlan === "monthly"
-                ? "Subscribe to Pro - $9/month"
-                : "Buy Lifetime - $149"}
-          </button>
+            <div className="flex items-center gap-2 mb-4">
+              <div
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  selectedPlan === "monthly"
+                    ? "border-gray-900 dark:border-white bg-gray-900 dark:bg-white"
+                    : "border-gray-400 dark:border-[#3a3a3a]"
+                }`}
+              >
+                {selectedPlan === "monthly" && (
+                  <Check className="w-3 h-3 text-white dark:text-black" />
+                )}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Pro Monthly
+              </h3>
+            </div>
 
-          <p className="text-xs text-center text-gray-500 dark:text-[#a3a3a3]">
-            Secure checkout powered by Stripe • 30-day money back guarantee
+            <div className="mb-4">
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                $9
+                <span className="text-lg text-gray-600 dark:text-[#a3a3a3]">
+                  /mo
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-[#a3a3a3] mt-1">
+                Cancel anytime, no commitment
+              </p>
+            </div>
+          </div>
+
+          <div
+            onClick={() => setSelectedPlan("lifetime")}
+            className={`cursor-pointer rounded-lg border-2 p-6 transition-all relative ${
+              selectedPlan === "lifetime"
+                ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[#111]"
+                : "border-gray-200 dark:border-[#2f2f2f] hover:border-gray-400 dark:hover:border-[#3a3a3a]"
+            }`}
+          >
+            <div className="absolute top-3 right-3 bg-gray-900 dark:bg-white text-white dark:text-black text-xs font-semibold px-3 py-1 rounded">
+              BEST VALUE
+            </div>
+
+            <div className="flex items-center gap-2 mb-4">
+              <div
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  selectedPlan === "lifetime"
+                    ? "border-gray-900 dark:border-white bg-gray-900 dark:bg-white"
+                    : "border-gray-400 dark:border-[#3a3a3a]"
+                }`}
+              >
+                {selectedPlan === "lifetime" && (
+                  <Check className="w-3 h-3 text-white dark:text-black" />
+                )}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Pro Lifetime
+              </h3>
+            </div>
+
+            <div className="mb-4">
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                $149
+                <span className="text-lg text-gray-600 dark:text-[#a3a3a3]">
+                  {" "}
+                  once
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-[#a3a3a3] mt-1">
+                One-time payment, forever access
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-[#2f2f2f]">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+            Pro includes:
+          </h3>
+
+          <div className="space-y-2">
+            {features.map((f, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#2f2f2f] rounded-lg"
+              >
+                <f.icon className="w-5 h-5 text-gray-900 dark:text-white mt-1 flex-shrink-0" />
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+                    {f.title}
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-[#a3a3a3] mt-1">
+                    {f.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-gray-50 dark:bg-[#111] rounded-lg p-4">
+          <p className="text-xs text-gray-600 dark:text-[#a3a3a3]">
+            <strong>Free tier includes:</strong> Unlimited books, EPUB/PDF
+            export, professional typography, offline mode, version history,
+            export history
           </p>
         </div>
-      </div>
-    </div>
-  );
 
-  return createPortal(modalContent, document.body);
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+          </div>
+        )}
+
+        <button
+          onClick={() =>
+            handleCheckout(
+              selectedPlan === "monthly" ? "subscription" : "lifetime",
+            )
+          }
+          disabled={checkoutLoading || isLoading}
+          className="w-full py-3.5 bg-action-primary-500 dark:bg-action-primary-dark text-white font-semibold rounded-full transition-all hover:bg-action-primary-600 dark:hover:bg-orange-400 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg uppercase tracking-wide text-sm"
+        >
+          {checkoutLoading
+            ? "Redirecting..."
+            : selectedPlan === "monthly"
+              ? "Subscribe to Pro - $9/month"
+              : "Buy Lifetime - $149"}
+        </button>
+
+        <p className="text-xs text-center text-gray-500 dark:text-[#a3a3a3]">
+          Secure checkout powered by Stripe • 30-day money back guarantee
+        </p>
+      </ModalBody>
+    </Modal>
+  );
 }

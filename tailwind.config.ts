@@ -1,6 +1,6 @@
-import type { Config } from "tailwindcss"
-import typography from "@tailwindcss/typography"
-import plugin from "tailwindcss/plugin"
+import type { Config } from "tailwindcss";
+import typography from "@tailwindcss/typography";
+import plugin from "tailwindcss/plugin";
 
 const config = {
   darkMode: ["class"],
@@ -21,59 +21,48 @@ const config = {
     },
     extend: {
       fontSize: {
-        // Non-standard sizes used throughout the app — registered here so they
-        // can be referenced as utility classes instead of arbitrary values.
-        '2xs': ['0.625rem', { lineHeight: '1rem' }],   // 10px — labels, metadata
-        '3xs': ['0.6875rem', { lineHeight: '1rem' }],  // 11px — footers, captions
-        // Beautiful UI granular scale for Book Mind UI
-        '10': ['0.65625rem', { lineHeight: '1rem' }],  // 10.5px — captions, inline badges
-        '11': ['0.6875rem', { lineHeight: '1.25rem' }], // 11px — small text
-        '12': ['0.75rem', { lineHeight: '1.25rem' }],   // 12px — labels, secondary text
-        '125': ['0.78125rem', { lineHeight: '1.5rem' }], // 12.5px — body, item labels
-        '13': ['0.8125rem', { lineHeight: '1.5rem' }],   // 13px — primary body text
+        "2xs": ["0.625rem", { lineHeight: "1rem" }], // 10px — labels, metadata
+        "3xs": ["0.6875rem", { lineHeight: "1rem" }], // 11px — footers, captions
+
+        "10": ["0.65625rem", { lineHeight: "1rem" }], // 10.5px — captions, inline badges
+        "11": ["0.6875rem", { lineHeight: "1.25rem" }], // 11px — small text
+        "12": ["0.75rem", { lineHeight: "1.25rem" }], // 12px — labels, secondary text
+        "125": ["0.78125rem", { lineHeight: "1.5rem" }], // 12.5px — body, item labels
+        "13": ["0.8125rem", { lineHeight: "1.5rem" }], // 13px — primary body text
       },
       colors: {
-        // neilmcardle.com personal-site (dark) palette — homepage + paintings.
-        // Distinct from the makeEbook marketing cream below.
-        cream: '#fbf9f3',   // primary light text / surfaces on black
-        tan:   '#8a7f70',   // muted labels, borders, hairlines
-        // Soft-UI warm accent (CTAs, section icons, numbers). Mirrors the
-        // --gold CSS vars in globals.css.
-        gold:          '#d8b46a',
-        'gold-bright': '#f0d091',
-        'gold-deep':   '#b8923f',
+        cream: "#fbf9f3", // primary light text / surfaces on black
+        tan: "#8a7f70", // muted labels, borders, hairlines
 
-        // Marketing brand surface — used by the public-facing landing, blog,
-        // signin, and shared marketing nav. Distinct from the editor's
-        // dark-mode panels and the e-reader paper palette.
-        'me-cream':      '#faf9f5',   // Primary marketing background
-        'me-cream-dark': '#0a0a0a',   // Dark mirror for cream (signin etc.)
+        gold: "#d8b46a",
+        "gold-bright": "#f0d091",
+        "gold-deep": "#b8923f",
 
-        // Brand accent (chapter pills, active states)
-        'me-accent': '#008ff0',
-        // Dark-mode surface palette — use these instead of arbitrary hex values
-        'me-base':    '#1e1e1e',   // Main panel / sidebar backgrounds
-        'me-surface': '#262626',   // Elevated surface (inputs, cards within panels)
-        'me-raised':  '#2f2f2f',   // Borders, hover states, tooltips
+        "me-cream": "#faf9f5", // Primary marketing background
+        "me-cream-dark": "#0a0a0a", // Dark mirror for cream (signin etc.)
 
-        // Semantic action colors (Beautiful UI integration)
-        // Use for high-priority actions, warnings, approvals
-        'action-primary': {
-          50:   '#fef3f0',
-          100:  '#fde7df',
-          500:  '#e56d24',
-          600:  '#d45d0d',
-          700:  '#b94806',
-          dark: '#f97316',
+        "me-accent": "#008ff0",
+
+        "me-base": "#1e1e1e", // Main panel / sidebar backgrounds
+        "me-surface": "#262626", // Elevated surface (inputs, cards within panels)
+        "me-raised": "#2f2f2f", // Borders, hover states, tooltips
+
+        "action-primary": {
+          50: "#fef3f0",
+          100: "#fde7df",
+          500: "#e56d24",
+          600: "#d45d0d",
+          700: "#b94806",
+          dark: "#f97316",
         },
-        // Use for confirmations, success states, approvals accepted
-        'confirm-primary': {
-          50:   '#f0fdf8',
-          100:  '#d4f3e8',
-          500:  '#1f7a5f',
-          600:  '#157043',
-          700:  '#0d5930',
-          dark: '#2dd4bf',
+
+        "confirm-primary": {
+          50: "#f0fdf8",
+          100: "#d4f3e8",
+          500: "#1f7a5f",
+          600: "#157043",
+          700: "#0d5930",
+          dark: "#2dd4bf",
         },
 
         border: "hsl(var(--border))",
@@ -110,93 +99,94 @@ const config = {
           foreground: "hsl(var(--card-foreground))",
         },
 
-        // Kids Academy palette — namespaced so the soft-launch product can be
-        // extracted to its own repo without untangling colour tokens.
         ka: {
           brand: {
-            50:  '#EEF2FF',
-            500: '#6366F1',
-            600: '#4F46E5',
-            700: '#4338CA',
+            50: "#EEF2FF",
+            500: "#6366F1",
+            600: "#4F46E5",
+            700: "#4338CA",
           },
-          year1:   { DEFAULT: '#F97316', light: '#FED7AA' },
-          year2:   { DEFAULT: '#EAB308', light: '#FEF08A' },
-          year3:   { DEFAULT: '#22C55E', light: '#BBF7D0' },
-          year4:   { DEFAULT: '#3B82F6', light: '#BFDBFE' },
-          year5:   { DEFAULT: '#A855F7', light: '#E9D5FF' },
-          year6:   { DEFAULT: '#EF4444', light: '#FEE2E2' },
-          science: { DEFAULT: '#0EA5E9', light: '#E0F2FE' },
-          maths:   { DEFAULT: '#F59E0B', light: '#FEF3C7' },
-          english: { DEFAULT: '#EC4899', light: '#FCE7F3' },
-          history: { DEFAULT: '#8B5CF6', light: '#EDE9FE' },
-          geography: { DEFAULT: '#10B981', light: '#D1FAE5' },
+          year1: { DEFAULT: "#F97316", light: "#FED7AA" },
+          year2: { DEFAULT: "#EAB308", light: "#FEF08A" },
+          year3: { DEFAULT: "#22C55E", light: "#BBF7D0" },
+          year4: { DEFAULT: "#3B82F6", light: "#BFDBFE" },
+          year5: { DEFAULT: "#A855F7", light: "#E9D5FF" },
+          year6: { DEFAULT: "#EF4444", light: "#FEE2E2" },
+          science: { DEFAULT: "#0EA5E9", light: "#E0F2FE" },
+          maths: { DEFAULT: "#F59E0B", light: "#FEF3C7" },
+          english: { DEFAULT: "#EC4899", light: "#FCE7F3" },
+          history: { DEFAULT: "#8B5CF6", light: "#EDE9FE" },
+          geography: { DEFAULT: "#10B981", light: "#D1FAE5" },
         },
       },
       spacing: {
-        'ka-touch':    '44px',
-        'ka-touch-lg': '56px',
-        // Beautiful UI heights for Book Mind components
-        '4.5': '1.125rem',   // 18px
-        '5.5': '1.375rem',   // 22px
-        '6.5': '1.625rem',   // 26px
-        '7.5': '1.875rem',   // 30px
+        "ka-touch": "44px",
+        "ka-touch-lg": "56px",
+
+        "4.5": "1.125rem", // 18px
+        "5.5": "1.375rem", // 22px
+        "6.5": "1.625rem", // 26px
+        "7.5": "1.875rem", // 30px
       },
       fontFamily: {
         sans: ["var(--font-inter)"],
         serif: ["var(--font-playfair)"],
-        'ka-display': ["var(--font-ka-display)", "Nunito", "sans-serif"],
-        'ka-body':    ["var(--font-ka-body)", "Inter", "sans-serif"],
+        "ka-display": ["var(--font-ka-display)", "Nunito", "sans-serif"],
+        "ka-body": ["var(--font-ka-body)", "Inter", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-        // Beautiful UI precise border radius scale
-        'control': '8px', // standardized to 8px    // interactive controls, buttons
-        'chip': '8px',       // compact chips, badges
-        'card': '8px', // standardized to 8px      // card containers
-        'modal': '8px', // standardized to 8px     // modal dialogs
-        'pill': '24px',      // full-width pills
+
+        control: "8px", // standardized to 8px    // interactive controls, buttons
+        chip: "8px", // compact chips, badges
+        card: "8px", // standardized to 8px      // card containers
+        modal: "16px", // modal dialogs
+        pill: "24px", // full-width pills
       },
       keyframes: {
         shimmer: {
-          '0%': { backgroundPosition: '200% 0' },
-          '100%': { backgroundPosition: '-200% 0' },
+          "0%": { backgroundPosition: "200% 0" },
+          "100%": { backgroundPosition: "-200% 0" },
         },
-        // Beautiful UI animations
-        'fade-up': {
-          '0%': { opacity: '0', transform: 'translateY(8px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
-        'fade-in': {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
         },
-        'pop-in': {
-          '0%': { opacity: '0', transform: 'scale(0.95)' },
-          '100%': { opacity: '1', transform: 'scale(1)' },
+        "pop-in": {
+          "0%": { opacity: "0", transform: "scale(0.95)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
         },
       },
       animation: {
-        shimmer: 'shimmer 2s linear infinite',
-        'fade-up': 'fade-up 320ms cubic-bezier(0.23, 1, 0.32, 1)',
-        'fade-in': 'fade-in 300ms ease-out',
-        'pop-in': 'pop-in 250ms cubic-bezier(0.23, 1, 0.32, 1)',
+        shimmer: "shimmer 2s linear infinite",
+        "fade-up": "fade-up 320ms cubic-bezier(0.23, 1, 0.32, 1)",
+        "fade-in": "fade-in 300ms ease-out",
+        "pop-in": "pop-in 250ms cubic-bezier(0.23, 1, 0.32, 1)",
       },
       boxShadow: {
-        'border': '0px 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 2px 3px -1px rgba(0, 0, 0, 0.06), 0px 2px 5px 0px rgba(0, 0, 0, 0.04)',
-        'border-hover': '0px 0px 0px 1px rgba(0, 0, 0, 0.09), 0px 2px 3px -1px rgba(0, 0, 0, 0.08), 0px 2px 5px 0px rgba(0, 0, 0, 0.05)',
+        modal: "0 24px 64px rgba(0,0,0,0.24), 0 2px 8px rgba(0,0,0,0.08)",
+        float: "0 12px 32px rgba(0,0,0,0.24), 0 2px 6px rgba(0,0,0,0.08)",
+        border:
+          "0px 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 2px 3px -1px rgba(0, 0, 0, 0.06), 0px 2px 5px 0px rgba(0, 0, 0, 0.04)",
+        "border-hover":
+          "0px 0px 0px 1px rgba(0, 0, 0, 0.09), 0px 2px 3px -1px rgba(0, 0, 0, 0.08), 0px 2px 5px 0px rgba(0, 0, 0, 0.05)",
       },
     },
   },
   plugins: [
     typography,
-    // The makeEbook editor theme. Bound to html.makeebook (a third theme,
-    // separate from .dark) so `me:` and `dark:` never collide.
+
     plugin(({ addVariant }) => {
-      addVariant("me", "html.makeebook &")
+      addVariant("me", "html.makeebook &");
     }),
   ],
-} satisfies Config
+} satisfies Config;
 
-export default config
+export default config;

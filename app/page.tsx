@@ -191,7 +191,7 @@ export default function Homepage() {
                 tileKey="coverly"
                 category="Product · Research tool · Designed and built solo"
                 name="Coverly"
-                description="Comp research for book cover designers. Thousands of covers searchable by design attributes rather than genre, with boards and PDF comp-deck export. Free, with email sign-up."
+                description="Comparable research for book cover designers. Thousands of covers searchable by design attributes rather than genre, with boards and PDF comp-deck export. Free, with email sign-up."
                 href="/coverly"
                 linkLabel="View project"
                 reverse

@@ -1,14 +1,17 @@
 "use client";
 
-// Slash-command palette triggered by "/" at the start of an editor line.
-// Picks a compose command, optionally collects a follow-up instruction,
-// and inserts the result at the cursor.
-
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import { createPortal } from "react-dom";
 import { useBookMind } from "../../hooks/useBookMind";
 import { toast } from "sonner";
 import { useIsMac } from "../marketing/sections-v2/PlatformKey";
+import { Spinner } from "../Spinner";
 
 export interface ComposePaletteRequest {
   open: boolean;
@@ -42,7 +45,8 @@ const COMMANDS: ComposeCommand[] = [
     id: "continue",
     label: "/continue",
     description: "Continue from where the text left off",
-    promptPrefix: "Continue the text naturally from where it left off. Match the voice, tense, and pacing.",
+    promptPrefix:
+      "Continue the text naturally from where it left off. Match the voice, tense, and pacing.",
   },
   {
     id: "transition",
@@ -73,8 +77,7 @@ const COMMANDS: ComposeCommand[] = [
 const PALETTE_WIDTH = 320;
 const VIEWPORT_MARGIN = 12;
 const ANCHOR_GAP = 4;
-// Fixed-height portion (header + input row + action bar). The result
-// area takes whatever vertical space is left and scrolls.
+
 const CHROME_HEIGHT = 130;
 const PALETTE_MAX = 480;
 
@@ -90,7 +93,9 @@ export default function ComposePalette({
   const undoCombo = isMac ? "⌘Z" : "Ctrl+Z";
 
   const [filter, setFilter] = useState("");
-  const [selectedCommand, setSelectedCommand] = useState<ComposeCommand | null>(null);
+  const [selectedCommand, setSelectedCommand] = useState<ComposeCommand | null>(
+    null,
+  );
   const [instruction, setInstruction] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -99,16 +104,16 @@ export default function ComposePalette({
   const filterRef = useRef<HTMLInputElement>(null);
   const instructionRef = useRef<HTMLInputElement>(null);
 
-  // Filter commands by what the user has typed after "/"
   const filtered = useMemo(() => {
     if (!filter) return COMMANDS;
     const lower = filter.toLowerCase();
     return COMMANDS.filter(
-      c => c.label.toLowerCase().includes(lower) || c.description.toLowerCase().includes(lower),
+      (c) =>
+        c.label.toLowerCase().includes(lower) ||
+        c.description.toLowerCase().includes(lower),
     );
   }, [filter]);
 
-  // Reset on open
   useEffect(() => {
     if (request.open) {
       setFilter("");
@@ -120,30 +125,34 @@ export default function ComposePalette({
     }
   }, [request.open]);
 
-  // Close on outside click
   useEffect(() => {
     if (!request.open) return;
     const handle = (e: MouseEvent) => {
       if (paletteRef.current?.contains(e.target as Node)) return;
       onClose();
     };
-    const t = setTimeout(() => document.addEventListener("mousedown", handle), 50);
-    return () => { clearTimeout(t); document.removeEventListener("mousedown", handle); };
+    const t = setTimeout(
+      () => document.addEventListener("mousedown", handle),
+      50,
+    );
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("mousedown", handle);
+    };
   }, [request.open, onClose]);
 
-  // Escape closes
   useEffect(() => {
     if (!request.open) return;
     const handle = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { e.preventDefault(); onClose(); }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
     };
     document.addEventListener("keydown", handle);
     return () => document.removeEventListener("keydown", handle);
   }, [request.open, onClose]);
 
-  // Position: anchored below the caret, flips above when there's not
-  // enough room. maxHeight caps the palette so the action bar stays in
-  // view even with a long result.
   const layout = useMemo(() => {
     if (!request.anchorRect) return { top: 0, left: 0, maxHeight: PALETTE_MAX };
     const rect = request.anchorRect;
@@ -151,7 +160,8 @@ export default function ComposePalette({
     const vh = typeof window !== "undefined" ? window.innerHeight : 768;
 
     let left = rect.left;
-    if (left + PALETTE_WIDTH > vw - VIEWPORT_MARGIN) left = vw - PALETTE_WIDTH - VIEWPORT_MARGIN;
+    if (left + PALETTE_WIDTH > vw - VIEWPORT_MARGIN)
+      left = vw - PALETTE_WIDTH - VIEWPORT_MARGIN;
     left = Math.max(VIEWPORT_MARGIN, left);
 
     const spaceBelow = vh - rect.bottom - ANCHOR_GAP - VIEWPORT_MARGIN;
@@ -173,7 +183,7 @@ export default function ComposePalette({
 
   const handleSelectCommand = (cmd: ComposeCommand) => {
     setSelectedCommand(cmd);
-    // /continue doesn't need a follow-up instruction
+
     if (cmd.id === "continue") {
       handleGenerate(cmd, "");
     } else {
@@ -181,27 +191,30 @@ export default function ComposePalette({
     }
   };
 
-  const handleGenerate = useCallback(async (cmd: ComposeCommand, userInstruction: string) => {
-    setIsLoading(true);
-    setResult(null);
-    const fullPrompt = userInstruction.trim()
-      ? `${cmd.promptPrefix} ${userInstruction.trim()}`
-      : cmd.promptPrefix;
+  const handleGenerate = useCallback(
+    async (cmd: ComposeCommand, userInstruction: string) => {
+      setIsLoading(true);
+      setResult(null);
+      const fullPrompt = userInstruction.trim()
+        ? `${cmd.promptPrefix} ${userInstruction.trim()}`
+        : cmd.promptPrefix;
 
-    try {
-      const output = await inlineEdit({
-        selectedText: "",
-        instruction: fullPrompt,
-      });
-      if (output) {
-        setResult(output);
+      try {
+        const output = await inlineEdit({
+          selectedText: "",
+          instruction: fullPrompt,
+        });
+        if (output) {
+          setResult(output);
+        }
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Compose failed");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Compose failed");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [inlineEdit]);
+    },
+    [inlineEdit],
+  );
 
   const handleAccept = () => {
     if (!result) return;
@@ -244,14 +257,15 @@ export default function ComposePalette({
     >
       {!selectedCommand ? (
         <>
-          {/* Filter input */}
           <div className="px-3 pt-3 pb-2">
             <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-gray-100 dark:bg-[#262626]">
-              <span className="text-xs text-gray-400 dark:text-[#737373] font-mono">/</span>
+              <span className="text-xs text-gray-400 dark:text-[#737373] font-mono">
+                /
+              </span>
               <input
                 ref={filterRef}
                 value={filter}
-                onChange={e => setFilter(e.target.value)}
+                onChange={(e) => setFilter(e.target.value)}
                 onKeyDown={handleFilterKey}
                 placeholder="Type a command..."
                 className="flex-1 bg-transparent border-none outline-none text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
@@ -259,9 +273,8 @@ export default function ComposePalette({
             </div>
           </div>
 
-          {/* Command list */}
           <div className="overflow-y-auto pb-2">
-            {filtered.map(cmd => (
+            {filtered.map((cmd) => (
               <button
                 key={cmd.id}
                 onClick={() => handleSelectCommand(cmd)}
@@ -284,18 +297,21 @@ export default function ComposePalette({
         </>
       ) : (
         <>
-          {/* Selected command + instruction input */}
           <div className="px-3 pt-3 pb-2 border-b border-gray-100 dark:border-[#262626]">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-mono text-[#008ff0]">{selectedCommand.label}</span>
-              <span className="text-xs text-gray-400 dark:text-[#737373]">{selectedCommand.description}</span>
+              <span className="text-xs font-mono text-[#008ff0]">
+                {selectedCommand.label}
+              </span>
+              <span className="text-xs text-gray-400 dark:text-[#737373]">
+                {selectedCommand.description}
+              </span>
             </div>
             {selectedCommand.id !== "continue" && !result && (
               <div className="flex gap-2">
                 <input
                   ref={instructionRef}
                   value={instruction}
-                  onChange={e => setInstruction(e.target.value)}
+                  onChange={(e) => setInstruction(e.target.value)}
                   onKeyDown={handleInstructionKey}
                   placeholder="Describe what you want..."
                   disabled={isLoading}
@@ -303,7 +319,10 @@ export default function ComposePalette({
                 />
                 <button
                   onClick={() => handleGenerate(selectedCommand, instruction)}
-                  disabled={isLoading || (!instruction.trim() && selectedCommand.id !== "continue")}
+                  disabled={
+                    isLoading ||
+                    (!instruction.trim() && selectedCommand.id !== "continue")
+                  }
                   className="text-xs px-3 py-2 rounded-lg bg-[#008ff0] text-white font-medium disabled:opacity-50 hover:bg-[#3560e6] transition-colors"
                 >
                   {isLoading ? "..." : "Go"}
@@ -312,18 +331,13 @@ export default function ComposePalette({
             )}
           </div>
 
-          {/* Loading */}
           {isLoading && (
             <div className="px-4 py-4 flex items-center gap-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
-              <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2" />
-                <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-              </svg>
+              <Spinner size="xs" />
               Writing...
             </div>
           )}
 
-          {/* Result */}
           {result && (
             <div className="flex-1 overflow-y-auto px-4 py-3">
               <p className="text-sm text-gray-800 dark:text-[#f5f5f5] leading-relaxed whitespace-pre-wrap">
@@ -332,17 +346,21 @@ export default function ComposePalette({
             </div>
           )}
 
-          {/* Actions */}
           {result && (
             <div className="px-3 py-2 border-t border-gray-100 dark:border-[#262626] bg-gray-50 dark:bg-[#181818] flex items-center justify-between">
               <p className="text-2xs text-gray-400 dark:text-[#737373]">
-                <kbd className="inline-flex items-center px-1 py-0 rounded border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-[#262626] text-gray-600 dark:text-[#a3a3a3] font-mono text-[10px] mx-0.5">Tab</kbd>
-                {" "}to insert
+                <kbd className="inline-flex items-center px-1 py-0 rounded border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-[#262626] text-gray-600 dark:text-[#a3a3a3] font-mono text-[10px] mx-0.5">
+                  Tab
+                </kbd>{" "}
+                to insert
               </p>
               <div className="flex gap-1">
                 <button
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => { setResult(null); handleGenerate(selectedCommand, instruction); }}
+                  onClick={() => {
+                    setResult(null);
+                    handleGenerate(selectedCommand, instruction);
+                  }}
                   className="text-xs px-3 py-1 text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white rounded transition-colors"
                 >
                   Try again

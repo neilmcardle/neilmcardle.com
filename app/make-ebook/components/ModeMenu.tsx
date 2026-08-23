@@ -41,6 +41,7 @@ export default function ModeMenu({
 }: ModeMenuProps) {
   const hasFlow = useFeatureAccess("book_mind_ai");
   const flowOn = flowMode && hasFlow;
+  const anyOn = flowOn || focusActive;
 
   return (
     <DropdownMenu>
@@ -48,10 +49,10 @@ export default function ModeMenu({
         <button
           title="Writing modes"
           aria-label="Writing modes"
-          className="flex items-center gap-2 px-3 h-10 rounded-full bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-transparent hover:bg-gray-200 dark:hover:bg-[#333] transition-colors duration-[var(--me-dur)] group"
+          className="flex items-center gap-2 px-3 h-10 rounded-full bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-transparent hover:bg-gray-200 dark:hover:bg-[#333] transition-colors duration-[var(--me-dur)]"
         >
           <svg
-            className={`w-4 h-4 transition-colors ${flowOn ? "text-[#008ff0]" : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4]"}`}
+            className={`w-4 h-4 transition-colors duration-[var(--me-dur)] ${anyOn ? "text-[#008ff0]" : "text-gray-500 dark:text-[#a3a3a3]"}`}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -62,23 +63,19 @@ export default function ModeMenu({
             <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
           </svg>
           <span
-            className={`text-xs transition-colors ${flowOn ? "text-[#008ff0] font-semibold" : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4]"}`}
+            className={`text-125 font-medium transition-colors duration-[var(--me-dur)] ${anyOn ? "text-[#008ff0]" : "text-gray-700 dark:text-[#d4d4d4]"}`}
           >
             Modes
           </span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        sideOffset={8}
-        className="w-72 p-2 bg-white dark:bg-[#252525] border border-gray-200 dark:border-[#2f2f2f]"
-      >
+      <DropdownMenuContent align="end" sideOffset={8} className="w-72">
         <DropdownMenuItem
           onSelect={(e) => {
             e.preventDefault();
             onToggleFocus();
           }}
-          className="flex items-start gap-3 px-3 py-2.5 rounded-md cursor-pointer focus:bg-gray-50 dark:focus:bg-[#262626]"
+          className="flex items-start gap-3 px-3 py-2.5 cursor-pointer"
         >
           <svg
             className="w-4 h-4 mt-1 text-gray-500 dark:text-[#a3a3a3] flex-shrink-0"
@@ -92,10 +89,10 @@ export default function ModeMenu({
             <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
           </svg>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 dark:text-[#e5e5e5]">
+            <p className="text-125 font-medium text-gray-900 dark:text-[#e5e5e5]">
               Focus mode
             </p>
-            <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-snug mt-1">
+            <p className="text-11 text-gray-500 dark:text-[#a3a3a3] leading-snug mt-1">
               Hide chrome and write without distractions.
             </p>
           </div>
@@ -110,7 +107,7 @@ export default function ModeMenu({
               e.preventDefault();
               onToggleFlow();
             }}
-            className="flex items-start gap-3 px-3 py-2.5 rounded-md cursor-pointer focus:bg-gray-50 dark:focus:bg-[#262626]"
+            className="flex items-start gap-3 px-3 py-2.5 cursor-pointer"
           >
             <svg
               className="w-4 h-4 mt-1 text-[#008ff0] flex-shrink-0"
@@ -120,10 +117,10 @@ export default function ModeMenu({
               <path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6L12 2z" />
             </svg>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-[#e5e5e5]">
+              <p className="text-125 font-medium text-gray-900 dark:text-[#e5e5e5]">
                 Flow mode
               </p>
-              <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-snug mt-1">
+              <p className="text-11 text-gray-500 dark:text-[#a3a3a3] leading-snug mt-1">
                 AI suggests the next sentence when you pause. Tab to accept.
               </p>
             </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { createPortal } from "react-dom";
 import { track } from "@vercel/analytics";
+import { Modal, ModalHeader } from "./Modal";
 import {
   runPreflightChecks,
   PreflightInput,
@@ -51,78 +51,38 @@ export default function PreflightExportDialog({
     }
   }, [open, isPro, format, blocks.length]);
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
   if (!open || typeof document === "undefined") return null;
 
   const formatLabel = FORMAT_LABEL[format];
 
-  const dialog = (
-    <div
-      className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      width="md"
+      label={`Export ${formatLabel}`}
     >
-      <div
-        className="bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden border border-gray-200 dark:border-[#2f2f2f] flex flex-col"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-[#2f2f2f] flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Export {formatLabel}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 text-gray-500 hover:text-gray-900 dark:text-[#a3a3a3] dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors -mr-2"
-            aria-label="Close"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        {isPro ? (
-          <ProBody
-            checks={checks}
-            blocks={blocks}
-            warns={warns}
-            allClear={allClear}
-            formatLabel={formatLabel}
-            onDownload={onDownload}
-            onClose={onClose}
-          />
-        ) : (
-          <FreeBody
-            formatLabel={formatLabel}
-            onDownload={onDownload}
-            onUpgrade={onUpgrade}
-            onClose={onClose}
-          />
-        )}
-      </div>
-    </div>
+      <ModalHeader title={`Export ${formatLabel}`} onClose={onClose} />
+      {isPro ? (
+        <ProBody
+          checks={checks}
+          blocks={blocks}
+          warns={warns}
+          allClear={allClear}
+          formatLabel={formatLabel}
+          onDownload={onDownload}
+          onClose={onClose}
+        />
+      ) : (
+        <FreeBody
+          formatLabel={formatLabel}
+          onDownload={onDownload}
+          onUpgrade={onUpgrade}
+          onClose={onClose}
+        />
+      )}
+    </Modal>
   );
-
-  return createPortal(dialog, document.body);
 }
 
 function ProBody({

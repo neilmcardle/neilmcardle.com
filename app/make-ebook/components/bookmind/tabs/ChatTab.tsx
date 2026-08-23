@@ -412,7 +412,7 @@ export default function ChatTab({
                       </button>
                       <button
                         onClick={(e) => handleDeleteSession(e, session.id)}
-                        className="absolute right-1.5 top-2 opacity-0 group-hover:opacity-100 size-5 rounded-control flex items-center justify-center text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-all"
+                        className="absolute right-1.5 top-2 me-reveal size-5 rounded-control flex items-center justify-center text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[#3a3a3a]"
                         title="Delete"
                       >
                         <svg
@@ -924,7 +924,7 @@ function MessageBubble({
       </div>
 
       {isAssistant && (
-        <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="mt-2 me-reveal">
           <MessageActions
             content={message.content}
             onRegenerate={onRegenerate}

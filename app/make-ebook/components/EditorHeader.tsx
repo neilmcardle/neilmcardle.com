@@ -11,6 +11,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -151,26 +153,31 @@ export default function EditorHeader({
             className="w-60"
           >
             {onSaveAsNewBook && (
-              <DropdownMenuItem
-                onClick={onSaveAsNewBook}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                <svg
-                  className="w-4 h-4 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.6}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
+              <>
+                <DropdownMenuLabel>This book</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={onSaveAsNewBook}
+                  className="flex items-center gap-2 cursor-pointer"
                 >
-                  <rect x="9" y="9" width="12" height="12" rx="2" />
-                  <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-                </svg>
-                <span className="text-sm">Save as a new book</span>
-              </DropdownMenuItem>
+                  <svg
+                    className="w-4 h-4 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.6}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="9" y="9" width="12" height="12" rx="2" />
+                    <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                  </svg>
+                  <span>Save as a new book</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
             )}
+            <DropdownMenuLabel>History</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={onShowHistory}
               className="flex items-center justify-between gap-2 cursor-pointer"
@@ -190,10 +197,10 @@ export default function EditorHeader({
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <span className="text-sm">Version & export history</span>
+                <span>Version &amp; export history</span>
               </span>
               {versionCount + exportCount > 0 && (
-                <span className="text-xs text-gray-400 tabular-nums">
+                <span className="text-11 text-gray-400 tabular-nums">
                   {versionCount + exportCount}
                 </span>
               )}

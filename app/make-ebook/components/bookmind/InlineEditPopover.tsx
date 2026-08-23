@@ -12,6 +12,7 @@ import { useBookMind } from "../../hooks/useBookMind";
 import { toast } from "sonner";
 import { useIsMac } from "../marketing/sections-v2/PlatformKey";
 import InlineEditSheet from "./InlineEditSheet";
+import { Spinner } from "../Spinner";
 
 export interface InlineEditRequest {
   open: boolean;
@@ -406,26 +407,7 @@ export default function InlineEditPopover({
 
           {isLoading && !hasAnyResult && (
             <div className="px-4 py-4 flex items-center gap-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
-              <svg
-                className="w-3 h-3 animate-spin"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeOpacity="0.2"
-                />
-                <path
-                  d="M22 12a10 10 0 0 1-10 10"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <Spinner size="xs" />
               Rewriting…
             </div>
           )}
