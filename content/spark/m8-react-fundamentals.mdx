@@ -3,9 +3,6 @@ title: React Fundamentals
 module: 9
 phase: "Phase 1 ,  JS & React"
 promise: Build a small React app and reason about state
-threads:
-  - chosen-vs-fixed
-  - your-code-vs-the-platform
 ---
 
 <Section title="What's a component?">
@@ -37,7 +34,7 @@ function Card() {
 }
 ```
 
-React calls your function when it needs to see what should appear on screen. Think of it as "what does this component look like *right now*?"
+React calls your function when it needs to see what should appear on screen. Think of it as "what does this component look like _right now_?"
 
 </Section>
 
@@ -46,7 +43,7 @@ React calls your function when it needs to see what should appear on screen. Thi
 `useState` is how you tell React that a component has state: data that can change. When it changes, React re-runs your function to see the new output.
 
 ```jsx
-import { useState } from 'react';
+import { useState } from "react";
 
 function Counter() {
   const [count, setCount] = useState(0);
@@ -54,9 +51,7 @@ function Counter() {
   return (
     <div>
       <p>Count: {count}</p>
-      <button onClick={() => setCount(count + 1)}>
-        Increment
-      </button>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
     </div>
   );
 }
@@ -70,8 +65,8 @@ You can call `useState` multiple times in one component. Each call gets its own 
 
 ```jsx
 function Form() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   return (
     <div>
@@ -102,8 +97,14 @@ function BMI() {
 
   return (
     <div>
-      <input value={weight} onChange={(e) => setWeight(Number(e.target.value))} />
-      <input value={height} onChange={(e) => setHeight(Number(e.target.value))} />
+      <input
+        value={weight}
+        onChange={(e) => setWeight(Number(e.target.value))}
+      />
+      <input
+        value={height}
+        onChange={(e) => setHeight(Number(e.target.value))}
+      />
       <p>BMI: {bmi.toFixed(1)}</p>
     </div>
   );
@@ -122,7 +123,7 @@ An input is controlled when React holds its value in state. You set the value pr
 
 ```jsx
 function SearchBox() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
 
   return (
     <input
@@ -203,7 +204,7 @@ function ResultItem({ item }) {
 }
 
 function SearchPage() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const results = fakeSearch(query);
 
   return (
@@ -230,24 +231,35 @@ If two sibling components need to share state, move that state to their common p
 ```jsx
 function Tab({ label, isActive, onClick }) {
   return (
-    <button onClick={onClick} style={{ fontWeight: isActive ? 'bold' : 'normal' }}>
+    <button
+      onClick={onClick}
+      style={{ fontWeight: isActive ? "bold" : "normal" }}
+    >
       {label}
     </button>
   );
 }
 
 function Tabs() {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState("home");
 
   return (
     <div>
       <div>
-        <Tab label="Home" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
-        <Tab label="About" isActive={activeTab === 'about'} onClick={() => setActiveTab('about')} />
+        <Tab
+          label="Home"
+          isActive={activeTab === "home"}
+          onClick={() => setActiveTab("home")}
+        />
+        <Tab
+          label="About"
+          isActive={activeTab === "about"}
+          onClick={() => setActiveTab("about")}
+        />
       </div>
       <div>
-        {activeTab === 'home' && <p>Home content</p>}
-        {activeTab === 'about' && <p>About content</p>}
+        {activeTab === "home" && <p>Home content</p>}
+        {activeTab === "about" && <p>About content</p>}
       </div>
     </div>
   );
@@ -268,30 +280,30 @@ Real UIs handle all four.
 
 ```jsx
 function BookSearch() {
-  const [query, setQuery] = useState('');
-  const [state, setState] = useState('idle');
+  const [query, setQuery] = useState("");
+  const [state, setState] = useState("idle");
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
 
   const handleSearch = async (q) => {
     if (!q) {
-      setState('idle');
+      setState("idle");
       setResults([]);
       return;
     }
 
-    setState('loading');
+    setState("loading");
     try {
       const data = await fetch(`/api/books?q=${q}`).then((r) => r.json());
       if (data.length === 0) {
-        setState('empty');
+        setState("empty");
         setResults([]);
       } else {
-        setState('idle');
+        setState("idle");
         setResults(data);
       }
     } catch (err) {
-      setState('error');
+      setState("error");
       setError(err.message);
     }
   };
@@ -307,7 +319,7 @@ function BookSearch() {
         placeholder="Search books..."
       />
 
-      {state === 'idle' && results.length > 0 && (
+      {state === "idle" && results.length > 0 && (
         <ul>
           {results.map((book) => (
             <li key={book.id}>{book.title}</li>
@@ -315,9 +327,9 @@ function BookSearch() {
         </ul>
       )}
 
-      {state === 'loading' && <p>Searching...</p>}
-      {state === 'empty' && <p>No books found</p>}
-      {state === 'error' && <p>Error: {error}</p>}
+      {state === "loading" && <p>Searching...</p>}
+      {state === "empty" && <p>No books found</p>}
+      {state === "error" && <p>Error: {error}</p>}
     </div>
   );
 }
@@ -346,23 +358,25 @@ function SearchBox({ query, onQueryChange }) {
 }
 
 function SearchResults({ state, results, error }) {
-  if (state === 'loading') return <p>Searching...</p>;
-  if (state === 'empty') return <p>No books found</p>;
-  if (state === 'error') return <p>Error: {error}</p>;
+  if (state === "loading") return <p>Searching...</p>;
+  if (state === "empty") return <p>No books found</p>;
+  if (state === "error") return <p>Error: {error}</p>;
   if (results.length === 0) return null;
 
   return (
     <ul>
       {results.map((book) => (
-        <li key={book.id}>{book.title} by {book.author}</li>
+        <li key={book.id}>
+          {book.title} by {book.author}
+        </li>
       ))}
     </ul>
   );
 }
 
 function BookSearch() {
-  const [query, setQuery] = useState('');
-  const [state, setState] = useState('idle');
+  const [query, setQuery] = useState("");
+  const [state, setState] = useState("idle");
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
 
@@ -370,24 +384,24 @@ function BookSearch() {
     setQuery(q);
 
     if (!q.trim()) {
-      setState('idle');
+      setState("idle");
       setResults([]);
       return;
     }
 
-    setState('loading');
+    setState("loading");
     try {
       const response = await fetch(`/api/books?q=${encodeURIComponent(q)}`);
       const data = await response.json();
 
       if (data.length === 0) {
-        setState('empty');
+        setState("empty");
       } else {
-        setState('idle');
+        setState("idle");
         setResults(data);
       }
     } catch (err) {
-      setState('error');
+      setState("error");
       setError(err.message);
     }
   };

@@ -14,9 +14,6 @@ checkpoint:
   - "Validation catches bad input"
   - "Errors are reported clearly to the client"
   - "(Optional) endpoint integrated with Data & APIs in depth's database"
-threads:
-  - "language-vs-framework"
-  - "your-code-vs-the-platform"
 difficulty: "intermediate"
 prereq: "JavaScript fundamentals (forms), Intermediate JavaScript: Fetch and Real Data (async)"
 estimated_time: "6–8 hours"
@@ -26,7 +23,7 @@ estimated_time: "6–8 hours"
 
 ## Promise
 
-An endpoint is a contract. Your UI talks to your backend by sending a request: here's the data, here's what I want you to do. The backend sends back a response: here's the result, or here's what went wrong. The contract is explicit ,  both sides know the shape of the request, the shape of the response, and what can fail.
+An endpoint is a contract. Your UI talks to your backend by sending a request: here's the data, here's what I want you to do. The backend sends back a response: here's the result, or here's what went wrong. The contract is explicit , both sides know the shape of the request, the shape of the response, and what can fail.
 
 In this module, you'll stop treating endpoints like magic and start designing them like a real software engineer. You'll build a working API endpoint that handles a real feature (a waitlist form, a note-saving UI, a to-do adder) and learn the patterns that keep endpoints reliable: validation, error handling, and the difference between the three ways Next.js lets you talk to servers.
 
@@ -51,10 +48,11 @@ Content-Type: application/json
 ```
 
 Breaking this down:
-- **Verb:** POST. Tells the server "I want you to *create* something." (GET = read, POST = create, PUT = update, DELETE = delete)
+
+- **Verb:** POST. Tells the server "I want you to _create_ something." (GET = read, POST = create, PUT = update, DELETE = delete)
 - **Path:** `/api/waitlist`. The thing you want to do.
 - **Headers:** metadata about the request. `Content-Type: application/json` means "the body is JSON."
-- **Body:** the actual payload ,  the email address, in this case.
+- **Body:** the actual payload , the email address, in this case.
 
 The server responds:
 
@@ -71,7 +69,7 @@ Content-Type: application/json
 - **Status code:** 201 means "I created it." 200 = success (no create), 400 = bad input, 500 = server error.
 - **Response body:** what happened. Could be success, could be an error message.
 
-This is everything. A POST with no body is a request. A GET with 20 headers is a request. An image is a request (it returns binary instead of JSON). The *language* doesn't matter ,  a request is a request, whether it's coming from a browser, an app, or curl.
+This is everything. A POST with no body is a request. A GET with 20 headers is a request. An image is a request (it returns binary instead of JSON). The _language_ doesn't matter , a request is a request, whether it's coming from a browser, an app, or curl.
 
 ```bash
 # This is the same request, from the command line:
@@ -80,7 +78,7 @@ curl -X POST https://example.com/api/waitlist \
   -d '{"email":"alice@example.com"}'
 ```
 
-### 2. Route handlers ,  the Next.js way
+### 2. Route handlers , the Next.js way
 
 Next.js gives you a file-based router for API endpoints. A file at `app/api/waitlist/route.ts` handles requests to `/api/waitlist`.
 
@@ -92,11 +90,8 @@ export async function POST(request: Request) {
   const email = body.email;
 
   // 2. Validate the input
-  if (!email || !email.includes('@')) {
-    return Response.json(
-      { error: 'Invalid email' },
-      { status: 400 }
-    );
+  if (!email || !email.includes("@")) {
+    return Response.json({ error: "Invalid email" }, { status: 400 });
   }
 
   // 3. Do something (save to database, send email, etc.)
@@ -104,10 +99,7 @@ export async function POST(request: Request) {
   const id = Math.random().toString(36).slice(2, 9);
 
   // 4. Respond with success
-  return Response.json(
-    { success: true, id },
-    { status: 201 }
-  );
+  return Response.json({ success: true, id }, { status: 201 });
 }
 ```
 
@@ -124,11 +116,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const body = await request.json();
   // save it
-  return Response.json({ id: 'note_123' }, { status: 201 });
+  return Response.json({ id: "note_123" }, { status: 201 });
 }
 ```
 
 The status code matters. Use:
+
 - `200` (default): success, no creation
 - `201`: success, created something
 - `400`: client error (bad input)
@@ -136,19 +129,19 @@ The status code matters. Use:
 - `404`: not found
 - `500`: server error (your code broke)
 
-### 3. Server actions ,  the React way
+### 3. Server actions , the React way
 
 Server actions are a shortcut. Instead of writing a route handler, you write a function marked `'use server'` that lives inside your component or in a shared file. When you call it from the browser, Next.js automatically sends it to the server and runs it there.
 
 ```typescript
 // actions/saveNote.ts
-'use server';
+"use server";
 
 export async function saveNote(title: string, body: string) {
   // This code runs on the server only.
   // Validate the input
   if (!title || title.trim().length === 0) {
-    throw new Error('Title is required');
+    throw new Error("Title is required");
   }
 
   // Save to database (pretend)
@@ -188,9 +181,9 @@ export default function NoteForm() {
 }
 ```
 
-Server actions are simpler than route handlers for straightforward cases (form submission, single operation). But they're less flexible ,  you can't set custom status codes, you can't handle different HTTP verbs cleanly, and testing them is harder. Use route handlers when you need control; use server actions when you want simplicity.
+Server actions are simpler than route handlers for straightforward cases (form submission, single operation). But they're less flexible , you can't set custom status codes, you can't handle different HTTP verbs cleanly, and testing them is harder. Use route handlers when you need control; use server actions when you want simplicity.
 
-### 4. Validation ,  the most important part
+### 4. Validation , the most important part
 
 **Never trust user input.** Ever. Your API is a public door. Anyone can send anything.
 
@@ -202,17 +195,17 @@ export async function POST(request: Request) {
   // Without validation, you're in trouble.
 
   // Validate each field:
-  if (typeof body.email !== 'string' || !body.email.includes('@')) {
+  if (typeof body.email !== "string" || !body.email.includes("@")) {
     return Response.json(
-      { error: 'email must be a valid email address' },
-      { status: 400 }
+      { error: "email must be a valid email address" },
+      { status: 400 },
     );
   }
 
-  if (typeof body.count !== 'number' || body.count < 0) {
+  if (typeof body.count !== "number" || body.count < 0) {
     return Response.json(
-      { error: 'count must be a positive number' },
-      { status: 400 }
+      { error: "count must be a positive number" },
+      { status: 400 },
     );
   }
 
@@ -223,11 +216,11 @@ export async function POST(request: Request) {
 For larger schemas, use a validation library like Zod:
 
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 const WaitlistSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  name: z.string().min(1, 'Name is required').max(100),
+  email: z.string().email("Invalid email address"),
+  name: z.string().min(1, "Name is required").max(100),
   referral: z.string().optional(),
 });
 
@@ -257,16 +250,13 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return Response.json(
-        { error: 'Validation failed', details: error.issues },
-        { status: 400 }
+        { error: "Validation failed", details: error.issues },
+        { status: 400 },
       );
     }
 
-    console.error('Unexpected error:', error);
-    return Response.json(
-      { error: 'Something went wrong' },
-      { status: 500 }
-    );
+    console.error("Unexpected error:", error);
+    return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
 ```
@@ -284,10 +274,10 @@ You're going to build a real endpoint that saves email addresses to a waitlist. 
 Create `app/api/waitlist/route.ts`:
 
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 const EmailSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().email("Invalid email address"),
 });
 
 export async function POST(request: Request) {
@@ -300,7 +290,7 @@ export async function POST(request: Request) {
     const id = Math.random().toString(36).slice(2, 9);
 
     // Simulate a small delay (like a database write would take)
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     return Response.json(
       {
@@ -308,34 +298,28 @@ export async function POST(request: Request) {
         id,
         message: `Added ${email} to the waitlist`,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return Response.json(
-        { error: 'Validation failed', details: error.issues },
-        { status: 400 }
+        { error: "Validation failed", details: error.issues },
+        { status: 400 },
       );
     }
 
     if (error instanceof SyntaxError) {
-      return Response.json(
-        { error: 'Invalid JSON' },
-        { status: 400 }
-      );
+      return Response.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
-    console.error('Unexpected error:', error);
-    return Response.json(
-      { error: 'Something went wrong' },
-      { status: 500 }
-    );
+    console.error("Unexpected error:", error);
+    return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
 
 export async function GET() {
   return Response.json({
-    message: 'POST your email to join the waitlist',
+    message: "POST your email to join the waitlist",
   });
 }
 ```
@@ -461,17 +445,14 @@ export async function POST(request: Request) {
   } catch (error) {
     // Client error: bad input
     if (error instanceof ValidationError) {
-      return Response.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return Response.json({ error: error.message }, { status: 400 });
     }
 
     // Server error: something broke
-    console.error('Database error:', error);
+    console.error("Database error:", error);
     return Response.json(
-      { error: 'Failed to save. Try again later.' },
-      { status: 500 }
+      { error: "Failed to save. Try again later." },
+      { status: 500 },
     );
   }
 }
@@ -484,14 +465,14 @@ For GET requests, parameters come from the URL:
 ```typescript
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   // /api/notes/123 → params.id = '123'
 
   // Query string: /api/notes?limit=10&sort=date
   const { searchParams } = new URL(request.url);
-  const limit = searchParams.get('limit') ?? '20';
-  const sort = searchParams.get('sort') ?? 'date';
+  const limit = searchParams.get("limit") ?? "20";
+  const sort = searchParams.get("sort") ?? "date";
 
   return Response.json({
     limit,
@@ -507,27 +488,24 @@ For a route like `/api/notes/[id]/route.ts`:
 ```typescript
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   const { id } = params;
 
   // Validate the ID (is it a number? is it the right format?)
   if (!/^\d+$/.test(id)) {
-    return Response.json(
-      { error: 'Invalid note ID' },
-      { status: 400 }
-    );
+    return Response.json({ error: "Invalid note ID" }, { status: 400 });
   }
 
   // Fetch from database
-  const note = { id, title: 'Example note' };
+  const note = { id, title: "Example note" };
 
   return Response.json(note);
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   const { id } = params;
   const body = await request.json();
@@ -538,7 +516,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   const { id } = params;
 
@@ -553,16 +531,13 @@ Before handling a request, check if the user is logged in:
 
 ```typescript
 // app/api/notes/route.ts
-import { getSession } from '@/lib/auth'; // pretend function
+import { getSession } from "@/lib/auth"; // pretend function
 
 export async function POST(request: Request) {
   // Check auth first
   const session = await getSession(request);
   if (!session) {
-    return Response.json(
-      { error: 'Not authenticated' },
-      { status: 401 }
-    );
+    return Response.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   // Now you know the user is logged in
@@ -587,6 +562,7 @@ Build a working endpoint for one of these features:
 - Form: text input for email, submit button, shows success message or error
 
 **Test:**
+
 - Valid email → shows success
 - Invalid email → shows validation error
 - Clicking while loading → button is disabled
@@ -601,6 +577,7 @@ Build a working endpoint for one of these features:
 - Form: text input for title, textarea for body, tags field, submit button
 
 **Test:**
+
 - Empty title → error
 - Long title (>100 chars) → error
 - Valid note → saved and displayed in list
@@ -616,6 +593,7 @@ Build a working endpoint for one of these features:
 - Form: text input, priority dropdown, add button, shows list of to-dos with delete button on each
 
 **Test:**
+
 - Empty text → error
 - Invalid priority → error
 - Add multiple to-dos → all appear in list
@@ -660,9 +638,9 @@ Each should return the correct status code and error message.
 
 ### Thread 1: language-vs-framework
 
-An HTTP endpoint is a language-agnostic contract. You can write an endpoint in Node, Python, Go, Rust ,  the protocol is the same. A POST request is a POST request. A 400 status code means the same thing everywhere.
+An HTTP endpoint is a language-agnostic contract. You can write an endpoint in Node, Python, Go, Rust , the protocol is the same. A POST request is a POST request. A 400 status code means the same thing everywhere.
 
-Next.js provides the *framework* (route handlers, Response API, server actions), but you need to understand the *language* (HTTP) first. If you learn Next.js without learning HTTP, you'll hit a wall the moment you need to integrate with a third-party API, debug a network issue, or switch frameworks.
+Next.js provides the _framework_ (route handlers, Response API, server actions), but you need to understand the _language_ (HTTP) first. If you learn Next.js without learning HTTP, you'll hit a wall the moment you need to integrate with a third-party API, debug a network issue, or switch frameworks.
 
 In this module, the framework is Next.js. But the concept is HTTP. Write the POST handler so well that you could rewrite it in Flask (Python) and it would behave identically. That's the difference between learning a tool and learning to think like an engineer.
 
@@ -670,15 +648,15 @@ In this module, the framework is Next.js. But the concept is HTTP. Write the POS
 
 ### Thread 2: your-code-vs-the-platform
 
-Next.js gives you `Request` and `Response` objects from the web standard. They come from the platform (the browser API, the Node.js runtime). You're not writing framework-specific code ,  you're writing platform-standard code.
+Next.js gives you `Request` and `Response` objects from the web standard. They come from the platform (the browser API, the Node.js runtime). You're not writing framework-specific code , you're writing platform-standard code.
 
-This has a huge upside: your endpoint code is portable. The `Response.json()` method works the same way in Next.js, in a Worker, in a Node.js HTTP server. But it also means you need to understand *what* the platform gives you, not just *how* Next.js wraps it.
+This has a huge upside: your endpoint code is portable. The `Response.json()` method works the same way in Next.js, in a Worker, in a Node.js HTTP server. But it also means you need to understand _what_ the platform gives you, not just _how_ Next.js wraps it.
 
 Study the `Request` object. It has `.json()`, `.text()`, `.blob()`, `.formData()`. Each parses the body differently. It has a `.url` property (a string), which you can wrap in `new URL()` to extract query parameters. It has headers. Understand these, and you'll be able to debug a request-handling problem in seconds instead of an hour.
 
 Same with `Response`. You could construct it manually: `new Response(JSON.stringify(data), { status: 201, headers: ... })`. Or use the shortcut `Response.json()`. Both are valid. The shortcut is usually better, but know the underlying platform.
 
-**Question:** What happens if you forget to `await request.json()`? Try it. The request body is a stream ,  you have to explicitly consume it. That's the platform. It's not a Next.js quirk. Understanding that distinction will save you.
+**Question:** What happens if you forget to `await request.json()`? Try it. The request body is a stream , you have to explicitly consume it. That's the platform. It's not a Next.js quirk. Understanding that distinction will save you.
 
 ---
 

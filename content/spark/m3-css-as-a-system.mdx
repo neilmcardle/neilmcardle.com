@@ -3,43 +3,51 @@ title: CSS as a system
 module: 4
 phase: "0 ,  Foundations"
 promise: Build responsive layouts and fluid type without a framework.
-threads:
-  - language-vs-framework
-  - design-in-the-browser
 ---
 
 <Section title="Cascade and Specificity">
-CSS stands for Cascading Style Sheets. Styles flow downward; later rules override earlier ones unless blocked by specificity. Specificity is CSS's tiebreaker: inline styles win, then IDs, then classes, then elements.
+  CSS stands for Cascading Style Sheets. Styles flow downward; later rules
+  override earlier ones unless blocked by specificity. Specificity is CSS's
+  tiebreaker: inline styles win, then IDs, then classes, then elements.
 </Section>
 
 <Section title="The Box Model">
-Every element is a box: content, padding, border, margin. `box-sizing: border-box` makes width include padding and border, so your math stays sane.
+  Every element is a box: content, padding, border, margin. `box-sizing:
+  border-box` makes width include padding and border, so your math stays sane.
 </Section>
 
 <Section title="Flexbox and Grid">
-Flexbox is one-dimensional (rows or columns). Grid is two-dimensional (rows and columns at once). Learn both. Use the right tool for the job.
+  Flexbox is one-dimensional (rows or columns). Grid is two-dimensional (rows
+  and columns at once). Learn both. Use the right tool for the job.
 </Section>
 
 <Section title="Custom Properties">
-CSS custom properties (variables) inherit. Define tokens in `:root`, use them everywhere. Change once, cascade everywhere.
+  CSS custom properties (variables) inherit. Define tokens in `:root`, use them
+  everywhere. Change once, cascade everywhere.
 </Section>
 
 <Section title="Relative Units">
-Use `rem` (relative to root), `em` (relative to element), and unitless `line-height`. Relative units scale naturally. Pixels don't.
+  Use `rem` (relative to root), `em` (relative to element), and unitless
+  `line-height`. Relative units scale naturally. Pixels don't.
 </Section>
 
 <Section title="Fluid Type with clamp()">
-`clamp(min, preferred, max)` scales smoothly between screen sizes. Combine with viewport units (`vw`) for responsive type without media queries.
+  `clamp(min, preferred, max)` scales smoothly between screen sizes. Combine
+  with viewport units (`vw`) for responsive type without media queries.
 </Section>
 
 <Section title="Three Responsive Patterns">
-Pattern 1: `clamp()` for scaling. Pattern 2: `flex-wrap` for stacking. Pattern 3: `grid` with `auto-fit` for automatic columns.
+  Pattern 1: `clamp()` for scaling. Pattern 2: `flex-wrap` for stacking. Pattern
+  3: `grid` with `auto-fit` for automatic columns.
 </Section>
 
 <Section title="Why Tailwind Is Just Classes">
-Tailwind maps classes to CSS. `flex` is `display: flex`. It's not magic. Understand CSS first, then use Tailwind as a shortcut.
+  Tailwind maps classes to CSS. `flex` is `display: flex`. It's not magic.
+  Understand CSS first, then use Tailwind as a shortcut.
 </Section>
 
 <Section title="Checkpoint">
-Can you build a responsive pricing page without media queries, using tokens and `clamp()`? Can you explain the difference between `rem` and `em`? Can you draw a box model on paper? If yes, you're ready.
+  Can you build a responsive pricing page without media queries, using tokens
+  and `clamp()`? Can you explain the difference between `rem` and `em`? Can you
+  draw a box model on paper? If yes, you're ready.
 </Section>

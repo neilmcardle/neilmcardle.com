@@ -3,8 +3,6 @@ title: "Auth: Gating Pages Behind Login"
 module: 17
 phase: "Phase 3 ,  Full-stack"
 promise: "Gate something behind login and understand sessions vs. tokens."
-threads:
-  - "your-code-vs-the-platform"
 ---
 
 <Section title="Sessions vs. Tokens ,  The Core Difference">
@@ -74,16 +72,19 @@ Now a login endpoint:
 // POST /api/login
 export async function POST(req) {
   const { email, password } = await req.json();
-  
+
   // (check password; find user)
   const user = await db.users.findOne({ email });
   if (!user || !verifyPassword(password, user.passwordHash)) {
     return new Response("Invalid credentials", { status: 401 });
   }
-  
+
   const sessionId = createSession(user.id);
   const response = new Response(JSON.stringify({ ok: true }), { status: 200 });
-  response.headers.set("Set-Cookie", `sessionId=${sessionId}; HttpOnly; Secure; Path=/; SameSite=Lax`);
+  response.headers.set(
+    "Set-Cookie",
+    `sessionId=${sessionId}; HttpOnly; Secure; Path=/; SameSite=Lax`,
+  );
   return response;
 }
 ```
@@ -95,12 +96,12 @@ On every protected request, check the cookie:
 export function getSessionFromRequest(req) {
   const cookie = req.headers.get("cookie");
   if (!cookie) return null;
-  
+
   const sessionId = cookie
     .split("; ")
-    .find(c => c.startsWith("sessionId="))
+    .find((c) => c.startsWith("sessionId="))
     ?.split("=")[1];
-  
+
   if (!sessionId) return null;
   return getSession(sessionId);
 }
@@ -123,7 +124,7 @@ import jwt from "jsonwebtoken";
 const token = jwt.sign(
   { userId: "alice-123", email: "alice@example.com" },
   process.env.JWT_SECRET,
-  { expiresIn: "24h" }
+  { expiresIn: "24h" },
 );
 // Result: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhbGljZS0xMjMi...
 ```
@@ -163,7 +164,9 @@ const { data, error } = await supabase.auth.signInWithPassword({
 });
 
 // Get the current user (from the session)
-const { data: { user } } = await supabase.auth.getUser();
+const {
+  data: { user },
+} = await supabase.auth.getUser();
 ```
 
 Supabase handles session cookies, expiration, refresh tokens, all the security details. Your code shrinks to a few lines. The platform takes the burden.
@@ -248,7 +251,7 @@ import { createClient } from "@supabase/supabase-js";
 export async function POST() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 
   await supabase.auth.signOut();
@@ -293,7 +296,7 @@ Test the flow: log in, navigate to a protected page, refresh (session persists),
 
 <Section title="Your Code vs. the Platform">
 
-The thread running through this module: you could hand-write sessions, but why would you?
+The point running through this module: you could hand-write sessions, but why would you?
 
 Hand-writing sessions teaches you why platforms exist. You learn that password hashing is non-obvious, that token expiration needs thought, that cookies have security flags for a reason. That knowledge matters.
 

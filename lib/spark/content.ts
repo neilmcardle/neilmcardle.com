@@ -2,13 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
 import { parseContentIntoSections, type ParsedSection } from "./contentParser";
-import {
-  phaseForModule,
-  readingMinutes,
-  resolveThreads,
-  type Phase,
-  type Thread,
-} from "./curriculum";
+import { phaseForModule, readingMinutes, type Phase } from "./curriculum";
 
 export interface ModuleMeta {
   slug: string;
@@ -16,7 +10,6 @@ export interface ModuleMeta {
   module: number;
   promise: string;
   phase: Phase;
-  threads: Thread[];
   sectionCount: number;
   minutes: number;
 }
@@ -74,7 +67,6 @@ export async function loadModule(slug: string): Promise<LoadModuleResult> {
     module: moduleNumber,
     promise: firstString(data.promise, data.objective, data.subtitle),
     phase: phaseForModule(moduleNumber),
-    threads: resolveThreads(data.threads),
     sectionCount: sections.length,
     minutes: readingMinutes(stripFences(mdxSource)),
   };

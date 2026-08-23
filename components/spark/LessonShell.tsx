@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import type { Thread } from "@/lib/spark/curriculum";
+import { scrollContainer } from "@/lib/spark/scrollContainer";
 
 export interface ShellSection {
   id: string;
@@ -16,33 +16,9 @@ interface LessonShellProps {
   phaseLabel: string;
   promise: string;
   minutes: number;
-  threads: Thread[];
   sections: ShellSection[];
   next: { slug: string; title: string } | null;
 }
-
-function scrollContainer(from: HTMLElement): HTMLElement | Window {
-  let node = from.parentElement;
-
-  while (node) {
-    const overflow = getComputedStyle(node).overflowY;
-    if (
-      (overflow === "auto" || overflow === "scroll") &&
-      node.scrollHeight > node.clientHeight
-    ) {
-      return node;
-    }
-    node = node.parentElement;
-  }
-
-  return window;
-}
-
-const THREAD_TONES: Record<Thread["tone"], string> = {
-  gold: "var(--spark-gold)",
-  terracotta: "var(--spark-terracotta)",
-  sage: "var(--spark-sage)",
-};
 
 export function LessonShell({
   title,
@@ -50,7 +26,6 @@ export function LessonShell({
   phaseLabel,
   promise,
   minutes,
-  threads,
   sections,
   next,
 }: LessonShellProps) {
@@ -276,43 +251,10 @@ export function LessonShell({
               );
             })}
           </nav>
-
-          {threads.length > 0 && (
-            <div className="mt-4 border-t border-white/[0.09] pt-4">
-              <span className="spark-eyebrow mb-1 block text-[var(--spark-on-dark-muted)]">
-                + Keep asking
-              </span>
-              <p className="mb-3 text-[11px] leading-[1.5] text-[var(--spark-on-dark-muted)]">
-                These come back in every module.
-              </p>
-              <div className="flex flex-col gap-2">
-                {threads.map((thread) => (
-                  <div
-                    key={thread.id}
-                    className="rounded-lg border border-white/[0.07] bg-white/[0.05] px-2.5 py-2"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span
-                        aria-hidden
-                        className="h-[5px] w-[5px] shrink-0 rounded-full"
-                        style={{ background: THREAD_TONES[thread.tone] }}
-                      />
-                      <span className="text-[11.5px] font-medium text-[var(--spark-on-dark)]">
-                        {thread.name}
-                      </span>
-                    </span>
-                    <span className="mt-1 block pl-[13px] text-[11px] leading-[1.45] text-[var(--spark-on-dark-muted)]">
-                      {thread.question}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </aside>
 
         <div className="min-w-0 flex-1">
-          <header className="sticky top-0 z-40 flex h-[54px] items-center justify-between border-b border-black/[0.07] bg-[var(--spark-paper)]/90 px-5 backdrop-blur-sm lg:px-10">
+          <header className="spark-card sticky top-0 z-40 flex h-[54px] items-center justify-between bg-[var(--spark-paper)]/90 px-5 backdrop-blur-sm lg:px-10">
             <Link
               href="/spark/lessons"
               className="flex items-center gap-2.5 text-[12.5px] font-medium text-[var(--spark-muted)] transition-colors hover:text-[var(--spark-text)]"
@@ -358,33 +300,6 @@ export function LessonShell({
                   {sections.length} sections {String.fromCharCode(183)} about{" "}
                   {minutes} minutes
                 </p>
-
-                {threads.length > 0 && (
-                  <div className="mt-7 xl:hidden">
-                    <span className="spark-eyebrow mb-1 block text-[var(--spark-faint)]">
-                      + Keep asking
-                    </span>
-                    <p className="mb-3 text-[12px] leading-[1.5] text-[var(--spark-faint)]">
-                      Questions this module keeps putting in front of you. They
-                      come back in every module.
-                    </p>
-                    <div className="flex flex-col gap-2.5">
-                      {threads.map((thread) => (
-                        <div
-                          key={thread.id}
-                          className="rounded-lg bg-black/[0.035] px-3.5 py-3"
-                        >
-                          <p className="font-serif text-[15px] leading-[1.3] text-[var(--spark-text)]">
-                            {thread.question}
-                          </p>
-                          <p className="mt-1.5 text-[12.5px] leading-[1.6] text-[#44423e]">
-                            {thread.blurb}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {sections.map((section, i) => (
@@ -431,40 +346,6 @@ export function LessonShell({
             </div>
           </main>
         </div>
-
-        <aside className="sticky top-[54px] hidden h-[calc(100vh-54px)] w-[232px] shrink-0 border-l border-black/[0.07] px-6 py-8 xl:block">
-          {threads.length > 0 && (
-            <>
-              <span className="spark-eyebrow mb-1 block text-[var(--spark-faint)]">
-                + Keep asking
-              </span>
-              <p className="mb-3.5 text-[11.5px] leading-[1.5] text-[var(--spark-faint)]">
-                Questions this module keeps putting in front of you.
-              </p>
-              <div className="flex flex-col gap-3">
-                {threads.map((thread) => (
-                  <div
-                    key={thread.id}
-                    className="rounded-lg bg-black/[0.035] p-3.5"
-                  >
-                    <p className="mb-2 font-serif text-[15px] leading-[1.3] text-[var(--spark-text)]">
-                      {thread.question}
-                    </p>
-                    <p className="text-[12px] leading-[1.6] text-[#44423e]">
-                      {thread.blurb}
-                    </p>
-                    <p
-                      className="mt-2.5 border-l-2 pl-2.5 text-[11.5px] leading-[1.55] text-[var(--spark-muted)]"
-                      style={{ borderColor: THREAD_TONES[thread.tone] }}
-                    >
-                      {thread.example}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </aside>
       </div>
 
       <nav

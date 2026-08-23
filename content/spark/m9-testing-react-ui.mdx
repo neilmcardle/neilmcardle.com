@@ -20,19 +20,17 @@ prerequisites:
   - "Search & Filtering (component from previous module)"
   - "Basic React hooks knowledge"
   - "Familiarity with npm"
-threads:
-  - "evidence-over-claims"
 ---
 
 ## Module Intro
 
-A test is insurance. The moment you write it, you stop guessing about whether your code works. The moment you run it again six months later, you know whether your refactor broke something ,  before your user does.
+A test is insurance. The moment you write it, you stop guessing about whether your code works. The moment you run it again six months later, you know whether your refactor broke something , before your user does.
 
-This module flips the script. Instead of writing code and then bolting tests onto it, you'll write the test *first*. You'll watch it fail. Then you'll write just enough code to make it pass. Finally, you'll refactor with confidence, knowing the tests have your back.
+This module flips the script. Instead of writing code and then bolting tests onto it, you'll write the test _first_. You'll watch it fail. Then you'll write just enough code to make it pass. Finally, you'll refactor with confidence, knowing the tests have your back.
 
 The tool is **Vitest** + **React Testing Library**. They're built for this: Vitest is fast, React Testing Library forces you to test what users see, not component guts.
 
-By the end, you'll have a search component with bulletproof tests that cover all four states (idle, loading, empty, error) ,  and tests that read like documentation.
+By the end, you'll have a search component with bulletproof tests that cover all four states (idle, loading, empty, error) , and tests that read like documentation.
 
 ---
 
@@ -46,7 +44,7 @@ Test-driven development is a rhythm:
 
 ### Why This Order?
 
-If you write code first, tests become an afterthought ,  a checkbox. You test what the code *does*, not what it *should* do. You miss edge cases. You write overly tight tests that break when you refactor.
+If you write code first, tests become an afterthought , a checkbox. You test what the code _does_, not what it _should_ do. You miss edge cases. You write overly tight tests that break when you refactor.
 
 If you write tests first, they define the contract. The code is just the thing that satisfies the contract. You catch impossible requirements before you build them. You refactor fearlessly.
 
@@ -75,34 +73,34 @@ Each test is small. Each passing test is a **working feature**. The code grows i
 
 ## Concept 2: Testing Behavior, Not Implementation
 
-The biggest mistake in testing is this: you test the *code*, not the *feature*.
+The biggest mistake in testing is this: you test the _code_, not the _feature_.
 
 ```jsx
 // ❌ WRONG: Testing the implementation
-it('calls setQuery when input value changes', () => {
+it("calls setQuery when input value changes", () => {
   const setQuery = vi.fn();
   render(<SearchBox query={query} setQuery={setQuery} />);
-  fireEvent.change(screen.getByRole('textbox'), { target: { value: 'react' } });
-  expect(setQuery).toHaveBeenCalledWith('react');
+  fireEvent.change(screen.getByRole("textbox"), { target: { value: "react" } });
+  expect(setQuery).toHaveBeenCalledWith("react");
 });
 ```
 
-This test breaks the moment you refactor ,  maybe you move the state up, maybe you change how you manage query. The test is brittle.
+This test breaks the moment you refactor , maybe you move the state up, maybe you change how you manage query. The test is brittle.
 
 ```jsx
 // ✅ RIGHT: Testing the behavior
-it('filters results when you type in the search box', () => {
-  render(<SearchBox items={['React', 'Vue', 'Angular']} />);
-  const input = screen.getByRole('textbox');
-  
-  userEvent.type(input, 'React');
-  
-  expect(screen.getByText('React')).toBeInTheDocument();
-  expect(screen.queryByText('Vue')).not.toBeInTheDocument();
+it("filters results when you type in the search box", () => {
+  render(<SearchBox items={["React", "Vue", "Angular"]} />);
+  const input = screen.getByRole("textbox");
+
+  userEvent.type(input, "React");
+
+  expect(screen.getByText("React")).toBeInTheDocument();
+  expect(screen.queryByText("Vue")).not.toBeInTheDocument();
 });
 ```
 
-This test focuses on what the user *sees*. It doesn't care if you use `useState`, Zustand, or a state machine under the hood. Refactor all you want ,  the behavior stays the same, the test passes.
+This test focuses on what the user _sees_. It doesn't care if you use `useState`, Zustand, or a state machine under the hood. Refactor all you want , the behavior stays the same, the test passes.
 
 **The rule:** Test inputs and outputs. Never test state, implementation details, or internal function calls.
 
@@ -113,42 +111,46 @@ This test focuses on what the user *sees*. It doesn't care if you use `useState`
 Every component that fetches data or processes input has four states. Each one needs a test.
 
 ### State 1: IDLE
+
 The component has loaded. No data is being fetched. Nothing is filtered yet.
 
 ```jsx
-it('renders an empty results list on mount', () => {
+it("renders an empty results list on mount", () => {
   render(<SearchBox items={[]} />);
-  expect(screen.getByRole('list')).toBeEmptyDOMElement();
+  expect(screen.getByRole("list")).toBeEmptyDOMElement();
 });
 ```
 
 ### State 2: LOADING
+
 Data is being fetched. Show a spinner, disable input, or communicate "hold on."
 
 ```jsx
-it('shows a loading indicator while fetching', async () => {
+it("shows a loading indicator while fetching", async () => {
   render(<SearchBox isLoading={true} />);
-  expect(screen.getByRole('status')).toHaveTextContent('Loading...');
+  expect(screen.getByRole("status")).toHaveTextContent("Loading...");
 });
 ```
 
 ### State 3: EMPTY
+
 The fetch succeeded but returned no results. Show "no matches" or similar.
 
 ```jsx
 it('shows "no results" when there are no matches', async () => {
   render(<SearchBox items={[]} query="xyz" />);
-  expect(screen.getByText('No results')).toBeInTheDocument();
+  expect(screen.getByText("No results")).toBeInTheDocument();
 });
 ```
 
 ### State 4: ERROR
+
 The fetch failed. Show an error message, maybe a retry button.
 
 ```jsx
-it('shows an error message when fetch fails', async () => {
+it("shows an error message when fetch fails", async () => {
   render(<SearchBox error="Network failed" />);
-  expect(screen.getByText('Network failed')).toBeInTheDocument();
+  expect(screen.getByText("Network failed")).toBeInTheDocument();
 });
 ```
 
@@ -156,13 +158,14 @@ If you skip any of these, you have untested code. Users will find the state you 
 
 ---
 
-## Concept 4: Tools ,  Vitest & React Testing Library
+## Concept 4: Tools , Vitest & React Testing Library
 
 ### Vitest
 
-Vitest is a test runner ,  like Jest, but faster. It's built for Vite and modern JavaScript.
+Vitest is a test runner , like Jest, but faster. It's built for Vite and modern JavaScript.
 
 **Key commands:**
+
 ```bash
 # Run tests once
 npm run test
@@ -176,9 +179,10 @@ npm run test:coverage
 
 ### React Testing Library
 
-React Testing Library renders your component *in a browser-like environment* and lets you query it the way a user would.
+React Testing Library renders your component _in a browser-like environment_ and lets you query it the way a user would.
 
 **Forbidden APIs:**
+
 ```jsx
 // ❌ WRONG: Querying by implementation detail
 wrapper.find('.search-input').simulate('change', ...);
@@ -186,20 +190,22 @@ component.state.query;
 ```
 
 **Correct APIs:**
+
 ```jsx
 // ✅ RIGHT: Query by what users see
-screen.getByRole('textbox');
-screen.getByText('No results');
-screen.getAllByRole('option');
+screen.getByRole("textbox");
+screen.getByText("No results");
+screen.getAllByRole("option");
 ```
 
 Common queries:
-- `screen.getByRole('textbox')` ,  by accessibility role
-- `screen.getByText('...')` ,  by visible text
-- `screen.getByLabelText('...')` ,  by associated label
-- `screen.getByPlaceholderText('...')` ,  by placeholder
-- `screen.getAllByRole('...')` ,  all matches
-- `screen.queryByText('...')` ,  returns null if not found (for "should not exist" tests)
+
+- `screen.getByRole('textbox')` , by accessibility role
+- `screen.getByText('...')` , by visible text
+- `screen.getByLabelText('...')` , by associated label
+- `screen.getByPlaceholderText('...')` , by placeholder
+- `screen.getAllByRole('...')` , all matches
+- `screen.queryByText('...')` , returns null if not found (for "should not exist" tests)
 
 ---
 
@@ -209,8 +215,8 @@ Common queries:
 
 ```jsx
 // ❌ WRONG: Mocking the filter function
-it('filters results', () => {
-  const mockFilter = vi.fn(() => ['React']);
+it("filters results", () => {
+  const mockFilter = vi.fn(() => ["React"]);
   render(<SearchBox filter={mockFilter} />);
   // ... now you're testing your mock, not your code
 });
@@ -220,11 +226,11 @@ Mocks hide bugs. If your mock is broken, your tests pass but your code fails. Mo
 
 ```jsx
 // ✅ RIGHT: Test the real filter logic
-it('filters results', () => {
-  const items = ['React', 'Vue', 'Angular'];
+it("filters results", () => {
+  const items = ["React", "Vue", "Angular"];
   render(<SearchBox items={items} />);
-  userEvent.type(screen.getByRole('textbox'), 'React');
-  expect(screen.getByText('React')).toBeInTheDocument();
+  userEvent.type(screen.getByRole("textbox"), "React");
+  expect(screen.getByText("React")).toBeInTheDocument();
 });
 ```
 
@@ -232,19 +238,19 @@ it('filters results', () => {
 
 ```jsx
 // ❌ WRONG: Snapshot testing
-it('renders correctly', () => {
+it("renders correctly", () => {
   render(<SearchBox />);
   expect(container).toMatchSnapshot();
 });
 ```
 
-Snapshots are lazy. When the snapshot breaks, you update it without thinking ,  `npm test -- -u`. You're not verifying behavior, you're just copying whatever the code outputs. Snapshots are brittle and hide intent.
+Snapshots are lazy. When the snapshot breaks, you update it without thinking , `npm test -- -u`. You're not verifying behavior, you're just copying whatever the code outputs. Snapshots are brittle and hide intent.
 
 ```jsx
 // ✅ RIGHT: Behavior-driven tests
-it('renders a search input with a label', () => {
+it("renders a search input with a label", () => {
   render(<SearchBox />);
-  expect(screen.getByLabelText('Search')).toBeInTheDocument();
+  expect(screen.getByLabelText("Search")).toBeInTheDocument();
 });
 ```
 
@@ -252,9 +258,9 @@ it('renders a search input with a label', () => {
 
 ```jsx
 // ❌ WRONG: Querying component internals
-it('filters correctly', () => {
+it("filters correctly", () => {
   const { container } = render(<SearchBox />);
-  const filterFn = container.querySelector('.filter-util');
+  const filterFn = container.querySelector(".filter-util");
   expect(filterFn).toHaveBeenCalled(); // filters don't exist in the DOM
 });
 ```
@@ -263,11 +269,11 @@ Users don't see your `filterFn` helper. They see results or no results. Test wha
 
 ```jsx
 // ✅ RIGHT: Test what users see
-it('filters correctly', () => {
-  render(<SearchBox items={['React', 'Vue']} />);
-  userEvent.type(screen.getByRole('textbox'), 'React');
-  expect(screen.getByText('React')).toBeInTheDocument();
-  expect(screen.queryByText('Vue')).not.toBeInTheDocument();
+it("filters correctly", () => {
+  render(<SearchBox items={["React", "Vue"]} />);
+  userEvent.type(screen.getByRole("textbox"), "React");
+  expect(screen.getByText("React")).toBeInTheDocument();
+  expect(screen.queryByText("Vue")).not.toBeInTheDocument();
 });
 ```
 
@@ -275,11 +281,12 @@ it('filters correctly', () => {
 
 ## Build Exercise: Test-First Search Component
 
-You're going to rewrite the React Fundamentals search component ,  but this time, **tests first**.
+You're going to rewrite the React Fundamentals search component , but this time, **tests first**.
 
 ### The Component (Spec)
 
 A search box that:
+
 - Renders an input and results list
 - Filters items as you type (case-insensitive)
 - Shows "No results" when there are no matches
@@ -295,12 +302,12 @@ npm install -D vitest @testing-library/react @testing-library/user-event jsdom
 Create `src/components/SearchBox.test.tsx`:
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { SearchBox } from './SearchBox';
+import { describe, it, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { SearchBox } from "./SearchBox";
 
-describe('SearchBox', () => {
+describe("SearchBox", () => {
   // Tests go here
 });
 ```
@@ -322,10 +329,10 @@ describe('SearchBox', () => {
   it('filters results when you type', async () => {
     const items = ['React', 'Vue', 'Angular'];
     render(<SearchBox items={items} />);
-    
+
     const input = screen.getByRole('textbox');
     await userEvent.type(input, 'React');
-    
+
     expect(screen.getByText('React')).toBeInTheDocument();
     expect(screen.queryByText('Vue')).not.toBeInTheDocument();
   });
@@ -333,10 +340,10 @@ describe('SearchBox', () => {
   // TEST 3: Empty results
   it('shows "No results" when there are no matches', async () => {
     render(<SearchBox items={['React']} />);
-    
+
     const input = screen.getByRole('textbox');
     await userEvent.type(input, 'xyz');
-    
+
     expect(screen.getByText('No results')).toBeInTheDocument();
     expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
@@ -569,7 +576,7 @@ describe('SearchBox', () => {
     render(
       <SearchBox items={['React']} onItemSelect={onItemSelect} />
     );
-    
+
     await userEvent.click(screen.getByText('React'));
     expect(onItemSelect).toHaveBeenCalledWith('React');
   });
@@ -578,11 +585,11 @@ describe('SearchBox', () => {
   it('shows all items when the search is cleared', async () => {
     const items = ['React', 'Vue', 'Angular'];
     render(<SearchBox items={items} />);
-    
+
     const input = screen.getByRole('textbox');
     await userEvent.type(input, 'React');
     expect(screen.queryByText('Vue')).not.toBeInTheDocument();
-    
+
     await userEvent.clear(input);
     expect(screen.getByText('Vue')).toBeInTheDocument();
   });
@@ -599,14 +606,15 @@ You've completed Testing React UI when you have:
 
 - [ ] **Five core tests** (render, filter works, empty state, loading state, error state)
 - [ ] **A SearchBox component** that passes all tests
-- [ ] **Refactored code** that's clean, accessible, and readable ,  and tests still pass
+- [ ] **Refactored code** that's clean, accessible, and readable , and tests still pass
 - [ ] **Two bonus tests** (case-insensitive, click handler)
 - [ ] **No snapshots, no over-mocking**, only behavior-driven tests
-- [ ] **Tests that read like documentation** ,  someone can read the test and understand the feature
+- [ ] **Tests that read like documentation** , someone can read the test and understand the feature
 
 **Coverage target:** 100% of behavior. Every code path should be covered by at least one test.
 
 Run:
+
 ```bash
 npm run test:coverage
 ```
@@ -619,9 +627,7 @@ You should see 100% line and branch coverage on SearchBox.
 
 ## Evidence-Over-Claims
 
-This module introduces a new thread: **evidence-over-claims**.
-
-The principle: *Every claim about behavior should be proven by a test.*
+The principle for this module: every claim about behaviour should be proven by a test.
 
 When you say "clicking a result calls the callback," you should point to the test that proves it:
 
@@ -632,7 +638,7 @@ it('calls onItemSelect when you click a result', async () => {
   render(
     <SearchBox items={['React']} onItemSelect={onItemSelect} />
   );
-  
+
   await userEvent.click(screen.getByText('React'));
   expect(onItemSelect).toHaveBeenCalledWith('React');
 });
@@ -670,11 +676,11 @@ Going forward, in Spark modules and your own code, claim less. Test more. Let th
 
 When presenting M9:
 
-- **Demo the RED phase.** Show tests failing. Don't skip this ,  students need to see red.
+- **Demo the RED phase.** Show tests failing. Don't skip this , students need to see red.
 - **Build the GREEN phase live.** Narrator-style: "Now I write the minimum code to make tests pass."
-- **Live-refactor and watch tests stay green.** This is the magic moment ,  it proves the tests work.
+- **Live-refactor and watch tests stay green.** This is the magic moment , it proves the tests work.
 - **Show a bad test and a good test side-by-side.** Compare a snapshot test to a behavior test. Point out why the behavior test is better.
-- **Have students write tests *before* code in the exercise.** This is the hardest part but the most valuable. Enforce it.
+- **Have students write tests _before_ code in the exercise.** This is the hardest part but the most valuable. Enforce it.
 
 The biggest pitfall: students will try to write code first, then tests. Stop them. The tests come first, or the exercise doesn't work.
 
@@ -682,6 +688,6 @@ The biggest pitfall: students will try to write code first, then tests. Stop the
 
 ## Next Steps
 
-- **Design Systems in Code** builds on this: **Integration Tests** ,  testing multiple components together, API mocking, async flows.
-- **Motion & Interaction Engineering** covers **Accessibility Testing** ,  making sure your components work for everyone.
-- **Side quest:** Add a fetching example with `async/await` and mock the API call (the *only* time mocking is good).
+- **Design Systems in Code** builds on this: **Integration Tests** , testing multiple components together, API mocking, async flows.
+- **Motion & Interaction Engineering** covers **Accessibility Testing** , making sure your components work for everyone.
+- **Side quest:** Add a fetching example with `async/await` and mock the API call (the _only_ time mocking is good).

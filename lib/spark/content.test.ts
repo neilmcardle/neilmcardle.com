@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { getCurriculum, loadModule } from "./content";
-import { PHASES, THREADS, phaseForModule, resolveThreads } from "./curriculum";
+import { PHASES, phaseForModule } from "./curriculum";
 
 describe("loadModule", () => {
   it("normalises frontmatter into meta", async () => {
@@ -62,48 +62,11 @@ describe("curriculum", () => {
     expect(phaseForModule(9).id).toBe("js-react");
     expect(phaseForModule(19).id).toBe("capstone");
   });
-
-  it("resolves thread aliases and ignores unknown ones", () => {
-    const threads = resolveThreads([
-      "chosen-vs-fixed",
-      "design-in-the-browser / Figma↔code",
-      "not-a-real-thread",
-    ]);
-    expect(threads.map((t) => t.id)).toEqual([
-      "chosen-vs-fixed",
-      "design-in-the-browser",
-    ]);
-  });
 });
 
 describe("section titles", () => {
   it("keeps apostrophes inside double-quoted titles", async () => {
     const result = await loadModule("m8-react-fundamentals");
     expect(result.sections[0].title).toBe("What's a component?");
-  });
-});
-
-describe("threads", () => {
-  it("collapses the two names for the same idea into one thread", () => {
-    const threads = resolveThreads([
-      "your-code-vs-the-platform",
-      "language-vs-framework",
-    ]);
-    expect(threads).toHaveLength(1);
-    expect(threads[0].id).toBe("which-machine");
-  });
-
-  it("gives every thread a plain question and a concrete example", () => {
-    THREADS.forEach((thread) => {
-      expect(thread.question.endsWith("?")).toBe(true);
-      expect(thread.example.length).toBeGreaterThan(20);
-    });
-  });
-
-  it("keeps the old frontmatter spellings working", () => {
-    expect(resolveThreads(["craft-is-the-differentiator"])[0].id).toBe(
-      "where-craft-shows",
-    );
-    expect(resolveThreads(["chosen-vs-fixed"])[0].id).toBe("chosen-vs-fixed");
   });
 });

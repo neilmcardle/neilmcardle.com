@@ -6,7 +6,6 @@ import hljs from "highlight.js/lib/common";
 export interface CodeNote {
   line: number;
   text: string;
-  kind: "note" | "thread";
 }
 
 interface CodeBlockProps {
@@ -53,11 +52,7 @@ function extractNotes(source: string): { code: string; notes: CodeNote[] } {
 
       const text = match[2].trim();
       if (text) {
-        notes.push({
-          line: kept.length + 1,
-          text,
-          kind: match[1] === "!!" ? "thread" : "note",
-        });
+        notes.push({ line: kept.length + 1, text });
       }
       stripped = stripped.slice(0, match.index);
       break;
@@ -228,21 +223,9 @@ export function CodeBlock({
 
               {note && (
                 <div className="px-5 py-2 pl-[44px]">
-                  <div
-                    className={`flex items-start gap-2.5 rounded-lg border border-dashed px-3 py-2.5 ${
-                      note.kind === "thread"
-                        ? "border-[var(--spark-terracotta)]/35 bg-[var(--spark-terracotta)]/[0.07]"
-                        : "border-[var(--spark-gold)]/35 bg-[var(--spark-gold)]/[0.07]"
-                    }`}
-                  >
-                    <span
-                      className={`spark-eyebrow shrink-0 pt-0.5 ${
-                        note.kind === "thread"
-                          ? "text-[var(--spark-terracotta)]"
-                          : "text-[var(--spark-gold)]"
-                      }`}
-                    >
-                      {note.kind === "thread" ? "Thread" : "Note"}
+                  <div className="flex items-start gap-2.5 rounded-lg border border-dashed border-[var(--spark-gold)]/35 bg-[var(--spark-gold)]/[0.07] px-3 py-2.5">
+                    <span className="spark-eyebrow shrink-0 pt-0.5 text-[var(--spark-gold)]">
+                      Note
                     </span>
                     <span className="font-sans text-[12.5px] leading-[1.6] text-[var(--spark-on-dark)]">
                       {note.text}

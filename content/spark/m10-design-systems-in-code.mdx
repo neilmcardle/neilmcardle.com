@@ -6,7 +6,6 @@ phase: "Design Engineer"
 length: "90 minutes"
 objective: "Turn a design system into a coded, themed component library. Move tokens both directions and build components that designers and engineers both respect."
 prerequisites: ["Variables & Theming", "Component Architecture"]
-threads: ["design-in-the-browser / Figma↔code", "craft-is-the-differentiator", "language-vs-framework"]
 status: "ready-to-build"
 ---
 
@@ -14,25 +13,25 @@ status: "ready-to-build"
 
 A design system lives in two places: the designer's head and the engineer's code. The gap between them is where projects die. Components get built, then redesigned without telling code. Tokens change in Figma and ships still carry the old ones. Dark mode works in one place and not the other.
 
-This module closes that gap. Not by adding layers of process (no Figma plugins, no design-to-code generators that hallucinate). By making the code *speak design* so clearly that when a designer glances at it, they recognize their own system. And when an engineer builds on it, they know exactly what lever to pull.
+This module closes that gap. Not by adding layers of process (no Figma plugins, no design-to-code generators that hallucinate). By making the code _speak design_ so clearly that when a designer glances at it, they recognize their own system. And when an engineer builds on it, they know exactly what lever to pull.
 
 The checkpoint: **one source of truth for tokens, components that have a minimal deliberate API, and a sync that works both ways without you thinking about it.**
 
 ---
 
-## Part 1: Tokens ,  The Atomic Language
+## Part 1: Tokens , The Atomic Language
 
 ### What are tokens?
 
 Tokens are decisions written down. "This is brand blue." "This is our spacer unit." "This is the size of body text." They live in Figma as Variables, in CSS as custom properties, in TypeScript as a theme object. Same meaning, three languages.
 
-Most teams pick one place to define them and sync the others. That's already better than none. But the real win is bidirectional sync ,  when a designer tweaks a color in Figma, it lands in CSS. When an engineer realizes "we need a smaller spacing unit," the token appears in Figma's token panel.
+Most teams pick one place to define them and sync the others. That's already better than none. But the real win is bidirectional sync , when a designer tweaks a color in Figma, it lands in CSS. When an engineer realizes "we need a smaller spacing unit," the token appears in Figma's token panel.
 
 ### Token categories
 
 Think of tokens in four bands:
 
-**Primitives** ,  the raw materials. Colors (hex or oklch), font sizes, weights, spacing units. These are immutable, boring, intentional.
+**Primitives** , the raw materials. Colors (hex or oklch), font sizes, weights, spacing units. These are immutable, boring, intentional.
 
 ```css
 /* CSS Custom Properties ,  Primitives */
@@ -40,19 +39,19 @@ Think of tokens in four bands:
   --primitive-color-blue-50: #eff6ff;
   --primitive-color-blue-500: #3b82f6;
   --primitive-color-blue-950: #0c2340;
-  
-  --primitive-space-xs: 0.25rem;   /* 4px */
-  --primitive-space-sm: 0.5rem;    /* 8px */
-  --primitive-space-md: 1rem;      /* 16px */
-  --primitive-space-lg: 1.5rem;    /* 24px */
-  --primitive-space-xl: 2rem;      /* 32px */
-  
+
+  --primitive-space-xs: 0.25rem; /* 4px */
+  --primitive-space-sm: 0.5rem; /* 8px */
+  --primitive-space-md: 1rem; /* 16px */
+  --primitive-space-lg: 1.5rem; /* 24px */
+  --primitive-space-xl: 2rem; /* 32px */
+
   --primitive-font-size-xs: 0.75rem;
   --primitive-font-size-sm: 0.875rem;
   --primitive-font-size-base: 1rem;
   --primitive-font-size-lg: 1.125rem;
   --primitive-font-size-xl: 1.25rem;
-  
+
   --primitive-font-weight-regular: 400;
   --primitive-font-weight-medium: 500;
   --primitive-font-weight-semibold: 600;
@@ -60,7 +59,7 @@ Think of tokens in four bands:
 }
 ```
 
-**Semantic tokens** ,  the rules. "This is the color of a button." "This is the text we use for labels." They reference primitives and carry intent.
+**Semantic tokens** , the rules. "This is the color of a button." "This is the text we use for labels." They reference primitives and carry intent.
 
 ```css
 :root {
@@ -68,25 +67,25 @@ Think of tokens in four bands:
   --color-primary: var(--primitive-color-blue-500);
   --color-primary-hover: var(--primitive-color-blue-600);
   --color-primary-active: var(--primitive-color-blue-700);
-  
+
   --color-success: var(--primitive-color-green-500);
   --color-warning: var(--primitive-color-amber-500);
   --color-danger: var(--primitive-color-red-500);
-  
+
   --color-text-primary: var(--primitive-color-slate-900);
   --color-text-secondary: var(--primitive-color-slate-600);
   --color-text-disabled: var(--primitive-color-slate-400);
-  
+
   --color-background: var(--primitive-color-white);
   --color-surface: var(--primitive-color-slate-50);
   --color-border: var(--primitive-color-slate-200);
-  
+
   /* Semantic: Spacing */
   --space-inline-xs: var(--primitive-space-xs);
   --space-inline-sm: var(--primitive-space-sm);
   --space-inline: var(--primitive-space-md);
   --space-inline-lg: var(--primitive-space-lg);
-  
+
   /* Semantic: Type */
   --type-body: var(--primitive-font-size-base);
   --type-body-weight: var(--primitive-font-weight-regular);
@@ -106,27 +105,29 @@ Think of tokens in four bands:
 }
 ```
 
-**Component tokens** ,  the specifics. "This button uses this text style and this background." Used internally in component CSS, rarely leaked to consumers.
+**Component tokens** , the specifics. "This button uses this text style and this background." Used internally in component CSS, rarely leaked to consumers.
 
-**Alias tokens** ,  shortcuts. Map semantic tokens to multiple names for different contexts. "Call it `--color-text-primary` when it's body text, but in a form input, call the same token `--color-input-text`."
+**Alias tokens** , shortcuts. Map semantic tokens to multiple names for different contexts. "Call it `--color-text-primary` when it's body text, but in a form input, call the same token `--color-input-text`."
 
-The secret: semantic and alias tokens change between themes. Primitives never do. A dark theme doesn't invent new blues ,  it points the same `--color-primary` name to a different primitive blue.
+The secret: semantic and alias tokens change between themes. Primitives never do. A dark theme doesn't invent new blues , it points the same `--color-primary` name to a different primitive blue.
 
 ### Figma Variables: Where Tokens Live
 
 In Figma, Variables are the design system's source of truth. They live in two collections: `Primitives` and `Semantic`.
 
 **Primitives collection:**
+
 - Color group: `blue-50`, `blue-100`, ... `blue-950`
 - Space group: `xs`, `sm`, `md`, `lg`, `xl`
 - Typography group: `size-xs`, `size-sm`, ... `weight-bold`
 
 **Semantic collection:**
+
 - Color group: `primary`, `primary-hover`, `success`, `text-primary`, `background`, etc.
 - Space group: `inline-xs`, `inline-sm`, `inline`, `inline-lg`
 - Type group: `body`, `body-weight`, `label`, `label-weight`
 
-Each semantic color variable points to a primitive. In the `Primitives` mode, it resolves light. In the `Dark` mode, it resolves dark. That's it ,  the same variable name works everywhere.
+Each semantic color variable points to a primitive. In the `Primitives` mode, it resolves light. In the `Dark` mode, it resolves dark. That's it , the same variable name works everywhere.
 
 ```
 Semantic/Colors/primary
@@ -141,10 +142,10 @@ Figma's right side: Variables panel → Select variable → Add mode. Two modes:
 You need a tool to walk Figma's Variables API and write CSS. Don't hand-code this. Options:
 
 1. **Figma's official token exporter** (legacy, deprecated)
-2. **Style Dictionary** ,  industry standard, transforms tokens to any format
-3. **Parity Check** (paid, Figma plugin) ,  syncs both directions, tells you when code drifts from design
-4. **Token Studio** (Figma plugin, paid) ,  manages tokens inside Figma, exports to JSON
-5. **Hand-roll a script** ,  hit Figma's REST API, walk variables, emit CSS
+2. **Style Dictionary** , industry standard, transforms tokens to any format
+3. **Parity Check** (paid, Figma plugin) , syncs both directions, tells you when code drifts from design
+4. **Token Studio** (Figma plugin, paid) , manages tokens inside Figma, exports to JSON
+5. **Hand-roll a script** , hit Figma's REST API, walk variables, emit CSS
 
 For this module, assume you're using **Style Dictionary**. It reads a JSON file of tokens and emits CSS, TypeScript, Tailwind theme, etc.
 
@@ -186,29 +187,29 @@ Style Dictionary config:
 
 ```js
 module.exports = {
-  source: ['tokens/tokens.json'],
+  source: ["tokens/tokens.json"],
   platforms: {
     css: {
-      transformGroup: 'css',
-      buildPath: 'src/tokens/',
+      transformGroup: "css",
+      buildPath: "src/tokens/",
       files: [
         {
-          destination: 'tokens.css',
-          format: 'css/variables'
-        }
-      ]
+          destination: "tokens.css",
+          format: "css/variables",
+        },
+      ],
     },
     ts: {
-      transformGroup: 'ts',
-      buildPath: 'src/tokens/',
+      transformGroup: "ts",
+      buildPath: "src/tokens/",
       files: [
         {
-          destination: 'tokens.ts',
-          format: 'javascript/es6'
-        }
-      ]
-    }
-  }
+          destination: "tokens.ts",
+          format: "javascript/es6",
+        },
+      ],
+    },
+  },
 };
 ```
 
@@ -216,9 +217,9 @@ Run `style-dictionary build`. You get `tokens.css` with all the custom propertie
 
 The hardest part: maintaining sync. When a designer changes Figma variables, how does that JSON file get updated? Options:
 
-- **Export manually** ,  designer runs Figma plugin, copies JSON, pastes into repo
-- **Sync script** ,  CI job hits Figma API on a schedule, commits if changed
-- **Parity Check plugin** ,  paid, does the sync for you, both directions
+- **Export manually** , designer runs Figma plugin, copies JSON, pastes into repo
+- **Sync script** , CI job hits Figma API on a schedule, commits if changed
+- **Parity Check plugin** , paid, does the sync for you, both directions
 
 For a teaching module, assume manual export with a script that validates the JSON before commit. Real workflows vary wildly.
 
@@ -226,7 +227,7 @@ For a teaching module, assume manual export with a script that validates the JSO
 
 ## Part 2: Theming & Dark Mode
 
-Dark mode is not a special case. It's the same tokens pointing to different primitives. The code doesn't change ,  the values change.
+Dark mode is not a special case. It's the same tokens pointing to different primitives. The code doesn't change , the values change.
 
 ### CSS Custom Properties Approach
 
@@ -277,16 +278,16 @@ If you're using Tailwind, tokens become theme values:
 module.exports = {
   theme: {
     colors: {
-      primary: 'var(--color-primary)',
-      'text-primary': 'var(--color-text-primary)',
-      background: 'var(--color-background)',
-      success: 'var(--color-success)',
+      primary: "var(--color-primary)",
+      "text-primary": "var(--color-text-primary)",
+      background: "var(--color-background)",
+      success: "var(--color-success)",
     },
     spacing: {
-      xs: 'var(--space-inline-xs)',
-      sm: 'var(--space-inline-sm)',
-      md: 'var(--space-inline)',
-      lg: 'var(--space-inline-lg)',
+      xs: "var(--space-inline-xs)",
+      sm: "var(--space-inline-sm)",
+      md: "var(--space-inline)",
+      lg: "var(--space-inline-lg)",
     },
   },
 };
@@ -295,7 +296,7 @@ module.exports = {
 Then in components:
 
 ```jsx
-export function Button({ children, variant = 'primary' }) {
+export function Button({ children, variant = "primary" }) {
   return (
     <button className="bg-primary text-white px-md py-sm rounded">
       {children}
@@ -304,7 +305,7 @@ export function Button({ children, variant = 'primary' }) {
 }
 ```
 
-Tailwind emits `bg-[var(--color-primary)]`. When the theme changes (via CSS custom properties), Tailwind doesn't re-run ,  the custom properties update and the browser repaints. It's instant.
+Tailwind emits `bg-[var(--color-primary)]`. When the theme changes (via CSS custom properties), Tailwind doesn't re-run , the custom properties update and the browser repaints. It's instant.
 
 ### TypeScript Theme Objects
 
@@ -378,6 +379,7 @@ The downside: you're not leveraging CSS custom properties or Tailwind's optimiza
 ### The Best Approach for This Module
 
 Use **CSS custom properties + Tailwind**. It's the sweet spot:
+
 - Designers recognize custom properties (they match Figma variable names)
 - Tailwind gives engineers a DX win (utility classes)
 - Themes update instantly (CSS layer, no JS re-render)
@@ -388,6 +390,7 @@ Use **CSS custom properties + Tailwind**. It's the sweet spot:
 ## Part 3: Component API Design
 
 A component's props are its contract. Well-designed props mean:
+
 - A designer can use it without reading source code
 - An engineer can extend it without breaking existing uses
 - It scales to new variants without prop explosion
@@ -415,7 +418,7 @@ Every prop should earn its place. If a prop is only used once in your codebase, 
 />
 ```
 
-Every prop is a escape hatch. The component has no shape ,  it's a factory for infinite shapes.
+Every prop is a escape hatch. The component has no shape , it's a factory for infinite shapes.
 
 **Good:**
 
@@ -432,40 +435,42 @@ The component has a distinct shape. `size` controls both padding and font. `vari
 Group related props into a `variant` prop using **CVA** (if you're using TypeScript and want type safety) or just an object of class maps.
 
 ```tsx
-import { cva, type VariantProps } from 'class-variance-authority';
+import { cva, type VariantProps } from "class-variance-authority";
 
 const buttonVariants = cva(
   // Base styles (always applied)
-  'inline-flex items-center justify-center font-semibold rounded cursor-pointer transition-colors',
+  "inline-flex items-center justify-center font-semibold rounded cursor-pointer transition-colors",
   {
     variants: {
       variant: {
-        primary: 'bg-primary text-white hover:bg-primary-hover active:bg-primary-active',
-        secondary: 'bg-surface text-text-primary border border-border hover:bg-slate-100',
-        ghost: 'text-text-primary hover:bg-surface',
+        primary:
+          "bg-primary text-white hover:bg-primary-hover active:bg-primary-active",
+        secondary:
+          "bg-surface text-text-primary border border-border hover:bg-slate-100",
+        ghost: "text-text-primary hover:bg-surface",
       },
       size: {
-        sm: 'px-sm py-xs text-label',
-        md: 'px-md py-sm text-body',
-        lg: 'px-lg py-md text-body font-semibold',
+        sm: "px-sm py-xs text-label",
+        md: "px-md py-sm text-body",
+        lg: "px-lg py-md text-body font-semibold",
       },
       disabled: {
-        true: 'opacity-50 cursor-not-allowed',
+        true: "opacity-50 cursor-not-allowed",
       },
     },
     compoundVariants: [
       // Optional: rules that apply when multiple variants match
       {
-        variant: 'primary',
+        variant: "primary",
         disabled: true,
-        class: 'bg-slate-300',
+        class: "bg-slate-300",
       },
     ],
     defaultVariants: {
-      variant: 'primary',
-      size: 'md',
+      variant: "primary",
+      size: "md",
     },
-  }
+  },
 );
 
 type ButtonProps = VariantProps<typeof buttonVariants> & {
@@ -502,20 +507,28 @@ CVA is TypeScript-first. It gives you autocomplete on variant names and type-che
 ```tsx
 const variantMap = {
   primary: {
-    sm: 'px-sm py-xs text-label bg-primary text-white',
-    md: 'px-md py-sm text-body bg-primary text-white',
-    lg: 'px-lg py-md text-body bg-primary text-white font-semibold',
+    sm: "px-sm py-xs text-label bg-primary text-white",
+    md: "px-md py-sm text-body bg-primary text-white",
+    lg: "px-lg py-md text-body bg-primary text-white font-semibold",
   },
   secondary: {
-    sm: 'px-sm py-xs text-label bg-surface text-text-primary border border-border',
-    md: 'px-md py-sm text-body bg-surface text-text-primary border border-border',
-    lg: 'px-lg py-md text-body bg-surface text-text-primary border border-border font-semibold',
+    sm: "px-sm py-xs text-label bg-surface text-text-primary border border-border",
+    md: "px-md py-sm text-body bg-surface text-text-primary border border-border",
+    lg: "px-lg py-md text-body bg-surface text-text-primary border border-border font-semibold",
   },
 };
 
-export function Button({ variant = 'primary', size = 'md', children, ...props }) {
+export function Button({
+  variant = "primary",
+  size = "md",
+  children,
+  ...props
+}) {
   return (
-    <button className={variantMap[variant]?.[size] || variantMap.primary.md} {...props}>
+    <button
+      className={variantMap[variant]?.[size] || variantMap.primary.md}
+      {...props}
+    >
       {children}
     </button>
   );
@@ -553,42 +566,45 @@ These components form the scaffold. Every design system needs them. Build them o
 ### 1. Button
 
 ```tsx
-import { cva } from 'class-variance-authority';
+import { cva } from "class-variance-authority";
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-sm font-type-label rounded-md cursor-pointer transition-all',
+  "inline-flex items-center justify-center gap-sm font-type-label rounded-md cursor-pointer transition-all",
   {
     variants: {
       variant: {
-        primary: 'bg-color-primary text-white hover:bg-color-primary-hover active:bg-color-primary-active',
-        secondary: 'bg-color-surface text-color-text-primary border border-color-border hover:bg-slate-100 active:bg-slate-200',
-        ghost: 'text-color-text-primary hover:bg-color-surface active:bg-slate-200',
-        danger: 'bg-color-danger text-white hover:opacity-90 active:opacity-80',
+        primary:
+          "bg-color-primary text-white hover:bg-color-primary-hover active:bg-color-primary-active",
+        secondary:
+          "bg-color-surface text-color-text-primary border border-color-border hover:bg-slate-100 active:bg-slate-200",
+        ghost:
+          "text-color-text-primary hover:bg-color-surface active:bg-slate-200",
+        danger: "bg-color-danger text-white hover:opacity-90 active:opacity-80",
       },
       size: {
-        sm: 'px-space-sm py-space-xs text-type-label',
-        md: 'px-space-md py-space-sm text-type-body',
-        lg: 'px-space-lg py-space-md text-type-body',
+        sm: "px-space-sm py-space-xs text-type-label",
+        md: "px-space-md py-space-sm text-type-body",
+        lg: "px-space-lg py-space-md text-type-body",
       },
     },
     defaultVariants: {
-      variant: 'primary',
-      size: 'md',
+      variant: "primary",
+      size: "md",
     },
-  }
+  },
 );
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+  size?: "sm" | "md" | "lg";
   isLoading?: boolean;
   icon?: React.ReactNode;
 };
 
 export function Button({
   children,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   isLoading,
   icon,
   disabled,
@@ -613,23 +629,23 @@ export function Button({
 
 ```tsx
 const cardVariants = cva(
-  'rounded-lg border border-color-border bg-color-surface overflow-hidden',
+  "rounded-lg border border-color-border bg-color-surface overflow-hidden",
   {
     variants: {
       variant: {
-        elevated: 'shadow-md',
-        flat: 'shadow-none',
-        outlined: 'border-2 border-color-border',
+        elevated: "shadow-md",
+        flat: "shadow-none",
+        outlined: "border-2 border-color-border",
       },
     },
     defaultVariants: {
-      variant: 'flat',
+      variant: "flat",
     },
-  }
+  },
 );
 
 type CardProps = React.HTMLAttributes<HTMLDivElement> & {
-  variant?: 'elevated' | 'flat' | 'outlined';
+  variant?: "elevated" | "flat" | "outlined";
 };
 
 export function Card({ children, variant, className, ...props }: CardProps) {
@@ -641,21 +657,36 @@ export function Card({ children, variant, className, ...props }: CardProps) {
 }
 
 // Subcomponents for structure
-export function CardHeader({ children, className }: React.HTMLAttributes<HTMLDivElement>) {
+export function CardHeader({
+  children,
+  className,
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`px-space-lg py-space-md border-b border-color-border ${className}`}>
+    <div
+      className={`px-space-lg py-space-md border-b border-color-border ${className}`}
+    >
       {children}
     </div>
   );
 }
 
-export function CardBody({ children, className }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={`px-space-lg py-space-md ${className}`}>{children}</div>;
+export function CardBody({
+  children,
+  className,
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={`px-space-lg py-space-md ${className}`}>{children}</div>
+  );
 }
 
-export function CardFooter({ children, className }: React.HTMLAttributes<HTMLDivElement>) {
+export function CardFooter({
+  children,
+  className,
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`px-space-lg py-space-md border-t border-color-border ${className}`}>
+    <div
+      className={`px-space-lg py-space-md border-t border-color-border ${className}`}
+    >
       {children}
     </div>
   );
@@ -671,7 +702,13 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   helpText?: string;
 };
 
-export function Input({ label, error, helpText, className, ...props }: InputProps) {
+export function Input({
+  label,
+  error,
+  helpText,
+  className,
+  ...props
+}: InputProps) {
   return (
     <div className="flex flex-col gap-xs">
       {label && (
@@ -686,13 +723,19 @@ export function Input({ label, error, helpText, className, ...props }: InputProp
           text-color-text-primary placeholder-color-text-secondary
           focus:outline-none focus:ring-2 focus:ring-color-primary focus:border-transparent
           disabled:bg-color-surface disabled:text-color-text-disabled disabled:cursor-not-allowed
-          ${error ? 'border-color-danger focus:ring-color-danger' : ''}
+          ${error ? "border-color-danger focus:ring-color-danger" : ""}
           ${className}
         `}
         {...props}
       />
-      {error && <span className="text-type-label text-color-danger">{error}</span>}
-      {helpText && <span className="text-type-label text-color-text-secondary">{helpText}</span>}
+      {error && (
+        <span className="text-type-label text-color-danger">{error}</span>
+      )}
+      {helpText && (
+        <span className="text-type-label text-color-text-secondary">
+          {helpText}
+        </span>
+      )}
     </div>
   );
 }
@@ -702,33 +745,39 @@ export function Input({ label, error, helpText, className, ...props }: InputProp
 
 ```tsx
 const badgeVariants = cva(
-  'inline-flex items-center justify-center rounded-full font-semibold',
+  "inline-flex items-center justify-center rounded-full font-semibold",
   {
     variants: {
       variant: {
-        primary: 'bg-color-primary text-white',
-        success: 'bg-color-success text-white',
-        warning: 'bg-color-warning text-black',
-        danger: 'bg-color-danger text-white',
+        primary: "bg-color-primary text-white",
+        success: "bg-color-success text-white",
+        warning: "bg-color-warning text-black",
+        danger: "bg-color-danger text-white",
       },
       size: {
-        sm: 'px-space-sm py-xs text-type-label',
-        md: 'px-space-md py-sm text-type-body',
+        sm: "px-space-sm py-xs text-type-label",
+        md: "px-space-md py-sm text-type-body",
       },
     },
     defaultVariants: {
-      variant: 'primary',
-      size: 'md',
+      variant: "primary",
+      size: "md",
     },
-  }
+  },
 );
 
 type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
-  variant?: 'primary' | 'success' | 'warning' | 'danger';
-  size?: 'sm' | 'md';
+  variant?: "primary" | "success" | "warning" | "danger";
+  size?: "sm" | "md";
 };
 
-export function Badge({ children, variant, size, className, ...props }: BadgeProps) {
+export function Badge({
+  children,
+  variant,
+  size,
+  className,
+  ...props
+}: BadgeProps) {
   return (
     <span className={badgeVariants({ variant, size, className })} {...props}>
       {children}
@@ -740,23 +789,29 @@ export function Badge({ children, variant, size, className, ...props }: BadgePro
 ### 5. Modal
 
 ```tsx
-import { createPortal } from 'react-dom';
+import { createPortal } from "react-dom";
 
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
 };
 
 const sizeMap = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
 };
 
-export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  size = "md",
+}: ModalProps) {
   if (!isOpen) return null;
 
   return createPortal(
@@ -787,12 +842,13 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
         <CardBody>{children}</CardBody>
       </Card>
     </div>,
-    document.body
+    document.body,
   );
 }
 ```
 
 Each component:
+
 - Has a clear variant set (no prop explosion)
 - Uses tokens for all spacing, color, type
 - Includes subcomponents where appropriate (Card.Header, etc.)
@@ -820,19 +876,19 @@ async function syncTokensToFigma(tokens) {
   const figmaFile = await fetch(
     `https://api.figma.com/v1/files/${FIGMA_FILE_ID}/variables`,
     {
-      headers: { 'X-Figma-Token': FIGMA_API_TOKEN },
-    }
-  ).then(r => r.json());
+      headers: { "X-Figma-Token": FIGMA_API_TOKEN },
+    },
+  ).then((r) => r.json());
 
   // Iterate tokens, create or update variables
   for (const [name, value] of Object.entries(tokens)) {
-    const existingVar = figmaFile.variables.find(v => v.name === name);
+    const existingVar = figmaFile.variables.find((v) => v.name === name);
     if (existingVar) {
       // Update
-      await fetch(`...${existingVar.id}`, { method: 'PUT', body: { value } });
+      await fetch(`...${existingVar.id}`, { method: "PUT", body: { value } });
     } else {
       // Create
-      await fetch(`...`, { method: 'POST', body: { name, value } });
+      await fetch(`...`, { method: "POST", body: { name, value } });
     }
   }
 }
@@ -854,9 +910,10 @@ For a design system that doesn't change hourly:
 3. **CI builds and deploys.** `npm run tokens:build` → CSS → site.
 
 Figma plugins that export variables:
-- **Token Studio** ,  full-featured, paid
-- **Figma Tokens** ,  lightweight, free
-- **Parity Check** ,  detects drift (designer: did you *actually* update this?)
+
+- **Token Studio** , full-featured, paid
+- **Figma Tokens** , lightweight, free
+- **Parity Check** , detects drift (designer: did you _actually_ update this?)
 
 ### Detecting Drift
 
@@ -864,24 +921,21 @@ A simple check: hash the current tokens JSON, compare to deployed CSS. If they m
 
 ```ts
 // scripts/check-tokens-drift.mjs
-import fs from 'fs';
-import crypto from 'crypto';
+import fs from "fs";
+import crypto from "crypto";
 
-const tokensJson = JSON.parse(fs.readFileSync('tokens/tokens.json', 'utf8'));
-const tokensCss = fs.readFileSync('src/tokens/tokens.css', 'utf8');
+const tokensJson = JSON.parse(fs.readFileSync("tokens/tokens.json", "utf8"));
+const tokensCss = fs.readFileSync("src/tokens/tokens.css", "utf8");
 
 const jsonHash = crypto
-  .createHash('sha256')
+  .createHash("sha256")
   .update(JSON.stringify(tokensJson))
-  .digest('hex');
+  .digest("hex");
 
-const cssHash = crypto
-  .createHash('sha256')
-  .update(tokensCss)
-  .digest('hex');
+const cssHash = crypto.createHash("sha256").update(tokensCss).digest("hex");
 
 if (jsonHash !== cssHash) {
-  console.error('Tokens mismatch. Run npm run tokens:build');
+  console.error("Tokens mismatch. Run npm run tokens:build");
   process.exit(1);
 }
 ```
@@ -900,23 +954,23 @@ Storybook lets designers and engineers see components in isolation, with control
 
 ```tsx
 // Button.stories.tsx
-import { Button } from './Button';
-import type { StoryObj } from '@storybook/react';
+import { Button } from "./Button";
+import type { StoryObj } from "@storybook/react";
 
 const meta = {
-  title: 'Components/Button',
+  title: "Components/Button",
   component: Button,
   args: {
-    children: 'Click me',
+    children: "Click me",
   },
   argTypes: {
     variant: {
-      control: 'radio',
-      options: ['primary', 'secondary', 'ghost', 'danger'],
+      control: "radio",
+      options: ["primary", "secondary", "ghost", "danger"],
     },
     size: {
-      control: 'radio',
-      options: ['sm', 'md', 'lg'],
+      control: "radio",
+      options: ["sm", "md", "lg"],
     },
   },
 };
@@ -925,11 +979,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Primary: Story = {
-  args: { variant: 'primary' },
+  args: { variant: "primary" },
 };
 
 export const Secondary: Story = {
-  args: { variant: 'secondary' },
+  args: { variant: "secondary" },
 };
 
 export const Loading: Story = {
@@ -939,7 +993,7 @@ export const Loading: Story = {
 export const AllVariants: Story = {
   render: () => (
     <div className="flex gap-4">
-      {(['primary', 'secondary', 'ghost', 'danger'] as const).map(variant => (
+      {(["primary", "secondary", "ghost", "danger"] as const).map((variant) => (
         <Button key={variant} variant={variant}>
           {variant}
         </Button>
@@ -950,6 +1004,7 @@ export const AllVariants: Story = {
 ```
 
 Run `npm run storybook`. Open browser. Designers and engineers both see:
+
 - Component rendered with the variant applied
 - Figma links (if you've integrated Figma plugin)
 - Code snippets
@@ -959,35 +1014,36 @@ Run `npm run storybook`. Open browser. Designers and engineers both see:
 
 Write one `README.md` per component. One page. Keep it tight.
 
-```markdown
+````markdown
 # Button
 
-Triggers an action or navigation. Never used for navigation ,  use `<Link>` instead.
+Triggers an action or navigation. Never used for navigation , use `<Link>` instead.
 
 ## Variants
 
-- **primary** ,  Call-to-action. One per page.
-- **secondary** ,  Alternative action. Use when primary is not strong enough.
-- **ghost** ,  Tertiary. Text-only, no background.
-- **danger** ,  Destructive action. Delete, cancel, refund. Requires confirmation.
+- **primary** , Call-to-action. One per page.
+- **secondary** , Alternative action. Use when primary is not strong enough.
+- **ghost** , Tertiary. Text-only, no background.
+- **danger** , Destructive action. Delete, cancel, refund. Requires confirmation.
 
 ## Sizes
 
-- **sm** (12px) ,  Inline actions, small containers
-- **md** (14px) ,  Default, most common
-- **lg** (16px) ,  Hero actions, large containers
+- **sm** (12px) , Inline actions, small containers
+- **md** (14px) , Default, most common
+- **lg** (16px) , Hero actions, large containers
 
 ## API
 
 ```tsx
 <Button
   variant="primary" // 'primary' | 'secondary' | 'ghost' | 'danger'
-  size="md"          // 'sm' | 'md' | 'lg'
-  isLoading={false}  // Shows spinner, disables click
-  disabled={false}   // Disabled state
-  onClick={handler}  // Click handler
+  size="md" // 'sm' | 'md' | 'lg'
+  isLoading={false} // Shows spinner, disables click
+  disabled={false} // Disabled state
+  onClick={handler} // Click handler
 />
 ```
+````
 
 ## Examples
 
@@ -1021,7 +1077,8 @@ const [confirm, setConfirm] = useState(false);
 - Loading state sets `disabled={true}` internally.
 - Focus ring appears on keyboard focus (Tailwind: `focus:ring-2`).
 - Icon-only buttons require `aria-label`.
-```
+
+````
 
 That's it. One page per component. Anything longer and engineers stop reading.
 
@@ -1159,7 +1216,7 @@ Set a rule: tokens can only be added or lightened. Once a token exists, don't re
     }
   }
 }
-```
+````
 
 ### Challenge: How Many Components?
 
@@ -1179,14 +1236,10 @@ export function Select({ options, value, onChange }) {
 
   return (
     <div>
-      <Input
-        value={value}
-        onClick={() => setIsOpen(!isOpen)}
-        readOnly
-      />
+      <Input value={value} onClick={() => setIsOpen(!isOpen)} readOnly />
       {isOpen && (
         <Card className="absolute top-full mt-xs">
-          {options.map(opt => (
+          {options.map((opt) => (
             <button
               key={opt.value}
               onClick={() => {
@@ -1218,25 +1271,22 @@ Once this system is stable:
 Code Connect example:
 
 ```tsx
-import figma from '@figma/code-connect';
-import Button from './Button';
+import figma from "@figma/code-connect";
+import Button from "./Button";
 
-figma.connect(
-  Button,
-  'https://figma.com/design/FILE_ID?node-id=1234',
-  {
-    props: {
-      variant: figma.enum('Variant'),
-      size: figma.enum('Size'),
-      isLoading: figma.boolean('Loading'),
-      children: figma.string('Label'),
-    },
-    example: (props) => <Button {...props}>Click</Button>,
-  }
-);
+figma.connect(Button, "https://figma.com/design/FILE_ID?node-id=1234", {
+  props: {
+    variant: figma.enum("Variant"),
+    size: figma.enum("Size"),
+    isLoading: figma.boolean("Loading"),
+    children: figma.string("Label"),
+  },
+  example: (props) => <Button {...props}>Click</Button>,
+});
 ```
 
 Now, when a designer opens that Figma component, they see:
+
 - Code implementation
 - Props and their types
 - Live example
@@ -1249,11 +1299,11 @@ This closes the gap completely. Designers see code without leaving Figma. Engine
 
 The real win of a design system is this: **a designer and an engineer should be able to look at the same component and both feel ownership.**
 
-When a designer says "this button should have more padding," the engineer hears "update the `md` size spacing." They're speaking the same language because the code *is* the language.
+When a designer says "this button should have more padding," the engineer hears "update the `md` size spacing." They're speaking the same language because the code _is_ the language.
 
 When an engineer says "we need a smaller spacing unit," the designer can add it to Figma's token panel without asking permission. They both own the system because the system is real.
 
-The 5 components, the token layer, the sync, the docs ,  they're all scaffolding for this conversation. The checkpoint isn't "did we build the components?" It's "can a designer and engineer collaborate on them without friction?"
+The 5 components, the token layer, the sync, the docs , they're all scaffolding for this conversation. The checkpoint isn't "did we build the components?" It's "can a designer and engineer collaborate on them without friction?"
 
 If the answer is yes, you've built a system.
 
@@ -1262,24 +1312,29 @@ If the answer is yes, you've built a system.
 ## Resources
 
 **Figma / Tokens:**
+
 - [Figma Variables Documentation](https://help.figma.com/en/articles/15145231-Guide-to-variables)
 - [Token Studio Plugin](https://tokens.studio/)
 - [Figma Tokens Plugin](https://www.figma.com/community/plugin/843461159747178978/Figma-Tokens)
 
 **Style Dictionary:**
+
 - [Style Dictionary Official Docs](https://amzn.github.io/style-dictionary/)
 - [Style Dictionary Examples](https://github.com/amzn/style-dictionary/tree/main/examples)
 
 **Component Design:**
+
 - [Class Variance Authority (CVA)](https://cva.style/docs)
 - [Radix UI Documentation](https://www.radix-ui.com/docs)
 - [Headless UI](https://headlessui.com/)
 
 **Systems Design:**
-- [Design Systems Handbook](https://www.designsystemshandbook.com/) ,  free
-- [Building Design Systems](https://www.oreilly.com/library/view/building-design-systems/9781491924229/) ,  O'Reilly
+
+- [Design Systems Handbook](https://www.designsystemshandbook.com/) , free
+- [Building Design Systems](https://www.oreilly.com/library/view/building-design-systems/9781491924229/) , O'Reilly
 
 **Examples:**
+
 - [Vercel Design](https://vercel.com/design/button)
 - [Stripe Elements](https://stripe.com/docs/stripe-js/elements)
 - [Shopify Polaris](https://polaris.shopify.com/)

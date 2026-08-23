@@ -52,13 +52,24 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
     [modules, progress],
   );
 
+  const started = useMemo(
+    () =>
+      loaded &&
+      modules.some(
+        (m) =>
+          progress[m.module]?.complete ||
+          (progress[m.module]?.furthest ?? 0) > 0,
+      ),
+    [loaded, modules, progress],
+  );
+
   const resume = useMemo(() => {
-    const started = modules.find(
+    const inFlight = modules.find(
       (m) =>
         !progress[m.module]?.complete &&
         (progress[m.module]?.furthest ?? 0) > 0,
     );
-    if (started) return started;
+    if (inFlight) return inFlight;
     return modules.find((m) => !progress[m.module]?.complete) ?? modules[0];
   }, [modules, progress]);
 
@@ -87,11 +98,10 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
 
   return (
     <div className="min-h-screen bg-[var(--spark-ink)] text-white">
-      <header className="flex h-[60px] items-center justify-between border-b border-white/[0.07] px-5 lg:px-14">
-        <Link href="/spark" className="flex items-center gap-2.5">
+      <header className="flex h-[76px] items-center justify-between border-b border-white/[0.07] px-5 lg:h-[92px] lg:px-14">
+        <Link href="/spark" className="flex items-center gap-3 lg:gap-3.5">
           <svg
-            width="15"
-            height="15"
+            className="h-[26px] w-[26px] lg:h-[32px] lg:w-[32px]"
             viewBox="0 0 24 24"
             fill="none"
             stroke="var(--spark-gold)"
@@ -102,66 +112,103 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
           >
             <path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z" />
           </svg>
-          <span className="font-serif text-[15px] font-black uppercase tracking-[0.08em]">
+          <span className="font-serif text-[28px] font-black uppercase leading-none tracking-[0.06em] lg:text-[36px]">
             Spark
           </span>
         </Link>
-        <span className="spark-eyebrow text-[var(--spark-on-dark-muted)]">
-          {loaded
-            ? `${completedCount} of ${modules.length} complete`
-            : `${modules.length} modules`}
-        </span>
+
+        {started && (
+          <div className="hidden items-end gap-9 lg:flex">
+            <div>
+              <div className="font-serif text-[26px] font-black leading-none tracking-[-0.02em] text-[var(--spark-gold)]">
+                {completedCount}
+              </div>
+              <div className="spark-eyebrow mt-1.5 text-[var(--spark-on-dark-muted)]">
+                Done
+              </div>
+            </div>
+            <div>
+              <div className="font-serif text-[26px] font-black leading-none tracking-[-0.02em]">
+                {percent}
+                <span className="text-[15px] text-[var(--spark-on-dark-muted)]">
+                  %
+                </span>
+              </div>
+              <div className="spark-eyebrow mt-1.5 text-[var(--spark-on-dark-muted)]">
+                Of the course
+              </div>
+            </div>
+            <div>
+              <div className="font-serif text-[26px] font-black leading-none tracking-[-0.02em]">
+                {Math.round(minutesLeft / 60)}
+                <span className="text-[15px] text-[var(--spark-on-dark-muted)]">
+                  h
+                </span>
+              </div>
+              <div className="spark-eyebrow mt-1.5 text-[var(--spark-on-dark-muted)]">
+                Left
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       <div className="px-5 pb-10 pt-12 lg:px-14 lg:pt-14">
         <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <span className="spark-eyebrow mb-5 block text-[var(--spark-gold)]">
-              + The curriculum
-            </span>
-            <h1 className="mb-4 font-serif text-[clamp(2.75rem,9vw,4.25rem)] font-black uppercase leading-[0.94] tracking-[-0.03em]">
-              Nineteen
-              <br />
-              modules
+            <h1 className="mb-4 font-serif text-[clamp(2.75rem,9vw,4.25rem)] font-black uppercase leading-[0.94] tracking-[-0.03em] lg:whitespace-nowrap">
+              Become an engineer
             </h1>
-            <p className="max-w-[440px] font-serif text-[19px] italic leading-[1.45] text-[var(--spark-on-dark-muted)]">
-              Fundamentals up. From how a file becomes a page, to a full stack
-              capstone shipped without AI.
+            <p className="max-w-[460px] font-serif text-[19px] italic leading-[1.45] text-[var(--spark-on-dark-muted)] xl:max-w-none xl:whitespace-nowrap">
+              Most designers can prompt their way to an app. But, few can start
+              from an empty file. That&apos;s what this course is for.
             </p>
           </div>
 
-          <div className="flex gap-9 lg:gap-11">
-            <div>
-              <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em] text-[var(--spark-gold)]">
-                {loaded ? completedCount : "·"}
+          {started ? (
+            <div className="flex gap-9 lg:hidden">
+              <div>
+                <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em] text-[var(--spark-gold)]">
+                  {completedCount}
+                </div>
+                <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
+                  Done
+                </div>
               </div>
-              <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
-                Done
+              <div>
+                <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em]">
+                  {percent}
+                  <span className="text-[22px] text-[var(--spark-on-dark-muted)]">
+                    %
+                  </span>
+                </div>
+                <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
+                  Of the course
+                </div>
+              </div>
+              <div>
+                <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em]">
+                  {Math.round(minutesLeft / 60)}
+                  <span className="text-[22px] text-[var(--spark-on-dark-muted)]">
+                    h
+                  </span>
+                </div>
+                <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
+                  Left
+                </div>
               </div>
             </div>
-            <div>
-              <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em]">
-                {loaded ? percent : "·"}
-                <span className="text-[22px] text-[var(--spark-on-dark-muted)]">
-                  %
-                </span>
-              </div>
-              <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
-                Of the course
-              </div>
-            </div>
-            <div>
-              <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em]">
-                {Math.round(minutesLeft / 60)}
-                <span className="text-[22px] text-[var(--spark-on-dark-muted)]">
-                  h
-                </span>
-              </div>
-              <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
-                Left
-              </div>
-            </div>
-          </div>
+          ) : (
+            <p className="spark-eyebrow flex shrink-0 flex-wrap gap-x-1.5 text-[var(--spark-on-dark-muted)] lg:pb-2">
+              <span className="whitespace-nowrap">
+                {modules.length} modules {String.fromCharCode(183)}
+              </span>
+              <span className="whitespace-nowrap">
+                {PHASES.length} phases {String.fromCharCode(183)}
+              </span>
+              <span className="whitespace-nowrap">no prior code needed</span>
+            </p>
+          )}
         </div>
 
         {resume && (
@@ -216,7 +263,7 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
             phase={phase}
             modules={group}
             progress={progress}
-            loaded={loaded}
+            started={started}
           />
         ))}
       </div>
@@ -228,16 +275,16 @@ function PhaseGroup({
   phase,
   modules,
   progress,
-  loaded,
+  started,
 }: {
   phase: Phase;
   modules: CurriculumEntry[];
   progress: Record<number, Progress>;
-  loaded: boolean;
+  started: boolean;
 }) {
   const done = modules.filter((m) => progress[m.module]?.complete).length;
   const index = PHASES.indexOf(phase);
-  const active = loaded && done < modules.length && done > 0;
+  const active = started && done < modules.length && done > 0;
 
   return (
     <section className="mb-8">
@@ -252,7 +299,7 @@ function PhaseGroup({
         </h2>
         <span aria-hidden className="h-px flex-1 bg-white/[0.09]" />
         <span className="spark-eyebrow shrink-0 text-[var(--spark-on-dark-muted)]">
-          {loaded
+          {started
             ? `${done} of ${modules.length}`
             : `${modules.length} modules`}
         </span>

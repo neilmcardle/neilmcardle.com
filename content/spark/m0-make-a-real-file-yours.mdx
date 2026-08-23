@@ -3,16 +3,13 @@ title: Make a real file yours
 module: 1
 phase: "0 ,  Foundations"
 promise: "Read every line of a real shipped file and say what it does and why."
-threads:
-  - chosen-vs-fixed
-  - language-vs-framework
 ---
 
 <Section title="What we're doing today">
 
 You're about to read a real, shipped React component line by line. Not a toy example. Not pseudocode. A component that's actually running in production somewhere right now, handling real users' clicks, rendering real data.
 
-Your job: make sense of every line. Understand what it does. More importantly, understand *why* it's there. There's a difference between "I see JSX markup" and "I see JSX markup that handles empty states correctly."
+Your job: make sense of every line. Understand what it does. More importantly, understand _why_ it's there. There's a difference between "I see JSX markup" and "I see JSX markup that handles empty states correctly."
 
 By the end, you'll have a mental model of how a component thinks. You'll be able to pick up unfamiliar code and read it like prose.
 
@@ -23,14 +20,14 @@ By the end, you'll have a mental model of how a component thinks. You'll be able
 Here's a real search component from a shipped app. It takes user input, filters a list, and shows results. The component lives in a larger app where product managers and designers use it to find users by name.
 
 ```jsx
-import { useState } from 'react'
+import { useState } from "react";
 
 export function SearchUsers({ users = [] }) {
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState("");
 
-  const filtered = users.filter(user =>
-    user.name.toLowerCase().includes(query.toLowerCase())
-  )
+  const filtered = users.filter((user) =>
+    user.name.toLowerCase().includes(query.toLowerCase()),
+  );
 
   return (
     <div>
@@ -45,29 +42,31 @@ export function SearchUsers({ users = [] }) {
         <div>No users found</div>
       ) : (
         <ul>
-          {filtered.map(user => (
+          {filtered.map((user) => (
             <li key={user.id}>{user.name}</li>
           ))}
         </ul>
       )}
     </div>
-  )
+  );
 }
 ```
 
-By the end of this lesson, you'll understand every line. Not just what it does. Why it's there.
+Read it once now, without worrying about the parts you don't recognise. The rest of this module walks through it line by line until you can say what each one does and why it's there.
 
 </Section>
 
 <Section title="Line 1: Where this code lives">
 
 ```jsx
-import { useState } from 'react'
+import { useState } from "react";
 ```
 
 This line says: "I need the `useState` tool from React."
 
-Think of `useState` like a post-it note that the component can write on and read from. It lets a component remember things between renders. When you type in the search box, the component re-renders, but `useState` keeps track of what you've typed so far. Without it, the input would be blank every time React redrew the screen.
+`useState` is a function React gives you for storing a value that is allowed to change while the component is on screen.
+
+Here is why that needs a special tool. Whenever something changes, React runs your component function again from the top to work out what should now be displayed. Each of those runs is called a _render_. Any ordinary variable you declare inside the component is created fresh at the start of a render and thrown away at the end of it, so it cannot hold anything from one render to the next. A value stored with `useState` is kept by React outside your function and handed back to you on every render. That is what lets the search box still contain the letters you typed a moment ago.
 
 You'll learn about `useState` in detail in the next section. For now, know that this import line is how you get access to it.
 
@@ -81,20 +80,28 @@ export function SearchUsers({ users = [] }) {
 
 Let's unpack this.
 
-`export` means "make this available to the rest of the app." If you don't write `export`, other files can't use this component. The app's main file probably has `import { SearchUsers } from './SearchUsers'` somewhere.
+`export` is a JavaScript keyword. By default every file is sealed: nothing written inside one file can be seen by any other file. Writing `export` in front of something marks it as available to the rest of the app.
+
+Another file then reaches it by name, like this:
+
+```jsx
+import { SearchUsers } from "./SearchUsers";
+```
+
+That is the same mechanism as line 1, running in the other direction. React exports `useState`, and line 1 imports it. Here the component is exported so that some other file can import it and put it on screen. Without `export`, `SearchUsers` would exist only inside this file and nothing else could use it.
 
 `function SearchUsers` says "this is a component, and we call it SearchUsers." That name is ours to choose. You could call it `UserLookup` or `UserFinder` or `Typeahead`. The word `function` is mandatory, but the name comes from us.
 
-`({ users = [] })` is the tricky part. This component receives data from its parent component called `users`. The `= []` part means "if nobody gives me users, use an empty list." It's a safety net. If a parent forgets to pass users, the component doesn't crash. It just has nothing to show.
+`({ users = [] })` is how the component receives data from whatever is putting it on screen. That data arrives under the name `users`.
 
-In design terms, this is like saying "this component is designed to work with a list of users, but it won't break if the list is empty."
+The `= []` sets a default. If nothing is passed in, `users` becomes an empty list rather than being missing altogether. That matters because the next line tries to filter `users`, and filtering something that does not exist stops the component from rendering at all. With the default, the component runs and simply has nothing to show.
 
 </Section>
 
 <Section title="Line 4: Remembering the search query">
 
 ```jsx
-const [query, setQuery] = useState('')
+const [query, setQuery] = useState("");
 ```
 
 This is `useState` at work. Let's break it down.
@@ -102,6 +109,7 @@ This is `useState` at work. Let's break it down.
 `useState('')` says "I'm creating a piece of state that starts as an empty string." An empty string is `''` in code, just like a blank text field.
 
 `const [query, setQuery]` is how you grab that piece of state. You get two things:
+
 - `query`: the current value (what the user has typed so far)
 - `setQuery`: a function to change it
 
@@ -114,16 +122,16 @@ Every time the user types a letter, `setQuery` will be called, and the component
 <Section title="Line 6–8: Filtering the list">
 
 ```jsx
-const filtered = users.filter(user =>
-  user.name.toLowerCase().includes(query.toLowerCase())
-)
+const filtered = users.filter((user) =>
+  user.name.toLowerCase().includes(query.toLowerCase()),
+);
 ```
 
 This is JavaScript's `.filter()` method at work. It takes a list and keeps only the items that match a test.
 
 Here, the test is: "Does this user's name include the letters the user typed?" The `user.name.toLowerCase()` turns the user's name to lowercase, and `.includes(query.toLowerCase())` checks if it contains the search query (also lowercased). This way, searching for "john" finds "John" and "JOHN" too.
 
-`filter()` returns a *new* list containing only the matches. If the user types "al" and there are users named "Alice", "Albert", and "Bob", the `filtered` list will have Alice and Albert. Bob gets left out.
+`filter()` returns a _new_ list containing only the matches. If the user types "al" and there are users named "Alice", "Albert", and "Bob", the `filtered` list will have Alice and Albert. Bob gets left out.
 
 The component doesn't modify the original `users` list. It creates a new one. This is important, and you'll learn why in later modules.
 
@@ -150,7 +158,7 @@ value={query}
 onChange={(e) => setQuery(e.target.value)}
 ```
 
-This is where React takes over. `value={query}` means "make this input show whatever's in the `query` state." If `query` is `"jo"`, the input shows `"jo"`. This is called a *controlled input*. React controls what appears in the input at all times.
+This is where React takes over. `value={query}` means "make this input show whatever's in the `query` state." If `query` is `"jo"`, the input shows `"jo"`. This is called a _controlled input_. React controls what appears in the input at all times.
 
 `onChange={(e) => setQuery(e.target.value)}` says "when the user types something, call `setQuery` with the new text." The `e` is the browser's event object, and `e.target.value` is what the user just typed. So when they type "alice", this line calls `setQuery("alice")`, which updates `query`, which re-renders the component with the filtered list.
 
@@ -168,7 +176,7 @@ This cycle, type, update state, re-render, show new filtered results, happens in
     {filtered.map(user => (
 ```
 
-This is a *ternary operator*. It's short for if-then-else.
+This is a _ternary operator_. It's short for if-then-else.
 
 `filtered.length === 0 ?` asks "is the filtered list empty?" If yes, show `<div>No users found</div>`. If no, show the list of results.
 
@@ -182,7 +190,7 @@ This is a design decision baked into code. The designer and developer agreed: em
 
 ```jsx
 <ul>
-  {filtered.map(user => (
+  {filtered.map((user) => (
     <li key={user.id}>{user.name}</li>
   ))}
 </ul>
@@ -194,40 +202,11 @@ The `<ul>` is an unordered list in HTML. Inside it, we loop over the `filtered` 
 
 `{user.name}` pulls the name out of the current user object and shows it on screen.
 
-But the crucial line is `key={user.id}`. This is *not* for the user to see. It's for React's internal bookkeeping.
+But the crucial line is `key={user.id}`. This is _not_ for the user to see. It's for React's internal bookkeeping.
 
 When React re-renders and the list changes, React needs to know which items are the same as before and which are new. If you delete a user from the list, React needs to know which `<li>` to remove. The `key` prop is like an ID bracelet on each list item. React uses it to match items before and after the render.
 
 Never use the item's position in the array as the key. If the list re-orders, React will get confused. Always use a unique ID like `user.id`.
-
-</Section>
-
-<Section title="The chosen-vs-fixed thread">
-
-Look back at the code. Some things we picked, and some are forced on us.
-
-Things we chose:
-- The component's name: `SearchUsers`
-- The state variable's name: `query`
-- The function to update it: `setQuery`
-- The text in the placeholder: "Search users..."
-- The empty state message: "No users found"
-
-Things the language forced us to use:
-- `import` and `export` keywords
-- The word `function`
-- `useState` to remember state
-- The structure `const [something, setSomething]`
-- The `.filter()` and `.map()` methods
-- The `key` prop on loops
-- The ternary operator `? :`
-- JSX markup
-
-Here's the big insight: understanding React means learning both categories. You need to know the forced stuff (the syntax, the patterns like `useState` and `.map`) so well that you can use them without thinking. Then you have mental bandwidth left over to make good choices about the first category: the names, the messages, the logic that makes *your* app different from someone else's.
-
-Designers understand this intuitively. You choose a typeface (Playfair vs. Inter), but you don't choose whether to have ascenders and descenders. You choose a color palette, but you don't choose whether color exists. In code, it's the same. You choose the component's name and what message appears when there are no results, but you don't choose whether to use `function` or `const` or `import`.
-
-The best developers get fluent enough with the forced stuff that it becomes invisible. They can focus on building something useful.
 
 </Section>
 
@@ -256,12 +235,24 @@ This cycle, type, update state, re-render, show new results, is the core of how 
 
 You've just read a real, production component line by line. You know what each line does and why it's there. Let's check.
 
-<Check question="What does the setQuery function do when the user types in the input?" answer="It updates the query state with whatever the user typed, which triggers a re-render." />
+<Check
+  question="What does the setQuery function do when the user types in the input?"
+  answer="It updates the query state with whatever the user typed, which triggers a re-render."
+/>
 
-<Check question="Why do we need the key={user.id} prop on the list items?" answer="It helps React keep track of which items are the same before and after a re-render, so it can update the DOM efficiently." />
+<Check
+  question="Why do we need the key={user.id} prop on the list items?"
+  answer="It helps React keep track of which items are the same before and after a re-render, so it can update the DOM efficiently."
+/>
 
-<Check question="What would happen if we removed the 'No users found' message?" answer="The component would show an empty list when there are no matches, which would be confusing because the user wouldn't know if it's broken or if there are just no results." />
+<Check
+  question="What would happen if we removed the 'No users found' message?"
+  answer="The component would show an empty list when there are no matches, which would be confusing because the user wouldn't know if it's broken or if there are just no results."
+/>
 
-<Check question="Why does the component have users = [] as a default prop?" answer="It's a safety net. If a parent component doesn't pass users, the component won't crash. It'll just have an empty list to work with." />
+<Check
+  question="Why does the component have users = [] as a default prop?"
+  answer="It's a safety net. If a parent component doesn't pass users, the component won't crash. It'll just have an empty list to work with."
+/>
 
 </Section>

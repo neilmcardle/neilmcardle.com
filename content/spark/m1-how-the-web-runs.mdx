@@ -3,9 +3,6 @@ title: How the web runs
 module: 2
 phase: "0 ,  Foundations"
 promise: "Know what happens between saving a file and seeing it in a browser."
-threads:
-  - your-code-vs-the-platform
-  - error-location-is-a-hint
 ---
 
 <Section title="The terminal is a text UI">
@@ -28,7 +25,7 @@ A server listens for requests. Your browser makes a request. The server responds
 
 Some browser features are blocked on `file://` URLs for security reasons. Service workers do not run. Cross-origin requests fail. Your code might work on `file://` but break when deployed to the actual web.
 
-This is part of the "your-code-vs-the-platform" thread: your code and the platform (the browser, the web) have different rules depending on where and how you run it. Local file access is not the same as web access.
+Your code and the platform it runs on have different rules depending on where and how you run it. Opening a file directly is not the same as loading it over the web.
 
 </Section>
 
@@ -71,13 +68,13 @@ Create an `index.html` file:
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Web Basics</title>
-</head>
-<body>
-  <h1>Hello from the server</h1>
-  <script src="./app.js"></script>
-</body>
+  <head>
+    <title>Web Basics</title>
+  </head>
+  <body>
+    <h1>Hello from the server</h1>
+    <script src="./app.js"></script>
+  </body>
 </html>
 ```
 
@@ -110,9 +107,9 @@ Follow the prompts to create a new Vite project. Move your `index.html` and `app
 
 </Section>
 
-<Section title="The error-location thread">
+<Section title="Errors tell you where to look">
 
-The "error-location-is-a-hint" thread runs through everything we just covered. When something breaks, the error message usually tells you where the problem is.
+When something breaks, the error message usually tells you where the problem is. This holds for everything covered above.
 
 If your `app.js` file has a syntax error, the browser console shows the error and tells you the file name and line number. That is location data. It is a hint that you should look at that file, on that line.
 

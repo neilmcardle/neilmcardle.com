@@ -61,7 +61,6 @@ export default async function LessonPage(props: PageProps) {
       phaseLabel={phaseLabel(meta.phase)}
       promise={meta.promise}
       minutes={meta.minutes}
-      threads={meta.threads}
       next={next}
       sections={sections.map((section) => ({
         id: section.id,

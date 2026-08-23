@@ -3,10 +3,6 @@ title: HTML, the language
 module: 3
 phase: "0 ,  Foundations"
 promise: Hand-write semantic, accessible HTML, and start designing in the browser.
-threads:
-  - the-browser-speaks-more-than-one-language
-  - craft-is-the-differentiator
-  - a11y-from-day-one
 ---
 
 <Section title="The DOM is a tree">
@@ -28,7 +24,7 @@ A tree has a root, branches, and leaves. In HTML, the root is `<html>`. It branc
 </html>
 ```
 
-The thread *the-browser-speaks-more-than-one-language* starts here. The browser doesn't just see HTML. It sees structure. Meaning. Relationship. The tree is how it communicates all three.
+The browser does not just see HTML. It sees structure, meaning and relationship, and the tree is how it reads all three at once.
 
 The order of nesting determines the reading order for screen readers. It determines which elements are children, which are siblings, which belong to which parent. Get this right and everything else becomes easier.
 
@@ -40,7 +36,7 @@ You could build the tree with nothing but `<div>` and classes. Don't.
 
 Semantic elements are the names HTML gives to common page structures. Instead of `<div class="navigation">`, use `<nav>`. Instead of `<div class="article">`, use `<article>`. Instead of `<div class="important text">`, use `<strong>`.
 
-They tell the browser, the screen reader, and the search engine what each part *is*. A screen reader announces "navigation region" when it encounters `<nav>`. A search engine knows `<article>` is main content, not sidebar. CSS inherits meaning from the element type.
+They tell the browser, the screen reader, and the search engine what each part _is_. A screen reader announces "navigation region" when it encounters `<nav>`. A search engine knows `<article>` is main content, not sidebar. CSS inherits meaning from the element type.
 
 Compare these:
 
@@ -64,19 +60,20 @@ Compare these:
 </header>
 ```
 
-Both render identically. The semantic version is shorter, clearer, and works better for assistive technology. That's *craft-is-the-differentiator*. Care about how you build it. A semantic page is easier to style, faster to load, more accessible by default, and honest in its structure.
+Both render identically. The semantic version is shorter, clearer, and works better for assistive technology. That's _craft-is-the-differentiator_. Care about how you build it. A semantic page is easier to style, faster to load, more accessible by default, and honest in its structure.
 
 Key semantic elements:
-- `<header>` ,  introductory content at the top of a section
-- `<nav>` ,  navigation links
-- `<main>` ,  the primary content of the page (use once per page)
-- `<article>` ,  a self-contained piece of content
-- `<section>` ,  a thematic grouping of content
-- `<aside>` ,  tangential content, sidebars
-- `<footer>` ,  closing content of a section
-- `<h1>` through `<h6>` ,  headings in order (never skip levels)
-- `<strong>` ,  importance (vs. `<b>`, which is just bold)
-- `<em>` ,  emphasis (vs. `<i>`, which is just italic)
+
+- `<header>` , introductory content at the top of a section
+- `<nav>` , navigation links
+- `<main>` , the primary content of the page (use once per page)
+- `<article>` , a self-contained piece of content
+- `<section>` , a thematic grouping of content
+- `<aside>` , tangential content, sidebars
+- `<footer>` , closing content of a section
+- `<h1>` through `<h6>` , headings in order (never skip levels)
+- `<strong>` , importance (vs. `<b>`, which is just bold)
+- `<em>` , emphasis (vs. `<i>`, which is just italic)
 
 </Section>
 
@@ -85,6 +82,7 @@ Key semantic elements:
 A link navigates. The browser handles it. The user gains power over where a link goes.
 
 Use `<a href="/">` when clicking it changes the URL or goes somewhere. The browser gives the user control:
+
 - Right-click to open in a new tab
 - Middle-click to open in the background
 - Copy the link to send to someone
@@ -136,37 +134,36 @@ The key difference: **links change the URL. Buttons don't.** If clicking it chan
 
 <Section title="Forms and labels are accessibility first">
 
-The thread *a11y-from-day-one* lives here.
-
 Every form field needs a label. Not a placeholder. Not a hint. A real `<label>` element connected to the input via `for` and `id`.
 
 ```html
 <!-- Good: label and input connected -->
 <label for="email-input">Email address</label>
-<input type="email" id="email-input" name="email">
+<input type="email" id="email-input" name="email" />
 
 <!-- Bad: no label -->
-<input type="email" placeholder="your@email.com">
+<input type="email" placeholder="your@email.com" />
 
 <!-- Bad: label not connected -->
 <label>Email address</label>
-<input type="email">
+<input type="email" />
 ```
 
 When the `for` and `id` match, something powerful happens:
+
 - Clicking the label focuses the input
 - On checkboxes and radio buttons, it enlarges the clickable area
 - A screen reader announces the label when the input is focused
 - The form field has semantic meaning
 
-This works from day one. No JavaScript. No framework. This is *a11y-from-day-one* in action.
+This works from day one. No JavaScript. No framework. This is _a11y-from-day-one_ in action.
 
 Use the right `type` for each input. `type="email"` validates email format and shows an email keyboard on mobile. `type="number"` shows a numeric keyboard. `type="password"` hides the text. Use these. They're not just styling, they change how the browser and device behave.
 
 For checkboxes and radio buttons, the label becomes the clickable area:
 
 ```html
-<input type="checkbox" id="agree" name="agree">
+<input type="checkbox" id="agree" name="agree" />
 <label for="agree">I agree to the terms</label>
 ```
 
@@ -184,8 +181,19 @@ You can write SVG the way you write HTML, with elements and attributes. An SVG s
 
 ```html
 <svg viewBox="0 0 24 24" width="24" height="24">
-  <circle cx="12" cy="12" r="10" stroke="currentColor" fill="none" stroke-width="2"/>
-  <path d="Shipping UI ,  Next.js + Desktop/Electron 8v8M8 12h8" stroke="currentColor" stroke-width="2"/>
+  <circle
+    cx="12"
+    cy="12"
+    r="10"
+    stroke="currentColor"
+    fill="none"
+    stroke-width="2"
+  />
+  <path
+    d="Shipping UI ,  Next.js + Desktop/Electron 8v8M8 12h8"
+    stroke="currentColor"
+    stroke-width="2"
+  />
 </svg>
 ```
 
@@ -204,7 +212,7 @@ It's incredibly useful in SVGs and icons. Instead of hardcoding a color into the
 ```html
 <!-- SVG with currentColor -->
 <svg viewBox="0 0 24 24" width="24" height="24">
-  <circle cx="12" cy="12" r="10" stroke="currentColor" fill="none"/>
+  <circle cx="12" cy="12" r="10" stroke="currentColor" fill="none" />
 </svg>
 
 <style>
@@ -212,7 +220,7 @@ It's incredibly useful in SVGs and icons. Instead of hardcoding a color into the
   svg {
     color: blue; /* circle now has blue stroke */
   }
-  
+
   svg:hover {
     color: red; /* circle now has red stroke on hover */
   }
@@ -230,6 +238,7 @@ This is especially powerful for icon systems. An icon inherits color from the bu
 You're going to write a semantic HTML page that showcases typography. No CSS frameworks. No classes for layout. Just semantic HTML structure and minimal style tags for fonts and spacing.
 
 The page will demonstrate:
+
 - Proper heading hierarchy (`<h1>` through `<h6>`)
 - Paragraph text
 - Button styles
@@ -243,176 +252,205 @@ Here's your starter code. Hand-write the HTML, paying attention to semantic elem
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Type Specimen</title>
-  <style>
-    body {
-      font-family: Georgia, serif;
-      line-height: 1.6;
-      margin: 0;
-      padding: 2rem;
-      max-width: 900px;
-      margin: 0 auto;
-      color: #333;
-    }
-    
-    header {
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 1rem;
-      margin-bottom: 2rem;
-    }
-    
-    nav ul {
-      list-style: none;
-      padding: 0;
-      display: flex;
-      gap: 1.5rem;
-    }
-    
-    a {
-      color: #0066cc;
-      text-decoration: none;
-    }
-    
-    a:hover {
-      text-decoration: underline;
-    }
-    
-    button {
-      padding: 0.5rem 1rem;
-      border: 1px solid #ccc;
-      background: white;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    
-    button:hover {
-      background: #f5f5f5;
-    }
-    
-    input, textarea {
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      font-family: inherit;
-    }
-    
-    label {
-      display: block;
-      margin-top: 1rem;
-      margin-bottom: 0.25rem;
-      font-weight: bold;
-    }
-    
-    aside {
-      background: #f9f9f9;
-      padding: 1rem;
-      margin: 2rem 0;
-      border-left: 4px solid #0066cc;
-    }
-    
-    svg {
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 0.5rem;
-    }
-    
-    footer {
-      border-top: 1px solid #ccc;
-      padding-top: 2rem;
-      margin-top: 3rem;
-      text-align: center;
-      color: #666;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Type Specimen</h1>
-    <nav>
-      <ul>
-        <li><a href="#headings">Headings</a></li>
-        <li><a href="#body">Body text</a></li>
-        <li><a href="#form">Form fields</a></li>
-      </ul>
-    </nav>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Type Specimen</title>
+    <style>
+      body {
+        font-family: Georgia, serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+        color: #333;
+      }
 
-  <main>
-    <section id="headings">
-      <h2>Heading levels</h2>
-      <h3>This is an h3</h3>
-      <p>Each heading level has semantic meaning and a size.</p>
-      <h4>This is an h4</h4>
-      <p>Never skip heading levels. If you need a smaller heading, style an h3 with smaller text. Don't jump from h2 to h4.</p>
-      <h5>This is an h5</h5>
-      <h6>This is an h6</h6>
-    </section>
+      header {
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+      }
 
-    <section id="body">
-      <h2>Paragraph text</h2>
-      <p>This is a paragraph. It contains <strong>strong text</strong> and <em>emphasized text</em>. Use strong for importance, em for emphasis.</p>
-      <p>Paragraphs group related sentences together. They're the building block of readable text.</p>
-    </section>
+      nav ul {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        gap: 1.5rem;
+      }
 
-    <section id="form">
-      <h2>Forms and interaction</h2>
-      
-      <h3>Buttons</h3>
-      <button>Primary action</button>
-      <button>Secondary action</button>
+      a {
+        color: #0066cc;
+        text-decoration: none;
+      }
 
-      <h3>Form fields</h3>
-      <form>
-        <label for="name-input">Name</label>
-        <input type="text" id="name-input" name="name">
+      a:hover {
+        text-decoration: underline;
+      }
 
-        <label for="email-input">Email address</label>
-        <input type="email" id="email-input" name="email">
+      button {
+        padding: 0.5rem 1rem;
+        border: 1px solid #ccc;
+        background: white;
+        cursor: pointer;
+        font-size: 1rem;
+      }
 
-        <label for="message-input">Message</label>
-        <textarea id="message-input" name="message" rows="4"></textarea>
+      button:hover {
+        background: #f5f5f5;
+      }
 
-        <label for="subscribe">
-          <input type="checkbox" id="subscribe" name="subscribe">
-          Subscribe to updates
-        </label>
+      input,
+      textarea {
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        font-family: inherit;
+      }
 
-        <button type="submit">Send message</button>
-      </form>
-    </section>
+      label {
+        display: block;
+        margin-top: 1rem;
+        margin-bottom: 0.25rem;
+        font-weight: bold;
+      }
 
-    <section>
-      <h2>SVG icons that inherit color</h2>
+      aside {
+        background: #f9f9f9;
+        padding: 1rem;
+        margin: 2rem 0;
+        border-left: 4px solid #0066cc;
+      }
+
+      svg {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 0.5rem;
+      }
+
+      footer {
+        border-top: 1px solid #ccc;
+        padding-top: 2rem;
+        margin-top: 3rem;
+        text-align: center;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Type Specimen</h1>
+      <nav>
+        <ul>
+          <li><a href="#headings">Headings</a></li>
+          <li><a href="#body">Body text</a></li>
+          <li><a href="#form">Form fields</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section id="headings">
+        <h2>Heading levels</h2>
+        <h3>This is an h3</h3>
+        <p>Each heading level has semantic meaning and a size.</p>
+        <h4>This is an h4</h4>
+        <p>
+          Never skip heading levels. If you need a smaller heading, style an h3
+          with smaller text. Don't jump from h2 to h4.
+        </p>
+        <h5>This is an h5</h5>
+        <h6>This is an h6</h6>
+      </section>
+
+      <section id="body">
+        <h2>Paragraph text</h2>
+        <p>
+          This is a paragraph. It contains <strong>strong text</strong> and
+          <em>emphasized text</em>. Use strong for importance, em for emphasis.
+        </p>
+        <p>
+          Paragraphs group related sentences together. They're the building
+          block of readable text.
+        </p>
+      </section>
+
+      <section id="form">
+        <h2>Forms and interaction</h2>
+
+        <h3>Buttons</h3>
+        <button>Primary action</button>
+        <button>Secondary action</button>
+
+        <h3>Form fields</h3>
+        <form>
+          <label for="name-input">Name</label>
+          <input type="text" id="name-input" name="name" />
+
+          <label for="email-input">Email address</label>
+          <input type="email" id="email-input" name="email" />
+
+          <label for="message-input">Message</label>
+          <textarea id="message-input" name="message" rows="4"></textarea>
+
+          <label for="subscribe">
+            <input type="checkbox" id="subscribe" name="subscribe" />
+            Subscribe to updates
+          </label>
+
+          <button type="submit">Send message</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>SVG icons that inherit color</h2>
+        <p>
+          <svg viewBox="0 0 24 24" width="20" height="20" color="blue">
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              fill="none"
+              stroke-width="2"
+            />
+          </svg>
+          This icon inherits blue from the SVG's color attribute.
+        </p>
+        <p>
+          <svg viewBox="0 0 24 24" width="20" height="20" style="color: green;">
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              fill="none"
+              stroke-width="2"
+            />
+          </svg>
+          This icon inherits green from inline CSS.
+        </p>
+      </section>
+    </main>
+
+    <aside>
+      <h3>Design note</h3>
       <p>
-        <svg viewBox="0 0 24 24" width="20" height="20" color="blue">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" fill="none" stroke-width="2"/>
-        </svg>
-        This icon inherits blue from the SVG's color attribute.
+        This page uses semantic HTML throughout. No divs where semantic elements
+        exist. Every form field has a label. Links have href. Buttons don't
+        navigate.
       </p>
-      <p>
-        <svg viewBox="0 0 24 24" width="20" height="20" style="color: green;">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" fill="none" stroke-width="2"/>
-        </svg>
-        This icon inherits green from inline CSS.
-      </p>
-    </section>
-  </main>
+    </aside>
 
-  <aside>
-    <h3>Design note</h3>
-    <p>This page uses semantic HTML throughout. No divs where semantic elements exist. Every form field has a label. Links have href. Buttons don't navigate.</p>
-  </aside>
-
-  <footer>
-    <p>&copy; 2026. Built with semantic HTML.</p>
-  </footer>
-</body>
+    <footer>
+      <p>&copy; 2026. Built with semantic HTML.</p>
+    </footer>
+  </body>
 </html>
 ```
 
 As you write this, notice:
+
 - Headings are in order. Never skip from h2 to h4.
 - Every form field has a label with a matching `id` and `for`.
 - Links have `href` attributes. Buttons don't.
@@ -430,11 +468,11 @@ As you write this, notice:
 1. **Keyboard navigation passes.** Tab through the page. Every interactive element (links, form fields, buttons) receives visible focus. Use Tab to move forward, Shift+Tab to move backward. No focus traps. No elements skipped.
 
 2. **No div where semantic element exists.** Search the HTML for these patterns:
-   - `<div class="button">` ,  should be `<button>`
-   - `<div class="nav">` ,  should be `<nav>`
-   - `<div class="header">` ,  should be `<header>`
-   - `<div class="footer">` ,  should be `<footer>`
-   - `<div class="aside">` ,  should be `<aside>`
+   - `<div class="button">` , should be `<button>`
+   - `<div class="nav">` , should be `<nav>`
+   - `<div class="header">` , should be `<header>`
+   - `<div class="footer">` , should be `<footer>`
+   - `<div class="aside">` , should be `<aside>`
 
 3. **Form labels are properly connected.** For every input, verify:
    - The input has an `id` attribute

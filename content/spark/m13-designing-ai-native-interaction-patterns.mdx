@@ -3,9 +3,6 @@ title: "Designing AI-native interaction patterns"
 module: 14
 phase: "Phase 2 ,  DE core"
 promise: "Invent interaction patterns for AI products where no precedent exists."
-threads:
-  - craft-is-the-differentiator
-  - your-code-vs-the-platform
 ---
 
 <Section title="The four states of non-deterministic output">
@@ -18,7 +15,7 @@ Real AI-native design builds these four states into every surface:
 
 **Idle.** Nothing is happening. The field is empty or shows previous output.
 
-**Loading.** The model is computing. Streaming has not started yet. This is the moment the user needs confidence that something *is* happening. A spinner is honest. So is a skeleton with a gentle pulse.
+**Loading.** The model is computing. Streaming has not started yet. This is the moment the user needs confidence that something _is_ happening. A spinner is honest. So is a skeleton with a gentle pulse.
 
 **Streaming.** Output is arriving token-by-token. The user can see the answer taking shape. This is the moment to stop worrying about latency and start thinking about rhythm. Fast streams feel responsive. Slow streams feel stuttering. The same content arriving at 60 tokens/sec feels snappier than 20 tokens/sec.
 
@@ -32,7 +29,7 @@ Each state needs a visual language. And the transitions between them need to fee
 
 Streaming is not a latency hack. It is a design material. Learn to use it.
 
-When a user sees text appearing on the screen word by word, three things happen in their brain at once. They read ahead. They anticipate the rest of the sentence. And they feel like the model is *thinking*, not just retrieving from memory. Streaming makes slow interactions feel responsive because the eye has something to track.
+When a user sees text appearing on the screen word by word, three things happen in their brain at once. They read ahead. They anticipate the rest of the sentence. And they feel like the model is _thinking_, not just retrieving from memory. Streaming makes slow interactions feel responsive because the eye has something to track.
 
 A 5-second stream of 120 characters per second feels like work-in-progress. Responsive, but real. A 5-second wait with a blank screen feels like failure.
 
@@ -55,7 +52,7 @@ export function StreamingText({ text, speed = 60 }: { text: string; speed?: numb
     const interval = setInterval(() => {
       const now = Date.now();
       const charsSinceLastUpdate = Math.floor((now - lastTime) / charIntervalMs);
-      
+
       if (charsSinceLastUpdate > 0) {
         index = Math.min(index + charsSinceLastUpdate, text.length);
         setRendered(text.slice(0, index));
@@ -249,7 +246,7 @@ export function LiveSummarizeNote() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        
+
         const chunk = new TextDecoder().decode(value);
         accumulated += chunk;
         setSummary(accumulated);

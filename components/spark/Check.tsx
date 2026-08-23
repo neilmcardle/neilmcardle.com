@@ -33,13 +33,8 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
     return (
       <div
         className={`spark-check my-8 rounded-xl bg-[var(--spark-paper)] p-6 ${
-          picked !== null && !solved ? "spark-shake" : ""
-        }`}
-        style={{
-          boxShadow: solved
-            ? "0 0 0 1px var(--spark-gold-deep), 0 2px 5px 0 rgba(0,0,0,0.04)"
-            : "0px 0px 0px 1px rgba(0,0,0,0.07), 0px 2px 3px -1px rgba(0,0,0,0.06), 0px 2px 5px 0px rgba(0,0,0,0.04)",
-        }}
+          solved ? "spark-card-gold" : "spark-card"
+        } ${picked !== null && !solved ? "spark-shake" : ""}`}
       >
         <div className="mb-4 flex items-center gap-3">
           <span className="spark-eyebrow text-[var(--spark-gold-ink)]">
@@ -118,12 +113,9 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
 
   return (
     <div
-      className="spark-check my-8 rounded-xl bg-[var(--spark-paper)] p-6"
-      style={{
-        boxShadow: revealed
-          ? "0 0 0 1px var(--spark-gold-deep), 0 2px 5px 0 rgba(0,0,0,0.04)"
-          : "0px 0px 0px 1px rgba(0,0,0,0.07), 0px 2px 3px -1px rgba(0,0,0,0.06), 0px 2px 5px 0px rgba(0,0,0,0.04)",
-      }}
+      className={`spark-check my-8 rounded-xl bg-[var(--spark-paper)] p-6 ${
+        revealed ? "spark-card-gold" : "spark-card"
+      }`}
     >
       <div className="mb-4 flex items-center gap-3">
         <span className="spark-eyebrow text-[var(--spark-gold-ink)]">
