@@ -1,15 +1,20 @@
 "use client";
 import { useState } from "react";
+import { uuidv4 } from "../utils/uuid";
 import { Endnote, EndnoteReference } from "../types";
 import { exportEpub } from "../utils/exportEpub";
-import { loadBookLibrary, loadBookById, removeBookFromLibrary } from "../utils/bookLibrary";
+import {
+  loadBookLibrary,
+  loadBookById,
+  removeBookFromLibrary,
+} from "../utils/bookLibrary";
 import { ensureChapterIds, migrateEndnoteReferences } from "../utils/pageUtils";
 
 interface DialogState {
   open: boolean;
   title: string;
   message: string;
-  variant: 'confirm' | 'alert' | 'destructive';
+  variant: "confirm" | "alert" | "destructive";
   confirmLabel?: string;
   onConfirm: () => void;
 }
@@ -32,44 +37,64 @@ interface UseLibraryParams {
   setCurrentBookId: (id: string) => void;
   setSelectedChapter: (i: number) => void;
   setMobileSidebarOpen: (v: boolean) => void;
-  setSidebarView: (view: 'library' | 'book' | 'chapters' | null) => void;
+  setSidebarView: (view: "library" | "book" | "chapters" | null) => void;
   setBookJustLoaded: (v: boolean) => void;
   setDialogState: React.Dispatch<React.SetStateAction<DialogState>>;
   clearEditorState: () => void;
 }
 
 export function useLibrary({
-  libraryBooks, setLibraryBooks,
-  user, hasCloudSync, currentBookId,
+  libraryBooks,
+  setLibraryBooks,
+  user,
+  hasCloudSync,
+  currentBookId,
   isLoadingBookRef,
-  setShowMarketingPage, loadMetadata,
-  setTags, setCoverUrl, setChapters, setEndnoteReferences,
-  setEndnotes, setNextEndnoteNumber, setCurrentBookId,
-  setSelectedChapter, setMobileSidebarOpen, setSidebarView,
-  setBookJustLoaded, setDialogState, clearEditorState,
+  setShowMarketingPage,
+  loadMetadata,
+  setTags,
+  setCoverUrl,
+  setChapters,
+  setEndnoteReferences,
+  setEndnotes,
+  setNextEndnoteNumber,
+  setCurrentBookId,
+  setSelectedChapter,
+  setMobileSidebarOpen,
+  setSidebarView,
+  setBookJustLoaded,
+  setDialogState,
+  clearEditorState,
 }: UseLibraryParams) {
-  const [selectedBookIds, setSelectedBookIds] = useState<Set<string>>(new Set());
+  const [selectedBookIds, setSelectedBookIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [multiSelectMode, setMultiSelectMode] = useState(false);
 
   function cleanupExportHistory(bookId: string) {
     try {
-      const req = indexedDB.open('makeEbookExports', 1);
+      const req = indexedDB.open("makeEbookExports", 1);
       req.onsuccess = () => {
         const db = req.result;
-        const tx = db.transaction('exports', 'readwrite');
-        const store = tx.objectStore('exports');
-        const idx = store.index('bookId');
+        const tx = db.transaction("exports", "readwrite");
+        const store = tx.objectStore("exports");
+        const idx = store.index("bookId");
         const cursor = idx.openCursor(IDBKeyRange.only(bookId));
         cursor.onsuccess = () => {
           const c = cursor.result;
-          if (c) { c.delete(); c.continue(); }
+          if (c) {
+            c.delete();
+            c.continue();
+          }
         };
       };
-    } catch (e) { /* non-critical */ }
+    } catch (e) {
+      /* non-critical */
+    }
   }
 
   function handleLoadBook(id: string) {
-    const loaded = loadBookById(user?.id ?? '', id);
+    const loaded = loadBookById(user?.id ?? "", id);
     if (loaded) {
       isLoadingBookRef.current = true;
       setShowMarketingPage(false);
@@ -77,20 +102,36 @@ export function useLibrary({
       setTags(loaded.tags || []);
       setCoverUrl(loaded.coverFile || null);
 
-      const loadedChapters = loaded.chapters && Array.isArray(loaded.chapters) && loaded.chapters.length > 0
-        ? loaded.chapters
-        : [{ id: `chapter-${Date.now()}`, title: "", content: "", type: "content" as const }];
+      const loadedChapters =
+        loaded.chapters &&
+        Array.isArray(loaded.chapters) &&
+        loaded.chapters.length > 0
+          ? loaded.chapters
+          : [
+              {
+                id: uuidv4(),
+                title: "",
+                content: "",
+                type: "content" as const,
+              },
+            ];
       const migratedChapters = ensureChapterIds(loadedChapters);
       setChapters(migratedChapters);
 
       if (loaded.endnoteReferences) {
-        const migratedEndnoteRefs = migrateEndnoteReferences(loaded.endnoteReferences, migratedChapters);
+        const migratedEndnoteRefs = migrateEndnoteReferences(
+          loaded.endnoteReferences,
+          migratedChapters,
+        );
         setEndnoteReferences(migratedEndnoteRefs);
       }
 
       const loadedEndnotes = loaded.endnotes || [];
       setEndnotes(loadedEndnotes);
-      const maxNumber = loadedEndnotes.reduce((max: number, e: Endnote) => Math.max(max, e.number), 0);
+      const maxNumber = loadedEndnotes.reduce(
+        (max: number, e: Endnote) => Math.max(max, e.number),
+        0,
+      );
       setNextEndnoteNumber(maxNumber + 1);
       setCurrentBookId(loaded.id);
       setSelectedChapter(0);
@@ -101,42 +142,52 @@ export function useLibrary({
       setBookJustLoaded(true);
       setTimeout(() => setBookJustLoaded(false), 1000);
 
-      setTimeout(() => { isLoadingBookRef.current = false; }, 0);
+      setTimeout(() => {
+        isLoadingBookRef.current = false;
+      }, 0);
     }
   }
 
   function handleDeleteBook(id: string) {
     setDialogState({
       open: true,
-      title: 'Delete Book',
-      message: 'Are you sure you want to delete this eBook? This action cannot be undone.',
-      variant: 'destructive',
-      confirmLabel: 'Delete',
+      title: "Delete Book",
+      message:
+        "Are you sure you want to delete this eBook? This action cannot be undone.",
+      variant: "destructive",
+      confirmLabel: "Delete",
       onConfirm: async () => {
-        setDialogState(prev => ({ ...prev, open: false }));
+        setDialogState((prev) => ({ ...prev, open: false }));
         const bookToDelete = libraryBooks.find((b: any) => b.id === id);
 
         if (user && user.id && hasCloudSync) {
           try {
-            const { deleteEbookFromSupabase } = await import('@/lib/supabaseEbooks');
+            const { deleteEbookFromSupabase } =
+              await import("@/lib/supabaseEbooks");
             await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
           } catch (err) {
-            console.error('Failed to delete from Supabase:', err);
+            console.error("Failed to delete from Supabase:", err);
             setDialogState({
               open: true,
-              title: 'Delete Failed',
-              message: 'Could not delete from cloud. The book was kept to prevent data loss. Please try again.',
-              variant: 'alert',
-              onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
+              title: "Delete Failed",
+              message:
+                "Could not delete from cloud. The book was kept to prevent data loss. Please try again.",
+              variant: "alert",
+              onConfirm: () =>
+                setDialogState((prev) => ({ ...prev, open: false })),
             });
             return;
           }
         }
 
-        removeBookFromLibrary(user?.id ?? '', id);
-        setLibraryBooks(loadBookLibrary(user?.id ?? ''));
+        removeBookFromLibrary(user?.id ?? "", id);
+        setLibraryBooks(loadBookLibrary(user?.id ?? ""));
 
-        try { localStorage.removeItem(`makeebook-versions-${id}`); } catch (e) { /* non-critical */ }
+        try {
+          localStorage.removeItem(`makeebook-versions-${id}`);
+        } catch (e) {
+          /* non-critical */
+        }
         cleanupExportHistory(id);
 
         if (currentBookId === id) {
@@ -152,12 +203,12 @@ export function useLibrary({
 
     setDialogState({
       open: true,
-      title: 'Delete Books',
-      message: `Are you sure you want to delete ${count} book${count > 1 ? 's' : ''}? This action cannot be undone.`,
-      variant: 'destructive',
-      confirmLabel: 'Delete',
+      title: "Delete Books",
+      message: `Are you sure you want to delete ${count} book${count > 1 ? "s" : ""}? This action cannot be undone.`,
+      variant: "destructive",
+      confirmLabel: "Delete",
       onConfirm: async () => {
-        setDialogState(prev => ({ ...prev, open: false }));
+        setDialogState((prev) => ({ ...prev, open: false }));
         let cloudFailed = false;
 
         for (const id of selectedBookIds) {
@@ -165,18 +216,23 @@ export function useLibrary({
 
           if (user && user.id && hasCloudSync) {
             try {
-              const { deleteEbookFromSupabase } = await import('@/lib/supabaseEbooks');
+              const { deleteEbookFromSupabase } =
+                await import("@/lib/supabaseEbooks");
               await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
             } catch (err) {
-              console.error('Failed to delete from Supabase:', err);
+              console.error("Failed to delete from Supabase:", err);
               cloudFailed = true;
               continue;
             }
           }
 
-          removeBookFromLibrary(user?.id ?? '', id);
+          removeBookFromLibrary(user?.id ?? "", id);
 
-          try { localStorage.removeItem(`makeebook-versions-${id}`); } catch (e) { /* non-critical */ }
+          try {
+            localStorage.removeItem(`makeebook-versions-${id}`);
+          } catch (e) {
+            /* non-critical */
+          }
           cleanupExportHistory(id);
 
           if (currentBookId === id) {
@@ -184,17 +240,19 @@ export function useLibrary({
           }
         }
 
-        setLibraryBooks(loadBookLibrary(user?.id ?? ''));
+        setLibraryBooks(loadBookLibrary(user?.id ?? ""));
         setSelectedBookIds(new Set());
         setMultiSelectMode(false);
 
         if (cloudFailed) {
           setDialogState({
             open: true,
-            title: 'Some Deletes Failed',
-            message: 'Some books could not be deleted from the cloud. They were kept locally to prevent data loss.',
-            variant: 'alert',
-            onConfirm: () => setDialogState(prev => ({ ...prev, open: false })),
+            title: "Some Deletes Failed",
+            message:
+              "Some books could not be deleted from the cloud. They were kept locally to prevent data loss.",
+            variant: "alert",
+            onConfirm: () =>
+              setDialogState((prev) => ({ ...prev, open: false })),
           });
         }
       },
@@ -202,7 +260,7 @@ export function useLibrary({
   }
 
   function toggleBookSelection(id: string) {
-    setSelectedBookIds(prev => {
+    setSelectedBookIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
@@ -226,7 +284,10 @@ export function useLibrary({
     if (!book) return;
 
     const migratedChapters = ensureChapterIds(book.chapters);
-    const migratedEndnoteRefs = migrateEndnoteReferences(book.endnoteReferences || [], migratedChapters);
+    const migratedEndnoteRefs = migrateEndnoteReferences(
+      book.endnoteReferences || [],
+      migratedChapters,
+    );
 
     await exportEpub({
       title: book.title,

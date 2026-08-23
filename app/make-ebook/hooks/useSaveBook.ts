@@ -8,10 +8,16 @@ import { exportPdf } from "../utils/exportPdf";
 import { exportDocx } from "../utils/exportDocx";
 import {
   loadBookLibrary,
+  loadBookById,
   saveBookToLibrary,
   removeBookFromLibrary,
 } from "../utils/bookLibrary";
-import { ensureChapterIds, migrateEndnoteReferences } from "../utils/pageUtils";
+import {
+  ensureChapterIds,
+  migrateEndnoteReferences,
+  upgradeChapterIds,
+  remapChapterIdsDeep,
+} from "../utils/pageUtils";
 
 interface DialogState {
   open: boolean;
@@ -146,11 +152,27 @@ export function useSaveBook({
     });
   }
 
-  async function saveBookDirectly(forceNewVersion: boolean) {
-    if (isSavingRef.current) return;
+  async function saveBookDirectly(forceNewVersion: boolean): Promise<boolean> {
+    if (isSavingRef.current) return false;
     isSavingRef.current = true;
 
     try {
+      const { chapters: syncedChapters, remap } = upgradeChapterIds(chapters);
+      const syncedEndnoteRefs =
+        remap.size > 0
+          ? remapChapterIdsDeep(endnoteReferences, remap)
+          : endnoteReferences;
+
+      if (syncedChapters !== chapters) {
+        setChapters(syncedChapters);
+        if (remap.size > 0) setEndnoteReferences(syncedEndnoteRefs);
+      }
+
+      const previousMemory =
+        currentBookId && user?.id
+          ? loadBookById(user.id, currentBookId)?.bookmindMemory
+          : undefined;
+
       const bookData = {
         id: forceNewVersion ? undefined : currentBookId,
         title,
@@ -162,10 +184,14 @@ export function useSaveBook({
         language,
         genre,
         tags,
-        chapters,
+        chapters: syncedChapters,
         coverFile: coverUrl,
         endnotes,
-        endnoteReferences,
+        endnoteReferences: syncedEndnoteRefs,
+        bookmindMemory:
+          remap.size > 0 && previousMemory
+            ? remapChapterIdsDeep(previousMemory, remap)
+            : previousMemory,
       };
 
       let id: string;
@@ -181,61 +207,60 @@ export function useSaveBook({
           variant: "alert",
           onConfirm: () => setDialogState((prev) => ({ ...prev, open: false })),
         });
-        return;
+        return false;
       }
 
       setCurrentBookId(id);
       setLibraryBooks(loadBookLibrary(user?.id ?? ""));
-      setSaveFeedback(true);
-      markClean();
-      setTimeout(() => setSaveFeedback(false), 1300);
 
-      if (user && user.id && hasCloudSync) {
-        try {
-          const supabaseData = await saveEbookToSupabase(
-            bookData,
-            chapters,
-            user.id,
-          );
-          if (supabaseData?.id && supabaseData.id !== id) {
-            removeBookFromLibrary(user.id, id);
-            saveBookToLibrary(user.id, { ...bookData, id: supabaseData.id });
-            setCurrentBookId(supabaseData.id);
-            setLibraryBooks(loadBookLibrary(user.id));
-          }
-        } catch (err) {
-          console.error("Supabase sync failed:", err);
-          setDialogState({
-            open: true,
-            title: "Cloud Sync Failed",
-            message:
-              "Your book was saved locally, but cloud sync failed. Your changes will sync next time.",
-            variant: "alert",
-            onConfirm: () =>
-              setDialogState((prev) => ({ ...prev, open: false })),
-          });
+      const confirmSaved = () => {
+        setSaveFeedback(true);
+        markClean();
+        setTimeout(() => setSaveFeedback(false), 1300);
+      };
+
+      if (!(user && user.id && hasCloudSync)) {
+        confirmSaved();
+        return true;
+      }
+
+      try {
+        const supabaseData = await saveEbookToSupabase(
+          bookData,
+          syncedChapters,
+          user.id,
+        );
+        if (supabaseData?.id && supabaseData.id !== id) {
+          removeBookFromLibrary(user.id, id);
+          saveBookToLibrary(user.id, { ...bookData, id: supabaseData.id });
+          setCurrentBookId(supabaseData.id);
+          setLibraryBooks(loadBookLibrary(user.id));
         }
+        confirmSaved();
+        return true;
+      } catch (err) {
+        console.error("Supabase sync failed:", err);
+        setDialogState({
+          open: true,
+          title: "Cloud sync failed",
+          message:
+            "Your book is saved on this device but could not reach the cloud. It stays marked unsaved and will retry automatically.",
+          variant: "alert",
+          onConfirm: () => setDialogState((prev) => ({ ...prev, open: false })),
+        });
+        return false;
       }
     } finally {
       isSavingRef.current = false;
     }
   }
 
-  function handleSaveBook() {
+  async function handleSaveBook() {
     const hasContent =
       title.trim() || author.trim() || chapters.some((ch) => ch.content.trim());
     if (!hasContent) return;
 
-    if (currentBookId) {
-      const library = loadBookLibrary(user?.id ?? "");
-      const existingBook = library.find((b: any) => b.id === currentBookId);
-      if (existingBook) {
-        setSaveDialogOpen(true);
-        return;
-      }
-    }
-
-    saveBookDirectly(false);
+    await saveBookDirectly(false);
     saveVersionSnapshot();
   }
 

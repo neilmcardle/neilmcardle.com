@@ -1,73 +1,86 @@
-export interface ParsedContent {
-  type: 'text' | 'component';
-  value: string;
-}
-
 export interface ParsedSection {
+  id: string;
   title: string;
   content: string;
   components: string[];
 }
 
-export function parseContentIntoSections(mdxSource: string): ParsedSection[] {
-  const sections: ParsedSection[] = [];
+function slugify(title: string, index: number): string {
+  const base = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return base ? `${base}-${index + 1}` : `section-${index + 1}`;
+}
 
-  const sectionRegex = /<Section\s+title=["']([^"']+)["'][^>]*>([\s\S]*?)<\/Section>/g;
+function fromSectionTags(mdxSource: string): ParsedSection[] {
+  const sections: ParsedSection[] = [];
+  const sectionRegex =
+    /<Section\s+title=(["'])((?:(?!\1)[\s\S])*?)\1[^>]*>([\s\S]*?)<\/Section>/g;
   let match;
 
   while ((match = sectionRegex.exec(mdxSource)) !== null) {
-    const title = match[1];
-    const rawContent = match[2].trim();
-
-    const components = extractComponents(rawContent);
-
+    const content = match[3].trim();
     sections.push({
-      title,
-      content: rawContent,
-      components,
+      id: slugify(match[2], sections.length),
+      title: match[2],
+      content,
+      components: extractComponents(content),
     });
-  }
-
-  if (sections.length === 0) {
-    const lines = mdxSource.split('\n');
-    let currentSection: ParsedSection | null = null;
-    let currentContent: string[] = [];
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-
-      if (line.startsWith('## ')) {
-        if (currentSection) {
-          currentSection.content = currentContent.join('\n').trim();
-          currentSection.components = extractComponents(currentSection.content);
-          sections.push(currentSection);
-        }
-
-        const title = line.replace(/^## /, '').trim();
-        currentSection = { title, content: '', components: [] };
-        currentContent = [];
-      } else if (currentSection) {
-        currentContent.push(line);
-      }
-    }
-
-    if (currentSection) {
-      currentSection.content = currentContent.join('\n').trim();
-      currentSection.components = extractComponents(currentSection.content);
-      sections.push(currentSection);
-    }
   }
 
   return sections;
 }
 
+function fromHeadings(mdxSource: string): ParsedSection[] {
+  const sections: ParsedSection[] = [];
+  const lines = mdxSource.split("\n");
+
+  let title: string | null = null;
+  let buffer: string[] = [];
+  let fenced = false;
+
+  const flush = () => {
+    if (title === null) return;
+    const content = buffer.join("\n").trim();
+    sections.push({
+      id: slugify(title, sections.length),
+      title,
+      content,
+      components: extractComponents(content),
+    });
+  };
+
+  for (const line of lines) {
+    if (line.trimStart().startsWith("```")) fenced = !fenced;
+
+    if (!fenced && line.startsWith("## ")) {
+      flush();
+      title = line.replace(/^##\s+/, "").trim();
+      buffer = [];
+      continue;
+    }
+
+    if (title !== null) buffer.push(line);
+  }
+
+  flush();
+  return sections;
+}
+
+export function parseContentIntoSections(mdxSource: string): ParsedSection[] {
+  const tagged = fromSectionTags(mdxSource);
+  if (tagged.length > 0) return tagged;
+  return fromHeadings(mdxSource);
+}
+
 function extractComponents(content: string): string[] {
-  const componentRegex = /<(\w+)\s*\/>/g;
+  const componentRegex = /<(\w+)[^>]*\/>/g;
   const components: string[] = [];
   let match;
 
   while ((match = componentRegex.exec(content)) !== null) {
-    components.push(match[1]);
+    if (!components.includes(match[1])) components.push(match[1]);
   }
 
   return components;

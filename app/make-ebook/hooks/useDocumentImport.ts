@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef } from "react";
+import { uuidv4 } from "../utils/uuid";
 import { Chapter } from "../types";
 
 interface UseDocumentImportParams {
@@ -10,7 +11,7 @@ interface UseDocumentImportParams {
   setSelectedChapter: (i: number) => void;
   setTags: (tags: string[]) => void;
   clearCover: () => void;
-  setSidebarView: (view: 'library' | 'book' | 'chapters' | null) => void;
+  setSidebarView: (view: "library" | "book" | "chapters" | null) => void;
 }
 
 export function useDocumentImport({
@@ -33,23 +34,30 @@ export function useDocumentImport({
     setImportError(null);
 
     try {
-      const { parseDocument, getSupportedFormats } = await import('../utils/documentParser');
+      const { parseDocument, getSupportedFormats } =
+        await import("../utils/documentParser");
 
-      const extension = file.name.split('.').pop()?.toLowerCase();
-      const supported = getSupportedFormats().map((f: string) => f.replace('.', ''));
+      const extension = file.name.split(".").pop()?.toLowerCase();
+      const supported = getSupportedFormats().map((f: string) =>
+        f.replace(".", ""),
+      );
 
       if (!extension || !supported.includes(extension)) {
-        throw new Error(`Unsupported format. Supported: ${getSupportedFormats().join(', ')}`);
+        throw new Error(
+          `Unsupported format. Supported: ${getSupportedFormats().join(", ")}`,
+        );
       }
 
       const parsed = await parseDocument(file);
 
-      const newChapters: Chapter[] = parsed.chapters.map((ch: any, idx: number) => ({
-        id: `chapter-${Date.now()}-${idx}`,
-        title: ch.title,
-        content: ch.content,
-        type: ch.type,
-      }));
+      const newChapters: Chapter[] = parsed.chapters.map(
+        (ch: any, idx: number) => ({
+          id: uuidv4(),
+          title: ch.title,
+          content: ch.content,
+          type: ch.type,
+        }),
+      );
 
       resetMetadata();
       setTitle(parsed.title);
@@ -59,12 +67,13 @@ export function useDocumentImport({
       setTags([]);
       clearCover();
 
-      setSidebarView('book');
+      setSidebarView("book");
       setImportDialogOpen(false);
-
     } catch (err) {
-      console.error('Import error:', err);
-      setImportError(err instanceof Error ? err.message : 'Failed to import document');
+      console.error("Import error:", err);
+      setImportError(
+        err instanceof Error ? err.message : "Failed to import document",
+      );
     } finally {
       setImporting(false);
     }
@@ -75,7 +84,7 @@ export function useDocumentImport({
     if (file) {
       handleImportDocument(file);
     }
-    e.target.value = '';
+    e.target.value = "";
   }
 
   function showImportDialog() {

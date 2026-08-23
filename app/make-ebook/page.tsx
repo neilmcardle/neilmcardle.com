@@ -46,6 +46,7 @@ import { useBookState } from "./hooks/useBookState";
 import { autoFixAllChapters } from "./utils/typographyFixer";
 import RichTextEditor from "./components/RichTextEditor";
 import EditorLeftNav from "./components/EditorLeftNav";
+import CollapsibleSection from "./components/CollapsibleSection";
 import SyncConflictBanner from "./components/sidebar/SyncConflictBanner";
 import InspectorPanel from "./components/bookmind/InspectorPanel";
 import FloatingBookMindWindow from "./components/FloatingBookMindWindow";
@@ -69,6 +70,7 @@ import EditorHeader from "./components/EditorHeader";
 import TrialBanner from "./components/TrialBanner";
 import ChapterNavDropdown from "./components/ChapterNavDropdown";
 import { useWordStats } from "./hooks/useWordStats";
+import { uuidv4 } from "./utils/uuid";
 import { useWritingGoals } from "./hooks/useWritingGoals";
 import { useVersionHistory } from "./hooks/useVersionHistory";
 import { useExportHistory } from "./hooks/useExportHistory";
@@ -810,7 +812,7 @@ function MakeEbookPage() {
   }, [focus.active, focus.settings.hideChrome]);
 
   const handleAutoSave = useCallback(() => {
-    saveBook.saveBookDirectly(false);
+    const saved = saveBook.saveBookDirectly(false);
 
     if (currentBookId && user?.id && isPro) {
       const book = loadBookById(user.id, currentBookId);
@@ -840,6 +842,8 @@ function MakeEbookPage() {
           .catch(() => {});
       }
     }
+
+    return saved;
   }, [
     currentBookId,
     title,
@@ -945,6 +949,18 @@ function MakeEbookPage() {
     [setChapters],
   );
 
+  const handleToggleChapterComplete = useCallback(
+    (index: number) => {
+      setChapters((prev) =>
+        prev.map((ch, i) =>
+          i === index ? { ...ch, completed: !ch.completed } : ch,
+        ),
+      );
+      markDirty();
+    },
+    [setChapters, markDirty],
+  );
+
   const handleRestoreVersion = useCallback(
     (
       restoredChapters: Chapter[],
@@ -1028,7 +1044,7 @@ function MakeEbookPage() {
     clearCover();
     setChapters([
       {
-        id: `chapter-${Date.now()}`,
+        id: uuidv4(),
         title: "",
         content: "",
         type: "content",
@@ -1081,7 +1097,7 @@ function MakeEbookPage() {
     track("manuscript_pasted", { wordCount });
     setShowMarketingPage(false);
     const newChapter: Chapter = {
-      id: `chapter-${Date.now()}`,
+      id: uuidv4(),
       type: "content",
       title: "Chapter 1",
       content: trimmed,
@@ -1403,7 +1419,7 @@ function MakeEbookPage() {
                 onRefreshAnalytical={handleRefreshAnalytical}
                 onAddDisclosureChapter={(content: string) => {
                   const newChapter = {
-                    id: `ch-${Date.now()}`,
+                    id: uuidv4(),
                     title: "AI Disclosure",
                     content,
                     type: "backmatter" as const,
@@ -1506,14 +1522,14 @@ function MakeEbookPage() {
                           />
                         )}
                       </div>
-                      {sidebarLibraryExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                      )}
+                      <ChevronRight
+                        className={`w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0 transition-transform duration-300 ease-out motion-reduce:transition-none ${
+                          sidebarLibraryExpanded ? "rotate-90" : ""
+                        }`}
+                      />
                     </button>
 
-                    {sidebarLibraryExpanded && (
+                    <CollapsibleSection expanded={sidebarLibraryExpanded}>
                       <>
                         <SyncConflictBanner
                           conflicts={cloudSync.syncConflicts}
@@ -1776,7 +1792,7 @@ function MakeEbookPage() {
                           )}
                         </div>
                       </>
-                    )}
+                    </CollapsibleSection>
                   </div>
 
                   <div
@@ -1813,14 +1829,14 @@ function MakeEbookPage() {
                           )}
                         </div>
                       </div>
-                      {sidebarBookDetailsExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                      )}
+                      <ChevronRight
+                        className={`w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0 transition-transform duration-300 ease-out motion-reduce:transition-none ${
+                          sidebarBookDetailsExpanded ? "rotate-90" : ""
+                        }`}
+                      />
                     </button>
 
-                    {sidebarBookDetailsExpanded && (
+                    <CollapsibleSection expanded={sidebarBookDetailsExpanded}>
                       <div className="mt-2 space-y-3 pl-2 pr-2">
                         <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
                           <button
@@ -2097,7 +2113,7 @@ function MakeEbookPage() {
                           )}
                         </div>
                       </div>
-                    )}
+                    </CollapsibleSection>
                   </div>
 
                   <div className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
@@ -2126,14 +2142,14 @@ function MakeEbookPage() {
                           ({chapters.length})
                         </span>
                       </div>
-                      {sidebarChaptersExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                      )}
+                      <ChevronRight
+                        className={`w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0 transition-transform duration-300 ease-out motion-reduce:transition-none ${
+                          sidebarChaptersExpanded ? "rotate-90" : ""
+                        }`}
+                      />
                     </button>
 
-                    {sidebarChaptersExpanded && (
+                    <CollapsibleSection expanded={sidebarChaptersExpanded}>
                       <div className="mt-1 space-y-1">
                         <div className="flex items-center gap-1 pb-2 mb-1 border-b border-gray-100 dark:border-gray-800">
                           <div className="relative">
@@ -2511,7 +2527,7 @@ function MakeEbookPage() {
                           );
                         })}
                       </div>
-                    )}
+                    </CollapsibleSection>
                   </div>
                 </div>
               </div>
@@ -3064,6 +3080,7 @@ function MakeEbookPage() {
               handleRemoveChapter={handleRemoveChapter}
               confirmChapterDelete={confirmChapterDelete}
               handleToggleChapterLock={handleToggleChapterLock}
+              handleToggleChapterComplete={handleToggleChapterComplete}
               handleDragStart={handleDragStart}
               handleDragEnter={handleDragEnter}
               handleDragEnd={handleDragEnd}
@@ -3202,8 +3219,7 @@ function MakeEbookPage() {
                     {!isSaving && (
                       <button
                         onClick={() => {
-                          saveBook.saveBookDirectly(false);
-                          markClean();
+                          void saveBook.saveBookDirectly(false);
                         }}
                         className="flex items-center gap-1 px-2 py-0.5 hover:bg-stone-200 dark:hover:bg-stone-700 rounded transition-colors"
                       >
@@ -3339,13 +3355,13 @@ function MakeEbookPage() {
                     lastSaved={lastSaved}
                     hasCloudSync={hasCloudSync}
                     onSaveNow={() => {
-                      saveBook.saveBookDirectly(false);
-                      markClean();
+                      void saveBook.saveBookDirectly(false);
                     }}
                     chapters={chapters}
                     selectedChapter={selectedChapter}
                     onChapterSelect={setSelectedChapter}
                     bookTitle={title}
+                    onSaveAsNewBook={saveBook.handleSaveAsNewVersion}
                     versionCount={versions.length}
                     exportCount={exportHistory.length}
                     onShowHistory={() => setHistoryModal("versions")}
@@ -3410,7 +3426,7 @@ function MakeEbookPage() {
               onRefreshAnalytical={handleRefreshAnalytical}
               onAddDisclosureChapter={(content: string) => {
                 const newChapter = {
-                  id: `ch-${Date.now()}`,
+                  id: uuidv4(),
                   title: "AI Disclosure",
                   content,
                   type: "backmatter" as const,
@@ -3444,7 +3460,7 @@ function MakeEbookPage() {
           onRefreshAnalytical={handleRefreshAnalytical}
           onAddDisclosureChapter={(content: string) => {
             const newChapter = {
-              id: `ch-${Date.now()}`,
+              id: uuidv4(),
               title: "AI Disclosure",
               content,
               type: "backmatter" as const,

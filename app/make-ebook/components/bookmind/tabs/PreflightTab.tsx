@@ -87,6 +87,8 @@ export default function PreflightTab({
     genre,
   });
 
+  const passes = checks.filter((c) => c.status === "pass");
+
   const activeDisclosure = DISCLOSURE_OPTIONS.find(
     (d) => d.id === selectedDisclosure,
   );
@@ -102,7 +104,6 @@ export default function PreflightTab({
     }
   };
 
-  const passes = checks.filter((c) => c.status === "pass");
   const needsAttention = [...blocks, ...warns];
 
   return (
@@ -120,20 +121,25 @@ export default function PreflightTab({
               of {checks.length} checks clear
             </span>
           </div>
-          <div className="flex gap-1 mt-3.5">
-            {checks.map((check) => (
-              <span
-                key={check.id}
-                title={check.label}
-                className={`flex-1 h-1 rounded-full ${
-                  check.status === "pass"
-                    ? "bg-emerald-500"
-                    : check.status === "warn"
-                      ? "bg-amber-500"
-                      : "bg-red-500"
-                }`}
-              />
-            ))}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3">
+            {blocks.length > 0 && (
+              <span className="flex items-center gap-1.5 text-11 text-gray-600 dark:text-[#a3a3a3]">
+                <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+                {blocks.length} blocking
+              </span>
+            )}
+            {warns.length > 0 && (
+              <span className="flex items-center gap-1.5 text-11 text-gray-600 dark:text-[#a3a3a3]">
+                <span className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0" />
+                {warns.length} to look at
+              </span>
+            )}
+            {passes.length > 0 && (
+              <span className="flex items-center gap-1.5 text-11 text-gray-600 dark:text-[#a3a3a3]">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
+                {passes.length} clear
+              </span>
+            )}
           </div>
         </div>
 

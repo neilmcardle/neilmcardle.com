@@ -1,175 +1,75 @@
-import { loadModule, getAllModules } from "@/lib/spark/content";
-import { parseContentIntoSections } from "@/lib/spark/contentParser";
-import { CodeBlockParser } from "@/components/spark/CodeBlockParser";
+import { notFound } from "next/navigation";
+import { getAllModules, loadModule } from "@/lib/spark/content";
+import { phaseLabel } from "@/lib/spark/curriculum";
+import { LessonShell } from "@/components/spark/LessonShell";
+import { LessonContent } from "@/components/spark/LessonContent";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateStaticParams() {
+  const slugs = await getAllModules();
+  return slugs.map((slug) => ({ slug }));
+}
+
 export async function generateMetadata(props: PageProps) {
-  const params = await props.params;
+  const { slug } = await props.params;
   try {
-    const lessonModule = await loadModule(params.slug);
+    const { meta } = await loadModule(slug);
     return {
-      title: `${lessonModule.frontmatter.title} — Spark`,
-      description: lessonModule.frontmatter.promise,
+      title: `${meta.title} · Spark`,
+      description: meta.promise,
     };
   } catch {
-    return { title: "Lesson not found — Spark" };
+    return { title: "Lesson not found · Spark" };
   }
 }
 
 export default async function LessonPage(props: PageProps) {
-  const params = await props.params;
-  const { slug } = params;
+  const { slug } = await props.params;
 
+  let lesson;
   try {
-    const lessonModule = await loadModule(slug);
-    const allModuleSlugs = await getAllModules();
-
-    const parsedSections = parseContentIntoSections(lessonModule.mdxSource);
-
-    let nextModuleTitle = null;
-    let nextModuleSlug = null;
-
-    if (lessonModule.frontmatter.module < 18) {
-      nextModuleSlug = allModuleSlugs.find(
-        (s) =>
-          parseInt(s.match(/^m(\d+)/)?.[1] || "0") ===
-          lessonModule.frontmatter.module + 1,
-      );
-      if (nextModuleSlug) {
-        try {
-          const nextModule = await loadModule(nextModuleSlug);
-          nextModuleTitle = nextModule.frontmatter.title;
-        } catch (error) {
-          console.error(`Failed to load next module ${nextModuleSlug}:`, error);
-        }
-      }
-    }
-
-    return (
-      <div className="min-h-screen bg-white flex flex-col overflow-hidden">
-        <nav
-          className="bg-white sticky top-0 z-50"
-          style={{
-            boxShadow:
-              "0px 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 2px 3px -1px rgba(0, 0, 0, 0.06), 0px 2px 5px 0px rgba(0, 0, 0, 0.04)",
-          }}
-        >
-          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-            <a
-              href="/spark/lessons"
-              className="text-sm font-medium text-gray-600 hover:text-gray-900"
-            >
-              ← Back to curriculum
-            </a>
-            <a
-              href="/spark"
-              className="text-sm font-medium text-gray-900 hover:text-blue-600"
-            >
-              Spark home
-            </a>
-          </div>
-        </nav>
-
-        <div className="flex flex-1 overflow-hidden">
-          <main className="flex-1 px-6 py-12 lg:py-16 overflow-y-auto">
-            <div className="max-w-3xl mx-auto">
-              <header className="mb-12">
-                <h1
-                  className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight"
-                  style={{ fontFamily: "var(--font-playfair)" }}
-                >
-                  {lessonModule.frontmatter.title}
-                </h1>
-                <p className="text-lg text-gray-700 leading-relaxed">
-                  {lessonModule.frontmatter.promise}
-                </p>
-              </header>
-
-              <div className="space-y-16">
-                {parsedSections.map((section, i) => (
-                  <section
-                    key={i}
-                    className="pb-12 last:pb-0"
-                    style={{
-                      borderBottom:
-                        i < parsedSections.length - 1
-                          ? "1px solid rgba(0, 0, 0, 0.06)"
-                          : "none",
-                    }}
-                    id={`section-${i}`}
-                  >
-                    <h2
-                      className="text-3xl font-bold mb-6 text-gray-900 leading-tight"
-                      style={{ fontFamily: "var(--font-playfair)" }}
-                    >
-                      {section.title}
-                    </h2>
-                    <CodeBlockParser>{section.content}</CodeBlockParser>
-                  </section>
-                ))}
-              </div>
-            </div>
-          </main>
-
-          <aside className="hidden xl:block fixed right-6 top-16 w-52 p-6 flex-col overflow-y-auto border-l border-gray-100 h-[calc(100vh-4rem)]">
-            <div className="space-y-8 text-sm">
-              <div>
-                <p className="font-semibold text-gray-900 mb-3 text-xs uppercase tracking-widest">
-                  On this page
-                </p>
-                <div className="space-y-2">
-                  {parsedSections.map((section, i) => (
-                    <a
-                      key={i}
-                      href={`#section-${i}`}
-                      className="block px-3 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors text-xs"
-                    >
-                      {section.title}
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              {nextModuleSlug && nextModuleTitle && (
-                <div className="pt-4">
-                  <p className="font-semibold text-gray-900 mb-3 text-xs uppercase tracking-widest">
-                    Up Next
-                  </p>
-                  <a
-                    href={`/spark/lessons/${nextModuleSlug}`}
-                    className="block px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded text-center font-medium text-sm transition-colors"
-                  >
-                    {nextModuleTitle}
-                  </a>
-                </div>
-              )}
-            </div>
-          </aside>
-        </div>
-      </div>
-    );
-  } catch (error) {
-    console.error("Lesson load error:", error);
-    return (
-      <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">
-            Error loading lesson
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400 mb-8">
-            Failed to load "{slug}"
-          </p>
-          <a
-            href="/spark/lessons"
-            className="inline-block px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
-          >
-            Back to lessons
-          </a>
-        </div>
-      </div>
-    );
+    lesson = await loadModule(slug);
+  } catch {
+    notFound();
   }
+
+  const { meta, sections } = lesson;
+  const slugs = await getAllModules();
+
+  const nextSlug = slugs.find((candidate) => {
+    const number = parseInt(candidate.match(/^m(\d+)/)?.[1] ?? "-1", 10) + 1;
+    return number === meta.module + 1;
+  });
+
+  let next: { slug: string; title: string } | null = null;
+  if (nextSlug) {
+    try {
+      const nextModule = await loadModule(nextSlug);
+      next = { slug: nextSlug, title: nextModule.meta.title };
+    } catch (error) {
+      console.error(`Failed to load next module ${nextSlug}:`, error);
+    }
+  }
+
+  return (
+    <LessonShell
+      title={meta.title}
+      moduleNumber={meta.module}
+      phaseLabel={phaseLabel(meta.phase)}
+      promise={meta.promise}
+      minutes={meta.minutes}
+      threads={meta.threads}
+      next={next}
+      sections={sections.map((section) => ({
+        id: section.id,
+        title: section.title,
+        content: (
+          <LessonContent key={section.id}>{section.content}</LessonContent>
+        ),
+      }))}
+    />
+  );
 }

@@ -14,6 +14,7 @@ interface Chapter {
   title: string;
   content: string;
   locked?: boolean;
+  completed?: boolean;
 }
 
 interface ChapterStats {

@@ -12,6 +12,7 @@ interface Chapter {
   title: string;
   content: string;
   locked?: boolean;
+  completed?: boolean;
 }
 
 interface Book {
@@ -60,6 +61,7 @@ export interface EditorLeftNavProps {
   handleRemoveChapter: (index: number) => void;
   confirmChapterDelete?: (index: number) => void;
   handleToggleChapterLock?: (index: number) => void;
+  handleToggleChapterComplete?: (index: number) => void;
   handleDragStart: (index: number) => void;
   handleDragEnter: (index: number) => void;
   handleDragEnd: () => void;
@@ -154,6 +156,7 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         handleRemoveChapter={props.handleRemoveChapter}
         confirmChapterDelete={props.confirmChapterDelete}
         handleToggleChapterLock={props.handleToggleChapterLock}
+        handleToggleChapterComplete={props.handleToggleChapterComplete}
         handleDragStart={props.handleDragStart}
         handleDragEnter={props.handleDragEnter}
         handleDragEnd={props.handleDragEnd}

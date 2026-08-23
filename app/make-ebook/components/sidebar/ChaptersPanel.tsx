@@ -11,6 +11,7 @@ interface Chapter {
   title: string;
   content: string;
   locked?: boolean;
+  completed?: boolean;
   synopsis?: string;
 }
 
@@ -26,6 +27,7 @@ interface ChaptersPanelProps {
 
   confirmChapterDelete?: (index: number) => void;
   handleToggleChapterLock?: (index: number) => void;
+  handleToggleChapterComplete?: (index: number) => void;
   handleDragStart: (index: number) => void;
   handleDragEnter: (index: number) => void;
   handleDragEnd: () => void;
@@ -106,6 +108,7 @@ export default function ChaptersPanel({
   handleRemoveChapter,
   confirmChapterDelete,
   handleToggleChapterLock,
+  handleToggleChapterComplete,
   handleDragStart,
   handleDragEnter,
   handleDragEnd,
@@ -328,6 +331,46 @@ export default function ChaptersPanel({
                   onClick={() => handleSelectChapter(i)}
                 >
                   <HandleDragIcon isSelected={isSelected} />
+                  {handleToggleChapterComplete && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleChapterComplete(i);
+                      }}
+                      aria-pressed={!!ch.completed}
+                      aria-label={
+                        ch.completed
+                          ? "Mark as still in progress"
+                          : "Mark chapter complete"
+                      }
+                      title={
+                        ch.completed
+                          ? "Mark as still in progress"
+                          : "Mark chapter complete"
+                      }
+                      className={`flex items-center justify-center w-5 h-5 rounded-full border flex-shrink-0 transition-colors ${
+                        ch.completed
+                          ? isSelected
+                            ? "bg-white dark:bg-gray-900 border-transparent text-gray-900 dark:text-white"
+                            : "bg-gray-900 dark:bg-white border-transparent text-white dark:text-gray-900"
+                          : isSelected
+                            ? "border-white/40 dark:border-gray-400 text-transparent hover:border-white/70 dark:hover:border-gray-600"
+                            : "border-gray-300 dark:border-[#4a4a4a] text-transparent hover:border-gray-400 dark:hover:border-[#6a6a6a]"
+                      }`}
+                    >
+                      <svg
+                        className="w-3 h-3"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={3}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="4 12 9 17 20 6" />
+                      </svg>
+                    </button>
+                  )}
                   <div className="flex flex-col flex-1 min-w-0 gap-2">
                     <span
                       className={`text-10 ${isSelected ? "text-white/55 dark:text-gray-500" : "text-gray-500 dark:text-[#737373]"}`}
@@ -342,7 +385,7 @@ export default function ChaptersPanel({
                   </div>
                   {wordCount !== undefined && (
                     <span
-                      className={`text-10 tabular-nums flex-shrink-0 transition-opacity group-hover:opacity-0 ${
+                      className={`text-10 tabular-nums flex-shrink-0 ${
                         isSelected
                           ? "text-white/55 dark:text-gray-500"
                           : "text-gray-400 dark:text-[#5c5c5c]"
@@ -355,10 +398,10 @@ export default function ChaptersPanel({
                     <button
                       className={`transition-all p-2 rounded-chip flex-shrink-0 ${
                         isSelected
-                          ? `${ch.locked ? "opacity-100" : "opacity-0 group-hover:opacity-100"} text-white/70 dark:text-gray-600 hover:bg-white/15 dark:hover:bg-black/10`
+                          ? "text-white/70 dark:text-gray-600 hover:bg-white/15 dark:hover:bg-black/10"
                           : ch.locked
-                            ? "opacity-100 text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#333]"
-                            : "opacity-0 group-hover:opacity-100 text-gray-400 dark:text-[#737373] group-hover:hover:bg-gray-200 dark:group-hover:hover:bg-[#333]"
+                            ? "text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#333]"
+                            : "text-gray-300 dark:text-[#5c5c5c] hover:text-gray-600 dark:hover:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#333]"
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -473,10 +516,10 @@ export default function ChaptersPanel({
                       </div>
                     ) : (
                       <button
-                        className={`opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-chip flex-shrink-0 ${
+                        className={`transition-colors p-2 rounded-chip flex-shrink-0 ${
                           isSelected
                             ? "text-white/70 dark:text-gray-600 hover:bg-white/15 dark:hover:bg-black/10"
-                            : "text-gray-500 dark:text-[#737373] hover:bg-gray-200 dark:hover:bg-[#333]"
+                            : "text-gray-300 dark:text-[#5c5c5c] hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[#333]"
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();

@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from "react";
 
 interface AutoSaveOptions {
   interval?: number;
-  onSave: () => void;
+  onSave: () => void | Promise<unknown>;
   enabled?: boolean;
 }
 
@@ -12,17 +12,17 @@ interface AutoSaveState {
   isSaving: boolean;
 }
 
-export function useAutoSave({ 
-  interval = 30000, 
-  onSave, 
-  enabled = true 
+export function useAutoSave({
+  interval = 30000,
+  onSave,
+  enabled = true,
 }: AutoSaveOptions) {
   const [state, setState] = useState<AutoSaveState>({
     lastSaved: null,
     isDirty: false,
     isSaving: false,
   });
-  
+
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const onSaveRef = useRef(onSave);
 
@@ -31,30 +31,29 @@ export function useAutoSave({
   }, [onSave]);
 
   const markDirty = useCallback(() => {
-    setState(prev => ({ ...prev, isDirty: true }));
+    setState((prev) => ({ ...prev, isDirty: true }));
   }, []);
 
   const markClean = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isDirty: false,
       lastSaved: new Date(),
-      isSaving: false
+      isSaving: false,
     }));
   }, []);
 
-  const triggerSave = useCallback(() => {
-    if (state.isDirty && enabled) {
-      setState(prev => ({ ...prev, isSaving: true }));
-      try {
-        onSaveRef.current();
-        markClean();
-      } catch (error) {
-        console.error('Auto-save failed:', error);
-        setState(prev => ({ ...prev, isSaving: false }));
-      }
+  const triggerSave = useCallback(async () => {
+    if (!state.isDirty || !enabled) return;
+    setState((prev) => ({ ...prev, isSaving: true }));
+    try {
+      await onSaveRef.current();
+    } catch (error) {
+      console.error("Auto-save failed:", error);
+    } finally {
+      setState((prev) => ({ ...prev, isSaving: false }));
     }
-  }, [state.isDirty, enabled, markClean]);
+  }, [state.isDirty, enabled]);
 
   useEffect(() => {
     if (!enabled || !state.isDirty) {
@@ -66,7 +65,7 @@ export function useAutoSave({
     }
 
     timeoutRef.current = setTimeout(() => {
-      triggerSave();
+      void triggerSave();
     }, interval);
 
     return () => {
@@ -97,12 +96,13 @@ export function useUnsavedChangesWarning(isDirty: boolean) {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isDirty) {
         e.preventDefault();
-        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        e.returnValue =
+          "You have unsaved changes. Are you sure you want to leave?";
         return e.returnValue;
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
 }
