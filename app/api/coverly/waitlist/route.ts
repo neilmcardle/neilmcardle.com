@@ -81,7 +81,7 @@ export async function POST(request: Request) {
         text: [
           "Thanks for signing up to Coverly.",
           "",
-          "Coverly is comp research for book cover designers: thousands of covers searchable by design attributes rather than genre, with boards and PDF comp-deck export.",
+          "Coverly is comparable research for book cover designers: thousands of covers searchable by design attributes rather than genre, with boards and PDF comp-deck export.",
           "",
           "It's free — you'll get an invite as soon as early access opens.",
           "",

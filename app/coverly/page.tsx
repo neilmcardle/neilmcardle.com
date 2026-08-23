@@ -1,128 +1,72 @@
 import Link from "next/link";
-import { CoverlyWaitlistForm } from "./CoverlyWaitlistForm";
+import { CoverlySignup } from "./CoverlySignup";
 import { CoverMarquee } from "./CoverMarquee";
+import { fetchCovers } from "./covers";
 import { LOGOMARK_PATH, LOGOMARK_VIEWBOX } from "./logomark";
 
 const DARK = "#0a0a0c";
 
-export default function CoverlyPage() {
+export default async function CoverlyPage() {
+  const { covers, count } = await fetchCovers();
+
+  const rounded = Math.floor(count / 50) * 50;
+  const countLabel =
+    rounded >= 50 ? `over ${rounded.toLocaleString()}` : `${count}`;
+
   return (
-    <main className="flex min-h-screen w-full flex-col lg:flex-row bg-[#0a0a0a]">
-      <section className="relative flex w-full flex-col justify-center px-6 py-16 sm:px-10 lg:w-1/2 lg:px-16">
-        <div className="mx-auto w-full max-w-md">
+    <main className="flex min-h-screen w-full flex-col bg-background lg:flex-row">
+      <section className="relative flex w-full flex-col justify-center px-6 py-14 sm:px-10 lg:w-1/2 lg:px-16">
+        <div className="mx-auto w-full max-w-sm">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-14"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "0.75rem",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-            }}
+            aria-label="Neil McArdle"
+            className="mb-9 inline-flex items-center gap-2"
           >
             <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-            <span>Neil McArdle</span>
-          </Link>
-
-          <div className="flex items-center gap-2.5 mb-7">
-            <svg
               viewBox={LOGOMARK_VIEWBOX}
-              width="26"
-              height="26"
-              fill="#fbf9f3"
+              className="h-6 w-auto text-foreground"
+              fill="currentColor"
               aria-hidden="true"
             >
               <path d={LOGOMARK_PATH} />
             </svg>
-            <span
-              className="text-white"
-              style={{
-                fontFamily: "var(--font-inter)",
-                fontSize: "1.0625rem",
-                fontWeight: 600,
-                letterSpacing: "-0.01em",
-              }}
-            >
+            <span className="text-lg font-semibold tracking-tight">
               coverly
             </span>
-          </div>
+          </Link>
 
-          <h1
-            className="text-white mb-7"
-            style={{
-              fontFamily: "var(--font-playfair)",
-              fontSize: "clamp(2.75rem, 7vw, 4rem)",
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
-              lineHeight: 0.95,
-            }}
-          >
-            Comp research for cover designers
+          <h1 className="text-balance text-3xl font-semibold leading-[1.1] tracking-tight sm:text-4xl">
+            Book cover inspiration
           </h1>
-
-          <p
-            className="text-white mb-9 max-w-md"
-            style={{
-              fontFamily: "var(--font-playfair)",
-              fontSize: "clamp(1.125rem, 2.4vw, 1.4rem)",
-              fontWeight: 400,
-              lineHeight: 1.45,
-              fontStyle: "italic",
-            }}
-          >
-            Search thousands of book covers by how they look — not by genre.
+          <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+            Featuring {countLabel} book cover designs.
           </p>
 
-          <div
-            className="space-y-4 text-white/70 max-w-md mb-11"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "0.9375rem",
-              lineHeight: 1.7,
-            }}
-          >
-            <p>
-              Every cover is tagged by the things designers actually brief on:
-              art style, typography, layout, whether a face is showing, and the
-              palette pulled straight out of the artwork.
-            </p>
-            <p>
-              Build a board, then export it as a comp deck you can put in front
-              of a publisher. Free — sign up with an email and it&apos;s yours.
-            </p>
+          <div className="mt-8">
+            <CoverlySignup />
           </div>
 
-          <div
-            className="text-white/40 mb-4"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "0.6875rem",
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-            }}
-          >
-            + Get early access
-          </div>
-          <CoverlyWaitlistForm />
+          <p className="mt-6 text-sm text-muted-foreground">
+            Curious who made this?{" "}
+            <Link
+              href="/"
+              className="font-medium text-foreground underline underline-offset-2"
+            >
+              Neil McArdle
+            </Link>
+          </p>
         </div>
+
+        <p className="absolute bottom-6 left-6 text-xs text-muted-foreground sm:left-10 lg:left-16">
+          © {new Date().getFullYear()} Coverly
+        </p>
       </section>
 
       <section
         className="relative hidden overflow-hidden lg:block lg:w-1/2"
         style={{ backgroundColor: DARK }}
       >
-        <CoverMarquee />
+        <CoverMarquee covers={covers} />
 
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-24"

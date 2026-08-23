@@ -2415,6 +2415,37 @@ button.spark-card:hover,
   }
 }
 
+.me-reveal {
+  opacity: 0;
+  transition: opacity var(--me-dur) var(--me-ease-out);
+}
+
+.group:hover .me-reveal,
+.group:focus-within .me-reveal,
+.me-reveal:focus-within,
+.me-reveal:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .me-reveal {
+    opacity: 1;
+  }
+}
+
+@keyframes me-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.me-fade-in {
+  animation: me-fade-in var(--me-dur-fast) var(--me-ease-out) both;
+}
+
 .me-rise-in {
   animation: me-rise-in var(--me-dur) var(--me-ease-out) both;
 }
