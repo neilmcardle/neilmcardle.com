@@ -19,7 +19,6 @@ interface ChaptersSheetProps {
   onSelectChapter: (index: number) => void;
   onToggleComplete?: (index: number) => void;
   onAddChapter: () => void;
-  getContentChapterNumber: (chapters: SheetChapter[], index: number) => number;
 }
 
 export default function ChaptersSheet({
@@ -32,7 +31,6 @@ export default function ChaptersSheet({
   onSelectChapter,
   onToggleComplete,
   onAddChapter,
-  getContentChapterNumber,
 }: ChaptersSheetProps) {
   useEffect(() => {
     if (!open) return;
@@ -47,9 +45,8 @@ export default function ChaptersSheet({
 
   return (
     <div
-      className={`lg:hidden fixed inset-0 z-[95] transition-[visibility] duration-300 ${
-        open ? "visible" : "invisible"
-      }`}
+      className="fixed inset-0 z-[120]"
+      style={{ visibility: open ? "visible" : "hidden" }}
       role="dialog"
       aria-modal="true"
       aria-label="Chapters"
@@ -58,17 +55,16 @@ export default function ChaptersSheet({
         aria-label="Close chapters"
         tabIndex={open ? 0 : -1}
         onClick={onClose}
-        className={`absolute inset-x-0 top-0 w-full bg-black/40 transition-opacity duration-300 ${
+        className={`absolute inset-0 w-full bg-black/40 transition-opacity duration-300 ${
           open ? "opacity-100" : "opacity-0"
         }`}
-        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 68px)" }}
       />
 
       <div
-        className={`absolute left-0 right-0 max-h-[72vh] flex flex-col rounded-t-[20px] bg-white dark:bg-[#252525] border-t border-gray-200 dark:border-[#2f2f2f] shadow-[0_-12px_32px_rgba(0,0,0,0.28)] transition-transform duration-300 ease-out motion-reduce:transition-none ${
-          open ? "translate-y-0" : "translate-y-[120%]"
+        className={`absolute left-0 right-0 bottom-0 max-h-[80vh] flex flex-col rounded-t-[20px] bg-white dark:bg-[#252525] border-t border-gray-200 dark:border-[#2f2f2f] shadow-[0_-12px_32px_rgba(0,0,0,0.28)] transition-transform duration-300 ease-out motion-reduce:transition-none ${
+          open ? "translate-y-0" : "translate-y-full"
         }`}
-        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 68px)" }}
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <button
           type="button"
@@ -108,15 +104,21 @@ export default function ChaptersSheet({
           </button>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto px-3 pb-4">
+        <div className="flex items-center gap-3 px-6 pb-1.5 flex-shrink-0 border-b border-gray-100 dark:border-[#2f2f2f]">
+          <span className="w-11 -ml-2 flex-shrink-0 text-center text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[#737373]">
+            Done
+          </span>
+          <span className="flex-1 min-w-0 text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[#737373]">
+            Chapter
+          </span>
+          <span className="text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[#737373] text-right">
+            Words
+          </span>
+        </div>
+
+        <div className="flex-1 min-h-0 overflow-y-auto px-3 pt-1 pb-4">
           {chapters.map((chapter, i) => {
             const isSelected = i === selectedChapter;
-            const label =
-              chapter.type === "frontmatter"
-                ? "Front"
-                : chapter.type === "backmatter"
-                  ? "Back"
-                  : String(getContentChapterNumber(chapters, i));
             return (
               <div
                 key={chapter.id}
@@ -164,21 +166,9 @@ export default function ChaptersSheet({
 
                 <button
                   type="button"
-                  onClick={() => {
-                    onSelectChapter(i);
-                    onClose();
-                  }}
+                  onClick={() => onSelectChapter(i)}
                   className="flex items-center gap-3 flex-1 min-w-0 h-12 text-left"
                 >
-                  <span
-                    className={`w-6 text-11 tabular-nums flex-shrink-0 ${
-                      isSelected
-                        ? "text-white/60 dark:text-gray-500"
-                        : "text-gray-400 dark:text-[#737373]"
-                    }`}
-                  >
-                    {label}
-                  </span>
                   <span
                     className={`flex-1 min-w-0 truncate text-sm ${
                       isSelected

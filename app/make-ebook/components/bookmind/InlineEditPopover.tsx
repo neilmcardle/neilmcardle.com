@@ -11,6 +11,7 @@ import { createPortal } from "react-dom";
 import { useBookMind } from "../../hooks/useBookMind";
 import { toast } from "sonner";
 import { useIsMac } from "../marketing/sections-v2/PlatformKey";
+import InlineEditSheet from "./InlineEditSheet";
 
 export interface InlineEditRequest {
   open: boolean;
@@ -59,11 +60,20 @@ export default function InlineEditPopover({
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const autoRunRef = useRef<string | null>(null);
 
   const hasAnyResult = results.some((r) => r !== null);
   const activeResult = results[activeIndex] ?? null;
   const completedCount = results.filter((r) => r !== null).length;
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 1023px)");
+    const update = () => setIsMobile(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     if (request.open) {
@@ -233,6 +243,30 @@ export default function InlineEditPopover({
 
   if (!request.open || !request.anchorRect) return null;
   if (typeof document === "undefined") return null;
+
+  if (isMobile) {
+    return createPortal(
+      <InlineEditSheet
+        selectedText={request.selectedText}
+        instruction={instruction}
+        onInstructionChange={setInstruction}
+        onSubmit={() => handleSubmit()}
+        isLoading={isLoading}
+        error={error}
+        results={results}
+        activeIndex={activeIndex}
+        activeResult={activeResult}
+        numAlternatives={numAlternatives}
+        maxAlternatives={MAX_ALTERNATIVES}
+        onSelectAlternative={setActiveIndex}
+        onMoreTakes={handleMoreTakes}
+        onRegenerate={handleRegenerate}
+        onAccept={handleAccept}
+        onClose={onClose}
+      />,
+      document.body,
+    );
+  }
 
   return createPortal(
     <div

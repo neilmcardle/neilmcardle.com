@@ -3443,74 +3443,79 @@ function MakeEbookPage() {
 
       {chapters.length > 0 && (
         <>
-          <ChaptersSheet
-            open={chaptersSheetOpen}
-            onClose={() => setChaptersSheetOpen(false)}
-            chapters={chapters}
-            selectedChapter={selectedChapter}
-            wordCounts={bookStats.chapterStats.map((c) => c.wordCount)}
-            totalWords={bookStats.totalWords}
-            onSelectChapter={handleSelectChapter}
-            onToggleComplete={handleToggleChapterComplete}
-            onAddChapter={() => {
-              handleAddChapter("content");
-              setChaptersSheetOpen(false);
-            }}
-            getContentChapterNumber={getContentChapterNumber}
-          />
+          <div className="lg:hidden">
+            <ChaptersSheet
+              open={chaptersSheetOpen}
+              onClose={() => setChaptersSheetOpen(false)}
+              chapters={chapters}
+              selectedChapter={selectedChapter}
+              wordCounts={bookStats.chapterStats.map((c) => c.wordCount)}
+              totalWords={bookStats.totalWords}
+              onSelectChapter={handleSelectChapter}
+              onToggleComplete={handleToggleChapterComplete}
+              onAddChapter={() => {
+                handleAddChapter("content");
+                setChaptersSheetOpen(false);
+              }}
+            />
+          </div>
 
           {hasBookMind && !mobileBookMindOpen && (
-            <SelectionActionBar
-              onRewrite={(selectedText, range, rect) =>
-                handleInlineEditRequest({
-                  selectedText,
-                  range,
-                  rect,
-                  instruction: "Rewrite this passage.",
-                })
-              }
-              onTighten={(selectedText, range, rect) =>
-                handleInlineEditRequest({
-                  selectedText,
-                  range,
-                  rect,
-                  instruction:
-                    "Tighten this passage. Same meaning, fewer words.",
-                })
-              }
-              onAsk={(selectedText, range, rect) =>
-                handleInlineEditRequest({ selectedText, range, rect })
-              }
-            />
+            <div className="lg:hidden">
+              <SelectionActionBar
+                onRewrite={(selectedText, range, rect) =>
+                  handleInlineEditRequest({
+                    selectedText,
+                    range,
+                    rect,
+                    instruction: "Rewrite this passage.",
+                  })
+                }
+                onTighten={(selectedText, range, rect) =>
+                  handleInlineEditRequest({
+                    selectedText,
+                    range,
+                    rect,
+                    instruction:
+                      "Tighten this passage. Same meaning, fewer words.",
+                  })
+                }
+                onAsk={(selectedText, range, rect) =>
+                  handleInlineEditRequest({ selectedText, range, rect })
+                }
+              />
+            </div>
           )}
 
           {!mobileEditorFocused && (
-            <MobileTabBar
-              active={
-                chaptersSheetOpen
-                  ? "chapters"
-                  : mobileBookMindOpen
-                    ? "bookmind"
-                    : "write"
-              }
-              hasBookMind={hasBookMind}
-              onWrite={() => {
-                setChaptersSheetOpen(false);
-                setMobileBookMindOpen(false);
-              }}
-              onChapters={() => {
-                setMobileBookMindOpen(false);
-                setChaptersSheetOpen((prev) => !prev);
-              }}
-              onBookMind={() => {
-                setChaptersSheetOpen(false);
-                setMobileBookMindOpen(true);
-              }}
-              onExport={() => {
-                setChaptersSheetOpen(false);
-                setPreflightFormat("epub");
-              }}
-            />
+            <div className="lg:hidden">
+              <MobileTabBar
+                active={
+                  chaptersSheetOpen
+                    ? "chapters"
+                    : mobileBookMindOpen
+                      ? "bookmind"
+                      : "write"
+                }
+                hasBookMind={hasBookMind}
+                onWrite={() => {
+                  setChaptersSheetOpen(false);
+                  setMobileBookMindOpen(false);
+                }}
+                onChapters={() => {
+                  setMobileBookMindOpen(false);
+                  setChaptersSheetOpen((prev) => !prev);
+                }}
+                onBookMind={() => {
+                  setChaptersSheetOpen(false);
+                  setMobileBookMindOpen(true);
+                }}
+                onExport={() => {
+                  setChaptersSheetOpen(false);
+                  setPreflightFormat("epub");
+                }}
+              />
+            </div>
           )}
         </>
       )}

@@ -2123,6 +2123,36 @@ html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
   --spark-terracotta: #e8927c;
   --spark-sage: #a3b899;
   --spark-ease: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* A composed three-layer shadow standing in for a 1px border. Reads as an
+     edge but keeps depth, and because it is transparent it sits correctly on
+     any light background rather than only the one it was picked against.
+     Light surfaces only: black at these alphas is invisible on #0a0a0a. */
+  --spark-shadow-border:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.06), 0px 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.04);
+  --spark-shadow-border-hover:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 1px 2px -1px rgba(0, 0, 0, 0.08),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.06);
+}
+
+.spark-card {
+  box-shadow: var(--spark-shadow-border);
+  transition: box-shadow 200ms var(--spark-ease);
+}
+
+a.spark-card:hover,
+button.spark-card:hover,
+.spark-card-hover:hover {
+  box-shadow: var(--spark-shadow-border-hover);
+}
+
+.spark-card-gold {
+  box-shadow:
+    0px 0px 0px 1px var(--spark-gold-deep),
+    0px 1px 2px -1px rgba(0, 0, 0, 0.08),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 200ms var(--spark-ease);
 }
 
 .spark-eyebrow {

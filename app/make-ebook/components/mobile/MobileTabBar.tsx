@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import BookMindMark from "../bookmind/BookMindMark";
 
 export type MobileTab = "write" | "chapters" | "bookmind" | "export";
 
@@ -13,7 +14,7 @@ interface MobileTabBarProps {
   onExport: () => void;
 }
 
-const ICONS: Record<MobileTab, React.ReactNode> = {
+const ICONS: Partial<Record<MobileTab, React.ReactNode>> = {
   write: (
     <>
       <path d="M12 20h9" />
@@ -25,12 +26,6 @@ const ICONS: Record<MobileTab, React.ReactNode> = {
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
       <path d="M14 2v6h6" />
       <path d="M16 13H8M16 17H8" />
-    </>
-  ),
-  bookmind: (
-    <>
-      <path d="M12 3a6 6 0 0 1 6 6c0 2.4-1.4 3.6-2 4.8V16H8v-2.2c-.6-1.2-2-2.4-2-4.8a6 6 0 0 1 6-6z" />
-      <path d="M9 20h6" />
     </>
   ),
   export: (
@@ -69,18 +64,24 @@ function Tab({
           : "active:bg-gray-100 dark:active:bg-[#262626]"
       }`}
     >
-      <svg
-        className={`w-5 h-5 ${active ? "text-gray-900 dark:text-[#f5f5f5]" : "text-gray-400 dark:text-[#737373]"}`}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.7}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        {ICONS[tab]}
-      </svg>
+      {tab === "bookmind" ? (
+        <BookMindMark
+          className={`w-[18px] h-[18px] ${active ? "text-gray-900 dark:text-[#f5f5f5]" : "text-gray-400 dark:text-[#737373]"}`}
+        />
+      ) : (
+        <svg
+          className={`w-5 h-5 ${active ? "text-gray-900 dark:text-[#f5f5f5]" : "text-gray-400 dark:text-[#737373]"}`}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.7}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          {ICONS[tab]}
+        </svg>
+      )}
       <span
         className={`text-[10px] leading-none ${
           active
@@ -114,7 +115,7 @@ export default function MobileTabBar({
   return (
     <nav
       aria-label="Editor sections"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-[90] bg-gray-50 dark:bg-[#151515] border-t border-gray-200 dark:border-[#2a2a2a]"
+      className="fixed bottom-0 left-0 right-0 z-[90] bg-gray-50 dark:bg-[#151515] border-t border-gray-200 dark:border-[#2a2a2a]"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div
