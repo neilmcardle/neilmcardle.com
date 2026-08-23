@@ -663,34 +663,6 @@ function MakeEbookPage() {
   const [bookJustLoaded, setBookJustLoaded] = useState(false);
   const [chapterJustAdded, setChapterJustAdded] = useState<string | null>(null);
 
-  const [isMobileKeyboardOpen, setIsMobileKeyboardOpen] = useState(false);
-  const initialViewportHeight = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const isMobile =
-      window.matchMedia("(max-width: 1023px)").matches &&
-      "ontouchstart" in window;
-    if (!isMobile) return;
-
-    const viewport = window.visualViewport;
-    if (!viewport) return;
-
-    if (initialViewportHeight.current === null) {
-      initialViewportHeight.current = viewport.height;
-    }
-
-    const handleResize = () => {
-      if (initialViewportHeight.current === null) return;
-      const heightDiff = initialViewportHeight.current - viewport.height;
-      setIsMobileKeyboardOpen(heightDiff > 150);
-    };
-
-    viewport.addEventListener("resize", handleResize);
-    return () => viewport.removeEventListener("resize", handleResize);
-  }, []);
-
   const onboarding = useOnboarding({
     userId: user?.id,
     stepCallbacks: {
@@ -917,7 +889,11 @@ function MakeEbookPage() {
       handleAddChapter("content", "");
     },
     onFindReplace: () => {
-      findReplace.isOpen ? findReplace.close() : findReplace.open();
+      if (findReplace.isOpen) {
+        findReplace.close();
+      } else {
+        findReplace.open();
+      }
     },
     enabled: chapters.length > 0,
   });
@@ -1139,18 +1115,14 @@ function MakeEbookPage() {
     setSidebarView(null);
   }
 
-  const devPreview =
-    typeof window !== "undefined" &&
-    window.location.search.includes("devpreview");
-
   useEffect(() => {
     if (authLoading) return;
-    if (!user?.id && !devPreview) {
+    if (!user?.id) {
       setLibraryLoading(false);
       return;
     }
 
-    const books = loadBookLibrary(user?.id ?? "");
+    const books = loadBookLibrary(user.id);
     setLibraryBooks(books);
     setLibraryLoading(false);
 
@@ -1199,7 +1171,7 @@ function MakeEbookPage() {
     }
   }, [mobileSidebarOpen, tab]);
 
-  if (showMarketingPage && chapters.length === 0 && !devPreview) {
+  if (showMarketingPage && chapters.length === 0) {
     return (
       <MarketingLandingPage
         onStartWritingAction={handleStartWriting}
@@ -2719,7 +2691,6 @@ function MakeEbookPage() {
                             userSelect: "none",
                             WebkitUserSelect: "none",
                             WebkitTouchCallout: "none",
-                            // @ts-ignore - WebkitUserDrag is valid but not in TypeScript types
                             WebkitUserDrag: "none",
                             opacity:
                               dragItemIndex === i && ghostPillPosition.visible
@@ -3312,74 +3283,6 @@ function MakeEbookPage() {
                   </div>
 
                   <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
-                    <div
-                      className={`mt-2 mb-1 flex-shrink-0 flex items-start justify-between px-2 transition-all duration-200 ${
-                        isMobileKeyboardOpen ? "hidden" : ""
-                      }`}
-                    >
-                      <div className="flex items-start gap-2">
-                        <div className="flex flex-col items-center">
-                          <button
-                            title="Undo content changes"
-                            type="button"
-                            className="hover:opacity-70 transition-opacity"
-                            onClick={() => {
-                              const editorElement = document.querySelector(
-                                '[contenteditable="true"]',
-                              ) as HTMLElement;
-                              if (editorElement) {
-                                editorElement.focus();
-                                document.execCommand("undo");
-                              }
-                            }}
-                          >
-                            <div className="bg-white dark:bg-[#262626] rounded-full p-2">
-                              <Image
-                                src="/undo-icon.svg"
-                                alt="Undo"
-                                width={16}
-                                height={16}
-                                className="w-4 h-4 dark:invert"
-                                style={{ borderRadius: "0", boxShadow: "none" }}
-                              />
-                            </div>
-                          </button>
-                          <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">
-                            Undo
-                          </span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                          <button
-                            title="Redo content changes"
-                            type="button"
-                            className="hover:opacity-70 transition-opacity"
-                            onClick={() => {
-                              const editorElement = document.querySelector(
-                                '[contenteditable="true"]',
-                              ) as HTMLElement;
-                              if (editorElement) {
-                                editorElement.focus();
-                                document.execCommand("redo");
-                              }
-                            }}
-                          >
-                            <div className="bg-white dark:bg-[#262626] rounded-full p-2">
-                              <Image
-                                src="/redo-icon.svg"
-                                alt="Redo"
-                                width={16}
-                                height={16}
-                                className="w-4 h-4 dark:invert"
-                                style={{ borderRadius: "0", boxShadow: "none" }}
-                              />
-                            </div>
-                          </button>
-                          <span className="text-xs font-medium text-[#050505] dark:text-[#e5e5e5] mt-1">
-                            Redo
-                          </span>
-                        </div>
-                      </div>
-                    </div>
                     <div
                       className="flex-1 min-h-0"
                       style={{ minHeight: "400px" }}

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import ePub, { Book, Rendition } from 'epubjs';
+import React, { useEffect, useRef, useState } from "react";
+import ePub, { Book, Rendition } from "epubjs";
 
 interface EPUBReaderModalProps {
   isOpen: boolean;
@@ -10,12 +10,17 @@ interface EPUBReaderModalProps {
   bookTitle?: string;
 }
 
-export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }: EPUBReaderModalProps) {
+export default function EPUBReaderModal({
+  isOpen,
+  onClose,
+  epubBlob,
+  bookTitle,
+}: EPUBReaderModalProps) {
   const viewerRef = useRef<HTMLDivElement>(null);
   const bookRef = useRef<Book | null>(null);
   const renditionRef = useRef<Rendition | null>(null);
 
-  const [currentLocation, setCurrentLocation] = useState('');
+  const [currentLocation, setCurrentLocation] = useState("");
   const [canGoPrev, setCanGoPrev] = useState(false);
   const [canGoNext, setCanGoNext] = useState(true);
   const [isReady, setIsReady] = useState(false);
@@ -24,7 +29,7 @@ export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }
     if (!isOpen || !epubBlob || !viewerRef.current) return;
 
     setIsReady(false);
-    let urlToRevoke: string | null = null;
+    const urlToRevoke: string | null = null;
 
     const initializeEpub = async () => {
       try {
@@ -35,30 +40,28 @@ export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }
         await book.ready;
 
         const rendition = book.renderTo(viewerRef.current!, {
-          width: '100%',
-          height: '100%',
-          spread: 'none',
+          width: "100%",
+          height: "100%",
+          spread: "none",
         });
         renditionRef.current = rendition;
 
         await rendition.display();
         setIsReady(true);
 
-        // Track location changes
-        rendition.on('relocated', (location: any) => {
+        rendition.on("relocated", (location: any) => {
           setCurrentLocation(location.start.cfi);
           setCanGoPrev(!location.atStart);
           setCanGoNext(!location.atEnd);
         });
       } catch (err) {
-        console.error('Failed to initialize EPUB:', err);
-        setIsReady(true); // Set ready to show error state
+        console.error("Failed to initialize EPUB:", err);
+        setIsReady(true);
       }
     };
 
     initializeEpub();
 
-    // Cleanup
     return () => {
       setIsReady(false);
       renditionRef.current?.destroy();
@@ -82,23 +85,22 @@ export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen || !isReady) return;
-      if (e.key === 'ArrowLeft') handlePrevPage();
-      if (e.key === 'ArrowRight') handleNextPage();
-      if (e.key === 'Escape') onClose();
+      if (e.key === "ArrowLeft") handlePrevPage();
+      if (e.key === "ArrowRight") handleNextPage();
+      if (e.key === "Escape") onClose();
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, isReady]);
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[10000] bg-black/70 dark:bg-black/85 flex items-center justify-center">
-      {/* Header */}
       <div className="absolute top-0 left-0 right-0 h-16 bg-[#f0eee6]/95 dark:bg-[#1e1e1e]/90 backdrop-blur-sm border-b border-[#e4e4de] dark:border-[#333] flex items-center justify-between px-6 z-10">
         <h2 className="text-lg font-semibold text-[#141413] dark:text-white">
-          {bookTitle || 'EPUB Preview'}
+          {bookTitle || "EPUB Preview"}
         </h2>
         <button
           onClick={onClose}
@@ -108,16 +110,14 @@ export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }
         </button>
       </div>
 
-      {/* EPUB Viewer */}
       <div className="w-full h-full pt-16 pb-20">
         <div
           ref={viewerRef}
           className="w-full h-full bg-[#faf9f5] dark:bg-white"
-          style={{ maxWidth: '800px', margin: '0 auto' }}
+          style={{ maxWidth: "800px", margin: "0 auto" }}
         />
       </div>
 
-      {/* Navigation Controls */}
       <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f0eee6]/95 dark:bg-[#1e1e1e]/90 backdrop-blur-sm border-t border-[#e4e4de] dark:border-[#333] flex items-center justify-center gap-4 z-10">
         <button
           onClick={handlePrevPage}
@@ -127,7 +127,7 @@ export default function EPUBReaderModal({ isOpen, onClose, epubBlob, bookTitle }
           ← Previous
         </button>
         <div className="text-sm text-[#141413]/60 dark:text-[#a3a3a3]">
-          {isReady ? 'Use arrow keys to navigate' : 'Loading...'}
+          {isReady ? "Use arrow keys to navigate" : "Loading..."}
         </div>
         <button
           onClick={handleNextPage}

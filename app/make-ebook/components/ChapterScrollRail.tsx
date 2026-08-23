@@ -13,30 +13,50 @@ interface ChapterScrollRailProps {
   onSelectChapter?: (index: number) => void;
 }
 
+const THUMB_RATIO = 0.45;
+
 export default function ChapterScrollRail({
   chapters,
   selectedChapter,
   onSelectChapter,
 }: ChapterScrollRailProps) {
   const [progress, setProgress] = useState(0);
+  const [scrollable, setScrollable] = useState(false);
 
   useEffect(() => {
     setProgress(0);
-    const el = document.querySelector<HTMLElement>(".editor-root");
+    const el =
+      document.querySelector<HTMLElement>(
+        '[data-tour="editor"] .editor-root[contenteditable]',
+      ) ??
+      [...document.querySelectorAll<HTMLElement>(".editor-root")]
+        .reverse()
+        .find((node) => node.offsetParent !== null);
     if (!el) return;
 
     const read = () => {
-      const scrollable = el.scrollHeight - el.clientHeight;
-      setProgress(
-        scrollable > 8
-          ? Math.min(1, Math.max(0, el.scrollTop / scrollable))
-          : 0,
-      );
+      const range = el.scrollHeight - el.clientHeight;
+      if (range <= 8) {
+        setScrollable(false);
+        setProgress(0);
+        return;
+      }
+      setScrollable(true);
+      setProgress(Math.min(1, Math.max(0, el.scrollTop / range)));
     };
 
     read();
     el.addEventListener("scroll", read, { passive: true });
-    return () => el.removeEventListener("scroll", read);
+    el.addEventListener("input", read);
+
+    const observer = new ResizeObserver(read);
+    observer.observe(el);
+
+    return () => {
+      el.removeEventListener("scroll", read);
+      el.removeEventListener("input", read);
+      observer.disconnect();
+    };
   }, [selectedChapter, chapters.length]);
 
   if (chapters.length < 2) return null;
@@ -59,16 +79,23 @@ export default function ChapterScrollRail({
             className="group flex items-center justify-center w-5 flex-shrink-0 py-0.5"
           >
             <span
-              className={`block w-[3px] rounded-full transition-all duration-300 ${
+              className={`block w-[3px] rounded-full overflow-hidden transition-all duration-300 ${
                 isCurrent
-                  ? "h-7 bg-gray-200 dark:bg-[#3a3a3a]"
+                  ? "h-8 bg-gray-200 dark:bg-[#3a3a3a]"
                   : "h-3.5 bg-gray-200 dark:bg-[#2f2f2f] group-hover:bg-gray-300 dark:group-hover:bg-[#4a4a4a]"
               }`}
             >
               {isCurrent && (
                 <span
-                  className="block w-full rounded-full bg-gray-900 dark:bg-white transition-[height] duration-150"
-                  style={{ height: `${Math.max(18, progress * 100)}%` }}
+                  className="block w-full rounded-full bg-gray-900 dark:bg-white"
+                  style={
+                    scrollable
+                      ? {
+                          height: `${THUMB_RATIO * 100}%`,
+                          transform: `translateY(${(progress * (1 - THUMB_RATIO) * 100) / THUMB_RATIO}%)`,
+                        }
+                      : { height: "100%" }
+                  }
                 />
               )}
             </span>

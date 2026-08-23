@@ -36,7 +36,9 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
     <>
       <div
         className={`fixed inset-0 z-50 bg-black/30 transition-opacity duration-200 ${
-          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          open
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
         aria-hidden="true"
@@ -50,7 +52,11 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
       >
         <div className="flex items-center justify-between p-4 border-b">
           <span className="font-semibold text-lg">Menu</span>
-          <button className="text-2xl text-gray-400" onClick={onClose} aria-label="Close menu">
+          <button
+            className="text-2xl text-gray-400"
+            onClick={onClose}
+            aria-label="Close menu"
+          >
             &times;
           </button>
         </div>
@@ -76,7 +82,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
               <button
                 className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100 font-medium text-[#23242a] bg-transparent border-none"
                 onClick={() => {
-                  onNewBook && onNewBook();
+                  onNewBook?.();
                   onClose();
                 }}
                 type="button"
@@ -87,7 +93,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
               <button
                 className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100 font-medium text-[#23242a] bg-transparent border-none"
                 onClick={() => {
-                  onSave && onSave();
+                  onSave?.();
                   onClose();
                 }}
                 type="button"
@@ -99,7 +105,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
               <button
                 className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100 font-medium text-[#23242a] bg-transparent border-none"
                 onClick={() => {
-                  onExport && onExport();
+                  onExport?.();
                   onClose();
                 }}
                 type="button"

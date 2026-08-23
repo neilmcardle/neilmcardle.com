@@ -23,7 +23,7 @@ function parseInlineHtml(html: string): TextRun[] {
 
   const runs: TextRun[] = [];
 
-  let text = html.replace(/<br\s*\/?>/gi, "\n");
+  const text = html.replace(/<br\s*\/?>/gi, "\n");
 
   const TOKEN = /(<\/?(?:strong|b|em|i|u|s|strike|a)[^>]*>|[^<]+|<[^>]+>)/gi;
   let bold = false;

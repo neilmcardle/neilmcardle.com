@@ -1,4 +1,4 @@
-import { BookRecord, Chapter, Endnote, EndnoteReference } from '../types';
+import { BookRecord, Chapter, Endnote, EndnoteReference } from "../types";
 
 function libraryKey(userId: string) {
   return `makeebook_library_${userId}`;
@@ -11,29 +11,32 @@ export function loadBookLibrary(userId: string): BookRecord[] {
     try {
       return JSON.parse(str);
     } catch (e) {
-      console.error('Failed to parse book library from localStorage:', e);
+      console.error("Failed to parse book library from localStorage:", e);
       return [];
     }
   }
   return [];
 }
 
-export function saveBookToLibrary(userId: string, book: Partial<BookRecord>): string {
+export function saveBookToLibrary(
+  userId: string,
+  book: Partial<BookRecord>,
+): string {
   if (typeof window === "undefined") return "";
-  let library = loadBookLibrary(userId);
+  const library = loadBookLibrary(userId);
   const id = book.id || "book-" + Date.now();
-  // Preserve cached memory across partial saves.
+
   const existing = library.find((b) => b.id === id);
   const bookToSave: BookRecord = {
     id,
-    title: book.title || '',
-    author: book.author || '',
-    blurb: book.blurb || '',
-    publisher: book.publisher || '',
-    pubDate: book.pubDate || '',
-    isbn: book.isbn || '',
-    language: book.language || '',
-    genre: book.genre || '',
+    title: book.title || "",
+    author: book.author || "",
+    blurb: book.blurb || "",
+    publisher: book.publisher || "",
+    pubDate: book.pubDate || "",
+    isbn: book.isbn || "",
+    language: book.language || "",
+    genre: book.genre || "",
     chapters: book.chapters || [],
     tags: book.tags || [],
     coverFile: book.coverFile || null,
@@ -45,12 +48,15 @@ export function saveBookToLibrary(userId: string, book: Partial<BookRecord>): st
   const idx = library.findIndex((b) => b.id === id);
   if (idx >= 0) library[idx] = bookToSave;
   else library.push(bookToSave);
-  // Throws on quota exceeded — caller should catch and notify user
+
   localStorage.setItem(libraryKey(userId), JSON.stringify(library));
   return id;
 }
 
-export function loadBookById(userId: string, id: string): BookRecord | undefined {
+export function loadBookById(
+  userId: string,
+  id: string,
+): BookRecord | undefined {
   const library = loadBookLibrary(userId);
   return library.find((b) => b.id === id);
 }
@@ -61,51 +67,58 @@ export function removeBookFromLibrary(userId: string, id: string) {
   try {
     localStorage.setItem(libraryKey(userId), JSON.stringify(library));
   } catch (e) {
-    console.error('Failed to save library after removing book:', e);
+    console.error("Failed to save library after removing book:", e);
   }
 }
 
-/**
- * Normalize a remote book record (snake_case) into the app's camelCase shape.
- */
-export function normalizeBookFromSupabase(book: Record<string, unknown>): BookRecord {
+export function normalizeBookFromSupabase(
+  book: Record<string, unknown>,
+): BookRecord {
   return {
-    id: (book.id as string) || '',
-    title: (book.title as string) || '',
-    author: (book.author as string) || '',
-    blurb: (book.blurb as string) || '',
-    publisher: (book.publisher as string) || '',
-    pubDate: (book.pubDate as string) || (book.pub_date as string) || '',
-    isbn: (book.isbn as string) || '',
-    language: (book.language as string) || '',
-    genre: (book.genre as string) || '',
+    id: (book.id as string) || "",
+    title: (book.title as string) || "",
+    author: (book.author as string) || "",
+    blurb: (book.blurb as string) || "",
+    publisher: (book.publisher as string) || "",
+    pubDate: (book.pubDate as string) || (book.pub_date as string) || "",
+    isbn: (book.isbn as string) || "",
+    language: (book.language as string) || "",
+    genre: (book.genre as string) || "",
     chapters: normalizeChapters(book.chapters),
     tags: Array.isArray(book.tags) ? book.tags : [],
-    coverFile: (book.coverFile as string) || (book.cover_image_url as string) || null,
+    coverFile:
+      (book.coverFile as string) || (book.cover_image_url as string) || null,
     endnotes: Array.isArray(book.endnotes) ? book.endnotes : [],
-    endnoteReferences: normalizeEndnoteReferences(book.endnoteReferences || book.endnote_references),
-    savedAt: (book.savedAt as number) || (book.updated_at ? new Date(book.updated_at as string).getTime() : Date.now()),
-    bookmindMemory: (book.bookmindMemory as BookRecord['bookmindMemory']) ?? undefined,
+    endnoteReferences: normalizeEndnoteReferences(
+      book.endnoteReferences || book.endnote_references,
+    ),
+    savedAt:
+      (book.savedAt as number) ||
+      (book.updated_at
+        ? new Date(book.updated_at as string).getTime()
+        : Date.now()),
+    bookmindMemory:
+      (book.bookmindMemory as BookRecord["bookmindMemory"]) ?? undefined,
   };
 }
 
 function normalizeChapters(raw: unknown): Chapter[] {
   if (!Array.isArray(raw)) return [];
   return raw.map((ch: Record<string, unknown>) => ({
-    id: (ch.id as string) || '',
-    title: (ch.title as string) || '',
-    content: (ch.content as string) || '',
-    type: (ch.type as Chapter['type']) || 'content',
+    id: (ch.id as string) || "",
+    title: (ch.title as string) || "",
+    content: (ch.content as string) || "",
+    type: (ch.type as Chapter["type"]) || "content",
   }));
 }
 
 function normalizeEndnoteReferences(raw: unknown): EndnoteReference[] {
   if (!Array.isArray(raw)) return [];
   return raw.map((ref: Record<string, unknown>) => ({
-    id: (ref.id as string) || '',
+    id: (ref.id as string) || "",
     number: (ref.number as number) || 0,
-    chapterId: (ref.chapterId as string) || (ref.chapter_id as string) || '',
-    endnoteId: (ref.endnoteId as string) || (ref.endnote_id as string) || '',
+    chapterId: (ref.chapterId as string) || (ref.chapter_id as string) || "",
+    endnoteId: (ref.endnoteId as string) || (ref.endnote_id as string) || "",
   }));
 }
 
@@ -113,6 +126,6 @@ export function saveLibraryToStorage(userId: string, books: BookRecord[]) {
   try {
     localStorage.setItem(libraryKey(userId), JSON.stringify(books));
   } catch (e) {
-    console.error('Failed to save library to localStorage:', e);
+    console.error("Failed to save library to localStorage:", e);
   }
 }

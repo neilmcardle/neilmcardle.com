@@ -1,5 +1,4 @@
-/** @type {import('next').NextConfig} */
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === "development";
 
 const nextConfig = {
   typescript: {
@@ -8,19 +7,18 @@ const nextConfig = {
   images: {
     unoptimized: true, // Keep unoptimized for now until external domains are audited
   },
-  // Next.js 16 uses Turbopack by default - empty config acknowledges this
+
   turbopack: {},
-  // @resvg/resvg-js ships native bindings (.node files) that Turbopack
-  // can't bundle into ESM chunks. Marking it external tells Next to
-  // resolve it from node_modules at runtime, which is the canonical
-  // pattern for native server-only modules.
-  serverExternalPackages: ['@resvg/resvg-js'],
-  // Exclude pdfjs-dist from webpack bundling to avoid CSS issues (legacy webpack builds)
+
+  devIndicators: {
+    position: "bottom-right",
+  },
+
+  serverExternalPackages: ["@resvg/resvg-js"],
+
   webpack: (config, { isServer }) => {
-    // Ignore pdfjs-dist CSS imports that cause issues
     config.resolve.alias.canvas = false;
 
-    // Handle pdfjs-dist worker issues
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -34,65 +32,55 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-      // Static HTML game lives at public/kids-alphabet/index.html. Without
-      // this rewrite, /kids-alphabet 404s because Next doesn't auto-resolve
-      // index.html from public subdirectories.
-      { source: '/kids-alphabet', destination: '/kids-alphabet/index.html' },
-      { source: '/kids-alphabet/', destination: '/kids-alphabet/index.html' },
+      { source: "/kids-alphabet", destination: "/kids-alphabet/index.html" },
+      { source: "/kids-alphabet/", destination: "/kids-alphabet/index.html" },
     ];
   },
   async redirects() {
     return [
-      // The standalone /make-ebook/book-mind route was removed in Phase A
-      // of the Book Mind rewrite. Any bookmarks pointing at it land back
-      // in the editor, where Book Mind now lives inside the Inspector
-      // right panel.
       {
-        source: '/make-ebook/book-mind',
-        destination: '/make-ebook',
+        source: "/make-ebook/book-mind",
+        destination: "/make-ebook",
         permanent: true,
       },
       {
-        source: '/make-ebook/book-mind/:path*',
-        destination: '/make-ebook',
+        source: "/make-ebook/book-mind/:path*",
+        destination: "/make-ebook",
         permanent: true,
       },
-      // /wireframe was renamed to /doodlewire in 2026-05. Permanent redirect
-      // so any external links or bookmarks resolve to the new home.
+
       {
-        source: '/wireframe',
-        destination: '/doodlewire',
+        source: "/wireframe",
+        destination: "/doodlewire",
         permanent: true,
       },
       {
-        source: '/wireframe/:path*',
-        destination: '/doodlewire/:path*',
+        source: "/wireframe/:path*",
+        destination: "/doodlewire/:path*",
         permanent: true,
       },
     ];
   },
   async headers() {
     return [
-      // Development - disable all caching
       ...(isDev
         ? [
             {
-              source: '/(.*)',
+              source: "/(.*)",
               headers: [
                 {
-                  key: 'Cache-Control',
-                  value: 'no-cache, no-store, must-revalidate',
+                  key: "Cache-Control",
+                  value: "no-cache, no-store, must-revalidate",
                 },
               ],
             },
           ]
         : [
-            // Production - HTML/API routes with no caching and CSP
             {
-              source: '/((?!_next/static|_next/image|favicon.ico).*)',
+              source: "/((?!_next/static|_next/image|favicon.ico).*)",
               headers: [
                 {
-                  key: 'Content-Security-Policy',
+                  key: "Content-Security-Policy",
                   value:
                     "default-src 'self'; " +
                     "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://www.googletagmanager.com; " +
@@ -105,47 +93,44 @@ const nextConfig = {
                     "frame-ancestors 'none';",
                 },
                 {
-                  key: 'Cache-Control',
-                  value: 'private, max-age=0, must-revalidate',
+                  key: "Cache-Control",
+                  value: "private, max-age=0, must-revalidate",
                 },
                 {
-                  key: 'X-Frame-Options',
-                  value: 'DENY',
+                  key: "X-Frame-Options",
+                  value: "DENY",
                 },
                 {
-                  key: 'X-Content-Type-Options',
-                  value: 'nosniff',
+                  key: "X-Content-Type-Options",
+                  value: "nosniff",
                 },
                 {
-                  key: 'Referrer-Policy',
-                  value: 'strict-origin-when-cross-origin',
+                  key: "Referrer-Policy",
+                  value: "strict-origin-when-cross-origin",
                 },
                 {
-                  // microphone=(self) allows the ElevenLabs voice agent
-                  // to request the visitor's mic on neilmcardle.com only.
-                  // camera and geolocation remain disabled.
-                  key: 'Permissions-Policy',
-                  value: 'camera=(), microphone=(self), geolocation=()',
+                  key: "Permissions-Policy",
+                  value: "camera=(), microphone=(self), geolocation=()",
                 },
               ],
             },
-            // Production - Static assets with long-term caching
+
             {
-              source: '/_next/static/(.*)',
+              source: "/_next/static/(.*)",
               headers: [
                 {
-                  key: 'Cache-Control',
-                  value: 'public, max-age=31536000, immutable',
+                  key: "Cache-Control",
+                  value: "public, max-age=31536000, immutable",
                 },
               ],
             },
-            // Production - Next.js images with optimization caching
+
             {
-              source: '/_next/image/(.*)',
+              source: "/_next/image/(.*)",
               headers: [
                 {
-                  key: 'Cache-Control',
-                  value: 'public, max-age=86400',
+                  key: "Cache-Control",
+                  value: "public, max-age=86400",
                 },
               ],
             },
