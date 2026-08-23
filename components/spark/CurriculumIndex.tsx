@@ -106,7 +106,7 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
             Spark
           </span>
         </Link>
-        <span className="spark-eyebrow text-white/40">
+        <span className="spark-eyebrow text-[var(--spark-on-dark-muted)]">
           {loaded
             ? `${completedCount} of ${modules.length} complete`
             : `${modules.length} modules`}
@@ -124,7 +124,7 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
               <br />
               modules
             </h1>
-            <p className="max-w-[440px] font-serif text-[19px] italic leading-[1.45] text-white/55">
+            <p className="max-w-[440px] font-serif text-[19px] italic leading-[1.45] text-[var(--spark-on-dark-muted)]">
               Fundamentals up. From how a file becomes a page, to a full stack
               capstone shipped without AI.
             </p>
@@ -135,23 +135,31 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
               <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em] text-[var(--spark-gold)]">
                 {loaded ? completedCount : "·"}
               </div>
-              <div className="spark-eyebrow mt-2 text-white/[0.38]">Done</div>
+              <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
+                Done
+              </div>
             </div>
             <div>
               <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em]">
                 {loaded ? percent : "·"}
-                <span className="text-[22px] text-white/40">%</span>
+                <span className="text-[22px] text-[var(--spark-on-dark-muted)]">
+                  %
+                </span>
               </div>
-              <div className="spark-eyebrow mt-2 text-white/[0.38]">
+              <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
                 Of the course
               </div>
             </div>
             <div>
               <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em]">
                 {Math.round(minutesLeft / 60)}
-                <span className="text-[22px] text-white/40">h</span>
+                <span className="text-[22px] text-[var(--spark-on-dark-muted)]">
+                  h
+                </span>
               </div>
-              <div className="spark-eyebrow mt-2 text-white/[0.38]">Left</div>
+              <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
+                Left
+              </div>
             </div>
           </div>
         </div>
@@ -174,7 +182,7 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
               <span className="block font-serif text-[26px] font-bold leading-[1.1] tracking-[-0.02em]">
                 {resume.title}
               </span>
-              <span className="mt-1.5 block text-[12.5px] text-white/45">
+              <span className="mt-1.5 block text-[12.5px] text-[var(--spark-on-dark-muted)]">
                 Section{" "}
                 {Math.min(resumeProgress.furthest + 1, resume.sectionCount)} of{" "}
                 {resume.sectionCount} {String.fromCharCode(183)}{" "}
@@ -237,13 +245,13 @@ function PhaseGroup({
         <h2
           className="spark-eyebrow shrink-0"
           style={{
-            color: active ? "var(--spark-gold)" : "rgba(255,255,255,0.4)",
+            color: active ? "var(--spark-gold)" : "var(--spark-on-dark-muted)",
           }}
         >
           + Phase {index} {String.fromCharCode(183)} {phase.name}
         </h2>
         <span aria-hidden className="h-px flex-1 bg-white/[0.09]" />
-        <span className="spark-eyebrow shrink-0 text-white/30">
+        <span className="spark-eyebrow shrink-0 text-[var(--spark-on-dark-muted)]">
           {loaded
             ? `${done} of ${modules.length}`
             : `${modules.length} modules`}
@@ -258,16 +266,16 @@ function PhaseGroup({
           <Link
             key={mod.slug}
             href={`/spark/lessons/${mod.slug}`}
-            className="group grid grid-cols-[54px_minmax(0,1fr)] items-start gap-4 border-b border-white/[0.05] py-4 transition-colors hover:bg-white/[0.035] lg:grid-cols-[86px_minmax(0,1fr)_200px_118px_32px] lg:items-center lg:gap-6 lg:pl-2"
+            className="group grid grid-cols-[54px_minmax(0,1fr)] items-start gap-4 border-b border-white/[0.09] py-4 transition-colors hover:bg-white/[0.035] lg:grid-cols-[86px_minmax(0,1fr)_200px_118px_32px] lg:items-center lg:gap-6 lg:pl-2"
           >
             <span
               className="mt-0.5 font-serif text-[28px] font-black leading-none tracking-[-0.03em] transition-colors lg:mt-0 lg:text-[38px]"
               style={{
                 color: started
-                  ? "rgba(216,180,106,0.55)"
+                  ? "var(--spark-gold)"
                   : state.complete
-                    ? "rgba(255,255,255,0.18)"
-                    : "rgba(255,255,255,0.09)",
+                    ? "rgba(255,255,255,0.55)"
+                    : "var(--spark-on-dark-numeral)",
               }}
             >
               {String(mod.module).padStart(2, "0")}
@@ -278,7 +286,7 @@ function PhaseGroup({
                 {mod.title}
               </span>
               {mod.promise && (
-                <span className="mt-1 block text-[12.5px] leading-[1.5] text-white/[0.38] line-clamp-2">
+                <span className="mt-1 block text-[12.5px] leading-[1.5] text-[var(--spark-on-dark-muted)] line-clamp-2">
                   {mod.promise}
                 </span>
               )}
@@ -289,7 +297,7 @@ function PhaseGroup({
                   active={started}
                   compact
                 />
-                <span className="ml-1.5 shrink-0 text-[10px] text-white/30">
+                <span className="ml-1.5 shrink-0 text-[10px] text-[var(--spark-on-dark-muted)]">
                   {state.complete ? "Complete" : `${mod.minutes} min`}
                 </span>
               </span>
@@ -313,7 +321,7 @@ function PhaseGroup({
                   {mod.minutes} min left
                 </span>
               ) : (
-                <span className="text-[11px] text-white/[0.26]">
+                <span className="text-[11px] text-[var(--spark-on-dark-muted)]">
                   {mod.minutes} min
                 </span>
               )}
@@ -371,7 +379,7 @@ function SectionDots({
                 ? "var(--spark-gold)"
                 : isRead
                   ? "var(--spark-gold-deep)"
-                  : "rgba(255,255,255,0.13)",
+                  : "var(--spark-rule-dark)",
             }}
           />
         );

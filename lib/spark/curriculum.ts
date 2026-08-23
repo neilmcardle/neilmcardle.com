@@ -28,52 +28,62 @@ export function phaseLabel(phase: Phase): string {
 export interface Thread {
   id: string;
   name: string;
+  question: string;
   tone: "gold" | "terracotta" | "sage";
   blurb: string;
+  example: string;
 }
 
 export const THREADS: Thread[] = [
   {
     id: "chosen-vs-fixed",
-    name: "Chosen vs fixed",
+    name: "Your call, or the rule",
+    question: "Did I choose this, or does the code require it?",
     tone: "gold",
     blurb:
-      "Which parts of this code did you pick, and which parts does the language or framework insist on? Learning to feel the difference is most of the skill.",
+      "Some of what you write is your decision, the way a layer name is. Some of it the tool insists on, the way Auto Layout insists on a direction. Telling the two apart is most of learning to code.",
+    example:
+      "You picked the name count. You did not pick that useState hands back exactly two things, in that order.",
   },
   {
-    id: "your-code-vs-the-platform",
-    name: "Your code vs the platform",
+    id: "which-machine",
+    name: "Who is enforcing this?",
+    question: "If this breaks, which thing complains?",
     tone: "terracotta",
     blurb:
-      "Two layers of rules sit on the same line. Language features are enforced by one machine, framework conventions by another. They look identical on the page.",
+      "Two sets of rules sit on the same line. JavaScript itself is one. React or Next is the other. They look identical on the page and they fail in completely different ways, so knowing which you are up against tells you where to look.",
+    example:
+      "onClick looks like the browser\u2019s onclick. It is not. React invented that one, so React is the thing that will complain.",
   },
   {
-    id: "language-vs-framework",
-    name: "Language vs framework",
-    tone: "terracotta",
-    blurb:
-      "The same distinction, named from the other side. JavaScript itself, versus the conventions React or Next layer on top of it.",
-  },
-  {
-    id: "craft-is-the-differentiator",
-    name: "Craft is the differentiator",
+    id: "where-craft-shows",
+    name: "Where craft shows",
+    question: "Would anyone notice if I skipped this?",
     tone: "gold",
     blurb:
-      "The detail nobody asks for is the one people feel. This thread tracks where care separates working from good.",
+      "A few details nobody asks for are the ones people feel. This thread marks the places where care is the whole difference between working and good.",
+    example:
+      "Nobody files a bug about a missing transition. They just say the app feels cheap.",
   },
   {
     id: "design-in-the-browser",
-    name: "Design in the browser",
+    name: "Designing in the browser",
+    question: "Should this decision leave Figma?",
     tone: "sage",
     blurb:
-      "The browser is a design tool. This thread follows the work that moves out of Figma and into the running thing.",
+      "Some things can only be judged running: hover, focus, real text lengths, what a layout does at 320 pixels wide. This thread follows the work that belongs in code rather than on a canvas.",
+    example:
+      "A hover state is one frame in Figma. In the browser it has a duration, a curve, and a state it returns to.",
   },
 ];
 
 const THREAD_ALIASES: Record<string, string> = {
-  "design-in-the-browser / figma↔code": "design-in-the-browser",
-  "figma↔code": "design-in-the-browser",
-  "your-code-vs-platform": "your-code-vs-the-platform",
+  "your-code-vs-the-platform": "which-machine",
+  "your-code-vs-platform": "which-machine",
+  "language-vs-framework": "which-machine",
+  "craft-is-the-differentiator": "where-craft-shows",
+  "design-in-the-browser / figma\u2194code": "design-in-the-browser",
+  "figma\u2194code": "design-in-the-browser",
 };
 
 export function resolveThreads(raw: unknown): Thread[] {

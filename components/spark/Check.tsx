@@ -42,7 +42,7 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
         }}
       >
         <div className="mb-4 flex items-center gap-3">
-          <span className="spark-eyebrow text-[var(--spark-gold-deep)]">
+          <span className="spark-eyebrow text-[var(--spark-gold-ink)]">
             + Checkpoint
           </span>
           <span className="h-px flex-1 bg-black/[0.08]" />
@@ -88,7 +88,7 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
                       ? "spark-pop bg-[var(--spark-gold-deep)] text-white"
                       : isPicked
                         ? "bg-[var(--spark-terracotta)] text-white"
-                        : "border border-black/[0.16] text-[#8a8780]"
+                        : "border border-black/[0.16] text-[var(--spark-faint)]"
                   }`}
                 >
                   {isPicked && isCorrect
@@ -126,7 +126,7 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
       }}
     >
       <div className="mb-4 flex items-center gap-3">
-        <span className="spark-eyebrow text-[var(--spark-gold-deep)]">
+        <span className="spark-eyebrow text-[var(--spark-gold-ink)]">
           + Checkpoint
         </span>
         <span className="h-px flex-1 bg-black/[0.08]" />
@@ -138,7 +138,7 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
 
       {revealed ? (
         <div className="spark-fade-up rounded-lg bg-[var(--spark-gold)]/[0.1] px-4 py-3.5">
-          <span className="spark-eyebrow mb-2 block text-[var(--spark-gold-deep)]">
+          <span className="spark-eyebrow mb-2 block text-[var(--spark-gold-ink)]">
             + Answer
           </span>
           <p className="text-[14px] leading-[1.7] text-[#44423e]">{answer}</p>

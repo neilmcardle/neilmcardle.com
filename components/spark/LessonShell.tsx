@@ -21,6 +21,23 @@ interface LessonShellProps {
   next: { slug: string; title: string } | null;
 }
 
+function scrollContainer(from: HTMLElement): HTMLElement | Window {
+  let node = from.parentElement;
+
+  while (node) {
+    const overflow = getComputedStyle(node).overflowY;
+    if (
+      (overflow === "auto" || overflow === "scroll") &&
+      node.scrollHeight > node.clientHeight
+    ) {
+      return node;
+    }
+    node = node.parentElement;
+  }
+
+  return window;
+}
+
 const THREAD_TONES: Record<Thread["tone"], string> = {
   gold: "var(--spark-gold)",
   terracotta: "var(--spark-terracotta)",
@@ -40,6 +57,9 @@ export function LessonShell({
   const [active, setActive] = useState(0);
   const [furthest, setFurthest] = useState(0);
   const nodes = useRef<Array<HTMLElement | null>>([]);
+  const spineRef = useRef<HTMLElement | null>(null);
+  const dots = useRef<Array<HTMLElement | null>>([]);
+  const [spine, setSpine] = useState({ top: 0, track: 0, fill: 0 });
   const storageKey = `spark_progress_m${moduleNumber}`;
 
   useEffect(() => {
@@ -55,25 +75,35 @@ export function LessonShell({
     const elements = nodes.current.filter(Boolean) as HTMLElement[];
     if (elements.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        let candidate = -1;
+    const container = scrollContainer(elements[0]);
+    let frame = 0;
 
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const index = elements.indexOf(entry.target as HTMLElement);
-          if (index > candidate) candidate = index;
-        });
+    const measure = () => {
+      frame = 0;
+      const anchor = window.innerHeight * 0.32;
+      let candidate = 0;
 
-        if (candidate < 0) return;
-        setActive(candidate);
-        setFurthest((prev) => (candidate > prev ? candidate : prev));
-      },
-      { rootMargin: "-30% 0px -62% 0px", threshold: 0 },
-    );
+      elements.forEach((element, i) => {
+        if (element.getBoundingClientRect().top <= anchor) candidate = i;
+      });
 
-    elements.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
+      setActive(candidate);
+      setFurthest((prev) => (candidate > prev ? candidate : prev));
+    };
+
+    const onScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(measure);
+    };
+
+    measure();
+    container.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      container.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, [sections.length]);
 
   useEffect(() => {
@@ -85,6 +115,38 @@ export function LessonShell({
       );
     }
   }, [furthest, storageKey, moduleNumber, sections.length]);
+
+  useEffect(() => {
+    const centre = (dot: HTMLElement | null) =>
+      dot ? dot.offsetTop + dot.offsetHeight / 2 : 0;
+
+    const remeasure = () => {
+      const marks = dots.current.filter(Boolean) as HTMLElement[];
+      if (marks.length === 0) return;
+
+      const first = centre(marks[0]);
+      const last = centre(marks[marks.length - 1]);
+      const current = centre(dots.current[Math.min(active, marks.length - 1)]);
+
+      setSpine({
+        top: first,
+        track: Math.max(0, last - first),
+        fill: Math.max(0, Math.min(current, last) - first),
+      });
+    };
+
+    remeasure();
+
+    const node = spineRef.current;
+    if (!node || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(remeasure);
+    observer.observe(node);
+    dots.current.forEach(
+      (dot) => dot?.parentElement && observer.observe(dot.parentElement),
+    );
+    return () => observer.disconnect();
+  }, [active, sections.length]);
 
   const jumpTo = useCallback((index: number) => {
     const node = nodes.current[index];
@@ -136,36 +198,39 @@ export function LessonShell({
             </span>
           </Link>
 
-          <span className="spark-eyebrow mb-2.5 text-white/40">
+          <span className="spark-eyebrow mb-2.5 text-[var(--spark-on-dark-muted)]">
             + Module {String(moduleNumber).padStart(2, "0")}
           </span>
           <h2 className="mb-2 font-serif text-[26px] font-bold leading-[1.06] tracking-[-0.02em] text-white">
             {title}
           </h2>
-          <p className="mb-6 text-[11.5px] text-white/40">{phaseLabel}</p>
+          <p className="mb-6 text-[11.5px] text-[var(--spark-on-dark-muted)]">
+            {phaseLabel}
+          </p>
 
           <div className="mb-5 flex items-baseline gap-2">
             <span className="font-serif text-[30px] font-black leading-none text-[var(--spark-gold)]">
               {Math.round(progress)}%
             </span>
-            <span className="text-[11px] text-white/40">
+            <span className="text-[11px] text-[var(--spark-on-dark-muted)]">
               read {String.fromCharCode(183)} {remaining} min left
             </span>
           </div>
 
           <nav
+            ref={spineRef}
             aria-label="Sections"
             className="relative min-h-0 flex-1 overflow-y-auto pr-1"
           >
             <span
               aria-hidden
-              className="absolute left-[6px] top-2 w-px bg-white/10"
-              style={{ height: "calc(100% - 16px)" }}
+              className="absolute left-[6px] w-px bg-white/10"
+              style={{ top: spine.top, height: spine.track }}
             />
             <span
               aria-hidden
-              className="absolute left-[6px] top-2 w-px bg-gradient-to-b from-[var(--spark-gold-deep)] to-[var(--spark-gold)] transition-[height] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
-              style={{ height: `${((active + 0.5) / sections.length) * 100}%` }}
+              className="absolute left-[6px] w-px bg-gradient-to-b from-[var(--spark-gold-deep)] to-[var(--spark-gold)] transition-[height] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
+              style={{ top: spine.top, height: spine.fill }}
             />
 
             {sections.map((section, i) => {
@@ -181,7 +246,10 @@ export function LessonShell({
                 >
                   <span
                     aria-hidden
-                    className="mt-[3px] h-[13px] w-[13px] shrink-0 rounded-full transition-all duration-300"
+                    ref={(node) => {
+                      dots.current[i] = node;
+                    }}
+                    className="relative z-10 mt-[3px] h-[13px] w-[13px] shrink-0 rounded-full transition-all duration-300"
                     style={
                       isCurrent
                         ? {
@@ -190,7 +258,7 @@ export function LessonShell({
                           }
                         : isRead
                           ? { background: "var(--spark-gold-deep)" }
-                          : { border: "1px solid rgba(255,255,255,0.22)" }
+                          : { border: "1px solid var(--spark-rule-dark)" }
                     }
                   />
                   <span
@@ -198,8 +266,8 @@ export function LessonShell({
                       isCurrent
                         ? "font-semibold text-white"
                         : isRead
-                          ? "text-white/55"
-                          : "text-white/[0.32]"
+                          ? "text-[var(--spark-on-dark-muted)]"
+                          : "text-[var(--spark-on-dark-dim)]"
                     }`}
                   >
                     {section.title}
@@ -211,22 +279,30 @@ export function LessonShell({
 
           {threads.length > 0 && (
             <div className="mt-4 border-t border-white/[0.09] pt-4">
-              <span className="spark-eyebrow mb-3 block text-white/[0.32]">
-                + Threads in this module
+              <span className="spark-eyebrow mb-1 block text-[var(--spark-on-dark-muted)]">
+                + Keep asking
               </span>
+              <p className="mb-3 text-[11px] leading-[1.5] text-[var(--spark-on-dark-muted)]">
+                These come back in every module.
+              </p>
               <div className="flex flex-col gap-2">
                 {threads.map((thread) => (
                   <div
                     key={thread.id}
-                    className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.05] px-2.5 py-2"
+                    className="rounded-lg border border-white/[0.07] bg-white/[0.05] px-2.5 py-2"
                   >
-                    <span
-                      aria-hidden
-                      className="h-[5px] w-[5px] shrink-0 rounded-full"
-                      style={{ background: THREAD_TONES[thread.tone] }}
-                    />
-                    <span className="text-[11.5px] font-medium text-white/70">
-                      {thread.name}
+                    <span className="flex items-center gap-2">
+                      <span
+                        aria-hidden
+                        className="h-[5px] w-[5px] shrink-0 rounded-full"
+                        style={{ background: THREAD_TONES[thread.tone] }}
+                      />
+                      <span className="text-[11.5px] font-medium text-[var(--spark-on-dark)]">
+                        {thread.name}
+                      </span>
+                    </span>
+                    <span className="mt-1 block pl-[13px] text-[11px] leading-[1.45] text-[var(--spark-on-dark-muted)]">
+                      {thread.question}
                     </span>
                   </div>
                 ))}
@@ -264,7 +340,7 @@ export function LessonShell({
           <main className="px-5 pb-32 pt-10 lg:px-10 lg:pb-24">
             <div className="mx-auto max-w-[660px]">
               <div className="mb-12">
-                <span className="spark-eyebrow mb-3 block text-[var(--spark-gold-deep)] lg:hidden">
+                <span className="spark-eyebrow mb-3 block text-[var(--spark-gold-ink)] lg:hidden">
                   + Module {String(moduleNumber).padStart(2, "0")}
                 </span>
                 <h1 className="mb-4 font-serif text-[clamp(2.5rem,7vw,3.5rem)] font-black leading-[0.96] tracking-[-0.03em] text-[var(--spark-text)]">
@@ -282,6 +358,33 @@ export function LessonShell({
                   {sections.length} sections {String.fromCharCode(183)} about{" "}
                   {minutes} minutes
                 </p>
+
+                {threads.length > 0 && (
+                  <div className="mt-7 xl:hidden">
+                    <span className="spark-eyebrow mb-1 block text-[var(--spark-faint)]">
+                      + Keep asking
+                    </span>
+                    <p className="mb-3 text-[12px] leading-[1.5] text-[var(--spark-faint)]">
+                      Questions this module keeps putting in front of you. They
+                      come back in every module.
+                    </p>
+                    <div className="flex flex-col gap-2.5">
+                      {threads.map((thread) => (
+                        <div
+                          key={thread.id}
+                          className="rounded-lg bg-black/[0.035] px-3.5 py-3"
+                        >
+                          <p className="font-serif text-[15px] leading-[1.3] text-[var(--spark-text)]">
+                            {thread.question}
+                          </p>
+                          <p className="mt-1.5 text-[12.5px] leading-[1.6] text-[#44423e]">
+                            {thread.blurb}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {sections.map((section, i) => (
@@ -295,7 +398,7 @@ export function LessonShell({
                   className="spark-section mb-14 scroll-mt-24"
                 >
                   <div className="mb-3 flex items-center gap-3">
-                    <span className="spark-eyebrow text-[var(--spark-gold-deep)]">
+                    <span className="spark-eyebrow text-[var(--spark-gold-ink)]">
                       + {String(i + 1).padStart(2, "0")} /{" "}
                       {String(sections.length).padStart(2, "0")}
                     </span>
@@ -317,7 +420,7 @@ export function LessonShell({
                     aria-hidden
                     className="spark-glare pointer-events-none absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-[var(--spark-gold)]/15 to-transparent"
                   />
-                  <span className="spark-eyebrow relative mb-2 block text-white/40">
+                  <span className="spark-eyebrow relative mb-2 block text-[var(--spark-on-dark-muted)]">
                     + Up next
                   </span>
                   <span className="relative block font-serif text-[26px] font-bold leading-[1.12] tracking-[-0.02em] text-white">
@@ -332,29 +435,29 @@ export function LessonShell({
         <aside className="sticky top-[54px] hidden h-[calc(100vh-54px)] w-[232px] shrink-0 border-l border-black/[0.07] px-6 py-8 xl:block">
           {threads.length > 0 && (
             <>
-              <span className="spark-eyebrow mb-3.5 block text-[var(--spark-faint)]">
-                + In the margin
+              <span className="spark-eyebrow mb-1 block text-[var(--spark-faint)]">
+                + Keep asking
               </span>
+              <p className="mb-3.5 text-[11.5px] leading-[1.5] text-[var(--spark-faint)]">
+                Questions this module keeps putting in front of you.
+              </p>
               <div className="flex flex-col gap-3">
                 {threads.map((thread) => (
                   <div
                     key={thread.id}
-                    className="rounded-lg p-3.5"
-                    style={{ background: "rgba(216,180,106,0.09)" }}
+                    className="rounded-lg bg-black/[0.035] p-3.5"
                   >
-                    <span
-                      className="spark-eyebrow mb-1.5 block"
-                      style={{
-                        color:
-                          THREAD_TONES[thread.tone] === "var(--spark-gold)"
-                            ? "var(--spark-gold-deep)"
-                            : THREAD_TONES[thread.tone],
-                      }}
-                    >
-                      + {thread.name}
-                    </span>
+                    <p className="mb-2 font-serif text-[15px] leading-[1.3] text-[var(--spark-text)]">
+                      {thread.question}
+                    </p>
                     <p className="text-[12px] leading-[1.6] text-[#44423e]">
                       {thread.blurb}
+                    </p>
+                    <p
+                      className="mt-2.5 border-l-2 pl-2.5 text-[11.5px] leading-[1.55] text-[var(--spark-muted)]"
+                      style={{ borderColor: THREAD_TONES[thread.tone] }}
+                    >
+                      {thread.example}
                     </p>
                   </div>
                 ))}
@@ -390,7 +493,7 @@ export function LessonShell({
                         ? "var(--spark-gold)"
                         : i < active
                           ? "var(--spark-gold-deep)"
-                          : "rgba(255,255,255,0.16)",
+                          : "var(--spark-rule-dark)",
                   }}
                 />
               </button>

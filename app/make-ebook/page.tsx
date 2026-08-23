@@ -47,6 +47,10 @@ import { autoFixAllChapters } from "./utils/typographyFixer";
 import RichTextEditor from "./components/RichTextEditor";
 import EditorLeftNav from "./components/EditorLeftNav";
 import CollapsibleSection from "./components/CollapsibleSection";
+import MobileTabBar from "./components/mobile/MobileTabBar";
+import ChaptersSheet from "./components/mobile/ChaptersSheet";
+import ChapterPositionBar from "./components/mobile/ChapterPositionBar";
+import SelectionActionBar from "./components/mobile/SelectionActionBar";
 import SyncConflictBanner from "./components/sidebar/SyncConflictBanner";
 import InspectorPanel from "./components/bookmind/InspectorPanel";
 import FloatingBookMindWindow from "./components/FloatingBookMindWindow";
@@ -587,6 +591,8 @@ function MakeEbookPage() {
   const [mobileChaptersOpen, setMobileChaptersOpen] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [mobileBookMindOpen, setMobileBookMindOpen] = useState(false);
+  const [chaptersSheetOpen, setChaptersSheetOpen] = useState(false);
+  const [mobileEditorFocused, setMobileEditorFocused] = useState(false);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
@@ -3155,37 +3161,22 @@ function MakeEbookPage() {
                   </div>
 
                   {chapters.length > 0 && (
-                    <div className="flex items-center gap-0.5 flex-shrink-0">
-                      <div className="lg:hidden">
-                        <ChapterNavDropdown
-                          chapters={chapters}
-                          selectedChapter={selectedChapter}
-                          onChapterSelect={setSelectedChapter}
-                          bookTitle={title}
-                        />
+                    <div className="flex items-center gap-1 flex-1 min-w-0 justify-center">
+                      <div className="min-w-0 text-center">
+                        <div className="text-13 font-semibold truncate text-gray-900 dark:text-[#f5f5f5]">
+                          {title?.trim() || "Untitled book"}
+                        </div>
+                        {!isDirty && (
+                          <div className="text-2xs text-gray-400 dark:text-[#737373]">
+                            Saved
+                          </div>
+                        )}
                       </div>
+                    </div>
+                  )}
 
-                      <button
-                        onClick={() => setMobileBookMindOpen(true)}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                        aria-label="Book Mind"
-                        title="Book Mind"
-                      >
-                        <svg
-                          className="w-5 h-5 text-gray-600 dark:text-gray-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.6}
-                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                          />
-                        </svg>
-                      </button>
-
+                  {chapters.length > 0 && (
+                    <div className="flex items-center gap-0.5 flex-shrink-0">
                       <button
                         data-tour="mobile-preview"
                         onClick={() => setMobilePreviewOpen(true)}
@@ -3238,7 +3229,7 @@ function MakeEbookPage() {
 
             <div
               data-tour="mobile-editor"
-              className={`lg:hidden flex flex-col ${chapters.length === 0 ? "" : "gap-2 pt-[52px]"} flex-1 min-h-0 overflow-y-auto pb-0`}
+              className={`lg:hidden flex flex-col ${chapters.length === 0 ? "" : "gap-2 pt-[52px] pb-24"} flex-1 min-h-0 overflow-y-auto`}
             >
               {chapters.length === 0 ? (
                 <EmptyEditorState
@@ -3252,6 +3243,12 @@ function MakeEbookPage() {
                 />
               ) : (
                 <>
+                  <ChapterPositionBar
+                    count={chapters.length}
+                    selectedChapter={selectedChapter}
+                    onSelectChapter={handleSelectChapter}
+                  />
+
                   <div className="flex-shrink-0 bg-white dark:bg-[#1e1e1e] border-none pb-1 px-2 transition-all duration-200">
                     <div className="mt-0">
                       <div className="flex items-center gap-0 py-1">
@@ -3329,6 +3326,7 @@ function MakeEbookPage() {
                         hasEndnotes={endnotes.length > 0}
                         disabled={!!chapters[selectedChapter]?.locked}
                         hideToolbar={focus.active && focus.settings.hideToolbar}
+                        onFocusStateChange={setMobileEditorFocused}
                       />
                     </div>
                   </div>
@@ -3442,6 +3440,80 @@ function MakeEbookPage() {
           )}
         </div>
       </div>
+
+      {chapters.length > 0 && (
+        <>
+          <ChaptersSheet
+            open={chaptersSheetOpen}
+            onClose={() => setChaptersSheetOpen(false)}
+            chapters={chapters}
+            selectedChapter={selectedChapter}
+            wordCounts={bookStats.chapterStats.map((c) => c.wordCount)}
+            totalWords={bookStats.totalWords}
+            onSelectChapter={handleSelectChapter}
+            onToggleComplete={handleToggleChapterComplete}
+            onAddChapter={() => {
+              handleAddChapter("content");
+              setChaptersSheetOpen(false);
+            }}
+            getContentChapterNumber={getContentChapterNumber}
+          />
+
+          {hasBookMind && !mobileBookMindOpen && (
+            <SelectionActionBar
+              onRewrite={(selectedText, range, rect) =>
+                handleInlineEditRequest({
+                  selectedText,
+                  range,
+                  rect,
+                  instruction: "Rewrite this passage.",
+                })
+              }
+              onTighten={(selectedText, range, rect) =>
+                handleInlineEditRequest({
+                  selectedText,
+                  range,
+                  rect,
+                  instruction:
+                    "Tighten this passage. Same meaning, fewer words.",
+                })
+              }
+              onAsk={(selectedText, range, rect) =>
+                handleInlineEditRequest({ selectedText, range, rect })
+              }
+            />
+          )}
+
+          {!mobileEditorFocused && (
+            <MobileTabBar
+              active={
+                chaptersSheetOpen
+                  ? "chapters"
+                  : mobileBookMindOpen
+                    ? "bookmind"
+                    : "write"
+              }
+              hasBookMind={hasBookMind}
+              onWrite={() => {
+                setChaptersSheetOpen(false);
+                setMobileBookMindOpen(false);
+              }}
+              onChapters={() => {
+                setMobileBookMindOpen(false);
+                setChaptersSheetOpen((prev) => !prev);
+              }}
+              onBookMind={() => {
+                setChaptersSheetOpen(false);
+                setMobileBookMindOpen(true);
+              }}
+              onExport={() => {
+                setChaptersSheetOpen(false);
+                setPreflightFormat("epub");
+              }}
+            />
+          )}
+        </>
+      )}
 
       {hasBookMind && bookMindOpen && (
         <FloatingBookMindWindow

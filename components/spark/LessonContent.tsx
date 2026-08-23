@@ -350,7 +350,7 @@ export function LessonContent({ children }: { children: string }) {
                     key={j}
                     className="grid grid-cols-[26px_minmax(0,1fr)] gap-3"
                   >
-                    <span className="pt-0.5 text-right spark-mono text-[12px] text-[var(--spark-gold-deep)]">
+                    <span className="pt-0.5 text-right spark-mono text-[12px] text-[var(--spark-gold-ink)]">
                       {j + 1}
                     </span>
                     <span className="text-[16px] leading-[1.72] text-[#44423e]">
@@ -387,7 +387,7 @@ export function LessonContent({ children }: { children: string }) {
                       {block.head.map((cell, j) => (
                         <th
                           key={j}
-                          className="spark-eyebrow border-b border-black/[0.14] px-3 py-3 text-[#8a8780] first:pl-0"
+                          className="spark-eyebrow border-b border-black/[0.14] px-3 py-3 text-[var(--spark-faint)] first:pl-0"
                         >
                           {cell}
                         </th>

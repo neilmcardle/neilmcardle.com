@@ -189,14 +189,14 @@ export function CodeBlock({
             + {label}
           </span>
           {file && (
-            <span className="spark-mono text-[10.5px] text-white/30">
+            <span className="spark-mono text-[10.5px] text-[var(--spark-on-dark-muted)]">
               {file}
             </span>
           )}
         </div>
         <button
           onClick={copy}
-          className="rounded-full px-3 py-1 text-[10.5px] font-medium text-white/55 transition-colors hover:bg-white/[0.07] hover:text-white/80"
+          className="rounded-full px-3 py-1 text-[10.5px] font-medium text-[var(--spark-on-dark-muted)] transition-colors hover:bg-white/[0.07] hover:text-white/80"
           aria-label={copied ? "Copied to clipboard" : "Copy code to clipboard"}
         >
           {copied ? "Copied" : "Copy"}
@@ -217,7 +217,7 @@ export function CodeBlock({
               <div
                 className={`grid grid-cols-[44px_minmax(0,1fr)] ${isFocused ? "spark-code-line-focus" : ""}`}
               >
-                <span className="select-none pr-3 text-right text-white/[0.18]">
+                <span className="select-none pr-3 text-right text-[var(--spark-on-dark-dim)]">
                   {lineNumber}
                 </span>
                 <code
@@ -244,7 +244,7 @@ export function CodeBlock({
                     >
                       {note.kind === "thread" ? "Thread" : "Note"}
                     </span>
-                    <span className="font-sans text-[12.5px] leading-[1.6] text-white/70">
+                    <span className="font-sans text-[12.5px] leading-[1.6] text-[var(--spark-on-dark)]">
                       {note.text}
                     </span>
                   </div>

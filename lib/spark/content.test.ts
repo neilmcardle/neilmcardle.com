@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { getCurriculum, loadModule } from "./content";
-import { PHASES, phaseForModule, resolveThreads } from "./curriculum";
+import { PHASES, THREADS, phaseForModule, resolveThreads } from "./curriculum";
 
 describe("loadModule", () => {
   it("normalises frontmatter into meta", async () => {
@@ -80,5 +80,30 @@ describe("section titles", () => {
   it("keeps apostrophes inside double-quoted titles", async () => {
     const result = await loadModule("m8-react-fundamentals");
     expect(result.sections[0].title).toBe("What's a component?");
+  });
+});
+
+describe("threads", () => {
+  it("collapses the two names for the same idea into one thread", () => {
+    const threads = resolveThreads([
+      "your-code-vs-the-platform",
+      "language-vs-framework",
+    ]);
+    expect(threads).toHaveLength(1);
+    expect(threads[0].id).toBe("which-machine");
+  });
+
+  it("gives every thread a plain question and a concrete example", () => {
+    THREADS.forEach((thread) => {
+      expect(thread.question.endsWith("?")).toBe(true);
+      expect(thread.example.length).toBeGreaterThan(20);
+    });
+  });
+
+  it("keeps the old frontmatter spellings working", () => {
+    expect(resolveThreads(["craft-is-the-differentiator"])[0].id).toBe(
+      "where-craft-shows",
+    );
+    expect(resolveThreads(["chosen-vs-fixed"])[0].id).toBe("chosen-vs-fixed");
   });
 });

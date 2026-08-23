@@ -2111,9 +2111,15 @@ html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
   --spark-paper: #faf9f5;
   --spark-text: #141413;
   --spark-muted: #55534e;
-  --spark-faint: #8a8780;
+  --spark-faint: #6b6862;
   --spark-gold: #d8b46a;
   --spark-gold-deep: #b8923f;
+  --spark-gold-ink: #8a6d2c;
+  --spark-on-dark: rgba(255, 255, 255, 0.72);
+  --spark-on-dark-muted: rgba(255, 255, 255, 0.58);
+  --spark-on-dark-dim: rgba(255, 255, 255, 0.46);
+  --spark-on-dark-numeral: rgba(255, 255, 255, 0.42);
+  --spark-rule-dark: rgba(255, 255, 255, 0.34);
   --spark-terracotta: #e8927c;
   --spark-sage: #a3b899;
   --spark-ease: cubic-bezier(0.23, 1, 0.32, 1);
@@ -2145,7 +2151,7 @@ html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
 }
 
 .spark-link {
-  color: var(--spark-gold-deep);
+  color: var(--spark-gold-ink);
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-thickness: 1px;
@@ -2177,7 +2183,7 @@ html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
 .spark-code .hljs-built_in,
 .spark-code .hljs-literal,
 .spark-code .hljs-type {
-  color: rgba(255, 255, 255, 0.42);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .spark-code .hljs-title,
@@ -2205,13 +2211,13 @@ html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
 
 .spark-code .hljs-comment,
 .spark-code .hljs-quote {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.55);
   font-style: italic;
 }
 
 .spark-code .hljs-punctuation,
 .spark-code .hljs-operator {
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .spark-code-focus {
@@ -2233,8 +2239,8 @@ html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
 }
 
 .spark-section[data-focused="false"] {
-  opacity: 0.3;
-  filter: blur(1.4px);
+  opacity: 0.45;
+  filter: blur(1px);
 }
 
 @keyframes spark-shake {
