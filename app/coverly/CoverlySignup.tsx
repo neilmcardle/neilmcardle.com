@@ -16,7 +16,7 @@ export function CoverlySignup() {
     setState("sending");
     setError(null);
     try {
-      const res = await fetch("/api/coverly/waitlist", {
+      const res = await fetch("/api/coverly/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -41,11 +41,10 @@ export function CoverlySignup() {
   if (state === "sent") {
     return (
       <div className="rounded-2xl border bg-card p-5 text-sm shadow-sm">
-        <p className="font-medium">You&apos;re on the list</p>
+        <p className="font-medium">Check your inbox</p>
         <p className="mt-1 text-muted-foreground">
-          An invite is coming to{" "}
-          <strong className="text-foreground">{email}</strong> as soon as early
-          access opens.
+          A sign-in link is on its way to{" "}
+          <strong className="text-foreground">{email}</strong>.
         </p>
       </div>
     );
@@ -90,8 +89,8 @@ export function CoverlySignup() {
       />
 
       <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
-        Coverly is free. Sign up with an email and you&apos;ll get an invite
-        when early access opens.
+        Coverly is free. Enter your email and we&apos;ll send you a link to sign
+        in — no password.
       </p>
     </div>
   );
