@@ -98,6 +98,24 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "coverly-sidebar": "hsl(var(--coverly-sidebar))",
+        "coverly-sidebar-foreground": "hsl(var(--coverly-sidebar-foreground))",
+        "coverly-sidebar-primary": "hsl(var(--coverly-sidebar-primary))",
+        "coverly-sidebar-primary-foreground":
+          "hsl(var(--coverly-sidebar-primary-foreground))",
+        "coverly-sidebar-accent": "hsl(var(--coverly-sidebar-accent))",
+        "coverly-sidebar-accent-foreground":
+          "hsl(var(--coverly-sidebar-accent-foreground))",
+        "coverly-sidebar-border": "hsl(var(--coverly-sidebar-border))",
+        "coverly-sidebar-ring": "hsl(var(--coverly-sidebar-ring))",
+        "coverly-selection": "hsl(var(--coverly-selection))",
+        "coverly-chart": {
+          1: "hsl(var(--coverly-chart-1))",
+          2: "hsl(var(--coverly-chart-2))",
+          3: "hsl(var(--coverly-chart-3))",
+          4: "hsl(var(--coverly-chart-4))",
+          5: "hsl(var(--coverly-chart-5))",
+        },
 
         ka: {
           brand: {
@@ -144,6 +162,14 @@ const config = {
         card: "8px", // standardized to 8px      // card containers
         modal: "16px", // modal dialogs
         pill: "24px", // full-width pills
+
+        "coverly-sm": "calc(var(--coverly-radius) * 0.6)",
+        "coverly-md": "calc(var(--coverly-radius) * 0.8)",
+        "coverly-lg": "var(--coverly-radius)",
+        "coverly-xl": "calc(var(--coverly-radius) * 1.4)",
+        "coverly-2xl": "calc(var(--coverly-radius) * 1.8)",
+        "coverly-3xl": "calc(var(--coverly-radius) * 2.2)",
+        "coverly-4xl": "calc(var(--coverly-radius) * 2.6)",
       },
       keyframes: {
         shimmer: {

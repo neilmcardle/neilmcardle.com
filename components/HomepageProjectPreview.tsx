@@ -40,6 +40,7 @@ export function HomepageProjectPreview({ k }: PreviewProps) {
       <FoilCard
         className="w-full"
         image={{ src: "/screenshots/makeebook.png", alt: "makeEbook editor" }}
+        hideFade
       />
     );
   }
@@ -48,6 +49,7 @@ export function HomepageProjectPreview({ k }: PreviewProps) {
       <FoilCard
         className="w-full"
         image={{ src: "/screenshots/coverly.png", alt: "Coverly book covers" }}
+        hideFade
       />
     );
   }
@@ -59,6 +61,7 @@ export function HomepageProjectPreview({ k }: PreviewProps) {
           src: "/screenshots/doodlewire.png",
           alt: "DoodleWire mobile UI",
         }}
+        hideFade
       />
     );
   }

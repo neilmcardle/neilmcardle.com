@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { getCoverlyBrowserClient } from "@/lib/coverly/supabase/client";
 
 type State = "idle" | "sending" | "sent" | "error";
 
 export function CoverlySignup() {
   const [email, setEmail] = useState("");
-  const [website, setWebsite] = useState("");
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -16,24 +16,25 @@ export function CoverlySignup() {
     setState("sending");
     setError(null);
     try {
-      const res = await fetch("/api/coverly/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          website,
-          source: "neilmcardle.com/coverly",
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(data.error || "Something went wrong");
+      const supabase = getCoverlyBrowserClient();
+      if (!supabase) {
+        setError("Configuration error");
         setState("error");
         return;
       }
-
-      setState("sent");
-    } catch {
+      const { error: signInError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/coverly/auth/callback`,
+        },
+      });
+      if (signInError) {
+        setError(signInError.message);
+        setState("error");
+      } else {
+        setState("sent");
+      }
+    } catch (err) {
       setError("Network error");
       setState("error");
     }
@@ -71,23 +72,6 @@ export function CoverlySignup() {
         </button>
         {error && <p className="text-xs text-red-600">{error}</p>}
       </form>
-
-      <input
-        type="text"
-        name="website"
-        tabIndex={-1}
-        autoComplete="off"
-        value={website}
-        onChange={(e) => setWebsite(e.target.value)}
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          width: 1,
-          height: 1,
-          opacity: 0,
-        }}
-      />
 
       <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
         Coverly is free. Enter your email and we&apos;ll send you a link to sign

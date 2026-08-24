@@ -27,10 +27,12 @@ export default function FoilCard({
   mark,
   image,
   className = "",
+  hideFade = false,
 }: {
   mark?: ReactNode;
   image?: { src: string; alt: string };
   className?: string;
+  hideFade?: boolean;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const glintRef = useRef<HTMLDivElement>(null);
@@ -129,7 +131,7 @@ export default function FoilCard({
     >
       <div
         ref={cardRef}
-        className="relative isolate aspect-video w-full overflow-hidden rounded-[12px]"
+        className="relative isolate aspect-video w-full overflow-hidden rounded-[12px] border border-white/5"
         style={{
           background: CARD_GRADIENT,
           boxShadow:
@@ -173,11 +175,13 @@ export default function FoilCard({
           />
         </div>
 
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 h-[60%]"
-          style={{ backgroundImage: BASE_FADE }}
-        />
+        {!hideFade && (
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-[60%]"
+            style={{ backgroundImage: BASE_FADE }}
+          />
+        )}
       </div>
     </div>
   );

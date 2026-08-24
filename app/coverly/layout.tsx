@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./coverly-tokens.css";
 
 export const metadata: Metadata = {
   title: "Coverly — Neil McArdle",

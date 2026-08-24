@@ -76,24 +76,12 @@ const TESTIMONIALS: { quote: string; name: string; org: string }[] = [
 
 const FAQS: { q: string; a: string }[] = [
   {
-    q: "Do you only design, or build too?",
-    a: "Both. That's the whole point. The design and the working product come from the same hands, so nothing gets lost between them.",
+    q: "Coherent thinking, coherent product",
+    a: "When one person owns the full stack, nothing gets lost in translation. Every decision serves the outcome. The product is coherent because the thinking is coherent.",
   },
   {
-    q: "What counts as one request?",
-    a: "A screen, a flow, a feature, a landing page, a component system, a discrete, shippable piece. Big things get broken into a sequence and shipped in order. If you're unsure, send it and I'll tell you straight away how I'd scope it.",
-  },
-  {
-    q: "How fast, and how does a request work?",
-    a: "Send it however's easiest, a Loom, a doc, a sketch. No forms, no intake call. Most requests ship in 2 to 4 working days, because I take one client at a time and your work isn't sitting behind anyone else's.",
-  },
-  {
-    q: "Can you work with my engineers or existing codebase?",
-    a: "Yes. I design in Figma and ship in React, Next and TypeScript, and I'm comfortable in an existing repo or design system, including keeping Figma and code in sync.",
-  },
-  {
-    q: "What if I run out of things to build?",
-    a: "Pause the plan. Billing freezes and picks up where it left off when you're ready.",
+    q: "Caring about precision",
+    a: "Precision is not expensive. It's mostly about caring. Do you care to make it precise? Then you can make it precise.",
   },
 ];
 
@@ -120,61 +108,6 @@ export default function Homepage() {
           id="intro"
           className="home-prose relative z-10 max-w-6xl mx-auto pl-6 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pt-12 sm:pt-24 lg:pt-12 pb-20"
         >
-          <h2
-            className="text-cream max-w-3xl mb-24"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "clamp(2rem, 6vw, 3.25rem)",
-              fontWeight: 400,
-              letterSpacing: "-0.02em",
-              lineHeight: 1.05,
-            }}
-          >
-            Your product, designed and built.
-          </h2>
-
-          <section id="how-it-works" className="mb-28 scroll-mt-8">
-            <SectionHeader label="How it works" />
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8">
-              {STEPS.map((s) => (
-                <div key={s.n}>
-                  <div
-                    className="text-gold mb-3"
-                    style={{
-                      fontFamily: "var(--font-inter)",
-                      fontSize: "0.75rem",
-                      letterSpacing: "0.13em",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {s.n}
-                  </div>
-                  <h3
-                    className="text-cream mb-2"
-                    style={{
-                      fontFamily: "var(--font-eb-garamond)",
-                      fontSize: "1.375rem",
-                      fontWeight: 700,
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    {s.title}
-                  </h3>
-                  <p
-                    className="text-cream/65"
-                    style={{
-                      fontFamily: "var(--font-inter)",
-                      fontSize: "0.9375rem",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {s.body}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
-
           <section id="work" className="mb-28 scroll-mt-20">
             <SectionHeader label="Selected work" />
 
@@ -188,6 +121,7 @@ export default function Homepage() {
                 linkLabel="makeebook.ink"
                 external
                 showLogo
+                reverse
               />
               <ProductFeature
                 tileKey="coverly"
@@ -196,7 +130,6 @@ export default function Homepage() {
                 description="Comparable research for book cover designers. Thousands of covers searchable by design attributes rather than genre, with boards and PDF comp-deck export. Free, with email sign-up."
                 href="/coverly"
                 linkLabel="View project"
-                reverse
                 showLogo
               />
               <ProductFeature
@@ -208,6 +141,7 @@ export default function Homepage() {
                 linkLabel="View project"
                 appStoreUrl="https://apps.apple.com/us/app/doodlewire/id6771274835"
                 showLogo
+                reverse
               />
             </div>
 
@@ -240,154 +174,35 @@ export default function Homepage() {
             </div>
           </section>
 
-          <section id="pricing" className="mb-24 scroll-mt-12">
-            <SectionHeader label="Work with me" />
-            <div className="max-w-2xl mx-auto">
-              <div
-                className="soft-card rounded-[1.75rem] overflow-hidden"
-                style={{ background: "#000000" }}
-              >
-                <div className="p-8 sm:p-10">
-                  <div className="flex items-start justify-between gap-4">
-                    <h3
-                      className="text-cream"
-                      style={{
-                        fontFamily: "var(--font-inter)",
-                        fontSize: "1.75rem",
-                        fontWeight: 400,
-                        letterSpacing: "-0.01em",
-                      }}
-                    >
-                      Monthly
-                    </h3>
-                    <span
-                      className="shrink-0 text-tan"
-                      style={{
-                        fontFamily: "var(--font-inter)",
-                        fontSize: "0.8125rem",
-                        letterSpacing: "0.13em",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      Pause anytime
-                    </span>
-                  </div>
-
-                  <div className="my-7 border-t border-dashed border-white/15" />
-
-                  <div className="flex items-end flex-wrap gap-x-3 gap-y-1">
-                    <span
-                      className="text-cream leading-none"
-                      style={{
-                        fontFamily: "var(--font-inter)",
-                        fontSize: "clamp(2.75rem, 8vw, 4rem)",
-                        fontWeight: 400,
-                        letterSpacing: "-0.02em",
-                      }}
-                    >
-                      {PRICE.amount}
-                    </span>
-                    <span
-                      className="text-tan mb-1.5"
-                      style={{
-                        fontFamily: "var(--font-inter)",
-                        fontSize: "0.875rem",
-                        letterSpacing: "0.08em",
-                      }}
-                    >
-                      /month
-                    </span>
-                    <span
-                      className="text-tan mb-2"
-                      style={{
-                        fontFamily: "var(--font-inter)",
-                        fontSize: "0.625rem",
-                        letterSpacing: "0.13em",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {PRICE.suffix}
-                    </span>
-                  </div>
-
-                  <p
-                    className="mt-5 text-cream/70"
-                    style={{
-                      fontFamily: "var(--font-inter)",
-                      fontSize: "0.9375rem",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    A senior product designer and a front-end engineer is two
-                    hires and &pound;150k+ a year. This is both, for one flat
-                    monthly fee, with nothing lost in the handoff between them.
-                  </p>
-
-                  <div className="soft-inset relative mt-8 rounded-[1rem] p-6 sm:p-7">
-                    <span
-                      className="absolute -top-2 left-5 bg-[#1a1a1d] px-2 text-gold"
-                      style={{
-                        fontFamily: "var(--font-inter)",
-                        fontSize: "0.625rem",
-                        letterSpacing: "0.13em",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      Included
-                    </span>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3.5">
-                      {PLAN_FEATURES.map((f) => (
-                        <li
-                          key={f}
-                          className="flex items-start gap-2.5 text-cream/85"
-                          style={{
-                            fontFamily: "var(--font-inter)",
-                            fontSize: "0.9375rem",
-                            lineHeight: 1.45,
-                          }}
-                        >
-                          <svg
-                            className="w-4 h-4 mt-0.5 flex-shrink-0 text-gold"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
-                            aria-hidden="true"
-                          >
-                            <path
-                              d="M20 6L9 17l-5-5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="mt-8 flex justify-center">
-                    <CtaButton href={ctaHref} label={ctaLabel} />
-                  </div>
-                  <p
-                    className="mt-3 text-center text-tan"
-                    style={{
-                      fontFamily: "var(--font-inter)",
-                      fontSize: "0.6875rem",
-                      letterSpacing: "0.08em",
-                    }}
-                  >
-                    Email, payment, you&apos;re in. Two minutes.
-                  </p>
-                </div>
-              </div>
-            </div>
+          <section className="mb-24 text-center">
+            <h2
+              className="text-cream mb-8"
+              style={{
+                fontFamily: "var(--font-inter)",
+                fontSize: "clamp(2rem, 6vw, 3.25rem)",
+                fontWeight: 400,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.05,
+              }}
+            >
+              Tell me more.
+            </h2>
+            <a
+              href="mailto:neil@neilmcardle.com"
+              className="text-gold hover:text-gold-bright transition-colors"
+              style={{
+                fontFamily: "var(--font-inter)",
+                fontSize: "1rem",
+              }}
+            >
+              neil@neilmcardle.com
+            </a>
           </section>
 
-          <section id="faq" className="mb-24 scroll-mt-12">
-            <SectionHeader label="FAQ" />
+          <section id="philosophy" className="mb-24 scroll-mt-12">
+            <SectionHeader label="Design philosophy" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-              {FAQS.map((item) => (
+              {FAQS.slice(0, 2).map((item, idx) => (
                 <div key={item.q}>
                   <h3
                     className="text-cream mb-2"
@@ -410,24 +225,21 @@ export default function Homepage() {
                   >
                     {item.a}
                   </p>
+                  {idx === 1 && (
+                    <p
+                      className="text-tan mt-3"
+                      style={{
+                        fontFamily: "var(--font-inter)",
+                        fontSize: "0.8125rem",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      — Elon Musk
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
-          </section>
-
-          <section className="mb-24 text-center">
-            <h2
-              className="text-cream mb-8"
-              style={{
-                fontFamily: "var(--font-inter)",
-                fontSize: "clamp(2rem, 6vw, 3.25rem)",
-                fontWeight: 400,
-                letterSpacing: "-0.02em",
-                lineHeight: 1.05,
-              }}
-            >
-              Tell me more.
-            </h2>
           </section>
 
           <footer className="pt-12 flex flex-col items-center sm:flex-row sm:justify-between gap-6">
