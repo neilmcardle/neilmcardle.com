@@ -32,10 +32,6 @@ export function CoverlySignup() {
         return;
       }
 
-      if (data.redirectTo) {
-        window.location.href = data.redirectTo;
-        return;
-      }
       setState("sent");
     } catch {
       setError("Network error");
@@ -46,10 +42,10 @@ export function CoverlySignup() {
   if (state === "sent") {
     return (
       <div className="rounded-2xl border bg-card p-5 text-sm shadow-sm">
-        <p className="font-medium">You&apos;re on the list</p>
+        <p className="font-medium">Check your inbox</p>
         <p className="mt-1 text-muted-foreground">
-          We&apos;ve saved <strong className="text-foreground">{email}</strong>{" "}
-          and will be in touch as soon as Coverly opens up.
+          A sign-in link is on its way to{" "}
+          <strong className="text-foreground">{email}</strong>.
         </p>
       </div>
     );

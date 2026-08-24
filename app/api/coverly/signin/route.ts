@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { coverlyWaitlist } from "@/lib/db/schema";
 
-const COVERLY_APP_URL = process.env.COVERLY_APP_URL;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_COVERLY_SUPABASE_URL;
+const SUPABASE_ANON = process.env.NEXT_PUBLIC_COVERLY_SUPABASE_ANON_KEY;
+const COVERLY_APP_URL = process.env.COVERLY_APP_URL ?? "http://localhost:3100";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
@@ -65,10 +67,51 @@ export async function POST(request: Request) {
     console.error("[coverly/signin] waitlist insert failed", err);
   }
 
-  if (!COVERLY_APP_URL) {
-    return NextResponse.json({ ok: true, redirectTo: null });
+  if (!SUPABASE_URL || !SUPABASE_ANON) {
+    return NextResponse.json(
+      { error: "Sign-in is not configured yet" },
+      { status: 503 },
+    );
   }
 
-  const redirectTo = `${COVERLY_APP_URL.replace(/\/$/, "")}/landing?email=${encodeURIComponent(email)}`;
-  return NextResponse.json({ ok: true, redirectTo });
+  const redirectTo = `${COVERLY_APP_URL.replace(/\/$/, "")}/auth/callback`;
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/auth/v1/otp?redirect_to=${encodeURIComponent(redirectTo)}`,
+      {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON,
+          Authorization: `Bearer ${SUPABASE_ANON}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, create_user: true }),
+      },
+    );
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      console.error(
+        "[coverly/signin] otp failed",
+        res.status,
+        detail.slice(0, 300),
+      );
+      return NextResponse.json(
+        {
+          error:
+            res.status === 429
+              ? "Too many attempts. Try again shortly."
+              : "Could not send the link",
+        },
+        { status: res.status === 429 ? 429 : 502 },
+      );
+    }
+  } catch (err) {
+    console.error("[coverly/signin] otp request threw", err);
+    return NextResponse.json(
+      { error: "Could not send the link" },
+      { status: 502 },
+    );
+  }
+
+  return NextResponse.json({ ok: true });
 }
