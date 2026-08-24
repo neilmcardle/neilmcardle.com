@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   HomepageProjectPreview,
   type ProjectKey,
+  getProductLogo,
 } from "@/components/HomepageProjectPreview";
 import GradualBlur from "@/components/GradualBlur";
 import ElectricBorder from "@/components/ElectricBorder";
@@ -186,6 +187,7 @@ export default function Homepage() {
                 href="https://makeebook.ink"
                 linkLabel="makeebook.ink"
                 external
+                showLogo
               />
               <ProductFeature
                 tileKey="coverly"
@@ -195,6 +197,7 @@ export default function Homepage() {
                 href="/coverly"
                 linkLabel="View project"
                 reverse
+                showLogo
               />
               <ProductFeature
                 tileKey="doodlewire"
@@ -204,6 +207,7 @@ export default function Homepage() {
                 href="/doodlewire"
                 linkLabel="View project"
                 appStoreUrl="https://apps.apple.com/us/app/doodlewire/id6771274835"
+                showLogo
               />
             </div>
 
@@ -560,6 +564,7 @@ function ProductFeature({
   linkLabel,
   appStoreUrl,
   reverse,
+  showLogo,
 }: {
   tileKey: ProjectKey;
   category: string;
@@ -570,11 +575,12 @@ function ProductFeature({
   linkLabel: string;
   appStoreUrl?: string;
   reverse?: boolean;
+  showLogo?: boolean;
 }) {
   const mediaInner = (
     <div className="block w-full">
-      <div className="relative aspect-[4/3] flex items-center justify-center">
-        <div className="relative w-[64%] max-w-[330px] drop-shadow-[0_26px_55px_rgba(0,0,0,0.7)] transition-transform duration-500 ease-out group-hover:scale-[1.03]">
+      <div className="relative flex items-center justify-center">
+        <div className="relative w-full drop-shadow-[0_26px_55px_rgba(0,0,0,0.7)] transition-transform duration-500 ease-out group-hover:scale-[1.02]">
           <HomepageProjectPreview k={tileKey} />
         </div>
       </div>
@@ -638,18 +644,31 @@ function ProductFeature({
         >
           {category}
         </div>
-        <h3
-          className="text-cream"
-          style={{
-            fontFamily: "var(--font-inter)",
-            fontSize: "clamp(2rem, 4vw, 2.75rem)",
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-            lineHeight: 1.05,
-          }}
-        >
-          {name}
-        </h3>
+        <div className="flex items-center gap-3 mb-2">
+          {showLogo && (
+            <div className="w-8 h-8 flex-shrink-0">
+              {tileKey === "makeebook" ||
+              tileKey === "coverly" ||
+              tileKey === "doodlewire"
+                ? getProductLogo(
+                    tileKey as "makeebook" | "coverly" | "doodlewire",
+                  )
+                : null}
+            </div>
+          )}
+          <h3
+            className="text-cream"
+            style={{
+              fontFamily: "var(--font-inter)",
+              fontSize: "clamp(2rem, 4vw, 2.75rem)",
+              fontWeight: 400,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.05,
+            }}
+          >
+            {name}
+          </h3>
+        </div>
         <p
           className="text-cream/70 mt-4 max-w-md"
           style={{

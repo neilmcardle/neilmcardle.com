@@ -25,9 +25,11 @@ const SWEEP_CLASS = "foil-glint-sweeping";
 
 export default function FoilCard({
   mark,
+  image,
   className = "",
 }: {
-  mark: ReactNode;
+  mark?: ReactNode;
+  image?: { src: string; alt: string };
   className?: string;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -127,19 +129,27 @@ export default function FoilCard({
     >
       <div
         ref={cardRef}
-        className="relative isolate aspect-square w-full overflow-hidden rounded-[12px]"
+        className="relative isolate aspect-video w-full overflow-hidden rounded-[12px]"
         style={{
           background: CARD_GRADIENT,
           boxShadow:
             "inset 0 0 0 1px rgba(255,255,255,0.06), 0px 18px 20px rgba(0,0,0,0.55)",
         }}
       >
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 flex items-center justify-center opacity-20"
-        >
-          <div className="h-[64%] w-[64%]">{mark}</div>
-        </div>
+        {image ? (
+          <img
+            src={image.src}
+            alt={image.alt}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 flex items-center justify-center opacity-20"
+          >
+            <div className="h-[64%] w-[64%]">{mark}</div>
+          </div>
+        )}
 
         <div
           ref={glintRef}

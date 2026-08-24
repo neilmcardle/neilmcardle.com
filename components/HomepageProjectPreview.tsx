@@ -1,5 +1,16 @@
 import FoilCard from "@/components/FoilCard";
 
+export function getProductLogo(key: "makeebook" | "coverly" | "doodlewire") {
+  switch (key) {
+    case "makeebook":
+      return <MakeEbookPreview />;
+    case "coverly":
+      return <CoverlyPreview />;
+    case "doodlewire":
+      return <DoodleWirePreview />;
+  }
+}
+
 export type ProjectKey =
   | "makeebook"
   | "doodlewire"
@@ -24,8 +35,32 @@ export function HomepageProjectPreview({ k }: PreviewProps) {
     k === "tessera";
   if (!isGlass) return null;
 
-  if (k === "makeebook" || k === "doodlewire" || k === "coverly") {
-    return <FoilCard className="w-full" mark={renderForKey(k)} />;
+  if (k === "makeebook") {
+    return (
+      <FoilCard
+        className="w-full"
+        image={{ src: "/screenshots/makeebook.png", alt: "makeEbook editor" }}
+      />
+    );
+  }
+  if (k === "coverly") {
+    return (
+      <FoilCard
+        className="w-full"
+        image={{ src: "/screenshots/coverly.png", alt: "Coverly book covers" }}
+      />
+    );
+  }
+  if (k === "doodlewire") {
+    return (
+      <FoilCard
+        className="w-full"
+        image={{
+          src: "/screenshots/doodlewire.png",
+          alt: "DoodleWire mobile UI",
+        }}
+      />
+    );
   }
 
   return (
