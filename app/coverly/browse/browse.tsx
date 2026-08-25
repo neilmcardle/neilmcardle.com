@@ -5,6 +5,7 @@ import type {
   CoverFilters,
 } from "@/lib/coverly/queries";
 import { useLocalPref } from "@/lib/coverly/use-local-pref";
+import { useMediaQuery } from "@/lib/coverly/use-media-query";
 import { BrowseFilters } from "./browse-filters";
 import { CoverGrid } from "./cover-grid";
 import { ViewControls, type LayoutMode } from "./view-controls";
@@ -31,6 +32,8 @@ export function Browse({
 }) {
   const [mode, setMode] = useLocalPref<LayoutMode>(MODE_KEY, "grid", parseMode);
   const [size, setSize] = useLocalPref<number>(SIZE_KEY, 170, parseSize);
+  const isNarrow = useMediaQuery("(max-width: 639px)");
+  const effectiveMode: LayoutMode = isNarrow ? "grid" : mode;
 
   return (
     <>
@@ -43,6 +46,7 @@ export function Browse({
           size={size}
           onMode={setMode}
           onSize={setSize}
+          showModes={!isNarrow}
         />
       </div>
       <CoverGrid
@@ -50,7 +54,7 @@ export function Browse({
         initialCovers={initialCovers}
         total={total}
         filters={filters}
-        mode={mode}
+        mode={effectiveMode}
         size={size}
       />
     </>

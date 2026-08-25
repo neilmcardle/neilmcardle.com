@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createCoverlyUserClient } from "@/lib/coverly/supabase/server";
+import { createCoverlyPublicClient } from "@/lib/coverly/supabase/public";
 
 type ActionResult = { ok: boolean; error?: string; boardId?: string };
 
@@ -59,17 +60,33 @@ export async function addCoverToBoard(
     .limit(1)
     .maybeSingle();
 
-  const { error } = await supabase
-    .from("board_covers")
-    .upsert(
-      {
-        board_id: boardId,
-        cover_id: coverId,
-        position: (last?.position ?? 0) + 1,
-      },
-      { onConflict: "board_id,cover_id" },
-    );
+  const { error } = await supabase.from("board_covers").upsert(
+    {
+      board_id: boardId,
+      cover_id: coverId,
+      position: (last?.position ?? 0) + 1,
+    },
+    { onConflict: "board_id,cover_id" },
+  );
   if (error) return { ok: false, error: error.message };
   revalidatePath(`/coverly/boards/${boardId}`);
   return { ok: true };
+}
+
+export async function fetchCoverThumbs(
+  coverIds: string[],
+): Promise<{ id: string; image_url: string }[]> {
+  if (!coverIds.length) return [];
+  const supabase = createCoverlyPublicClient();
+  if (!supabase) return [];
+  try {
+    const { data } = await supabase
+      .from("covers")
+      .select("id, image_url")
+      .in("id", coverIds.slice(0, 200))
+      .eq("delisted", false);
+    return (data as { id: string; image_url: string }[]) ?? [];
+  } catch {
+    return [];
+  }
 }

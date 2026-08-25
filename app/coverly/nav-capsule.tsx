@@ -2,15 +2,29 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Rows2 } from "lucide-react";
+import { BoardsIcon } from "./boards-icon";
+import { CoverflowIcon } from "./coverflow-icon";
 import { motion, useReducedMotion } from "framer-motion";
 
 type IconName = "grid" | "layout";
 type NavItem = { href: string; label: string; icon?: IconName };
 
-const ICONS: Record<IconName, typeof LayoutGrid> = {
-  grid: LayoutGrid,
-  layout: Rows2,
+type IconComponent = React.ComponentType<{
+  className?: string;
+  strokeWidth?: number;
+}>;
+
+const ICON_HEIGHT = 16;
+
+const ICONS: Record<IconName, { Comp: IconComponent; width: number }> = {
+  grid: {
+    Comp: CoverflowIcon,
+    width: Math.round((129.32 / 104.82) * ICON_HEIGHT),
+  },
+  layout: {
+    Comp: BoardsIcon,
+    width: Math.round((104.58 / 104.79) * ICON_HEIGHT),
+  },
 };
 
 const SPRING = {
@@ -39,7 +53,7 @@ export function NavCapsule({ items }: { items: NavItem[] }) {
     <nav className="relative flex items-center gap-0.5 rounded-full border border-border/70 bg-card p-1 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
       {items.map((item, i) => {
         const active = i === activeIndex;
-        const Icon = item.icon ? ICONS[item.icon] : null;
+        const icon = item.icon ? ICONS[item.icon] : null;
         return (
           <Link
             key={item.href}
@@ -63,19 +77,19 @@ export function NavCapsule({ items }: { items: NavItem[] }) {
               />
             )}
 
-            {Icon && (
+            {icon && (
               <motion.span
                 aria-hidden="true"
                 className="relative z-10 grid overflow-hidden"
                 initial={false}
                 animate={{
-                  width: active ? 16 : 0,
+                  width: active ? icon.width : 0,
                   opacity: active ? 1 : 0,
                   marginRight: active ? 6 : 0,
                 }}
                 transition={transition}
               >
-                <Icon className="h-4 w-4 shrink-0" strokeWidth={2.25} />
+                <icon.Comp className="h-4 w-auto shrink-0" strokeWidth={2.25} />
               </motion.span>
             )}
 

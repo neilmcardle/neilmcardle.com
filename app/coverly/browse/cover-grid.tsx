@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
+import { LayoutGroup, motion } from "framer-motion";
 import {
   fetchCoverDetail,
   loadMoreCovers,
@@ -28,6 +29,7 @@ import type { LayoutMode } from "./view-controls";
 const cap = (s: string) =>
   s.replace(/-/g, " ").replace(/^\w/, (c) => c.toUpperCase());
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+const SCROLL_MARGIN = 12;
 const CARD_TRANSITION = `left .34s ${EASE}, top .34s ${EASE}, width .34s ${EASE}, height .34s ${EASE}, transform .16s, box-shadow .16s`;
 
 export function CoverGrid({
@@ -196,6 +198,27 @@ export function CoverGrid({
   }, [relayout]);
 
   useEffect(() => {
+    if (!expandedId) return;
+    const raf = requestAnimationFrame(() => {
+      const card = containerRef.current?.querySelector<HTMLElement>(
+        `[data-card-id="${expandedId}"]`,
+      );
+      if (!card) return;
+      const target = (document.scrollingElement ||
+        document.documentElement) as HTMLElement;
+      const delta = card.getBoundingClientRect().top - SCROLL_MARGIN;
+      if (Math.abs(delta) < 8) return;
+      target.scrollTo({
+        top: Math.max(0, target.scrollTop + delta),
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [expandedId]);
+
+  useEffect(() => {
     let raf = 0;
     const onResize = () => {
       cancelAnimationFrame(raf);
@@ -240,11 +263,6 @@ export function CoverGrid({
   const openSimilar = (id: string) => {
     if (covers.some((c) => c.id === id)) {
       setExpandedId(id);
-      requestAnimationFrame(() =>
-        document
-          .querySelector(`[data-card-id="${id}"]`)
-          ?.scrollIntoView({ behavior: "smooth", block: "center" }),
-      );
     } else {
       router.push(`/coverly/covers/${id}`);
     }
@@ -289,9 +307,11 @@ export function CoverGrid({
       {hasMore && (
         <div
           ref={sentinelRef}
-          className="py-8 text-center text-sm text-muted-foreground"
+          className="flex items-center justify-center py-4 text-xs text-muted-foreground"
         >
-          {loading ? "Loading..." : `${total - covers.length} more`}
+          {loading
+            ? "Loading more covers…"
+            : `${(total - covers.length).toLocaleString()} more covers`}
         </div>
       )}
       <p className="sr-only" aria-live="polite">
@@ -489,19 +509,31 @@ function DetailPanel({
           </div>
         )}
 
-        <div className="mt-4 flex items-center gap-2">
-          <AddToBoard
-            coverId={cover.id}
-            variant="button"
-            flyFrom={() => bigRef.current}
-          />
-          <Link
-            href={`/coverly/covers/${cover.id}`}
-            className="rounded-[0.625rem] border px-4 py-2 text-sm hover:bg-muted/60"
-          >
-            Open full page
-          </Link>
-        </div>
+        <LayoutGroup>
+          <div className="mt-4 flex items-center gap-2">
+            <AddToBoard
+              coverId={cover.id}
+              variant="button"
+              flyFrom={() => bigRef.current}
+            />
+            <motion.div
+              layout
+              transition={{
+                type: "spring",
+                stiffness: 420,
+                damping: 36,
+                mass: 0.8,
+              }}
+            >
+              <Link
+                href={`/coverly/covers/${cover.id}`}
+                className="block rounded-[0.625rem] border px-4 py-2 text-sm hover:bg-muted/60"
+              >
+                Open full page
+              </Link>
+            </motion.div>
+          </div>
+        </LayoutGroup>
 
         {detail && detail.similar.length > 0 && (
           <div className="mt-5">

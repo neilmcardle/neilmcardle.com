@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { RIGHTS_NOTICE } from "@/lib/coverly/attribution";
 import { fetchCoverDetail, type CoverDetailData } from "../../browse/actions";
 import { CoverActions } from "./cover-actions";
 import { BackLink } from "../../back-link";
@@ -106,10 +105,6 @@ export default async function CoverPage({
           )}
 
           <CoverActions coverId={cover.id} />
-
-          <p className="mt-6 max-w-prose text-xs leading-relaxed text-muted-foreground">
-            {RIGHTS_NOTICE}
-          </p>
         </div>
       </div>
 

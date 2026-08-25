@@ -28,7 +28,7 @@ export function HeartButton({
       aria-label={liked ? "Unlike" : "Like"}
       className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
         liked
-          ? "bg-red-500/90 text-white backdrop-blur"
+          ? "bg-background/90 text-red-500 backdrop-blur"
           : "bg-background/90 text-foreground backdrop-blur hover:bg-background"
       }`}
     >

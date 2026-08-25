@@ -70,17 +70,29 @@ export function createBoard(name: string): Board {
   return board;
 }
 
-export function addCoverToBoard(boardId: string, coverId: string): boolean {
+export type AddResult = "added" | "duplicate" | "missing";
+
+export function addCoverToBoard(boardId: string, coverId: string): AddResult {
   const boards = getSnapshot();
-  if (!boards.some((board) => board.id === boardId)) return false;
+  const board = boards.find((b) => b.id === boardId);
+  if (!board) return "missing";
+  if (board.covers.includes(coverId)) return "duplicate";
   commit(
-    boards.map((board) =>
-      board.id === boardId && !board.covers.includes(coverId)
-        ? { ...board, covers: [...board.covers, coverId] }
+    boards.map((b) =>
+      b.id === boardId ? { ...b, covers: [...b.covers, coverId] } : b,
+    ),
+  );
+  return "added";
+}
+
+export function removeCoverFromBoard(boardId: string, coverId: string) {
+  commit(
+    getSnapshot().map((board) =>
+      board.id === boardId
+        ? { ...board, covers: board.covers.filter((id) => id !== coverId) }
         : board,
     ),
   );
-  return true;
 }
 
 export function deleteBoard(boardId: string) {
