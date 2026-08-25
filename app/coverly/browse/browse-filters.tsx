@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import {
   ART_STYLES,
   LAYOUTS,
@@ -47,6 +47,7 @@ export function BrowseFilters({ total }: { total: number }) {
   const pathname = usePathname();
   const sp = useSearchParams();
   const [openKey, setOpenKey] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -104,9 +105,41 @@ export function BrowseFilters({ total }: { total: number }) {
     selectedFor(cat).map((opt) => ({ key: cat.key, label: cat.label, opt })),
   );
 
+  const toggleMobile = () => {
+    setOpenKey(null);
+    setMobileOpen((o) => !o);
+  };
+
   return (
     <div ref={barRef}>
-      <div className="flex flex-wrap items-center gap-2">
+      <button
+        onClick={toggleMobile}
+        aria-expanded={mobileOpen}
+        aria-controls="coverly-filter-row"
+        className={`flex items-center gap-1.5 rounded-[0.625rem] border px-3 py-1.5 text-sm transition-colors sm:hidden ${
+          activeChips.length ? "border-foreground/30 bg-muted/60" : "bg-card"
+        }`}
+      >
+        <SlidersHorizontal
+          className="h-3.5 w-3.5 opacity-70"
+          strokeWidth={2.5}
+        />
+        Filters
+        {activeChips.length > 0 && (
+          <span className="rounded-md bg-foreground px-1.5 text-[11px] font-medium text-background">
+            {activeChips.length}
+          </span>
+        )}
+        <ChevronDown
+          className={`h-3.5 w-3.5 opacity-50 transition-transform ${mobileOpen ? "rotate-180" : ""}`}
+          strokeWidth={2.5}
+        />
+      </button>
+
+      <div
+        id="coverly-filter-row"
+        className={`${mobileOpen ? "mt-2 flex" : "hidden"} flex-wrap items-center gap-2 sm:mt-0 sm:flex`}
+      >
         {CATS.map((cat) => {
           const selected = selectedFor(cat);
           const isOpen = openKey === cat.key;
