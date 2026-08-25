@@ -70,34 +70,17 @@ doesn't exist on the site, so `withHeights()` runs entirely on its heuristic
 fallback. Harmless — heights are approximate by design — but the real data is
 sitting in the standalone repo.
 
-### 5. PDF export blocked by a React version mismatch
+### 5. PDF export blocked by a React version mismatch — RESOLVED 2026-08-25
 
-**Found:** 2026-08-25 · **Status:** code complete, does not run
+Fixed by upgrading `react` and `react-dom` to 19.2.8 (from 18.3.1). Next 16
+already server-rendered with a vendored React 19, so node_modules now matches
+what actually runs, and `@react-pdf/reconciler` selects its React 19
+reconciler. Export verified end to end: 200, application/pdf, 2 pages.
 
-The deck renderer, the `POST /api/coverly/deck` route and the board Export PDF
-button are all built and lint clean. Rendering fails with React error #31
-("objects are not valid as a React child").
-
-Cause, confirmed by probe rather than inference:
-
-- Next 16 renders App Router server code with its **vendored React
-  19.3.0-canary**, so the JSX in `lib/coverly/pdf/deck.tsx` produces React 19
-  elements.
-- `@react-pdf/reconciler/lib/index.js` picks its reconciler from the
-  `React.version` _it_ imports. It loads `react` from node_modules, which is
-  **18.3.1**, so it selects `reconciler-23.js` — the React 18 reconciler.
-- A React 18 reconciler cannot render React 19 elements.
-
-Removing `@react-pdf/renderer` from `serverExternalPackages` does not help;
-the package is still resolved natively and still sees React 18.
-
-The standalone Coverly repo runs the identical deck code successfully on React
-19.2.4, which is the evidence that the code itself is fine.
-
-Fix: upgrade `react` and `react-dom` to ^19 on the site. Next 16 supports both
-18 and 19, so this is a deliberate site-wide upgrade, not a forced one — it
-needs regression testing across the other apps in this repo (kids-academy,
-make-ebook, spark, tessera, doodlewire).
+Fallout was limited to `@types/react@19` making `useRef<T>(null)` return
+`RefObject<T | null>` — 7 type errors across make-ebook, vector-paint and one
+Radix tooltip typing. All fixed; typecheck is now clean at 0 errors, where it
+previously reported 8.
 
 ### 6. Mobile filters stack too tall
 

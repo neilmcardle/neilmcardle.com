@@ -217,7 +217,7 @@ interface DrawingCardProps {
   drawing: SavedDrawing;
   isEditing: boolean;
   editingValue: string;
-  editInputRef: React.RefObject<HTMLInputElement>;
+  editInputRef: React.RefObject<HTMLInputElement | null>;
   onStartRename: () => void;
   onChangeRename: (v: string) => void;
   onCommitRename: () => void;

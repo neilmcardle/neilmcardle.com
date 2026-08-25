@@ -208,8 +208,8 @@ function PaperPanel({
   pasteExpanded: boolean;
   pasteValue: string;
   onPasteValueChange: (v: string) => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
-  pasteButtonRef: React.RefObject<HTMLButtonElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+  pasteButtonRef: React.RefObject<HTMLButtonElement | null>;
   onPasteStart: () => void;
   onPasteSubmit: () => void;
   onPasteCancel: () => void;

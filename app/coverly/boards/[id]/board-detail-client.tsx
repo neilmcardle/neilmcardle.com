@@ -56,7 +56,9 @@ export function BoardDetailClient({ boardId }: { boardId: string }) {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${board.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-comps.pdf`;
+      const disposition = res.headers.get("Content-Disposition") ?? "";
+      const match = disposition.match(/filename="([^"]+)"/);
+      link.download = match ? match[1] : "cover-comps.pdf";
       document.body.appendChild(link);
       link.click();
       link.remove();

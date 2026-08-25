@@ -64,7 +64,11 @@ export async function POST(req: Request) {
 
   try {
     const buffer = await renderDeck({ boardName, covers });
-    const filename = `${boardName.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-comps.pdf`;
+    const slug = boardName
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-|-$/g, "")
+      .toLowerCase();
+    const filename = `${/comps?$/.test(slug) ? slug : `${slug}-comps`}.pdf`;
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
         "Content-Type": "application/pdf",
