@@ -12,5 +12,5 @@ export default function CoverlyLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return children;
 }

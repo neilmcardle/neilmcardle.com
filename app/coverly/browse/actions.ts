@@ -1,0 +1,109 @@
+"use server";
+
+import { createCoverlyPublicClient } from "@/lib/coverly/supabase/public";
+import { withHeights } from "@/lib/coverly/book-size";
+import {
+  fetchCoverPage,
+  type CoverCard,
+  type CoverFilters,
+} from "@/lib/coverly/queries";
+
+export async function loadMoreCovers(
+  filters: CoverFilters,
+  page: number,
+): Promise<{ covers: CoverCard[]; total: number }> {
+  const supabase = createCoverlyPublicClient();
+  if (!supabase) return { covers: [], total: 0 };
+
+  const { covers, total } = await fetchCoverPage(supabase, filters, page);
+  return { covers: withHeights(covers), total };
+}
+
+export type CoverDetailData = {
+  id: string;
+  isbn13: string | null;
+  image_url: string;
+  title: string;
+  author: string | null;
+  imprint: string | null;
+  year: number | null;
+  designer_credit: string | null;
+  sub_genre: string | null;
+  art_style: string | null;
+  typography: string | null;
+  people: string | null;
+  layout: string | null;
+  palette: { colors: string[]; is_dark: boolean } | null;
+  similar: CoverCard[];
+};
+
+export async function fetchCoverDetail(
+  id: string,
+): Promise<CoverDetailData | null> {
+  const supabase = createCoverlyPublicClient();
+  if (!supabase) return null;
+
+  const { data: cover } = await supabase
+    .from("covers")
+    .select(
+      "id, isbn13, image_url, title, author, imprint, year, designer_credit, sub_genre, art_style, typography, people, layout, palette, color_families",
+    )
+    .eq("id", id)
+    .eq("delisted", false)
+    .maybeSingle();
+  if (!cover) return null;
+
+  const source = cover as Omit<CoverDetailData, "similar"> & {
+    color_families: string[] | null;
+  };
+
+  const { data: rpcData } = await supabase
+    .rpc("similar_covers", { source_cover_id: id, match_count: 12 })
+    .select("id, title, author, imprint, year, image_url, palette");
+  let similar = (Array.isArray(rpcData) ? rpcData : []) as CoverCard[];
+
+  if (similar.length < 6) {
+    const colors = source.color_families ?? [];
+    const ors: string[] = [];
+    if (source.sub_genre) ors.push(`sub_genre.eq.${source.sub_genre}`);
+    if (colors.length) ors.push(`color_families.ov.{${colors.join(",")}}`);
+
+    let pool = supabase
+      .from("covers")
+      .select(
+        "id, title, author, imprint, year, image_url, palette, sub_genre, art_style, color_families",
+      )
+      .neq("id", id)
+      .not("sub_genre", "is", null)
+      .eq("delisted", false)
+      .order("year", { ascending: false, nullsFirst: false })
+      .limit(40);
+    if (ors.length) pool = pool.or(ors.join(","));
+
+    const { data: poolData } = await pool;
+    const scored = (poolData ?? [])
+      .map((c) => {
+        const cc = c as CoverCard & {
+          sub_genre: string | null;
+          art_style: string | null;
+          color_families: string[] | null;
+        };
+        const overlap = (cc.color_families ?? []).filter((f) =>
+          colors.includes(f),
+        ).length;
+        const score =
+          (cc.sub_genre === source.sub_genre ? 3 : 0) +
+          overlap +
+          (cc.art_style === source.art_style ? 1 : 0);
+        return { cc, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 12)
+      .map(({ cc }) => cc as CoverCard);
+    similar = scored;
+  }
+
+  const { color_families: _drop, ...rest } = source;
+  void _drop;
+  return { ...rest, similar };
+}

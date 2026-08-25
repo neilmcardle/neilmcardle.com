@@ -28,8 +28,21 @@ export type CoverFilters = {
   curatedOnly?: boolean;
 };
 
+type FilterChain = {
+  eq: (column: string, value: unknown) => FilterChain;
+  in: (column: string, values: readonly unknown[]) => FilterChain;
+  overlaps: (column: string, values: readonly unknown[]) => FilterChain;
+  gte: (column: string, value: unknown) => FilterChain;
+  lte: (column: string, value: unknown) => FilterChain;
+  textSearch: (
+    column: string,
+    query: string,
+    options: { type: "websearch"; config: string },
+  ) => FilterChain;
+};
+
 export function applyCoverFilters<T>(query: T, filters: CoverFilters): T {
-  let q = query as any;
+  let q = query as FilterChain;
   if (filters.curatedOnly) q = q.eq("curated", true);
   for (const facet of [
     "sub_genre",

@@ -14,9 +14,9 @@ export default async function CoverlyPage() {
     rounded >= 50 ? `over ${rounded.toLocaleString()}` : `${count}`;
 
   return (
-    <main className="flex min-h-screen w-full flex-col bg-background lg:flex-row">
-      <section className="relative flex w-full flex-col justify-center px-6 py-14 sm:px-10 lg:w-1/2 lg:px-16">
-        <div className="mx-auto w-full max-w-sm">
+    <main className="relative flex min-h-screen w-full flex-col bg-background lg:flex-row">
+      <section className="relative z-10 flex min-h-screen w-full flex-col justify-center px-6 py-14 sm:px-10 lg:w-1/2 lg:bg-background lg:px-16">
+        <div className="mx-auto w-full max-w-sm rounded-2xl bg-background/95 p-6 backdrop-blur lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
           <Link
             href="/"
             aria-label="Neil McArdle"
@@ -39,7 +39,9 @@ export default async function CoverlyPage() {
             Book cover inspiration
           </h1>
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            Featuring {countLabel} book cover designs.
+            Browse {countLabel} book covers, like the ones that stand out, and
+            collect them into mood boards. Then export a comparison deck PDF to
+            present to others.
           </p>
 
           <div className="mt-8">
@@ -63,7 +65,7 @@ export default async function CoverlyPage() {
       </section>
 
       <section
-        className="relative hidden overflow-hidden lg:block lg:w-1/2"
+        className="absolute inset-0 overflow-hidden lg:relative lg:w-1/2"
         style={{ backgroundColor: DARK }}
       >
         <CoverMarquee covers={covers} />
