@@ -69,3 +69,6 @@ docs/prototype-lab-v1.md
 # inside this repo. Ignore the folder name so the wrapper never re-enters
 # git if the user re-clones or moves it back in by accident.
 doodlewire-app/
+
+# Coverly working backlog: local planning notes, not part of the app.
+app/coverly/BACKLOG.md
