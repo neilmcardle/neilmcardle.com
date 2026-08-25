@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { flyToBoard } from "@/lib/coverly/board-fly";
 import {
   clearLastBoard,
@@ -19,6 +19,7 @@ import {
 import { useHydrated } from "@/lib/coverly/use-hydrated";
 
 const CONFIRM_MS = 4200;
+const PICKER_OPEN_EVENT = "coverly:picker-open";
 
 export function AddToBoard({
   coverId,
@@ -36,6 +37,8 @@ export function AddToBoard({
   const [error, setError] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const instanceId = useId();
 
   useEffect(
     () => () => {
@@ -43,6 +46,34 @@ export function AddToBoard({
     },
     [],
   );
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    const onOtherPickerOpen = (event: Event) => {
+      if ((event as CustomEvent<string>).detail !== instanceId) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener(PICKER_OPEN_EVENT, onOtherPickerOpen);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener(PICKER_OPEN_EVENT, onOtherPickerOpen);
+    };
+  }, [open, instanceId]);
+
+  const openPicker = () => {
+    document.dispatchEvent(
+      new CustomEvent(PICKER_OPEN_EVENT, { detail: instanceId }),
+    );
+    setOpen(true);
+  };
 
   const confirm = (board: Board | null, message?: string) => {
     if (timer.current) clearTimeout(timer.current);
@@ -72,7 +103,7 @@ export function AddToBoard({
       if (target) saveTo(target);
     } else {
       clearLastBoard();
-      setOpen(true);
+      openPicker();
     }
   };
 
@@ -88,6 +119,7 @@ export function AddToBoard({
 
   return (
     <div
+      ref={containerRef}
       className={
         variant === "icon"
           ? "absolute right-2 top-2 z-10"
@@ -105,8 +137,10 @@ export function AddToBoard({
             +
           </button>
           <button
-            onClick={() => setOpen((o) => !o)}
+            onClick={() => (open ? setOpen(false) : openPicker())}
             aria-label="Choose board"
+            aria-haspopup="menu"
+            aria-expanded={open}
             className="border-l border-foreground/15 bg-background/90 px-1.5 text-xs text-foreground backdrop-blur hover:bg-background"
           >
             ▾
@@ -169,6 +203,16 @@ export function AddToBoard({
 
       {open && (
         <div className="absolute right-0 top-full z-30 mt-1.5 w-56 rounded-[1rem] border bg-card p-2 text-left shadow-lg">
+          <div className="mb-1 flex items-center justify-between gap-2 border-b pb-1.5 pl-1.5">
+            <span className="text-xs font-medium">Save to board</span>
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close"
+              className="flex h-5 w-5 items-center justify-center rounded-[0.4rem] text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <X className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
+          </div>
           {boards.length === 0 ? (
             <p className="p-1.5 text-xs text-muted-foreground">
               No boards yet. Create one below.

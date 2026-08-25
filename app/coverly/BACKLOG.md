@@ -69,3 +69,41 @@ fix has to touch both or they desync. Purely cosmetic.
 doesn't exist on the site, so `withHeights()` runs entirely on its heuristic
 fallback. Harmless — heights are approximate by design — but the real data is
 sitting in the standalone repo.
+
+### 5. PDF export blocked by a React version mismatch
+
+**Found:** 2026-08-25 · **Status:** code complete, does not run
+
+The deck renderer, the `POST /api/coverly/deck` route and the board Export PDF
+button are all built and lint clean. Rendering fails with React error #31
+("objects are not valid as a React child").
+
+Cause, confirmed by probe rather than inference:
+
+- Next 16 renders App Router server code with its **vendored React
+  19.3.0-canary**, so the JSX in `lib/coverly/pdf/deck.tsx` produces React 19
+  elements.
+- `@react-pdf/reconciler/lib/index.js` picks its reconciler from the
+  `React.version` _it_ imports. It loads `react` from node_modules, which is
+  **18.3.1**, so it selects `reconciler-23.js` — the React 18 reconciler.
+- A React 18 reconciler cannot render React 19 elements.
+
+Removing `@react-pdf/renderer` from `serverExternalPackages` does not help;
+the package is still resolved natively and still sees React 18.
+
+The standalone Coverly repo runs the identical deck code successfully on React
+19.2.4, which is the evidence that the code itself is fine.
+
+Fix: upgrade `react` and `react-dom` to ^19 on the site. Next 16 supports both
+18 and 19, so this is a deliberate site-wide upgrade, not a forced one — it
+needs regression testing across the other apps in this repo (kids-academy,
+make-ebook, spark, tessera, doodlewire).
+
+### 6. Mobile filters stack too tall
+
+**Reported:** 2026-08-25
+
+On mobile, the seven browse filter buttons stack vertically and push the cover
+grid most of a screen down — the user sees filters, not covers. Needs a mobile
+pattern: a single "Filters" button opening a sheet, or a horizontally
+scrolling row.

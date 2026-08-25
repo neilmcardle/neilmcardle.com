@@ -29,7 +29,7 @@ export function HeartButton({
       className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
         liked
           ? "bg-red-500/90 text-white backdrop-blur"
-          : "bg-background/90 text-white backdrop-blur hover:bg-background"
+          : "bg-background/90 text-foreground backdrop-blur hover:bg-background"
       }`}
     >
       <Heart
