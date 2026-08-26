@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { fetchCoverDetail, type CoverDetailData } from "../../browse/actions";
+import {
+  fetchCoverDetail,
+  fetchSimilarCovers,
+  type CoverDetailData,
+} from "../../browse/actions";
 import { CoverActions } from "./cover-actions";
 import { BackLink } from "../../back-link";
 
@@ -23,7 +27,10 @@ export default async function CoverPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const cover = await fetchCoverDetail(id);
+  const [cover, similar] = await Promise.all([
+    fetchCoverDetail(id),
+    fetchSimilarCovers(id),
+  ]);
   if (!cover) notFound();
 
   const tone = cover.palette
@@ -60,29 +67,40 @@ export default async function CoverPage({
             {cover.isbn13 ? ` · ISBN ${cover.isbn13}` : ""}
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-2">
+          <dl className="mt-5 grid max-w-lg grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
             {TAGS.map(([key, label]) =>
               cover[key] ? (
-                <Link
-                  key={key}
-                  href={`/coverly/browse?${key}=${encodeURIComponent(String(cover[key]))}`}
-                  className="rounded-full border bg-background px-3 py-1 text-xs hover:bg-muted/60"
-                >
-                  <span className="text-muted-foreground">{label} </span>
-                  {cap(String(cover[key]))}
-                </Link>
+                <div key={key}>
+                  <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                    {label}
+                  </dt>
+                  <dd className="mt-0.5">
+                    <Link
+                      href={`/coverly/browse?${key}=${encodeURIComponent(String(cover[key]))}`}
+                      className="text-sm font-medium underline-offset-2 hover:underline"
+                    >
+                      {cap(String(cover[key]))}
+                    </Link>
+                  </dd>
+                </div>
               ) : null,
             )}
             {tone && (
-              <Link
-                href={`/coverly/browse?tone=${tone}`}
-                className="rounded-full border bg-background px-3 py-1 text-xs hover:bg-muted/60"
-              >
-                <span className="text-muted-foreground">Tone </span>
-                {tone}
-              </Link>
+              <div>
+                <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  Tone
+                </dt>
+                <dd className="mt-0.5">
+                  <Link
+                    href={`/coverly/browse?tone=${tone}`}
+                    className="text-sm font-medium underline-offset-2 hover:underline"
+                  >
+                    {cap(tone)}
+                  </Link>
+                </dd>
+              </div>
             )}
-          </div>
+          </dl>
 
           {cover.palette?.colors && cover.palette.colors.length > 0 && (
             <div className="mt-5">
@@ -108,11 +126,11 @@ export default async function CoverPage({
         </div>
       </div>
 
-      {cover.similar.length > 0 && (
+      {similar.length > 0 && (
         <section className="mt-12">
           <h2 className="mb-4 text-lg font-semibold">Similar covers</h2>
           <div className="grid grid-cols-3 items-start gap-x-4 gap-y-5 sm:grid-cols-4 lg:grid-cols-6">
-            {cover.similar.map((s) => (
+            {similar.map((s) => (
               <Link
                 key={s.id}
                 href={`/coverly/covers/${s.id}`}

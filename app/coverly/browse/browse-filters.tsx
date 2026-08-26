@@ -1,8 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  Loader2,
+  Search,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 import {
   ART_STYLES,
   LAYOUTS,
@@ -48,6 +55,9 @@ export function BrowseFilters({ total }: { total: number }) {
   const sp = useSearchParams();
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+  const [pendingKey, setPendingKey] = useState<string | null>(null);
+  const [query, setQuery] = useState(sp.get("q") ?? "");
   const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -62,9 +72,12 @@ export function BrowseFilters({ total }: { total: number }) {
   const valuesOf = (key: string) =>
     sp.get(key)?.split(",").filter(Boolean) ?? [];
 
-  const commit = (params: URLSearchParams) => {
+  const commit = (params: URLSearchParams, source?: string) => {
     const qs = params.toString();
-    router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    setPendingKey(source ?? null);
+    startTransition(() => {
+      router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    });
   };
 
   const toggle = (cat: Cat, opt: string) => {
@@ -79,7 +92,7 @@ export function BrowseFilters({ total }: { total: number }) {
       if (next.size) params.set(cat.key, [...next].join(","));
       else params.delete(cat.key);
     }
-    commit(params);
+    commit(params, cat.key);
   };
 
   const removeOne = (key: string, opt: string) => {
@@ -91,6 +104,13 @@ export function BrowseFilters({ total }: { total: number }) {
       else params.delete(key);
     }
     commit(params);
+  };
+
+  const clearCat = (cat: Cat) => {
+    const params = new URLSearchParams(sp.toString());
+    params.delete(cat.key);
+    commit(params, cat.key);
+    setOpenKey(null);
   };
 
   const clearAll = () => {
@@ -140,6 +160,44 @@ export function BrowseFilters({ total }: { total: number }) {
         id="coverly-filter-row"
         className={`${mobileOpen ? "mt-2 flex" : "hidden"} flex-wrap items-center gap-2 sm:mt-0 sm:flex`}
       >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const params = new URLSearchParams(sp.toString());
+            if (query.trim()) params.set("q", query.trim());
+            else params.delete("q");
+            commit(params, "q");
+          }}
+          className="relative flex h-[34px] items-center"
+        >
+          {pending && pendingKey === "q" ? (
+            <Loader2 className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 animate-spin text-muted-foreground" />
+          ) : (
+            <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-muted-foreground" />
+          )}
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search titles, authors"
+            aria-label="Search covers"
+            className="h-[34px] w-44 rounded-[0.625rem] border bg-card pl-8 pr-7 text-sm outline-none placeholder:text-muted-foreground/70 focus:border-foreground/40"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                const params = new URLSearchParams(sp.toString());
+                params.delete("q");
+                commit(params, "q");
+              }}
+              aria-label="Clear search"
+              className="absolute right-1.5 flex h-5 w-5 items-center justify-center rounded-[0.35rem] text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+            </button>
+          )}
+        </form>
         {CATS.map((cat) => {
           const selected = selectedFor(cat);
           const isOpen = openKey === cat.key;
@@ -151,27 +209,63 @@ export function BrowseFilters({ total }: { total: number }) {
                   setOpenKey(isOpen ? null : cat.key);
                 }}
                 aria-expanded={isOpen}
-                className={`flex items-center gap-1.5 rounded-[0.625rem] border px-3 py-1.5 text-sm transition-colors ${
+                aria-haspopup="true"
+                className={`flex h-[34px] max-w-[15rem] items-center gap-1.5 rounded-[0.625rem] border px-3 text-sm transition-colors ${
                   selected.length
-                    ? "border-foreground/30 bg-muted/60"
+                    ? "border-foreground bg-foreground text-background"
                     : "bg-card hover:border-foreground/30"
                 }`}
               >
-                {cat.label}
+                <span className={selected.length ? "opacity-70" : ""}>
+                  {cat.label}
+                </span>
                 {selected.length > 0 && (
-                  <span className="rounded-md bg-foreground px-1.5 text-[11px] font-medium text-background">
-                    {selected.length}
+                  <span className="truncate font-medium">
+                    {cap(selected[0])}
+                    {selected.length > 1 ? ` +${selected.length - 1}` : ""}
                   </span>
                 )}
-                <ChevronDown
-                  className="h-3.5 w-3.5 opacity-50"
-                  strokeWidth={2.5}
-                />
+                {pending && pendingKey === cat.key ? (
+                  <Loader2
+                    className="h-3.5 w-3.5 shrink-0 animate-spin opacity-70"
+                    strokeWidth={2.5}
+                  />
+                ) : (
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 shrink-0 ${selected.length ? "opacity-60" : "opacity-50"}`}
+                    strokeWidth={2.5}
+                  />
+                )}
               </button>
 
               {isOpen && (
-                <div className="absolute left-0 top-[calc(100%+6px)] z-30 min-w-44 rounded-[1rem] border bg-card p-2.5 shadow-xl">
-                  <div className="flex flex-wrap gap-1.5">
+                <div
+                  role="menu"
+                  className="absolute left-0 top-[calc(100%+6px)] z-30 min-w-52 rounded-[0.875rem] border bg-card p-1.5 shadow-xl"
+                >
+                  <div className="flex items-center justify-between gap-2 px-2 pb-1.5 pt-1">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {cat.label}
+                    </span>
+                    {selected.length > 0 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clearCat(cat);
+                        }}
+                        className="text-xs text-muted-foreground underline hover:text-foreground"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  <div
+                    className={
+                      cat.kind === "color"
+                        ? "flex flex-wrap gap-1.5 px-1 pb-1"
+                        : "flex flex-col"
+                    }
+                  >
                     {cat.options.map((opt) => {
                       const on = selected.includes(opt);
                       if (cat.kind === "color") {
@@ -211,13 +305,21 @@ export function BrowseFilters({ total }: { total: number }) {
                             e.stopPropagation();
                             toggle(cat, opt);
                           }}
-                          aria-pressed={on}
-                          className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                            on
-                              ? "border-foreground bg-foreground text-background"
-                              : "text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                          }`}
+                          role="menuitemcheckbox"
+                          aria-checked={on}
+                          className="flex w-full items-center gap-2 rounded-[0.5rem] px-2 py-1.5 text-left text-sm hover:bg-muted"
                         >
+                          <span
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[0.25rem] border ${
+                              on
+                                ? "border-foreground bg-foreground text-background"
+                                : "border-border"
+                            }`}
+                          >
+                            {on && (
+                              <Check className="h-3 w-3" strokeWidth={3} />
+                            )}
+                          </span>
                           {cap(opt)}
                         </button>
                       );

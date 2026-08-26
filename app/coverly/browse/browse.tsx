@@ -4,6 +4,8 @@ import type {
   CoverCard as CoverCardType,
   CoverFilters,
 } from "@/lib/coverly/queries";
+import { useEffect } from "react";
+import { rememberBrowse } from "@/lib/coverly/last-browse";
 import { useLocalPref } from "@/lib/coverly/use-local-pref";
 import { useMediaQuery } from "@/lib/coverly/use-media-query";
 import { BrowseFilters } from "./browse-filters";
@@ -33,6 +35,11 @@ export function Browse({
   const [mode, setMode] = useLocalPref<LayoutMode>(MODE_KEY, "grid", parseMode);
   const [size, setSize] = useLocalPref<number>(SIZE_KEY, 170, parseSize);
   const isNarrow = useMediaQuery("(max-width: 639px)");
+
+  useEffect(() => {
+    rememberBrowse(window.location.pathname + window.location.search);
+  }, [filters]);
+
   const effectiveMode: LayoutMode = isNarrow ? "grid" : mode;
 
   return (

@@ -34,7 +34,6 @@ export type CoverDetailData = {
   people: string | null;
   layout: string | null;
   palette: { colors: string[]; is_dark: boolean } | null;
-  similar: CoverCard[];
 };
 
 export async function fetchCoverDetail(
@@ -46,16 +45,27 @@ export async function fetchCoverDetail(
   const { data: cover } = await supabase
     .from("covers")
     .select(
-      "id, isbn13, image_url, title, author, imprint, year, designer_credit, sub_genre, art_style, typography, people, layout, palette, color_families",
+      "id, isbn13, image_url, title, author, imprint, year, designer_credit, sub_genre, art_style, typography, people, layout, palette",
     )
     .eq("id", id)
     .eq("delisted", false)
     .maybeSingle();
   if (!cover) return null;
 
-  const source = cover as Omit<CoverDetailData, "similar"> & {
-    color_families: string[] | null;
-  };
+  return cover as CoverDetailData;
+}
+
+export async function fetchSimilarCovers(id: string): Promise<CoverCard[]> {
+  const supabase = createCoverlyPublicClient();
+  if (!supabase) return [];
+
+  const { data: source } = await supabase
+    .from("covers")
+    .select("sub_genre, art_style, color_families")
+    .eq("id", id)
+    .eq("delisted", false)
+    .maybeSingle();
+  if (!source) return [];
 
   const { data: rpcData } = await supabase
     .rpc("similar_covers", { source_cover_id: id, match_count: 12 })
@@ -63,9 +73,14 @@ export async function fetchCoverDetail(
   let similar = (Array.isArray(rpcData) ? rpcData : []) as CoverCard[];
 
   if (similar.length < 6) {
-    const colors = source.color_families ?? [];
+    const typed = source as {
+      sub_genre: string | null;
+      art_style: string | null;
+      color_families: string[] | null;
+    };
+    const colors = typed.color_families ?? [];
     const ors: string[] = [];
-    if (source.sub_genre) ors.push(`sub_genre.eq.${source.sub_genre}`);
+    if (typed.sub_genre) ors.push(`sub_genre.eq.${typed.sub_genre}`);
     if (colors.length) ors.push(`color_families.ov.{${colors.join(",")}}`);
 
     let pool = supabase
@@ -81,7 +96,7 @@ export async function fetchCoverDetail(
     if (ors.length) pool = pool.or(ors.join(","));
 
     const { data: poolData } = await pool;
-    const scored = (poolData ?? [])
+    similar = (poolData ?? [])
       .map((c) => {
         const cc = c as CoverCard & {
           sub_genre: string | null;
@@ -92,18 +107,15 @@ export async function fetchCoverDetail(
           colors.includes(f),
         ).length;
         const score =
-          (cc.sub_genre === source.sub_genre ? 3 : 0) +
+          (cc.sub_genre === typed.sub_genre ? 3 : 0) +
           overlap +
-          (cc.art_style === source.art_style ? 1 : 0);
+          (cc.art_style === typed.art_style ? 1 : 0);
         return { cc, score };
       })
       .sort((a, b) => b.score - a.score)
       .slice(0, 12)
       .map(({ cc }) => cc as CoverCard);
-    similar = scored;
   }
 
-  const { color_families: _drop, ...rest } = source;
-  void _drop;
-  return { ...rest, similar };
+  return similar;
 }

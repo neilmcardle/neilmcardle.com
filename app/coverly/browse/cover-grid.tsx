@@ -13,6 +13,7 @@ import { X } from "lucide-react";
 import { LayoutGroup, motion } from "framer-motion";
 import {
   fetchCoverDetail,
+  fetchSimilarCovers,
   loadMoreCovers,
   type CoverDetailData,
 } from "./actions";
@@ -53,6 +54,10 @@ export function CoverGrid({
     id: string;
     data: CoverDetailData | null;
   } | null>(null);
+  const [similar, setSimilar] = useState<{
+    id: string;
+    data: CoverCardType[];
+  } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -76,12 +81,17 @@ export function CoverGrid({
     fetchCoverDetail(expandedId).then((d) => {
       if (live) setDetail({ id: expandedId, data: d });
     });
+    fetchSimilarCovers(expandedId).then((rows) => {
+      if (live) setSimilar({ id: expandedId, data: rows });
+    });
     return () => {
       live = false;
     };
   }, [expandedId]);
 
   const activeDetail = detail && detail.id === expandedId ? detail.data : null;
+  const activeSimilar =
+    similar && similar.id === expandedId ? similar.data : [];
 
   const relayout = useCallback(() => {
     const cont = containerRef.current;
@@ -346,6 +356,7 @@ export function CoverGrid({
             <DetailPanel
               cover={expandedCover}
               detail={activeDetail}
+              similar={activeSimilar}
               onClose={() => setExpandedId(null)}
               onSimilar={openSimilar}
               onLayout={relayout}
@@ -456,12 +467,14 @@ const TAGS: [keyof CoverDetailData, string][] = [
 function DetailPanel({
   cover,
   detail,
+  similar,
   onClose,
   onSimilar,
   onLayout,
 }: {
   cover: CoverCardType;
   detail: CoverDetailData | null;
+  similar: CoverCardType[];
   onClose: () => void;
   onSimilar: (id: string) => void;
   onLayout: () => void;
@@ -522,27 +535,37 @@ function DetailPanel({
         )}
 
         {detail ? (
-          <div className="mt-3 flex flex-wrap gap-2">
+          <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
             {TAGS.map(([key, label]) =>
               detail[key] ? (
-                <span
-                  key={key}
-                  className="rounded-full border bg-background px-3 py-1 text-xs"
-                >
-                  <span className="text-muted-foreground">{label} </span>
-                  {cap(String(detail[key]))}
-                </span>
+                <div key={key}>
+                  <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                    {label}
+                  </dt>
+                  <dd className="mt-0.5 text-sm font-medium">
+                    {cap(String(detail[key]))}
+                  </dd>
+                </div>
               ) : null,
             )}
             {tone && (
-              <span className="rounded-full border bg-background px-3 py-1 text-xs">
-                <span className="text-muted-foreground">Tone </span>
-                {tone}
-              </span>
+              <div>
+                <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  Tone
+                </dt>
+                <dd className="mt-0.5 text-sm font-medium">{cap(tone)}</dd>
+              </div>
             )}
-          </div>
+          </dl>
         ) : (
-          <div className="mt-3 h-7 w-56 animate-pulse rounded-full bg-muted" />
+          <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i}>
+                <div className="h-2.5 w-14 animate-pulse rounded bg-muted" />
+                <div className="mt-1.5 h-4 w-20 animate-pulse rounded bg-muted" />
+              </div>
+            ))}
+          </dl>
         )}
 
         {detail?.palette?.colors && detail.palette.colors.length > 0 && (
@@ -584,13 +607,13 @@ function DetailPanel({
           </div>
         </LayoutGroup>
 
-        {detail && detail.similar.length > 0 && (
+        {similar.length > 0 && (
           <div className="mt-5">
             <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
               Similar covers
             </p>
             <div className="flex gap-2 overflow-x-auto pb-1">
-              {detail.similar.map((s) => (
+              {similar.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => onSimilar(s.id)}

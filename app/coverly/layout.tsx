@@ -4,7 +4,7 @@ import "./coverly-tokens.css";
 export const metadata: Metadata = {
   title: "Coverly — Neil McArdle",
   description:
-    "Comparable research for book cover designers. Thousands of covers searchable by design attributes rather than genre, with boards and PDF comp-deck export. Free, with email sign-up.",
+    "Comparable research for book cover designers. Thousands of searchable fiction covers, with customisable mood boards and exportable PDF comparison deck.",
 };
 
 export default function CoverlyLayout({
