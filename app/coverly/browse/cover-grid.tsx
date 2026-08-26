@@ -184,6 +184,10 @@ export function CoverGrid({
       containerH = maxBottom;
     }
 
+    if (expandedId && detailTop != null) {
+      containerH = Math.max(containerH, detailTop + panelH);
+    }
+
     cont.style.height = `${containerH}px`;
     if (expandedId && detailRef.current && detailTop != null) {
       detailRef.current.style.top = `${detailTop}px`;
@@ -195,7 +199,26 @@ export function CoverGrid({
 
   useLayoutEffect(() => {
     relayout();
-  }, [relayout]);
+  }, [relayout, activeDetail]);
+
+  useEffect(() => {
+    const el = detailRef.current;
+    if (!expandedId || !el || typeof ResizeObserver === "undefined") return;
+    let lastHeight = -1;
+    let raf = 0;
+    const observer = new ResizeObserver(() => {
+      const height = el.offsetHeight;
+      if (height === lastHeight) return;
+      lastHeight = height;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(relayout);
+    });
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [expandedId, relayout]);
 
   useEffect(() => {
     if (!expandedId) return;
@@ -204,8 +227,15 @@ export function CoverGrid({
         `[data-card-id="${expandedId}"]`,
       );
       if (!card) return;
-      const target = (document.scrollingElement ||
-        document.documentElement) as HTMLElement;
+      const body = document.body;
+      const bodyScrolls =
+        getComputedStyle(body).overflowY !== "visible" &&
+        body.scrollHeight > body.clientHeight + 2;
+      const target = (
+        bodyScrolls
+          ? body
+          : document.scrollingElement || document.documentElement
+      ) as HTMLElement;
       const delta = card.getBoundingClientRect().top - SCROLL_MARGIN;
       if (Math.abs(delta) < 8) return;
       target.scrollTo({
@@ -227,6 +257,25 @@ export function CoverGrid({
     window.addEventListener("resize", onResize);
     return () => {
       window.removeEventListener("resize", onResize);
+      cancelAnimationFrame(raf);
+    };
+  }, [relayout]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    let lastWidth = el.clientWidth;
+    let raf = 0;
+    const observer = new ResizeObserver(() => {
+      const width = el.clientWidth;
+      if (width === lastWidth) return;
+      lastWidth = width;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(relayout);
+    });
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
       cancelAnimationFrame(raf);
     };
   }, [relayout]);

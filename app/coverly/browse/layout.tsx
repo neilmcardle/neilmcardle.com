@@ -6,7 +6,7 @@ export default function BrowseLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex flex-col bg-background">
       <CoverlyAppHeader />
       {children}
     </div>
