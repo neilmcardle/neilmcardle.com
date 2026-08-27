@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -19,7 +20,11 @@ export function SparkWaitlistForm() {
       const res = await fetch("/api/spark/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, website, source: "neilmcardle.com/spark" }),
+        body: JSON.stringify({
+          email,
+          website,
+          source: "neilmcardle.com/spark",
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -45,7 +50,14 @@ export function SparkWaitlistForm() {
           lineHeight: 1.6,
         }}
       >
-        You&apos;re in. I&apos;ll write when the first modules are ready.
+        Done. I&apos;ll write when it&apos;s finished. In the meantime,{" "}
+        <Link
+          href="/spark/lessons/m0-make-a-real-file-yours"
+          className="text-white underline underline-offset-2 hover:no-underline"
+        >
+          start with module 1
+        </Link>
+        .
       </p>
     );
   }
@@ -80,10 +92,10 @@ export function SparkWaitlistForm() {
             textTransform: "uppercase",
           }}
         >
-          {status === "submitting" ? "Joining..." : "Join waitlist"}
+          {status === "submitting" ? "Sending..." : "Notify me"}
         </button>
       </div>
-      {/* Honeypot — hidden from users, bots fill it. */}
+
       <input
         type="text"
         name="website"
