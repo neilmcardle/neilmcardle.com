@@ -37,8 +37,17 @@ export function LikedCoversClient() {
 
   if (loading) {
     return (
-      <div className="animate-pulse">
-        <div className="h-40 rounded-lg bg-muted" />
+      <div className="space-y-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex gap-4 rounded-lg border bg-card p-4">
+            <div className="h-24 w-16 shrink-0 animate-pulse rounded bg-muted" />
+            <div className="min-w-0 flex-1 space-y-2 pt-1">
+              <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
+              <div className="h-3 w-2/5 animate-pulse rounded bg-muted" />
+              <div className="h-3 w-1/4 animate-pulse rounded bg-muted" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

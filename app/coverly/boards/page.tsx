@@ -11,7 +11,7 @@ const PREVIEW_SLOTS = 4;
 export default function BoardsPage() {
   const boards = useBoards();
   const hydrated = useHydrated();
-  const [thumbs, setThumbs] = useState<Record<string, string>>({});
+  const [thumbs, setThumbs] = useState<Record<string, string> | null>(null);
 
   const wanted = boards
     .flatMap((b) => b.covers.slice(0, PREVIEW_SLOTS))
@@ -66,9 +66,14 @@ export default function BoardsPage() {
               >
                 <div className="grid aspect-[4/3] grid-cols-2 grid-rows-2 gap-px bg-border">
                   {Array.from({ length: PREVIEW_SLOTS }).map((_, i) => {
-                    const src = preview[i] ? thumbs[preview[i]] : undefined;
+                    const src =
+                      preview[i] && thumbs ? thumbs[preview[i]] : undefined;
+                    const pending = Boolean(preview[i]) && !thumbs;
                     return (
-                      <div key={i} className="overflow-hidden bg-muted">
+                      <div
+                        key={i}
+                        className={`overflow-hidden bg-muted ${pending ? "animate-pulse" : ""}`}
+                      >
                         {src && (
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img

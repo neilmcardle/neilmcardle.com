@@ -1,5 +1,7 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
+
 const KEY = "coverly:last-browse";
 
 export function rememberBrowse(url: string) {
@@ -14,4 +16,10 @@ export function getLastBrowse(): string {
   } catch {
     return "/coverly/browse";
   }
+}
+
+const noop = () => () => {};
+
+export function useLastBrowse(): string {
+  return useSyncExternalStore(noop, getLastBrowse, () => "/coverly/browse");
 }

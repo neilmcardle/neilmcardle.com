@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLastBrowse } from "@/lib/coverly/last-browse";
 import { BoardsIcon } from "./boards-icon";
 import { CoverflowIcon } from "./coverflow-icon";
 import { motion, useReducedMotion } from "framer-motion";
@@ -37,16 +38,14 @@ const SPRING = {
 export function NavCapsule({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
+  const browseHref = useLastBrowse();
 
   const isActive = (href: string) =>
     href === "/coverly/browse"
-      ? pathname === "/coverly/browse" || pathname.startsWith("/coverly/covers")
+      ? pathname === "/coverly/browse"
       : pathname.startsWith(href);
 
-  const activeIndex = Math.max(
-    0,
-    items.findIndex((i) => isActive(i.href)),
-  );
+  const activeIndex = items.findIndex((i) => isActive(i.href));
   const transition = reduceMotion ? { duration: 0 } : SPRING;
 
   return (
@@ -57,7 +56,7 @@ export function NavCapsule({ items }: { items: NavItem[] }) {
         return (
           <Link
             key={item.href}
-            href={item.href}
+            href={item.href === "/coverly/browse" ? browseHref : item.href}
             data-fly-target={
               item.href === "/coverly/boards" ? "board" : undefined
             }

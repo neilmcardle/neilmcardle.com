@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { LayoutGroup, motion } from "framer-motion";
+import { SimilarCovers, SIMILAR_ROW_HEIGHT } from "./similar-covers";
 import {
   fetchCoverDetail,
   fetchSimilarCovers,
@@ -91,7 +92,7 @@ export function CoverGrid({
 
   const activeDetail = detail && detail.id === expandedId ? detail.data : null;
   const activeSimilar =
-    similar && similar.id === expandedId ? similar.data : [];
+    similar && similar.id === expandedId ? similar.data : null;
 
   const relayout = useCallback(() => {
     const cont = containerRef.current;
@@ -474,7 +475,7 @@ function DetailPanel({
 }: {
   cover: CoverCardType;
   detail: CoverDetailData | null;
-  similar: CoverCardType[];
+  similar: CoverCardType[] | null;
   onClose: () => void;
   onSimilar: (id: string) => void;
   onLayout: () => void;
@@ -568,18 +569,23 @@ function DetailPanel({
           </dl>
         )}
 
-        {detail?.palette?.colors && detail.palette.colors.length > 0 && (
-          <div className="mt-3 flex gap-1.5">
-            {detail.palette.colors.map((hex) => (
-              <span
-                key={hex}
-                title={hex}
-                className="h-6 w-6 rounded-md border border-black/10"
-                style={{ backgroundColor: hex }}
-              />
-            ))}
-          </div>
-        )}
+        <div className="mt-3 flex gap-1.5">
+          {detail
+            ? (detail.palette?.colors ?? []).map((hex) => (
+                <span
+                  key={hex}
+                  title={hex}
+                  className="h-6 w-6 rounded-md border border-black/10"
+                  style={{ backgroundColor: hex }}
+                />
+              ))
+            : Array.from({ length: 5 }).map((_, i) => (
+                <span
+                  key={i}
+                  className="h-6 w-6 animate-pulse rounded-md bg-muted"
+                />
+              ))}
+        </div>
 
         <LayoutGroup>
           <div className="mt-4 flex items-center gap-2">
@@ -607,30 +613,35 @@ function DetailPanel({
           </div>
         </LayoutGroup>
 
-        {similar.length > 0 && (
+        {similar === null && (
           <div className="mt-5">
             <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
               Similar covers
             </p>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {similar.map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => onSimilar(s.id)}
-                  title={s.title}
-                  className="shrink-0"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={s.image_url}
-                    alt={s.title}
-                    loading="lazy"
-                    onLoad={onLayout}
-                    className="h-24 w-auto rounded shadow-sm transition-transform hover:-translate-y-0.5"
-                  />
-                </button>
+            <div
+              style={{ height: SIMILAR_ROW_HEIGHT }}
+              className="flex items-end gap-2 overflow-x-auto pb-1"
+            >
+              {Array.from({ length: 12 }).map((_, i) => (
+                <span
+                  key={i}
+                  className="h-24 w-16 shrink-0 animate-pulse rounded bg-muted"
+                />
               ))}
             </div>
+          </div>
+        )}
+
+        {similar !== null && similar.length > 0 && (
+          <div className="mt-5">
+            <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+              Similar covers
+            </p>
+            <SimilarCovers
+              covers={similar}
+              onOpen={onSimilar}
+              onLoad={onLayout}
+            />
           </div>
         )}
       </div>
