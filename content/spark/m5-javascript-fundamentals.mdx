@@ -264,7 +264,11 @@ if (results.length === 0) {
 
 The condition does not have to be a boolean. JavaScript will treat any value as true or false, and the values it treats as false are worth memorising because there are only six: `false`, `0`, `""` (an empty string), `null`, `undefined`, and `NaN` (the result of an invalid calculation). Everything else is true, including `"0"`, `[]` and `{}`.
 
-Values in that list are called falsy, and everything else is truthy. That gives you a short way to check for missing data:
+Values in that list are called falsy, and everything else is truthy. Six is a small enough set to memorise, and the fastest way to memorise it is to get a few wrong.
+
+<TruthyFalsy />
+
+That gives you a short way to check for missing data:
 
 ```js
 if (!query) {

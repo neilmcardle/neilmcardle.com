@@ -134,6 +134,7 @@ export function LessonShell({
         ? "auto"
         : "smooth",
     });
+    node.focus({ preventScroll: true });
   }, []);
 
   useEffect(() => {
@@ -361,7 +362,7 @@ export function LessonShell({
             </div>
           </header>
 
-          <main className="px-5 pb-32 pt-10 lg:px-10 lg:pb-24">
+          <div className="px-5 pb-32 pt-10 lg:px-10 lg:pb-24">
             <div className="mx-auto max-w-[660px]">
               <div className="mb-12">
                 <span className="spark-eyebrow mb-3 block text-[var(--spark-gold-ink)] lg:hidden">
@@ -391,8 +392,10 @@ export function LessonShell({
                   ref={(node) => {
                     nodes.current[i] = node;
                   }}
+                  tabIndex={-1}
+                  aria-label={section.title}
                   data-focused={i === active}
-                  className="spark-section mb-14 scroll-mt-24"
+                  className="spark-section mb-14 scroll-mt-24 focus:outline-none"
                 >
                   <div className="mb-3 flex items-center gap-3">
                     <span className="spark-eyebrow text-[var(--spark-gold-ink)]">
@@ -454,7 +457,7 @@ export function LessonShell({
                 </Link>
               )}
             </div>
-          </main>
+          </div>
         </div>
       </div>
 

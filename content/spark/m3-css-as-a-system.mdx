@@ -307,7 +307,11 @@ h1 {
 
 `vw` is a viewport width unit. `1vw` is one percent of the browser window's width, so `5vw` on a 1200 pixel window is 60 pixels. As the window narrows the preferred value shrinks continuously, and the heading scales smoothly with it. Below the point where `5vw` drops under `2rem` the minimum takes over and the text stops shrinking. Above the point where it exceeds `4rem` the maximum caps it.
 
-The result is type that scales at every width instead of at three widths, with no media queries and no jumps.
+The result is type that scales at every width instead of at three widths, with no media queries and no jumps. Drag the viewport and watch where each of the three values takes over.
+
+<ClampPlayground />
+
+The two crossover points are the part worth internalising. Below one width the minimum is holding the size steady, above another the maximum is capping it, and only between them is the preferred value actually doing anything.
 
 Two things to get right. Always set a minimum in `rem` rather than `px`, so a reader who has increased their default text size is not locked out by your floor. And be careful with the preferred value: something like `clamp(1rem, 4vw, 3rem)` on body text scales aggressively enough to be uncomfortable. For body copy the range should be narrow, often no scaling at all. Save the dramatic ranges for headings.
 

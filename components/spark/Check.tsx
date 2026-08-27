@@ -47,6 +47,14 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
           {question}
         </p>
 
+        <p aria-live="polite" className="sr-only">
+          {picked === null
+            ? ""
+            : solved
+              ? `Correct. ${choices[correctIndex]}`
+              : `Not quite. You chose ${choices[picked]}. The answer is ${choices[correctIndex]}.`}
+        </p>
+
         <div
           className="flex flex-col gap-2.5"
           role="group"
@@ -86,11 +94,13 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
                         : "border border-black/[0.16] text-[var(--spark-faint)]"
                   }`}
                 >
-                  {isPicked && isCorrect
-                    ? "✓"
-                    : isPicked
-                      ? "✕"
-                      : String.fromCharCode(65 + i)}
+                  <span aria-hidden>
+                    {isPicked && isCorrect
+                      ? "\u2713"
+                      : isPicked
+                        ? "\u2715"
+                        : String.fromCharCode(65 + i)}
+                  </span>
                 </span>
 
                 <span className="min-w-0 flex-1">
@@ -129,7 +139,10 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
       </p>
 
       {revealed ? (
-        <div className="spark-fade-up rounded-lg bg-[var(--spark-gold)]/[0.1] px-4 py-3.5">
+        <div
+          aria-live="polite"
+          className="spark-fade-up rounded-lg bg-[var(--spark-gold)]/[0.1] px-4 py-3.5"
+        >
           <span className="spark-eyebrow mb-2 block text-[var(--spark-gold-ink)]">
             + Answer
           </span>

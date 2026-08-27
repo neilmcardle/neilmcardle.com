@@ -52,6 +52,10 @@ const user: User = { id: 1, name: "Alice" };
 const person: Person = user; // Valid. TypeScript doesn't care about the type name.
 ```
 
+Toggle properties on and off and watch the only thing that decides whether this compiles: whether the required ones are present. Then rename the variable and watch nothing happen.
+
+<StructuralTyping />
+
 ```typescript
 // This works because the object has the right fields
 type Author = {
