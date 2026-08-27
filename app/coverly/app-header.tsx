@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { NavCapsule } from "./nav-capsule";
 import { LikesButton } from "./likes-button";
+import { SoundToggle } from "./sound-toggle";
 import { LOGOMARK_PATH, LOGOMARK_VIEWBOX } from "./logomark";
 
 export function CoverlyAppHeader() {
@@ -57,6 +58,7 @@ export function CoverlyAppHeader() {
         </div>
 
         <div className="flex items-center gap-2 text-sm">
+          <SoundToggle />
           <LikesButton />
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { CoverCard } from "@/lib/coverly/queries";
+import { playTick, primeTick } from "@/lib/coverly/tick";
 
 const BASE_HEIGHT = 96;
 const PEAK_SCALE = 1.38;
@@ -31,6 +32,7 @@ export function SimilarCovers({
 
     let centres: number[] = [];
     let widths: number[] = [];
+    let focused = -1;
     const measure = () => {
       const rowLeft = row.getBoundingClientRect().left;
       centres = [];
@@ -74,9 +76,36 @@ export function SimilarCovers({
       for (const item of items) observer.observe(item);
     }
 
-    const move = (e: MouseEvent) => apply(e.clientX);
-    const leave = () => apply(null);
+    const nearest = (cursorX: number) => {
+      const origin =
+        cursorX - row.getBoundingClientRect().left + row.scrollLeft;
+      let best = -1;
+      let bestGap = Infinity;
+      for (let i = 0; i < centres.length; i++) {
+        if (widths[i] <= 0) continue;
+        const gap = Math.abs(origin - centres[i]) - widths[i] / 2;
+        if (gap < bestGap) {
+          bestGap = gap;
+          best = i;
+        }
+      }
+      return bestGap <= 0 ? best : -1;
+    };
 
+    const move = (e: MouseEvent) => {
+      apply(e.clientX);
+      const over = nearest(e.clientX);
+      if (over !== focused) {
+        focused = over;
+        if (over !== -1) playTick();
+      }
+    };
+    const leave = () => {
+      focused = -1;
+      apply(null);
+    };
+
+    primeTick();
     row.addEventListener("mousemove", move);
     row.addEventListener("mouseleave", leave);
     row.addEventListener("load", measure, true);
