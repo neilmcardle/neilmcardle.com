@@ -1,3 +1,4 @@
+import { execSync } from "child_process";
 import { describe, it, expect } from "vitest";
 import { getAllModules, getCurriculum, loadModule } from "./content";
 import { PHASES, phaseForModule } from "./curriculum";
@@ -140,16 +141,39 @@ describe("content hygiene", () => {
 });
 
 describe("filenames", () => {
-  it("keeps every slug lowercase, because loadModule rejects anything else", async () => {
-    const slugs = await getAllModules();
-    const bad = slugs.filter((slug) => !/^[a-z0-9][a-z0-9-]*$/.test(slug));
-    expect(bad).toEqual([]);
-  });
-
   it("loads every module the curriculum lists", async () => {
     const slugs = await getAllModules();
     for (const slug of slugs) {
       await expect(loadModule(slug)).resolves.toBeTruthy();
     }
+  });
+
+  it("keeps every tracked filename lowercase", () => {
+    const tracked = execSync("git ls-files content/spark", {
+      encoding: "utf-8",
+      cwd: process.cwd(),
+    })
+      .split("\n")
+      .filter(Boolean)
+      .map((file) => file.replace(/^.*\//, "").replace(/\.mdx$/, ""));
+
+    expect(tracked.length).toBeGreaterThan(0);
+    expect(
+      tracked.filter((slug) => !/^[a-z0-9][a-z0-9-]*$/.test(slug)),
+    ).toEqual([]);
+  });
+
+  it("matches what git tracks against what is on disk", async () => {
+    const tracked = execSync("git ls-files content/spark", {
+      encoding: "utf-8",
+      cwd: process.cwd(),
+    })
+      .split("\n")
+      .filter(Boolean)
+      .map((file) => file.replace(/^.*\//, "").replace(/\.mdx$/, ""))
+      .sort();
+
+    const onDisk = (await getAllModules()).slice().sort();
+    expect(tracked).toEqual(onDisk);
   });
 });
