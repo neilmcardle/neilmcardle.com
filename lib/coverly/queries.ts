@@ -22,6 +22,7 @@ export type CoverFilters = {
   people?: string[];
   layout?: string[];
   color?: string[];
+  publisher_tier?: string[];
   tone?: "light" | "dark";
   year_min?: number;
   year_max?: number;
@@ -34,11 +35,7 @@ type FilterChain = {
   overlaps: (column: string, values: readonly unknown[]) => FilterChain;
   gte: (column: string, value: unknown) => FilterChain;
   lte: (column: string, value: unknown) => FilterChain;
-  textSearch: (
-    column: string,
-    query: string,
-    options: { type: "websearch"; config: string },
-  ) => FilterChain;
+  or: (filters: string) => FilterChain;
 };
 
 export function applyCoverFilters<T>(query: T, filters: CoverFilters): T {
@@ -50,6 +47,7 @@ export function applyCoverFilters<T>(query: T, filters: CoverFilters): T {
     "typography",
     "people",
     "layout",
+    "publisher_tier",
   ] as const) {
     const values = filters[facet];
     if (values && values.length > 0) q = q.in(facet, values);
@@ -59,11 +57,10 @@ export function applyCoverFilters<T>(query: T, filters: CoverFilters): T {
   if (filters.tone) q = q.eq("palette_is_dark", filters.tone === "dark");
   if (filters.year_min != null) q = q.gte("year", filters.year_min);
   if (filters.year_max != null) q = q.lte("year", filters.year_max);
-  if (filters.q)
-    q = q.textSearch("search", filters.q, {
-      type: "websearch",
-      config: "english",
-    });
+  if (filters.q) {
+    const term = filters.q.replace(/[%_(),*\\]/g, " ").trim();
+    if (term) q = q.or(`title.ilike.*${term}*,author.ilike.*${term}*`);
+  }
   return q as T;
 }
 
@@ -108,6 +105,7 @@ export function filtersFromSearchParams(
     typography: list(sp.typography),
     people: list(sp.people),
     layout: list(sp.layout),
+    publisher_tier: list(sp.publisher_tier),
     color: list(sp.color),
     tone: tone === "light" || tone === "dark" ? tone : undefined,
     year_min: num(sp.year_min),

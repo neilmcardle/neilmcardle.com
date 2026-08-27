@@ -1,5 +1,6 @@
 ---
 title: "Motion & Interaction Engineering"
+promise: "Build motion that communicates, and know when to leave it out."
 module: 12
 description: "Implement high-craft motion and microinteractions. Know when to withhold them. Motion is communication, every animation must earn its place."
 duration: "4–5 hours"
@@ -40,10 +41,10 @@ The user clicks the button. The background shifts smoothly over 300ms using `eas
 
 **Key properties:**
 
-- `transition-duration` , how long (150ms for micro, 300–500ms for navigations)
-- `transition-timing-function` , the curve (linear, ease-in, ease-out, ease-in-out, cubic-bezier)
-- `transition-delay` , stagger for cascades
-- `transition-property` , what changes (use specific properties, not `all`)
+- `transition-duration`, how long (150ms for micro, 300–500ms for navigations)
+- `transition-timing-function`, the curve (linear, ease-in, ease-out, ease-in-out, cubic-bezier)
+- `transition-delay`, stagger for cascades
+- `transition-property`, what changes (use specific properties, not `all`)
 
 ### Avoid `transition: all`
 
@@ -125,9 +126,9 @@ export function FadeInCard() {
 }
 ```
 
-- `initial` , the starting state (before animation)
-- `animate` , the target state (animate to this)
-- `transition` , the timing curve and duration
+- `initial`, the starting state (before animation)
+- `animate`, the target state (animate to this)
+- `transition`, the timing curve and duration
 
 The component mounts with `opacity: 0`, then Framer Motion animates to `opacity: 1` over 500ms.
 
@@ -145,9 +146,9 @@ The component mounts with `opacity: 0`, then Framer Motion animates to `opacity:
 
 Springs don't respect duration. Instead, they oscillate around the target, then settle. Adjust:
 
-- `stiffness` , how quickly it accelerates (100–300 for natural, 300+ for snappy)
-- `damping` , how much resistance (10–30 typical; higher = faster settle)
-- `mass` , how heavy the object feels (1 default, 0.5 = floaty, 2 = weighty)
+- `stiffness`, how quickly it accelerates (100–300 for natural, 300+ for snappy)
+- `damping`, how much resistance (10–30 typical; higher = faster settle)
+- `mass`, how heavy the object feels (1 default, 0.5 = floaty, 2 = weighty)
 
 Springs feel responsive. They don't feel scripted. Use them for button clicks, entrance animations, and states the user triggers directly.
 
@@ -267,9 +268,9 @@ Motion isn't just about states, it's about _input_. Framer Motion captures gestu
 </motion.button>
 ```
 
-- `whileHover` , animates when hovered
-- `whileTap` , animates when pressed (touches or clicks)
-- `whileFocus` , animates when focused (keyboard navigation)
+- `whileHover`, animates when hovered
+- `whileTap`, animates when pressed (touches or clicks)
+- `whileFocus`, animates when focused (keyboard navigation)
 
 The button grows slightly on hover, shrinks on press. Instant visual feedback that the interface is listening.
 
@@ -569,10 +570,10 @@ You'll design and build a 4-screen onboarding with a real reduced-motion path.
 
 ### Spec
 
-1. **Welcome screen** , Hero text, fade in, CTA button
-2. **Feature 1** , Icon + description, slide in from left, staggered
-3. **Feature 2** , Icon + description, slide in from right, staggered
-4. **Final screen** , Call-to-action, spring entrance, focus state
+1. **Welcome screen**, Hero text, fade in, CTA button
+2. **Feature 1**, Icon + description, slide in from left, staggered
+3. **Feature 2**, Icon + description, slide in from right, staggered
+4. **Final screen**, Call-to-action, spring entrance, focus state
 
 Each screen transitions via fade + slide. Buttons respond to clicks with spring bounces. Skip buttons exist to jump to the end. The _entire flow_ respects `prefers-reduced-motion`.
 
@@ -751,7 +752,7 @@ Before shipping any motion work, verify:
 
 ### Motion serves meaning
 
-- [ ] Every animation has a "why" , it communicates something or responds to user input
+- [ ] Every animation has a "why", it communicates something or responds to user input
 - [ ] No decorative motion; no animations purely because they're "cool"
 - [ ] Hover states give tactile feedback; screen transitions create directional flow
 
@@ -787,13 +788,13 @@ Before shipping any motion work, verify:
 
 ---
 
-## Threads
+## Restraint
 
-### craft-is-the-differentiator
+### The craft is in the calibration
 
 Motion is polish. It's the difference between an app that feels responsive and one that feels sluggish. But polish is only felt when it's _right_. A spring that overshoots by 5% feels alive; 20% feels broken. A 300ms fade feels intentional; 1.5 seconds feels slow. The craft is in the millimeters, the calibration, the restraint, the knowledge of when _not_ to move. This is what separates an app you enjoy using from one you endure.
 
-### when-not-to-animate
+### When not to animate
 
 The real skill. Any designer can throw motion at a problem. The masters know that silence is louder. A state that changes instantly is clearer than one that animates. A loading spinner that's too subtle won't communicate; too dramatic wastes time. The hierarchy is: user input (animate), app response (subtle), state (none), entrance (okay to be dramatic). Decorative motion is a smell. If an animation doesn't serve communication or feedback, it's clutter. Restraint is what separates craft from noise.
 
@@ -801,11 +802,11 @@ The real skill. Any designer can throw motion at a problem. The masters know tha
 
 ## Further Reading
 
-- **Framer Motion docs:** https://www.framer.com/motion/ , especially gestures and variants
-- **Web Animations Working Group:** https://www.w3.org/TR/web-animations-1/ , the spec behind everything
-- **Spring physics:** https://www.framer.com/motion/animation/#spring , calibration guide
-- **A List Apart: "Designing with Motion":** https://alistapart.com/ , thoughtful essays on when/why to animate
-- **Apple Human Interface Guidelines: Animation:** https://developer.apple.com/design/human-interface-guidelines/components/ , iOS/macOS baseline (they get it right)
+- **Framer Motion docs:** https://www.framer.com/motion/, especially gestures and variants
+- **Web Animations Working Group:** https://www.w3.org/TR/web-animations-1/, the spec behind everything
+- **Spring physics:** https://www.framer.com/motion/animation/#spring, calibration guide
+- **A List Apart: "Designing with Motion":** https://alistapart.com/, thoughtful essays on when/why to animate
+- **Apple Human Interface Guidelines: Animation:** https://developer.apple.com/design/human-interface-guidelines/components/, iOS/macOS baseline (they get it right)
 
 ---
 

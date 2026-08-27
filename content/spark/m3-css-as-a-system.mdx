@@ -1,53 +1,411 @@
 ---
 title: CSS as a system
-module: 4
-phase: "0 ,  Foundations"
 promise: Build responsive layouts and fluid type without a framework.
+module: 4
 ---
 
-<Section title="Cascade and Specificity">
-  CSS stands for Cascading Style Sheets. Styles flow downward; later rules
-  override earlier ones unless blocked by specificity. Specificity is CSS's
-  tiebreaker: inline styles win, then IDs, then classes, then elements.
+<Section title="CSS is a system, not a pile of rules">
+
+In the last module you wrote HTML, which describes what things are. CSS describes what those things look like. CSS stands for Cascading Style Sheets, and the word that matters most in that name is "cascading".
+
+Most people learn CSS as a list of properties to memorise. That is why CSS feels unpredictable to them. Every time something does not look right they add another rule, and eventually the stylesheet is a pile of overrides that nobody can reason about.
+
+CSS is actually a small system with a few rules that decide, for every element on the page, which value wins. Once you know those rules you stop guessing. This module covers the whole system: how conflicts are resolved, how an element's size is calculated, how layout works, and how to define values once and reuse them everywhere.
+
+By the end you will be able to build a layout that works from a phone to a wide monitor without writing a single media query. A media query is a block of CSS that only applies at certain screen sizes. They are useful, but designers reach for them far too early, and most responsive problems have better answers.
+
 </Section>
 
-<Section title="The Box Model">
-  Every element is a box: content, padding, border, margin. `box-sizing:
-  border-box` makes width include padding and border, so your math stays sane.
+<Section title="The cascade decides who wins">
+
+Write two rules that target the same element and set the same property, and only one of them can apply. The cascade is the process the browser uses to pick.
+
+```css
+p {
+  color: black;
+}
+
+p {
+  color: red;
+}
+```
+
+Every paragraph is red. When two rules have equal weight, the one written later in the file wins. This is the part of "cascading" people already have an intuition for: styles flow down the file, and later rules override earlier ones.
+
+That rule only applies when the two selectors carry equal weight. A selector is the part before the curly brace, the bit that says which elements the rule targets. When two selectors carry different weight, order stops mattering and specificity takes over.
+
 </Section>
 
-<Section title="Flexbox and Grid">
-  Flexbox is one-dimensional (rows or columns). Grid is two-dimensional (rows
-  and columns at once). Learn both. Use the right tool for the job.
+<Section title="Specificity is a count, not a vibe">
+
+Specificity is how the browser measures the weight of a selector. It counts three things, in order of importance: IDs, then classes, then element names.
+
+```css
+p {
+  color: black;
+}
+
+.intro {
+  color: blue;
+}
+
+#lede {
+  color: green;
+}
+```
+
+```html
+<p class="intro" id="lede">Which colour am I?</p>
+```
+
+Green. The ID selector `#lede` counts one ID, which beats `.intro` with its one class, which beats `p` with its one element name. A single ID outranks any number of classes, and a single class outranks any number of element names. Order in the file is irrelevant here, because the weights are not equal.
+
+Write that as three numbers and it becomes easy to compare. `#lede` is `1,0,0`. `.intro` is `0,1,0`. `p` is `0,0,1`. Compare left to right and the first difference decides it.
+
+Selectors combine, so a compound selector adds up:
+
+```css
+.card p {
+  color: black;
+}
+
+.card .intro {
+  color: blue;
+}
+```
+
+`.card p` is `0,1,1`, one class and one element. `.card .intro` is `0,2,0`, two classes. Two classes beat one class, so blue wins.
+
+<Check
+  question="Two rules set a colour on the same link. Which one wins: nav a, or .menu a?"
+  options="nav a, because it is more descriptive|.menu a, because a class outranks an element name|Whichever is written last in the file"
+  correct="1"
+  why="Descriptiveness is not something CSS measures. It only counts IDs, classes and element names.|Correct. nav a is 0,0,2 and .menu a is 0,1,1. The single class beats two element names.|File order only breaks ties between selectors of equal weight, and these two are not equal."
+/>
+
+This is why `!important` exists, and why you should almost never use it. `!important` lifts a declaration above the whole specificity system. It wins, but it also means the next person who needs to override it has no move left except another `!important`. If you find yourself reaching for it, the real problem is usually a selector that is more specific than it needed to be.
+
+The practical takeaway: keep specificity low and flat. Style with single classes wherever you can. Save IDs for anchors and JavaScript hooks rather than styling. A stylesheet where almost every selector is `0,1,0` is one where file order is the only thing you have to reason about, and file order is easy to reason about.
+
 </Section>
 
-<Section title="Custom Properties">
-  CSS custom properties (variables) inherit. Define tokens in `:root`, use them
-  everywhere. Change once, cascade everywhere.
+<Section title="Every element is a box">
+
+The browser draws every element as a rectangle, even a single word inside a `<span>`. That rectangle has four layers, from the inside out.
+
+The content is the text or image itself. Padding is space inside the box, between the content and the edge. The border sits on the edge. Margin is space outside the box, pushing other elements away.
+
+```css
+.card {
+  width: 300px;
+  padding: 20px;
+  border: 2px solid black;
+  margin: 16px;
+}
+```
+
+Here is the part that catches everybody. By default, `width: 300px` sets the width of the _content_ only. The padding and border are added on top. So that card actually occupies 300 + 20 + 20 + 2 + 2, which is 344 pixels of horizontal space. Add padding to make a card breathe and it silently gets wider, which breaks whatever it was sitting next to.
+
+`box-sizing` changes what `width` means:
+
+```css
+*,
+*::before,
+*::after {
+  box-sizing: border-box; //! Put this at the top of every stylesheet you write.
+}
+```
+
+With `border-box`, `width: 300px` means the whole box is 300 pixels including padding and border, and the content area shrinks to make room. Now the number you type is the number you get, and you can adjust padding without recalculating anything.
+
+The `*` selector matches every element, and `::before` and `::after` are generated boxes that CSS can create, which `*` does not cover on its own. Those three lines are the first thing in almost every professional stylesheet.
+
+<Check
+  question="With border-box, how much horizontal space does an element take up if its width is 200px, its padding is 16px and it has a 1px border?"
+  answer="200px. That is the whole point of border-box: the width you set is the outer width, and the padding and border eat into the content area rather than adding to the total."
+/>
+
 </Section>
 
-<Section title="Relative Units">
-  Use `rem` (relative to root), `em` (relative to element), and unitless
-  `line-height`. Relative units scale naturally. Pixels don't.
+<Section title="Margins collapse, padding does not">
+
+One more box behaviour that surprises people. When two vertical margins meet, they do not add up. The larger one wins and the smaller one disappears. This is called margin collapse.
+
+```css
+h2 {
+  margin-bottom: 30px;
+}
+
+p {
+  margin-top: 20px;
+}
+```
+
+The gap between the heading and the paragraph is 30 pixels, not 50. The browser collapses the two margins into the larger of the two.
+
+Margin collapse only happens vertically, only between margins, and not when there is a border, padding, or a flex or grid container between them. It exists so that stacked text has consistent spacing without you having to zero out every other margin, but it does mean margins are a slightly unreliable way to control space.
+
+This is why a lot of modern CSS avoids margins for layout spacing and uses `gap` inside a flex or grid container instead. `gap` never collapses. It puts exactly the space you asked for between every child, and you set it once on the parent rather than on every child.
+
 </Section>
 
-<Section title="Fluid Type with clamp()">
-  `clamp(min, preferred, max)` scales smoothly between screen sizes. Combine
-  with viewport units (`vw`) for responsive type without media queries.
+<Section title="Flexbox for one direction">
+
+Flexbox lays out children along a single axis, either a row or a column. You turn it on with `display: flex` on the parent, and from that moment the parent controls how its children are positioned.
+
+```css
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+```
+
+`gap` is the space between children. `justify-content` positions children along the main axis, which is horizontal in a row. `align-items` positions them along the cross axis, which is vertical in a row. `space-between` pushes the first child to the start, the last to the end, and spreads the rest evenly.
+
+Those two property names are the ones people mix up forever. The fix is to remember that `justify` follows the direction you set with `flex-direction`, and `align` is the other one. Set `flex-direction: column` and they swap: `justify-content` now controls vertical position and `align-items` controls horizontal.
+
+The other property worth knowing is `flex`, set on a child rather than the parent:
+
+```css
+.sidebar {
+  flex: 0 0 240px; //! Do not grow, do not shrink, start at 240px.
+}
+
+.main {
+  flex: 1; //! Take all remaining space.
+}
+```
+
+`flex: 1` on one child and a fixed width on another is the whole recipe for a sidebar layout. The main column absorbs whatever is left over, at any screen width, with no calculation on your part.
+
 </Section>
 
-<Section title="Three Responsive Patterns">
-  Pattern 1: `clamp()` for scaling. Pattern 2: `flex-wrap` for stacking. Pattern
-  3: `grid` with `auto-fit` for automatic columns.
+<Section title="Grid for two directions">
+
+Grid lays out children in rows and columns at the same time. Where flexbox distributes items along one line, grid defines a structure first and places items into it.
+
+```css
+.gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+```
+
+`fr` is a unit that only exists in grid. It means "one share of the leftover space". Three columns of `1fr` split the container into three equal parts, after any fixed sizes and gaps have been subtracted. It is the unit you want most of the time, because it does the subtraction for you. Three columns of `33.33%` plus a 20 pixel gap overflows the container. Three columns of `1fr` never does.
+
+You can mix fixed and flexible tracks:
+
+```css
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 32px;
+}
+```
+
+The first column is always 240 pixels, the second takes everything else.
+
+The rule for choosing between the two: if you are lining things up in a row or a column and you want the content to decide the sizes, use flexbox. If you are defining a structure that content gets placed into, use grid. A navigation bar is flexbox. A page layout is grid. A card's internal stack is flexbox. A gallery is grid.
+
+<Check
+  question="You need a page with a fixed 260px sidebar and a main column that fills the rest. Which is the better fit?"
+  options="Grid, with grid-template-columns: 260px 1fr|Flexbox, with float: left on the sidebar|Neither, this needs absolute positioning"
+  correct="0"
+  why="Correct. You are defining a structure with two named tracks, which is exactly what grid is for. Flexbox would also work here, but grid states the intent more directly.|Floats were the layout tool before flexbox and grid existed. They still work, but they were designed for wrapping text around images, not page structure.|Absolute positioning removes an element from the layout entirely, so the main column would not know the sidebar exists."
+/>
+
 </Section>
 
-<Section title="Why Tailwind Is Just Classes">
-  Tailwind maps classes to CSS. `flex` is `display: flex`. It's not magic.
-  Understand CSS first, then use Tailwind as a shortcut.
+<Section title="Custom properties are your tokens">
+
+A custom property is a value you define once and reference everywhere. The name must start with two dashes, and you read it back with `var()`.
+
+```css
+:root {
+  --colour-text: #141413;
+  --colour-muted: #55534e;
+  --space-s: 8px;
+  --space-m: 16px;
+  --space-l: 32px;
+  --radius: 12px;
+}
+
+.card {
+  color: var(--colour-text);
+  padding: var(--space-m);
+  border-radius: var(--radius);
+}
+```
+
+`:root` is a selector that matches the `<html>` element. Defining custom properties there makes them available to every element on the page, because custom properties inherit: an element that does not define one looks up through its ancestors until it finds a value.
+
+That inheritance is what makes them more useful than a variable in a preprocessor like Sass. A Sass variable is substituted once when the stylesheet is compiled, and after that it is gone. A CSS custom property is live in the browser, so you can redefine it for part of the page and everything inside picks up the new value:
+
+```css
+.panel-dark {
+  --colour-text: #ffffff;
+  --colour-muted: rgba(255, 255, 255, 0.6);
+  background: #141413;
+}
+```
+
+Nothing inside `.panel-dark` needs to change. Every `.card` in there reads `--colour-text` and gets white, because the nearest ancestor that defines it is now the panel. This is how dark mode is built, and it is why you will see custom properties called tokens in design system work. A token is a named design decision, and a custom property is the mechanism that holds it.
+
+The discipline that makes this pay off: never write a raw value in a component rule if it is a decision you might want to change. Colours, spacing steps, radii and type sizes all belong in `:root`. One pixel value that appears in forty places is forty edits. One custom property is one.
+
+</Section>
+
+<Section title="Relative units scale, pixels do not">
+
+A pixel is a fixed size. Set `font-size: 16px` and it is 16 pixels no matter what, including for a reader who has increased their browser's default text size because they cannot comfortably read at 16. Relative units are calculated from something else, so they respond.
+
+`rem` is relative to the root font size, which is whatever the browser default is, usually 16 pixels. So `1rem` is normally 16 pixels, `1.5rem` is 24, `0.875rem` is 14. If a reader sets their default to 20, every `rem` in your stylesheet scales with it and your layout still holds together.
+
+`em` is relative to the font size of the element itself. This makes it useful for spacing that should track the text it belongs to:
+
+```css
+.button {
+  font-size: 1rem; //! Set from the root, predictable.
+  padding: 0.75em 1.5em; //! Set from this button's own font size.
+}
+
+.button-large {
+  font-size: 1.25rem; //! Padding grows with it automatically.
+}
+```
+
+The large button gets proportionally larger padding without a second padding rule, because `em` inside it now resolves against the larger font size.
+
+That same behaviour makes `em` a bad choice for font sizes, because it compounds. A `1.2em` heading inside a `1.2em` container inside another `1.2em` container is 1.728 times the base size, and nobody intended that. Use `rem` for type, `em` for spacing that should track type.
+
+Finally, `line-height` should be unitless:
+
+```css
+body {
+  line-height: 1.6; //! No unit. Multiplies the element's own font size.
+}
+```
+
+A unitless line-height is inherited as a multiplier, so a 32 pixel heading gets 51 pixels of line height and a 16 pixel paragraph gets 25.6. Write `line-height: 1.6rem` instead and every element inherits the same fixed 25.6 pixels, which crushes your headings.
+
+</Section>
+
+<Section title="Fluid type with clamp()">
+
+The common way to make text responsive is to pick sizes at breakpoints: 32 pixels on mobile, 48 on tablet, 64 on desktop. That gives you three sizes and two sudden jumps, and it means writing and maintaining media queries for every element that needs to scale.
+
+`clamp()` replaces all of it. It takes three values: a minimum, a preferred value, and a maximum. The browser uses the preferred value, unless that would fall outside the bounds.
+
+```css
+h1 {
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+```
+
+`vw` is a viewport width unit. `1vw` is one percent of the browser window's width, so `5vw` on a 1200 pixel window is 60 pixels. As the window narrows the preferred value shrinks continuously, and the heading scales smoothly with it. Below the point where `5vw` drops under `2rem` the minimum takes over and the text stops shrinking. Above the point where it exceeds `4rem` the maximum caps it.
+
+The result is type that scales at every width instead of at three widths, with no media queries and no jumps.
+
+Two things to get right. Always set a minimum in `rem` rather than `px`, so a reader who has increased their default text size is not locked out by your floor. And be careful with the preferred value: something like `clamp(1rem, 4vw, 3rem)` on body text scales aggressively enough to be uncomfortable. For body copy the range should be narrow, often no scaling at all. Save the dramatic ranges for headings.
+
+<Check
+  question="On a 900px wide window with a 16px root font size, what does clamp(1.5rem, 4vw, 3rem) resolve to?"
+  answer="36px. 4vw of 900px is 36px, which sits between the minimum of 1.5rem (24px) and the maximum of 3rem (48px), so the preferred value is used as-is."
+/>
+
+</Section>
+
+<Section title="Three responsive patterns that replace most media queries">
+
+Almost every responsive layout you need is one of these three.
+
+**Let type scale itself.** Use `clamp()` for headings, as above. No media query needed.
+
+**Let a row become a stack.** `flex-wrap: wrap` tells a flex container that when its children no longer fit on one line, they should move onto the next one instead of squashing.
+
+```css
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.row > * {
+  flex: 1 1 280px; //! Grow, shrink, but never below 280px.
+}
+```
+
+The `280px` in `flex: 1 1 280px` is the basis, the size each child would like to be. When three children at 280 pixels plus gaps no longer fit, one wraps to the next line and the remaining two grow to fill the space. Three columns become two, then one, on their own. The breakpoint is decided by the content rather than by a number you guessed.
+
+**Let a grid choose its own column count.** `auto-fit` combined with `minmax()` does the same job for grid.
+
+```css
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+```
+
+Read it right to left. `minmax(240px, 1fr)` means each column is at least 240 pixels and at most one share of the free space. `auto-fit` means fit as many of those columns as will go. On a 1000 pixel container that is four columns. On a phone it is one. You never state a breakpoint, and the layout is correct at every width in between, including widths you never tested.
+
+Media queries are still the right tool when the change is structural rather than dimensional: a sidebar that moves below the content, a navigation that becomes a menu button. Those are genuinely different layouts, not the same layout at a different size. Use a media query there and one of the three patterns above everywhere else.
+
+</Section>
+
+<Section title="Tailwind is these rules with shorter names">
+
+You will meet Tailwind in module 11, and you are going to see it in almost every codebase you touch. It is worth knowing now what it actually is, because it is much less than people assume.
+
+Tailwind is a set of pre-written CSS classes, one per declaration. `flex` is `display: flex`. `p-4` is `padding: 1rem`. `gap-3` is `gap: 0.75rem`. `text-lg` is `font-size: 1.125rem; line-height: 1.75rem`. That is the whole idea.
+
+```html
+<div class="flex items-center gap-3 p-4 rounded-xl"></div>
+```
+
+```css
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
+```
+
+Those two produce identical pixels. Tailwind is not a layout system and it does not replace anything you learned in this module. Every class is one CSS declaration you already know, and the spacing scale is a set of custom properties someone else decided for you.
+
+This matters for a practical reason. When a Tailwind layout does not do what you expect, the problem is never Tailwind. It is the cascade, or the box model, or a flex property doing exactly what it is specified to do. Debugging it means reading the CSS underneath, which is why this module comes first. Designers who learn Tailwind before CSS can build the layouts they have seen before and get stuck on anything new. Designers who learn CSS first find Tailwind is mostly a naming convention.
+
 </Section>
 
 <Section title="Checkpoint">
-  Can you build a responsive pricing page without media queries, using tokens
-  and `clamp()`? Can you explain the difference between `rem` and `em`? Can you
-  draw a box model on paper? If yes, you're ready.
+
+Build a pricing page with three plan cards, using no media queries at all.
+
+The requirements:
+
+- All colours, spacing values and radii defined as custom properties in `:root` and referenced with `var()` everywhere else
+- `box-sizing: border-box` set globally
+- Card headings sized with `clamp()`
+- Three cards side by side on a wide screen, collapsing to fewer columns and eventually one on a narrow screen, using either `flex-wrap` or `auto-fit`
+- Spacing between cards from `gap`, not margins
+- Type sizes in `rem`, unitless `line-height`, padding in `em` where it should track the text
+
+You can build this in any browser-based editor. Open the developer tools, find the Elements panel, and select a card. The Styles panel on the side shows every rule that applies to it and strikes through the ones that lost. That panel is the cascade and specificity system made visible, and it is the fastest way to answer "why is this not the colour I set".
+
+Work through these before moving on:
+
+- [ ] Every colour and spacing value in the file comes from a custom property
+- [ ] The layout has no media queries and still works from 320px to 1600px
+- [ ] Resizing the window changes the heading size smoothly rather than in jumps
+- [ ] You can explain, for any element, which rule set its final colour and why
+- [ ] Adding padding to a card does not change its total width
+- [ ] Nothing in the stylesheet uses `!important`
+
+If you can do all of that, you can build a responsive layout from an empty file, which is the thing most designers cannot do. Module 5 puts it to work by recreating a real product screen pixel for pixel.
+
 </Section>

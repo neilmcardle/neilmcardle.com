@@ -26,6 +26,19 @@ export async function generateMetadata(props: PageProps) {
   }
 }
 
+async function neighbour(
+  slug: string | undefined,
+): Promise<{ slug: string; title: string } | null> {
+  if (!slug) return null;
+  try {
+    const { meta } = await loadModule(slug);
+    return { slug, title: meta.title };
+  } catch (error) {
+    console.error(`Failed to load neighbouring module ${slug}:`, error);
+    return null;
+  }
+}
+
 export default async function LessonPage(props: PageProps) {
   const { slug } = await props.params;
 
@@ -39,20 +52,11 @@ export default async function LessonPage(props: PageProps) {
   const { meta, sections } = lesson;
   const slugs = await getAllModules();
 
-  const nextSlug = slugs.find((candidate) => {
-    const number = parseInt(candidate.match(/^m(\d+)/)?.[1] ?? "-1", 10) + 1;
-    return number === meta.module + 1;
-  });
-
-  let next: { slug: string; title: string } | null = null;
-  if (nextSlug) {
-    try {
-      const nextModule = await loadModule(nextSlug);
-      next = { slug: nextSlug, title: nextModule.meta.title };
-    } catch (error) {
-      console.error(`Failed to load next module ${nextSlug}:`, error);
-    }
-  }
+  const at = slugs.indexOf(slug);
+  const [prev, next] = await Promise.all([
+    neighbour(at > 0 ? slugs[at - 1] : undefined),
+    neighbour(at >= 0 ? slugs[at + 1] : undefined),
+  ]);
 
   return (
     <LessonShell
@@ -61,12 +65,15 @@ export default async function LessonPage(props: PageProps) {
       phaseLabel={phaseLabel(meta.phase)}
       promise={meta.promise}
       minutes={meta.minutes}
+      prev={prev}
       next={next}
       sections={sections.map((section) => ({
         id: section.id,
         title: section.title,
         content: (
-          <LessonContent key={section.id}>{section.content}</LessonContent>
+          <LessonContent key={section.id} moduleNumber={meta.module}>
+            {section.content}
+          </LessonContent>
         ),
       }))}
     />

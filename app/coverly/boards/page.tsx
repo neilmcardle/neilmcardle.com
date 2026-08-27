@@ -34,7 +34,7 @@ export default function BoardsPage() {
   if (!hydrated) return null;
 
   return (
-    <main className="w-full px-4 py-6 sm:px-6">
+    <div className="w-full px-4 py-6 sm:px-6">
       <h1 className="text-2xl font-semibold">Your boards</h1>
       <p className="mb-6 mt-1 text-sm text-muted-foreground">
         {boards.length === 0
@@ -96,6 +96,6 @@ export default function BoardsPage() {
           })}
         </div>
       )}
-    </main>
+    </div>
   );
 }

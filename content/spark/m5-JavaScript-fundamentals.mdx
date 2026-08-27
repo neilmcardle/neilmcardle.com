@@ -1,16 +1,434 @@
 ---
 title: JavaScript fundamentals
+promise: Solve UI problems in plain JavaScript.
 module: 6
-phase: "Phase 1"
-promise: "Solve UI problems in plain JavaScript."
 ---
 
-<Section title="Overview">
-  This module is generated from live teaching sessions. Full content available
-  at neilmcardle.com/spark.
+<Section title="What JavaScript is for">
+
+HTML describes what is on the page. CSS describes what it looks like. Neither of them can respond to anything. A button styled to look pressable does not do anything when pressed, because nothing in HTML or CSS says what should happen.
+
+JavaScript is the third language, and it is the one that runs. It is a programming language the browser executes while your page is open. It can read what is on the page, change it, listen for what the user does, and talk to a server.
+
+This module covers plain JavaScript with no libraries. No React, no framework, nothing installed. Everything here runs in a browser tab. That matters, because React is built on these ideas rather than replacing them, and a React problem you cannot solve is almost always a JavaScript problem you have not met yet.
+
+You will need somewhere to run code. Open any page in your browser, open the developer tools, and click the Console tab. That is a live JavaScript prompt. Type `1 + 1`, press Enter, and you get `2`. Everything in the next few sections can be typed straight into it.
+
+</Section>
+
+<Section title="Values have types">
+
+A value is a single piece of data. JavaScript has a small set of types, and you will use four of them constantly.
+
+A string is text, written inside quotes. A number is a number, with no distinction between whole numbers and decimals. A boolean is either `true` or `false`, with no quotes. And `null` and `undefined` both mean "no value", which is a distinction worth getting right early.
+
+```js
+"Neil"; //! A string. Single or double quotes, pick one and be consistent.
+42; //! A number.
+3.14; //! Also a number. There is no separate decimal type.
+true; //! A boolean.
+null; //! Deliberately empty. Someone set this to nothing.
+undefined; //! Nothing was ever set here.
+```
+
+`null` and `undefined` look interchangeable and are not. `undefined` is what JavaScript gives you when a value was never assigned: a variable you declared but did not fill, a function that returns nothing, an object property that does not exist. `null` is what a programmer writes on purpose to mean "this is empty, and I meant it".
+
+The practical difference shows up when you are debugging. `undefined` usually means something did not run, or a name is misspelled, or data has not arrived yet. `null` usually means the code is working correctly and there genuinely is nothing there.
+
+You can ask any value what it is:
+
+```js
+typeof "Neil"; //! "string"
+typeof 42; //! "number"
+typeof true; //! "boolean"
+typeof undefined; //! "undefined"
+```
+
+</Section>
+
+<Section title="Variables name values">
+
+A variable is a name attached to a value so you can refer to it later. You create one with `const` or `let`.
+
+```js
+const name = "Neil";
+let count = 0;
+```
+
+`const` means the name cannot be pointed at a different value afterwards. `let` means it can. Try to reassign a `const` and the browser stops you with an error.
+
+```js
+const name = "Neil";
+name = "Someone else"; //! TypeError: Assignment to constant variable.
+
+let count = 0;
+count = count + 1; //! Fine. count is now 1.
+```
+
+Use `const` by default and `let` only when you know the value has to change. This is not a style preference. A `const` tells anyone reading the code that this name means the same thing for its whole life, which is one less thing to hold in their head. When you see `let`, you know to watch for the reassignment.
+
+There is a third keyword, `var`, which you will see in older code. It behaves differently in ways that caused enough bugs that the language added `const` and `let` to replace it. Do not write `var`. When you meet it in someone else's code, read it as `let`.
+
+<Check
+  question="You need a variable to hold the current search text, which changes on every keystroke. Which keyword?"
+  options="const, because it is the default|let, because the value is reassigned|var, because it is the original keyword"
+  correct="1"
+  why="const is the right default, but it forbids reassignment, and this value has to change on every keystroke.|Correct. let is for exactly this: a name whose value is expected to be replaced.|var still works but has scoping behaviour that causes bugs. Use let instead."
+/>
+
+</Section>
+
+<Section title="Functions do work">
+
+A function is a named block of code that runs when you call it. It can take values in, and it can hand a value back.
+
+```js
+function greet(name) {
+  return "Hello, " + name;
+}
+
+greet("Neil"); //! "Hello, Neil"
+```
+
+`name` is a parameter, a placeholder for whatever value gets passed in. `"Neil"` is the argument, the actual value. `return` hands a value back to whoever called the function. A function with no `return` gives back `undefined`.
+
+The `return` keyword also stops the function immediately. Anything written after it never runs, which is useful for handling a bad case up front:
+
+```js
+function greet(name) {
+  if (!name) {
+    return "Hello, stranger";
+  }
+  return "Hello, " + name;
+}
+```
+
+There is a second way to write a function, called an arrow function, and it is what you will see most often in modern code:
+
+```js
+const greet = (name) => {
+  return "Hello, " + name;
+};
+```
+
+Same thing. `const greet =` names it, the parameters go in the parentheses, and `=>` separates the parameters from the body. When the body is a single expression you can drop the braces and the `return`:
+
+```js
+const greet = (name) => "Hello, " + name;
+const double = (n) => n * 2;
+```
+
+That short form is everywhere, because functions get passed as arguments to other functions constantly, and a one-line function reads better inline than a five-line one. You will see exactly that in the next section.
+
+</Section>
+
+<Section title="Template literals beat string addition">
+
+Joining strings with `+` gets unreadable fast, especially once there are several values and some punctuation.
+
+```js
+const message = "Hello, " + name + ". You have " + count + " new messages.";
+```
+
+A template literal uses backticks instead of quotes, and lets you drop values in with `${}`:
+
+```js
+const message = `Hello, ${name}. You have ${count} new messages.`;
+```
+
+Anything can go inside `${}`, including a calculation or a function call:
+
+```js
+const summary = `${results.length} results for "${query}"`;
+const label = `${count} item${count === 1 ? "" : "s"}`;
+```
+
+Template literals also keep line breaks, so multi-line text works without escape characters. Use them by default. There is no case where `+` reads better.
+
+</Section>
+
+<Section title="Arrays hold lists">
+
+An array is an ordered list of values, written in square brackets. Almost everything on a screen that repeats is an array underneath: a list of products, search results, navigation links, table rows.
+
+```js
+const users = ["Ada", "Grace", "Alan"];
+
+users.length; //! 3
+users[0]; //! "Ada". Counting starts at zero.
+users[2]; //! "Alan"
+users[3]; //! undefined. There is no fourth item.
+```
+
+Arrays come with methods, which are functions you call on the array itself with a dot. Three of them cover most UI work, and all three take a function as their argument.
+
+`filter` returns a new array containing only the items where your function returned `true`:
+
+```js
+const numbers = [1, 2, 3, 4, 5, 6];
+const evens = numbers.filter((n) => n % 2 === 0); //! [2, 4, 6]
+```
+
+`%` is the remainder operator: `n % 2` is what is left after dividing by two, so it is zero for even numbers. The function you pass runs once for every item, receiving that item as its argument.
+
+`map` returns a new array where every item has been transformed by your function:
+
+```js
+const names = ["ada", "grace"];
+const titles = names.map((name) => name.toUpperCase()); //! ["ADA", "GRACE"]
+```
+
+`find` returns the first item where your function returned `true`, or `undefined` if there is no match. Note that it returns the item itself, not an array:
+
+```js
+const found = users.find((user) => user === "Grace"); //! "Grace"
+```
+
+The important word in all three is "new". None of them change the original array. `numbers` still has all six items after the `filter`. This is deliberate and it is the habit to build: produce a new value rather than modifying an existing one. React depends on it completely, and code that follows the rule is far easier to reason about, because you can trust that a value you were handed has not quietly changed under you.
+
+<Check
+  question="You run words.filter() and store the result in a new variable. How many items does the original words array have afterwards?"
+  answer="Exactly as many as it had before. filter builds and returns a new array, and never modifies the one you called it on."
+/>
+
+</Section>
+
+<Section title="Objects hold labelled values">
+
+An array holds values in order. An object holds values by name. You write it in curly braces as a set of key and value pairs.
+
+```js
+const user = {
+  id: 3,
+  name: "Grace",
+  email: "grace@example.com",
+  isAdmin: false,
+};
+
+user.name; //! "Grace"
+user.isAdmin; //! false
+user.phone; //! undefined. No such key.
+```
+
+The keys are names, the values can be anything, including other objects and arrays. Most real data is an array of objects, because a list of things where each thing has several labelled properties describes almost everything you will render:
+
+```js
+const users = [
+  { id: 1, name: "Ada", role: "engineer" },
+  { id: 2, name: "Grace", role: "admiral" },
+];
+
+users[0].name; //! "Ada"
+users.map((user) => user.name); //! ["Ada", "Grace"]
+```
+
+Reading several properties off an object gets repetitive, so there is a shorthand called destructuring. It pulls properties out into variables whose names match the keys:
+
+```js
+const { name, role } = users[0];
+//! Same as: const name = users[0].name; const role = users[0].role;
+```
+
+It works in a function's parameter list too, which is where you will see it constantly:
+
+```js
+const describe = ({ name, role }) => `${name} is an ${role}`;
+describe(users[1]); //! "Grace is an admiral"
+```
+
+That function still takes one object as its argument. Destructuring in the parameter list just unpacks the two properties it cares about on the way in.
+
+</Section>
+
+<Section title="Comparison and truthiness">
+
+`===` asks whether two values are the same. It compares both the value and the type, and it is the one to use.
+
+```js
+5 === 5; //! true
+5 === "5"; //! false. Number is not string.
+"a" === "a"; //! true
+```
+
+There is also `==`, which converts types before comparing, so `5 == "5"` is `true`. That sounds convenient and is a reliable source of bugs, because the conversion rules are not obvious and comparisons start succeeding when you expected them to fail. Use `===` and `!==` always.
+
+`if` runs a block only when a condition is true:
+
+```js
+if (results.length === 0) {
+  showEmptyState();
+} else {
+  showResults(results);
+}
+```
+
+The condition does not have to be a boolean. JavaScript will treat any value as true or false, and the values it treats as false are worth memorising because there are only six: `false`, `0`, `""` (an empty string), `null`, `undefined`, and `NaN` (the result of an invalid calculation). Everything else is true, including `"0"`, `[]` and `{}`.
+
+Values in that list are called falsy, and everything else is truthy. That gives you a short way to check for missing data:
+
+```js
+if (!query) {
+  //! Runs when query is "" or null or undefined.
+}
+```
+
+Be careful with numbers, because `0` is falsy. `if (count)` skips the block when the count is zero, which is usually not what you meant. Write `if (count > 0)` or `if (count !== undefined)` and say what you mean.
+
+An empty array being truthy also catches people out. `if (results)` is `true` even when there are no results, because the array itself exists. Check the length instead: `if (results.length === 0)`.
+
+<Check
+  question="A search box is empty, so query holds an empty string. Does if (query) run its block?"
+  options="Yes, because an empty string is still a string|No, because an empty string is falsy|It throws an error"
+  correct="1"
+  why="The value exists, but if() does not ask whether a value exists. It asks whether the value is truthy.|Correct. An empty string is one of the six falsy values, so the block is skipped. This is exactly why if (!query) is a common way to detect an empty input.|An empty string is a perfectly valid value, so there is nothing to throw."
+/>
+
+</Section>
+
+<Section title="Reading and changing the page">
+
+Everything so far has been values in memory. To affect what the user sees, JavaScript has to reach the page.
+
+The browser turns your HTML into a tree of objects called the DOM, which stands for Document Object Model. You met the tree in module 3 when you were writing HTML. The DOM is that same tree, available to JavaScript as objects you can read and change.
+
+`document.querySelector` finds the first element matching a CSS selector. The same selectors you wrote in the last module work here.
+
+```js
+const input = document.querySelector("#search");
+const cards = document.querySelectorAll(".card"); //! All matches, not just the first.
+```
+
+`querySelector` returns `null` when nothing matches, which is the most common cause of "cannot read property of null" errors. If you get one, the selector is wrong or the script ran before the element existed.
+
+Once you have an element, a few properties do most of the work:
+
+```js
+element.textContent = "New text"; //! Replace the text inside.
+element.value; //! The current contents of an input.
+element.classList.add("is-active"); //! Add a class.
+element.classList.remove("is-active"); //! Remove one.
+element.classList.toggle("is-open"); //! Add if missing, remove if present.
+element.hidden = true; //! Hide it.
+```
+
+Use `textContent` rather than `innerHTML` when you are inserting text. `innerHTML` parses what you give it as HTML, so if any part of that string came from a user, they can put markup and scripts into your page. `textContent` treats the string as text and nothing else. Reach for `innerHTML` only when you genuinely intend to insert markup that you wrote.
+
+Notice what is happening here: you are not describing what the page should look like, you are issuing instructions to change it, step by step, and keeping track of what state it is currently in. That is the work React exists to remove, and you will appreciate why once you have done it by hand.
+
+</Section>
+
+<Section title="Events are how the user talks to you">
+
+An event is something that happened: a click, a keystroke, a form submission, a page finishing loading. You react to one by registering a function to run when it fires.
+
+```js
+const button = document.querySelector("#save");
+
+button.addEventListener("click", () => {
+  console.log("Saved");
+});
+```
+
+`addEventListener` takes the name of the event and a function. The function is not called by you. You are handing it to the browser, which calls it later, every time that event happens on that element. A function passed to something else to be called back later is called a callback, and it is one of the most common shapes in JavaScript.
+
+The events you will use most are `click` on buttons, `input` on text fields, which fires on every keystroke, and `submit` on forms.
+
+The browser passes an object to your callback describing what happened. It is conventionally named `event` or `e`:
+
+```js
+input.addEventListener("input", (event) => {
+  console.log(event.target.value); //! The input's contents right now.
+});
+```
+
+`event.target` is the element the event happened on, so `event.target.value` is what the user has typed so far.
+
+One method on that object matters immediately. `preventDefault()` stops the browser's built-in response to the event. Forms reload the page when submitted, which is almost never what you want in an interactive interface:
+
+```js
+form.addEventListener("submit", (event) => {
+  event.preventDefault(); //! Stop the page reloading.
+  search(input.value);
+});
+```
+
+</Section>
+
+<Section title="Build: a live search filter">
+
+Everything in this module combines into one small feature. Here is a list that filters as you type, written in plain JavaScript with no libraries.
+
+Start with the markup:
+
+```html file=index.html
+<input id="search" type="search" placeholder="Search users" />
+<ul id="results"></ul>
+<p id="empty" hidden>No users found</p>
+```
+
+The list is empty in the HTML. JavaScript fills it.
+
+```js file=search.js focus=filter,map,addEventListener
+const users = [
+  { id: 1, name: "Ada Lovelace" },
+  { id: 2, name: "Grace Hopper" },
+  { id: 3, name: "Alan Turing" },
+  { id: 4, name: "Katherine Johnson" },
+];
+
+const input = document.querySelector("#search");
+const list = document.querySelector("#results");
+const empty = document.querySelector("#empty");
+
+function render(query) {
+  const term = query.trim().toLowerCase(); //! trim removes surrounding spaces.
+
+  const matches = users.filter((user) =>
+    user.name.toLowerCase().includes(term),
+  );
+
+  list.innerHTML = matches.map((user) => `<li>${user.name}</li>`).join("");
+
+  empty.hidden = matches.length > 0; //! Show the message only when nothing matched.
+}
+
+input.addEventListener("input", (event) => {
+  render(event.target.value);
+});
+
+render(""); //! Draw the full list once on load.
+```
+
+Read it against what you have learned. `users` is an array of objects. `filter` builds a new array of the matching ones without touching the original. Lowercasing both sides makes the comparison case-insensitive, so "ada" matches "Ada Lovelace". `includes` asks whether one string appears anywhere inside another. `map` turns each matching object into a string of HTML, and `join("")` concatenates the resulting array into one string with nothing between the pieces.
+
+`empty.hidden = matches.length > 0` is worth pausing on. `matches.length > 0` produces a boolean, and `hidden` takes a boolean, so no `if` is needed. When there are matches, hidden is true and the message is not shown.
+
+The final `render("")` call is easy to forget. Event listeners only fire when the event happens, so without that line the list stays empty until the user types something.
+
+This is the same feature you read line by line in module 1, and the same one you will rebuild in React in module 9. Three versions of one interaction, from three angles. When you get to the React version, the thing to notice is that the filtering logic does not change at all. What changes is that you stop writing the instructions to update the page.
+
 </Section>
 
 <Section title="Checkpoint">
-  Complete the build for this module and verify it works end-to-end. Check the
-  curriculum for full details.
+
+Extend the search filter above. Build it in a browser editor, or in a plain HTML file opened directly in your browser.
+
+Add these, in order:
+
+- [ ] A count above the list that reads "4 users" or "1 user", with correct singular and plural
+- [ ] A Clear button that empties the input and re-renders the full list
+- [ ] Each user object gains a `role` property, and the list shows the name and role
+- [ ] The filter matches on name or role, so typing "engineer" finds people by role
+- [ ] The Clear button is disabled whenever the input is already empty
+
+Then answer these without looking anything up:
+
+- [ ] Why does `filter` not change the `users` array?
+- [ ] What is the difference between `null` and `undefined`, and which one does `querySelector` return when it finds nothing?
+- [ ] Why is `textContent` safer than `innerHTML` for user-supplied text?
+- [ ] Why does the code call `render("")` at the end?
+- [ ] What would break if you used `==` instead of `===` in the count check?
+
+If the plural logic and the disabled button both work, and you can answer all five, you can solve a UI problem in plain JavaScript. Module 7 takes the same list and fetches it from a real server instead of hard-coding it.
+
 </Section>

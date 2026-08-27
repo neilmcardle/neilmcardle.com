@@ -1,6 +1,7 @@
 ---
 module: 18
 title: "Professional Practice & Deploy"
+promise: "Work the way an engineer on a team works: branches, reviews, and deploys."
 description: "Work like an engineer on a team. Git workflows, PRs, testing, debugging, and deployment."
 duration: "4–5 hours"
 keywords:
@@ -18,7 +19,7 @@ themes:
 
 ## Module Promise
 
-You will learn to work like a professional engineer: committing thoughtfully, writing PRs that explain *why*, reading code you didn't write, testing components, debugging methodically, deploying safely, and using AI as a thinking partner, not a replacement for thinking.
+You will learn to work like a professional engineer: committing thoughtfully, writing PRs that explain _why_, reading code you didn't write, testing components, debugging methodically, deploying safely, and using AI as a thinking partner, not a replacement for thinking.
 
 Code is read more than it's written. Debugging is a skill. Collaboration is everything.
 
@@ -29,22 +30,25 @@ Code is read more than it's written. Debugging is a skill. Collaboration is ever
 ### What Git Actually Is
 
 Git is not about file history. Git is about **narrative**. Every commit is a sentence in the story of your codebase's evolution. When you come back to a line of code six months later and wonder "why is this here?", Git tells you:
-- *When* it appeared
-- *Who* added it
-- *Why* (in the commit message)
-- *What else changed* with it (the whole commit)
+
+- _When_ it appeared
+- _Who_ added it
+- _Why_ (in the commit message)
+- _What else changed_ with it (the whole commit)
 
 This is why commit messages matter more than the code itself.
 
 ### Branches: The Parallel Universe
 
 A branch is a sandbox. You can:
+
 - Try a feature without touching main
 - Abandon it without mess
 - Share it with teammates for feedback
 - Land it only when it's ready
 
 The mental model:
+
 ```
 main (the production-ready universe)
   ↳ your-feature-branch (your sandbox, isolated, safe)
@@ -53,23 +57,26 @@ main (the production-ready universe)
       └─ commit 3: integrate into header
 ```
 
-When you're done, you *merge* the branch into main. Git replays your commits on top of main's latest work. This is a PR.
+When you're done, you _merge_ the branch into main. Git replays your commits on top of main's latest work. This is a PR.
 
 ### Commits: Atomic Units of Change
 
 A good commit:
+
 - Does **one thing**
 - Is **easy to review**
 - Has a **clear reason**
 - Does **not break the build**
 
 A bad commit:
+
 - Mixes feature + refactoring + bug fix
 - Changes 10 unrelated files
 - Has no message or a one-liner
 - Introduces a new bug
 
 Example bad commit history:
+
 ```
 fix stuff
 WIP
@@ -79,6 +86,7 @@ actually fixed it this time
 ```
 
 Example good commit history:
+
 ```
 Add TextInput component with label and error state
 Add unit tests for TextInput keyboard handling
@@ -100,7 +108,7 @@ graph LR
     F["Code review, feedback"]
     G["Address feedback, commit again"]
     H["Merge PR into main"]
-    
+
     A --> B --> C --> D --> E --> F --> G --> F
     G -->|approved| H
 ```
@@ -119,33 +127,38 @@ You're not saying "review this code." You're saying: "Here's what I changed, why
 
 ```markdown
 ## Summary
+
 Fixes #742: Add character limit validation to chapter titles.
 
-Writers were creating 200-character chapter titles that broke EPUB 
-formatting. This change enforces a 60-character limit with a visual 
+Writers were creating 200-character chapter titles that broke EPUB
+formatting. This change enforces a 60-character limit with a visual
 counter.
 
 ## Why This Way?
-- **Why not just truncate?** Truncation silently mangles meaning. 
+
+- **Why not just truncate?** Truncation silently mangles meaning.
   A warning + counter lets the author decide.
-- **Why 60 characters?** EPUB specs recommend ≤80; we chose 60 for 
+- **Why 60 characters?** EPUB specs recommend ≤80; we chose 60 for
   breathing room in mobile readers.
 - **Why not server-side only?** Client feedback is instant. No round-trip.
 
 ## Tradeoffs
+
 - **Pro:** Real-time feedback, compliant with EPUB, users keep control.
 - **Con:** One more input validation rule to maintain.
 
 ## How to Test
+
 1. Open a book in the editor
 2. Click any chapter title
 3. Type 61+ characters
 4. Confirm you see the red warning and a character count
-5. Try to submit the form ,  it should be disabled
+5. Try to submit the form, it should be disabled
 6. Delete one character (now at 60)
 7. Confirm the warning disappears and form is enabled
 
 ## Checklist
+
 - [x] Tests pass locally
 - [x] No console warnings
 - [x] Mobile viewport works (tested on iPhone SE)
@@ -180,7 +193,8 @@ Debugging unfamiliar code, integrating third-party components, or jumping into a
 #### Level 1: Map the Topography (2 minutes)
 
 Open the file. Don't read line-by-line. Ask:
-- What *type* of code is this? (Component, utility, hook, API route?)
+
+- What _type_ of code is this? (Component, utility, hook, API route?)
 - How long is it? (50 lines? 500?)
 - What's the overall shape? (One export? Many helpers?)
 - What are the key types/interfaces?
@@ -200,6 +214,7 @@ This takes 60 seconds and saves you from drowning in line-by-line reading.
 #### Level 2: Find the Seams (5–10 minutes)
 
 Now zoom in on structure. Ask:
+
 - What are the main functions/sections?
 - What does the component return? (JSX shape)
 - Where does data flow in? (Props)
@@ -208,17 +223,20 @@ Now zoom in on structure. Ask:
 Example: `RichTextEditor.tsx`
 
 Props come in:
+
 - `value` (the HTML string to edit)
 - `onChange` (callback when content changes)
 - `onInlineEditRequest` (for AI-assisted editing)
 - `onComposeRequest` (for AI-assisted compose)
 
 JSX returns:
+
 - A toolbar (buttons for bold, italic, etc.)
 - A `contentEditable` div (the actual editor)
 - Event listeners for keyboard shortcuts
 
 Data flow:
+
 ```
 User types → onChange fires → parent updates state → new value passes back down → editor re-renders
 ```
@@ -226,6 +244,7 @@ User types → onChange fires → parent updates state → new value passes back
 #### Level 3: Trace a User Action (10–15 minutes)
 
 Pick one thing the component does. Trace it:
+
 - What happens when the user clicks the Bold button?
 - What happens when they press Cmd+K?
 - What happens when they paste text?
@@ -245,19 +264,20 @@ Example: User presses **Bold**
 8. Toolbar button sees new selection, updates active state
 ```
 
-Each step is one line of code (or a few). But *knowing* the path is the whole skill.
+Each step is one line of code (or a few). But _knowing_ the path is the whole skill.
 
 ### The Debugger Is Your Eyes
 
-Stop reading and start *watching*.
+Stop reading and start _watching_.
 
 When you open Firefox/Chrome DevTools:
+
 - Go to the **Elements** tab and inspect the actual DOM
 - Go to the **Console** tab and inspect variables
 - Go to the **Network** tab and watch what the browser fetches
 - Set a **breakpoint** on a line and step through it
 
-This turns abstract code into *runnable* code. You can watch it execute.
+This turns abstract code into _runnable_ code. You can watch it execute.
 
 ---
 
@@ -268,6 +288,7 @@ This turns abstract code into *runnable* code. You can watch it execute.
 A unit test for a utility function (`capitalize("hello")` → `"Hello"`) is easy. It's input → output.
 
 But React components are noisy. They have:
+
 - Lifecycle (mounting, updating, unmounting)
 - User interaction (clicks, keystrokes, scrolls)
 - Async state (API calls, animations)
@@ -311,8 +332,8 @@ interface ButtonProps {
 
 export function Button({ label, onClick, disabled }: ButtonProps) {
   return (
-    <button 
-      onClick={onClick} 
+    <button
+      onClick={onClick}
       disabled={disabled}
       className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
     >
@@ -358,12 +379,13 @@ describe('Button', () => {
 
 **What each test does:**
 
-1. **Renders with label** ,  The component accepts a label and displays it. This is the happy path.
-2. **Calls onClick when clicked** ,  User interaction works. Uses `vi.fn()` to spy on the callback.
-3. **Does not call onClick when disabled** ,  Edge case. Disabled buttons shouldn't fire callbacks even if clicked.
-4. **Disables the button** ,  Another edge case. The `disabled` attribute is actually set on the DOM element.
+1. **Renders with label**, The component accepts a label and displays it. This is the happy path.
+2. **Calls onClick when clicked**, User interaction works. Uses `vi.fn()` to spy on the callback.
+3. **Does not call onClick when disabled**, Edge case. Disabled buttons shouldn't fire callbacks even if clicked.
+4. **Disables the button**, Another edge case. The `disabled` attribute is actually set on the DOM element.
 
 Notice: We're testing **behavior**, not implementation. We don't care how the component renders it. We care that:
+
 - The label shows up
 - Clicks fire callbacks
 - Disabled state prevents interaction
@@ -382,12 +404,12 @@ interface TextInputProps {
   error?: string;
 }
 
-export function TextInput({ 
-  label, 
-  value, 
-  onChange, 
-  maxLength, 
-  error 
+export function TextInput({
+  label,
+  value,
+  onChange,
+  maxLength,
+  error
 }: TextInputProps) {
   const isAtLimit = maxLength && value.length >= maxLength;
 
@@ -424,10 +446,10 @@ import { TextInput } from './TextInput';
 describe('TextInput', () => {
   it('renders label and input', () => {
     render(
-      <TextInput 
-        label="Email" 
-        value="" 
-        onChange={() => {}} 
+      <TextInput
+        label="Email"
+        value=""
+        onChange={() => {}}
       />
     );
     expect(screen.getByLabelText('Email')).toBeInTheDocument();
@@ -436,10 +458,10 @@ describe('TextInput', () => {
   it('updates value on user input', () => {
     const handleChange = vi.fn();
     render(
-      <TextInput 
-        label="Email" 
-        value="" 
-        onChange={handleChange} 
+      <TextInput
+        label="Email"
+        value=""
+        onChange={handleChange}
       />
     );
     const input = screen.getByLabelText('Email');
@@ -449,10 +471,10 @@ describe('TextInput', () => {
 
   it('shows character count at max length', () => {
     render(
-      <TextInput 
-        label="Title" 
-        value="Hello" 
-        onChange={() => {}} 
+      <TextInput
+        label="Title"
+        value="Hello"
+        onChange={() => {}}
         maxLength={10}
       />
     );
@@ -461,10 +483,10 @@ describe('TextInput', () => {
 
   it('displays error message', () => {
     render(
-      <TextInput 
-        label="Email" 
-        value="" 
-        onChange={() => {}} 
+      <TextInput
+        label="Email"
+        value=""
+        onChange={() => {}}
         error="Invalid email"
       />
     );
@@ -473,10 +495,10 @@ describe('TextInput', () => {
 
   it('applies error styling when error prop exists', () => {
     render(
-      <TextInput 
-        label="Email" 
-        value="" 
-        onChange={() => {}} 
+      <TextInput
+        label="Email"
+        value=""
+        onChange={() => {}}
         error="Invalid email"
       />
     );
@@ -508,6 +530,7 @@ Add to `package.json`:
 ```
 
 Run:
+
 ```bash
 npm test              # Watch mode, re-runs on save
 npm run test:ui       # Visual test dashboard
@@ -520,7 +543,7 @@ npm run test:coverage # Show code coverage %
 
 ### Error Location Is a Hint
 
-When something breaks, the error message tells you *where* to look. Most developers ignore it and thrash.
+When something breaks, the error message tells you _where_ to look. Most developers ignore it and thrash.
 
 Example error:
 
@@ -531,6 +554,7 @@ TypeError: Cannot read property 'chapters' of null
 ```
 
 Translation:
+
 - **Line 45 of book.ts:** `chapters` is `null` when it shouldn't be.
 - **Called from line 120 of page.tsx:** That's where the bug manifests.
 
@@ -566,8 +590,8 @@ Example: You're debugging the RichTextEditor. The user types, but the text doesn
 2. Set breakpoint on the onChange handler (line ~120)
 3. Type in the editor
 4. Breakpoint pauses execution
-5. Inspect: e.currentTarget.innerHTML ,  is the new text there? YES.
-6. Inspect: value prop ,  is it the old value? YES. Bug found!
+5. Inspect: e.currentTarget.innerHTML, is the new text there? YES.
+6. Inspect: value prop, is it the old value? YES. Bug found!
 7. The parent isn't passing the new value back. Check the parent component's onChange handler.
 ```
 
@@ -580,9 +604,9 @@ When you refresh, you lose the breakpoint and the state. Instead, modify your co
 React DevTools shows the component tree. If two components have the same name, they're easy to mix up. Use DevTools → Components tab to see which instance is which.
 
 **Trap 3: Assuming the error is where it's reported.**
-A race condition might corrupt data on the server, but the error happens later on the client. Trace the data's *origin*, not just where it died.
+A race condition might corrupt data on the server, but the error happens later on the client. Trace the data's _origin_, not just where it died.
 
-**Trap 4: Not reading the error.** 
+**Trap 4: Not reading the error.**
 Developers panic and guess. The error message is always a clue. Read it slowly. Google it. Look at the stack trace.
 
 ---
@@ -594,6 +618,7 @@ Developers panic and guess. The error message is always a clue. Read it slowly. 
 Deployment is taking code from your machine, running it on a server, and making it available on the internet.
 
 When you push to `main` branch (or a deploy branch), Vercel:
+
 1. Clones your repo
 2. Installs dependencies (`npm install`)
 3. Builds your app (`npm run build`)
@@ -619,19 +644,26 @@ Before pushing to main, ask:
 Never commit secrets (API keys, database passwords) to Git.
 
 Instead:
+
 1. Create `.env.local` in your repo root (gitignored).
 2. Add secrets there locally.
 3. Add the same keys to Vercel's project settings.
 
 Example `.env.local`:
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
-DATABASE_URL=postgresql://user:password@host/dbname
+DATABASE_URL=postgresql://...
 STRIPE_SECRET_KEY=sk_live_...
 ```
 
+A Postgres connection string packs the username, password, host and database
+name into a single value. That is exactly why `DATABASE_URL` must never be
+committed: one leaked line hands over the whole database.
+
 In your code:
+
 ```typescript
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const stripeKey = process.env.STRIPE_SECRET_KEY; // Server-only
@@ -650,11 +682,11 @@ When a deploy fails:
 
 Common failures:
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `MODULE_NOT_FOUND: Can't find module 'react'` | Dependency not in package.json | `npm install react` |
-| `TypeError: Cannot read property 'id' of undefined` | Missing env var | Add to Vercel settings |
-| `Lighthouse score 72` | Page is slow | Optimize images, reduce JS |
+| Error                                                      | Cause                             | Fix                           |
+| ---------------------------------------------------------- | --------------------------------- | ----------------------------- |
+| `MODULE_NOT_FOUND: Can't find module 'react'`              | Dependency not in package.json    | `npm install react`           |
+| `TypeError: Cannot read property 'id' of undefined`        | Missing env var                   | Add to Vercel settings        |
+| `Lighthouse score 72`                                      | Page is slow                      | Optimize images, reduce JS    |
 | `import type { User } from '@supabase/supabase-js' errors` | Type mismatch with Supabase types | Check version in package.json |
 
 ---
@@ -664,6 +696,7 @@ Common failures:
 ### The Promise and the Trap
 
 AI is excellent at:
+
 - Drafting boilerplate (forms, components, API routes)
 - Explaining unfamiliar patterns
 - Generating test cases
@@ -671,7 +704,8 @@ AI is excellent at:
 - Writing documentation
 
 AI is terrible at:
-- Understanding *why* you chose this approach
+
+- Understanding _why_ you chose this approach
 - Catching logic errors (especially off-by-one bugs)
 - Making sure the API shape matches your schema
 - Knowing the codebase conventions
@@ -686,8 +720,8 @@ AI is terrible at:
 Ask Claude/ChatGPT to write a component:
 
 ```
-Write a React component that takes a list of chapters and renders 
-them as a sidebar nav. Chapters have id, title, and order. Clicking 
+Write a React component that takes a list of chapters and renders
+them as a sidebar nav. Chapters have id, title, and order. Clicking
 a chapter should call an onSelect callback. Style with Tailwind.
 ```
 
@@ -741,17 +775,17 @@ Only after verification do you commit.
 
 - **When you're learning.** Write the code by hand. It's slower but you learn the patterns.
 - **When the logic is non-obvious.** AI drafts working code, not clever code. Write subtle logic yourself.
-- **When your codebase is unique.** AI knows common patterns. It doesn't know *your* style or conventions. Use it for ideas, not verbatim.
+- **When your codebase is unique.** AI knows common patterns. It doesn't know _your_ style or conventions. Use it for ideas, not verbatim.
 
 ### Red Flags in AI Output
 
-| Flag | Meaning |
-|------|---------|
-| Comments explaining "what" the code does | AI assumes you don't know the language. You know the language. Remove comments. |
+| Flag                                             | Meaning                                                                                 |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Comments explaining "what" the code does         | AI assumes you don't know the language. You know the language. Remove comments.         |
 | Generic component names (e.g. `Card`, `Section`) | AI defaults to boring. Rename to match your domain (e.g. `ChapterCard`, `BookPreview`). |
-| No error handling | AI assumes happy path. Add try/catch, null checks, loading states. |
-| No types or loose typing | If your codebase is strict TypeScript, AI might default to looser types. Tighten them. |
-| No tests | AI generates code, not confidence. Write tests after. |
+| No error handling                                | AI assumes happy path. Add try/catch, null checks, loading states.                      |
+| No types or loose typing                         | If your codebase is strict TypeScript, AI might default to looser types. Tighten them.  |
+| No tests                                         | AI generates code, not confidence. Write tests after.                                   |
 
 ---
 
@@ -764,7 +798,7 @@ You're going to implement a feature using a professional workflow from start to 
 1. **Create a branch.** Start isolated from main.
 2. **Write the feature.** Use AI to draft, verify by hand.
 3. **Write tests.** 100% test coverage of your component.
-4. **Create a PR.** Write a PR description that explains *why* this matters.
+4. **Create a PR.** Write a PR description that explains _why_ this matters.
 5. **Debug an intentional bug.** We'll introduce a bug and you'll track it with DevTools.
 6. **Deploy.** Push to main and watch it ship on Vercel.
 
@@ -773,6 +807,7 @@ You're going to implement a feature using a professional workflow from start to 
 Build a component that validates chapter titles in the makeEbook editor.
 
 **Requirements:**
+
 - Input: Chapter title (string)
 - Validation: Title must be 1–60 characters
 - Behavior: Show a character counter
@@ -793,7 +828,7 @@ This creates a new branch. All your work is isolated from main.
 Use Claude to draft a `ChapterTitleInput` component:
 
 ```
-Write a React component called ChapterTitleInput. 
+Write a React component called ChapterTitleInput.
 Props:
 - title: string (current title)
 - onChange: (title: string) => void
@@ -824,9 +859,9 @@ import { ChapterTitleInput } from './ChapterTitleInput';
 describe('ChapterTitleInput', () => {
   it('renders with initial title', () => {
     render(
-      <ChapterTitleInput 
-        title="Chapter One" 
-        onChange={() => {}} 
+      <ChapterTitleInput
+        title="Chapter One"
+        onChange={() => {}}
         onValidationChange={() => {}}
       />
     );
@@ -835,9 +870,9 @@ describe('ChapterTitleInput', () => {
 
   it('shows character count', () => {
     render(
-      <ChapterTitleInput 
-        title="Hello" 
-        onChange={() => {}} 
+      <ChapterTitleInput
+        title="Hello"
+        onChange={() => {}}
         onValidationChange={() => {}}
       />
     );
@@ -847,9 +882,9 @@ describe('ChapterTitleInput', () => {
   it('shows warning when title exceeds 60 characters', () => {
     const longTitle = 'a'.repeat(61);
     render(
-      <ChapterTitleInput 
-        title={longTitle} 
-        onChange={() => {}} 
+      <ChapterTitleInput
+        title={longTitle}
+        onChange={() => {}}
         onValidationChange={() => {}}
       />
     );
@@ -859,9 +894,9 @@ describe('ChapterTitleInput', () => {
   it('calls onValidationChange with true when valid', () => {
     const handleValidationChange = vi.fn();
     render(
-      <ChapterTitleInput 
-        title="Valid Title" 
-        onChange={() => {}} 
+      <ChapterTitleInput
+        title="Valid Title"
+        onChange={() => {}}
         onValidationChange={handleValidationChange}
       />
     );
@@ -872,9 +907,9 @@ describe('ChapterTitleInput', () => {
     const handleValidationChange = vi.fn();
     const longTitle = 'a'.repeat(61);
     render(
-      <ChapterTitleInput 
-        title={longTitle} 
-        onChange={() => {}} 
+      <ChapterTitleInput
+        title={longTitle}
+        onChange={() => {}}
         onValidationChange={handleValidationChange}
       />
     );
@@ -884,9 +919,9 @@ describe('ChapterTitleInput', () => {
   it('calls onChange when user types', () => {
     const handleChange = vi.fn();
     render(
-      <ChapterTitleInput 
-        title="" 
-        onChange={handleChange} 
+      <ChapterTitleInput
+        title=""
+        onChange={handleChange}
         onValidationChange={() => {}}
       />
     );
@@ -898,6 +933,7 @@ describe('ChapterTitleInput', () => {
 ```
 
 Run tests:
+
 ```bash
 npm test
 ```
@@ -923,22 +959,25 @@ Then on GitHub, create a PR with this description:
 
 ```markdown
 ## Summary
+
 Fixes #XXX: Prevent chapter titles from breaking EPUB layout.
 
-Authors were creating 200+ character titles that wrapped poorly in 
-EPUB readers. This component enforces a 60-character limit with a 
+Authors were creating 200+ character titles that wrapped poorly in
+EPUB readers. This component enforces a 60-character limit with a
 visual counter, letting authors make informed edits.
 
 ## Why This Way?
-- **Why not truncate?** Silently truncating loses meaning. A counter 
+
+- **Why not truncate?** Silently truncating loses meaning. A counter
   lets the author decide what to cut.
-- **Why 60?** EPUB best practices recommend ≤80 chars. 60 gives 
+- **Why 60?** EPUB best practices recommend ≤80 chars. 60 gives
   breathing room on mobile readers.
-- **Why onValidationChange callback?** The parent can disable the 
-  save button while the title is invalid. Prevents shipping 
+- **Why onValidationChange callback?** The parent can disable the
+  save button while the title is invalid. Prevents shipping
   incomplete chapters.
 
 ## Testing
+
 1. Open a book
 2. Go to any chapter
 3. Click the title input
@@ -952,7 +991,7 @@ visual counter, letting authors make informed edits.
    - Warning disappears
    - Save button is enabled
 
-All unit tests pass: `npm test`
+Run `npm test` and confirm every unit test is green.
 ```
 
 **Part 5: Debug an Intentional Bug**
@@ -960,6 +999,7 @@ All unit tests pass: `npm test`
 We'll introduce a subtle bug: the counter shows `length / 59` instead of `length / 60`.
 
 Your job:
+
 1. Notice the off-by-one in the UI
 2. Open DevTools → Elements
 3. Inspect the counter text
@@ -990,7 +1030,7 @@ Go to the app. Test it on production.
 You should be able to:
 
 - [ ] Create a branch and commit code to it
-- [ ] Write a PR description that explains *why* (not just *what*)
+- [ ] Write a PR description that explains _why_ (not just _what_)
 - [ ] Write unit tests for a React component
 - [ ] Use browser DevTools to set breakpoints and step through code
 - [ ] Trace a bug from the UI back to its root cause
@@ -1005,14 +1045,17 @@ You should be able to:
 
 **"I committed to main by accident."**
 No problem. Create a branch from the current state:
+
 ```bash
 git branch feature/oops
 git reset --hard origin/main  # Revert main
 git checkout feature/oops     # Switch to your branch
 ```
+
 Your commit is safe on the branch.
 
 **"I want to undo my last commit."**
+
 ```bash
 git reset --soft HEAD~1       # Undo commit, keep changes
 git reset --hard HEAD~1       # Undo commit, discard changes
@@ -1020,6 +1063,7 @@ git reset --hard HEAD~1       # Undo commit, discard changes
 
 **"merge conflict"**
 When two branches edit the same lines, Git can't auto-merge. You choose which version to keep:
+
 ```bash
 # Open the conflicted file. It looks like:
 <<<<<<< HEAD
@@ -1028,12 +1072,14 @@ When two branches edit the same lines, Git can't auto-merge. You choose which ve
   their version
 >>>>>>> feature/other-branch
 ```
+
 Delete the markers and keep the version you want. Then commit the resolution.
 
 ### Testing
 
 **"Test passes locally but fails in CI."**
 CI runs in a clean environment. Local issues:
+
 - Uncommitted changes
 - Local env vars not mirrored in CI config
 - Different Node version
@@ -1043,15 +1089,18 @@ Run `npm test` multiple times locally. If it's flaky, the test is the problem, n
 
 **"I can't figure out why the test fails."**
 Add debugging:
+
 ```typescript
-console.log('value:', value);
-console.log('component:', screen.debug());
+console.log("value:", value);
+console.log("component:", screen.debug());
 ```
+
 `screen.debug()` prints the entire rendered DOM. This shows what the test actually sees.
 
 ### Deployment
 
 **"Deployment succeeded but the app doesn't work."**
+
 1. Check browser console (DevTools → Console)
 2. Check Vercel logs (Vercel dashboard → Deployments → Logs)
 3. Check environment variables match Vercel settings
@@ -1075,7 +1124,7 @@ Read the full error in Vercel's build log. Scroll up. The first error is usually
 Professional development is about collaboration, clarity, and confidence.
 
 - **Git** is your narrative. Write commit messages for yourself-in-six-months.
-- **PRs** are asynchronous communication. Explain *why* before explaining *what*.
+- **PRs** are asynchronous communication. Explain _why_ before explaining _what_.
 - **Code reading** is a skill. Use the three-level technique: topography, seams, trace an action.
 - **Tests** are confidence. A good test suite lets you refactor without fear.
 - **Debugging** is methodical. Error location is a hint. Start there.

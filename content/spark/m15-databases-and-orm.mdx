@@ -1,6 +1,7 @@
 ---
 module: 16
 title: Databases & ORM
+promise: "Store data that survives a restart, and read the SQL running underneath."
 duration: 2 weeks
 difficulty: intermediate
 concepts:
@@ -21,9 +22,9 @@ checkpoint: |
 
 ## Why This Matters
 
-Your data lives here now. Everything you built in Data & APIs in depth , the waitlist signups, the blog post drafts, the comment threads , was in memory. Refresh the browser, gone. Real products need real persistence.
+Your data lives here now. Everything you built in Data & APIs in depth, the waitlist signups, the blog post drafts, the comment threads, was in memory. Refresh the browser, gone. Real products need real persistence.
 
-A database is not magic storage. It's a precise, reliable engine for organizing information into tables and relationships. You'll think differently once you understand it: not "where do I save this?" but "what shape should this data have?" That shape , your schema , is the contract between your code and your data. Get it right once, and the database takes care of the rest.
+A database is not magic storage. It's a precise, reliable engine for organizing information into tables and relationships. You'll think differently once you understand it: not "where do I save this?" but "what shape should this data have?" That shape, your schema, is the contract between your code and your data. Get it right once, and the database takes care of the rest.
 
 This module teaches you to think in tables and relationships. We use Drizzle, a TypeScript ORM, to write queries without leaving your code. Then we peek underneath to see the actual SQL, because understanding what the ORM generates is what separates "I know how to use the tool" from "I know what's happening."
 
@@ -122,7 +123,7 @@ export type NewUser = typeof users.$inferInsert;
 - `.references()` creates a foreign key relationship. `onDelete: 'cascade'` means if a user is deleted, their posts and comments are too.
 - The type exports (`User`, `NewUser`) are automatically inferred from the schema. No manual type duplication.
 
-**Migrations.** A schema doesn't magically appear in your database. You create a migration , a file that says "create this table" or "add this column." Drizzle's migration system tracks them, so you can version your schema like you version your code.
+**Migrations.** A schema doesn't magically appear in your database. You create a migration, a file that says "create this table" or "add this column." Drizzle's migration system tracks them, so you can version your schema like you version your code.
 
 ```bash
 # Generate a migration from your schema changes
@@ -257,7 +258,7 @@ const postWithComments = await db.query.posts.findFirst({
 });
 ```
 
-The `.with` syntax is key. It tells Drizzle to fetch related data (the post's comments). Without it, you'd only get the post , then you'd need a separate query to get the comments. That's the N+1 problem, which we'll cover next.
+The `.with` syntax is key. It tells Drizzle to fetch related data (the post's comments). Without it, you'd only get the post, then you'd need a separate query to get the comments. That's the N+1 problem, which we'll cover next.
 
 ### Update
 
@@ -417,7 +418,7 @@ const allPostsWithAuthors = await db.query.posts.findMany({
 // No loop. No extra queries. Drizzle handles it.
 ```
 
-But wait , Drizzle still makes two queries under the hood (we saw this in Part 5). Why isn't that N+1?
+But wait, Drizzle still makes two queries under the hood (we saw this in Part 5). Why isn't that N+1?
 
 Because Drizzle is smart. It fetches all posts in one query, collects all the `user_id`s, then fetches all those users in _one_ query. Two queries total, not 101. This is called a "batch fetch."
 
@@ -716,9 +717,9 @@ Before you move on, verify:
 
 ---
 
-## Threads
+## Where the ORM ends and SQL begins
 
-### Language vs. Framework
+### Your schema and your types, one source of truth
 
 Your TypeScript code and your database schema started as separate worlds. You wrote types in your code, defined columns in migrations, and hoped they stayed in sync. They didn't.
 
@@ -726,7 +727,7 @@ Drizzle closes this gap. Your schema generates your types. One source of truth. 
 
 The cost: you're learning two systems (TypeScript and SQL) simultaneously. But the symmetry helps. `eq(posts.id, postId)` looks like TypeScript because it is. Underneath, it's `WHERE "posts"."id" = $1` in SQL. The syntax changed, but the meaning is identical.
 
-### Your Code vs. the Platform
+### The database is doing the actual work
 
 Your CRUD functions are your code. The database engine is the platform. The ORM is the conversation between them.
 

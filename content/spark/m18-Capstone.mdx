@@ -2,7 +2,6 @@
 title: "Capstone"
 description: "Design, build, and deploy one polished product integrating tokens, motion, AI, and accessibility. Your portfolio piece."
 module: 19
-phase: "4 Capstone"
 promise: "Design, build, and deploy one polished product integrating tokens, motion, AI, and accessibility. Your portfolio piece."
 difficulty: "advanced"
 duration: "4–6 weeks"
@@ -10,11 +9,12 @@ duration: "4–6 weeks"
 
 # Capstone
 
-**Your final project.** Design, build, and deploy one product that integrates every skill from this program ,  design systems, motion, AI-native interactions, accessibility, and deployment. No AI writing the core. You own every decision and every line.
+**Your final project.** Design, build, and deploy one product that integrates every skill from this program, design systems, motion, AI-native interactions, accessibility, and deployment. No AI writing the core. You own every decision and every line.
 
 ## The Promise
 
 By the end, you'll have:
+
 - A live product on your domain
 - A coded design system (tokens + themed components, Figma↔code synced)
 - Motion that enhances without distracting
@@ -32,7 +32,7 @@ This is what mid-level Design Engineer hiring looks like. The rubric below is ca
 
 **You will design and build one complete product** that demonstrates:
 
-1. **A coded design system.** Not ad-hoc styling. A token-based system for color, type, spacing, and motion. Mirrored to Figma so designers can reference the real component set. Minimal surface area ,  components do one thing well, composed into more complex shapes.
+1. **A coded design system.** Not ad-hoc styling. A token-based system for color, type, spacing, and motion. Mirrored to Figma so designers can reference the real component set. Minimal surface area, components do one thing well, composed into more complex shapes.
 
 2. **Real motion with restraint.** Transitions, not animations. Motion that reveals or reinforces structure, never gratuitous. A `prefers-reduced-motion` fallback for every animation. Measured in milliseconds; animation shouldn't exceed 400ms without a reason.
 
@@ -44,7 +44,7 @@ This is what mid-level Design Engineer hiring looks like. The rubric below is ca
    - A rating/scoring system where AI explains itself
    - Something else entirely, as long as it's core to the product, not bolted on
 
-4. **Accessibility as first-class.** Keyboard-complete navigation, focus management, semantic HTML, color contrast, aria labels where needed. Not a last-minute audit ,  accessibility should be baked into every component.
+4. **Accessibility as first-class.** Keyboard-complete navigation, focus management, semantic HTML, color contrast, aria labels where needed. Not a last-minute audit, accessibility should be baked into every component.
 
 5. **(Optional) Real data + auth.** If you include user accounts, subscription tiers, or persistent data, do it properly. Supabase or similar. Use the right tools for the job, not because the brief requires it.
 
@@ -52,7 +52,7 @@ This is what mid-level Design Engineer hiring looks like. The rubric below is ca
 
 7. **Deployed and live.** On your domain or a professional hosting service. Not localhost, not a design-only Figma file. Real, accessible product.
 
-The product itself can be anything: a writing tool, a design assistant, a playlist curator, a journaling app, a code snippet manager ,  whatever you can scope, design, and build in 4–6 weeks. But it must be *complete* and *polished*, not a proof-of-concept.
+The product itself can be anything: a writing tool, a design assistant, a playlist curator, a journaling app, a code snippet manager, whatever you can scope, design, and build in 4–6 weeks. But it must be _complete_ and _polished_, not a proof-of-concept.
 
 ### Scope guidance
 
@@ -64,6 +64,7 @@ The product itself can be anything: a writing tool, a design assistant, a playli
 - A recipe organizer with AI-powered scaling and dietary-filter generation, not a meal planner
 
 **Minimum viable scope:**
+
 - 2–3 core interactions
 - Mobile-responsive (or mobile-first)
 - Light + dark theme support
@@ -72,6 +73,7 @@ The product itself can be anything: a writing tool, a design assistant, a playli
 - Exported as EPUB / PDF / some open format (if it's a writing/publishing tool)
 
 **Do not scope:**
+
 - Real-time collaboration or multi-user workflows
 - Mobile native app (web only)
 - Payment processing unless you're comfortable with Stripe
@@ -84,6 +86,7 @@ The product itself can be anything: a writing tool, a design assistant, a playli
 You'll be assessed on **four axes**, each worth 25 points (100 total).
 
 ### Craft (25 points)
+
 **All pixels serve a purpose. Typography, spacing, and color are deliberate. Nothing is broken or obviously ad-hoc.**
 
 - **Color system is branded and consistent** (5 pts). Light and dark themes work. No neon accents that break accessibility. At least 4 shades per semantic color (background, surface, text, interaction).
@@ -93,6 +96,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 - **States are complete** (5 pts). Hover, active, focus, disabled, loading, error states all exist. Empty states are handled. Skeleton loaders show waiting UX, not spinners spinning forever.
 
 ### Design Systems (25 points)
+
 **One source of truth for tokens. Components are composed, minimal, and reusable. Figma mirrors production code.**
 
 - **Tokens are codified and themed** (5 pts). Colors, type sizes, spacing, border-radius, shadows, and motion are defined as JSON or CSS custom properties. Dark mode token overrides exist. Tokens are used everywhere, not hardcoded values.
@@ -102,6 +106,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 - **Documentation exists** (5 pts). A `COMPONENTS.md` or Storybook that shows each component, its props, and usage examples. Not hand-wavy; specific enough that a new team member could use it.
 
 ### Code Quality (25 points)
+
 **Semantic HTML, strong typing, no state bugs, composed architecture.**
 
 - **HTML is semantic** (5 pts). Use `<button>`, not `<div role="button">`. Use `<nav>`, `<main>`, `<section>`, `<article>` where they apply. Form inputs are properly labeled with `<label>`. Links are `<a>`, not buttons. Screen readers can understand the document.
@@ -111,6 +116,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 - **Build and deployment are clean** (5 pts). No console warnings or errors in production. `.gitignore` is complete. Secrets are in env, not in code. The build passes linting and type-checking without warnings.
 
 ### Accessibility (25 points)
+
 **WCAG basics are met. Product is usable via keyboard and screen reader.**
 
 - **Keyboard navigation is complete** (5 pts). Tab order is logical. Focus is always visible (never `outline: none` without a replacement). Dropdowns are keyboard-navigable. Modals trap focus. Forms submit with Enter. No sections are keyboard-inaccessible.
@@ -128,6 +134,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 **Goal:** Define the product. Prove the core idea works on paper before code.
 
 **Deliverables:**
+
 - One-page product brief (who, what, why, core flow)
 - 3–5 key user flows as wireframes (Figma or paper, scanned)
 - Interaction map (what does the AI touch?)
@@ -135,12 +142,13 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 - Rough timeline (which features in week 1, 2, 3, etc.)
 
 **Checklist:**
+
 - [ ] Brief is one paragraph. Answers: who uses this, what do they get, why does it beat existing tools?
 - [ ] Wireframes show the core three interactions, not every page
 - [ ] AI interaction is clearly marked and scoped (not vague, not "AI does everything")
 - [ ] Tech stack is justified (why Next.js vs. other frameworks, why Supabase if included)
 - [ ] Timeline is realistic (not 12 features in 4 weeks)
-- [ ] No actual code yet ,  this is thinking on paper
+- [ ] No actual code yet, this is thinking on paper
 
 **Self-assess:** Can a fresh person read your brief and draw similar wireframes? If not, you're not being specific enough.
 
@@ -151,12 +159,14 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 **Goal:** Build the design system. Every color, size, and motion curve is defined once.
 
 **Deliverables:**
+
 - `tokens.json` (or equivalent) with color, type scale, spacing, motion, radius, shadows
 - Figma file with component set, mirrored to tokens
 - `components/` folder with 6–8 foundational components (Button, Input, Card, etc.) built on tokens
 - `COMPONENTS.md` showing each component, props, and usage
 
 **Checklist:**
+
 - [ ] Color tokens exist for light + dark, with semantic names (primary, surface, text-secondary)
 - [ ] Type scale is defined (4 sizes minimum: body, small, large, heading)
 - [ ] Spacing is multiples of 4px or 8px (no arbitrary gaps)
@@ -177,6 +187,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 **Goal:** Wire up the product skeleton. Auth, routing, and data layer work. Core interactions are stubbed.
 
 **Deliverables:**
+
 - `app/` folder structure matches product flows
 - Auth is integrated (email/OAuth, redirects work)
 - Layout components (header, sidebar, main, footer) are assembled
@@ -185,6 +196,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 - Data fetching is wired (not real AI yet, but the plumbing is there)
 
 **Checklist:**
+
 - [ ] Repo is initialized with `.gitignore` and `README.md`
 - [ ] TypeScript strict mode is on
 - [ ] Auth redirects non-logged-in users correctly
@@ -204,12 +216,14 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 **Goal:** Add transitions and animations. Every state change feels smooth, not jarring.
 
 **Deliverables:**
+
 - All state transitions have smooth motion (loading ↔ idle, open ↔ closed, etc.)
 - `prefers-reduced-motion` CSS media query is implemented for every animation
 - Motion CSS is in a `motion.css` file or equivalent for easy auditing
 - A page that demonstrates motion (hover effects, transitions, animations) in both reduced and full modes
 
 **Checklist:**
+
 - [ ] Page transitions fade or slide (not instant)
 - [ ] Button hover/active states animate (color, scale, or subtle lift)
 - [ ] Dropdowns, modals, and panels slide or fade in (not pop)
@@ -229,6 +243,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 **Goal:** Implement the AI feature. One tight, well-scoped, craft-polished AI interaction.
 
 **Deliverables:**
+
 - AI endpoint is wired (cloud function, API route, or embedded model)
 - AI interaction is fully integrated into the product flow
 - Loading state shows AI is working (streaming text, skeleton loader, etc.)
@@ -237,6 +252,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 - Streaming text or real-time updates show user something is happening
 
 **Checklist:**
+
 - [ ] AI feature is core to the product, not a side-panel chat
 - [ ] Request has a clear input (user selection, form submission, voice command)
 - [ ] Response is streamed (if text-based) or shows incremental progress
@@ -256,6 +272,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 **Goal:** Verify WCAG basics are met. Use tools and manual testing.
 
 **Deliverables:**
+
 - Accessibility audit report (in `ACCESSIBILITY.md` or linked from `README.md`)
 - Screenshots of axe/Lighthouse scans showing passes
 - Keyboard navigation tested on all major flows
@@ -264,6 +281,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 - Mobile accessibility checked (touch targets, zoom, text size)
 
 **Checklist:**
+
 - [ ] Run axe DevTools and axe Monitor on all pages. All violations resolved or documented with reason.
 - [ ] Run Lighthouse accessibility audit. Score ≥ 90.
 - [ ] Test keyboard-only navigation (unplug mouse, tab through the app)
@@ -279,11 +297,12 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 
 ---
 
-### Milestone 7: Data & Auth (Week 4–5) *(Optional)*
+### Milestone 7: Data & Auth (Week 4–5) _(Optional)_
 
 **Goal:** If you promised persistent data or multi-device sync, make it real.
 
 **Deliverables:**
+
 - User authentication is tested (signup, login, password reset, logout)
 - User data is persisted (books, notes, settings stored in database)
 - User data is private (can't access another user's books via API)
@@ -291,6 +310,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 - Backup strategy is in place (not just hoping Supabase doesn't delete everything)
 
 **Checklist:**
+
 - [ ] Auth works with test account (sign up, log in, log out, password reset)
 - [ ] RLS (Row Level Security) is enabled and tested (logged-in user cannot read other users' data)
 - [ ] Sensitive data is never logged to console
@@ -308,6 +328,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 **Goal:** Ship to production. The app is live and real.
 
 **Deliverables:**
+
 - Product is deployed to your domain (yourdomain.com/your-product or subdomain)
 - DNS is configured and HTTPS works
 - Environment variables are set in production (no local `.env` leaking)
@@ -316,6 +337,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 - Staging environment exists and works
 
 **Checklist:**
+
 - [ ] Product is live and accessible at a real domain
 - [ ] HTTPS works (certificate is valid, not self-signed)
 - [ ] All product flows work on production (sign up, create, generate, export)
@@ -334,6 +356,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 **Goal:** Document the product and your decisions. Make it portfolio-worthy.
 
 **Deliverables:**
+
 - `README.md` in the repo (GitHub users see this first)
 - A case study (500–1500 words) explaining design decisions, tradeoffs, and what you'd do differently
 - Screenshots or a short demo video
@@ -342,6 +365,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 **Checklist:**
 
 **README:**
+
 - [ ] One-liner at the top (what is this?)
 - [ ] Feature list (3–5 bullets of what you built)
 - [ ] Screenshot or GIF showing the product
@@ -355,6 +379,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 - [ ] License (MIT, unless you prefer something else)
 
 **Case Study (in `CASE_STUDY.md`):**
+
 - [ ] Product brief (who, what, why)
 - [ ] Design process (how did you arrive at the current design?)
 - [ ] Key tradeoffs (what did you cut, and why?)
@@ -373,6 +398,7 @@ You'll be assessed on **four axes**, each worth 25 points (100 total).
 These are real projects that nail the capstone bar. Use them as inspiration, not templates.
 
 ### 1. **Obsidian** (not open source, but publicly available)
+
 - **Design system:** Minimal, token-based, both light and dark themes
 - **Motion:** Subtle transitions on hover, animates selection
 - **AI:** Plugin ecosystem (some plugins use LLMs) without core bloat
@@ -382,6 +408,7 @@ These are real projects that nail the capstone bar. Use them as inspiration, not
 - **Why strong:** Proves that a focused, well-designed product beats a feature factory
 
 ### 2. **Linear** (SaaS issue tracker)
+
 - **Design system:** Public design system on their website (UI Kit)
 - **Motion:** Smooth transitions throughout, respects reduced motion
 - **AI:** Inline AI features for issue descriptions and estimation
@@ -391,6 +418,7 @@ These are real projects that nail the capstone bar. Use them as inspiration, not
 - **Why strong:** Shows how to make AI feel like part of the product, not a feature bolt-on
 
 ### 3. **Porkbun** (domain registrar)
+
 - **Design system:** Consistent branding, cohesive color and type system
 - **Motion:** Page transitions and hover states are polished
 - **AI:** Simple AI-powered search suggestions
@@ -400,6 +428,7 @@ These are real projects that nail the capstone bar. Use them as inspiration, not
 - **Why strong:** Proves that even a "commodity" product (domain registration) can feel premium with craft
 
 ### 4. **Notion** (public documentation site, not the app)
+
 - **Design system:** Published on their site (Notion Design System)
 - **Motion:** Careful, restrained animations in hero videos
 - **AI:** Integrated into the product, but the marketing site doesn't oversell it
@@ -409,6 +438,7 @@ These are real projects that nail the capstone bar. Use them as inspiration, not
 - **Why strong:** Shows how to build marketing that mirrors the product quality
 
 ### 5. **Your Own Project (from a previous module)**
+
 - If you built something in Design Systems in Code (design system) or Databases & ORM (AI interactions) that felt good, expand it to capstone bar. Reuse the component library, add a new AI feature, deploy it. That's valid capstone work.
 
 ---
@@ -418,33 +448,39 @@ These are real projects that nail the capstone bar. Use them as inspiration, not
 Before you ship, ask yourself these questions:
 
 ### Craft
+
 - [ ] If I zoom to 200%, is everything still readable and the layout holds?
 - [ ] If someone turned off the internet, would they know what happened?
 - [ ] Does the design feel like one system, or does it feel like five separate tools?
 - [ ] Can I point to every color on the screen and name it from a token?
 
 ### Design System
+
 - [ ] Could a new developer add a new page to this product in one hour?
 - [ ] Are there components I built but never used? (If so, cut them.)
 - [ ] Does my Figma file match my code? (Component names, props, states)
 - [ ] Can I change one token and see it update everywhere, or are there overrides?
 
 ### Code Quality
+
 - [ ] Would I be comfortable with someone else reading this code?
 - [ ] If I added a console.error on every setState, would the console be quiet in normal use?
 - [ ] Can I explain what every `useEffect` does without squinting?
 
 ### Accessibility
+
 - [ ] Did I keyboard through the entire product without using a mouse?
 - [ ] Did I test with a screen reader, or at least run an axe scan?
 - [ ] Can I see the focus outline on every interactive element?
 
 ### AI Integration
+
 - [ ] Is the AI interaction solving a real user problem, or is it a gimmick?
 - [ ] Does the loading state make it clear the AI is working?
 - [ ] If the AI fails (network error, rate limit, bad input), does the error message help me recover?
 
 ### Deployment
+
 - [ ] Is my API key in an environment variable, not hardcoded?
 - [ ] Does the live product actually work, or does it say "localhost only"?
 - [ ] If I visit the product in a private window and sign up, do I get the full experience?
@@ -456,6 +492,7 @@ Before you ship, ask yourself these questions:
 You're ready to ship when you have:
 
 ### Code
+
 - [ ] GitHub repo is public with `main` branch
 - [ ] `README.md` is in the root
 - [ ] `CASE_STUDY.md` exists
@@ -466,12 +503,14 @@ You're ready to ship when you have:
 - [ ] All environment variables are documented
 
 ### Design
+
 - [ ] Figma file is linked in README
 - [ ] Component set in Figma mirrors production code
 - [ ] Tokens are clearly labeled and organized
 - [ ] Design file is presentable to someone hiring you
 
 ### Product
+
 - [ ] Live on a real domain (not Vercel's deploy preview)
 - [ ] HTTPS works
 - [ ] All core flows work (sign up, main product, export if applicable)
@@ -479,6 +518,7 @@ You're ready to ship when you have:
 - [ ] Works in Chrome, Safari, and Firefox
 
 ### Documentation
+
 - [ ] Case study is 500–1500 words and answers the questions above
 - [ ] README has a screenshot or GIF
 - [ ] Accessibility audit report is present
@@ -486,6 +526,7 @@ You're ready to ship when you have:
 - [ ] Getting started instructions work (someone clones and runs it)
 
 ### Deliverable
+
 - [ ] You have a portfolio link to share with hiring managers
 - [ ] You can explain every design and code decision in a 10-minute conversation
 - [ ] You're proud to show this to someone at the company you want to work at
@@ -494,12 +535,12 @@ You're ready to ship when you have:
 
 ## Rubric Summary
 
-| Axis | 25 pts | Weight |
-|---|---|---|
-| **Craft** | Spacing, type, color, motion, states all intentional | 25% |
-| **Design Systems** | Tokens, components, Figma parity, minimal API | 25% |
-| **Code Quality** | Semantic HTML, TypeScript strict, clean state, composed | 25% |
-| **Accessibility** | Keyboard nav, contrast, screen reader, mobile, focus | 25% |
+| Axis               | 25 pts                                                  | Weight |
+| ------------------ | ------------------------------------------------------- | ------ |
+| **Craft**          | Spacing, type, color, motion, states all intentional    | 25%    |
+| **Design Systems** | Tokens, components, Figma parity, minimal API           | 25%    |
+| **Code Quality**   | Semantic HTML, TypeScript strict, clean state, composed | 25%    |
+| **Accessibility**  | Keyboard nav, contrast, screen reader, mobile, focus    | 25%    |
 
 **Passing:** 75+ points (18+ per axis)  
 **Strong:** 85+ points (21+ per axis)  

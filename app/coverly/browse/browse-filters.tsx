@@ -18,6 +18,10 @@ import {
   TYPOGRAPHY,
 } from "@/lib/coverly/tags";
 import { COLOR_FAMILIES, FAMILY_SWATCH } from "@/lib/coverly/color";
+import {
+  PUBLISHER_TIERS,
+  PUBLISHER_TIER_LABELS,
+} from "@/lib/coverly/publisher-tier";
 
 const COLOR_OPTIONS = COLOR_FAMILIES.filter((f) => f !== "neutral");
 
@@ -42,11 +46,18 @@ const CATS: Cat[] = [
   },
   { key: "people", label: "People", kind: "chips", options: PEOPLE },
   { key: "layout", label: "Layout", kind: "chips", options: LAYOUTS },
+  {
+    key: "publisher_tier",
+    label: "Publisher",
+    kind: "chips",
+    options: PUBLISHER_TIERS,
+  },
   { key: "color", label: "Colour", kind: "color", options: COLOR_OPTIONS },
   { key: "tone", label: "Tone", kind: "tone", options: ["light", "dark"] },
 ];
 
 const cap = (s: string) =>
+  PUBLISHER_TIER_LABELS[s as keyof typeof PUBLISHER_TIER_LABELS] ??
   s.replace(/-/g, " ").replace(/^\w/, (c) => c.toUpperCase());
 
 export function BrowseFilters({ total }: { total: number }) {
@@ -182,6 +193,9 @@ export function BrowseFilters({ total }: { total: number }) {
             aria-label="Search covers"
             className="h-[34px] w-44 rounded-[0.625rem] border bg-card pl-8 pr-7 text-sm outline-none placeholder:text-muted-foreground/70 focus:border-foreground/40"
           />
+          <button type="submit" className="sr-only">
+            Search
+          </button>
           {query && (
             <button
               type="button"

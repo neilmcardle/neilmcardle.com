@@ -8,6 +8,12 @@ import { LOGOMARK_PATH, LOGOMARK_VIEWBOX } from "./logomark";
 export function CoverlyAppHeader() {
   return (
     <header className="sticky top-0 z-40 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <a
+        href="#coverly-main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-full focus:bg-foreground focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-background"
+      >
+        Skip to covers
+      </a>
       <div className="relative flex w-full flex-wrap items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/coverly/browse" aria-label="Coverly home">
           <svg

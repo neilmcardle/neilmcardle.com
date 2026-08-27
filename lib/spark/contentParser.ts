@@ -32,6 +32,8 @@ function fromSectionTags(mdxSource: string): ParsedSection[] {
   return sections;
 }
 
+const PREAMBLE_TITLE = "Before you start";
+
 function fromHeadings(mdxSource: string): ParsedSection[] {
   const sections: ParsedSection[] = [];
   const lines = mdxSource.split("\n");
@@ -40,16 +42,18 @@ function fromHeadings(mdxSource: string): ParsedSection[] {
   let buffer: string[] = [];
   let fenced = false;
 
-  const flush = () => {
-    if (title === null) return;
-    const content = buffer.join("\n").trim();
+  const push = (sectionTitle: string, body: string[]) => {
+    const content = body.join("\n").trim();
+    if (!content) return;
     sections.push({
-      id: slugify(title, sections.length),
-      title,
+      id: slugify(sectionTitle, sections.length),
+      title: sectionTitle,
       content,
       components: extractComponents(content),
     });
   };
+
+  const flush = () => push(title ?? PREAMBLE_TITLE, buffer);
 
   for (const line of lines) {
     if (line.trimStart().startsWith("```")) fenced = !fenced;
@@ -61,7 +65,9 @@ function fromHeadings(mdxSource: string): ParsedSection[] {
       continue;
     }
 
-    if (title !== null) buffer.push(line);
+    if (!fenced && title === null && line.startsWith("# ")) continue;
+
+    buffer.push(line);
   }
 
   flush();

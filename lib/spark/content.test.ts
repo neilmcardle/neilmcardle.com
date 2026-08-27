@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getCurriculum, loadModule } from "./content";
+import { getAllModules, getCurriculum, loadModule } from "./content";
 import { PHASES, phaseForModule } from "./curriculum";
 
 describe("loadModule", () => {
@@ -81,5 +81,75 @@ describe("slug handling", () => {
   it("still loads real slugs", async () => {
     const result = await loadModule("m8-react-fundamentals");
     expect(result.meta.module).toBe(9);
+  });
+});
+
+describe("heading-format modules", () => {
+  it("keeps the prose that sits above the first h2", async () => {
+    const result = await loadModule("m18-capstone");
+    expect(result.sections[0].title).toBe("Before you start");
+    expect(result.sections[0].content).toContain("Your final project");
+  });
+
+  it("drops the leading h1, which duplicates the lesson title", async () => {
+    const result = await loadModule("m18-capstone");
+    expect(result.sections[0].content).not.toContain("# Capstone");
+  });
+
+  it("does not invent a preamble section when there is nothing above the first h2", async () => {
+    const result = await loadModule("m10-design-systems-in-code");
+    expect(result.sections[0].title).toBe("Premise");
+  });
+});
+
+describe("frontmatter", () => {
+  it("gives every module a promise", async () => {
+    const modules = await getCurriculum();
+    const missing = modules
+      .filter((mod) => !mod.promise)
+      .map((mod) => mod.slug);
+    expect(missing).toEqual([]);
+  });
+
+  it("falls back to description when promise is absent", async () => {
+    const result = await loadModule("m9-testing-react-ui");
+    expect(result.meta.promise).toBeTruthy();
+  });
+});
+
+describe("content hygiene", () => {
+  it("has no em-dash removal artefacts left in any module", async () => {
+    const slugs = await getAllModules();
+    const dirty: string[] = [];
+    for (const slug of slugs) {
+      const { mdxSource } = await loadModule(slug);
+      if (/ ,\s/.test(mdxSource)) dirty.push(slug);
+    }
+    expect(dirty).toEqual([]);
+  });
+
+  it("has no em dashes, which are banned in course copy", async () => {
+    const slugs = await getAllModules();
+    const dirty: string[] = [];
+    for (const slug of slugs) {
+      const { mdxSource } = await loadModule(slug);
+      if (/—/.test(mdxSource)) dirty.push(slug);
+    }
+    expect(dirty).toEqual([]);
+  });
+});
+
+describe("filenames", () => {
+  it("keeps every slug lowercase, because loadModule rejects anything else", async () => {
+    const slugs = await getAllModules();
+    const bad = slugs.filter((slug) => !/^[a-z0-9][a-z0-9-]*$/.test(slug));
+    expect(bad).toEqual([]);
+  });
+
+  it("loads every module the curriculum lists", async () => {
+    const slugs = await getAllModules();
+    for (const slug of slugs) {
+      await expect(loadModule(slug)).resolves.toBeTruthy();
+    }
   });
 });

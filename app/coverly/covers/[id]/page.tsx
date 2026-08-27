@@ -40,7 +40,7 @@ export default async function CoverPage({
     : null;
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
       <BackLink />
 
       <div className="flex flex-col gap-8 md:flex-row md:gap-10">
@@ -154,6 +154,6 @@ export default async function CoverPage({
           </div>
         </section>
       )}
-    </main>
+    </div>
   );
 }

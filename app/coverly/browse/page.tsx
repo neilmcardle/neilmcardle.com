@@ -16,7 +16,7 @@ export default async function BrowsePage({
 
   if (!supabase) {
     return (
-      <main className="mx-auto max-w-xl p-10 text-sm text-muted-foreground">
+      <div className="mx-auto max-w-xl p-10 text-sm text-muted-foreground">
         <h1 className="mb-3 text-lg font-semibold text-foreground">
           Almost there
         </h1>
@@ -24,7 +24,7 @@ export default async function BrowsePage({
           Supabase is not configured yet. Add the Coverly Supabase keys to
           .env.local and populate covers.
         </p>
-      </main>
+      </div>
     );
   }
 
@@ -35,7 +35,7 @@ export default async function BrowsePage({
     covers = withHeights(covers);
   } catch {
     return (
-      <main className="mx-auto max-w-xl p-10 text-sm text-muted-foreground">
+      <div className="mx-auto max-w-xl p-10 text-sm text-muted-foreground">
         <h1 className="mb-3 text-lg font-semibold text-foreground">
           Library temporarily unavailable
         </h1>
@@ -43,13 +43,14 @@ export default async function BrowsePage({
           The cover database can't be reached right now. Check that your
           Supabase project is running.
         </p>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="w-full px-4 py-5 sm:px-6">
+    <div className="w-full px-4 py-5 sm:px-6">
+      <h1 className="sr-only">Browse book covers</h1>
       <Browse initialCovers={covers} total={total} filters={filters} />
-    </main>
+    </div>
   );
 }

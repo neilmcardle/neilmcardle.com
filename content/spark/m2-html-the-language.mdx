@@ -1,7 +1,6 @@
 ---
 title: HTML, the language
 module: 3
-phase: "0 ,  Foundations"
 promise: Hand-write semantic, accessible HTML, and start designing in the browser.
 ---
 
@@ -60,20 +59,20 @@ Compare these:
 </header>
 ```
 
-Both render identically. The semantic version is shorter, clearer, and works better for assistive technology. That's _craft-is-the-differentiator_. Care about how you build it. A semantic page is easier to style, faster to load, more accessible by default, and honest in its structure.
+Both render identically. The semantic version is shorter, clearer, and works better for assistive technology. Care about how you build it. A semantic page is easier to style, faster to load, more accessible by default, and honest in its structure.
 
 Key semantic elements:
 
-- `<header>` , introductory content at the top of a section
-- `<nav>` , navigation links
-- `<main>` , the primary content of the page (use once per page)
-- `<article>` , a self-contained piece of content
-- `<section>` , a thematic grouping of content
-- `<aside>` , tangential content, sidebars
-- `<footer>` , closing content of a section
-- `<h1>` through `<h6>` , headings in order (never skip levels)
-- `<strong>` , importance (vs. `<b>`, which is just bold)
-- `<em>` , emphasis (vs. `<i>`, which is just italic)
+- `<header>`, introductory content at the top of a section
+- `<nav>`, navigation links
+- `<main>`, the primary content of the page (use once per page)
+- `<article>`, a self-contained piece of content
+- `<section>`, a thematic grouping of content
+- `<aside>`, tangential content, sidebars
+- `<footer>`, closing content of a section
+- `<h1>` through `<h6>`, headings in order (never skip levels)
+- `<strong>`, importance (vs. `<b>`, which is just bold)
+- `<em>`, emphasis (vs. `<i>`, which is just italic)
 
 </Section>
 
@@ -189,11 +188,7 @@ You can write SVG the way you write HTML, with elements and attributes. An SVG s
     fill="none"
     stroke-width="2"
   />
-  <path
-    d="Shipping UI ,  Next.js + Desktop/Electron 8v8M8 12h8"
-    stroke="currentColor"
-    stroke-width="2"
-  />
+  <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" />
 </svg>
 ```
 
@@ -468,11 +463,11 @@ As you write this, notice:
 1. **Keyboard navigation passes.** Tab through the page. Every interactive element (links, form fields, buttons) receives visible focus. Use Tab to move forward, Shift+Tab to move backward. No focus traps. No elements skipped.
 
 2. **No div where semantic element exists.** Search the HTML for these patterns:
-   - `<div class="button">` , should be `<button>`
-   - `<div class="nav">` , should be `<nav>`
-   - `<div class="header">` , should be `<header>`
-   - `<div class="footer">` , should be `<footer>`
-   - `<div class="aside">` , should be `<aside>`
+   - `<div class="button">`, should be `<button>`
+   - `<div class="nav">`, should be `<nav>`
+   - `<div class="header">`, should be `<header>`
+   - `<div class="footer">`, should be `<footer>`
+   - `<div class="aside">`, should be `<aside>`
 
 3. **Form labels are properly connected.** For every input, verify:
    - The input has an `id` attribute

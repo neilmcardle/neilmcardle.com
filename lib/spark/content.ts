@@ -71,7 +71,12 @@ export async function loadModule(slug: string): Promise<LoadModuleResult> {
     slug,
     title: firstString(data.title) || slug,
     module: moduleNumber,
-    promise: firstString(data.promise, data.objective, data.subtitle),
+    promise: firstString(
+      data.promise,
+      data.objective,
+      data.subtitle,
+      data.description,
+    ),
     phase: phaseForModule(moduleNumber),
     sectionCount: sections.length,
     minutes: readingMinutes(stripFences(mdxSource)),

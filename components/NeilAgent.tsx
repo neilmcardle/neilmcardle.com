@@ -1,25 +1,13 @@
 "use client";
 
-// ElevenLabs ConvAI voice agent — floating "chat with Neil" button.
-// Injects the embed script once per session and renders the custom
-// element. Hidden on the standalone product surfaces (icon-animator,
-// promptr, make-ebook, vector-paint) because they have their own
-// focused UI. Also hidden entirely on product domains like
-// makeebook.ink, which share this Vercel deployment but should not
-// show the portfolio's voice agent.
-
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const AGENT_ID = "agent_3801kmmjqtf7fr1ahe9meb2vc1eq";
 const SCRIPT_SRC = "https://unpkg.com/@elevenlabs/convai-widget-embed";
 
-// Temporarily hidden from the site. Flip to true to bring the voice agent back.
 const AGENT_ENABLED = false;
 
-// Routes where the voice agent should NOT appear. Matches either an
-// exact pathname or any descendant (e.g. "/make-ebook" also blocks
-// "/make-ebook/blog"). Standalone product surfaces and legal pages.
 const HIDDEN_ROUTES = [
   "/make-ebook",
   "/start",
@@ -28,6 +16,7 @@ const HIDDEN_ROUTES = [
   "/vector-paint",
   "/touchtype",
   "/kids-academy",
+  "/spark",
   "/wepray",
   "/portfolio-unlock",
   "/cabin",
@@ -39,14 +28,11 @@ const HIDDEN_ROUTES = [
   "/design",
 ];
 
-// Hostnames where the agent should never appear, regardless of route.
-// makeebook.ink shares this Vercel deployment with neilmcardle.com, so
-// the root path on that domain would otherwise show the portfolio agent.
 const HIDDEN_HOSTS = ["makeebook.ink", "www.makeebook.ink"];
 
 export default function NeilAgent() {
   const pathname = usePathname();
-  // Voice agent is temporarily hidden site-wide.
+
   const agentHidden = !AGENT_ENABLED;
   const [hostHidden, setHostHidden] = useState(false);
 
@@ -58,9 +44,7 @@ export default function NeilAgent() {
     !agentHidden &&
     !hostHidden &&
     !!pathname &&
-    !HIDDEN_ROUTES.some(
-      (r) => pathname === r || pathname.startsWith(`${r}/`),
-    );
+    !HIDDEN_ROUTES.some((r) => pathname === r || pathname.startsWith(`${r}/`));
 
   useEffect(() => {
     if (!shouldShow) return;

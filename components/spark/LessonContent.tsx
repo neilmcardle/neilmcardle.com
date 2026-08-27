@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import { CodeBlock } from "./CodeBlock";
 import { Check } from "./Check";
+import { Checklist } from "./Checklist";
 import { FilteringWidget } from "./FilteringWidget";
 
 const KNOWN_COMPONENTS = new Set(["Check", "FilteringWidget"]);
@@ -42,6 +43,7 @@ type Block =
   | { kind: "component"; name: string; attrs: Record<string, string> }
   | { kind: "heading"; level: 3 | 4; text: string }
   | { kind: "list"; ordered: boolean; items: string[] }
+  | { kind: "checklist"; items: string[] }
   | { kind: "table"; head: string[]; rows: string[][] }
   | { kind: "rule" }
   | { kind: "paragraph"; text: string };
@@ -50,6 +52,7 @@ const FENCE = /^```(\S*)\s*(.*)$/;
 const COMPONENT_TAG = /^<([A-Z]\w*)([\s\S]*?)\/>\s*$/;
 const HEADING = /^(#{3,4})\s+(.*)$/;
 const UNORDERED = /^[-*]\s+(.+)$/;
+const TASK = /^\s*[-*]\s+\[([ xX])\]\s+(.+)$/;
 const ORDERED = /^\d+[.)]\s+(.+)$/;
 const TABLE_ROW = /^\|(.+)\|\s*$/;
 const TABLE_DIVIDER = /^\|[\s:|-]+\|\s*$/;
@@ -193,6 +196,27 @@ function parseBlocks(source: string): Block[] {
       continue;
     }
 
+    if (TASK.test(line)) {
+      closeParagraph();
+      const items: string[] = [];
+      while (i < lines.length) {
+        const task = lines[i].match(TASK);
+        if (task) {
+          items.push(task[2].trim());
+          i++;
+          continue;
+        }
+        if (/^\s{2,}\S/.test(lines[i]) && items.length > 0) {
+          items[items.length - 1] += ` ${lines[i].trim()}`;
+          i++;
+          continue;
+        }
+        break;
+      }
+      blocks.push({ kind: "checklist", items });
+      continue;
+    }
+
     const unordered = line.match(UNORDERED);
     const ordered = line.match(ORDERED);
     if (unordered || ordered) {
@@ -297,7 +321,13 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
   return nodes;
 }
 
-export function LessonContent({ children }: { children: string }) {
+export function LessonContent({
+  children,
+  moduleNumber,
+}: {
+  children: string;
+  moduleNumber: number;
+}) {
   const blocks = useMemo(() => parseBlocks(children), [children]);
 
   return (
@@ -341,6 +371,18 @@ export function LessonContent({ children }: { children: string }) {
               <hr
                 key={i}
                 className="my-9 border-0 border-t border-black/[0.09]"
+              />
+            );
+
+          case "checklist":
+            return (
+              <Checklist
+                key={i}
+                moduleNumber={moduleNumber}
+                items={block.items.map((item, j) => ({
+                  text: item,
+                  content: renderInline(item, `ck${i}-${j}`),
+                }))}
               />
             );
 

@@ -1,6 +1,6 @@
 import { CoverlyAppHeader } from "../app-header";
 
-export default function BoardsLayout({
+export default function TakedownLayout({
   children,
 }: {
   children: React.ReactNode;

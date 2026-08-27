@@ -8,7 +8,7 @@ export default function CoversLayout({
   return (
     <div className="flex flex-col bg-background">
       <CoverlyAppHeader />
-      {children}
+      <div id="coverly-main">{children}</div>
     </div>
   );
 }

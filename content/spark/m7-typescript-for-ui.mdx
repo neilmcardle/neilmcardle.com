@@ -1,7 +1,6 @@
 ---
 title: TypeScript for UI
 module: 8
-phase: Phase 1 ,  JS & React
 promise: Type component props and data confidently.
 ---
 
@@ -12,7 +11,7 @@ JavaScript is permissive. A function expects a number but gets a string. It runs
 Types are a contract. They say: "This prop is a string, always. This object has a `name` and an `age`. This function returns a boolean or null, never undefined." The computer enforces the contract.
 
 ```javascript
-// JavaScript ,  no complaint until the crash
+// JavaScript, no complaint until the crash
 function greet(name) {
   return "Hello, " + name.toUpperCase();
 }
@@ -21,7 +20,7 @@ greet(42); // Crashes: 42 has no toUpperCase method
 ```
 
 ```typescript
-// TypeScript ,  catches it immediately
+// TypeScript, catches it immediately
 function greet(name: string) {
   return "Hello, " + name.toUpperCase();
 }
@@ -94,7 +93,7 @@ function Button({ label, onClick, disabled = false }: ButtonProps) {
 // Usage
 <Button label="Save" onClick={() => console.log("saved")} />
 <Button label="Delete" onClick={handleDelete} disabled={true} />
-// <Button label="Save" onClick={console.log} /> ,  Error: wrong callback signature
+// <Button label="Save" onClick={console.log} />, Error: wrong callback signature
 ```
 
 The `?` marks a prop as optional. `disabled = false` sets its default. TypeScript checks both at the call site (when you use the component) and inside the component (the handler must match the type).

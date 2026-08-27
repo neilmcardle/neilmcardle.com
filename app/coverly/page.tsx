@@ -14,7 +14,7 @@ export default async function CoverlyPage() {
     rounded >= 50 ? `over ${rounded.toLocaleString()}` : `${count}`;
 
   return (
-    <main className="relative flex min-h-screen w-full flex-col bg-background lg:flex-row">
+    <div className="relative flex min-h-screen w-full flex-col bg-background lg:flex-row">
       <section className="relative z-10 flex min-h-screen w-full flex-col justify-center px-6 py-14 sm:px-10 lg:w-1/2 lg:bg-background lg:px-16">
         <div className="mx-auto w-full max-w-sm rounded-2xl bg-background/95 p-6 backdrop-blur lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
           <Link
@@ -59,8 +59,14 @@ export default async function CoverlyPage() {
           </p>
         </div>
 
-        <p className="absolute bottom-6 left-6 text-xs text-muted-foreground sm:left-10 lg:left-16">
-          © {new Date().getFullYear()} Coverly
+        <p className="absolute bottom-6 left-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground sm:left-10 lg:left-16">
+          <span>© {new Date().getFullYear()} Coverly</span>
+          <Link
+            href="/coverly/takedown"
+            className="underline underline-offset-2 hover:text-foreground"
+          >
+            Rights &amp; takedowns
+          </Link>
         </p>
       </section>
 
@@ -95,6 +101,6 @@ export default async function CoverlyPage() {
           }}
         />
       </section>
-    </main>
+    </div>
   );
 }

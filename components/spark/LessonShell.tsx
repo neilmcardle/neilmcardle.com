@@ -17,6 +17,7 @@ interface LessonShellProps {
   promise: string;
   minutes: number;
   sections: ShellSection[];
+  prev: { slug: string; title: string } | null;
   next: { slug: string; title: string } | null;
 }
 
@@ -27,6 +28,7 @@ export function LessonShell({
   promise,
   minutes,
   sections,
+  prev,
   next,
 }: LessonShellProps) {
   const [active, setActive] = useState(0);
@@ -133,6 +135,32 @@ export function LessonShell({
         : "smooth",
     });
   }, []);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+      const el = event.target as HTMLElement | null;
+      if (
+        el &&
+        (el.isContentEditable ||
+          ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName))
+      ) {
+        return;
+      }
+
+      if (event.key === "j") {
+        event.preventDefault();
+        jumpTo(Math.min(sections.length - 1, active + 1));
+      } else if (event.key === "k") {
+        event.preventDefault();
+        jumpTo(Math.max(0, active - 1));
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [active, jumpTo, sections.length]);
 
   const progress =
     sections.length > 0 ? ((active + 1) / sections.length) * 100 : 0;
@@ -277,6 +305,60 @@ export function LessonShell({
             <span className="text-[11.5px] text-[var(--spark-faint)] lg:hidden">
               {active + 1} of {sections.length}
             </span>
+
+            <div className="hidden items-center gap-1 lg:flex">
+              <kbd className="spark-mono mr-2 rounded border border-black/[0.12] px-1.5 py-0.5 text-[10px] text-[var(--spark-faint)]">
+                J
+              </kbd>
+              <kbd className="spark-mono mr-3 rounded border border-black/[0.12] px-1.5 py-0.5 text-[10px] text-[var(--spark-faint)]">
+                K
+              </kbd>
+              <span className="mr-1 text-[11.5px] tabular-nums text-[var(--spark-faint)]">
+                {active + 1} of {sections.length}
+              </span>
+              <button
+                onClick={() => jumpTo(Math.max(0, active - 1))}
+                disabled={active === 0}
+                aria-label="Previous section"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--spark-muted)] transition-colors hover:bg-black/[0.05] hover:text-[var(--spark-text)] disabled:pointer-events-none disabled:opacity-25"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+              </button>
+              <button
+                onClick={() =>
+                  jumpTo(Math.min(sections.length - 1, active + 1))
+                }
+                disabled={active >= sections.length - 1}
+                aria-label="Next section"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--spark-muted)] transition-colors hover:bg-black/[0.05] hover:text-[var(--spark-text)] disabled:pointer-events-none disabled:opacity-25"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="m9 6 6 6-6 6" />
+                </svg>
+              </button>
+            </div>
           </header>
 
           <main className="px-5 pb-32 pt-10 lg:px-10 lg:pb-24">
@@ -340,6 +422,34 @@ export function LessonShell({
                   </span>
                   <span className="relative block font-serif text-[26px] font-bold leading-[1.12] tracking-[-0.02em] text-white">
                     {next.title}
+                  </span>
+                </Link>
+              )}
+
+              {prev && (
+                <Link
+                  href={`/spark/lessons/${prev.slug}`}
+                  className="mt-4 flex items-center gap-2.5 rounded-lg px-1 py-3 text-[13px] text-[var(--spark-muted)] transition-colors hover:text-[var(--spark-text)]"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                    className="shrink-0"
+                  >
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                  </svg>
+                  <span className="spark-eyebrow text-[var(--spark-faint)]">
+                    Previously
+                  </span>
+                  <span className="min-w-0 truncate font-medium">
+                    {prev.title}
                   </span>
                 </Link>
               )}

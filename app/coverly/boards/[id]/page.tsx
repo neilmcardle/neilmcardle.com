@@ -10,7 +10,7 @@ export default function BoardDetailPage() {
   const boardId = params.id as string;
 
   return (
-    <main className="w-full">
+    <div className="w-full">
       <div className="border-b bg-card">
         <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
           <Link
@@ -24,6 +24,6 @@ export default function BoardDetailPage() {
         </div>
       </div>
       <BoardDetailClient boardId={boardId} />
-    </main>
+    </div>
   );
 }

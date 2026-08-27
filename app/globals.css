@@ -2186,8 +2186,16 @@ button.spark-card:hover,
 .spark-mono,
 .spark-code,
 .spark-code code,
-.spark-code pre {
+.spark-code pre,
+.spark-inline-code {
   font-family: var(--font-jetbrains-mono);
+  /* JetBrains Mono ligates `==` and `===` into near-identical glyphs. Spark
+     teaches the difference between them, so learners have to see the literal
+     characters they are being asked to type. */
+  font-variant-ligatures: none;
+  font-feature-settings:
+    "liga" 0,
+    "calt" 0;
 }
 
 .spark-code .hljs,
@@ -2247,14 +2255,14 @@ button.spark-card:hover,
 }
 
 .spark-section {
-  transition:
-    opacity 420ms var(--spark-ease),
-    filter 420ms var(--spark-ease);
+  transition: opacity 260ms var(--spark-ease);
 }
 
+/* Recedes the sections you are not reading without pushing them below the
+   4.5:1 contrast floor. Blur was removed: it broke find-in-page and made
+   glancing back at code you just read impossible. */
 .spark-section[data-focused="false"] {
-  opacity: 0.45;
-  filter: blur(1px);
+  opacity: 0.78;
 }
 
 @keyframes spark-shake {
@@ -2328,7 +2336,6 @@ button.spark-card:hover,
 @media (prefers-reduced-motion: reduce), (prefers-contrast: more) {
   .spark-section[data-focused="false"] {
     opacity: 1;
-    filter: none;
   }
 }
 

@@ -12,7 +12,9 @@
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "test:accounts": "tsx scripts/setup-test-accounts.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "engines": {
     "node": ">=18.17.0",
