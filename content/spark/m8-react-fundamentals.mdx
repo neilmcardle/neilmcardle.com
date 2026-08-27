@@ -60,6 +60,19 @@ Here's what happens: user clicks the button. `onClick` fires. `setCount(count + 
 
 The loop is: event → setState → re-render → new output.
 
+That description is accurate and it is also the part everyone has to see before they believe it. Two things in it sound contradictory: the whole function runs again from the top on every keystroke, and yet the value in state survives. Run it yourself.
+
+<UseStateCycle />
+
+Watch line 2 in particular. On the first render `useState("")` hands back the empty string you passed in. On every render after that it hands back whatever the state currently is, and ignores the argument entirely. That is the only line in the function with a memory. Everything else, including the filtered list, is built again from nothing each time.
+
+<Check
+  question='On the fourth render, what does useState("") return?'
+  options="An empty string, because that is the argument|Whatever the state currently is, because the argument only applies on the first render|It throws, because state is already set"
+  correct="1"
+  why="The argument is the initial value, and it is only used once. After the first render React ignores it.|Correct. useState uses its argument on the first render and returns the stored value on every render after that.|Calling useState on every render is exactly how it is designed to work. There is nothing to throw."
+/>
+
 You can call `useState` multiple times in one component. Each call gets its own pair.
 
 ```jsx
@@ -113,6 +126,13 @@ function BMI() {
 Why? Because now weight and height are always in sync with BMI. If you stored BMI separately, you'd have to update it manually whenever weight or height changed. Easy to forget. State goes stale.
 
 The rule: if it can be computed from other state, don't store it.
+
+<Check
+  question="A search page holds the query in state. Should the filtered results also live in useState?"
+  options="Yes, so they persist between renders|No, because they can be computed from the query and the list|Only if the list is large"
+  correct="1"
+  why="Results do not need to persist. They are rebuilt from the query on every render anyway, and storing them gives you two things that can disagree.|Correct. Anything computable from existing state is derived. Store it and you have to remember to update it, which is how state goes stale.|Size is a performance question, not a correctness one, and it is not the reason to reach for state. Measure before optimising."
+/>
 
 </Section>
 
@@ -269,6 +289,13 @@ Both tabs need to know which one is active. Instead of storing it in each tab se
 
 This pattern scales to any number of siblings. The parent is the single source of truth.
 
+<Check
+  question="Two sibling components need to show the same selected item. Where does that selection belong?"
+  options="In each sibling, kept in sync when either changes|In their closest shared parent, passed down as props|In a variable outside both components"
+  correct="1"
+  why="Two copies of one fact will drift apart the moment you forget to update one of them. Keeping them in sync by hand is the bug, not the fix.|Correct. Lift the state to the nearest parent both siblings share, then pass it down. One source of truth, no syncing.|A variable outside the component is not state. Changing it does not tell React to re-render, so the screen would not update."
+/>
+
 </Section>
 
 <Section title="The four states">
@@ -337,6 +364,13 @@ function BookSearch() {
 This is tight. Every state has its own UI. No results render until data arrives. Loading UI shows immediately. Errors have a home.
 
 The four states are a mental model. Write it down: idle, loading, empty, error. Then check your UI handles all four. Most bugs live in the states you skipped.
+
+<Check
+  question="A search returns zero results and your UI renders nothing at all. Which state did you skip?"
+  options="Loading|Empty|Error"
+  correct="1"
+  why="Loading is the state while the request is in flight. Here the request finished, it just matched nothing.|Correct. Empty is a successful result with no rows, and it needs its own message. Rendering nothing leaves the user unable to tell success from breakage.|An error means something went wrong. Finding no matches is the system working correctly."
+/>
 
 </Section>
 

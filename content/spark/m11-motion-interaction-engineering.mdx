@@ -12,8 +12,6 @@ checklist:
   - 60fps, nothing stutters
 ---
 
-# Module 11: Motion & Interaction Engineering
-
 Motion is how an interface tells you a story. A button that springs into place when pressed feels alive. A page that fades in feels intentional. A transition that stutters feels broken. The hardest skill in motion design is knowing when _not_ to animate, when silence is louder than movement.
 
 This module teaches you motion as communication: from CSS basics through Framer Motion's power tools, and finally to the discipline of restraint.
@@ -198,6 +196,12 @@ Two animation families. Same goal, different personality.
 | **Feel**      | Controlled, polished              | Alive, responsive                            |
 | **Use case**  | Transitions, fades, choreography  | Buttons, direct manipulation, playful states |
 | **Overshoot** | None (easing curves stop exactly) | Yes (overshoots, bounces, settles)           |
+
+The table tells you the difference. It cannot tell you where the line is between a spring that feels alive and one that feels broken, and no table can, because that judgment is yours. Move the sliders until you find it.
+
+<SpringBench />
+
+Two things are worth finding for yourself. Damping below about 8 produces the wobble that reads as a glitch rather than as physics. And on the easing row, somewhere past 800ms the motion stops feeling deliberate and starts feeling like the interface is thinking.
 
 ### Easing: Timing functions
 
@@ -391,7 +395,7 @@ The incoming tab slides in from the right (`x: 100`), the outgoing slides left (
 
 ---
 
-## 6. Accessibility: `prefers-reduced-motion` is Non-Negotiable
+## 6. Accessibility: prefers-reduced-motion is Non-Negotiable
 
 Motion can cause dizziness, nausea, or cognitive overload in users with vestibular disorders or motion sensitivity. The `prefers-reduced-motion` media query is not a nice-to-have. It's required.
 
@@ -478,7 +482,7 @@ In browsers: DevTools → Rendering → Emulate CSS media feature `prefers-reduc
 
 ---
 
-## 7. Restraint: When _Not_ to Animate
+## 7. Restraint: When Not to Animate
 
 This is the hardest skill. Many junior designers animate everything because they can. The masters know when to be silent.
 

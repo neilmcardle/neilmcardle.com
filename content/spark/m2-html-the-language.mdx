@@ -59,7 +59,15 @@ Compare these:
 </header>
 ```
 
-Both render identically. The semantic version is shorter, clearer, and works better for assistive technology. Care about how you build it. A semantic page is easier to style, faster to load, more accessible by default, and honest in its structure.
+Both render identically. That is exactly the problem: nothing on screen tells you which one you built, so there is no feedback loop pushing you toward the better one.
+
+There is a way to check. Switch the rendered view for the announcements a screen reader produces as it walks each tree, and the two stop being interchangeable.
+
+<SemanticListen />
+
+The three counters are the part worth sitting with. Tab stops, headings and landmarks are the three ways a person navigates a page without a mouse, and the div version scores zero on all three. It is not slightly worse. It is a page that cannot be operated.
+
+The semantic version is also shorter, clearer, and works better for assistive technology. Care about how you build it. A semantic page is easier to style, faster to load, more accessible by default, and honest in its structure.
 
 Key semantic elements:
 

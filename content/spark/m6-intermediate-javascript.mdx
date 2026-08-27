@@ -46,6 +46,12 @@ It reads like synchronous code (top to bottom, one line after another), but your
 
 **Key insight:** when you `await` something, you are not waiting for the _whole function_. You are waiting for _that one line_. The rest of your code continues.
 
+That is a lot to take on trust, because none of it is visible in the code. Two tracks make it visible: what your own code is doing, and what the network is doing while it waits.
+
+<AsyncTimeline />
+
+Switch to the version with `await` removed. Nothing throws, the console stays quiet, and the page renders `undefined`. That combination, code that looks right and fails silently, is why forgetting an `await` costs people an afternoon rather than a minute.
+
 </Section>
 
 <Section title="Understanding Promises">

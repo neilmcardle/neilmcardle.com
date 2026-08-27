@@ -2,35 +2,8 @@
 
 import React, { useMemo } from "react";
 import { CodeBlock } from "./CodeBlock";
-import { Check } from "./Check";
 import { Checklist } from "./Checklist";
-import { FilteringWidget } from "./FilteringWidget";
-
-const KNOWN_COMPONENTS = new Set(["Check", "FilteringWidget"]);
-
-function renderComponent(
-  name: string,
-  attrs: Record<string, string>,
-  key: number,
-) {
-  switch (name) {
-    case "Check":
-      return (
-        <Check
-          key={key}
-          question={attrs.question ?? ""}
-          answer={attrs.answer}
-          options={attrs.options}
-          correct={attrs.correct}
-          why={attrs.why}
-        />
-      );
-    case "FilteringWidget":
-      return <FilteringWidget key={key} />;
-    default:
-      return null;
-  }
-}
+import { WIDGET_NAMES, renderWidget } from "./registry";
 
 type Block =
   | {
@@ -139,7 +112,7 @@ function parseBlocks(source: string): Block[] {
       for (let j = i; j < Math.min(lines.length, i + 8); j++) {
         joined += (j > i ? "\n" : "") + lines[j];
         const tag = joined.trim().match(COMPONENT_TAG);
-        if (tag && KNOWN_COMPONENTS.has(tag[1])) {
+        if (tag && WIDGET_NAMES.has(tag[1])) {
           closeParagraph();
           blocks.push({
             kind: "component",
@@ -347,7 +320,7 @@ export function LessonContent({
             );
 
           case "component":
-            return renderComponent(block.name, block.attrs, i);
+            return renderWidget(block.name, block.attrs, i);
 
           case "heading":
             return block.level === 3 ? (

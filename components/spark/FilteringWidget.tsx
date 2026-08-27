@@ -1,196 +1,183 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { WidgetShell } from "./WidgetShell";
 
-interface FilterStep {
-  step: number,
-  label: string,
-  code: string,
-  state?: Record<string, any>,
-  highlight?: boolean,
+const NAMES = ["alice", "bob", "charlie", "diana", "evelyn"];
+
+interface Step {
+  label: string;
+  code: string;
+  detail: (query: string, results: string[]) => string;
 }
 
-const names = ['alice', 'bob', 'charlie', 'diana', 'evelyn'];
+const STEPS: Step[] = [
+  {
+    label: "The user presses a key",
+    code: "onChange={(e) => setQuery(e.target.value)}",
+    detail: (query) =>
+      `The browser fires a change event. e.target.value is "${query}".`,
+  },
+  {
+    label: "State is replaced",
+    code: "setQuery(...)",
+    detail: (query) =>
+      `query becomes "${query}". You never assign to query directly, you call the setter.`,
+  },
+  {
+    label: "React re-runs the function",
+    code: "function Search() { ... }",
+    detail: () =>
+      "The whole component body runs again from the top. Nothing is patched in place.",
+  },
+  {
+    label: "The filter runs against the new value",
+    code: "names.filter((n) => n.includes(query))",
+    detail: (query, results) =>
+      `Five names are tested against "${query}". ${results.length} pass.`,
+  },
+  {
+    label: "A new array comes back",
+    code: "const results = [...]",
+    detail: (query, results) =>
+      results.length > 0
+        ? `results is ${JSON.stringify(results)}. The original names array is untouched.`
+        : "results is an empty array. The original names array is untouched.",
+  },
+  {
+    label: "The list is rebuilt",
+    code: "results.map((n) => <li>{n}</li>)",
+    detail: (query, results) =>
+      `${results.length} list items are produced, and React updates only what actually changed on screen.`,
+  },
+];
 
 export function FilteringWidget() {
-  const [query, setQuery] = useState('');
-  const [currentStep, setCurrentStep] = useState(-1);
+  const [query, setQuery] = useState("");
+  const [step, setStep] = useState<number | null>(null);
 
-  const getSteps = (): FilterStep[] => {
-    if (!query) return [];
-
-    const results = names.filter(name =>
-      name.toLowerCase().includes(query.toLowerCase())
-    );
-
-    return [
-      {
-        step: 1,
-        label: 'Initialize query state',
-        code: `const [query, setQuery] = useState('')`,
-        state: { query },
-        highlight: true,
-      },
-      {
-        step: 2,
-        label: 'Get input value',
-        code: `value={query}`,
-        state: { query },
-        highlight: true,
-      },
-      {
-        step: 3,
-        label: 'User types',
-        code: `onChange={(e) => setQuery(e.target.value)}`,
-        state: { query, input: query },
-        highlight: true,
-      },
-      {
-        step: 4,
-        label: 'Re-render triggered',
-        code: `setQuery triggers re-render`,
-        state: { query },
-        highlight: true,
-      },
-      {
-        step: 5,
-        label: 'Call filter method',
-        code: `names.filter(...)`,
-        state: { query, names },
-        highlight: true,
-      },
-      {
-        step: 6,
-        label: 'Check each name',
-        code: `name.toLowerCase().includes(query.toLowerCase())`,
-        state: { query, names, filtered: results },
-        highlight: true,
-      },
-      {
-        step: 7,
-        label: 'Build filtered array',
-        code: `const filtered = ${JSON.stringify(results)}`,
-        state: { query, filtered: results },
-        highlight: true,
-      },
-      {
-        step: 8,
-        label: 'Return filtered array',
-        code: `return filtered`,
-        state: { query, filtered: results },
-        highlight: true,
-      },
-      {
-        step: 9,
-        label: 'Render results',
-        code: `{filtered.map(name => <li>{name}</li>)}`,
-        state: { query, filtered: results },
-        highlight: true,
-      },
-      {
-        step: 10,
-        label: 'Display to user',
-        code: `Show ${results.length} result${results.length !== 1 ? 's' : ''}`,
-        state: { query, results: results.length },
-        highlight: true,
-      },
-    ];
-  };
-
-  const steps = getSteps();
-  const results = names.filter(name =>
-    name.toLowerCase().includes(query.toLowerCase())
+  const results = NAMES.filter((name) =>
+    name.toLowerCase().includes(query.toLowerCase()),
   );
 
+  const reset = () => {
+    setQuery("");
+    setStep(null);
+  };
+
   return (
-    <div className="my-8 space-y-6 p-6 bg-gray-50 rounded-lg">
-      {/* Input */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Search names
-        </label>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setCurrentStep(-1);
-          }}
-          placeholder="Type a name..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-      </div>
+    <WidgetShell
+      title="One keystroke, six things happen"
+      status={`${results.length} of ${NAMES.length}`}
+      onReset={reset}
+      caption="Type, then walk the six steps. Every one of them runs again on the next keystroke."
+    >
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+        <div className="min-w-0">
+          <label
+            htmlFor="spark-filter-input"
+            className="spark-eyebrow mb-2 block text-[var(--spark-faint)]"
+          >
+            Search names
+          </label>
+          <input
+            id="spark-filter-input"
+            type="search"
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setStep(null);
+            }}
+            placeholder="Try a or li"
+            className="w-full rounded-lg border px-3.5 py-2.5 text-[14px] text-[var(--spark-text)] outline-none transition-colors placeholder:text-[var(--spark-faint)] focus:border-[var(--spark-gold-deep)]"
+            style={{ borderColor: "rgba(20,20,19,0.16)", background: "#fff" }}
+          />
 
-      {/* List */}
-      <div>
-        <p className="text-sm font-medium text-gray-700 mb-2">Names</p>
-        <div className="space-y-1">
-          {names.map(name => (
-            <div
-              key={name}
-              className={`px-3 py-2 rounded text-sm transition-colors ${
-                results.includes(name)
-                  ? 'bg-blue-100 text-blue-900 font-medium'
-                  : 'bg-gray-200 text-gray-500'
-              }`}
-            >
-              {name}
-            </div>
-          ))}
+          <ul className="mt-3 flex list-none flex-col gap-1 pl-0">
+            {NAMES.map((name) => {
+              const hit = results.includes(name);
+              return (
+                <li
+                  key={name}
+                  className="spark-mono rounded px-2.5 py-1.5 text-[12.5px] transition-colors"
+                  style={{
+                    background: hit
+                      ? "rgba(216,180,106,0.16)"
+                      : "rgba(20,20,19,0.03)",
+                    color: hit ? "var(--spark-text)" : "var(--spark-faint)",
+                    textDecoration: hit ? "none" : "line-through",
+                  }}
+                >
+                  {name}
+                </li>
+              );
+            })}
+          </ul>
         </div>
-      </div>
 
-      {/* Steps */}
-      {steps.length > 0 && (
-        <div>
-          <p className="text-sm font-medium text-gray-700 mb-3">Cycle steps</p>
-          <div className="space-y-2">
-            {steps.map((s) => (
-              <button
-                key={s.step}
-                onClick={() => setCurrentStep(s.step - 1)}
-                className={`w-full text-left px-3 py-2 rounded text-xs transition-colors ${
-                  currentStep === s.step - 1
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:border-blue-500'
-                }`}
-              >
-                <span className="font-semibold">Step {s.step}:</span> {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+        <div className="min-w-0">
+          <span className="spark-eyebrow mb-2 block text-[var(--spark-faint)]">
+            What just happened
+          </span>
 
-      {/* Current step detail */}
-      {currentStep >= 0 && steps[currentStep] && (
-        <div className="border-l-4 border-blue-500 bg-blue-50 p-4 rounded">
-          <p className="text-xs font-semibold text-blue-900 mb-2">
-            Step {steps[currentStep].step}, {steps[currentStep].label}
-          </p>
-          <pre className="text-xs bg-gray-900 text-green-400 p-3 rounded overflow-x-auto mb-3">
-            {steps[currentStep].code}
-          </pre>
-          {steps[currentStep].state && (
-            <div className="text-xs text-blue-800 bg-white p-2 rounded border border-blue-200">
-              <p className="font-semibold mb-1">State:</p>
-              <code>{JSON.stringify(steps[currentStep].state, null, 2)}</code>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Summary */}
-      {query && (
-        <div className="text-sm text-gray-600 p-3 bg-white rounded border border-gray-200">
-          Typed: <span className="font-mono font-semibold">"{query}"</span>
-          {results.length > 0 ? (
-            <span>, Found: <span className="font-mono font-semibold">{results.join(', ')}</span></span>
+          {query === "" ? (
+            <p className="rounded-lg bg-black/[0.03] px-3.5 py-3 text-[13px] leading-[1.65] text-[var(--spark-faint)]">
+              Type something in the box to trace the cycle.
+            </p>
           ) : (
-            <span>, No matches</span>
+            <ol className="flex list-none flex-col gap-1.5 pl-0">
+              {STEPS.map((item, i) => {
+                const open = step === i;
+                return (
+                  <li key={i}>
+                    <button
+                      type="button"
+                      onClick={() => setStep(open ? null : i)}
+                      aria-expanded={open}
+                      className="w-full rounded-lg px-3 py-2 text-left transition-colors"
+                      style={{
+                        background: open
+                          ? "rgba(216,180,106,0.14)"
+                          : "transparent",
+                        boxShadow: open
+                          ? "inset 2px 0 0 var(--spark-gold-deep)"
+                          : "inset 0 0 0 1px rgba(20,20,19,0.08)",
+                      }}
+                    >
+                      <span className="flex items-baseline gap-2.5">
+                        <span
+                          className="spark-mono shrink-0 text-[10.5px] tabular-nums"
+                          style={{
+                            color: open
+                              ? "var(--spark-gold-ink)"
+                              : "var(--spark-faint)",
+                          }}
+                        >
+                          {i + 1}
+                        </span>
+                        <span className="min-w-0 text-[13px] font-medium leading-[1.5] text-[var(--spark-text)]">
+                          {item.label}
+                        </span>
+                      </span>
+
+                      {open && (
+                        <span className="spark-fade-up mt-2 block pl-[22px]">
+                          <code className="spark-mono block overflow-x-auto rounded bg-[var(--spark-ink)] px-2.5 py-1.5 text-[11.5px] text-[var(--spark-on-dark)]">
+                            {item.code}
+                          </code>
+                          <span className="mt-1.5 block text-[12.5px] leading-[1.6] text-[#44423e]">
+                            {item.detail(query, results)}
+                          </span>
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
           )}
         </div>
-      )}
-    </div>
+      </div>
+    </WidgetShell>
   );
 }

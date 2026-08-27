@@ -22,7 +22,7 @@ checkpoint: |
 
 ## Why This Matters
 
-Your data lives here now. Everything you built in Data & APIs in depth, the waitlist signups, the blog post drafts, the comment threads, was in memory. Refresh the browser, gone. Real products need real persistence.
+Your data lives here now. Everything you built in Module 15, the waitlist signups, the blog post drafts, the comment threads, was in memory. Refresh the browser, gone. Real products need real persistence.
 
 A database is not magic storage. It's a precise, reliable engine for organizing information into tables and relationships. You'll think differently once you understand it: not "where do I save this?" but "what shape should this data have?" That shape, your schema, is the contract between your code and your data. Get it right once, and the database takes care of the rest.
 
@@ -404,6 +404,10 @@ for (const post of allPosts) {
 
 If there are 100 posts, you just made 101 queries. One for all posts, then one for each post's author. That's the "N+1": one query, then N queries in a loop.
 
+The reason this ships is that it is invisible until the database is far away. Drag the round trip from a local database up to a real one and watch the gap open.
+
+<NPlusOneWaterfall />
+
 **The Fix:**
 
 Use `.with` to fetch related data in one shot:
@@ -464,9 +468,9 @@ The key: always think about how many queries you're making. One query is fast. N
 
 ---
 
-## Build: Persist Data & APIs in depth's Data
+## Build: Give Module 15's Data Real Persistence
 
-Your assignment: take the waitlist and blog platform from Data & APIs in depth and give it real persistence.
+Your assignment: take the waitlist and blog platform from Module 15 and give it real persistence.
 
 ### Step 1: Define Your Schema
 
@@ -603,7 +607,7 @@ export async function deleteComment(commentId: string) {
 
 ### Step 4: Wire It Up
 
-In your Data & APIs in depth API routes, replace in-memory storage with database calls:
+In your Module 15 API routes, replace in-memory storage with database calls:
 
 ```typescript
 // app/api/waitlist/route.ts

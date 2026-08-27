@@ -673,22 +673,24 @@ Going forward, in Spark modules and your own code, claim less. Test more. Let th
 
 ---
 
-## For Spark Teachers
+## Practising this on your own
 
-When presenting M9:
+Nobody is going to check that you did this in the right order, which is exactly why it is worth knowing what each step buys you.
 
-- **Demo the RED phase.** Show tests failing. Don't skip this, students need to see red.
-- **Build the GREEN phase live.** Narrator-style: "Now I write the minimum code to make tests pass."
-- **Live-refactor and watch tests stay green.** This is the magic moment, it proves the tests work.
-- **Show a bad test and a good test side-by-side.** Compare a snapshot test to a behavior test. Point out why the behavior test is better.
-- **Have students write tests _before_ code in the exercise.** This is the hardest part but the most valuable. Enforce it.
+**Watch the test fail first.** The RED phase is the one people skip and the one that matters most. A test you have never seen fail might be passing because the assertion is wrong, because the runner never picked the file up, or because it asserts something that was already true. Seeing it go red once proves the test is genuinely wired to the thing you think it is testing. Skip that and you have a test you cannot trust, which is worse than having no test at all, because you will trust it anyway.
 
-The biggest pitfall: students will try to write code first, then tests. Stop them. The tests come first, or the exercise doesn't work.
+**Then write the least code that turns it green.** Not the version you expect to need eventually. The minimum. If that feels like cheating, it is not. The next failing test is what tells you the real shape, and writing ahead of your tests is how you end up with code that nothing covers.
+
+**Then refactor and watch the tests stay green.** This is the payoff for the whole exercise. Change the internals, rename things, pull out a helper, restructure the state. If the tests stay green you know the behaviour survived, and you did not have to click through the interface to find out. A suite that goes red when you refactor without changing behaviour is testing implementation rather than behaviour, which is the mistake Concept 2 describes.
+
+One exercise is worth doing once, and it takes about ten minutes. Write the same assertion twice, first as a snapshot test and then with `screen.getByRole()`. Break the component on purpose by changing the button label, and run both. The snapshot tells you that something changed. The role query tells you what broke and where. That difference is the entire argument against snapshots, and reading it is not the same as watching it happen.
+
+The temptation, when you are working alone, is to write the component first and add the tests afterwards. Everyone feels it and there is nothing stopping you. The cost is specific rather than moral: a test written after the code tends to assert what the code happens to do, bugs included, because you write it while looking at the implementation. Written first, the test says what the component is supposed to do, and that is the only moment you get to describe the behaviour before you know how it will work.
 
 ---
 
 ## Next Steps
 
-- **Design Systems in Code** builds on this: **Integration Tests**, testing multiple components together, API mocking, async flows.
-- **Motion & Interaction Engineering** covers **Accessibility Testing**, making sure your components work for everyone.
+- **Module 11** puts the components you just tested into a design system: tokens, theming, and component APIs that survive contact with a real product.
+- **Module 12** adds motion to those components, including the `prefers-reduced-motion` behaviour every one of them should honour.
 - **Side quest:** Add a fetching example with `async/await` and mock the API call (the _only_ time mocking is good).
