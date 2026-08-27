@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bookmark, Check, X } from "lucide-react";
-import { flyToBoard } from "@/lib/coverly/board-fly";
+import { flyToBoard, primeFlySounds } from "@/lib/coverly/board-fly";
 import { rememberLastBoard } from "@/lib/coverly/last-board";
 import {
   addCoverToBoard,
@@ -39,6 +39,7 @@ export function AddToBoard({
   const [newName, setNewName] = useState("");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
   const instanceId = useId();
 
   const holding = boards.filter((b) => b.covers.includes(coverId));
@@ -72,6 +73,43 @@ export function AddToBoard({
     };
   }, [open, instanceId]);
 
+  useEffect(() => {
+    if (!open) return;
+    const el = popRef.current;
+    if (!el) return;
+    const place = () => {
+      el.style.transform = "none";
+      const r = el.getBoundingClientRect();
+      const m = 8;
+      let dx = 0;
+      if (r.left < m) dx = m - r.left;
+      else if (r.right > window.innerWidth - m) {
+        dx = window.innerWidth - m - r.right;
+      }
+      const anchor = containerRef.current?.getBoundingClientRect();
+      let dy = 0;
+      if (anchor) {
+        const needed = r.height + 12;
+        const roomBelow = window.innerHeight - anchor.bottom;
+        const roomAbove = anchor.top;
+        if (roomBelow < needed && roomAbove >= needed) {
+          dy = -(anchor.height + r.height + 12);
+        }
+      }
+      el.style.transform =
+        dx || dy
+          ? `translate(${Math.round(dx)}px, ${Math.round(dy)}px)`
+          : "none";
+    };
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [open, boards.length]);
+
   const flash = (next: Status) => {
     if (timer.current) clearTimeout(timer.current);
     setStatus(next);
@@ -79,6 +117,7 @@ export function AddToBoard({
   };
 
   const openPicker = () => {
+    primeFlySounds();
     document.dispatchEvent(
       new CustomEvent(PICKER_OPEN_EVENT, { detail: instanceId }),
     );
@@ -122,7 +161,7 @@ export function AddToBoard({
       className={
         variant === "icon"
           ? "absolute right-2 top-2 z-10"
-          : "relative inline-flex flex-wrap items-center"
+          : "relative z-20 inline-flex flex-wrap items-center"
       }
       onClick={(e) => e.stopPropagation()}
     >
@@ -226,72 +265,90 @@ export function AddToBoard({
       )}
 
       {open && (
-        <div className="absolute right-0 top-full z-30 mt-1.5 w-60 rounded-[1rem] border bg-card p-2 text-left shadow-lg">
-          <div className="mb-1 flex items-center justify-between gap-2 border-b pb-1.5 pl-1.5">
-            <span className="text-xs font-medium">Save to board</span>
-            <button
-              onClick={() => setOpen(false)}
-              aria-label="Close"
-              className="flex h-5 w-5 items-center justify-center rounded-[0.4rem] text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <X className="h-3.5 w-3.5" strokeWidth={2} />
-            </button>
-          </div>
-
-          {boards.length === 0 ? (
-            <p className="px-1.5 pb-2 text-xs text-muted-foreground">
-              No boards yet — name one to get started.
-            </p>
-          ) : (
-            boards.map((board) => {
-              const has = board.covers.includes(coverId);
-              return (
-                <button
-                  key={board.id}
-                  onClick={() => toggleBoard(board)}
-                  aria-label={
-                    has ? `Remove from ${board.name}` : `Save to ${board.name}`
-                  }
-                  className="group/row flex w-full items-center justify-between gap-2 rounded-[0.5rem] px-2 py-1.5 text-left text-xs hover:bg-muted"
-                >
-                  <span className="truncate">{board.name}</span>
-                  {has && (
-                    <>
-                      <span className="flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground group-hover/row:hidden">
-                        <Check className="h-3 w-3" strokeWidth={2.5} />
-                        Added
-                      </span>
-                      <span className="hidden shrink-0 items-center gap-1 text-[10px] font-medium text-red-600 group-hover/row:inline-flex">
-                        <X className="h-3 w-3" strokeWidth={2.5} />
-                        Remove
-                      </span>
-                    </>
-                  )}
-                </button>
-              );
-            })
-          )}
-
-          <form
-            className={`flex items-center gap-1.5 ${
-              boards.length === 0 ? "" : "mt-1 border-t pt-2"
-            }`}
-            onSubmit={handleCreateBoard}
+        <div
+          ref={popRef}
+          className="absolute right-0 top-full z-30 mt-1.5 w-60 text-left"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.16, ease: [0.2, 0.8, 0.2, 1] }}
+            className="origin-top-right rounded-[1rem] border border-border/70 bg-card/90 p-2 shadow-2xl ring-1 ring-black/5 backdrop-blur-2xl backdrop-saturate-150 dark:ring-white/10"
           >
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="Board name"
-              aria-label="New board name"
-              className="min-w-0 flex-1 rounded-[0.5rem] border border-border bg-background px-2 py-1.5 text-xs outline-none placeholder:text-muted-foreground/70 focus:border-foreground/40"
-            />
-            <button
-              disabled={!newName.trim()}
-              className="shrink-0 rounded-[0.5rem] bg-foreground px-2.5 py-1.5 text-xs font-medium text-background transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-35"
+            <div className="mb-1 flex items-center justify-between gap-2 border-b border-border/60 pb-1.5 pl-1.5">
+              <span className="text-xs font-medium">Save to board</span>
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Close"
+                className="flex h-5 w-5 items-center justify-center rounded-[0.4rem] text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" strokeWidth={2} />
+              </button>
+            </div>
+
+            {boards.length === 0 ? (
+              <p className="px-1.5 pb-2 text-xs text-muted-foreground">
+                No boards yet — name one to get started.
+              </p>
+            ) : (
+              <div className="max-h-[min(50vh,15rem)] overflow-y-auto">
+                {boards.map((board) => {
+                  const has = board.covers.includes(coverId);
+                  return (
+                    <button
+                      key={board.id}
+                      onClick={() => toggleBoard(board)}
+                      aria-label={
+                        has
+                          ? `Remove from ${board.name}`
+                          : `Save to ${board.name}`
+                      }
+                      className="group/row flex w-full items-center justify-between gap-2 rounded-[0.5rem] px-2 py-1.5 text-left text-xs hover:bg-muted"
+                    >
+                      <span className="truncate">{board.name}</span>
+                      {has && (
+                        <>
+                          <span className="flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground [@media(hover:hover)]:group-hover/row:hidden">
+                            <Check className="h-3 w-3" strokeWidth={2.5} />
+                            Added
+                            <X
+                              className="h-3 w-3 text-red-600 [@media(hover:hover)]:hidden"
+                              strokeWidth={2.5}
+                            />
+                          </span>
+                          <span className="hidden shrink-0 items-center gap-1 text-[10px] font-medium text-red-600 [@media(hover:hover)]:group-hover/row:inline-flex">
+                            <X className="h-3 w-3" strokeWidth={2.5} />
+                            Remove
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            <form
+              className={`flex items-center gap-1.5 ${
+                boards.length === 0 ? "" : "mt-1 border-t border-border/60 pt-2"
+              }`}
+              onSubmit={handleCreateBoard}
             >
-              Create
-            </button>
-          </form>
+              <input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Board name"
+                aria-label="New board name"
+                className="min-w-0 flex-1 rounded-[0.5rem] border border-border/80 bg-background/80 px-2 py-1.5 text-xs outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-foreground/40 focus:bg-background"
+              />
+              <button
+                disabled={!newName.trim()}
+                className="shrink-0 rounded-[0.5rem] bg-foreground px-2.5 py-1.5 text-xs font-medium text-background transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-35"
+              >
+                Create
+              </button>
+            </form>
+          </motion.div>
         </div>
       )}
     </div>

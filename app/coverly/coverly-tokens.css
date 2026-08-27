@@ -195,3 +195,40 @@
 .animate-heart-pulse {
   animation: heart-pulse 0.6s cubic-bezier(0.4, 0, 0.6, 1);
 }
+
+.dock-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.18);
+  outline: none;
+  cursor: pointer;
+}
+.dock-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: #fff;
+  border: none;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.45);
+  cursor: grab;
+}
+.dock-range::-webkit-slider-thumb:active {
+  cursor: grabbing;
+}
+.dock-range::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: #fff;
+  border: none;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.45);
+  cursor: grab;
+}
+.dock-range:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 0.6);
+  outline-offset: 4px;
+}

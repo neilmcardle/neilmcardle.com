@@ -3,10 +3,67 @@
 import { createCoverlyPublicClient } from "@/lib/coverly/supabase/public";
 import { withHeights } from "@/lib/coverly/book-size";
 import {
+  applyCoverFilters,
   fetchCoverPage,
   type CoverCard,
   type CoverFilters,
 } from "@/lib/coverly/queries";
+
+export type MapPoint = {
+  id: string;
+  title: string;
+  author: string | null;
+  year: number | null;
+  image_url: string;
+  hex: string;
+};
+
+const MAP_CHUNK = 1000;
+
+export async function fetchMapPoints(
+  filters: CoverFilters,
+): Promise<MapPoint[]> {
+  const supabase = createCoverlyPublicClient();
+  if (!supabase) return [];
+
+  const points: MapPoint[] = [];
+  for (let from = 0; from < 12000; from += MAP_CHUNK) {
+    const base = supabase
+      .from("covers")
+      .select("id, title, author, year, image_url, palette")
+      .not("sub_genre", "is", null)
+      .eq("delisted", false)
+      .not("palette", "is", null)
+      .range(from, from + MAP_CHUNK - 1);
+
+    const { data, error } = await applyCoverFilters(base, filters);
+    if (error) break;
+
+    const rows = (data ?? []) as {
+      id: string;
+      title: string;
+      author: string | null;
+      year: number | null;
+      image_url: string;
+      palette: { colors: string[] } | null;
+    }[];
+
+    for (const row of rows) {
+      const hex = row.palette?.colors?.[0];
+      if (!hex) continue;
+      points.push({
+        id: row.id,
+        title: row.title,
+        author: row.author,
+        year: row.year,
+        image_url: row.image_url,
+        hex,
+      });
+    }
+    if (rows.length < MAP_CHUNK) break;
+  }
+  return points;
+}
 
 export async function loadMoreCovers(
   filters: CoverFilters,

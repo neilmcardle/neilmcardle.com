@@ -6,6 +6,7 @@ import { useLastBrowse } from "@/lib/coverly/last-browse";
 import { BoardsIcon } from "./boards-icon";
 import { CoverflowIcon } from "./coverflow-icon";
 import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 type IconName = "grid" | "layout";
 type NavItem = { href: string; label: string; icon?: IconName };
@@ -48,8 +49,59 @@ export function NavCapsule({ items }: { items: NavItem[] }) {
   const activeIndex = items.findIndex((i) => isActive(i.href));
   const transition = reduceMotion ? { duration: 0 } : SPRING;
 
+  const navRef = useRef<HTMLElement>(null);
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const settledRef = useRef(false);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    const pill = pillRef.current;
+    if (!nav || !pill) return;
+
+    const place = () => {
+      const target = nav.querySelector<HTMLElement>("[data-nav-active]");
+      if (!target) {
+        pill.style.opacity = "0";
+        return;
+      }
+      const n = nav.getBoundingClientRect();
+      const t = target.getBoundingClientRect();
+      pill.style.opacity = "1";
+      pill.style.width = `${t.width}px`;
+      pill.style.height = `${t.height}px`;
+      pill.style.transform = `translate(${t.left - n.left}px, ${t.top - n.top}px)`;
+      if (!settledRef.current) {
+        settledRef.current = true;
+        requestAnimationFrame(() => {
+          pill.style.transition = reduceMotion
+            ? "none"
+            : "transform 380ms cubic-bezier(0.34, 1.4, 0.64, 1), width 380ms cubic-bezier(0.34, 1.4, 0.64, 1)";
+        });
+      }
+    };
+
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(nav);
+    for (const child of Array.from(nav.children)) observer.observe(child);
+    window.addEventListener("resize", place);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", place);
+    };
+  }, [activeIndex, reduceMotion]);
+
   return (
-    <nav className="relative flex items-center gap-0.5 rounded-full border border-border/70 bg-card p-1 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
+    <nav
+      ref={navRef}
+      className="relative flex items-center gap-0.5 rounded-full border border-border/70 bg-card p-1 shadow-[0_1px_8px_rgba(0,0,0,0.06)]"
+    >
+      <span
+        ref={pillRef}
+        aria-hidden="true"
+        style={{ opacity: 0 }}
+        className="pointer-events-none absolute left-0 top-0 rounded-full bg-foreground"
+      />
       {items.map((item, i) => {
         const active = i === activeIndex;
         const icon = item.icon ? ICONS[item.icon] : null;
@@ -61,21 +113,13 @@ export function NavCapsule({ items }: { items: NavItem[] }) {
               item.href === "/coverly/boards" ? "board" : undefined
             }
             aria-current={active ? "page" : undefined}
+            data-nav-active={active ? "" : undefined}
             className={`relative flex items-center rounded-full py-1.5 pl-3.5 pr-4 text-sm font-medium transition-colors duration-200 ${
               active
                 ? "text-background"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            {active && (
-              <motion.span
-                layoutId="coverly-nav-pill"
-                aria-hidden="true"
-                className="absolute inset-0 rounded-full bg-foreground"
-                transition={transition}
-              />
-            )}
-
             {icon && (
               <motion.span
                 aria-hidden="true"

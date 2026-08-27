@@ -11,7 +11,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { LayoutGroup, motion } from "framer-motion";
-import { SimilarCovers, SIMILAR_ROW_HEIGHT } from "./similar-covers";
+import { SimilarCovers, rowMetrics } from "./similar-covers";
+import { TunerPanel } from "./tuner-panel";
+import { DOCK_FIELDS, DOCK_TITLE, FLY_FIELDS, FLY_TITLE } from "./tuner-fields";
+import { dockTuner, useDockConfig } from "@/lib/coverly/dock-config";
+import { flyTuner } from "@/lib/coverly/fly-config";
+import { flyToBoard } from "@/lib/coverly/board-fly";
 import {
   fetchCoverDetail,
   fetchSimilarCovers,
@@ -247,7 +252,13 @@ export function CoverGrid({
           ? body
           : document.scrollingElement || document.documentElement
       ) as HTMLElement;
-      const delta = card.getBoundingClientRect().top - SCROLL_MARGIN;
+      const headerH =
+        parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--coverly-header-h",
+          ),
+        ) || 0;
+      const delta = card.getBoundingClientRect().top - headerH - SCROLL_MARGIN;
       if (Math.abs(delta) < 8) return;
       target.scrollTo({
         top: Math.max(0, target.scrollTop + delta),
@@ -332,8 +343,43 @@ export function CoverGrid({
     ? covers.find((c) => c.id === expandedId)
     : null;
 
+  const replayFlight = () => {
+    const root = containerRef.current;
+    if (!root) return;
+    const imgs = Array.from(root.querySelectorAll<HTMLImageElement>("img"));
+    const visible = imgs.find((img) => {
+      const r = img.getBoundingClientRect();
+      return (
+        r.width > 0 &&
+        r.height > 0 &&
+        r.bottom > 0 &&
+        r.top < window.innerHeight
+      );
+    });
+    flyToBoard(visible ?? imgs[0] ?? null);
+  };
+
   return (
     <>
+      {process.env.NODE_ENV !== "production" && (
+        <>
+          <TunerPanel
+            tuner={dockTuner}
+            title={DOCK_TITLE}
+            fields={DOCK_FIELDS}
+            pill="Dock"
+            offset={20}
+          />
+          <TunerPanel
+            tuner={flyTuner}
+            title={FLY_TITLE}
+            fields={FLY_FIELDS}
+            pill="Flight"
+            offset={68}
+            action={{ label: "Replay flight", run: replayFlight }}
+          />
+        </>
+      )}
       <div ref={containerRef} className="relative">
         {covers.map((cover) => (
           <BrowseCard
@@ -482,6 +528,8 @@ function DetailPanel({
 }) {
   const [shown, setShown] = useState(false);
   const bigRef = useRef<HTMLImageElement>(null);
+  const dock = useDockConfig();
+  const skeletonRow = rowMetrics(dock.peak, dock.height, dock.anchor);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setShown(true));
@@ -615,17 +663,26 @@ function DetailPanel({
 
         {similar === null && (
           <div className="mt-5">
-            <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+            <p className="relative z-10 mb-2 text-xs uppercase tracking-wide text-muted-foreground">
               Similar covers
             </p>
             <div
-              style={{ height: SIMILAR_ROW_HEIGHT }}
-              className="flex items-end gap-2 overflow-x-auto pb-1"
+              style={{
+                paddingTop: skeletonRow.top,
+                paddingBottom: skeletonRow.bottom,
+                minHeight: skeletonRow.total,
+                gap: dock.gap,
+              }}
+              className="flex items-end overflow-x-auto"
             >
               {Array.from({ length: 12 }).map((_, i) => (
                 <span
                   key={i}
-                  className="h-24 w-16 shrink-0 animate-pulse rounded bg-muted"
+                  style={{
+                    height: dock.height,
+                    width: Math.round(dock.height * 0.66),
+                  }}
+                  className="shrink-0 animate-pulse rounded bg-muted"
                 />
               ))}
             </div>
@@ -634,7 +691,7 @@ function DetailPanel({
 
         {similar !== null && similar.length > 0 && (
           <div className="mt-5">
-            <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+            <p className="relative z-10 mb-2 text-xs uppercase tracking-wide text-muted-foreground">
               Similar covers
             </p>
             <SimilarCovers
