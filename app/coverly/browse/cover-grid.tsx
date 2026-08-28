@@ -9,7 +9,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Heart, X } from "lucide-react";
+import { ArrowUpRight, Heart, X } from "lucide-react";
 import { LayoutGroup, motion } from "framer-motion";
 import { SimilarCovers, rowMetrics } from "./similar-covers";
 import { TunerPanel } from "./tuner-panel";
@@ -210,6 +210,7 @@ export function CoverGrid({
     }
 
     cont.style.height = `${containerH}px`;
+    cont.classList.remove("invisible");
     if (expandedId && detailRef.current && detailTop != null) {
       detailRef.current.style.top = `${detailTop}px`;
       detailRef.current.style.transition = useAnim
@@ -221,6 +222,13 @@ export function CoverGrid({
   useLayoutEffect(() => {
     relayout();
   }, [relayout, activeDetail]);
+
+  useEffect(() => {
+    const cont = containerRef.current;
+    if (!cont) return;
+    const safety = setTimeout(() => cont.classList.remove("invisible"), 800);
+    return () => clearTimeout(safety);
+  }, []);
 
   useEffect(() => {
     const el = detailRef.current;
@@ -391,7 +399,7 @@ export function CoverGrid({
           />
         </>
       )}
-      <div ref={containerRef} className="relative">
+      <div ref={containerRef} className="invisible relative">
         {covers.map((cover) => (
           <BrowseCard
             key={cover.id}
@@ -573,6 +581,14 @@ export function DetailPanel({
         transform: shown ? "none" : "translateY(-6px)",
       }}
     >
+      <Link
+        href={`/coverly/covers/${cover.id}`}
+        aria-label="Open full page"
+        title="Open full page"
+        className="absolute right-11 top-3 flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+      >
+        <ArrowUpRight className="h-4 w-4" strokeWidth={2} />
+      </Link>
       <button
         onClick={onClose}
         aria-label="Close"
@@ -582,18 +598,29 @@ export function DetailPanel({
       </button>
 
       <div className="w-28 shrink-0 sm:w-44">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          ref={bigRef}
-          src={cover.image_url}
-          alt={cover.title}
-          className="aspect-[2/3] w-full rounded-lg object-cover shadow-md"
-        />
+        <Link
+          href={`/coverly/covers/${cover.id}`}
+          aria-label={`Open full page for ${cover.title}`}
+          className="block"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            ref={bigRef}
+            src={cover.image_url}
+            alt={cover.title}
+            className="aspect-[2/3] w-full rounded-lg object-cover shadow-md outline outline-2 outline-offset-2 outline-transparent transition-[outline-color,box-shadow] duration-200 hover:shadow-lg hover:outline-foreground/25"
+          />
+        </Link>
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="pr-8 text-xl font-semibold leading-tight">
-          {cover.title}
+        <h3 className="pr-20 text-xl font-semibold leading-tight">
+          <Link
+            href={`/coverly/covers/${cover.id}`}
+            className="underline decoration-transparent underline-offset-4 transition-colors duration-200 hover:decoration-foreground/40"
+          >
+            {cover.title}
+          </Link>
         </h3>
         <p className="mt-1.5 font-medium leading-snug">
           {cover.author ?? "Unknown author"}
@@ -689,22 +716,6 @@ export function DetailPanel({
                 />
                 {liked ? "Liked" : "Like"}
               </button>
-            </motion.div>
-            <motion.div
-              layout
-              transition={{
-                type: "spring",
-                stiffness: 420,
-                damping: 36,
-                mass: 0.8,
-              }}
-            >
-              <Link
-                href={`/coverly/covers/${cover.id}`}
-                className="block rounded-[0.625rem] border px-4 py-2 text-sm hover:bg-muted/60"
-              >
-                Open full page
-              </Link>
             </motion.div>
           </div>
         </LayoutGroup>

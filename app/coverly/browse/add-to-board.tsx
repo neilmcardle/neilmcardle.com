@@ -243,10 +243,8 @@ export function AddToBoard({
                 status.message
               ) : (
                 <>
-                  {status.kind === "saved" ? (
+                  {status.kind === "saved" && (
                     <Check className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
-                  ) : (
-                    <X className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
                   )}
                   <span>
                     {status.kind === "saved" ? "Saved to" : "Removed from"}
