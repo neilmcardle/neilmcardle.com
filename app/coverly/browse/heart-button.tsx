@@ -18,7 +18,7 @@ export function HeartButton({
     onToggle();
     if (!liked) {
       setJustLiked(true);
-      setTimeout(() => setJustLiked(false), 600);
+      setTimeout(() => setJustLiked(false), 1000);
     }
   };
 

@@ -2,6 +2,7 @@
 
 import { Heart } from "lucide-react";
 import { LayoutGroup, motion } from "framer-motion";
+import { useRef, useState } from "react";
 import { useLikes } from "@/lib/coverly/use-likes";
 import { AddToBoard } from "../../browse/add-to-board";
 
@@ -15,6 +16,16 @@ const SPRING = {
 export function CoverActions({ coverId }: { coverId: string }) {
   const { isLiked, toggle } = useLikes();
   const liked = isLiked(coverId);
+  const [justLiked, setJustLiked] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const onLike = () => {
+    toggle(coverId);
+    if (liked) return;
+    if (timer.current) clearTimeout(timer.current);
+    setJustLiked(true);
+    timer.current = setTimeout(() => setJustLiked(false), 1000);
+  };
 
   return (
     <LayoutGroup>
@@ -28,12 +39,14 @@ export function CoverActions({ coverId }: { coverId: string }) {
         />
         <motion.div layout transition={SPRING}>
           <button
-            onClick={() => toggle(coverId)}
+            onClick={onLike}
             aria-pressed={liked}
             className="flex items-center gap-2 rounded-[0.625rem] border px-4 py-2 text-sm hover:bg-muted/60"
           >
             <Heart
-              className={`h-4 w-4 ${liked ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
+              className={`h-4 w-4 ${liked ? "fill-red-500 text-red-500" : "text-muted-foreground"} ${
+                justLiked && liked ? "animate-heart-pulse" : ""
+              }`}
               strokeWidth={2}
             />
             {liked ? "Liked" : "Like"}
