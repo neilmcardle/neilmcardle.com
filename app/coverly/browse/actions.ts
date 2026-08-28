@@ -84,7 +84,6 @@ export type CoverDetailData = {
   author: string | null;
   imprint: string | null;
   year: number | null;
-  designer_credit: string | null;
   sub_genre: string | null;
   art_style: string | null;
   typography: string | null;
@@ -102,7 +101,7 @@ export async function fetchCoverDetail(
   const { data: cover } = await supabase
     .from("covers")
     .select(
-      "id, isbn13, image_url, title, author, imprint, year, designer_credit, sub_genre, art_style, typography, people, layout, palette",
+      "id, isbn13, image_url, title, author, imprint, year, sub_genre, art_style, typography, people, layout, palette",
     )
     .eq("id", id)
     .eq("delisted", false)

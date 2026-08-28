@@ -17,7 +17,6 @@ export type DeckCover = {
   author: string | null;
   imprint: string | null;
   year: number | null;
-  designer_credit: string | null;
   image_url: string;
 };
 
@@ -91,9 +90,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
 }
 
 function caption(cover: DeckCover): string {
-  return [cover.designer_credit, cover.imprint, cover.year]
-    .filter(Boolean)
-    .join("  ·  ");
+  return [cover.imprint, cover.year].filter(Boolean).join("  ·  ");
 }
 
 function Footer({ boardName }: { boardName: string }) {

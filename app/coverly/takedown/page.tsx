@@ -20,8 +20,7 @@ export default function TakedownPage() {
       <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
         Coverly is a research tool for book cover designers. It shows covers at
         reduced resolution, hotlinked from their source and never rehosted,
-        alongside the publisher and — where we know it — the designer.{" "}
-        {RIGHTS_NOTICE}
+        alongside the publisher. {RIGHTS_NOTICE}
       </p>
 
       <h2 className="mt-10 text-sm font-semibold">
@@ -55,13 +54,6 @@ export default function TakedownPage() {
         Decks already exported and saved by users are outside our control, in
         the same way a printed page is. Everything we serve, we can and will
         remove.
-      </p>
-
-      <h2 className="mt-10 text-sm font-semibold">Corrections</h2>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-        If a cover is credited to the wrong designer, or has no designer credit
-        and should, that&rsquo;s worth an email too — to the same address. Cover
-        designers are chronically uncredited and we would rather get it right.
       </p>
     </div>
   );

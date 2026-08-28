@@ -1,8 +1,12 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import { createSample } from "./sfx";
 
 const LIKES_STORAGE_KEY = "coverly:likes";
+const HEART_VOLUME = 0.3;
+
+const heartBeat = createSample("/coverly/heart-beat.mp3");
 
 const EMPTY: ReadonlySet<string> = new Set<string>();
 let snapshot: ReadonlySet<string> | null = null;
@@ -33,7 +37,10 @@ function onStorage(e: StorageEvent) {
 }
 
 function subscribe(listener: () => void) {
-  if (listeners.size === 0) window.addEventListener("storage", onStorage);
+  if (listeners.size === 0) {
+    window.addEventListener("storage", onStorage);
+    heartBeat.prime();
+  }
   listeners.add(listener);
   return () => {
     listeners.delete(listener);
@@ -43,12 +50,14 @@ function subscribe(listener: () => void) {
 
 export function toggleLike(coverId: string) {
   const next = new Set(getSnapshot());
-  if (next.has(coverId)) next.delete(coverId);
-  else next.add(coverId);
+  const adding = !next.has(coverId);
+  if (adding) next.add(coverId);
+  else next.delete(coverId);
   snapshot = next;
   try {
     localStorage.setItem(LIKES_STORAGE_KEY, JSON.stringify(Array.from(next)));
   } catch {}
+  if (adding) heartBeat.play(HEART_VOLUME);
   listeners.forEach((l) => l());
 }
 

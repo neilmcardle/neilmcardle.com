@@ -40,7 +40,7 @@ export async function POST(req: Request) {
 
   const { data, error } = await supabase
     .from("covers")
-    .select("id, title, author, imprint, year, designer_credit, image_url")
+    .select("id, title, author, imprint, year, image_url")
     .in("id", coverIds)
     .eq("delisted", false);
 

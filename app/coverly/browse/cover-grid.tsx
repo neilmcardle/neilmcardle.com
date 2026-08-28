@@ -572,14 +572,16 @@ export function DetailPanel({
         <h3 className="pr-8 text-xl font-semibold leading-tight">
           {cover.title}
         </h3>
-        <p className="mt-1 text-muted-foreground">
+        <p className="mt-1.5 font-medium leading-snug">
           {cover.author ?? "Unknown author"}
-          {cover.year ? ` · ${cover.year}` : ""}
-          {cover.imprint ? ` · ${cover.imprint}` : ""}
         </p>
-        {detail?.designer_credit && (
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Designer: {detail.designer_credit}
+        {(cover.year || cover.imprint) && (
+          <p className="mt-1 text-sm leading-snug text-muted-foreground">
+            {cover.year && (
+              <span className="font-mono tabular-nums">{cover.year}</span>
+            )}
+            {cover.year && cover.imprint ? " · " : ""}
+            {cover.imprint}
           </p>
         )}
 

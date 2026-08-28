@@ -6,6 +6,7 @@ import {
   type CoverDetailData,
 } from "../../browse/actions";
 import { CoverActions } from "./cover-actions";
+import { CopyIsbn } from "./copy-isbn";
 import { BackLink } from "../../back-link";
 
 export const dynamic = "force-dynamic";
@@ -58,15 +59,19 @@ export default async function CoverPage({
           <h1 className="text-2xl font-semibold leading-tight tracking-tight">
             {cover.title}
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="mt-2 text-lg font-medium leading-snug">
             {cover.author ?? "Unknown author"}
-            {cover.year ? ` · ${cover.year}` : ""}
-            {cover.imprint ? ` · ${cover.imprint}` : ""}
           </p>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Designer: {cover.designer_credit ?? "unknown"}
-            {cover.isbn13 ? ` · ISBN ${cover.isbn13}` : ""}
-          </p>
+          {(cover.year || cover.imprint) && (
+            <p className="mt-1 text-sm leading-snug text-muted-foreground">
+              {cover.year && (
+                <span className="font-mono tabular-nums">{cover.year}</span>
+              )}
+              {cover.year && cover.imprint ? " · " : ""}
+              {cover.imprint}
+            </p>
+          )}
+          {cover.isbn13 && <CopyIsbn isbn={cover.isbn13} />}
 
           <dl className="mt-5 grid max-w-lg grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
             {TAGS.map(([key, label]) =>
