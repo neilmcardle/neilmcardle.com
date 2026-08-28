@@ -7,9 +7,24 @@ import type { MapPoint } from "./actions";
 
 type Placed = MapPoint & { x: number; y: number };
 
+const HUE_BANDS: { label: string; from: number; to: number }[] = [
+  { label: "Red", from: 345, to: 375 },
+  { label: "Orange", from: 15, to: 45 },
+  { label: "Yellow", from: 45, to: 70 },
+  { label: "Green", from: 70, to: 160 },
+  { label: "Teal", from: 160, to: 195 },
+  { label: "Blue", from: 195, to: 255 },
+  { label: "Purple", from: 255, to: 290 },
+  { label: "Pink", from: 290, to: 345 },
+];
+
 const IMAGE_ZOOM = 2.4;
-const MAX_IMAGES = 220;
-const PAD = 56;
+const MAX_IMAGES = 600;
+const PAD = 14;
+const AXIS = 26;
+
+export const ZOOM_MIN = 0.6;
+export const ZOOM_MAX = 40;
 
 function hash(id: string) {
   let h = 2166136261;
@@ -25,11 +40,13 @@ export function ColourMap({
   zoom,
   onZoom,
   onOpen,
+  selectedId,
 }: {
   points: MapPoint[];
   zoom: number;
   onZoom: (z: number) => void;
   onOpen: (id: string) => void;
+  selectedId: string | null;
 }) {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -40,6 +57,15 @@ export function ColourMap({
   const drawRef = useRef<() => void>(() => {});
 
   const [hover, setHover] = useState<Placed | null>(null);
+  const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
+  const [atDefault, setAtDefault] = useState(true);
+  const cappedRef = useRef(0);
+  const [capped, setCapped] = useState(0);
+  const [frameSize, setFrameSize] = useState({ w: 0, h: 0 });
+  const tipMax = {
+    w: Math.max(8, frameSize.w - 232),
+    h: Math.max(8, frameSize.h - 96),
+  };
   const onOpenRef = useRef(onOpen);
   const onZoomRef = useRef(onZoom);
 
@@ -88,29 +114,64 @@ export function ColourMap({
 
     const { k, tx, ty } = viewRef.current;
     const iw = w - PAD * 2;
-    const ih = h - PAD * 2;
+    const ih = h - PAD - AXIS;
     const sx = (p: Placed) => PAD + p.x * iw * k + tx;
     const sy = (p: Placed) => PAD + p.y * ih * k + ty;
 
-    ctx.strokeStyle = "rgba(0,0,0,0.07)";
+    const styles = getComputedStyle(canvas);
+    const borderColor = styles.getPropertyValue("--coverly-border").trim();
+    const inkColor = styles.getPropertyValue("--coverly-foreground").trim();
+    const mutedColor = styles
+      .getPropertyValue("--coverly-muted-foreground")
+      .trim();
+    const bgColor = styles.getPropertyValue("--coverly-card").trim();
+
+    const hueX = (deg: number) => PAD + (deg / 360) * iw * k + tx;
+
+    ctx.save();
+    ctx.strokeStyle = borderColor || "#ddd";
     ctx.lineWidth = 1;
-    for (let i = 0; i <= 6; i++) {
-      const gx = PAD + (i / 6) * iw * k + tx;
+    ctx.globalAlpha = 0.5;
+    for (const band of HUE_BANDS) {
+      const gx = Math.round(hueX(band.from)) + 0.5;
+      if (gx < -1 || gx > w + 1) continue;
       ctx.beginPath();
       ctx.moveTo(gx, 0);
-      ctx.lineTo(gx, h);
+      ctx.lineTo(gx, h - 18);
       ctx.stroke();
     }
+    ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = mutedColor || "#888";
+    ctx.font =
+      '500 10px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
+    ctx.textBaseline = "alphabetic";
+    for (const band of HUE_BANDS) {
+      const centre = hueX((band.from + band.to) / 2);
+      const label = band.label;
+      const half = ctx.measureText(label).width / 2;
+      if (centre - half < 2 || centre + half > w - 2) continue;
+      ctx.textAlign = "center";
+      ctx.fillText(label, centre, h - 5);
+    }
+    ctx.textAlign = "left";
+    ctx.fillText("Light", 4, 12);
+    ctx.fillText("Dark", 4, h - 22);
+    ctx.restore();
 
     const size = Math.max(3, 7 * Math.sqrt(k));
+    const dotAlpha = Math.min(1, 0.45 + 0.22 * (k - 1));
     const showImages = k >= IMAGE_ZOOM;
     let drawn = 0;
+    let skipped = 0;
 
     for (const p of placed) {
       const px = sx(p);
       const py = sy(p);
       if (px < -40 || px > w + 40 || py < -60 || py > h + 60) continue;
 
+      if (showImages && drawn >= MAX_IMAGES) skipped++;
       if (showImages && drawn < MAX_IMAGES) {
         drawn++;
         const cached = imagesRef.current.get(p.id);
@@ -128,7 +189,7 @@ export function ColourMap({
           const ch = size * 3.2;
           const cw = ch * 0.66;
           ctx.save();
-          ctx.shadowColor = "rgba(0,0,0,0.28)";
+          ctx.shadowColor = "rgba(0,0,0,0.32)";
           ctx.shadowBlur = 6;
           ctx.shadowOffsetY = 2;
           ctx.drawImage(cached, px - cw / 2, py - ch / 2, cw, ch);
@@ -137,27 +198,64 @@ export function ColourMap({
         }
       }
 
+      ctx.globalAlpha = dotAlpha;
       ctx.fillStyle = p.hex;
       ctx.beginPath();
       ctx.arc(px, py, size / 2, 0, Math.PI * 2);
       ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    if (cappedRef.current !== skipped) {
+      cappedRef.current = skipped;
+      setCapped(skipped);
+    }
+
+    const chosen = selectedId
+      ? placed.find((p) => p.id === selectedId)
+      : undefined;
+    if (chosen) {
+      const px = sx(chosen);
+      const py = sy(chosen);
+      const r = size / 2 + 7;
+      ctx.save();
+      ctx.strokeStyle = bgColor || "#fff";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = inkColor || "#000";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
     }
 
     const hovered = hoverRef.current;
     if (hovered) {
       const px = sx(hovered);
       const py = sy(hovered);
-      ctx.strokeStyle = "rgba(0,0,0,0.9)";
+      ctx.strokeStyle = inkColor || "#000";
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.arc(px, py, size / 2 + 5, 0, Math.PI * 2);
       ctx.stroke();
     }
-  }, [placed, schedule]);
+  }, [placed, schedule, selectedId]);
 
   useEffect(() => {
     drawRef.current = draw;
   }, [draw]);
+
+  useEffect(() => {
+    const observer = new MutationObserver(schedule);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, [schedule]);
 
   useEffect(() => {
     const v = viewRef.current;
@@ -179,7 +277,7 @@ export function ColourMap({
       if (!canvas) return null;
       const { k, tx, ty } = viewRef.current;
       const iw = canvas.clientWidth - PAD * 2;
-      const ih = canvas.clientHeight - PAD * 2;
+      const ih = canvas.clientHeight - PAD - AXIS;
       const r = Math.max(6, 7 * Math.sqrt(k));
       let best: Placed | null = null;
       let bestD = r * r;
@@ -201,7 +299,10 @@ export function ColourMap({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const observer = new ResizeObserver(schedule);
+    const observer = new ResizeObserver(() => {
+      setFrameSize({ w: canvas.clientWidth, h: canvas.clientHeight });
+      schedule();
+    });
     observer.observe(canvas);
     schedule();
 
@@ -215,7 +316,9 @@ export function ColourMap({
       moved = false;
       lastX = e.clientX;
       lastY = e.clientY;
-      canvas.setPointerCapture(e.pointerId);
+      try {
+        canvas.setPointerCapture(e.pointerId);
+      } catch {}
     };
     const onMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -225,12 +328,14 @@ export function ColourMap({
         if (Math.abs(dx) > 2 || Math.abs(dy) > 2) moved = true;
         viewRef.current.tx += dx;
         viewRef.current.ty += dy;
+        setAtDefault(false);
         lastX = e.clientX;
         lastY = e.clientY;
         schedule();
         return;
       }
       const found = pick(e.clientX - rect.left, e.clientY - rect.top);
+      setCursor({ x: e.clientX - rect.left, y: e.clientY - rect.top });
       if (found !== hoverRef.current) {
         hoverRef.current = found;
         setHover(found);
@@ -239,7 +344,9 @@ export function ColourMap({
     };
     const onUp = (e: PointerEvent) => {
       dragging = false;
-      canvas.releasePointerCapture(e.pointerId);
+      try {
+        canvas.releasePointerCapture(e.pointerId);
+      } catch {}
       if (moved) return;
       const rect = canvas.getBoundingClientRect();
       const found = pick(e.clientX - rect.left, e.clientY - rect.top);
@@ -248,6 +355,7 @@ export function ColourMap({
     const onLeave = () => {
       hoverRef.current = null;
       setHover(null);
+      setCursor(null);
       schedule();
     };
     const onWheel = (e: WheelEvent) => {
@@ -256,12 +364,14 @@ export function ColourMap({
       const cx = e.clientX - rect.left;
       const cy = e.clientY - rect.top;
       const v = viewRef.current;
-      const factor = Math.exp(-e.deltaY * 0.0015);
-      const next = Math.min(14, Math.max(0.6, v.k * factor));
+      const intensity = e.ctrlKey ? 0.014 : 0.0032;
+      const factor = Math.exp(-e.deltaY * intensity);
+      const next = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, v.k * factor));
       const ratio = next / v.k;
       v.tx = cx - PAD - (cx - PAD - v.tx) * ratio;
       v.ty = cy - PAD - (cy - PAD - v.ty) * ratio;
       v.k = next;
+      setAtDefault(false);
       onZoomRef.current(next);
       schedule();
     };
@@ -283,16 +393,43 @@ export function ColourMap({
 
   const reset = () => {
     viewRef.current = { k: 1, tx: 0, ty: 0 };
+    setAtDefault(true);
     onZoom(1);
     schedule();
   };
 
+  if (!points.length) {
+    return (
+      <div className="flex h-[min(52dvh,420px)] flex-col items-center justify-center gap-1 rounded-[1rem] border border-dashed bg-card/40 text-center">
+        <p className="text-sm font-medium">No covers to plot</p>
+        <p className="max-w-xs text-xs text-muted-foreground">
+          Nothing matches these filters. Clear one to see the colour spread
+          again.
+        </p>
+      </div>
+    );
+  }
+
+  const tip =
+    hover && cursor
+      ? {
+          left: Math.min(Math.max(cursor.x + 16, 8), tipMax.w),
+          top: Math.min(Math.max(cursor.y + 16, 8), tipMax.h),
+        }
+      : null;
+
   return (
     <div className="flex flex-col">
-      <div className="mb-2 flex justify-end">
+      <div className="mb-2 flex items-center justify-end gap-3">
+        {capped > 0 && (
+          <span className="text-[11px] text-muted-foreground">
+            {capped.toLocaleString()} more covers here — zoom in to see them
+          </span>
+        )}
         <button
           onClick={reset}
-          className="rounded-[0.5rem] border px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+          disabled={atDefault}
+          className="rounded-[0.5rem] border px-2.5 py-1 text-xs text-muted-foreground transition-opacity hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
         >
           Reset view
         </button>
@@ -303,8 +440,11 @@ export function ColourMap({
           ref={canvasRef}
           className="h-full w-full cursor-crosshair touch-none"
         />
-        {hover && (
-          <div className="pointer-events-none absolute bottom-4 left-5 max-w-xs rounded-[0.75rem] border border-border/70 bg-card/90 px-3 py-2 shadow-xl backdrop-blur-xl">
+        {hover && tip && (
+          <div
+            style={{ left: tip.left, top: tip.top }}
+            className="pointer-events-none absolute z-10 w-56 rounded-[0.75rem] border border-border/70 bg-card/90 px-3 py-2 shadow-xl backdrop-blur-xl"
+          >
             <p className="truncate text-xs font-medium">{hover.title}</p>
             <p className="truncate text-[11px] text-muted-foreground">
               {[hover.author, hover.year].filter(Boolean).join(" · ")}

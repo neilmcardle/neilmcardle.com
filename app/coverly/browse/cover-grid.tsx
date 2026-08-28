@@ -511,7 +511,7 @@ const TAGS: [keyof CoverDetailData, string][] = [
   ["layout", "Layout"],
 ];
 
-function DetailPanel({
+export function DetailPanel({
   cover,
   detail,
   similar,

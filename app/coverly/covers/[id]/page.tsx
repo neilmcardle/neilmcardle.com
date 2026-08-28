@@ -47,6 +47,7 @@ export default async function CoverPage({
         <div className="w-full max-w-xs shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            data-cover-hero=""
             src={cover.image_url}
             alt={`Cover of ${cover.title}${cover.author ? ` by ${cover.author}` : ""}`}
             className="w-full rounded-2xl border bg-muted shadow-sm"

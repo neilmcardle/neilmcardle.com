@@ -1,6 +1,12 @@
 "use client";
 
 import { ChartScatter, LayoutGrid, Rows2 } from "lucide-react";
+import { ZOOM_MAX, ZOOM_MIN } from "./colour-map";
+
+const SPAN = Math.log(ZOOM_MAX / ZOOM_MIN);
+const zoomToPos = (z: number) =>
+  Math.round((Math.log(z / ZOOM_MIN) / SPAN) * 100);
+const posToZoom = (p: number) => ZOOM_MIN * Math.exp((p / 100) * SPAN);
 
 export type LayoutMode = "grid" | "bookshelf" | "map";
 
@@ -33,10 +39,10 @@ export function ViewControls({
         {mode === "map" ? (
           <input
             type="range"
-            min={60}
-            max={900}
-            value={Math.round(zoom * 100)}
-            onChange={(e) => onZoom(Number(e.target.value) / 100)}
+            min={0}
+            max={100}
+            value={zoomToPos(zoom)}
+            onChange={(e) => onZoom(posToZoom(Number(e.target.value)))}
             aria-label="Map zoom"
             title="Map zoom"
             className="size-slider w-20 sm:w-24"

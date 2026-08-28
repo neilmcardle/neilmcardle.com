@@ -19,7 +19,13 @@ export function CoverActions({ coverId }: { coverId: string }) {
   return (
     <LayoutGroup>
       <div className="mt-6 flex items-center gap-2">
-        <AddToBoard coverId={coverId} variant="button" flyFrom={() => null} />
+        <AddToBoard
+          coverId={coverId}
+          variant="button"
+          flyFrom={() =>
+            document.querySelector<HTMLImageElement>("[data-cover-hero]")
+          }
+        />
         <motion.div layout transition={SPRING}>
           <button
             onClick={() => toggle(coverId)}
