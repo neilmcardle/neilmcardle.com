@@ -49,6 +49,15 @@ export const DOCK_FIELDS: TunerField<DockConfig>[] = [
     step: 0.05,
   },
   {
+    key: "tilt",
+    label: "Tilt",
+    hint: "rotation of the cover under the cursor",
+    min: -12,
+    max: 12,
+    step: 0.5,
+    unit: "°",
+  },
+  {
     key: "height",
     label: "Cover height",
     hint: "resting height of each cover",

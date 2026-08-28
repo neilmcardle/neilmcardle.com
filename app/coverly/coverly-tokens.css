@@ -243,3 +243,14 @@
   outline: 2px solid rgb(255 255 255 / 0.6);
   outline-offset: 4px;
 }
+
+html.dark .size-slider,
+html.dark .dock-range {
+  border: none;
+  background: transparent;
+  color: inherit;
+}
+
+html.dark .dock-range {
+  background: rgb(255 255 255 / 0.18);
+}

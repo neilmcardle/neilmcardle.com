@@ -7,6 +7,7 @@ import {
 } from "../../browse/actions";
 import { CoverActions } from "./cover-actions";
 import { CopyIsbn } from "./copy-isbn";
+import { PaletteStrip } from "./palette-strip";
 import { BackLink } from "../../back-link";
 
 export const dynamic = "force-dynamic";
@@ -110,21 +111,7 @@ export default async function CoverPage({
 
           {cover.palette?.colors && cover.palette.colors.length > 0 && (
             <div className="mt-5">
-              <p className="mb-2 text-xs text-muted-foreground">Palette</p>
-              <div className="flex flex-wrap gap-2">
-                {cover.palette.colors.map((hex) => (
-                  <div key={hex} className="text-center">
-                    <span
-                      title={hex}
-                      className="block h-9 w-9 rounded-md border border-black/10"
-                      style={{ backgroundColor: hex }}
-                    />
-                    <span className="mt-1 block text-[10px] text-muted-foreground">
-                      {hex}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <PaletteStrip colors={cover.palette.colors} />
             </div>
           )}
 
@@ -147,9 +134,9 @@ export default async function CoverPage({
                   src={s.image_url}
                   alt={s.title}
                   loading="lazy"
-                  className="w-full rounded-lg shadow-sm transition-transform group-hover:-translate-y-0.5"
+                  className="w-full rounded-lg shadow-sm outline outline-2 outline-offset-2 outline-transparent transition-[outline-color,box-shadow] duration-200 group-hover:shadow-md group-hover:outline-foreground/25"
                 />
-                <p className="mt-1.5 line-clamp-2 text-xs font-medium">
+                <p className="mt-1.5 line-clamp-2 text-xs font-medium underline decoration-transparent underline-offset-2 transition-colors duration-200 group-hover:decoration-foreground/40">
                   {s.title}
                 </p>
                 <p className="line-clamp-1 text-xs text-muted-foreground">

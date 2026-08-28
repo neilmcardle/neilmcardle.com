@@ -14,6 +14,7 @@ import {
   type Board,
 } from "@/lib/coverly/use-boards";
 import { useHydrated } from "@/lib/coverly/use-hydrated";
+import { useMediaQuery } from "@/lib/coverly/use-media-query";
 
 const CONFIRM_MS = 4200;
 const PICKER_OPEN_EVENT = "coverly:picker-open";
@@ -34,6 +35,7 @@ export function AddToBoard({
 }) {
   const boards = useBoards();
   const hydrated = useHydrated();
+  const attached = useMediaQuery("(min-width: 1024px)");
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<Status | null>(null);
   const [newName, setNewName] = useState("");
@@ -209,23 +211,33 @@ export function AddToBoard({
               }
               role="status"
               aria-live="polite"
-              layout
-              initial={{ opacity: 0, x: -28 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -28 }}
+              layout={attached}
+              initial={
+                attached
+                  ? { opacity: 0, x: -28 }
+                  : { opacity: 0, y: 14, x: "-50%" }
+              }
+              animate={
+                attached
+                  ? { opacity: 1, x: 0 }
+                  : { opacity: 1, y: 0, x: "-50%" }
+              }
+              exit={
+                attached
+                  ? { opacity: 0, x: -28 }
+                  : { opacity: 0, y: 14, x: "-50%" }
+              }
               transition={{
                 type: "spring",
                 stiffness: 420,
                 damping: 36,
                 mass: 0.8,
               }}
-              className={`-ml-5 inline-flex h-9 items-center gap-1.5 rounded-l-none rounded-r-[0.625rem] pl-8 pr-3.5 text-xs ${
-                status.kind === "saved"
-                  ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                  : status.kind === "removed"
-                    ? "bg-muted text-muted-foreground"
-                    : "bg-red-500/10 text-red-600"
-              }`}
+              className={
+                attached
+                  ? "-ml-5 inline-flex h-9 items-center gap-1.5 rounded-l-none rounded-r-[0.625rem] bg-foreground pl-8 pr-3.5 text-xs text-background"
+                  : "fixed bottom-5 left-1/2 z-50 inline-flex h-10 max-w-[calc(100vw-2rem)] items-center gap-1.5 rounded-full bg-foreground px-4 text-xs text-background shadow-xl"
+              }
             >
               {status.kind === "error" ? (
                 status.message
@@ -241,7 +253,7 @@ export function AddToBoard({
                   </span>
                   <Link
                     href={`/coverly/boards/${status.board.id}`}
-                    className="font-medium underline underline-offset-2 hover:opacity-80"
+                    className="truncate font-medium underline underline-offset-2 hover:opacity-80"
                   >
                     {status.board.name}
                   </Link>
@@ -256,7 +268,7 @@ export function AddToBoard({
         <div
           role="status"
           aria-live="polite"
-          className="absolute right-0 top-full z-30 mt-1 w-max max-w-56 rounded-[0.625rem] border bg-card px-2 py-1 text-xs shadow-md"
+          className="absolute right-0 top-full z-30 mt-1 w-max max-w-56 rounded-[0.625rem] bg-foreground px-2.5 py-1.5 text-xs text-background shadow-lg"
         >
           {status.kind === "error"
             ? status.message
@@ -308,15 +320,11 @@ export function AddToBoard({
                       <span className="truncate">{board.name}</span>
                       {has && (
                         <>
-                          <span className="flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground [@media(hover:hover)]:group-hover/row:hidden">
+                          <span className="hidden shrink-0 items-center gap-1 text-[10px] text-muted-foreground [@media(hover:hover)]:flex [@media(hover:hover)]:group-hover/row:hidden">
                             <Check className="h-3 w-3" strokeWidth={2.5} />
                             Added
-                            <X
-                              className="h-3 w-3 text-red-600 [@media(hover:hover)]:hidden"
-                              strokeWidth={2.5}
-                            />
                           </span>
-                          <span className="hidden shrink-0 items-center gap-1 text-[10px] font-medium text-red-600 [@media(hover:hover)]:group-hover/row:inline-flex">
+                          <span className="inline-flex shrink-0 items-center gap-1 text-[10px] font-medium text-red-600 [@media(hover:hover)]:hidden [@media(hover:hover)]:group-hover/row:inline-flex">
                             <X className="h-3 w-3" strokeWidth={2.5} />
                             Remove
                           </span>

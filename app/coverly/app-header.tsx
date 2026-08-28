@@ -1,14 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { NavCapsule } from "./nav-capsule";
-import { LikesButton } from "./likes-button";
+import { BackControls } from "./back-link";
 import { SoundToggle } from "./sound-toggle";
 import { LOGOMARK_PATH, LOGOMARK_VIEWBOX } from "./logomark";
 
 export function CoverlyAppHeader() {
   const ref = useRef<HTMLElement>(null);
+  const pathname = usePathname();
+  const onDetail = pathname.startsWith("/coverly/covers/");
 
   useEffect(() => {
     const el = ref.current;
@@ -36,7 +39,7 @@ export function CoverlyAppHeader() {
       >
         Skip to covers
       </a>
-      <div className="relative flex w-full flex-wrap items-center justify-between px-4 py-4 sm:px-6">
+      <div className="relative flex w-full flex-wrap items-center justify-between px-4 py-2.5 sm:px-6 sm:py-4">
         <Link href="/coverly/browse" aria-label="Coverly home">
           <svg
             viewBox={LOGOMARK_VIEWBOX}
@@ -48,7 +51,12 @@ export function CoverlyAppHeader() {
           </svg>
         </Link>
 
-        <div className="order-last flex w-full justify-center pt-3 md:absolute md:left-1/2 md:order-none md:w-auto md:-translate-x-1/2 md:pt-0">
+        <div className="order-last flex w-full items-center justify-center gap-2 pt-2 md:absolute md:left-1/2 md:order-none md:w-auto md:-translate-x-1/2 md:pt-0">
+          {onDetail && (
+            <span className="flex items-center gap-2 md:hidden">
+              <BackControls compact />
+            </span>
+          )}
           <NavCapsule
             items={[
               { href: "/coverly/browse", label: "Browse", icon: "grid" },
@@ -59,7 +67,6 @@ export function CoverlyAppHeader() {
 
         <div className="flex items-center gap-2 text-sm">
           <SoundToggle />
-          <LikesButton />
         </div>
       </div>
     </header>

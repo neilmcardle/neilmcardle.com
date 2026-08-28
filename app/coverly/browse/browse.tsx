@@ -22,9 +22,13 @@ import { ViewControls, type LayoutMode } from "./view-controls";
 
 const MODE_KEY = "coverly:view-mode";
 const SIZE_KEY = "coverly:view-size";
+const COLS_KEY = "coverly:view-cols";
 
 const parseMode = (raw: string): LayoutMode | null =>
   raw === "grid" || raw === "bookshelf" || raw === "map" ? raw : null;
+
+const parseCols = (raw: string): number | null =>
+  raw === "1" || raw === "2" ? Number(raw) : null;
 
 const parseSize = (raw: string): number | null => {
   const value = Number(raw);
@@ -42,6 +46,7 @@ export function Browse({
 }) {
   const [mode, setMode] = useLocalPref<LayoutMode>(MODE_KEY, "grid", parseMode);
   const [size, setSize] = useLocalPref<number>(SIZE_KEY, 170, parseSize);
+  const [columns, setColumns] = useLocalPref<number>(COLS_KEY, 2, parseCols);
   const [zoom, setZoom] = useState(1);
   const [points, setPoints] = useState<MapPoint[] | null>(null);
   const [pickedId, setPickedId] = useState<string | null>(null);
@@ -134,9 +139,12 @@ export function Browse({
           mode={mode}
           size={size}
           zoom={zoom}
+          columns={columns}
+          narrow={isNarrow}
           onMode={setMode}
           onSize={setSize}
           onZoom={setZoom}
+          onColumns={setColumns}
           showModes={!isNarrow}
         />
       </div>
@@ -183,6 +191,7 @@ export function Browse({
           filters={filters}
           mode={effectiveMode}
           size={size}
+          columns={isNarrow ? columns : null}
         />
       )}
     </>

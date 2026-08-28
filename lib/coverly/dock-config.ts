@@ -8,6 +8,7 @@ export type DockConfig = {
   curve: number;
   ease: number;
   anchor: number;
+  tilt: number;
   height: number;
   gap: number;
   volume: number;
@@ -19,6 +20,7 @@ export const DOCK_DEFAULTS: DockConfig = {
   curve: 2.9,
   ease: 110,
   anchor: 0.35,
+  tilt: -2,
   height: 88,
   gap: 12,
   volume: 0.2,

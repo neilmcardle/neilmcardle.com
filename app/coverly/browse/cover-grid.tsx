@@ -9,7 +9,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { X } from "lucide-react";
+import { Heart, X } from "lucide-react";
 import { LayoutGroup, motion } from "framer-motion";
 import { SimilarCovers, rowMetrics } from "./similar-covers";
 import { TunerPanel } from "./tuner-panel";
@@ -45,12 +45,14 @@ export function CoverGrid({
   filters,
   mode,
   size,
+  columns,
 }: {
   initialCovers: CoverCardType[];
   total: number;
   filters: CoverFilters;
   mode: LayoutMode;
   size: number;
+  columns?: number | null;
 }) {
   const [covers, setCovers] = useState(initialCovers);
   const [page, setPage] = useState(0);
@@ -182,7 +184,10 @@ export function CoverGrid({
       containerH = Math.max(0, y - SHELF_GAP + 4);
     } else {
       const GRID_GAP = 10;
-      const cols = Math.max(1, Math.floor((W + GRID_GAP) / (colW + GRID_GAP)));
+      const cols =
+        columns && columns > 0
+          ? columns
+          : Math.max(1, Math.floor((W + GRID_GAP) / (colW + GRID_GAP)));
       const realW = (W - GRID_GAP * (cols - 1)) / cols;
       const h = realW * 1.5;
       const expRow = expIdx >= 0 ? Math.floor(expIdx / cols) : -1;
@@ -211,7 +216,7 @@ export function CoverGrid({
         ? `top .34s ${EASE}`
         : "none";
     }
-  }, [covers, expandedId, mode, size]);
+  }, [covers, expandedId, mode, size, columns]);
 
   useLayoutEffect(() => {
     relayout();
@@ -258,7 +263,13 @@ export function CoverGrid({
             "--coverly-header-h",
           ),
         ) || 0;
-      const delta = card.getBoundingClientRect().top - headerH - SCROLL_MARGIN;
+      const cont = containerRef.current;
+      const settled = parseFloat(card.style.top);
+      const cardTop =
+        cont && Number.isFinite(settled)
+          ? cont.getBoundingClientRect().top + settled
+          : card.getBoundingClientRect().top;
+      const delta = cardTop - headerH - SCROLL_MARGIN;
       if (Math.abs(delta) < 8) return;
       target.scrollTo({
         top: Math.max(0, target.scrollTop + delta),
@@ -529,6 +540,18 @@ export function DetailPanel({
   const [shown, setShown] = useState(false);
   const bigRef = useRef<HTMLImageElement>(null);
   const dock = useDockConfig();
+  const { isLiked, toggle } = useLikes();
+  const liked = isLiked(cover.id);
+  const [justLiked, setJustLiked] = useState(false);
+  const likeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const onLike = () => {
+    toggle(cover.id);
+    if (liked) return;
+    if (likeTimer.current) clearTimeout(likeTimer.current);
+    setJustLiked(true);
+    likeTimer.current = setTimeout(() => setJustLiked(false), 1000);
+  };
   const skeletonRow = rowMetrics(dock.peak, dock.height, dock.anchor);
 
   useEffect(() => {
@@ -644,6 +667,29 @@ export function DetailPanel({
               variant="button"
               flyFrom={() => bigRef.current}
             />
+            <motion.div
+              layout
+              transition={{
+                type: "spring",
+                stiffness: 420,
+                damping: 36,
+                mass: 0.8,
+              }}
+            >
+              <button
+                onClick={onLike}
+                aria-pressed={liked}
+                className="flex items-center gap-2 rounded-[0.625rem] border px-4 py-2 text-sm hover:bg-muted/60"
+              >
+                <Heart
+                  className={`h-4 w-4 ${liked ? "fill-red-500 text-red-500" : "text-muted-foreground"} ${
+                    justLiked && liked ? "animate-heart-pulse" : ""
+                  }`}
+                  strokeWidth={2}
+                />
+                {liked ? "Liked" : "Like"}
+              </button>
+            </motion.div>
             <motion.div
               layout
               transition={{

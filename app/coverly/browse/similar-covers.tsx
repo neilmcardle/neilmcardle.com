@@ -9,6 +9,8 @@ import {
   useDockConfig,
 } from "@/lib/coverly/dock-config";
 
+const TWIST_EASE = 2.4;
+
 export function rowMetrics(peak: number, height: number, anchor: number) {
   const growth = Math.max(0, height * (peak - 1));
   const top = Math.ceil(growth * anchor) + 2;
@@ -58,7 +60,7 @@ export function SimilarCovers({
 
     const apply = (cursorX: number | null) => {
       if (!centres.length) return;
-      const { peak, reach, curve } = getDockConfig();
+      const { peak, reach, curve, tilt } = getDockConfig();
       const origin =
         cursorX === null
           ? null
@@ -73,7 +75,9 @@ export function SimilarCovers({
           const away = Math.min(gap / (widths[i] * reach), 1);
           scale = 1 + (peak - 1) * Math.cos((away * Math.PI) / 2) ** curve;
         }
-        item.style.transform = `scale(${scale.toFixed(3)})`;
+        const lift = peak > 1 ? (scale - 1) / (peak - 1) : 0;
+        const spin = (tilt * lift ** TWIST_EASE).toFixed(2);
+        item.style.transform = `scale(${scale.toFixed(3)}) rotate(${spin}deg)`;
         item.style.zIndex = String(Math.round(scale * 1000));
       });
     };
