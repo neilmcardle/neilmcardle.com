@@ -75,6 +75,14 @@ const GROUPS: Group[] = [
         external: true,
       },
       {
+        title: "Time Teacher",
+        category: "Tool · Education",
+        description:
+          "A clock that lights up only the words you say to tell the time, in the order you say them.",
+        href: "/time-teacher/ybo",
+        external: false,
+      },
+      {
         title: "Touchtype",
         category: "Tool · Education · Solo-built",
         description:
@@ -106,7 +114,11 @@ function Row({ entry }: { entry: Entry }) {
         <div className="flex items-baseline gap-3 flex-wrap">
           <span
             className="text-cream"
-            style={{ fontFamily: "var(--font-inter)", fontSize: "1.0625rem", fontWeight: 500 }}
+            style={{
+              fontFamily: "var(--font-inter)",
+              fontSize: "1.0625rem",
+              fontWeight: 500,
+            }}
           >
             {entry.title}
           </span>
@@ -124,7 +136,11 @@ function Row({ entry }: { entry: Entry }) {
         </div>
         <p
           className="text-cream/60 mt-1.5"
-          style={{ fontFamily: "var(--font-inter)", fontSize: "0.9375rem", lineHeight: 1.55 }}
+          style={{
+            fontFamily: "var(--font-inter)",
+            fontSize: "0.9375rem",
+            lineHeight: 1.55,
+          }}
         >
           {entry.description}
         </p>
@@ -137,7 +153,11 @@ function Row({ entry }: { entry: Entry }) {
         stroke="currentColor"
         strokeWidth={1.5}
       >
-        <path d="M7 17L17 7M7 7h10v10" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M7 17L17 7M7 7h10v10"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     </>
   );
@@ -146,7 +166,12 @@ function Row({ entry }: { entry: Entry }) {
     "group flex items-start gap-5 py-5 border-b border-white/10 transition-colors hover:border-gold/30";
 
   return entry.external ? (
-    <a href={entry.href} target="_blank" rel="noopener noreferrer" className={cls}>
+    <a
+      href={entry.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cls}
+    >
       {inner}
     </a>
   ) : (
@@ -170,8 +195,19 @@ export default function ArchivePage() {
             textTransform: "uppercase",
           }}
         >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-            <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            className="w-3.5 h-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 6l-6 6 6 6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
           Neil McArdle
         </Link>
@@ -190,7 +226,11 @@ export default function ArchivePage() {
         </h1>
         <p
           className="text-cream/60 mt-5 max-w-md"
-          style={{ fontFamily: "var(--font-inter)", fontSize: "1.0625rem", lineHeight: 1.6 }}
+          style={{
+            fontFamily: "var(--font-inter)",
+            fontSize: "1.0625rem",
+            lineHeight: 1.6,
+          }}
         >
           Other things I&apos;ve designed and built. Tools, a few games for my
           kids, and the odd book.
