@@ -430,7 +430,7 @@
   background-color: #060605;
   background-image: url(/hero/dot-matrix.svg);
   background-size: 4.45361px 4.46743px;
-  cursor: crosshair;
+  cursor: pointer;
   overflow: hidden;
 }
 
