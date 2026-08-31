@@ -165,20 +165,19 @@ function Plate({
               <path
                 key={i}
                 d={s.d}
-                pathLength={isStatic ? undefined : 1}
-                className={`${className} ${
-                  s.accent
-                    ? isStatic
-                      ? styles.archiveStaticAccent
-                      : styles.strokeAccent
-                    : ""
-                } ${
-                  layer.faint
-                    ? isStatic
-                      ? styles.archiveStaticFaint
-                      : styles.strokeFaint
-                    : ""
-                }`}
+                fill={s.fill ?? "none"}
+                stroke={s.stroke ?? "none"}
+                strokeWidth={s.stroke ? 1.4 : 0}
+                strokeLinecap="round"
+                opacity={s.opacity ?? 1}
+                pathLength={isStatic || !s.stroke ? undefined : 1}
+                className={
+                  isStatic
+                    ? undefined
+                    : s.fill
+                      ? styles.blockMark
+                      : styles.stroke
+                }
                 style={
                   isStatic
                     ? undefined

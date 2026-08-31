@@ -446,21 +446,19 @@
 }
 
 .stroke {
-  fill: none;
-  stroke: rgba(251, 249, 243, 0.62);
-  stroke-width: 1.15;
-  stroke-linecap: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   animation: draw 760ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
-.strokeAccent {
-  stroke: rgba(216, 180, 106, 0.85);
+.blockMark {
+  animation: blockIn 620ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
-.strokeFaint {
-  stroke: rgba(251, 249, 243, 0.27);
+@keyframes blockIn {
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes draw {
@@ -834,6 +832,9 @@
   .stroke {
     animation: none;
     stroke-dashoffset: 0;
+  }
+  .blockMark {
+    animation: none;
   }
   .idTilt {
     transition: none;

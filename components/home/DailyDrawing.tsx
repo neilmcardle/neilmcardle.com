@@ -104,8 +104,13 @@ export default function DailyDrawing() {
                     <path
                       key={i}
                       d={s.d}
-                      pathLength={1}
-                      className={`${styles.stroke} ${s.accent ? styles.strokeAccent : ""} ${layer.faint ? styles.strokeFaint : ""}`}
+                      fill={s.fill ?? "none"}
+                      stroke={s.stroke ?? "none"}
+                      strokeWidth={s.stroke ? 1.4 : 0}
+                      strokeLinecap="round"
+                      opacity={s.opacity ?? 1}
+                      pathLength={s.stroke ? 1 : undefined}
+                      className={s.fill ? styles.blockMark : styles.stroke}
                       style={{
                         animationDelay: `${((before + i) / total) * SPREAD_MS}ms`,
                       }}

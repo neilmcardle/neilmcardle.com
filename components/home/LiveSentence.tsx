@@ -104,10 +104,8 @@ export default function LiveSentence({
   return (
     <div className={styles.sentenceWrap}>
       <p className={styles.sentence}>
-        Neil McArdle is a {tok("role", "product designer")} in{" "}
-        {tok("london", "London")} who builds the things he designs. Currently{" "}
-        {tok("makeebook", "makeEbook")}, {tok("coverly", "Coverly")}, and{" "}
-        {tok("doodlewire", "DoodleWire")}.{" "}
+        I&rsquo;m Neil, a {tok("role", "product designer")} in{" "}
+        {tok("london", "London")}. I build what I design,{" "}
         <IdeaPhrase open={open === "idea"} onShow={show} onHide={hide} />
       </p>
 
@@ -192,7 +190,7 @@ function IdeaPhrase({
     <button
       type="button"
       className={`${styles.tok} ${open ? styles.tokOpen : ""}`}
-      aria-label="One idea at a time"
+      aria-label="one idea at a time"
       onPointerEnter={(e) => {
         if (e.pointerType === "mouse") onShow("idea", e.currentTarget);
       }}
@@ -203,7 +201,7 @@ function IdeaPhrase({
       onBlur={onHide}
       onClick={(e) => (open ? onHide() : onShow("idea", e.currentTarget))}
     >
-      One{" "}
+      one{" "}
       <span
         className={`${styles.cycler} ${swapping ? styles.cyclerSwap : ""}`}
         aria-hidden="true"

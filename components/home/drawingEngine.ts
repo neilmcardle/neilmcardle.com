@@ -1,6 +1,11 @@
-export type Stroke = { d: string; accent: boolean };
+export type Mark = {
+  d: string;
+  fill?: string;
+  stroke?: string;
+  opacity?: number;
+};
 
-export type Layer = { transform: string; strokes: Stroke[]; faint?: boolean };
+export type Layer = { transform: string; strokes: Mark[]; faint?: boolean };
 
 export type Drawing = {
   layers: Layer[];
@@ -10,12 +15,19 @@ export type Drawing = {
 };
 
 export const CANVAS = 400;
-const MARGIN = 30;
-const INNER = CANVAS - MARGIN * 2;
-const CX = CANVAS / 2;
-const R = INNER / 2;
+const MARGIN = 0;
+const INNER = CANVAS;
+const LEFT = 0;
+const RIGHT = CANVAS;
 
-const SYSTEMS = ["Lattice", "Weave", "Orbit", "Contour"] as const;
+const CREAM = "#fbf9f3";
+const GOLD = "#d8b46a";
+const GOLD_BRIGHT = "#f0d091";
+const GOLD_DEEP = "#b8923f";
+const TAN = "#8a7f70";
+const GROUND = "#0a0a0a";
+
+const MOODS = ["Dawn", "Noon", "Dusk", "Snow", "Night"] as const;
 
 function mulberry32(seed: number) {
   let a = seed >>> 0;
@@ -25,6 +37,13 @@ function mulberry32(seed: number) {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+function hash32(x: number) {
+  let h = x | 0;
+  h = Math.imul(h ^ (h >>> 16), 2246822507);
+  h = Math.imul(h ^ (h >>> 13), 3266489909);
+  return (h ^ (h >>> 16)) >>> 0;
 }
 
 function dayOfYear(dayNumber: number) {
@@ -40,279 +59,401 @@ export function dayNumberFor(date: Date) {
 }
 
 const n2 = (v: number) => Math.round(v * 100) / 100;
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-function clipSegment(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  rx: number,
-  ry: number,
-  rw: number,
-  rh: number,
-): [number, number, number, number] | null {
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  let t0 = 0;
-  let t1 = 1;
-  const p = [-dx, dx, -dy, dy];
-  const q = [x1 - rx, rx + rw - x1, y1 - ry, ry + rh - y1];
-  for (let i = 0; i < 4; i++) {
-    if (p[i] === 0) {
-      if (q[i] < 0) return null;
-      continue;
-    }
-    const r = q[i] / p[i];
-    if (p[i] < 0) {
-      if (r > t1) return null;
-      if (r > t0) t0 = r;
-    } else {
-      if (r < t0) return null;
-      if (r < t1) t1 = r;
-    }
-  }
-  if (t1 - t0 < 0.001) return null;
-  return [x1 + t0 * dx, y1 + t0 * dy, x1 + t1 * dx, y1 + t1 * dy];
-}
+type Pt = { x: number; y: number };
+
+const poly = (pts: Pt[], close = false) =>
+  pts.map((p, i) => `${i ? "L" : "M"}${n2(p.x)} ${n2(p.y)}`).join("") +
+  (close ? "Z" : "");
 
 const line = (x1: number, y1: number, x2: number, y2: number) =>
   `M${n2(x1)} ${n2(y1)}L${n2(x2)} ${n2(y2)}`;
 
-function lattice(rf: () => number): Stroke[] {
-  const out: Stroke[] = [];
-  const cols = 4 + Math.floor(rf() * 5);
-  const rows = 4 + Math.floor(rf() * 5);
-  const cell = INNER / Math.max(cols, rows);
-  const gw = cell * cols;
-  const gh = cell * rows;
-  const gx = MARGIN + rf() * (INNER - gw);
-  const gy = MARGIN + rf() * (INNER - gh);
-  const pad = cell * 0.13;
-  const s = cell - pad * 2;
-  const push = (d: string) => out.push({ d, accent: rf() < 0.14 });
+const rect = (x: number, y: number, w: number, h: number) =>
+  `M${n2(x)} ${n2(y)}h${n2(w)}v${n2(h)}h${n2(-w)}Z`;
 
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const x = gx + c * cell + pad;
-      const y = gy + r * cell + pad;
-      const t = rf();
-      if (t < 0.2) {
-        push(line(x, y, x + s, y + s));
-      } else if (t < 0.4) {
-        push(line(x + s, y, x, y + s));
-      } else if (t < 0.58) {
-        const q = Math.floor(rf() * 4);
-        const corners: [number, number, number, number][] = [
-          [x, y + s, x + s, y],
-          [x, y, x + s, y + s],
-          [x + s, y, x, y + s],
-          [x + s, y + s, x, y],
-        ];
-        const [ax, ay, bx, by] = corners[q];
-        push(
-          `M${n2(ax)} ${n2(ay)}A${n2(s)} ${n2(s)} 0 0 1 ${n2(bx)} ${n2(by)}`,
-        );
-      } else if (t < 0.7) {
-        const k = s * 0.55;
-        push(
-          `M${n2(x)} ${n2(y + s)}A${n2(s)} ${n2(s)} 0 0 1 ${n2(x + s)} ${n2(y)}`,
-        );
-        push(
-          `M${n2(x)} ${n2(y + k)}A${n2(k)} ${n2(k)} 0 0 1 ${n2(x + k)} ${n2(y + s)}`.replace(
-            `${n2(y + s)}`,
-            `${n2(y + s)}`,
-          ),
-        );
-      } else if (t < 0.8) {
-        push(line(x, y, x + s, y + s));
-        push(line(x + s, y, x, y + s));
-      } else if (t < 0.88) {
-        const h = s / 2;
-        push(
-          `M${n2(x + h)} ${n2(y)}L${n2(x + s)} ${n2(y + h)}L${n2(x + h)} ${n2(y + s)}L${n2(x)} ${n2(y + h)}Z`,
+const disc = (cx: number, cy: number, r: number) =>
+  `M${n2(cx - r)} ${n2(cy)}a${n2(r)} ${n2(r)} 0 1 0 ${n2(r * 2)} 0a${n2(r)} ${n2(r)} 0 1 0 ${n2(-r * 2)} 0`;
+
+type Palette = {
+  sky: string | null;
+  skyOpacity: number;
+  peak: string;
+  rock: string;
+  hills: string;
+  water: string;
+  waterOpacity: number;
+  bandOpacity: number;
+  disc: string | null;
+};
+
+function paletteFor(mood: string, rf: () => number): Palette {
+  switch (mood) {
+    case "Dawn":
+      return {
+        sky: GOLD,
+        skyOpacity: lerp(0.72, 0.92, rf()),
+        peak: CREAM,
+        rock: GOLD_DEEP,
+        hills: TAN,
+        water: GROUND,
+        waterOpacity: 0.2,
+        bandOpacity: 0.92,
+        disc: GOLD_BRIGHT,
+      };
+    case "Noon":
+      return {
+        sky: CREAM,
+        skyOpacity: lerp(0.12, 0.2, rf()),
+        peak: CREAM,
+        rock: TAN,
+        hills: TAN,
+        water: GROUND,
+        waterOpacity: 0.16,
+        bandOpacity: 0.88,
+        disc: rf() < 0.4 ? GOLD_BRIGHT : null,
+      };
+    case "Dusk":
+      return {
+        sky: GOLD_DEEP,
+        skyOpacity: lerp(0.55, 0.8, rf()),
+        peak: TAN,
+        rock: GROUND,
+        hills: GOLD_DEEP,
+        water: GROUND,
+        waterOpacity: 0.24,
+        bandOpacity: 0.9,
+        disc: GOLD_BRIGHT,
+      };
+    case "Snow":
+      return {
+        sky: CREAM,
+        skyOpacity: lerp(0.06, 0.12, rf()),
+        peak: CREAM,
+        rock: TAN,
+        hills: TAN,
+        water: GROUND,
+        waterOpacity: 0.12,
+        bandOpacity: 0.78,
+        disc: null,
+      };
+    default:
+      return {
+        sky: null,
+        skyOpacity: 0,
+        peak: TAN,
+        rock: GROUND,
+        hills: TAN,
+        water: GROUND,
+        waterOpacity: 0.1,
+        bandOpacity: 0.5,
+        disc: CREAM,
+      };
+  }
+}
+
+function mountainShape(rf: () => number, horizon: number) {
+  const oversized = rf() < 0.3;
+  const peakX = oversized
+    ? lerp(LEFT - INNER * 0.3, RIGHT + INNER * 0.3, rf())
+    : lerp(LEFT + INNER * 0.24, RIGHT - INNER * 0.24, rf());
+  const half =
+    INNER * (oversized ? lerp(0.95, 1.7, rf()) : lerp(0.46, 0.92, rf()));
+  const wanted = half * lerp(0.6, 0.95, rf());
+  const height = oversized
+    ? Math.min(wanted, horizon - INNER * lerp(0.04, 0.16, rf()))
+    : wanted;
+  const peakY = horizon - height;
+  const k = lerp(2.8, 3.8, rf());
+
+  const m = lerp(1.25, 1.6, rf());
+  const floor = Math.exp(-k);
+  const shoulderU = (rf() < 0.5 ? -1 : 1) * lerp(0.4, 0.62, rf());
+  const shoulderAmp = lerp(0.03, 0.1, rf());
+  const wobbleF = 5 + rf() * 7;
+  const wobbleP = rf() * Math.PI * 2;
+
+  const shape = (u: number) => {
+    const core =
+      (Math.exp(-k * Math.pow(Math.abs(u), m)) - floor) / (1 - floor);
+    const bump = shoulderAmp * Math.exp(-Math.pow((u - shoulderU) / 0.18, 2));
+
+    const nick = 0.006 * Math.sin(u * wobbleF + wobbleP);
+    return Math.max(0, core + bump + nick);
+  };
+
+  const topY = (x: number) => {
+    const u = (x - peakX) / half;
+    if (Math.abs(u) >= 1) return horizon;
+    return horizon - height * shape(u);
+  };
+
+  const outline: Pt[] = [];
+  for (let i = 0; i <= 140; i++) {
+    const u = -1 + (i / 140) * 2;
+    outline.push({ x: peakX + u * half, y: horizon - height * shape(u) });
+  }
+
+  return { peakX, peakY, half, height, topY, outline, horizon };
+}
+
+type Mountain = ReturnType<typeof mountainShape>;
+
+function conifer(x: number, baseY: number, h: number, w: number) {
+  const tier = (t: number) => baseY - h * t;
+  return (
+    `M${n2(x)} ${n2(tier(1))}` +
+    `L${n2(x + w * 0.55)} ${n2(tier(0.62))}` +
+    `L${n2(x + w * 0.34)} ${n2(tier(0.6))}` +
+    `L${n2(x + w)} ${n2(tier(0.18))}` +
+    `L${n2(x + w * 0.16)} ${n2(tier(0.14))}` +
+    `L${n2(x + w * 0.16)} ${n2(baseY)}` +
+    `L${n2(x - w * 0.16)} ${n2(baseY)}` +
+    `L${n2(x - w * 0.16)} ${n2(tier(0.14))}` +
+    `L${n2(x - w)} ${n2(tier(0.18))}` +
+    `L${n2(x - w * 0.34)} ${n2(tier(0.6))}` +
+    `L${n2(x - w * 0.55)} ${n2(tier(0.62))}` +
+    `Z`
+  );
+}
+
+function shoreEdge(
+  x0: number,
+  vx: number,
+  vy: number,
+  wob: number,
+  freq: number,
+  phase: number,
+): Pt[] {
+  const pts: Pt[] = [];
+  for (let i = 0; i <= 44; i++) {
+    const t = i / 44;
+    const e = Math.pow(t, 1.55);
+
+    const w1 = Math.sin(t * Math.PI * freq + phase);
+    const w2 = 0.5 * Math.sin(t * Math.PI * freq * 2.7 + phase * 1.7);
+    const w3 = 0.28 * Math.sin(t * Math.PI * freq * 5.1 + phase * 0.6);
+    pts.push({
+      x: lerp(x0, vx, e) + wob * (w1 + w2 + w3) * (1 - t * 0.72),
+      y: lerp(CANVAS, vy, e),
+    });
+  }
+  return pts;
+}
+
+function scene(rf: () => number, mood: string) {
+  const back: Mark[] = [];
+  const front: Mark[] = [];
+
+  const p = {
+    sky: (d: string, fill: string, opacity: number) =>
+      back.push({ d, fill, opacity }),
+    block: (d: string, fill: string, opacity = 1) =>
+      front.push({ d, fill, opacity }),
+    ink: (d: string, stroke: string, opacity = 0.55) =>
+      front.push({ d, stroke, opacity }),
+  };
+
+  const pal = paletteFor(mood, rf);
+  const horizon = INNER * lerp(0.56, 0.82, rf());
+  const m = mountainShape(rf, horizon);
+
+  if (pal.sky)
+    p.sky(rect(0, 0, CANVAS, horizon), pal.sky, pal.skyOpacity * 0.62);
+
+  if (pal.disc) {
+    const r = INNER * lerp(0.05, 0.11, rf());
+    const cx = lerp(LEFT + INNER * 0.1, RIGHT - INNER * 0.1, rf());
+    const cy = lerp(INNER * 0.08, horizon * 0.55, rf());
+    back.push({ d: disc(cx, cy, r), fill: pal.disc, opacity: 0.95 });
+  }
+
+  if (rf() < 0.6) {
+    const ry = horizon - INNER * lerp(0.02, 0.1, rf());
+    const pts: Pt[] = [];
+    const f = 2 + rf() * 4;
+    const ph = rf() * Math.PI * 2;
+    for (let i = 0; i <= 40; i++) {
+      const t = i / 40;
+      pts.push({
+        x: t * CANVAS,
+        y: ry - INNER * 0.035 * Math.abs(Math.sin(t * Math.PI * f + ph)),
+      });
+    }
+    pts.push({ x: CANVAS, y: horizon }, { x: 0, y: horizon });
+    back.push({ d: poly(pts, true), fill: pal.hills, opacity: 0.34 });
+  }
+
+  const body = [
+    ...m.outline,
+    { x: m.peakX + m.half, y: horizon },
+    { x: m.peakX - m.half, y: horizon },
+  ];
+  p.block(poly(body, true), pal.peak, mood === "Night" ? 0.85 : 1);
+
+  const bankAmp = INNER * lerp(0.006, 0.022, rf());
+  const bf = 1 + rf() * 3;
+  const bph = rf() * Math.PI * 2;
+  const bankAt = (t: number) =>
+    horizon - bankAmp * (0.5 + 0.5 * Math.sin(t * Math.PI * 2 * bf + bph));
+
+  const bankPts: Pt[] = [];
+  for (let i = 0; i <= 60; i++) {
+    const t = i / 60;
+    bankPts.push({ x: t * CANVAS, y: bankAt(t) });
+  }
+  p.block(
+    poly([...bankPts, { x: CANVAS, y: CANVAS }, { x: 0, y: CANVAS }], true),
+    pal.hills,
+    pal.bandOpacity * lerp(0.6, 0.82, rf()),
+  );
+
+  if (rf() < 0.85) {
+    let tx = rf() * INNER * 0.1;
+    while (tx < CANVAS) {
+      if (rf() > 0.25) {
+        const h = INNER * lerp(0.024, 0.06, rf());
+        p.block(
+          conifer(tx, bankAt(tx / CANVAS) + 1, h, h * lerp(0.24, 0.36, rf())),
+          pal.rock,
+          0.95,
         );
       }
+      tx += INNER * lerp(0.014, 0.04, rf());
     }
   }
-  return out;
-}
 
-function weave(rf: () => number): Stroke[] {
-  const out: Stroke[] = [];
-  const base = 16 + rf() * 13;
-  const freq = 0.006 + rf() * 0.012;
+  const vx = m.peakX + (rf() - 0.5) * INNER * 0.22;
+  const vy = horizon + INNER * lerp(0.005, 0.03, rf());
+  const narrow = INNER * lerp(0.015, 0.05, rf());
+  const wob = INNER * lerp(0.02, 0.06, rf());
+  const freq = 1.5 + rf() * 2;
   const phase = rf() * Math.PI * 2;
-  const span = CANVAS * 2;
-  const skew = (rf() * 2 - 1) * CANVAS * 0.9;
 
-  for (let o = -CANVAS; o < span;) {
-    const seg = clipSegment(
-      o,
-      -CANVAS,
-      o + span,
-      span,
-      MARGIN,
-      MARGIN,
-      INNER,
-      INNER,
+  const leftShore = shoreEdge(
+    lerp(-0.15, 0.4, rf()) * CANVAS,
+    vx - narrow,
+    vy,
+    wob,
+    freq,
+    phase,
+  );
+  const rightShore = shoreEdge(
+    lerp(0.6, 1.15, rf()) * CANVAS,
+    vx + narrow,
+    vy,
+    wob,
+    freq,
+    phase + 1.1,
+  );
+
+  p.block(
+    poly([...leftShore, ...rightShore.slice().reverse()], true),
+    pal.water,
+    pal.bandOpacity * lerp(0.72, 0.95, rf()),
+  );
+
+  if (rf() < 0.55) {
+    const barX = lerp(0.25, 0.7, rf()) * CANVAS;
+    const barTopY = lerp(vy, CANVAS, lerp(0.3, 0.55, rf()));
+    const barW = INNER * lerp(0.05, 0.14, rf());
+    const a = shoreEdge(
+      barX - barW,
+      vx - narrow * 0.3,
+      barTopY,
+      wob * 0.4,
+      freq,
+      phase + 2.2,
     );
-    if (seg) out.push({ d: line(...seg), accent: rf() < 0.12 });
-    o += Math.max(5, base * (1 + 0.7 * Math.sin(o * freq + phase)));
-    if (out.length > 60) break;
+    const b = shoreEdge(
+      barX + barW,
+      vx + narrow * 0.3,
+      barTopY,
+      wob * 0.4,
+      freq,
+      phase + 2.6,
+    );
+    p.block(
+      poly([...a, ...b.slice().reverse()], true),
+      pal.hills,
+      pal.bandOpacity * lerp(0.45, 0.7, rf()),
+    );
   }
 
-  const ww = INNER * (0.36 + rf() * 0.3);
-  const wh = INNER * (0.36 + rf() * 0.3);
-  const wx = MARGIN + rf() * (INNER - ww);
-  const wy = MARGIN + rf() * (INNER - wh);
-  const tight = Math.max(9, base * 0.7);
-
-  for (let o = -CANVAS; o < span; o += tight) {
-    const seg = clipSegment(o, span, o + span, -CANVAS, wx, wy, ww, wh);
-    if (seg) out.push({ d: line(...seg), accent: rf() < 0.2 });
-    if (out.length > 130) break;
-  }
-
-  out.push({
-    d: `M${n2(wx)} ${n2(wy)}h${n2(ww)}v${n2(wh)}h${n2(-ww)}Z`,
-    accent: true,
-  });
-  return out;
-}
-
-function orbit(rf: () => number): Stroke[] {
-  const out: Stroke[] = [];
-  const rings = 1 + Math.floor(rf() * 2);
-
-  for (let ring = 0; ring < rings; ring++) {
-    const rad = R * (ring === 0 ? 1 : 0.52 + rf() * 0.16);
-    const n = 26 + Math.floor(rf() * 34);
-    const k = 2 + Math.floor(rf() * 8);
-    const rot = rf() * Math.PI * 2;
-    const pt = (i: number): [number, number] => {
-      const a = (i / n) * Math.PI * 2 + rot;
-      return [CX + Math.cos(a) * rad, CX + Math.sin(a) * rad];
-    };
-    for (let i = 0; i < n; i++) {
-      const [ax, ay] = pt(i);
-      const [bx, by] = pt((i * k) % n);
-      if (Math.hypot(bx - ax, by - ay) < 2) continue;
-      out.push({ d: line(ax, ay, bx, by), accent: rf() < 0.13 });
+  if (rf() < 0.45) {
+    const side = rf() < 0.5 ? 0 : 1;
+    const count = 2 + Math.floor(rf() * 4);
+    for (let i = 0; i < count; i++) {
+      const nx = side
+        ? CANVAS - INNER * lerp(0.02, 0.16, rf())
+        : INNER * lerp(0.02, 0.16, rf());
+      const ny = lerp(CANVAS * 0.86, CANVAS, rf());
+      const h = INNER * lerp(0.08, 0.17, rf());
+      p.block(conifer(nx, ny, h, h * lerp(0.22, 0.32, rf())), pal.rock, 1);
     }
-    out.push({
-      d: `M${n2(CX - rad)} ${n2(CX)}a${n2(rad)} ${n2(rad)} 0 1 0 ${n2(rad * 2)} 0a${n2(rad)} ${n2(rad)} 0 1 0 ${n2(-rad * 2)} 0`,
-      accent: ring === 0,
-    });
   }
-  return out;
-}
 
-function contour(rf: () => number): Stroke[] {
-  const out: Stroke[] = [];
-  const rings = 8 + Math.floor(rf() * 7);
-  const f1 = 2 + Math.floor(rf() * 4);
-  const f2 = 4 + Math.floor(rf() * 6);
-  const p1 = rf() * Math.PI * 2;
-  const p2 = rf() * Math.PI * 2;
-  const steps = 150;
-  const open = rf() < 0.35;
-  const sweep = open ? 0.45 + rf() * 0.4 : 1;
-  const startAngle = rf() * Math.PI * 2;
-
-  for (let r = 0; r < rings; r++) {
-    const k = (r + 1) / rings;
-    const base = R * (0.12 + 0.88 * k);
-    const amp = R * 0.11 * (0.35 + k);
-    let d = "";
-    for (let i = 0; i <= steps; i++) {
-      const a = startAngle + (i / steps) * Math.PI * 2 * sweep;
-      const rad =
-        base +
-        amp * (Math.sin(a * f1 + p1 + k * 2) + 0.5 * Math.sin(a * f2 + p2));
-      const x = CX + Math.cos(a) * rad;
-      const y = CX + Math.sin(a) * rad;
-      d += `${i === 0 ? "M" : "L"}${n2(x)} ${n2(y)}`;
+  if (rf() < 0.55) {
+    const flock = 1 + Math.floor(Math.pow(rf(), 1.7) * 16);
+    const bx = lerp(INNER * 0.06, INNER * 0.78, rf());
+    const by = lerp(INNER * 0.06, horizon * 0.55, rf());
+    const drift = INNER * lerp(0.02, 0.06, rf());
+    const scatter = INNER * lerp(0.03, 0.12, rf());
+    for (let i = 0; i < flock; i++) {
+      const x = bx + i * drift + (rf() - 0.5) * scatter;
+      const yy = by + (rf() - 0.5) * scatter - i * INNER * 0.004;
+      const w = INNER * lerp(0.008, 0.018, rf());
+      p.ink(
+        `M${n2(x - w)} ${n2(yy)}L${n2(x)} ${n2(yy - w * 0.55)}L${n2(x + w)} ${n2(yy)}`,
+        mood === "Night" ? CREAM : GROUND,
+        lerp(0.45, 0.75, rf()),
+      );
     }
-    out.push({
-      d: open ? d : d + "Z",
-      accent: r % Math.max(3, rings - 5) === 0,
-    });
   }
-  return out;
+
+  if (rf() < 0.26) {
+    const drops = 40 + Math.floor(rf() * 90);
+    const lean = lerp(0.12, 0.34, rf()) * (rf() < 0.5 ? -1 : 1);
+    const tone = mood === "Snow" || mood === "Night" ? CREAM : pal.peak;
+    for (let i = 0; i < drops; i++) {
+      const x = -INNER * 0.15 + rf() * CANVAS * 1.3;
+      const y = rf() * CANVAS;
+      const len = INNER * lerp(0.03, 0.1, rf());
+      p.ink(line(x, y, x + len * lean, y + len), tone, lerp(0.16, 0.4, rf()));
+    }
+  }
+
+  return { back, front };
 }
 
-function generate(rf: () => number, systemIndex: number): Stroke[] {
-  return systemIndex === 0
-    ? lattice(rf)
-    : systemIndex === 1
-      ? weave(rf)
-      : systemIndex === 2
-        ? orbit(rf)
-        : contour(rf);
-}
-
-function composition(rf: () => number, allowRotation: boolean): string {
-  const scale = 0.62 + rf() * 0.7;
-  const room =
-    scale < 1
-      ? (1 - scale) * INNER * 0.55
-      : (scale - 1) * INNER * 0.4 + INNER * 0.06;
-  const ox = (rf() * 2 - 1) * room;
-  const oy = (rf() * 2 - 1) * room;
-  const rot = allowRotation && rf() < 0.5 ? Math.round(rf() * 360) : 0;
-
-  return [
-    `translate(${n2(ox)} ${n2(oy)})`,
-    rot ? `rotate(${rot} ${CX} ${CX})` : "",
-    `translate(${CX} ${CX})`,
-    `scale(${n2(scale)})`,
-    `translate(${-CX} ${-CX})`,
-  ]
-    .filter(Boolean)
-    .join(" ");
-}
-
-function hash32(x: number) {
-  let h = x | 0;
-  h = Math.imul(h ^ (h >>> 16), 2246822507);
-  h = Math.imul(h ^ (h >>> 13), 3266489909);
-  return (h ^ (h >>> 16)) >>> 0;
-}
-
-function systemFor(dayNumber: number, variant: number) {
+function moodFor(dayNumber: number, variant: number) {
   const pick = (d: number) =>
-    hash32(d * 2654435761 + variant * 40503 + 12345) % 4;
+    hash32(d * 2654435761 + variant * 40503 + 12345) % MOODS.length;
   const today = pick(dayNumber);
   return today === pick(dayNumber - 1)
-    ? (today + 1 + (hash32(dayNumber * 31 + 7) % 3)) % 4
+    ? (today + 1 + (hash32(dayNumber * 31 + 7) % (MOODS.length - 1))) %
+        MOODS.length
     : today;
 }
 
 export function buildDrawing(dayNumber: number, variant = 0): Drawing {
-  const rf = mulberry32(dayNumber * 2654435761 + variant * 40503);
-  const systemIndex = systemFor(dayNumber, variant);
-  const system = SYSTEMS[systemIndex];
-
+  const rf = mulberry32(hash32(dayNumber * 2654435761 + variant * 40503));
+  const mood = MOODS[moodFor(dayNumber, variant)];
   rf();
   rf();
 
-  const layers: Layer[] = [];
+  const { back, front } = scene(rf, mood);
 
-  if (rf() < 0.32) {
-    const underIndex = (systemIndex + 1 + Math.floor(rf() * 3)) % 4;
-    layers.push({
-      transform: composition(rf, underIndex !== 3),
-      strokes: generate(rf, underIndex),
-      faint: true,
-    });
-  }
-
-  layers.push({
-    transform: composition(rf, systemIndex !== 3),
-    strokes: generate(rf, systemIndex),
-  });
-
-  return { layers, system, index: dayOfYear(dayNumber), dayNumber };
+  return {
+    layers: [
+      { transform: "translate(0 0)", strokes: back },
+      { transform: "translate(0 0)", strokes: front },
+    ],
+    system: mood,
+    index: dayOfYear(dayNumber),
+    dayNumber,
+  };
 }
 
 export function formatDrawingDate(dayNumber: number) {
@@ -323,30 +464,6 @@ export function formatDrawingDate(dayNumber: number) {
     month: "short",
     year: "numeric",
   });
-}
-
-const INK = "#fbf9f3";
-const GOLD = "#d8b46a";
-
-export function drawingToSvg(drawing: Drawing, size = 1600) {
-  const body = drawing.layers
-    .map((layer) => {
-      const paths = layer.strokes
-        .map((s) => {
-          const stroke = s.accent ? GOLD : INK;
-          const opacity = layer.faint ? 0.27 : s.accent ? 0.85 : 0.62;
-          return `<path d="${s.d}" fill="none" stroke="${stroke}" stroke-opacity="${opacity}" stroke-width="1.15" stroke-linecap="round"/>`;
-        })
-        .join("");
-      return `<g transform="${layer.transform}">${paths}</g>`;
-    })
-    .join("");
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS} ${CANVAS}" width="${size}" height="${size}"><rect width="${CANVAS}" height="${CANVAS}" fill="#0a0a0a"/>${body}</svg>`;
-}
-
-export function isoForDay(dayNumber: number) {
-  return new Date(dayNumber * 86400000).toISOString().slice(0, 10);
 }
 
 export function partsForDay(dayNumber: number) {
@@ -365,4 +482,28 @@ export function daysInMonth(year: number, month: number) {
 export function dayFromParts(year: number, month: number, day: number) {
   const clamped = Math.min(day, daysInMonth(year, month));
   return Math.floor(Date.UTC(year, month - 1, clamped) / 86400000);
+}
+
+export function isoForDay(dayNumber: number) {
+  return new Date(dayNumber * 86400000).toISOString().slice(0, 10);
+}
+
+export function drawingToSvg(drawing: Drawing, size = 1600) {
+  const body = drawing.layers
+    .map((layer) => {
+      const paths = layer.strokes
+        .map(
+          (s) =>
+            `<path d="${s.d}" fill="${s.fill ?? "none"}" stroke="${s.stroke ?? "none"}" stroke-width="${s.stroke ? 1.4 : 0}" stroke-linecap="round" opacity="${s.opacity ?? 1}"/>`,
+        )
+        .join("");
+      return `<g transform="${layer.transform}">${paths}</g>`;
+    })
+    .join("");
+
+  const dots =
+    `<defs><pattern id="d" width="4.45361" height="4.46743" patternUnits="userSpaceOnUse">` +
+    `<rect width="1.97938" height="1.98552" fill="#d9d9d9" fill-opacity="0.2"/></pattern></defs>`;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS} ${CANVAS}" width="${size}" height="${size}">${dots}<rect width="${CANVAS}" height="${CANVAS}" fill="${GROUND}"/><rect width="${CANVAS}" height="${CANVAS}" fill="url(#d)"/>${body}</svg>`;
 }
