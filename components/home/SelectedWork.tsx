@@ -110,6 +110,7 @@ function ProductFeature({
 
   return (
     <div className="group grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14 items-center">
+      <NameBlock tileKey={tileKey} name={name} className="md:hidden" />
       {media}
       <div className={reverse ? "md:order-1" : ""}>
         <div
@@ -123,23 +124,11 @@ function ProductFeature({
         >
           {category}
         </div>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-8 h-8 flex-shrink-0">
-            {getProductLogo(tileKey as "makeebook" | "coverly" | "doodlewire")}
-          </div>
-          <h3
-            className="text-cream"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "clamp(2rem, 4vw, 2.75rem)",
-              fontWeight: 400,
-              letterSpacing: "-0.02em",
-              lineHeight: 1.05,
-            }}
-          >
-            {name}
-          </h3>
-        </div>
+        <NameBlock
+          tileKey={tileKey}
+          name={name}
+          className="hidden md:flex mb-2"
+        />
         <p
           className="text-cream/70 mt-4 max-w-md"
           style={{
@@ -171,6 +160,36 @@ function ProductFeature({
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function NameBlock({
+  tileKey,
+  name,
+  className,
+}: {
+  tileKey: ProjectKey;
+  name: string;
+  className: string;
+}) {
+  return (
+    <div className={`flex items-center gap-3 ${className}`}>
+      <div className="w-8 h-8 flex-shrink-0">
+        {getProductLogo(tileKey as "makeebook" | "coverly" | "doodlewire")}
+      </div>
+      <h3
+        className="text-cream"
+        style={{
+          fontFamily: "var(--font-inter)",
+          fontSize: "clamp(2rem, 4vw, 2.75rem)",
+          fontWeight: 400,
+          letterSpacing: "-0.02em",
+          lineHeight: 1.05,
+        }}
+      >
+        {name}
+      </h3>
     </div>
   );
 }
