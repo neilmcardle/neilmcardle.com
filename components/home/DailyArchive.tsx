@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./home.module.css";
+import SiteMenu from "./SiteMenu";
 import {
   CANVAS,
   buildDrawing,
@@ -58,6 +59,7 @@ export default function DailyArchive() {
   return (
     <div className={styles.page}>
       <div className={styles.vignette} aria-hidden="true" />
+      <SiteMenu />
       <div className={styles.shell}>
         <div className={styles.sectionHead}>
           <span className={styles.plus} aria-hidden="true">
@@ -167,9 +169,11 @@ function Plate({
                 d={s.d}
                 fill={s.fill ?? "none"}
                 stroke={s.stroke ?? "none"}
-                strokeWidth={s.stroke ? 1.4 : 0}
+                strokeWidth={s.stroke ? (s.strokeWidth ?? 1.4) : 0}
                 strokeLinecap="round"
-                opacity={s.opacity ?? 1}
+                strokeLinejoin="round"
+                fillOpacity={s.opacity ?? 1}
+                strokeOpacity={s.strokeOpacity ?? s.opacity ?? 1}
                 pathLength={isStatic || !s.stroke ? undefined : 1}
                 className={
                   isStatic

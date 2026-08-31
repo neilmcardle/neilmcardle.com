@@ -510,20 +510,6 @@ textarea:focus {
   outline: none;
 }
 
-html.dark input,
-html.dark select,
-html.dark textarea {
-  border: 1px solid #444444;
-  background: #1e1e1e;
-  color: #e5e5e5;
-}
-
-html.dark input:focus,
-html.dark select:focus,
-html.dark textarea:focus {
-  border: 1.5px solid #666666;
-}
-
 html.paper input,
 html.paper select,
 html.paper textarea {

@@ -6,43 +6,42 @@ import styles from "./home.module.css";
 import {
   CANVAS,
   buildDrawing,
-  dayFromParts,
+  dayFromYearIndex,
   dayNumberFor,
-  daysInMonth,
+  daysInYear,
   drawingToSvg,
-  formatDrawingDate,
   isoForDay,
   partsForDay,
 } from "./drawingEngine";
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
 const SPREAD_MS = 620;
+
+function saveBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
 export default function DailyDrawing() {
   const [today, setToday] = useState<number | null>(null);
   const [picked, setPicked] = useState<number | null>(null);
+
+  const [draft, setDraft] = useState<string | null>(null);
+
   const [variant, setVariant] = useState(0);
+  const VARIANTS = 4;
 
   useEffect(() => {
     setToday(dayNumberFor(new Date()));
   }, []);
 
   const day = picked ?? today;
-  const isToday = picked === null;
+  const year = day === null ? null : partsForDay(day).year;
 
   const drawing = useMemo(
     () => (day === null ? null : buildDrawing(day, variant)),
@@ -51,193 +50,202 @@ export default function DailyDrawing() {
 
   const total = drawing?.layers.reduce((n, l) => n + l.strokes.length, 0) ?? 1;
 
-  const download = useCallback(() => {
+  const download = useCallback(async () => {
     if (!drawing) return;
-    const blob = new Blob([drawingToSvg(drawing)], {
-      type: "image/svg+xml;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `neil-mcardle-drawing-${isoForDay(drawing.dayNumber)}.svg`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }, [drawing]);
+    const svg = drawingToSvg(drawing);
+    const stem = `neil-mcardle-drawing-${isoForDay(drawing.dayNumber)}`;
 
-  const pick = useCallback((next: number) => {
-    setPicked(next);
-    setVariant(0);
-  }, []);
+    const url = URL.createObjectURL(
+      new Blob([svg], { type: "image/svg+xml;charset=utf-8" }),
+    );
+    try {
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("render failed"));
+        img.src = url;
+      });
+      const size = 1600;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0, size, size);
+      await new Promise<void>((resolve) =>
+        canvas.toBlob((png) => {
+          if (png) saveBlob(png, `${stem}.png`);
+          resolve();
+        }, "image/png"),
+      );
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }, [drawing]);
 
   let seen = 0;
 
   return (
     <section className={styles.daily}>
-      <div
-        className={styles.drawingFrame}
-        role="button"
-        tabIndex={0}
-        aria-label="Redraw this drawing with a different seed"
-        onClick={() => setVariant((v) => v + 1)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setVariant((v) => v + 1);
-          }
-        }}
-      >
-        {drawing ? (
-          <svg
-            key={`${drawing.dayNumber}-${variant}`}
-            className={styles.drawingSvg}
-            viewBox={`0 0 ${CANVAS} ${CANVAS}`}
-            aria-hidden="true"
-          >
-            {drawing.layers.map((layer, li) => {
-              const before = seen;
-              seen += layer.strokes.length;
-              return (
-                <g key={li} transform={layer.transform}>
-                  {layer.strokes.map((s, i) => (
-                    <path
-                      key={i}
-                      d={s.d}
-                      fill={s.fill ?? "none"}
-                      stroke={s.stroke ?? "none"}
-                      strokeWidth={s.stroke ? 1.4 : 0}
-                      strokeLinecap="round"
-                      opacity={s.opacity ?? 1}
-                      pathLength={s.stroke ? 1 : undefined}
-                      className={s.fill ? styles.blockMark : styles.stroke}
-                      style={{
-                        animationDelay: `${((before + i) / total) * SPREAD_MS}ms`,
-                      }}
-                    />
-                  ))}
-                </g>
-              );
-            })}
-          </svg>
-        ) : null}
+      <div className={styles.sectionHead}>
+        <span className={styles.plus} aria-hidden="true">
+          +
+        </span>
+        <span className={styles.sectionLabel}>Today&rsquo;s drawing</span>
+        <span className={styles.rule} />
       </div>
 
-      <div className={styles.drawingMeta}>
-        <div className={styles.sectionHead}>
-          <span className={styles.plus} aria-hidden="true">
-            +
-          </span>
-          <span className={styles.sectionLabel}>
-            {isToday ? "Today's drawing" : "That day's drawing"}
-          </span>
-          <span className={styles.rule} />
+      <div className={styles.dailyGrid}>
+        <div className={styles.drawingFrame}>
+          {drawing ? (
+            <svg
+              key={`${drawing.dayNumber}-${variant}`}
+              className={styles.drawingSvg}
+              viewBox={`0 0 ${CANVAS} ${CANVAS}`}
+              aria-label={`${drawing.system} landscape for ${isoForDay(drawing.dayNumber)}`}
+            >
+              {drawing.layers.map((layer, li) => {
+                const before = seen;
+                seen += layer.strokes.length;
+                return (
+                  <g key={li} transform={layer.transform}>
+                    {layer.strokes.map((s, i) => (
+                      <path
+                        key={i}
+                        d={s.d}
+                        fill={s.fill ?? "none"}
+                        stroke={s.stroke ?? "none"}
+                        strokeWidth={s.stroke ? (s.strokeWidth ?? 1.4) : 0}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fillOpacity={s.opacity ?? 1}
+                        strokeOpacity={s.strokeOpacity ?? s.opacity ?? 1}
+                        pathLength={s.stroke ? 1 : undefined}
+                        className={s.fill ? styles.blockMark : styles.stroke}
+                        style={{
+                          animationDelay: `${((before + i) / total) * SPREAD_MS}ms`,
+                        }}
+                      />
+                    ))}
+                  </g>
+                );
+              })}
+            </svg>
+          ) : null}
         </div>
 
-        <p className={styles.metaIndex}>
-          {drawing ? String(drawing.index).padStart(3, "0") : "000"}
-        </p>
-        <p className={styles.metaLine}>
-          {drawing ? (
-            <>
-              {drawing.system}, {formatDrawingDate(drawing.dayNumber)}
-            </>
-          ) : (
-            <>&nbsp;</>
-          )}
-        </p>
+        <div className={styles.drawingMeta}>
+          <p className={styles.metaMood}>{drawing ? drawing.system : " "}</p>
+          <p className={styles.metaEyebrow}>
+            {drawing && year !== null ? (
+              <>
+                {year}, day{" "}
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  maxLength={3}
+                  className={styles.dayInput}
+                  aria-label={`Day of ${year}`}
+                  value={draft ?? String(drawing.index)}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/[^0-9]/g, "");
+                    setDraft(raw);
+                    const n = Number(raw);
+                    if (raw === "" || !Number.isFinite(n) || n < 1) return;
+                    setPicked(dayFromYearIndex(year, n));
+                  }}
+                  onBlur={() => setDraft(null)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setDraft(null);
+                      e.currentTarget.blur();
+                    }
+                  }}
+                />
+                {picked !== null && (
+                  <button
+                    type="button"
+                    className={styles.dayReset}
+                    onClick={() => {
+                      setPicked(null);
+                      setDraft(null);
+                    }}
+                  >
+                    today
+                  </button>
+                )}
+              </>
+            ) : (
+              "\u00a0"
+            )}
+          </p>
 
-        <div className={styles.pickRow}>
-          <label className={styles.pickLabel} htmlFor="drawing-date">
-            See your birthday
-          </label>
-          <div className={styles.pickControls}>
-            <DateParts day={day} onPick={pick} />
+          <div className={styles.actionRow}>
             <button
               type="button"
-              className={styles.pickBtn}
+              className={styles.iconOnlyBtn}
+              onClick={() => setVariant((v) => (v + 1) % VARIANTS)}
+              aria-label="Generate a variation"
+              title="Generate a variation"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.9}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" />
+              </svg>
+            </button>
+
+            <button
+              type="button"
+              className={styles.iconOnlyBtn}
               onClick={download}
               disabled={!drawing}
+              aria-label="Download PNG"
+              title="Download PNG"
             >
-              Download SVG
-            </button>
-            {!isToday && (
-              <button
-                type="button"
-                className={styles.pickReset}
-                onClick={() => {
-                  setPicked(null);
-                  setVariant(0);
-                }}
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.9}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
               >
-                Back to today
-              </button>
-            )}
+                <path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 18v2h16v-2" />
+              </svg>
+            </button>
           </div>
-        </div>
 
-        <p className={styles.metaHint}>
-          Click the drawing to reseed ·{" "}
-          <Link href="/daily" className={styles.alsoLink}>
-            See the last 30
+          <Link href="/daily" className={styles.tertiaryLink}>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+            </svg>
+            View last 30 days
           </Link>
-        </p>
+        </div>
       </div>
     </section>
-  );
-}
-
-function DateParts({
-  day,
-  onPick,
-}: {
-  day: number | null;
-  onPick: (day: number) => void;
-}) {
-  if (day === null) return null;
-  const { day: d, month: m, year: y } = partsForDay(day);
-  const thisYear = new Date().getUTCFullYear();
-
-  return (
-    <span className={styles.dateParts}>
-      <select
-        aria-label="Day"
-        className={styles.dateSelect}
-        value={d}
-        onChange={(e) => onPick(dayFromParts(y, m, Number(e.target.value)))}
-      >
-        {Array.from({ length: daysInMonth(y, m) }, (_, i) => i + 1).map((n) => (
-          <option key={n} value={n}>
-            {n}
-          </option>
-        ))}
-      </select>
-      <select
-        aria-label="Month"
-        className={styles.dateSelect}
-        value={m}
-        onChange={(e) => onPick(dayFromParts(y, Number(e.target.value), d))}
-      >
-        {MONTHS.map((name, i) => (
-          <option key={name} value={i + 1}>
-            {name}
-          </option>
-        ))}
-      </select>
-      <select
-        aria-label="Year"
-        className={styles.dateSelect}
-        value={y}
-        onChange={(e) => onPick(dayFromParts(Number(e.target.value), m, d))}
-      >
-        {Array.from({ length: thisYear - 1899 }, (_, i) => thisYear - i).map(
-          (n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ),
-        )}
-      </select>
-    </span>
   );
 }

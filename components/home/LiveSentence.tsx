@@ -170,21 +170,16 @@ function IdeaPhrase({
   const [swapping, setSwapping] = useState(false);
 
   useEffect(() => {
-    if (!open) {
-      setI(0);
-      setSwapping(false);
-      return;
-    }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const tick = window.setInterval(() => {
       setSwapping(true);
       window.setTimeout(() => {
         setI((n) => (n + 1) % CYCLE.length);
         setSwapping(false);
-      }, 300);
-    }, 2400);
+      }, 620);
+    }, 5200);
     return () => window.clearInterval(tick);
-  }, [open]);
+  }, []);
 
   return (
     <button
@@ -262,6 +257,7 @@ function TokenCard({
           href="https://x.com/BetterNeil"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Neil McArdle on X"
         >
           <svg
             width="15"
@@ -272,7 +268,6 @@ function TokenCard({
           >
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
-          Follow along
           <Arrow />
         </a>
       ) : id === "idea" ? (
@@ -336,7 +331,6 @@ function LondonCard() {
 
   return (
     <>
-      <p className={styles.cardLabel}>51.5074 N, 0.1278 W</p>
       <span className={styles.clock}>{now || "--:--:--"}</span>
     </>
   );

@@ -2,7 +2,9 @@ export type Mark = {
   d: string;
   fill?: string;
   stroke?: string;
+  strokeWidth?: number;
   opacity?: number;
+  strokeOpacity?: number;
 };
 
 export type Layer = { transform: string; strokes: Mark[]; faint?: boolean };
@@ -153,13 +155,112 @@ function paletteFor(mood: string, rf: () => number): Palette {
   }
 }
 
-function mountainShape(rf: () => number, horizon: number) {
-  const oversized = rf() < 0.3;
-  const peakX = oversized
-    ? lerp(LEFT - INNER * 0.3, RIGHT + INNER * 0.3, rf())
-    : lerp(LEFT + INNER * 0.24, RIGHT - INNER * 0.24, rf());
-  const half =
-    INNER * (oversized ? lerp(0.95, 1.7, rf()) : lerp(0.46, 0.92, rf()));
+type Template = {
+  name: string;
+  horizon: number;
+  peakX: number;
+  half: number;
+  oversized: number;
+  riverStart: number;
+  vanish: number;
+  discX: number;
+  discY: number;
+};
+
+const TEMPLATES: Template[] = [
+  {
+    name: "Thirds",
+    horizon: 0.667,
+    peakX: 0.333,
+    half: 0.6,
+    oversized: 0.15,
+    riverStart: 0.72,
+    vanish: 0.36,
+    discX: 0.72,
+    discY: 0.22,
+  },
+  {
+    name: "Golden",
+    horizon: 0.618,
+    peakX: 0.382,
+    half: 0.66,
+    oversized: 0.2,
+    riverStart: 0.28,
+    vanish: 0.4,
+    discX: 0.68,
+    discY: 0.28,
+  },
+  {
+    name: "Diagonal",
+    horizon: 0.7,
+    peakX: 0.14,
+    half: 1.25,
+    oversized: 0.8,
+    riverStart: 0.85,
+    vanish: 0.3,
+    discX: 0.7,
+    discY: 0.2,
+  },
+  {
+    name: "C-curve",
+    horizon: 0.6,
+    peakX: 0.52,
+    half: 0.6,
+    oversized: 0.1,
+    riverStart: 0.08,
+    vanish: 0.5,
+    discX: 0.24,
+    discY: 0.2,
+  },
+  {
+    name: "S-curve",
+    horizon: 0.64,
+    peakX: 0.6,
+    half: 0.58,
+    oversized: 0.12,
+    riverStart: 0.34,
+    vanish: 0.56,
+    discX: 0.26,
+    discY: 0.24,
+  },
+  {
+    name: "L-shape",
+    horizon: 0.72,
+    peakX: 0.2,
+    half: 1.1,
+    oversized: 0.7,
+    riverStart: 0.8,
+    vanish: 0.26,
+    discX: 0.76,
+    discY: 0.18,
+  },
+  {
+    name: "Centred",
+    horizon: 0.62,
+    peakX: 0.5,
+    half: 0.72,
+    oversized: 0.25,
+    riverStart: 0.5,
+    vanish: 0.5,
+    discX: 0.5,
+    discY: 0.18,
+  },
+];
+
+const guide = (free: number, target: number, bias: number) =>
+  free + (target - free) * bias;
+
+function mountainShape(
+  rf: () => number,
+  horizon: number,
+  tpl: Template,
+  bias: number,
+) {
+  const oversized = rf() < guide(0.3, tpl.oversized, bias);
+  const freePeak = oversized ? lerp(-0.3, 1.3, rf()) : lerp(0.24, 0.76, rf());
+  const peakX = CANVAS * guide(freePeak, tpl.peakX, bias);
+  const freeHalf = oversized ? lerp(0.95, 1.7, rf()) : lerp(0.46, 0.92, rf());
+  const half = INNER * guide(freeHalf, tpl.half, bias);
   const wanted = half * lerp(0.6, 0.95, rf());
   const height = oversized
     ? Math.min(wanted, horizon - INNER * lerp(0.04, 0.16, rf()))
@@ -251,21 +352,35 @@ function scene(rf: () => number, mood: string) {
       back.push({ d, fill, opacity }),
     block: (d: string, fill: string, opacity = 1) =>
       front.push({ d, fill, opacity }),
+
+    edged: (d: string, fill: string, opacity = 1, edge = 0.75) =>
+      front.push({
+        d,
+        fill,
+        opacity,
+        stroke: GOLD,
+        strokeWidth: 2,
+        strokeOpacity: edge,
+      }),
     ink: (d: string, stroke: string, opacity = 0.55) =>
       front.push({ d, stroke, opacity }),
   };
 
   const pal = paletteFor(mood, rf);
-  const horizon = INNER * lerp(0.56, 0.82, rf());
-  const m = mountainShape(rf, horizon);
+  const tpl = TEMPLATES[Math.floor(rf() * TEMPLATES.length)];
+
+  const bias = lerp(0.4, 0.82, rf());
+
+  const horizon = CANVAS * guide(lerp(0.56, 0.82, rf()), tpl.horizon, bias);
+  const m = mountainShape(rf, horizon, tpl, bias);
 
   if (pal.sky)
     p.sky(rect(0, 0, CANVAS, horizon), pal.sky, pal.skyOpacity * 0.62);
 
   if (pal.disc) {
     const r = INNER * lerp(0.05, 0.11, rf());
-    const cx = lerp(LEFT + INNER * 0.1, RIGHT - INNER * 0.1, rf());
-    const cy = lerp(INNER * 0.08, horizon * 0.55, rf());
+    const cx = CANVAS * guide(lerp(0.1, 0.9, rf()), tpl.discX, bias);
+    const cy = CANVAS * guide(lerp(0.06, 0.34, rf()), tpl.discY, bias);
     back.push({ d: disc(cx, cy, r), fill: pal.disc, opacity: 0.95 });
   }
 
@@ -290,7 +405,7 @@ function scene(rf: () => number, mood: string) {
     { x: m.peakX + m.half, y: horizon },
     { x: m.peakX - m.half, y: horizon },
   ];
-  p.block(poly(body, true), pal.peak, mood === "Night" ? 0.85 : 1);
+  p.edged(poly(body, true), pal.peak, mood === "Night" ? 0.85 : 1, 0.6);
 
   const bankAmp = INNER * lerp(0.006, 0.022, rf());
   const bf = 1 + rf() * 3;
@@ -324,15 +439,22 @@ function scene(rf: () => number, mood: string) {
     }
   }
 
-  const vx = m.peakX + (rf() - 0.5) * INNER * 0.22;
+  const vx =
+    CANVAS *
+    guide(
+      (m.peakX + (rf() - 0.5) * INNER * 0.22) / CANVAS,
+      tpl.vanish,
+      bias * 0.7,
+    );
   const vy = horizon + INNER * lerp(0.005, 0.03, rf());
   const narrow = INNER * lerp(0.015, 0.05, rf());
   const wob = INNER * lerp(0.02, 0.06, rf());
   const freq = 1.5 + rf() * 2;
   const phase = rf() * Math.PI * 2;
 
+  const shoreAnchor = guide(lerp(-0.15, 0.4, rf()), tpl.riverStart - 0.3, bias);
   const leftShore = shoreEdge(
-    lerp(-0.15, 0.4, rf()) * CANVAS,
+    shoreAnchor * CANVAS,
     vx - narrow,
     vy,
     wob,
@@ -340,7 +462,7 @@ function scene(rf: () => number, mood: string) {
     phase,
   );
   const rightShore = shoreEdge(
-    lerp(0.6, 1.15, rf()) * CANVAS,
+    guide(lerp(0.6, 1.15, rf()), tpl.riverStart + 0.35, bias) * CANVAS,
     vx + narrow,
     vy,
     wob,
@@ -379,19 +501,6 @@ function scene(rf: () => number, mood: string) {
       pal.hills,
       pal.bandOpacity * lerp(0.45, 0.7, rf()),
     );
-  }
-
-  if (rf() < 0.45) {
-    const side = rf() < 0.5 ? 0 : 1;
-    const count = 2 + Math.floor(rf() * 4);
-    for (let i = 0; i < count; i++) {
-      const nx = side
-        ? CANVAS - INNER * lerp(0.02, 0.16, rf())
-        : INNER * lerp(0.02, 0.16, rf());
-      const ny = lerp(CANVAS * 0.86, CANVAS, rf());
-      const h = INNER * lerp(0.08, 0.17, rf());
-      p.block(conifer(nx, ny, h, h * lerp(0.22, 0.32, rf())), pal.rock, 1);
-    }
   }
 
   if (rf() < 0.55) {
@@ -475,6 +584,15 @@ export function partsForDay(dayNumber: number) {
   };
 }
 
+export function daysInYear(year: number) {
+  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 ? 366 : 365;
+}
+
+export function dayFromYearIndex(year: number, index: number) {
+  const clamped = Math.min(Math.max(1, index), daysInYear(year));
+  return Math.floor(Date.UTC(year, 0, 1) / 86400000) + clamped - 1;
+}
+
 export function daysInMonth(year: number, month: number) {
   return new Date(Date.UTC(year, month, 0)).getUTCDate();
 }
@@ -494,7 +612,7 @@ export function drawingToSvg(drawing: Drawing, size = 1600) {
       const paths = layer.strokes
         .map(
           (s) =>
-            `<path d="${s.d}" fill="${s.fill ?? "none"}" stroke="${s.stroke ?? "none"}" stroke-width="${s.stroke ? 1.4 : 0}" stroke-linecap="round" opacity="${s.opacity ?? 1}"/>`,
+            `<path d="${s.d}" fill="${s.fill ?? "none"}" fill-opacity="${s.opacity ?? 1}" stroke="${s.stroke ?? "none"}" stroke-width="${s.stroke ? (s.strokeWidth ?? 1.4) : 0}" stroke-opacity="${s.strokeOpacity ?? s.opacity ?? 1}" stroke-linecap="round" stroke-linejoin="round"/>`,
         )
         .join("");
       return `<g transform="${layer.transform}">${paths}</g>`;

@@ -7,6 +7,7 @@ import IdentityCard, { type Lean } from "./IdentityCard";
 import LiveSentence from "./LiveSentence";
 import DailyDrawing from "./DailyDrawing";
 import SelectedWork from "./SelectedWork";
+import SiteMenu from "./SiteMenu";
 
 const SUBSCRIBE_URL = "https://buy.stripe.com/9B600l7XfblGdOxgk8fIs01";
 const WAITLIST_URL =
@@ -24,13 +25,7 @@ export default function HomeShell() {
   return (
     <div className={styles.page}>
       <div className={styles.vignette} aria-hidden="true" />
-      <div className={styles.yearStamp} aria-hidden="true">
-        20
-        <br />
-        /
-        <br />
-        26
-      </div>
+      <SiteMenu />
 
       <div className={styles.shell}>
         <header className={styles.masthead}>
@@ -56,7 +51,7 @@ export default function HomeShell() {
 
         <DailyDrawing />
 
-        <section className={styles.work}>
+        <section id="work" className={styles.work}>
           <div className={styles.sectionHead}>
             <span className={styles.plus} aria-hidden="true">
               +

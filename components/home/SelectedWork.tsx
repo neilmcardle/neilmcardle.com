@@ -13,15 +13,15 @@ const FEATURES: {
   href: string;
   linkLabel: string;
   external?: boolean;
-  appStoreUrl?: string;
+  appleIcon?: boolean;
   reverse?: boolean;
 }[] = [
   {
     tileKey: "makeebook",
-    category: "Product · AI · Designed and built solo",
+    category: "Writing Platform",
     name: "makeEbook",
     description:
-      "An AI-first platform that takes a manuscript to a store-ready ebook. Brand, product, and engineering end to end, with Claude under the hood.",
+      "An AI-first platform that takes a manuscript to a store-ready ebook. Brand, product, and engineering end to end.",
     href: "https://makeebook.ink",
     linkLabel: "makeebook.ink",
     external: true,
@@ -29,22 +29,23 @@ const FEATURES: {
   },
   {
     tileKey: "coverly",
-    category: "Product · Research tool · Designed and built solo",
+    category: "Design Research Tool",
     name: "Coverly",
     description:
-      "Comparable research for book cover designers. Thousands of covers searchable by design attributes rather than genre, with boards and PDF comp-deck export. Free, with email sign-up.",
+      "Comparable research for book cover designers. Thousands of covers searchable by design attributes rather than genre, with boards and PDF comp-deck export. Free to use.",
     href: "/coverly",
     linkLabel: "View project",
   },
   {
     tileKey: "doodlewire",
-    category: "Product · iOS · Designed and built solo",
+    category: "Wireframing Tool · iOS",
     name: "DoodleWire",
     description:
-      "Doodle a UI and on-device ML snaps your strokes into clean wireframe elements, then exports HTML or React. Designed, built, and shipped through Apple review solo.",
-    href: "/doodlewire",
-    linkLabel: "View project",
-    appStoreUrl: "https://apps.apple.com/us/app/doodlewire/id6771274835",
+      "Doodle a UI and on-device ML snaps your strokes into clean wireframe elements, then exports in HTML or React.",
+    href: "https://apps.apple.com/us/app/doodlewire/id6771274835",
+    linkLabel: "App Store",
+    external: true,
+    appleIcon: true,
     reverse: true,
   },
 ];
@@ -77,7 +78,7 @@ function ProductFeature({
   href,
   external,
   linkLabel,
-  appStoreUrl,
+  appleIcon,
   reverse,
 }: (typeof FEATURES)[number]) {
   const mediaInner = (
@@ -158,6 +159,7 @@ function ProductFeature({
               className={CTA_CLS}
               style={CTA_STYLE}
             >
+              {appleIcon && <AppleGlyph />}
               {linkLabel}
               <CtaArrow />
             </a>
@@ -167,38 +169,23 @@ function ProductFeature({
               <CtaArrow />
             </Link>
           )}
-          {appStoreUrl && (
-            <a
-              href={appStoreUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Download ${name} on the App Store`}
-              className="inline-flex items-center gap-2 text-tan hover:text-cream transition-colors"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden
-              >
-                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-              </svg>
-              <span
-                style={{
-                  fontFamily: "var(--font-inter)",
-                  fontSize: "0.625rem",
-                  letterSpacing: "0.13em",
-                  textTransform: "uppercase",
-                }}
-              >
-                App Store
-              </span>
-            </a>
-          )}
         </div>
       </div>
     </div>
+  );
+}
+
+function AppleGlyph() {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+    </svg>
   );
 }
 

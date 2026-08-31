@@ -25,21 +25,20 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
   const tiltRef = useRef<HTMLDivElement>(null);
   const bandRef = useRef<HTMLDivElement>(null);
   const [glint, setGlint] = useState(false);
+
+  const [fine, setFine] = useState(false);
   const hoverRef = useRef(false);
-  const fineRef = useRef(true);
   const reducedRef = useRef(false);
 
   useEffect(() => {
     reducedRef.current = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    fineRef.current = window.matchMedia(
-      "(hover: hover) and (pointer: fine)",
-    ).matches;
+    setFine(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
   }, []);
 
   const enter = useCallback(() => {
-    if (!fineRef.current || reducedRef.current) return;
+    if (!fine || reducedRef.current) return;
     hoverRef.current = true;
     setGlint(true);
 
@@ -48,7 +47,7 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
 
   const handleMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
-      if (!fineRef.current || reducedRef.current || lean !== "none") return;
+      if (!fine || reducedRef.current || lean !== "none") return;
       const tilt = tiltRef.current;
       const band = bandRef.current;
       if (!tilt) return;
@@ -60,7 +59,7 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
       if (band)
         band.style.transform = `translateX(${x * CARD_W}px) rotate(-18deg)`;
     },
-    [lean],
+    [fine, lean],
   );
 
   const reset = useCallback(() => {
@@ -91,8 +90,8 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
   }, [sweep]);
 
   useEffect(() => {
-    if (lean !== "none") sweep();
-  }, [lean, sweep]);
+    if (fine && lean !== "none") sweep();
+  }, [fine, lean, sweep]);
 
   return (
     <div
@@ -106,7 +105,7 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
       <div
         ref={tiltRef}
         className={styles.idTilt}
-        style={{ rotate: LEAN_ROTATE[lean] }}
+        style={{ rotate: fine ? LEAN_ROTATE[lean] : "none" }}
       >
         <div className={styles.idCard}>
           <img

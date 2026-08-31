@@ -27,18 +27,117 @@
   padding: clamp(28px, 6vw, 72px) clamp(20px, 5vw, 64px) 96px;
 }
 
-.yearStamp {
+.menuWrap {
   position: fixed;
-  top: 22px;
-  right: 24px;
-  z-index: 40;
-  font-size: 10px;
-  line-height: 1.35;
-  letter-spacing: 0.18em;
-  color: rgba(138, 127, 112, 0.75);
-  text-align: right;
-  pointer-events: none;
+  top: 20px;
+  right: 22px;
+  z-index: 70;
+}
+
+.menuMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 249, 243, 0.14);
+  background: rgba(10, 10, 10, 0.72);
+  backdrop-filter: blur(6px);
+  color: rgba(251, 249, 243, 0.85);
+  cursor: pointer;
+  transition:
+    border-color 220ms ease,
+    color 220ms ease;
+}
+
+.menuMark:hover,
+.menuMark[aria-expanded="true"] {
+  border-color: rgba(216, 180, 106, 0.7);
+  color: #fbf9f3;
+}
+
+.menuPanel {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  min-width: 194px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(251, 249, 243, 0.1);
+  background: #121110;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+  animation: menuIn 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+.menuItem {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: rgba(251, 249, 243, 0.82);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.menuItem:hover {
+  background: rgba(216, 180, 106, 0.1);
+  color: #f0d091;
+}
+
+.menuRule {
+  height: 1px;
+  margin: 8px 4px;
+  background: rgba(251, 249, 243, 0.09);
+}
+
+.menuSocial {
+  display: flex;
+  gap: 6px;
+  padding: 0 6px;
+}
+
+.menuSocialLink {
+  display: inline-flex;
+  padding: 7px;
+  border-radius: 8px;
+  color: #8a7f70;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.menuSocialLink:hover {
+  background: rgba(216, 180, 106, 0.1);
+  color: #fbf9f3;
+}
+
+.menuFine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 10px 4px;
+  font-size: 0.6875rem;
+  color: #8a7f70;
+}
+
+.menuDay {
+  color: #fbf9f3;
+}
+
+.menuYear {
+  letter-spacing: 0.08em;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* ---- masthead: card + sentence ---- */
@@ -103,13 +202,13 @@
 .cycler {
   display: inline-block;
   transition:
-    opacity 300ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    transform 300ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    opacity 620ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 620ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .cyclerSwap {
   opacity: 0;
-  transform: translateY(-0.2em);
+  transform: translateY(-0.12em);
 }
 
 /* ---- availability ---- */
@@ -407,14 +506,17 @@
 
 .daily {
   margin-top: clamp(56px, 9vw, 104px);
+}
+
+.dailyGrid {
   display: grid;
-  grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: clamp(24px, 4vw, 48px);
   align-items: end;
 }
 
 @media (max-width: 860px) {
-  .daily {
+  .dailyGrid {
     grid-template-columns: 1fr;
     align-items: start;
   }
@@ -423,7 +525,6 @@
 .drawingFrame {
   position: relative;
   width: 100%;
-  max-width: 420px;
   aspect-ratio: 1 / 1;
   border: 1px solid rgba(251, 249, 243, 0.09);
   border-radius: 4px;
@@ -471,6 +572,169 @@
   padding-bottom: 4px;
 }
 
+.metaMood {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.75rem, 7vw, 4rem);
+  line-height: 0.95;
+  color: #fbf9f3;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+
+/* The number stays the size it was, with the site's dotted underline to say it
+   can be changed. */
+.dayInput {
+  font: inherit;
+  letter-spacing: inherit;
+  color: #fbf9f3;
+  font-variant-numeric: tabular-nums;
+  width: 3.6ch;
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  background-image: none;
+  border: 0;
+  border-bottom: 1px dotted rgba(216, 180, 106, 0.6);
+  border-radius: 0;
+  /* appearance: textfield asks the browser to paint its native field chrome,
+     which is drawn outside CSS and shows as a grey box. */
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: text;
+  transition: border-color 200ms ease;
+}
+
+.dayInput::-webkit-outer-spin-button,
+.dayInput::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.dayInput:hover,
+.dayInput:focus {
+  border-bottom-color: #d8b46a;
+  outline: none;
+  box-shadow: none;
+}
+
+/* Clicking a number input selects its contents, and the browser's default
+   highlight paints a grey block on the dark ground. */
+.dayInput::selection {
+  background: rgba(216, 180, 106, 0.25);
+  color: #fbf9f3;
+}
+
+.dayInput::-moz-selection {
+  background: rgba(216, 180, 106, 0.25);
+  color: #fbf9f3;
+}
+
+.dayReset {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-left: 12px;
+  color: #8a7f70;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.dayReset:hover {
+  color: #d8b46a;
+}
+
+.metaNum {
+  color: #fbf9f3;
+  font-variant-numeric: tabular-nums;
+}
+
+.iconOnlyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 249, 243, 0.16);
+  background: none;
+  color: rgba(251, 249, 243, 0.8);
+  cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.iconOnlyBtn:hover:not(:disabled) {
+  border-color: rgba(216, 180, 106, 0.7);
+  color: #fbf9f3;
+}
+
+.iconOnlyBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.tertiaryLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 16px;
+  color: #8a7f70;
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.tertiaryLink:hover {
+  color: #d8b46a;
+}
+
+.metaEyebrow {
+  margin: 0 0 6px;
+  color: #8a7f70;
+  font-size: 0.6875rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.actionRow {
+  margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 249, 243, 0.16);
+  background: none;
+  color: rgba(251, 249, 243, 0.82);
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    color 200ms ease,
+    background-color 200ms ease;
+}
+
+.iconBtn:hover {
+  border-color: rgba(216, 180, 106, 0.7);
+  background: rgba(216, 180, 106, 0.07);
+  color: #fbf9f3;
+}
+
 .metaIndex {
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(2.75rem, 7vw, 4rem);
@@ -509,36 +773,9 @@
   gap: 8px;
 }
 
-.dateParts {
-  display: inline-flex;
-  gap: 6px;
-}
-
-.dateSelect {
-  color-scheme: dark;
-  background: transparent;
-  border: 1px solid rgba(251, 249, 243, 0.16);
-  border-radius: 999px;
-  color: rgba(251, 249, 243, 0.88);
-  padding: 8px 10px;
-  font-family: inherit;
-  font-size: 0.8125rem;
-  cursor: pointer;
-  appearance: none;
-  text-align: center;
-  transition: border-color 200ms ease;
-}
-
-.dateSelect:hover,
-.dateSelect:focus-visible {
-  border-color: rgba(216, 180, 106, 0.7);
-  outline: none;
-}
-
-.pickBtn,
 .pickReset {
   border-radius: 999px;
-  border: 1px solid rgba(216, 180, 106, 0.28);
+  border: 1px solid rgba(251, 249, 243, 0.16);
   background: none;
   color: rgba(251, 249, 243, 0.82);
   padding: 8px 14px;
@@ -552,20 +789,10 @@
     background-color 200ms ease;
 }
 
-.pickBtn:hover:not(:disabled),
 .pickReset:hover {
   border-color: rgba(216, 180, 106, 0.7);
   background: rgba(216, 180, 106, 0.07);
   color: #fbf9f3;
-}
-
-.pickBtn:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.pickReset {
-  border-color: rgba(251, 249, 243, 0.16);
 }
 
 .metaHint a {
@@ -573,7 +800,7 @@
 }
 
 .metaHint {
-  margin: 20px 0 0;
+  margin: 14px 0 0;
   color: #8a7f70;
   font-size: 0.6875rem;
   letter-spacing: 0.13em;
