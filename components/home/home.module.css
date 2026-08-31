@@ -1,4 +1,6 @@
 .page {
+  --shell-max: 1120px;
+  --gutter: clamp(20px, 5vw, 64px);
   min-height: 100vh;
   min-height: 100svh;
   background: #0a0a0a;
@@ -22,15 +24,15 @@
 .shell {
   position: relative;
   z-index: 1;
-  max-width: 1120px;
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: clamp(28px, 6vw, 72px) clamp(20px, 5vw, 64px) 96px;
+  padding: clamp(28px, 6vw, 72px) var(--gutter) 96px;
 }
 
 .menuWrap {
   position: fixed;
   top: 20px;
-  right: 22px;
+  right: calc(max(0px, (100vw - var(--shell-max)) / 2) + var(--gutter));
   z-index: 70;
 }
 
@@ -140,8 +142,6 @@
   white-space: nowrap;
 }
 
-/* ---- masthead: card + sentence ---- */
-
 .masthead {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
@@ -211,8 +211,6 @@
   transform: translateY(-0.12em);
 }
 
-/* ---- availability ---- */
-
 .availability {
   margin-top: 26px;
   display: inline-flex;
@@ -264,8 +262,6 @@
   }
 }
 
-/* ---- token card ---- */
-
 .card {
   position: fixed;
   z-index: 60;
@@ -283,8 +279,6 @@
   animation: cardIn 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Bridges the gap between token and card so travelling between them never
-   crosses dead space and cancels the hover. */
 .card::before {
   content: "";
   position: absolute;
@@ -382,8 +376,6 @@
   line-height: 1.1;
   display: block;
 }
-
-/* ---- identity card ---- */
 
 .idOuter {
   width: 220px;
@@ -502,8 +494,6 @@
   margin: 0;
 }
 
-/* ---- daily drawing ---- */
-
 .daily {
   margin-top: clamp(56px, 9vw, 104px);
 }
@@ -581,8 +571,6 @@
   margin: 0 0 14px;
 }
 
-/* The number stays the size it was, with the site's dotted underline to say it
-   can be changed. */
 .dayInput {
   font: inherit;
   letter-spacing: inherit;
@@ -596,8 +584,6 @@
   border: 0;
   border-bottom: 1px dotted rgba(216, 180, 106, 0.6);
   border-radius: 0;
-  /* appearance: textfield asks the browser to paint its native field chrome,
-     which is drawn outside CSS and shows as a grey box. */
   appearance: none;
   -webkit-appearance: none;
   cursor: text;
@@ -617,8 +603,6 @@
   box-shadow: none;
 }
 
-/* Clicking a number input selects its contents, and the browser's default
-   highlight paints a grey block on the dark ground. */
 .dayInput::selection {
   background: rgba(216, 180, 106, 0.25);
   color: #fbf9f3;
@@ -807,8 +791,6 @@
   text-transform: uppercase;
 }
 
-/* ---- section header ---- */
-
 .sectionHead {
   display: flex;
   align-items: center;
@@ -836,8 +818,6 @@
   background: rgba(251, 249, 243, 0.14);
 }
 
-/* ---- work index ---- */
-
 .work {
   margin-top: clamp(72px, 11vw, 132px);
 }
@@ -855,8 +835,6 @@
   color: #f0d091;
   border-bottom-color: rgba(216, 180, 106, 0.6);
 }
-
-/* ---- tell me more ---- */
 
 .tellMore {
   margin-top: clamp(76px, 11vw, 136px);
@@ -882,8 +860,6 @@
 .tellMoreLink:hover {
   color: #f0d091;
 }
-
-/* ---- footer ---- */
 
 .foot {
   margin-top: clamp(64px, 10vw, 112px);
@@ -941,8 +917,6 @@
 .footLink:hover {
   color: #fbf9f3;
 }
-
-/* ---- archive grid ---- */
 
 .archiveLead {
   margin: 10px 0 26px;
@@ -1079,8 +1053,6 @@
     transform: translateY(-100%);
   }
 }
-
-/* ---- lightbox ---- */
 
 .lightbox {
   position: fixed;
