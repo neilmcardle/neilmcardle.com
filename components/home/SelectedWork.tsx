@@ -125,8 +125,13 @@ function ProductFeature({
       <NameBlock tileKey={tileKey} name={name} className="md:hidden" />
       {media}
       <div className={reverse ? "md:order-1" : ""}>
+        <NameBlock
+          tileKey={tileKey}
+          name={name}
+          className="hidden md:flex mb-3"
+        />
         <div
-          className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2"
+          className="flex flex-wrap items-center gap-x-3 gap-y-2"
           style={{
             fontFamily: "var(--font-inter)",
             fontSize: "0.6875rem",
@@ -141,11 +146,6 @@ function ProductFeature({
             </span>
           )}
         </div>
-        <NameBlock
-          tileKey={tileKey}
-          name={name}
-          className="hidden md:flex mb-2"
-        />
         <p
           className="text-cream/70 mt-4 max-w-md"
           style={{

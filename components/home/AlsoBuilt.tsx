@@ -12,16 +12,6 @@ const ITEMS: { name: string; line: string; href: string }[] = [
     line: "Write a prompt, score it against a rubric, rewrite it.",
     href: "/promptr",
   },
-  {
-    name: "TouchType",
-    line: "Touch typing drills, starting at the home row.",
-    href: "/touchtype",
-  },
-  {
-    name: "Tessera",
-    line: "A triangle puzzle game.",
-    href: "/tessera",
-  },
 ];
 
 export default function AlsoBuilt() {

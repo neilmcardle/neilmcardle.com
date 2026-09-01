@@ -60,13 +60,9 @@ export default function HomeShell() {
           <SelectedWork />
         </section>
 
-        <section className={styles.work}>
-          <div className={styles.sectionHead}>
-            <span className={styles.plus} aria-hidden="true">
-              +
-            </span>
-            <span className={styles.sectionLabel}>Also built</span>
-            <span className={styles.rule} />
+        <section className={styles.workMinor}>
+          <div className={styles.sectionHeadMinor}>
+            <span className={styles.sectionLabelMinor}>Also built</span>
           </div>
 
           <AlsoBuilt />
@@ -74,29 +70,12 @@ export default function HomeShell() {
 
         <DailyDrawing />
 
-        <section className={styles.work}>
-          <div className={styles.sectionHead}>
-            <span className={styles.plus} aria-hidden="true">
-              +
-            </span>
-            <span className={styles.sectionLabel}>Paintings</span>
-            <span className={styles.rule} />
+        <section className={styles.workMinor}>
+          <div className={styles.sectionHeadMinor}>
+            <span className={styles.sectionLabelMinor}>Paintings</span>
           </div>
 
           <Paintings />
-        </section>
-
-        <section className={styles.work}>
-          <div className={styles.sectionHead}>
-            <span className={styles.plus} aria-hidden="true">
-              +
-            </span>
-            <span className={styles.sectionLabel}>Writing</span>
-            <span className={styles.sectionStatus}>In progress</span>
-            <span className={styles.rule} />
-          </div>
-
-          <p className={styles.writingNote}>Design notes coming soon.</p>
         </section>
 
         <section className={styles.tellMore}>
