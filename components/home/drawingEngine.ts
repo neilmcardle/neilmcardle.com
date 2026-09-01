@@ -75,6 +75,49 @@ const line = (x1: number, y1: number, x2: number, y2: number) =>
 const rect = (x: number, y: number, w: number, h: number) =>
   `M${n2(x)} ${n2(y)}h${n2(w)}v${n2(h)}h${n2(-w)}Z`;
 
+function hexToRgb(hex: string) {
+  const v = parseInt(hex.slice(1), 16);
+  return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+}
+
+function skyLuminance(sky: string | null, alpha: number) {
+  const ground = hexToRgb(GROUND);
+  const top = sky ? hexToRgb(sky) : ground;
+  const mix = top.map((c, i) => c * alpha + ground[i] * (1 - alpha));
+  return (0.2126 * mix[0] + 0.7152 * mix[1] + 0.0722 * mix[2]) / 255;
+}
+
+function contourRings(rf: () => number): string[] {
+  const cx = CANVAS * lerp(0.3, 0.7, rf());
+  const cy = CANVAS * lerp(0.3, 0.7, rf());
+  const R = CANVAS * lerp(0.5, 0.85, rf());
+  const rings = 9 + Math.floor(rf() * 8);
+  const f1 = 2 + Math.floor(rf() * 4);
+  const f2 = 4 + Math.floor(rf() * 6);
+  const p1 = rf() * Math.PI * 2;
+  const p2 = rf() * Math.PI * 2;
+  const steps = 130;
+  const out: string[] = [];
+
+  for (let r = 0; r < rings; r++) {
+    const k = (r + 1) / rings;
+    const base = R * (0.1 + 0.9 * k);
+    const amp = R * 0.1 * (0.35 + k);
+    let d = "";
+    for (let i = 0; i <= steps; i++) {
+      const a = (i / steps) * Math.PI * 2;
+      const rad =
+        base +
+        amp * (Math.sin(a * f1 + p1 + k * 2) + 0.5 * Math.sin(a * f2 + p2));
+      const x = cx + Math.cos(a) * rad;
+      const y = cy + Math.sin(a) * rad;
+      d += `${i === 0 ? "M" : "L"}${n2(x)} ${n2(y)}`;
+    }
+    out.push(d + "Z");
+  }
+  return out;
+}
+
 const disc = (cx: number, cy: number, r: number) =>
   `M${n2(cx - r)} ${n2(cy)}a${n2(r)} ${n2(r)} 0 1 0 ${n2(r * 2)} 0a${n2(r)} ${n2(r)} 0 1 0 ${n2(-r * 2)} 0`;
 
@@ -86,7 +129,6 @@ type Palette = {
   hills: string;
   water: string;
   waterOpacity: number;
-  bandOpacity: number;
   disc: string | null;
 };
 
@@ -96,24 +138,22 @@ function paletteFor(mood: string, rf: () => number): Palette {
       return {
         sky: GOLD,
         skyOpacity: lerp(0.72, 0.92, rf()),
-        peak: CREAM,
+        peak: "#ece4d3",
         rock: GOLD_DEEP,
         hills: TAN,
         water: GROUND,
         waterOpacity: 0.2,
-        bandOpacity: 0.92,
         disc: GOLD_BRIGHT,
       };
     case "Noon":
       return {
         sky: CREAM,
         skyOpacity: lerp(0.12, 0.2, rf()),
-        peak: CREAM,
+        peak: "#e2dccf",
         rock: TAN,
         hills: TAN,
         water: GROUND,
         waterOpacity: 0.16,
-        bandOpacity: 0.88,
         disc: rf() < 0.4 ? GOLD_BRIGHT : null,
       };
     case "Dusk":
@@ -125,19 +165,17 @@ function paletteFor(mood: string, rf: () => number): Palette {
         hills: GOLD_DEEP,
         water: GROUND,
         waterOpacity: 0.24,
-        bandOpacity: 0.9,
         disc: GOLD_BRIGHT,
       };
     case "Snow":
       return {
         sky: CREAM,
         skyOpacity: lerp(0.06, 0.12, rf()),
-        peak: CREAM,
+        peak: "#efeade",
         rock: TAN,
         hills: TAN,
         water: GROUND,
         waterOpacity: 0.12,
-        bandOpacity: 0.78,
         disc: null,
       };
     default:
@@ -149,7 +187,6 @@ function paletteFor(mood: string, rf: () => number): Palette {
         hills: TAN,
         water: GROUND,
         waterOpacity: 0.1,
-        bandOpacity: 0.5,
         disc: CREAM,
       };
   }
@@ -257,10 +294,18 @@ function mountainShape(
   bias: number,
 ) {
   const oversized = rf() < guide(0.3, tpl.oversized, bias);
-  const freePeak = oversized ? lerp(-0.3, 1.3, rf()) : lerp(0.24, 0.76, rf());
-  const peakX = CANVAS * guide(freePeak, tpl.peakX, bias);
-  const freeHalf = oversized ? lerp(0.95, 1.7, rf()) : lerp(0.46, 0.92, rf());
-  const half = INNER * guide(freeHalf, tpl.half, bias);
+  const freePeak = oversized ? lerp(-0.35, 1.35, rf()) : lerp(0.16, 0.84, rf());
+  const guided = guide(freePeak, tpl.peakX, bias);
+  const offset = guided - 0.5;
+  const deadZone = 0.14;
+  const peakFraction =
+    Math.abs(offset) < deadZone
+      ? 0.5 + (offset >= 0 ? 1 : -1) * lerp(deadZone, deadZone * 2.4, rf())
+      : guided;
+  const peakX = CANVAS * peakFraction;
+  const freeHalf = oversized ? lerp(1.05, 2.05, rf()) : lerp(0.22, 0.46, rf());
+  const halfAnchor = oversized ? tpl.half : Math.min(0.45, tpl.half * 0.55);
+  const half = INNER * guide(freeHalf, halfAnchor, bias);
   const wanted = half * lerp(0.6, 0.95, rf());
   const height = oversized
     ? Math.min(wanted, horizon - INNER * lerp(0.04, 0.16, rf()))
@@ -319,30 +364,6 @@ function conifer(x: number, baseY: number, h: number, w: number) {
   );
 }
 
-function shoreEdge(
-  x0: number,
-  vx: number,
-  vy: number,
-  wob: number,
-  freq: number,
-  phase: number,
-): Pt[] {
-  const pts: Pt[] = [];
-  for (let i = 0; i <= 44; i++) {
-    const t = i / 44;
-    const e = Math.pow(t, 1.55);
-
-    const w1 = Math.sin(t * Math.PI * freq + phase);
-    const w2 = 0.5 * Math.sin(t * Math.PI * freq * 2.7 + phase * 1.7);
-    const w3 = 0.28 * Math.sin(t * Math.PI * freq * 5.1 + phase * 0.6);
-    pts.push({
-      x: lerp(x0, vx, e) + wob * (w1 + w2 + w3) * (1 - t * 0.72),
-      y: lerp(CANVAS, vy, e),
-    });
-  }
-  return pts;
-}
-
 function scene(rf: () => number, mood: string) {
   const back: Mark[] = [];
   const front: Mark[] = [];
@@ -377,6 +398,19 @@ function scene(rf: () => number, mood: string) {
   if (pal.sky)
     p.sky(rect(0, 0, CANVAS, horizon), pal.sky, pal.skyOpacity * 0.62);
 
+  const skyLight = skyLuminance(pal.sky, pal.sky ? pal.skyOpacity * 0.62 : 0);
+  const contourTone = skyLight > 0.28 ? GROUND : CREAM;
+  const contourStrength =
+    skyLight > 0.28 ? lerp(0.16, 0.3, rf()) : lerp(0.12, 0.24, rf());
+  contourRings(rf).forEach((d, i) => {
+    back.push({
+      d,
+      stroke: contourTone,
+      strokeWidth: 0.9,
+      strokeOpacity: contourStrength * (i % 3 === 0 ? 1.6 : 1),
+    });
+  });
+
   if (pal.disc) {
     const r = INNER * lerp(0.05, 0.11, rf());
     const cx = CANVAS * guide(lerp(0.1, 0.9, rf()), tpl.discX, bias);
@@ -405,7 +439,7 @@ function scene(rf: () => number, mood: string) {
     { x: m.peakX + m.half, y: horizon },
     { x: m.peakX - m.half, y: horizon },
   ];
-  p.edged(poly(body, true), pal.peak, mood === "Night" ? 0.85 : 1, 0.6);
+  p.edged(poly(body, true), pal.peak, mood === "Night" ? 0.92 : 1, 0.6);
 
   const bankAmp = INNER * lerp(0.006, 0.022, rf());
   const bf = 1 + rf() * 3;
@@ -421,7 +455,7 @@ function scene(rf: () => number, mood: string) {
   p.block(
     poly([...bankPts, { x: CANVAS, y: CANVAS }, { x: 0, y: CANVAS }], true),
     pal.hills,
-    pal.bandOpacity * lerp(0.6, 0.82, rf()),
+    1,
   );
 
   if (rf() < 0.85) {
@@ -447,60 +481,60 @@ function scene(rf: () => number, mood: string) {
       bias * 0.7,
     );
   const vy = horizon + INNER * lerp(0.005, 0.03, rf());
-  const narrow = INNER * lerp(0.015, 0.05, rf());
-  const wob = INNER * lerp(0.02, 0.06, rf());
-  const freq = 1.5 + rf() * 2;
-  const phase = rf() * Math.PI * 2;
+  const mouth = guide(lerp(0.15, 0.85, rf()), tpl.riverStart, bias) * CANVAS;
+  const mouthHalf = INNER * lerp(0.22, 0.44, rf());
+  const narrow = INNER * lerp(0.012, 0.04, rf());
+  const wob = INNER * lerp(0.05, 0.11, rf());
+  const rf1 = 1.1 + rf() * 1.4;
+  const rf2 = 2.4 + rf() * 2.2;
+  const rp1 = rf() * Math.PI * 2;
+  const rp2 = rf() * Math.PI * 2;
 
-  const shoreAnchor = guide(lerp(-0.15, 0.4, rf()), tpl.riverStart - 0.3, bias);
-  const leftShore = shoreEdge(
-    shoreAnchor * CANVAS,
-    vx - narrow,
-    vy,
-    wob,
-    freq,
-    phase,
-  );
-  const rightShore = shoreEdge(
-    guide(lerp(0.6, 1.15, rf()), tpl.riverStart + 0.35, bias) * CANVAS,
-    vx + narrow,
-    vy,
-    wob,
-    freq,
-    phase + 1.1,
-  );
+  const riverAt = (t: number) => {
+    const e = Math.pow(t, 1.3);
+    const meander =
+      wob *
+      (Math.sin(t * Math.PI * rf1 + rp1) +
+        0.45 * Math.sin(t * Math.PI * rf2 + rp2)) *
+      (1 - t * 0.55);
+    return {
+      cx: lerp(mouth, vx, e) + meander,
+      half: lerp(mouthHalf, narrow, Math.pow(t, 1.15)),
+      y: lerp(CANVAS, vy, e),
+    };
+  };
+
+  const bankLeft: Pt[] = [];
+  const bankRight: Pt[] = [];
+  for (let i = 0; i <= 56; i++) {
+    const t = i / 56;
+    const r = riverAt(t);
+    bankLeft.push({ x: r.cx - r.half, y: r.y });
+    bankRight.push({ x: r.cx + r.half, y: r.y });
+  }
 
   p.block(
-    poly([...leftShore, ...rightShore.slice().reverse()], true),
+    poly([...bankLeft, ...bankRight.slice().reverse()], true),
     pal.water,
-    pal.bandOpacity * lerp(0.72, 0.95, rf()),
+    1,
   );
 
-  if (rf() < 0.55) {
-    const barX = lerp(0.25, 0.7, rf()) * CANVAS;
-    const barTopY = lerp(vy, CANVAS, lerp(0.3, 0.55, rf()));
-    const barW = INNER * lerp(0.05, 0.14, rf());
-    const a = shoreEdge(
-      barX - barW,
-      vx - narrow * 0.3,
-      barTopY,
-      wob * 0.4,
-      freq,
-      phase + 2.2,
-    );
-    const b = shoreEdge(
-      barX + barW,
-      vx + narrow * 0.3,
-      barTopY,
-      wob * 0.4,
-      freq,
-      phase + 2.6,
-    );
-    p.block(
-      poly([...a, ...b.slice().reverse()], true),
-      pal.hills,
-      pal.bandOpacity * lerp(0.45, 0.7, rf()),
-    );
+  if (rf() < 0.5) {
+    const barStart = lerp(0.15, 0.55, rf());
+    const barEnd = barStart + lerp(0.2, 0.45, rf());
+    const barA: Pt[] = [];
+    const barB: Pt[] = [];
+    const barW = lerp(0.18, 0.42, rf());
+    for (let i = 0; i <= 34; i++) {
+      const t = lerp(barStart, Math.min(0.96, barEnd), i / 34);
+      const r = riverAt(t);
+      const k = (i / 34) * Math.PI;
+      const spread = r.half * barW * Math.sin(k);
+      const off = r.half * lerp(-0.3, 0.3, rf() * 0 + 0.5);
+      barA.push({ x: r.cx + off - spread, y: r.y });
+      barB.push({ x: r.cx + off + spread, y: r.y });
+    }
+    p.block(poly([...barA, ...barB.slice().reverse()], true), pal.hills, 1);
   }
 
   if (rf() < 0.55) {
@@ -619,9 +653,5 @@ export function drawingToSvg(drawing: Drawing, size = 1600) {
     })
     .join("");
 
-  const dots =
-    `<defs><pattern id="d" width="4.45361" height="4.46743" patternUnits="userSpaceOnUse">` +
-    `<rect width="1.97938" height="1.98552" fill="#d9d9d9" fill-opacity="0.2"/></pattern></defs>`;
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS} ${CANVAS}" width="${size}" height="${size}">${dots}<rect width="${CANVAS}" height="${CANVAS}" fill="${GROUND}"/><rect width="${CANVAS}" height="${CANVAS}" fill="url(#d)"/>${body}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS} ${CANVAS}" width="${size}" height="${size}"><rect width="${CANVAS}" height="${CANVAS}" fill="${GROUND}"/>${body}</svg>`;
 }

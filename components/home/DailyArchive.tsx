@@ -58,8 +58,23 @@ export default function DailyArchive() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.vignette} aria-hidden="true" />
       <SiteMenu />
+
+      <Link href="/" className={styles.backMark} aria-label="Back to home">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.9}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M15 5l-7 7 7 7" />
+        </svg>
+      </Link>
       <div className={styles.shell}>
         <div className={styles.sectionHead}>
           <span className={styles.plus} aria-hidden="true">
@@ -70,10 +85,8 @@ export default function DailyArchive() {
         </div>
 
         <p className={styles.archiveIntro}>
-          Each drawing is a pure function of its date. Nothing is stored, and
-          any past day redraws exactly.
+          Each drawing is a pure function of its date.
         </p>
-        <p className={styles.archiveLead}>Click any drawing to enlarge it</p>
 
         <div className={styles.archiveGrid}>
           {days.map((d, i) => {
@@ -117,11 +130,6 @@ export default function DailyArchive() {
 
         <footer className={styles.foot}>
           <span>&copy; 2026 Neil McArdle</span>
-          <div className={styles.footLinks}>
-            <Link className={styles.footLink} href="/">
-              Back
-            </Link>
-          </div>
         </footer>
       </div>
 

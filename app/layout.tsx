@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "../styles/immersive.css";
 import "../styles/vendor/draft-js.css";
-import "../styles/vendor/google-fonts.css";
 import "dialkit/styles.css";
 import { AuthProvider } from "@/lib/hooks/useAuth";
 import { SubscriptionProvider } from "@/lib/hooks/useSubscription";
@@ -13,13 +12,51 @@ import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";
 import { GeistMono } from "geist/font/mono";
-import { Cantarell } from "next/font/google";
+import {
+  Cantarell,
+  Inter,
+  Playfair_Display,
+  EB_Garamond,
+  JetBrains_Mono,
+  Zilla_Slab,
+} from "next/font/google";
 import { DialRoot } from "dialkit";
 
 const cantarell = Cantarell({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-cantarell",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
+const ebGaramond = EB_Garamond({
+  subsets: ["latin"],
+  variable: "--font-eb-garamond",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
+
+const zillaSlab = Zilla_Slab({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-zilla-slab",
   display: "swap",
 });
 
@@ -85,10 +122,20 @@ const personSchema = {
   ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={`${GeistMono.variable} ${cantarell.variable}`}>
-      <body className="font-sans antialiased" style={{ fontFamily: 'var(--font-inter)' }}>
+    <html
+      lang="en"
+      className={`${GeistMono.variable} ${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable}`}
+    >
+      <body
+        className="font-sans antialiased"
+        style={{ fontFamily: "var(--font-inter)" }}
+      >
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}

@@ -1,65 +1,30 @@
 "use client";
 
-import Link from "next/link";
 import {
   useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
 import styles from "./home.module.css";
 import type { Lean } from "./IdentityCard";
-
-type TokenId =
-  "role" | "london" | "makeebook" | "coverly" | "doodlewire" | "idea";
-
-type Payload = {
-  image: { src: string; alt: string };
-  link: { href: string; text: string; external?: boolean };
-};
-
-const PRODUCTS: Record<"makeebook" | "coverly" | "doodlewire", Payload> = {
-  makeebook: {
-    image: { src: "/screenshots/makeebook.png", alt: "makeEbook editor" },
-    link: {
-      href: "https://makeebook.ink",
-      text: "makeebook.ink",
-      external: true,
-    },
-  },
-  coverly: {
-    image: { src: "/screenshots/coverly.png", alt: "Coverly book covers" },
-    link: { href: "/coverly", text: "View project" },
-  },
-  doodlewire: {
-    image: { src: "/screenshots/doodlewire.png", alt: "DoodleWire mobile UI" },
-    link: {
-      href: "https://apps.apple.com/us/app/doodlewire/id6771274835",
-      text: "App Store",
-      external: true,
-    },
-  },
-};
-
-const CYCLE = ["idea", "design", "build"];
 
 export default function LiveSentence({
   onLean,
 }: {
   onLean: (lean: Lean) => void;
 }) {
-  const [open, setOpen] = useState<TokenId | null>(null);
+  const [open, setOpen] = useState(false);
   const [anchor, setAnchor] = useState<DOMRect | null>(null);
   const closeTimer = useRef<number | null>(null);
 
   const show = useCallback(
-    (id: TokenId, el: HTMLElement) => {
+    (el: HTMLElement) => {
       if (closeTimer.current) window.clearTimeout(closeTimer.current);
       setAnchor(el.getBoundingClientRect());
-      setOpen(id);
-      onLean(id === "london" ? "left" : "none");
+      setOpen(true);
+      onLean("left");
     },
     [onLean],
   );
@@ -67,7 +32,7 @@ export default function LiveSentence({
   const hide = useCallback(() => {
     if (closeTimer.current) window.clearTimeout(closeTimer.current);
     closeTimer.current = window.setTimeout(() => {
-      setOpen(null);
+      setOpen(false);
       setAnchor(null);
       onLean("none");
     }, 260);
@@ -80,7 +45,7 @@ export default function LiveSentence({
   useEffect(() => {
     if (!open) return;
     const close = () => {
-      setOpen(null);
+      setOpen(false);
       setAnchor(null);
       onLean("none");
     };
@@ -97,222 +62,65 @@ export default function LiveSentence({
     };
   }, [open, onLean]);
 
-  const tok = (id: TokenId, text: string) => (
-    <Token id={id} text={text} open={open === id} onShow={show} onHide={hide} />
-  );
-
   return (
     <div className={styles.sentenceWrap}>
       <p className={styles.sentence}>
-        I&rsquo;m Neil, a {tok("role", "product designer")} in{" "}
-        {tok("london", "London")}. I build what I design,{" "}
-        <IdeaPhrase open={open === "idea"} onShow={show} onHide={hide} />
+        I&rsquo;m Neil, a product designer in{" "}
+        <button
+          type="button"
+          className={`${styles.tok} ${open ? styles.tokOpen : ""}`}
+          aria-expanded={open}
+          onPointerEnter={(e) => {
+            if (e.pointerType === "mouse") show(e.currentTarget);
+          }}
+          onPointerLeave={(e) => {
+            if (e.pointerType === "mouse") hide();
+          }}
+          onFocus={(e) => show(e.currentTarget)}
+          onBlur={hide}
+          onClick={(e) => {
+            if (open) hide();
+            else show(e.currentTarget);
+          }}
+        >
+          London
+        </button>
+        .
       </p>
 
       {open && anchor ? (
-        <TokenCard
-          id={open}
-          anchor={anchor}
-          onEnter={cancelHide}
-          onLeave={hide}
-        />
+        <LondonCard anchor={anchor} onEnter={cancelHide} onLeave={hide} />
       ) : null}
     </div>
   );
 }
 
-function Token({
-  id,
-  text,
-  open,
-  onShow,
-  onHide,
-}: {
-  id: TokenId;
-  text: string;
-  open: boolean;
-  onShow: (id: TokenId, el: HTMLElement) => void;
-  onHide: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={`${styles.tok} ${open ? styles.tokOpen : ""}`}
-      aria-expanded={open}
-      onPointerEnter={(e) => {
-        if (e.pointerType === "mouse") onShow(id, e.currentTarget);
-      }}
-      onPointerLeave={(e) => {
-        if (e.pointerType === "mouse") onHide();
-      }}
-      onFocus={(e) => onShow(id, e.currentTarget)}
-      onBlur={onHide}
-      onClick={(e) => {
-        if (open) onHide();
-        else onShow(id, e.currentTarget);
-      }}
-    >
-      {text}
-    </button>
-  );
-}
-
-function IdeaPhrase({
-  open,
-  onShow,
-  onHide,
-}: {
-  open: boolean;
-  onShow: (id: TokenId, el: HTMLElement) => void;
-  onHide: () => void;
-}) {
-  const [i, setI] = useState(0);
-  const [swapping, setSwapping] = useState(false);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const tick = window.setInterval(() => {
-      setSwapping(true);
-      window.setTimeout(() => {
-        setI((n) => (n + 1) % CYCLE.length);
-        setSwapping(false);
-      }, 620);
-    }, 5200);
-    return () => window.clearInterval(tick);
-  }, []);
-
-  return (
-    <button
-      type="button"
-      className={`${styles.tok} ${open ? styles.tokOpen : ""}`}
-      aria-label="one idea at a time"
-      onPointerEnter={(e) => {
-        if (e.pointerType === "mouse") onShow("idea", e.currentTarget);
-      }}
-      onPointerLeave={(e) => {
-        if (e.pointerType === "mouse") onHide();
-      }}
-      onFocus={(e) => onShow("idea", e.currentTarget)}
-      onBlur={onHide}
-      onClick={(e) => (open ? onHide() : onShow("idea", e.currentTarget))}
-    >
-      one{" "}
-      <span
-        className={`${styles.cycler} ${swapping ? styles.cyclerSwap : ""}`}
-        aria-hidden="true"
-      >
-        {CYCLE[i]}
-      </span>{" "}
-      at a time.
-    </button>
-  );
-}
-
-function TokenCard({
-  id,
+function LondonCard({
   anchor,
   onEnter,
   onLeave,
 }: {
-  id: TokenId;
   anchor: DOMRect;
   onEnter: () => void;
   onLeave: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState<{ left: number; top: number; above: boolean }>(
-    {
-      left: anchor.left,
-      top: anchor.bottom + 10,
-      above: false,
-    },
-  );
+  const [now, setNow] = useState<string>("");
+  const [pos, setPos] = useState({
+    left: anchor.left,
+    top: anchor.top - 10,
+  });
 
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     const w = el.offsetWidth;
-    const above = anchor.top > window.innerHeight * 0.55;
     const left = Math.min(
       Math.max(12, anchor.left + anchor.width / 2 - w / 2),
       window.innerWidth - w - 12,
     );
-    setPos({ left, top: above ? anchor.top - 10 : anchor.bottom + 10, above });
-  }, [anchor, id]);
-
-  return (
-    <div
-      ref={ref}
-      role="tooltip"
-      className={`${styles.card} ${pos.above ? styles.cardAbove : ""}`}
-      style={{ left: pos.left, top: pos.top }}
-      onPointerEnter={onEnter}
-      onPointerLeave={onLeave}
-    >
-      {id === "london" ? (
-        <LondonCard />
-      ) : id === "role" ? (
-        <a
-          className={styles.cardXLink}
-          href="https://x.com/BetterNeil"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Neil McArdle on X"
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-          </svg>
-          <Arrow />
-        </a>
-      ) : id === "idea" ? (
-        <>
-          <p className={styles.cardLabel}>Design philosophy</p>
-          <p className={styles.cardBody}>
-            Coherent thinking, coherent product. The product is coherent because
-            the thinking is coherent.
-          </p>
-        </>
-      ) : (
-        <ProductCard payload={PRODUCTS[id]} />
-      )}
-    </div>
-  );
-}
-
-function ProductCard({ payload }: { payload: Payload }) {
-  return (
-    <>
-      <div className={styles.cardMedia}>
-        <img src={payload.image.src} alt={payload.image.alt} loading="lazy" />
-      </div>
-      {payload.link.external ? (
-        <a
-          className={styles.cardLink}
-          href={payload.link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {payload.link.text}
-          <Arrow />
-        </a>
-      ) : (
-        <Link className={styles.cardLink} href={payload.link.href}>
-          {payload.link.text}
-          <Arrow />
-        </Link>
-      )}
-    </>
-  );
-}
-
-function LondonCard() {
-  const [now, setNow] = useState<string>("");
+    setPos({ left, top: anchor.top - 10 });
+  }, [anchor]);
 
   useEffect(() => {
     const paint = () =>
@@ -330,28 +138,15 @@ function LondonCard() {
   }, []);
 
   return (
-    <>
-      <span className={styles.clock}>{now || "--:--:--"}</span>
-    </>
-  );
-}
-
-function Arrow() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      aria-hidden="true"
+    <div
+      ref={ref}
+      role="tooltip"
+      className={styles.card}
+      style={{ left: pos.left, top: pos.top }}
+      onPointerEnter={onEnter}
+      onPointerLeave={onLeave}
     >
-      <path
-        d="M7 17L17 7M7 7h10v10"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+      <span className={styles.clock}>{now || "--:--:--"}</span>
+    </div>
   );
 }

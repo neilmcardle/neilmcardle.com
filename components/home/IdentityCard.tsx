@@ -4,13 +4,12 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./home.module.css";
 
-const DOT_TILE = "4.45361px 4.46743px";
-
 const BASE_FADE =
-  "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.62) 42%, rgba(0,0,0,0.97) 66%, rgb(0,0,0) 100%)";
+  "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 52%, rgba(0,0,0,0.88) 80%, rgb(0,0,0) 100%)";
+
+const DOT_TILE = "1.3255cqw 1.3296cqw";
 
 const MAX_TILT = 8;
-const CARD_W = 336;
 
 export type Lean = "none" | "left" | "right" | "back";
 
@@ -43,7 +42,7 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
     setGlint(true);
 
     bandRef.current?.classList.remove(styles.idSweep);
-  }, []);
+  }, [fine]);
 
   const handleMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
@@ -51,13 +50,17 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
       const tilt = tiltRef.current;
       const band = bandRef.current;
       if (!tilt) return;
+      if (!hoverRef.current) {
+        hoverRef.current = true;
+        setGlint(true);
+      }
       const rect = event.currentTarget.getBoundingClientRect();
       const x = (event.clientX - rect.left) / rect.width;
       const y = (event.clientY - rect.top) / rect.height;
       tilt.style.transition = "none";
       tilt.style.transform = `rotateX(${(0.5 - y) * 2 * MAX_TILT}deg) rotateY(${(x - 0.5) * 2 * MAX_TILT}deg)`;
       if (band)
-        band.style.transform = `translateX(${x * CARD_W}px) rotate(-18deg)`;
+        band.style.transform = `translateX(${x * 100}cqw) rotate(-18deg)`;
     },
     [fine, lean],
   );
@@ -114,10 +117,10 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
             aria-hidden="true"
             style={{
               position: "absolute",
-              left: 16,
-              top: 16,
-              height: 316,
-              width: 304,
+              left: "4.7619cqw",
+              top: "4.7619cqw",
+              height: "94.0476cqw",
+              width: "90.4762cqw",
               maxWidth: "none",
             }}
           />
@@ -146,10 +149,10 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
             priority
             style={{
               position: "absolute",
-              left: -13,
-              top: 8,
-              height: 384,
-              width: 362,
+              left: "-3.869cqw",
+              top: "2.381cqw",
+              height: "114.2857cqw",
+              width: "107.7381cqw",
               maxWidth: "none",
               objectFit: "cover",
               pointerEvents: "none",
@@ -161,20 +164,12 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
             style={{
               position: "absolute",
               left: 0,
-              top: 192,
-              height: 288,
-              width: 336,
+              bottom: 0,
+              height: "39.2857cqw",
+              width: "100cqw",
               backgroundImage: BASE_FADE,
             }}
           />
-
-          <div className={styles.idName}>
-            <h2>
-              <span>NEIL</span>
-              <span>McARDLE</span>
-            </h2>
-            <p className={styles.idRole}>Artist · Designer · London</p>
-          </div>
         </div>
       </div>
     </div>

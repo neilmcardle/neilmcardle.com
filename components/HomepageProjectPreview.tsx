@@ -32,6 +32,7 @@ export function HomepageProjectPreview({ k }: PreviewProps) {
     k === "makeebook" ||
     k === "doodlewire" ||
     k === "coverly" ||
+    k === "spark" ||
     k === "tessera";
   if (!isGlass) return null;
 
@@ -49,6 +50,15 @@ export function HomepageProjectPreview({ k }: PreviewProps) {
       <FoilCard
         className="w-full"
         image={{ src: "/screenshots/coverly.png", alt: "Coverly book covers" }}
+        hideFade
+      />
+    );
+  }
+  if (k === "spark") {
+    return (
+      <FoilCard
+        className="w-full"
+        image={{ src: "/screenshots/spark.png", alt: "Spark lesson view" }}
         hideFade
       />
     );
@@ -87,8 +97,6 @@ function renderForKey(k: ProjectKey) {
       return <IconAnimatorPreview />;
     case "promptr":
       return <PromptrPreview />;
-    case "spark":
-      return <SparkPreview />;
     case "touchtype":
       return <TouchtypePreview />;
     case "kids-alphabet":
@@ -332,93 +340,6 @@ function PromptrPreview() {
           x2="100"
           y2="60"
           className="hpp-pr-sharp hpp-pr-r3"
-        />
-      </g>
-    </svg>
-  );
-}
-
-function SparkPreview() {
-  return (
-    <svg viewBox="0 0 160 90" width="100%" height="100%" className="hpp-svg">
-      <line
-        x1="80"
-        y1="14"
-        x2="80"
-        y2="76"
-        stroke="currentColor"
-        strokeWidth="0.5"
-        opacity="0.2"
-      />
-
-      <g
-        stroke="currentColor"
-        fill="none"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <rect
-          x="34"
-          y="22"
-          width="36"
-          height="14"
-          rx="2"
-          className="hpp-sp-sketch hpp-sp-p1"
-        />
-        <circle cx="42" cy="52" r="5" className="hpp-sp-sketch hpp-sp-p2" />
-        <line
-          x1="52"
-          y1="52"
-          x2="70"
-          y2="52"
-          strokeWidth="2"
-          className="hpp-sp-sketch hpp-sp-p3"
-        />
-      </g>
-
-      <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <circle
-          cx="92"
-          cy="30"
-          r="2"
-          fill="currentColor"
-          className="hpp-sp-code hpp-sp-p1"
-        />
-        <line
-          x1="98"
-          y1="30"
-          x2="128"
-          y2="30"
-          className="hpp-sp-code hpp-sp-p1"
-        />
-        <circle
-          cx="92"
-          cy="46"
-          r="2"
-          fill="currentColor"
-          className="hpp-sp-code hpp-sp-p2"
-        />
-        <line
-          x1="98"
-          y1="46"
-          x2="124"
-          y2="46"
-          className="hpp-sp-code hpp-sp-p2"
-        />
-        <circle
-          cx="92"
-          cy="62"
-          r="2"
-          fill="currentColor"
-          className="hpp-sp-code hpp-sp-p3"
-        />
-        <line
-          x1="98"
-          y1="62"
-          x2="118"
-          y2="62"
-          className="hpp-sp-code hpp-sp-p3"
         />
       </g>
     </svg>

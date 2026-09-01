@@ -2,8 +2,8 @@ import Link from "next/link";
 import {
   HomepageProjectPreview,
   type ProjectKey,
-  getProductLogo,
 } from "@/components/HomepageProjectPreview";
+import ProductBadge from "./ProductBadge";
 
 const FEATURES: {
   tileKey: ProjectKey;
@@ -12,6 +12,7 @@ const FEATURES: {
   description: string;
   href: string;
   linkLabel: string;
+  status?: string;
   external?: boolean;
   appleIcon?: boolean;
   reverse?: boolean;
@@ -48,6 +49,16 @@ const FEATURES: {
     appleIcon: true,
     reverse: true,
   },
+  {
+    tileKey: "spark",
+    category: "Learning Platform",
+    name: "Spark",
+    description:
+      "A full-stack engineering course for designers, so they can build the things they design. Written, designed, and built as one piece.",
+    href: "/spark",
+    linkLabel: "View project",
+    status: "In progress",
+  },
 ];
 
 const CTA_CLS =
@@ -78,6 +89,7 @@ function ProductFeature({
   href,
   external,
   linkLabel,
+  status,
   appleIcon,
   reverse,
 }: (typeof FEATURES)[number]) {
@@ -114,7 +126,7 @@ function ProductFeature({
       {media}
       <div className={reverse ? "md:order-1" : ""}>
         <div
-          className="text-tan mb-4"
+          className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2"
           style={{
             fontFamily: "var(--font-inter)",
             fontSize: "0.6875rem",
@@ -122,7 +134,12 @@ function ProductFeature({
             textTransform: "uppercase",
           }}
         >
-          {category}
+          <span className="text-tan">{category}</span>
+          {status && (
+            <span className="rounded-full border border-cream/20 px-2.5 py-1 text-cream/45">
+              {status}
+            </span>
+          )}
         </div>
         <NameBlock
           tileKey={tileKey}
@@ -175,9 +192,11 @@ function NameBlock({
 }) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      <div className="w-8 h-8 flex-shrink-0">
-        {getProductLogo(tileKey as "makeebook" | "coverly" | "doodlewire")}
-      </div>
+      <span className="flex-shrink-0 leading-none">
+        <ProductBadge
+          badge={tileKey as "makeebook" | "coverly" | "doodlewire" | "spark"}
+        />
+      </span>
       <h3
         className="text-cream"
         style={{

@@ -7,24 +7,15 @@ import IdentityCard, { type Lean } from "./IdentityCard";
 import LiveSentence from "./LiveSentence";
 import DailyDrawing from "./DailyDrawing";
 import SelectedWork from "./SelectedWork";
+import AlsoBuilt from "./AlsoBuilt";
+import Paintings from "./Paintings";
 import SiteMenu from "./SiteMenu";
-
-const SUBSCRIBE_URL = "https://buy.stripe.com/9B600l7XfblGdOxgk8fIs01";
-const WAITLIST_URL =
-  "mailto:neil@neilmcardle.com?subject=Join%20the%20waitlist";
-
-const AVAILABILITY = {
-  open: true,
-  openLine: "Work with me",
-  fullLine: "Join the waitlist",
-} as const;
 
 export default function HomeShell() {
   const [lean, setLean] = useState<Lean>("none");
 
   return (
     <div className={styles.page}>
-      <div className={styles.vignette} aria-hidden="true" />
       <SiteMenu />
 
       <div className={styles.shell}>
@@ -32,24 +23,30 @@ export default function HomeShell() {
           <IdentityCard lean={lean} />
           <div>
             <LiveSentence onLean={setLean} />
-            <a
-              className={styles.availability}
-              href={AVAILABILITY.open ? SUBSCRIBE_URL : WAITLIST_URL}
-              target={AVAILABILITY.open ? "_blank" : undefined}
-              rel={AVAILABILITY.open ? "noopener noreferrer" : undefined}
-            >
-              <span
-                className={`${styles.dot} ${AVAILABILITY.open ? "" : styles.dotClosed}`}
-                aria-hidden="true"
+
+            <div className={styles.credentials}>
+              <Credential
+                src="/logos/avis-budget-group.svg"
+                alt="Avis Budget Group"
+                height={15}
+                tip="In-house"
               />
-              {AVAILABILITY.open
-                ? AVAILABILITY.openLine
-                : AVAILABILITY.fullLine}
-            </a>
+              <Credential
+                src="/logos/mobbin.svg"
+                alt="Mobbin"
+                height={15}
+                tip="Contractor"
+                href="https://mobbin.com"
+              />
+              <Credential
+                src="/logos/banner-of-truth.svg"
+                alt="The Banner of Truth"
+                height={30}
+                tip="Previously"
+              />
+            </div>
           </div>
         </header>
-
-        <DailyDrawing />
 
         <section id="work" className={styles.work}>
           <div className={styles.sectionHead}>
@@ -61,6 +58,45 @@ export default function HomeShell() {
           </div>
 
           <SelectedWork />
+        </section>
+
+        <section className={styles.work}>
+          <div className={styles.sectionHead}>
+            <span className={styles.plus} aria-hidden="true">
+              +
+            </span>
+            <span className={styles.sectionLabel}>Also built</span>
+            <span className={styles.rule} />
+          </div>
+
+          <AlsoBuilt />
+        </section>
+
+        <DailyDrawing />
+
+        <section className={styles.work}>
+          <div className={styles.sectionHead}>
+            <span className={styles.plus} aria-hidden="true">
+              +
+            </span>
+            <span className={styles.sectionLabel}>Paintings</span>
+            <span className={styles.rule} />
+          </div>
+
+          <Paintings />
+        </section>
+
+        <section className={styles.work}>
+          <div className={styles.sectionHead}>
+            <span className={styles.plus} aria-hidden="true">
+              +
+            </span>
+            <span className={styles.sectionLabel}>Writing</span>
+            <span className={styles.sectionStatus}>In progress</span>
+            <span className={styles.rule} />
+          </div>
+
+          <p className={styles.writingNote}>Design notes coming soon.</p>
         </section>
 
         <section className={styles.tellMore}>
@@ -142,5 +178,48 @@ export default function HomeShell() {
         </footer>
       </div>
     </div>
+  );
+}
+
+function Credential({
+  src,
+  alt,
+  height,
+  tip,
+  href,
+}: {
+  src: string;
+  alt: string;
+  height: number;
+  tip: string;
+  href?: string;
+}) {
+  const logo = (
+    <img
+      className={styles.credentialLogo}
+      src={src}
+      alt={alt}
+      style={{ height }}
+    />
+  );
+
+  return (
+    <span className={styles.credentialItem}>
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.credentialLogoLink}
+        >
+          {logo}
+        </a>
+      ) : (
+        logo
+      )}
+      <span className={styles.credentialTip} role="tooltip">
+        {tip}
+      </span>
+    </span>
   );
 }

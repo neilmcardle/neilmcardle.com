@@ -83,14 +83,108 @@ export default function SiteMenu() {
         onClick={() => setOpen((v) => !v)}
       >
         <svg
-          width="17"
-          height="17"
-          viewBox="0 0 78 78"
-          fill="currentColor"
+          width="40"
+          height="40"
+          viewBox="0 0 62 62"
+          fill="none"
           aria-hidden="true"
         >
-          <path d="M0,0v76.8c0,.5.4,1,1,1h37c.5,0,1-.4,1-1v-37.8L0,0Z" />
-          <path d="M78,78V1.2c0-.5-.4-1-1-1h-37c-.5,0-1,.4-1,1v37.8l39,39Z" />
+          <rect
+            x="0.5"
+            y="0.5"
+            width="61"
+            height="61"
+            rx="16.5"
+            fill="url(#nmark-fill)"
+            stroke="url(#nmark-edge)"
+          />
+          <g filter="url(#nmark-shadow-a)">
+            <path d="M44 45L31 31.2985V18H44V45Z" fill="#FEFEFE" />
+            <path d="M17 18L31 31.6343L31 45L17 45L17 18Z" fill="#FEFEFE" />
+          </g>
+          <g filter="url(#nmark-shadow-b)">
+            <path d="M44 45L31 31.2985V18H44V45Z" fill="#FEFEFE" />
+            <path d="M17 18L31 31.6343L31 45L17 45L17 18Z" fill="#FEFEFE" />
+          </g>
+          <defs>
+            <filter
+              id="nmark-shadow-a"
+              x="16"
+              y="18"
+              width="29"
+              height="29"
+              filterUnits="userSpaceOnUse"
+              colorInterpolationFilters="sRGB"
+            >
+              <feFlood floodOpacity="0" result="bg" />
+              <feColorMatrix
+                in="SourceAlpha"
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                result="hardAlpha"
+              />
+              <feOffset dy="1" />
+              <feGaussianBlur stdDeviation="0.5" />
+              <feComposite in2="hardAlpha" operator="out" />
+              <feColorMatrix
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"
+              />
+              <feBlend mode="normal" in2="bg" result="shadowA" />
+              <feBlend mode="normal" in="SourceGraphic" in2="shadowA" />
+            </filter>
+            <filter
+              id="nmark-shadow-b"
+              x="13"
+              y="16"
+              width="35"
+              height="35"
+              filterUnits="userSpaceOnUse"
+              colorInterpolationFilters="sRGB"
+            >
+              <feFlood floodOpacity="0" result="bg" />
+              <feColorMatrix
+                in="SourceAlpha"
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                result="hardAlpha"
+              />
+              <feOffset dy="2" />
+              <feGaussianBlur stdDeviation="2" />
+              <feComposite in2="hardAlpha" operator="out" />
+              <feColorMatrix
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"
+              />
+              <feBlend mode="normal" in2="bg" result="shadowB" />
+              <feBlend mode="normal" in="SourceGraphic" in2="shadowB" />
+            </filter>
+            <linearGradient
+              id="nmark-fill"
+              x1="31"
+              y1="1"
+              x2="31"
+              y2="61"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stopColor="#353535" />
+              <stop offset="1" stopColor="#1D1D1D" />
+            </linearGradient>
+            <linearGradient
+              id="nmark-edge"
+              x1="2"
+              y1="61"
+              x2="61"
+              y2="2"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stopColor="#1E1E1E" />
+              <stop offset="0.341346" stopColor="#363636" />
+              <stop offset="0.490385" stopColor="#D7D7D7" />
+              <stop offset="0.591346" stopColor="#414141" />
+              <stop offset="1" stopColor="#353535" />
+            </linearGradient>
+          </defs>
         </svg>
       </button>
 
