@@ -21,7 +21,6 @@ const HIDDEN_ROUTES = [
   "/portfolio-unlock",
   "/cabin",
   "/privacy",
-  "/terms",
   "/doodlewire",
   "/paintings",
   "/tessera",

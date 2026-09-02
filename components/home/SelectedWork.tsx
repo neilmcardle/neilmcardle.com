@@ -19,10 +19,10 @@ const FEATURES: {
 }[] = [
   {
     tileKey: "makeebook",
-    category: "Writing Platform",
+    category: "Writing platform",
     name: "makeEbook",
     description:
-      "An AI-first platform that takes a manuscript to a store-ready ebook. Brand, product, and engineering end to end.",
+      "An AI-first platform that takes a manuscript to a store-ready ebook. Brand, product, and engineering end-to-end.",
     href: "https://makeebook.ink",
     linkLabel: "makeebook.ink",
     external: true,
@@ -30,7 +30,7 @@ const FEATURES: {
   },
   {
     tileKey: "coverly",
-    category: "Design Research Tool",
+    category: "Design research tool",
     name: "Coverly",
     description:
       "Comparable research for book cover designers. Thousands of covers searchable by design attributes rather than genre, with boards and PDF comp-deck export. Free to use.",
@@ -39,7 +39,7 @@ const FEATURES: {
   },
   {
     tileKey: "doodlewire",
-    category: "Wireframing Tool · iOS",
+    category: "Wireframing tool · iOS",
     name: "DoodleWire",
     description:
       "Doodle a UI and on-device ML snaps your strokes into clean wireframe elements, then exports in HTML or React.",
@@ -51,10 +51,10 @@ const FEATURES: {
   },
   {
     tileKey: "spark",
-    category: "Learning Platform",
+    category: "Learning platform",
     name: "Spark",
     description:
-      "A full-stack engineering course for designers, so they can build the things they design. Written, designed, and built as one piece.",
+      "A full-stack engineering course for designers, so they can build the things they design.",
     href: "/spark",
     linkLabel: "View project",
     status: "In progress",
@@ -96,7 +96,7 @@ function ProductFeature({
   const mediaInner = (
     <div className="block w-full">
       <div className="relative flex items-center justify-center">
-        <div className="relative w-full drop-shadow-[0_26px_55px_rgba(0,0,0,0.7)] transition-transform duration-500 ease-out group-hover:scale-[1.02]">
+        <div className="relative w-full drop-shadow-[0_26px_55px_rgba(0,0,0,0.7)]">
           <HomepageProjectPreview k={tileKey} />
         </div>
       </div>
@@ -125,18 +125,12 @@ function ProductFeature({
       <NameBlock tileKey={tileKey} name={name} className="md:hidden" />
       {media}
       <div className={reverse ? "md:order-1" : ""}>
-        <NameBlock
-          tileKey={tileKey}
-          name={name}
-          className="hidden md:flex mb-3"
-        />
         <div
-          className="flex flex-wrap items-center gap-x-3 gap-y-2"
+          className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2"
           style={{
             fontFamily: "var(--font-inter)",
             fontSize: "0.6875rem",
-            letterSpacing: "0.13em",
-            textTransform: "uppercase",
+            letterSpacing: "0.06em",
           }}
         >
           <span className="text-tan">{category}</span>
@@ -146,6 +140,7 @@ function ProductFeature({
             </span>
           )}
         </div>
+        <NameBlock tileKey={tileKey} name={name} className="hidden md:flex" />
         <p
           className="text-cream/70 mt-4 max-w-md"
           style={{

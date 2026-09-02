@@ -27,7 +27,7 @@ function saveBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export default function DailyDrawing() {
+export default function DailyDrawing({ index }: { index: string }) {
   const [today, setToday] = useState<number | null>(null);
   const [picked, setPicked] = useState<number | null>(null);
 
@@ -53,7 +53,7 @@ export default function DailyDrawing() {
   const download = useCallback(async () => {
     if (!drawing) return;
     const svg = drawingToSvg(drawing);
-    const stem = `neil-mcardle-drawing-${isoForDay(drawing.dayNumber)}`;
+    const stem = `neil-mcardle-landscape-${isoForDay(drawing.dayNumber)}`;
 
     const url = URL.createObjectURL(
       new Blob([svg], { type: "image/svg+xml;charset=utf-8" }),
@@ -88,10 +88,10 @@ export default function DailyDrawing() {
   return (
     <section className={styles.daily}>
       <div className={styles.sectionHead}>
-        <span className={styles.plus} aria-hidden="true">
-          +
+        <span className={styles.sectionNum} aria-hidden="true">
+          {index}
         </span>
-        <span className={styles.sectionLabel}>Today&rsquo;s drawing</span>
+        <span className={styles.sectionLabel}>Click generate, I dare ya</span>
         <span className={styles.rule} />
       </div>
 
@@ -242,7 +242,7 @@ export default function DailyDrawing() {
             >
               <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
             </svg>
-            View last 30 days
+            Gallery
           </Link>
         </div>
       </div>

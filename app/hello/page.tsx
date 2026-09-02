@@ -1,17 +1,26 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { HomepageProjectPreview, type ProjectKey } from "@/components/HomepageProjectPreview";
+import {
+  HomepageProjectPreview,
+  type ProjectKey,
+} from "@/components/HomepageProjectPreview";
 import BorderGlow from "@/components/BorderGlow";
 import HeroCta from "@/components/HeroCta";
 
 const SUBSCRIBE_URL = "https://buy.stripe.com/9B600l7XfblGdOxgk8fIs01";
 
-const CLIENTS = ["Avis Budget Group", "Banner of Truth", "Dan Roberts Group", "Gatewick House & Gardens"];
+const CLIENTS = [
+  "Avis Budget Group",
+  "Banner of Truth",
+  "Dan Roberts Group",
+  "Gatewick House & Gardens",
+];
 
 export const metadata: Metadata = {
   title: "Good to meet you — Neil McArdle",
-  description: "I design and build digital products. One person, start to finish.",
+  description:
+    "I design and build digital products. One person, start to finish.",
   robots: { index: false, follow: false },
 };
 
@@ -38,8 +47,14 @@ export default function Hello() {
             aria-label="Neil McArdle"
             className="mb-10 text-cream"
           >
-            <path d="M0,0v76.8c0,.5.4,1,1,1h37c.5,0,1-.4,1-1v-37.8L0,0Z" fill="currentColor" />
-            <path d="M78,78V1.2c0-.5-.4-1-1-1h-37c-.5,0-1,.4-1,1v37.8l39,39Z" fill="currentColor" />
+            <path
+              d="M0,0v76.8c0,.5.4,1,1,1h37c.5,0,1-.4,1-1v-37.8L0,0Z"
+              fill="currentColor"
+            />
+            <path
+              d="M78,78V1.2c0-.5-.4-1-1-1h-37c-.5,0-1,.4-1,1v37.8l39,39Z"
+              fill="currentColor"
+            />
           </svg>
 
           <Image
@@ -84,8 +99,8 @@ export default function Hello() {
               lineHeight: 1.6,
             }}
           >
-            The Figma file and the shipped, working product come from the same hands,
-            so nothing gets lost in between.
+            The Figma file and the shipped, working product come from the same
+            hands, so nothing gets lost in between.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-5">
@@ -128,7 +143,11 @@ export default function Hello() {
             {CLIENTS.map((c) => (
               <span
                 key={c}
-                style={{ fontFamily: "var(--font-inter)", fontSize: "0.9375rem", fontWeight: 500 }}
+                style={{
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "0.9375rem",
+                  fontWeight: 500,
+                }}
               >
                 {c}
               </span>
@@ -138,8 +157,11 @@ export default function Hello() {
 
         <footer className="mt-20 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
           {[
-            { label: "neilmcardle.com", href: "https://neilmcardle.com", external: true },
-            { label: "Terms", href: "/terms" },
+            {
+              label: "neilmcardle.com",
+              href: "https://neilmcardle.com",
+              external: true,
+            },
             { label: "Privacy", href: "/privacy" },
           ].map((l) =>
             l.external ? (
@@ -170,7 +192,7 @@ export default function Hello() {
               >
                 {l.label}
               </Link>
-            )
+            ),
           )}
         </footer>
       </div>

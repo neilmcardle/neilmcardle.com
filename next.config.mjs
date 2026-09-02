@@ -4,10 +4,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true, // Temporarily ignore for project setup
   },
-  images: {
-    unoptimized: true, // Keep unoptimized for now until external domains are audited
-  },
-
   turbopack: {},
 
   devIndicators: {

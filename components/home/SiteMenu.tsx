@@ -6,9 +6,9 @@ import styles from "./home.module.css";
 
 const PAGES: { label: string; href: string; external?: boolean }[] = [
   { label: "Selected work", href: "/#work" },
-  { label: "Daily drawings", href: "/daily" },
-  { label: "Archive", href: "/archive" },
+  { label: "Daily landscape", href: "/daily" },
   { label: "Paintings", href: "/paintings" },
+  { label: "Archive", href: "/archive" },
 ];
 
 const SOCIAL: { label: string; href: string; path: string }[] = [

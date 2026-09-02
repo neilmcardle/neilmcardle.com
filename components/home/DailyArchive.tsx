@@ -80,12 +80,12 @@ export default function DailyArchive() {
           <span className={styles.plus} aria-hidden="true">
             +
           </span>
-          <span className={styles.sectionLabel}>The last 30 drawings</span>
+          <span className={styles.sectionLabel}>The last 30 landscapes</span>
           <span className={styles.rule} />
         </div>
 
         <p className={styles.archiveIntro}>
-          Each drawing is a pure function of its date.
+          Each landscape is a pure function of its date.
         </p>
 
         <div className={styles.archiveGrid}>
@@ -258,7 +258,7 @@ function Lightbox({
           className={styles.lightboxBtn}
           onClick={onPrev}
           disabled={atStart}
-          aria-label="Newer drawing"
+          aria-label="Newer landscape"
         >
           <Chevron dir="left" />
         </button>
@@ -286,7 +286,7 @@ function Lightbox({
           className={styles.lightboxBtn}
           onClick={onNext}
           disabled={atEnd}
-          aria-label="Older drawing"
+          aria-label="Older landscape"
         >
           <Chevron dir="right" />
         </button>

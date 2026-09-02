@@ -64,7 +64,7 @@ export default function LiveSentence({
 
   return (
     <div className={styles.sentenceWrap}>
-      <p className={styles.sentence}>
+      <h1 className={styles.sentence}>
         I&rsquo;m Neil, a product designer in{" "}
         <button
           type="button"
@@ -86,7 +86,7 @@ export default function LiveSentence({
           London
         </button>
         .
-      </p>
+      </h1>
 
       {open && anchor ? (
         <LondonCard anchor={anchor} onEnter={cancelHide} onLeave={hide} />

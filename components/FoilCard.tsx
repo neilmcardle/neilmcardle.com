@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   useCallback,
   useEffect,
@@ -7,8 +8,6 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
-
-const MAX_TILT = 6;
 
 const DOT_TILE = "3px 3.0093px";
 
@@ -84,8 +83,7 @@ export default function FoilCard({
     const card = cardRef.current;
     const band = bandRef.current;
     if (!card || !band) return;
-    const { x, y } = pointerRef.current;
-    card.style.transform = `rotateX(${(0.5 - y) * 2 * MAX_TILT}deg) rotateY(${(x - 0.5) * 2 * MAX_TILT}deg)`;
+    const { x } = pointerRef.current;
     band.style.transform = `translateX(${x * card.offsetWidth - band.offsetWidth / 2}px) rotate(-18deg)`;
   }, []);
 
@@ -102,7 +100,6 @@ export default function FoilCard({
 
   const handlePointerEnter = () => {
     if (reducedRef.current || coarseRef.current) return;
-    if (cardRef.current) cardRef.current.style.transition = "none";
     if (glintRef.current) glintRef.current.style.opacity = "1";
   };
 
@@ -112,18 +109,12 @@ export default function FoilCard({
       cancelAnimationFrame(frameRef.current);
       frameRef.current = null;
     }
-    if (cardRef.current) {
-      cardRef.current.style.transition =
-        "transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1)";
-      cardRef.current.style.transform = "rotateX(0deg) rotateY(0deg)";
-    }
     if (glintRef.current) glintRef.current.style.opacity = "0";
   };
 
   return (
     <div
       className={className}
-      style={{ perspective: "900px" }}
       onPointerMove={handlePointerMove}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
@@ -139,9 +130,11 @@ export default function FoilCard({
         }}
       >
         {image ? (
-          <img
+          <Image
             src={image.src}
             alt={image.alt}
+            fill
+            sizes="(max-width: 767px) 100vw, 50vw"
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
