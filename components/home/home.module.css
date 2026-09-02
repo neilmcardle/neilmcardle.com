@@ -1362,3 +1362,10 @@
     max-width: none;
   }
 }
+
+.heroDots canvas,
+.tellMoreDots canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+}

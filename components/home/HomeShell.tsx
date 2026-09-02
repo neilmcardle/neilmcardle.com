@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import styles from "./home.module.css";
 import IdentityCard, { type Lean } from "./IdentityCard";
+import DotField from "./DotField";
 import LiveSentence from "./LiveSentence";
 import DailyDrawing from "./DailyDrawing";
 import SelectedWork from "./SelectedWork";
@@ -18,7 +19,7 @@ export default function HomeShell() {
 
       <div className={styles.shell}>
         <header className={styles.masthead}>
-          <div className={styles.heroDots} aria-hidden="true" />
+          <DotField className={styles.heroDots} fps={2.5} />
           <IdentityCard lean={lean} />
           <div>
             <LiveSentence onLean={setLean} />
@@ -65,7 +66,7 @@ export default function HomeShell() {
         <DailyDrawing index="02" />
 
         <section className={styles.tellMore}>
-          <div className={styles.tellMoreDots} aria-hidden="true" />
+          <DotField className={styles.tellMoreDots} seedOffset={7} />
 
           <div className={styles.sectionHead}>
             <span className={styles.sectionNum} aria-hidden="true">
