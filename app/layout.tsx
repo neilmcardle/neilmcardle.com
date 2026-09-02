@@ -20,7 +20,6 @@ import {
   JetBrains_Mono,
   Zilla_Slab,
 } from "next/font/google";
-import { DialRoot } from "dialkit";
 
 const cantarell = Cantarell({
   subsets: ["latin"],
@@ -145,7 +144,6 @@ export default function RootLayout({
             <ThemeProvider>
               <div className="min-h-screen flex flex-col">
                 <main className="flex-1">{children}</main>
-                <DialRoot />
               </div>
               <Toaster />
               <SonnerToaster />

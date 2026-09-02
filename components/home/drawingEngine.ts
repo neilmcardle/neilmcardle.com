@@ -16,6 +16,14 @@ export type Drawing = {
   dayNumber: number;
 };
 
+export type Tweaks = {
+  sharpness?: number;
+  height?: number;
+  peakX?: number;
+  rings?: number;
+  rain?: boolean;
+};
+
 export const CANVAS = 400;
 const MARGIN = 0;
 const INNER = CANVAS;
@@ -87,11 +95,12 @@ function skyLuminance(sky: string | null, alpha: number) {
   return (0.2126 * mix[0] + 0.7152 * mix[1] + 0.0722 * mix[2]) / 255;
 }
 
-function contourRings(rf: () => number): string[] {
+function contourRings(rf: () => number, tw?: Tweaks): string[] {
   const cx = CANVAS * lerp(0.3, 0.7, rf());
   const cy = CANVAS * lerp(0.3, 0.7, rf());
   const R = CANVAS * lerp(0.5, 0.85, rf());
-  const rings = 9 + Math.floor(rf() * 8);
+  const ringRoll = 9 + Math.floor(rf() * 8);
+  const rings = tw?.rings ?? ringRoll;
   const f1 = 2 + Math.floor(rf() * 4);
   const f2 = 4 + Math.floor(rf() * 6);
   const p1 = rf() * Math.PI * 2;
@@ -292,6 +301,7 @@ function mountainShape(
   horizon: number,
   tpl: Template,
   bias: number,
+  tw?: Tweaks,
 ) {
   const oversized = rf() < guide(0.3, tpl.oversized, bias);
   const freePeak = oversized ? lerp(-0.35, 1.35, rf()) : lerp(0.16, 0.84, rf());
@@ -302,18 +312,22 @@ function mountainShape(
     Math.abs(offset) < deadZone
       ? 0.5 + (offset >= 0 ? 1 : -1) * lerp(deadZone, deadZone * 2.4, rf())
       : guided;
-  const peakX = CANVAS * peakFraction;
+  const peakX = CANVAS * (tw?.peakX ?? peakFraction);
   const freeHalf = oversized ? lerp(1.05, 2.05, rf()) : lerp(0.22, 0.46, rf());
   const halfAnchor = oversized ? tpl.half : Math.min(0.45, tpl.half * 0.55);
   const half = INNER * guide(freeHalf, halfAnchor, bias);
-  const wanted = half * lerp(0.6, 0.95, rf());
-  const height = oversized
+  const heightRoll = lerp(0.6, 0.95, rf());
+  const wanted = half * heightRoll;
+  const natural = oversized
     ? Math.min(wanted, horizon - INNER * lerp(0.04, 0.16, rf()))
     : wanted;
+  const height =
+    tw?.height !== undefined ? (horizon - INNER * 0.05) * tw.height : natural;
   const peakY = horizon - height;
   const k = lerp(2.8, 3.8, rf());
 
-  const m = lerp(1.25, 1.6, rf());
+  const sharpRoll = lerp(1.25, 1.6, rf());
+  const m = tw?.sharpness ?? sharpRoll;
   const floor = Math.exp(-k);
   const shoulderU = (rf() < 0.5 ? -1 : 1) * lerp(0.4, 0.62, rf());
   const shoulderAmp = lerp(0.03, 0.1, rf());
@@ -364,7 +378,7 @@ function conifer(x: number, baseY: number, h: number, w: number) {
   );
 }
 
-function scene(rf: () => number, mood: string) {
+function scene(rf: () => number, mood: string, tw?: Tweaks) {
   const back: Mark[] = [];
   const front: Mark[] = [];
 
@@ -393,7 +407,7 @@ function scene(rf: () => number, mood: string) {
   const bias = lerp(0.4, 0.82, rf());
 
   const horizon = CANVAS * guide(lerp(0.56, 0.82, rf()), tpl.horizon, bias);
-  const m = mountainShape(rf, horizon, tpl, bias);
+  const m = mountainShape(rf, horizon, tpl, bias, tw);
 
   if (pal.sky)
     p.sky(rect(0, 0, CANVAS, horizon), pal.sky, pal.skyOpacity * 0.62);
@@ -402,7 +416,7 @@ function scene(rf: () => number, mood: string) {
   const contourTone = skyLight > 0.28 ? GROUND : CREAM;
   const contourStrength =
     skyLight > 0.28 ? lerp(0.16, 0.3, rf()) : lerp(0.12, 0.24, rf());
-  contourRings(rf).forEach((d, i) => {
+  contourRings(rf, tw).forEach((d, i) => {
     back.push({
       d,
       stroke: contourTone,
@@ -555,7 +569,8 @@ function scene(rf: () => number, mood: string) {
     }
   }
 
-  if (rf() < 0.26) {
+  const rainRoll = rf() < 0.26;
+  if (tw?.rain ?? rainRoll) {
     const drops = 40 + Math.floor(rf() * 90);
     const lean = lerp(0.12, 0.34, rf()) * (rf() < 0.5 ? -1 : 1);
     const tone = mood === "Snow" || mood === "Night" ? CREAM : pal.peak;
@@ -580,13 +595,17 @@ function moodFor(dayNumber: number, variant: number) {
     : today;
 }
 
-export function buildDrawing(dayNumber: number, variant = 0): Drawing {
+export function buildDrawing(
+  dayNumber: number,
+  variant = 0,
+  tw?: Tweaks,
+): Drawing {
   const rf = mulberry32(hash32(dayNumber * 2654435761 + variant * 40503));
   const mood = MOODS[moodFor(dayNumber, variant)];
   rf();
   rf();
 
-  const { back, front } = scene(rf, mood);
+  const { back, front } = scene(rf, mood, tw);
 
   return {
     layers: [

@@ -2463,3 +2463,16 @@ button.spark-card:hover,
 .me-breathe {
   animation: me-breathe 1.6s ease-in-out infinite;
 }
+
+.dialkit-panel-toolbar.dialkit-panel-toolbar {
+  display: none;
+}
+
+.dialkit-panel.dialkit-panel,
+.dialkit-panel-inner.dialkit-panel-inner {
+  border-radius: 14px;
+}
+
+.dialkit-panel-inner.dialkit-panel-inline {
+  padding-bottom: 10px;
+}
