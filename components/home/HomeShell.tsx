@@ -36,7 +36,6 @@ export default function HomeShell() {
                 alt="Mobbin"
                 height={15}
                 tip="Contractor"
-                href="https://mobbin.com"
               />
               <Credential
                 src="/logos/banner-of-truth.svg"
@@ -165,37 +164,20 @@ function Credential({
   alt,
   height,
   tip,
-  href,
 }: {
   src: string;
   alt: string;
   height: number;
   tip: string;
-  href?: string;
 }) {
-  const logo = (
-    <img
-      className={styles.credentialLogo}
-      src={src}
-      alt={alt}
-      style={{ height }}
-    />
-  );
-
   return (
     <span className={styles.credentialItem}>
-      {href ? (
-        <a
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.credentialLogoLink}
-        >
-          {logo}
-        </a>
-      ) : (
-        logo
-      )}
+      <img
+        className={styles.credentialLogo}
+        src={src}
+        alt={alt}
+        style={{ height }}
+      />
       <span className={styles.credentialTip} role="tooltip">
         {tip}
       </span>

@@ -227,13 +227,7 @@
   transition: opacity 220ms ease;
 }
 
-.credentialLogoLink {
-  display: inline-flex;
-  line-height: 0;
-}
-
-.credentialLogo:hover,
-.credentialLogoLink:hover .credentialLogo {
+.credentialLogo:hover {
   opacity: 1;
 }
 
