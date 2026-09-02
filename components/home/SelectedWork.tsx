@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import styles from "./home.module.css";
 import {
   HomepageProjectPreview,
   type ProjectKey,
@@ -103,73 +107,118 @@ function ProductFeature({
     </div>
   );
 
-  const mediaCls = `block ${reverse ? "md:order-2" : ""}`;
+  const [open, setOpen] = useState(false);
+
+  const mediaCls = reverse ? "md:order-2" : "";
   const media = external ? (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={mediaCls}
+      className="block"
       aria-label={name}
     >
       {mediaInner}
     </a>
   ) : (
-    <Link href={href} className={mediaCls} aria-label={name}>
+    <Link href={href} className="block" aria-label={name}>
       {mediaInner}
     </Link>
   );
 
   return (
-    <div className="group grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14 items-center">
-      <NameBlock tileKey={tileKey} name={name} className="md:hidden" />
-      {media}
-      <div className={reverse ? "md:order-1" : ""}>
-        <div
-          className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2"
-          style={{
-            fontFamily: "var(--font-inter)",
-            fontSize: "0.6875rem",
-            letterSpacing: "0.06em",
-          }}
+    <div className="group grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-14 items-center">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="md:hidden flex w-full items-center gap-3 text-left"
+      >
+        <NameBlock tileKey={tileKey} name={name} className="flex-1" />
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.6}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          className={`flex-shrink-0 text-tan transition-transform duration-300 ${
+            open ? "rotate-45" : ""
+          }`}
         >
-          <span className="text-tan">{category}</span>
-          {status && (
-            <span className="rounded-full border border-cream/20 px-2.5 py-1 text-cream/45">
-              {status}
-            </span>
-          )}
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
+
+      <div
+        className={`${styles.collapse} ${open ? styles.collapseOpen : ""} ${mediaCls}`}
+      >
+        <div>
+          <div className="pt-6 md:pt-0">{media}</div>
         </div>
-        <NameBlock tileKey={tileKey} name={name} className="hidden md:flex" />
-        <p
-          className="text-cream/70 mt-4 max-w-md"
-          style={{
-            fontFamily: "var(--font-inter)",
-            fontSize: "1.0625rem",
-            lineHeight: 1.6,
-          }}
-        >
-          {description}
-        </p>
-        <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3">
-          {external ? (
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={CTA_CLS}
-              style={CTA_STYLE}
+      </div>
+
+      <div
+        className={`${styles.collapse} ${open ? styles.collapseOpen : ""} ${
+          reverse ? "md:order-1" : ""
+        }`}
+      >
+        <div>
+          <div className="pt-6 md:pt-0">
+            <div
+              className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2"
+              style={{
+                fontFamily: "var(--font-inter)",
+                fontSize: "0.6875rem",
+                letterSpacing: "0.06em",
+              }}
             >
-              {appleIcon && <AppleGlyph />}
-              {linkLabel}
-              <CtaArrow />
-            </a>
-          ) : (
-            <Link href={href} className={CTA_CLS} style={CTA_STYLE}>
-              {linkLabel}
-              <CtaArrow />
-            </Link>
-          )}
+              <span className="text-tan">{category}</span>
+              {status && (
+                <span className="rounded-full border border-cream/20 px-2.5 py-1 text-cream/45">
+                  {status}
+                </span>
+              )}
+            </div>
+            <NameBlock
+              tileKey={tileKey}
+              name={name}
+              className="hidden md:flex"
+            />
+            <p
+              className="text-cream/70 mt-4 max-w-md"
+              style={{
+                fontFamily: "var(--font-inter)",
+                fontSize: "1.0625rem",
+                lineHeight: 1.6,
+              }}
+            >
+              {description}
+            </p>
+            <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3">
+              {external ? (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={CTA_CLS}
+                  style={CTA_STYLE}
+                >
+                  {appleIcon && <AppleGlyph />}
+                  {linkLabel}
+                  <CtaArrow />
+                </a>
+              ) : (
+                <Link href={href} className={CTA_CLS} style={CTA_STYLE}>
+                  {linkLabel}
+                  <CtaArrow />
+                </Link>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
