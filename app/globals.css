@@ -2470,7 +2470,7 @@ button.spark-card:hover,
 
 .dialkit-panel.dialkit-panel,
 .dialkit-panel-inner.dialkit-panel-inner {
-  border-radius: 14px;
+  border-radius: 10px;
 }
 
 .dialkit-panel-inner.dialkit-panel-inline {

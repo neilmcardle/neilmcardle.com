@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { MarkEdge, MarkPlate } from "./ProductBadge";
 import styles from "./home.module.css";
 
 const PAGES: { label: string; href: string; external?: boolean }[] = [
@@ -85,31 +86,23 @@ export default function SiteMenu() {
         <svg
           width="40"
           height="40"
-          viewBox="0 0 62 62"
+          viewBox="0 0 63 63"
           fill="none"
           aria-hidden="true"
         >
-          <rect
-            x="0.5"
-            y="0.5"
-            width="61"
-            height="61"
-            rx="16.5"
-            fill="url(#nmark-fill)"
-            stroke="url(#nmark-edge)"
-          />
+          <MarkPlate id="nmark" />
           <g filter="url(#nmark-shadow-a)">
-            <path d="M44 45L31 31.2985V18H44V45Z" fill="#FEFEFE" />
-            <path d="M17 18L31 31.6343L31 45L17 45L17 18Z" fill="#FEFEFE" />
+            <path d="M45 45L32 31.2985V18H45V45Z" fill="#FEFEFE" />
+            <path d="M18 18L32 31.6343L32 45L18 45L18 18Z" fill="#FEFEFE" />
           </g>
           <g filter="url(#nmark-shadow-b)">
-            <path d="M44 45L31 31.2985V18H44V45Z" fill="#FEFEFE" />
-            <path d="M17 18L31 31.6343L31 45L17 45L17 18Z" fill="#FEFEFE" />
+            <path d="M45 45L32 31.2985V18H45V45Z" fill="#FEFEFE" />
+            <path d="M18 18L32 31.6343L32 45L18 45L18 18Z" fill="#FEFEFE" />
           </g>
           <defs>
             <filter
               id="nmark-shadow-a"
-              x="16"
+              x="17"
               y="18"
               width="29"
               height="29"
@@ -135,7 +128,7 @@ export default function SiteMenu() {
             </filter>
             <filter
               id="nmark-shadow-b"
-              x="13"
+              x="14"
               y="16"
               width="35"
               height="35"
@@ -159,31 +152,7 @@ export default function SiteMenu() {
               <feBlend mode="normal" in2="bg" result="shadowB" />
               <feBlend mode="normal" in="SourceGraphic" in2="shadowB" />
             </filter>
-            <linearGradient
-              id="nmark-fill"
-              x1="31"
-              y1="1"
-              x2="31"
-              y2="61"
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop stopColor="#353535" />
-              <stop offset="1" stopColor="#1D1D1D" />
-            </linearGradient>
-            <linearGradient
-              id="nmark-edge"
-              x1="2"
-              y1="61"
-              x2="61"
-              y2="2"
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop stopColor="#1E1E1E" />
-              <stop offset="0.341346" stopColor="#363636" />
-              <stop offset="0.490385" stopColor="#D7D7D7" />
-              <stop offset="0.591346" stopColor="#414141" />
-              <stop offset="1" stopColor="#353535" />
-            </linearGradient>
+            <MarkEdge id="nmark" />
           </defs>
         </svg>
       </button>

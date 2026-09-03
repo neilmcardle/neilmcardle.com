@@ -55,7 +55,7 @@
   border: 0;
   background: none;
   line-height: 0;
-  border-radius: 17px;
+  border-radius: 7px;
   cursor: pointer;
   transition: filter 220ms ease;
 }
@@ -542,9 +542,25 @@
   width: 100%;
   max-width: 400px;
   aspect-ratio: 1 / 1;
-  border: 1px solid rgba(251, 249, 243, 0.12);
+  border: 1px solid transparent;
   border-radius: 22px;
-  background-color: #060605;
+  background-image:
+    url(/hero/dot-matrix.svg), linear-gradient(#14120e, #14120e),
+    linear-gradient(
+      to top right,
+      #1e1e1e 0%,
+      #363636 34%,
+      #d7d7d7 49%,
+      #414141 59%,
+      #353535 100%
+    );
+  background-size:
+    6px 6px,
+    auto,
+    auto;
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-origin: padding-box, padding-box, border-box;
+  background-clip: padding-box, padding-box, border-box;
   cursor: pointer;
   overflow: hidden;
 }
@@ -665,7 +681,7 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 999px;
+  border-radius: 10px;
   border: 1px solid rgba(251, 249, 243, 0.16);
   background: none;
   color: rgba(251, 249, 243, 0.8);
@@ -1006,9 +1022,25 @@
 
 .archiveCell {
   position: relative;
-  border: 1px solid rgba(251, 249, 243, 0.12);
+  border: 1px solid transparent;
   border-radius: 14px;
-  background-color: #060605;
+  background-image:
+    url(/hero/dot-matrix.svg), linear-gradient(#14120e, #14120e),
+    linear-gradient(
+      to top right,
+      #1e1e1e 0%,
+      #363636 34%,
+      #d7d7d7 49%,
+      #414141 59%,
+      #353535 100%
+    );
+  background-size:
+    6px 6px,
+    auto,
+    auto;
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-origin: padding-box, padding-box, border-box;
+  background-clip: padding-box, padding-box, border-box;
   aspect-ratio: 1 / 1;
   overflow: hidden;
 }
@@ -1130,9 +1162,25 @@
   position: relative;
   width: min(78vmin, 620px);
   aspect-ratio: 1 / 1;
-  border: 1px solid rgba(251, 249, 243, 0.12);
+  border: 1px solid transparent;
   border-radius: 18px;
-  background-color: #060605;
+  background-image:
+    url(/hero/dot-matrix.svg), linear-gradient(#14120e, #14120e),
+    linear-gradient(
+      to top right,
+      #1e1e1e 0%,
+      #363636 34%,
+      #d7d7d7 49%,
+      #414141 59%,
+      #353535 100%
+    );
+  background-size:
+    6px 6px,
+    auto,
+    auto;
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-origin: padding-box, padding-box, border-box;
+  background-clip: padding-box, padding-box, border-box;
   overflow: hidden;
 }
 
@@ -1296,7 +1344,7 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 999px;
+  border-radius: 10px;
   border: 1px solid rgba(251, 249, 243, 0.16);
   background: none;
   color: rgba(251, 249, 243, 0.8);
@@ -1400,4 +1448,8 @@
   .collapse {
     transition: none;
   }
+}
+
+.drawingSvg canvas {
+  display: block;
 }

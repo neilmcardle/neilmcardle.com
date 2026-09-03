@@ -1,5 +1,6 @@
 export type Mark = {
   d: string;
+  wash?: boolean;
   fill?: string;
   stroke?: string;
   strokeWidth?: number;
@@ -35,7 +36,7 @@ const GOLD = "#d8b46a";
 const GOLD_BRIGHT = "#f0d091";
 const GOLD_DEEP = "#b8923f";
 const TAN = "#8a7f70";
-const GROUND = "#0a0a0a";
+const GROUND = "#14120e";
 
 const MOODS = ["Dawn", "Noon", "Dusk", "Snow", "Night"] as const;
 
@@ -88,13 +89,6 @@ function hexToRgb(hex: string) {
   return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
 }
 
-function skyLuminance(sky: string | null, alpha: number) {
-  const ground = hexToRgb(GROUND);
-  const top = sky ? hexToRgb(sky) : ground;
-  const mix = top.map((c, i) => c * alpha + ground[i] * (1 - alpha));
-  return (0.2126 * mix[0] + 0.7152 * mix[1] + 0.0722 * mix[2]) / 255;
-}
-
 function contourRings(rf: () => number, tw?: Tweaks): string[] {
   const cx = CANVAS * lerp(0.3, 0.7, rf());
   const cy = CANVAS * lerp(0.3, 0.7, rf());
@@ -138,6 +132,7 @@ type Palette = {
   hills: string;
   water: string;
   waterOpacity: number;
+  foreground: string;
   disc: string | null;
 };
 
@@ -153,6 +148,7 @@ function paletteFor(mood: string, rf: () => number): Palette {
         water: GROUND,
         waterOpacity: 0.2,
         disc: GOLD_BRIGHT,
+        foreground: GOLD_DEEP,
       };
     case "Noon":
       return {
@@ -164,6 +160,7 @@ function paletteFor(mood: string, rf: () => number): Palette {
         water: GROUND,
         waterOpacity: 0.16,
         disc: rf() < 0.4 ? GOLD_BRIGHT : null,
+        foreground: TAN,
       };
     case "Dusk":
       return {
@@ -175,6 +172,7 @@ function paletteFor(mood: string, rf: () => number): Palette {
         water: GROUND,
         waterOpacity: 0.24,
         disc: GOLD_BRIGHT,
+        foreground: GOLD,
       };
     case "Snow":
       return {
@@ -186,6 +184,7 @@ function paletteFor(mood: string, rf: () => number): Palette {
         water: GROUND,
         waterOpacity: 0.12,
         disc: null,
+        foreground: TAN,
       };
     default:
       return {
@@ -197,6 +196,7 @@ function paletteFor(mood: string, rf: () => number): Palette {
         water: GROUND,
         waterOpacity: 0.1,
         disc: CREAM,
+        foreground: GOLD,
       };
   }
 }
@@ -384,19 +384,10 @@ function scene(rf: () => number, mood: string, tw?: Tweaks) {
 
   const p = {
     sky: (d: string, fill: string, opacity: number) =>
-      back.push({ d, fill, opacity }),
+      back.push({ d, fill, opacity, wash: true }),
     block: (d: string, fill: string, opacity = 1) =>
       front.push({ d, fill, opacity }),
 
-    edged: (d: string, fill: string, opacity = 1, edge = 0.75) =>
-      front.push({
-        d,
-        fill,
-        opacity,
-        stroke: GOLD,
-        strokeWidth: 2,
-        strokeOpacity: edge,
-      }),
     ink: (d: string, stroke: string, opacity = 0.55) =>
       front.push({ d, stroke, opacity }),
   };
@@ -412,16 +403,13 @@ function scene(rf: () => number, mood: string, tw?: Tweaks) {
   if (pal.sky)
     p.sky(rect(0, 0, CANVAS, horizon), pal.sky, pal.skyOpacity * 0.62);
 
-  const skyLight = skyLuminance(pal.sky, pal.sky ? pal.skyOpacity * 0.62 : 0);
-  const contourTone = skyLight > 0.28 ? GROUND : CREAM;
-  const contourStrength =
-    skyLight > 0.28 ? lerp(0.16, 0.3, rf()) : lerp(0.12, 0.24, rf());
+  const contourStrength = lerp(0.16, 0.28, rf());
   contourRings(rf, tw).forEach((d, i) => {
     back.push({
       d,
-      stroke: contourTone,
-      strokeWidth: 0.9,
-      strokeOpacity: contourStrength * (i % 3 === 0 ? 1.6 : 1),
+      stroke: CREAM,
+      strokeWidth: 1.8,
+      strokeOpacity: Math.min(1, contourStrength * (i % 3 === 0 ? 1.6 : 1)),
     });
   });
 
@@ -453,7 +441,7 @@ function scene(rf: () => number, mood: string, tw?: Tweaks) {
     { x: m.peakX + m.half, y: horizon },
     { x: m.peakX - m.half, y: horizon },
   ];
-  p.edged(poly(body, true), pal.peak, mood === "Night" ? 0.92 : 1, 0.6);
+  p.block(poly(body, true), pal.peak, mood === "Night" ? 0.92 : 1);
 
   const bankAmp = INNER * lerp(0.006, 0.022, rf());
   const bf = 1 + rf() * 3;
@@ -468,7 +456,7 @@ function scene(rf: () => number, mood: string, tw?: Tweaks) {
   }
   p.block(
     poly([...bankPts, { x: CANVAS, y: CANVAS }, { x: 0, y: CANVAS }], true),
-    pal.hills,
+    pal.foreground,
     1,
   );
 
@@ -672,5 +660,11 @@ export function drawingToSvg(drawing: Drawing, size = 1600) {
     })
     .join("");
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS} ${CANVAS}" width="${size}" height="${size}"><rect width="${CANVAS}" height="${CANVAS}" fill="${GROUND}"/>${body}</svg>`;
+  const plate =
+    `<defs><pattern id="plate-dots" width="6" height="6" patternUnits="userSpaceOnUse">` +
+    `<rect width="2.667" height="2.667" fill="#d9d9d9" fill-opacity="0.2"/></pattern></defs>` +
+    `<rect width="${CANVAS}" height="${CANVAS}" fill="${GROUND}"/>` +
+    `<rect width="${CANVAS}" height="${CANVAS}" fill="url(#plate-dots)"/>`;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS} ${CANVAS}" width="${size}" height="${size}">${plate}${body}</svg>`;
 }

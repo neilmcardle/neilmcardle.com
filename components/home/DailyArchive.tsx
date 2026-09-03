@@ -2,18 +2,12 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import LandscapeField from "./LandscapeField";
 import styles from "./home.module.css";
 import SiteMenu from "./SiteMenu";
-import {
-  CANVAS,
-  buildDrawing,
-  dayNumberFor,
-  formatDrawingDate,
-} from "./drawingEngine";
+import { buildDrawing, dayNumberFor, formatDrawingDate } from "./drawingEngine";
 
 const DAYS = 30;
-const SPREAD_MS = 620;
-
 export default function DailyArchive() {
   const [today, setToday] = useState<number | null>(null);
   const [openAt, setOpenAt] = useState<number | null>(null);
@@ -103,7 +97,7 @@ export default function DailyArchive() {
                 }}
               >
                 <div className={styles.archiveCell}>
-                  <Plate day={d} className={styles.archiveStatic} static />
+                  <Plate day={d} static />
                   <span className={styles.archiveZoom} aria-hidden="true">
                     <svg
                       width="12"
@@ -149,60 +143,22 @@ export default function DailyArchive() {
 
 function Plate({
   day,
-  className,
   static: isStatic,
 }: {
   day: number;
-  className: string;
+  className?: string;
   static?: boolean;
 }) {
   const drawing = buildDrawing(day, 0);
-  const total = drawing.layers.reduce((n, l) => n + l.strokes.length, 0) || 1;
-  let seen = 0;
 
   return (
-    <svg
+    <LandscapeField
+      drawing={drawing}
+      still={isStatic}
+      revealKey={`archive-${day}`}
       className={styles.drawingSvg}
-      viewBox={`0 0 ${CANVAS} ${CANVAS}`}
-      aria-label={`Drawing ${drawing.index}, ${drawing.system}`}
-    >
-      {drawing.layers.map((layer, li) => {
-        const before = seen;
-        seen += layer.strokes.length;
-        return (
-          <g key={li} transform={layer.transform}>
-            {layer.strokes.map((s, i) => (
-              <path
-                key={i}
-                d={s.d}
-                fill={s.fill ?? "none"}
-                stroke={s.stroke ?? "none"}
-                strokeWidth={s.stroke ? (s.strokeWidth ?? 1.4) : 0}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fillOpacity={s.opacity ?? 1}
-                strokeOpacity={s.strokeOpacity ?? s.opacity ?? 1}
-                pathLength={isStatic || !s.stroke ? undefined : 1}
-                className={
-                  isStatic
-                    ? undefined
-                    : s.fill
-                      ? styles.blockMark
-                      : styles.stroke
-                }
-                style={
-                  isStatic
-                    ? undefined
-                    : {
-                        animationDelay: `${((before + i) / total) * SPREAD_MS}ms`,
-                      }
-                }
-              />
-            ))}
-          </g>
-        );
-      })}
-    </svg>
+      label={`Drawing ${drawing.index}, ${drawing.system}`}
+    />
   );
 }
 
@@ -240,7 +196,7 @@ function Lightbox({
         className={styles.lightboxFrame}
         onClick={(e) => e.stopPropagation()}
       >
-        <Plate key={day} day={day} className={styles.stroke} />
+        <Plate key={day} day={day} />
       </div>
 
       <p className={styles.lightboxCap} onClick={(e) => e.stopPropagation()}>
