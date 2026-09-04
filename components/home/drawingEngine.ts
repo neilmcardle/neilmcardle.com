@@ -140,14 +140,14 @@ function paletteFor(mood: string, rf: () => number): Palette {
     case "Dawn":
       return {
         sky: GOLD,
-        skyOpacity: lerp(0.72, 0.92, rf()),
+        skyOpacity: lerp(0.26, 0.4, rf()),
         peak: "#ece4d3",
         rock: GOLD_DEEP,
         hills: TAN,
         water: GROUND,
         waterOpacity: 0.2,
         disc: GOLD_BRIGHT,
-        foreground: GOLD_DEEP,
+        foreground: TAN,
       };
     case "Noon":
       return {
@@ -164,14 +164,14 @@ function paletteFor(mood: string, rf: () => number): Palette {
     case "Dusk":
       return {
         sky: GOLD_DEEP,
-        skyOpacity: lerp(0.55, 0.8, rf()),
+        skyOpacity: lerp(0.24, 0.38, rf()),
         peak: TAN,
         rock: GROUND,
-        hills: GOLD_DEEP,
+        hills: TAN,
         water: GROUND,
         waterOpacity: 0.24,
         disc: GOLD_BRIGHT,
-        foreground: GOLD,
+        foreground: "#3f3a33",
       };
     case "Snow":
       return {
@@ -195,7 +195,7 @@ function paletteFor(mood: string, rf: () => number): Palette {
         water: GROUND,
         waterOpacity: 0.1,
         disc: CREAM,
-        foreground: GOLD,
+        foreground: "#3f3a33",
       };
   }
 }
@@ -666,15 +666,8 @@ export function drawingToSvg(drawing: Drawing, size = 1600) {
     `<stop offset="1" stop-color="#000000"/></linearGradient>` +
     `<pattern id="plate-dots" width="6" height="6" patternUnits="userSpaceOnUse">` +
     `<rect width="2.667" height="2.667" fill="#d9d9d9" fill-opacity="0.2"/></pattern>` +
-    `<linearGradient id="plate-fade" x1="0" y1="0" x2="0" y2="1">` +
-    `<stop offset="0" stop-color="#000000" stop-opacity="0"/>` +
-    `<stop offset="0.52" stop-color="#000000" stop-opacity="0.5"/>` +
-    `<stop offset="0.8" stop-color="#000000" stop-opacity="0.88"/>` +
-    `<stop offset="1" stop-color="#000000"/></linearGradient>` +
     `</defs>` +
     `<rect width="${CANVAS}" height="${CANVAS}" fill="url(#plate-ground)"/>` +
     `<rect width="${CANVAS}" height="${CANVAS}" fill="url(#plate-dots)"/>`;
-  const fade = `<rect y="${CANVAS * 0.607}" width="${CANVAS}" height="${CANVAS * 0.393}" fill="url(#plate-fade)"/>`;
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS} ${CANVAS}" width="${size}" height="${size}">${plate}${body}${fade}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS} ${CANVAS}" width="${size}" height="${size}">${plate}${body}</svg>`;
 }
