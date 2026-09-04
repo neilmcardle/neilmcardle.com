@@ -138,7 +138,7 @@ export default function DailyDrawing({ index }: { index: string }) {
             </button>
 
             <div className={styles.dialPanel} hidden={!dialsOpen}>
-              <DialRoot mode="inline" productionEnabled />
+              <DialRoot mode="inline" theme="dark" productionEnabled />
             </div>
           </div>
 
