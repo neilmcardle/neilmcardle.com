@@ -54,11 +54,11 @@ export default function DailyDrawing({ index }: { index: string }) {
   const year = day === null ? null : partsForDay(day).year;
 
   const dial = useDialKit("Have a play", {
-    mountainHeight: [0.78, 0.35, 1],
+    mountainHeight: [0.78, 0.35, 1.9],
     peakSharpness: [1.4, 0.8, 2.4],
     peakPosition: [0.32, 0.05, 0.95],
     contourLines: [13, 0, 26],
-    rain: false,
+    rain: true,
   });
 
   const tweaks = useMemo(() => {
@@ -71,7 +71,7 @@ export default function DailyDrawing({ index }: { index: string }) {
       t.peakX = dial.peakPosition as number;
     if (dial.contourLines !== DIAL_DEFAULTS.contourLines)
       t.rings = dial.contourLines as number;
-    if (dial.rain) t.rain = true;
+    t.rain = dial.rain as boolean;
     return Object.keys(t).length ? t : undefined;
   }, [
     dial.peakSharpness,
