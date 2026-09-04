@@ -542,25 +542,17 @@
   width: 100%;
   max-width: 400px;
   aspect-ratio: 1 / 1;
-  border: 1px solid transparent;
+  border: 0;
   border-radius: 22px;
+  isolation: isolate;
   background-image:
-    url(/hero/dot-matrix.svg), linear-gradient(#14120e, #14120e),
-    linear-gradient(
-      to top right,
-      #1e1e1e 0%,
-      #363636 34%,
-      #d7d7d7 49%,
-      #414141 59%,
-      #353535 100%
-    );
+    url(/hero/dot-matrix.svg),
+    linear-gradient(180deg, #14120e 0%, #0a0a09 55%, #000000 100%);
   background-size:
     6px 6px,
-    auto,
     auto;
-  background-repeat: repeat, no-repeat, no-repeat;
-  background-origin: padding-box, padding-box, border-box;
-  background-clip: padding-box, padding-box, border-box;
+  background-repeat: repeat, no-repeat;
+  box-shadow: 0 18px 20px rgba(0, 0, 0, 0.55);
   cursor: pointer;
   overflow: hidden;
 }
@@ -1022,25 +1014,17 @@
 
 .archiveCell {
   position: relative;
-  border: 1px solid transparent;
+  border: 0;
   border-radius: 14px;
+  isolation: isolate;
   background-image:
-    url(/hero/dot-matrix.svg), linear-gradient(#14120e, #14120e),
-    linear-gradient(
-      to top right,
-      #1e1e1e 0%,
-      #363636 34%,
-      #d7d7d7 49%,
-      #414141 59%,
-      #353535 100%
-    );
+    url(/hero/dot-matrix.svg),
+    linear-gradient(180deg, #14120e 0%, #0a0a09 55%, #000000 100%);
   background-size:
     6px 6px,
-    auto,
     auto;
-  background-repeat: repeat, no-repeat, no-repeat;
-  background-origin: padding-box, padding-box, border-box;
-  background-clip: padding-box, padding-box, border-box;
+  background-repeat: repeat, no-repeat;
+  box-shadow: 0 18px 20px rgba(0, 0, 0, 0.55);
   aspect-ratio: 1 / 1;
   overflow: hidden;
 }
@@ -1162,25 +1146,17 @@
   position: relative;
   width: min(78vmin, 620px);
   aspect-ratio: 1 / 1;
-  border: 1px solid transparent;
+  border: 0;
   border-radius: 18px;
+  isolation: isolate;
   background-image:
-    url(/hero/dot-matrix.svg), linear-gradient(#14120e, #14120e),
-    linear-gradient(
-      to top right,
-      #1e1e1e 0%,
-      #363636 34%,
-      #d7d7d7 49%,
-      #414141 59%,
-      #353535 100%
-    );
+    url(/hero/dot-matrix.svg),
+    linear-gradient(180deg, #14120e 0%, #0a0a09 55%, #000000 100%);
   background-size:
     6px 6px,
-    auto,
     auto;
-  background-repeat: repeat, no-repeat, no-repeat;
-  background-origin: padding-box, padding-box, border-box;
-  background-clip: padding-box, padding-box, border-box;
+  background-repeat: repeat, no-repeat;
+  box-shadow: 0 18px 20px rgba(0, 0, 0, 0.55);
   overflow: hidden;
 }
 
@@ -1452,4 +1428,23 @@
 
 .drawingSvg canvas {
   display: block;
+}
+
+.drawingFrame::after,
+.archiveCell::after,
+.lightboxFrame::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 39.3%;
+  pointer-events: none;
+  background-image: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.5) 52%,
+    rgba(0, 0, 0, 0.88) 80%,
+    rgb(0, 0, 0) 100%
+  );
 }

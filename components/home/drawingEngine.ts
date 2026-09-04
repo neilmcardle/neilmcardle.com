@@ -1,6 +1,5 @@
 export type Mark = {
   d: string;
-  wash?: boolean;
   fill?: string;
   stroke?: string;
   strokeWidth?: number;
@@ -384,7 +383,7 @@ function scene(rf: () => number, mood: string, tw?: Tweaks) {
 
   const p = {
     sky: (d: string, fill: string, opacity: number) =>
-      back.push({ d, fill, opacity, wash: true }),
+      back.push({ d, fill, opacity }),
     block: (d: string, fill: string, opacity = 1) =>
       front.push({ d, fill, opacity }),
 
@@ -408,7 +407,7 @@ function scene(rf: () => number, mood: string, tw?: Tweaks) {
     back.push({
       d,
       stroke: CREAM,
-      strokeWidth: 1.8,
+      strokeWidth: 0.9,
       strokeOpacity: Math.min(1, contourStrength * (i % 3 === 0 ? 1.6 : 1)),
     });
   });
@@ -661,10 +660,21 @@ export function drawingToSvg(drawing: Drawing, size = 1600) {
     .join("");
 
   const plate =
-    `<defs><pattern id="plate-dots" width="6" height="6" patternUnits="userSpaceOnUse">` +
-    `<rect width="2.667" height="2.667" fill="#d9d9d9" fill-opacity="0.2"/></pattern></defs>` +
-    `<rect width="${CANVAS}" height="${CANVAS}" fill="${GROUND}"/>` +
+    `<defs>` +
+    `<linearGradient id="plate-ground" x1="0" y1="0" x2="0" y2="1">` +
+    `<stop offset="0" stop-color="#14120e"/><stop offset="0.55" stop-color="#0a0a09"/>` +
+    `<stop offset="1" stop-color="#000000"/></linearGradient>` +
+    `<pattern id="plate-dots" width="6" height="6" patternUnits="userSpaceOnUse">` +
+    `<rect width="2.667" height="2.667" fill="#d9d9d9" fill-opacity="0.2"/></pattern>` +
+    `<linearGradient id="plate-fade" x1="0" y1="0" x2="0" y2="1">` +
+    `<stop offset="0" stop-color="#000000" stop-opacity="0"/>` +
+    `<stop offset="0.52" stop-color="#000000" stop-opacity="0.5"/>` +
+    `<stop offset="0.8" stop-color="#000000" stop-opacity="0.88"/>` +
+    `<stop offset="1" stop-color="#000000"/></linearGradient>` +
+    `</defs>` +
+    `<rect width="${CANVAS}" height="${CANVAS}" fill="url(#plate-ground)"/>` +
     `<rect width="${CANVAS}" height="${CANVAS}" fill="url(#plate-dots)"/>`;
+  const fade = `<rect y="${CANVAS * 0.607}" width="${CANVAS}" height="${CANVAS * 0.393}" fill="url(#plate-fade)"/>`;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS} ${CANVAS}" width="${size}" height="${size}">${plate}${body}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS} ${CANVAS}" width="${size}" height="${size}">${plate}${body}${fade}</svg>`;
 }
