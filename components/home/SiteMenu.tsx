@@ -211,7 +211,7 @@ export default function SiteMenu() {
           <div className={styles.menuRule} />
 
           <div className={styles.menuFine}>
-            <span>&copy; 2026 Neil McArdle</span>
+            <span className={styles.menuCopy}>&copy; 2026 Neil McArdle</span>
             <Link
               href="/privacy"
               role="menuitem"
