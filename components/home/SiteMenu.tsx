@@ -207,6 +207,20 @@ export default function SiteMenu() {
               </span>
             )}
           </div>
+
+          <div className={styles.menuRule} />
+
+          <div className={styles.menuFine}>
+            <span>&copy; 2026 Neil McArdle</span>
+            <Link
+              href="/privacy"
+              role="menuitem"
+              className={styles.menuFineLink}
+              onClick={() => setOpen(false)}
+            >
+              Privacy
+            </Link>
+          </div>
         </div>
       )}
     </div>

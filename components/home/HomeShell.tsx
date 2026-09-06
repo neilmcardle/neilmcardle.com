@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import styles from "./home.module.css";
 import IdentityCard, { type Lean } from "./IdentityCard";
@@ -83,15 +82,6 @@ export default function HomeShell() {
             <CopyEmail />
           </div>
         </section>
-
-        <footer className={styles.foot}>
-          <span>&copy; 2026 Neil McArdle</span>
-          <div className={styles.footLinks}>
-            <Link className={styles.footLink} href="/privacy">
-              Privacy
-            </Link>
-          </div>
-        </footer>
       </div>
     </div>
   );

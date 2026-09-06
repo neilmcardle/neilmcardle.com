@@ -4,8 +4,82 @@ import { useEffect, useRef } from "react";
 
 const CELL = 6;
 const SQUARE = 2.67;
-const DENSITY = 0.14;
 const LIVE = "rgba(216, 180, 106, 0.55)";
+
+const GLIDER = [
+  [1, 0],
+  [2, 1],
+  [0, 2],
+  [1, 2],
+  [2, 2],
+];
+const LWSS = [
+  [1, 0],
+  [4, 0],
+  [0, 1],
+  [0, 2],
+  [4, 2],
+  [0, 3],
+  [1, 3],
+  [2, 3],
+  [3, 3],
+];
+const BLINKER = [
+  [0, 0],
+  [1, 0],
+  [2, 0],
+];
+const TOAD = [
+  [1, 0],
+  [2, 0],
+  [3, 0],
+  [0, 1],
+  [1, 1],
+  [2, 1],
+];
+const BEACON = [
+  [0, 0],
+  [1, 0],
+  [0, 1],
+  [1, 1],
+  [2, 2],
+  [3, 2],
+  [2, 3],
+  [3, 3],
+];
+const PULSAR_QUAD = [
+  [2, 0],
+  [3, 0],
+  [4, 0],
+  [0, 2],
+  [5, 2],
+  [0, 3],
+  [5, 3],
+  [0, 4],
+  [5, 4],
+  [2, 5],
+  [3, 5],
+  [4, 5],
+];
+
+const TRAVELLERS = [GLIDER, LWSS];
+const SETTLERS = [BLINKER, TOAD, BEACON, PULSAR_QUAD];
+
+function orient(cells: number[][], variant: number) {
+  let out = cells.map(([x, y]) => [x, y]);
+  if (variant & 1) {
+    let m = 0;
+    for (const c of out) if (c[0] > m) m = c[0];
+    out = out.map(([x, y]) => [m - x, y]);
+  }
+  if (variant & 2) {
+    let m = 0;
+    for (const c of out) if (c[1] > m) m = c[1];
+    out = out.map(([x, y]) => [x, m - y]);
+  }
+  if (variant & 4) out = out.map(([x, y]) => [y, x]);
+  return out;
+}
 
 function mulberry32(seed: number) {
   let a = seed >>> 0;
@@ -47,10 +121,34 @@ export default function DotField({
     let last = 0;
     let visible = true;
 
+    let rf = mulberry32(1);
+
+    const place = (cells: number[][], ox: number, oy: number) => {
+      for (const [x, y] of cells) {
+        const gx = (((ox + x) % cols) + cols) % cols;
+        const gy = (((oy + y) % rows) + rows) % rows;
+        cur[gy * cols + gx] = 1;
+      }
+    };
+
+    const drop = (pool: number[][][]) => {
+      const shape = pool[Math.floor(rf() * pool.length)];
+      place(
+        orient(shape, Math.floor(rf() * 8)),
+        Math.floor(rf() * cols),
+        Math.floor(rf() * rows),
+      );
+    };
+
     const seed = () => {
       const day = Math.floor(Date.now() / 86400000) + seedOffset;
-      const rf = mulberry32(day * 2654435761 + seedOffset * 40503);
-      for (let i = 0; i < cur.length; i++) cur[i] = rf() < DENSITY ? 1 : 0;
+      rf = mulberry32(day * 2654435761 + seedOffset * 40503);
+      cur.fill(0);
+      const area = (cols * rows) / 2600;
+      const nTravel = Math.max(3, Math.round(area * 1.6));
+      const nSettle = Math.max(2, Math.round(area));
+      for (let i = 0; i < nTravel; i++) drop(TRAVELLERS);
+      for (let i = 0; i < nSettle; i++) drop(SETTLERS);
     };
 
     const measure = () => {
@@ -111,11 +209,14 @@ export default function DotField({
 
     if (!still) {
       const interval = 1000 / fps;
+      let gens = 0;
       const loop = (t: number) => {
         frame = requestAnimationFrame(loop);
         if (!visible || t - last < interval) return;
         last = t;
         step();
+        gens += 1;
+        if (gens % Math.round(fps * 5) === 0) drop(TRAVELLERS);
         paint();
       };
       frame = requestAnimationFrame(loop);
