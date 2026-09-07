@@ -5,9 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./home.module.css";
 
 const BASE_FADE =
-  "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 52%, rgba(0,0,0,0.88) 80%, rgb(0,0,0) 100%)";
-
-const DOT_TILE = "1.3255cqw 1.3296cqw";
+  "linear-gradient(180deg, rgba(10,10,10,0) 0%, rgba(10,10,10,0.5) 52%, rgba(10,10,10,0.88) 80%, rgb(10,10,10) 100%)";
 
 const MAX_TILT = 8;
 
@@ -127,11 +125,7 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
 
           <div
             aria-hidden="true"
-            className={styles.idLayer}
-            style={{
-              backgroundImage: "url(/hero/dot-matrix.svg)",
-              backgroundSize: DOT_TILE,
-            }}
+            className={`${styles.idLayer} ${styles.idDots}`}
           />
 
           <div
@@ -150,7 +144,7 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
             style={{
               position: "absolute",
               left: "-3.869cqw",
-              top: "2.381cqw",
+              bottom: 0,
               height: "114.2857cqw",
               width: "107.7381cqw",
               maxWidth: "none",

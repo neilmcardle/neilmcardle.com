@@ -526,6 +526,12 @@
   inset: 0;
 }
 
+.idDots {
+  background-image: url(/hero/dot-matrix.svg);
+  background-size: 6px 6px;
+  opacity: 0.9;
+}
+
 .idGlint {
   position: absolute;
   inset: 0;
@@ -533,9 +539,9 @@
   mix-blend-mode: screen;
   transition: opacity 260ms ease;
   mask-image: url(/hero/dot-mask.svg);
-  mask-size: 1.3255cqw 1.3296cqw;
+  mask-size: 6px 6px;
   -webkit-mask-image: url(/hero/dot-mask.svg);
-  -webkit-mask-size: 1.3255cqw 1.3296cqw;
+  -webkit-mask-size: 6px 6px;
 }
 
 .idGlintOn {
