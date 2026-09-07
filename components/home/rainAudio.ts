@@ -24,7 +24,7 @@ function stored() {
 }
 
 export function enabled() {
-  return stored();
+  return stored() && motionAllowed();
 }
 
 function remember(on: boolean) {

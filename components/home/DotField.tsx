@@ -79,7 +79,6 @@ export default function DotField({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const rf = mulberry32(0x9e3779b1 + seedOffset * 40503);
 
     const lean = 0.3 + rf() * 0.16;
@@ -234,18 +233,16 @@ export default function DotField({
     if (!measure()) return;
     paint();
 
-    if (!still) {
-      last = performance.now();
-      const loop = (t: number) => {
-        frame = requestAnimationFrame(loop);
-        const dt = Math.min(0.05, (t - last) / 1000);
-        last = t;
-        if (!visible || pausedRef.current) return;
-        step(dt);
-        paint();
-      };
+    last = performance.now();
+    const loop = (t: number) => {
       frame = requestAnimationFrame(loop);
-    }
+      const dt = Math.min(0.05, (t - last) / 1000);
+      last = t;
+      if (!visible || pausedRef.current) return;
+      step(dt);
+      paint();
+    };
+    frame = requestAnimationFrame(loop);
 
     const io = new IntersectionObserver(
       ([e]) => {
