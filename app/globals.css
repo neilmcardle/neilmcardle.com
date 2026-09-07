@@ -95,11 +95,9 @@ select:focus-visible {
 html,
 body {
   height: 100%;
-  overflow: hidden;
 }
 
-body {
-  overflow: auto;
+html {
   scroll-behavior: smooth;
 }
 

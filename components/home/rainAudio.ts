@@ -1,6 +1,6 @@
-const SRC = "/audio/pure-gentle-rain.mp3";
+const SRC = "/audio/rain-on-me.mp3";
 const KEY = "site-rain";
-const VOLUME = 0.34;
+const VOLUME = 0.16;
 const FADE_MS = 900;
 
 let el: HTMLAudioElement | null = null;

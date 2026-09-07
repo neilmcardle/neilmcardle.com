@@ -1283,22 +1283,34 @@
 
 .rainTip {
   composes: credentialTip;
+  left: auto;
+  right: 0;
   bottom: auto;
   top: calc(100% + 12px);
-  transform: translate(-50%, -5px);
+  transform: translate(0, -5px);
 }
 
-.rainToggle:hover .rainTip,
 .rainToggle:focus-visible .rainTip {
   opacity: 1;
-  transform: translate(-50%, 0);
+  transform: translate(0, 0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rainToggle:hover .rainTip {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .credentialTip,
-  .rainTip {
+  .credentialTip {
     transition: opacity 190ms ease;
     transform: translate(-50%, 0);
+  }
+
+  .rainTip {
+    transition: opacity 190ms ease;
+    transform: translate(0, 0);
   }
 }
 
