@@ -247,10 +247,14 @@ export function UseStateCycle() {
         </div>
 
         <div className="min-w-0">
-          <label className="spark-eyebrow mb-2 block text-[var(--spark-faint)]">
+          <label
+            htmlFor="spark-the-real-input"
+            className="spark-eyebrow mb-2 block text-[var(--spark-faint)]"
+          >
             The real input
           </label>
           <input
+            id="spark-the-real-input"
             type="search"
             value={query}
             onChange={(event) => onType(event.target.value)}

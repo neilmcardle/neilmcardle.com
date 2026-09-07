@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PHASES, type Phase } from "@/lib/spark/curriculum";
+import { SparkMark } from "./SparkMark";
 
 export interface CurriculumEntry {
   slug: string;
@@ -100,19 +101,8 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
     <div className="min-h-screen bg-[var(--spark-ink)] text-white">
       <header className="flex h-[76px] items-center justify-between border-b border-white/[0.07] px-5 lg:h-[92px] lg:px-14">
         <Link href="/spark" className="flex items-center gap-3 lg:gap-3.5">
-          <svg
-            className="h-[26px] w-[26px] lg:h-[32px] lg:w-[32px]"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--spark-gold)"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-          >
-            <path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z" />
-          </svg>
-          <span className="font-serif text-[28px] font-black uppercase leading-none tracking-[0.06em] lg:text-[36px]">
+          <SparkMark className="h-[22px] w-auto shrink-0 text-[var(--spark-gold)] lg:h-[28px]" />
+          <span className="text-[28px] font-normal leading-none tracking-[-0.02em] text-cream lg:text-[36px]">
             Spark
           </span>
         </Link>

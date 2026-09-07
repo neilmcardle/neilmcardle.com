@@ -42,18 +42,11 @@ export function SparkWaitlistForm() {
 
   if (status === "success") {
     return (
-      <p
-        className="text-white/70"
-        style={{
-          fontFamily: "var(--font-inter)",
-          fontSize: "0.875rem",
-          lineHeight: 1.6,
-        }}
-      >
+      <p className="text-[14px] leading-[1.6] text-[var(--spark-on-dark-muted)]">
         Done. I&apos;ll write when it&apos;s finished. In the meantime,{" "}
         <Link
           href="/spark/lessons/m0-make-a-real-file-yours"
-          className="text-white underline underline-offset-2 hover:no-underline"
+          className="spark-link text-white underline underline-offset-2 hover:no-underline"
         >
           start with module 1
         </Link>
@@ -74,23 +67,12 @@ export function SparkWaitlistForm() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@domain.com"
           disabled={status === "submitting"}
-          className="flex-1 px-4 py-3 bg-transparent border-2 border-white/30 text-white placeholder-white/30 focus:border-white focus:outline-none transition-colors disabled:opacity-50"
-          style={{
-            fontFamily: "var(--font-inter)",
-            fontSize: "0.875rem",
-          }}
+          className="flex-1 rounded-lg border border-white/[0.14] bg-white/[0.04] px-4 py-3 text-[14px] text-white transition-colors placeholder:text-[var(--spark-on-dark-dim)] focus:border-[var(--spark-gold)] focus:outline-none disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={status === "submitting"}
-          className="px-5 py-3 border-2 border-white bg-white text-black hover:bg-transparent hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-          style={{
-            fontFamily: "var(--font-inter)",
-            fontSize: "0.75rem",
-            fontWeight: 600,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-          }}
+          className="spark-eyebrow whitespace-nowrap rounded-lg border border-white/[0.14] bg-white/[0.04] px-5 py-3.5 text-white transition-colors hover:border-white/30 hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {status === "submitting" ? "Sending..." : "Notify me"}
         </button>
@@ -113,12 +95,7 @@ export function SparkWaitlistForm() {
         }}
       />
       {status === "error" && message && (
-        <p
-          className="text-red-400"
-          style={{ fontFamily: "var(--font-inter)", fontSize: "0.8125rem" }}
-        >
-          {message}
-        </p>
+        <p className="text-[13px] text-[var(--spark-terracotta)]">{message}</p>
       )}
     </form>
   );

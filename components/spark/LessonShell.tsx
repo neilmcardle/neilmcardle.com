@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { scrollContainer } from "@/lib/spark/scrollContainer";
+import { SparkMark } from "./SparkMark";
 
 export interface ShellSection {
   id: string;
@@ -184,20 +185,8 @@ export function LessonShell({
       <div className="mx-auto flex max-w-[1440px]">
         <aside className="sticky top-0 hidden h-screen w-[276px] shrink-0 flex-col bg-[var(--spark-ink)] px-6 py-8 lg:flex">
           <Link href="/spark" className="mb-8 flex items-center gap-2.5">
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--spark-gold)"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z" />
-            </svg>
-            <span className="font-serif text-[15px] font-black uppercase tracking-[0.08em] text-white">
+            <SparkMark className="h-[12px] w-auto shrink-0 text-[var(--spark-gold)]" />
+            <span className="text-[15px] font-normal tracking-[-0.02em] text-cream">
               Spark
             </span>
           </Link>
