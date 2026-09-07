@@ -1933,7 +1933,10 @@ function MakeEbookPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          <label
+                            htmlFor="book-cover-image"
+                            className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1"
+                          >
                             Cover Image
                           </label>
                           <div className="w-full aspect-[2/3] max-h-52 bg-gray-100 dark:bg-[#2a2a2a] rounded border border-gray-200 dark:border-[#2f2f2f] overflow-hidden flex items-center justify-center mb-2">
@@ -1952,6 +1955,7 @@ function MakeEbookPage() {
                             )}
                           </div>
                           <input
+                            id="book-cover-image"
                             type="file"
                             accept="image/*"
                             onChange={handleCoverChange}
@@ -1961,10 +1965,14 @@ function MakeEbookPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          <label
+                            htmlFor="book-title"
+                            className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1"
+                          >
                             Title
                           </label>
                           <input
+                            id="book-title"
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
@@ -1975,10 +1983,14 @@ function MakeEbookPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          <label
+                            htmlFor="book-author"
+                            className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1"
+                          >
                             Author
                           </label>
                           <input
+                            id="book-author"
                             type="text"
                             value={author}
                             onChange={(e) => setAuthor(e.target.value)}
@@ -1989,10 +2001,14 @@ function MakeEbookPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          <label
+                            htmlFor="book-description"
+                            className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1"
+                          >
                             Description
                           </label>
                           <textarea
+                            id="book-description"
                             value={blurb}
                             onChange={(e) => setBlurb(e.target.value)}
                             disabled={lockedSections.bookInfo}
@@ -2003,10 +2019,14 @@ function MakeEbookPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          <label
+                            htmlFor="book-publisher"
+                            className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1"
+                          >
                             Publisher
                           </label>
                           <input
+                            id="book-publisher"
                             type="text"
                             value={publisher}
                             onChange={(e) => setPublisher(e.target.value)}
@@ -2017,10 +2037,14 @@ function MakeEbookPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          <label
+                            htmlFor="book-publication-date"
+                            className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1"
+                          >
                             Publication Date
                           </label>
                           <input
+                            id="book-publication-date"
                             type="date"
                             value={pubDate}
                             onChange={(e) => setPubDate(e.target.value)}
@@ -2030,10 +2054,14 @@ function MakeEbookPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          <label
+                            htmlFor="book-language"
+                            className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1"
+                          >
                             Language
                           </label>
                           <select
+                            id="book-language"
                             value={language}
                             onChange={(e) => setLanguage(e.target.value)}
                             disabled={lockedSections.bookInfo}
@@ -2048,10 +2076,14 @@ function MakeEbookPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          <label
+                            htmlFor="book-genre"
+                            className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1"
+                          >
                             Genre
                           </label>
                           <input
+                            id="book-genre"
                             type="text"
                             value={genre}
                             onChange={(e) => setGenre(e.target.value)}
@@ -2062,10 +2094,14 @@ function MakeEbookPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          <label
+                            htmlFor="book-isbn"
+                            className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1"
+                          >
                             ISBN
                           </label>
                           <input
+                            id="book-isbn"
                             type="text"
                             value={isbn}
                             onChange={(e) => setIsbn(e.target.value)}
@@ -2076,11 +2112,15 @@ function MakeEbookPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          <label
+                            htmlFor="book-tags"
+                            className="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1"
+                          >
                             Tags
                           </label>
                           <div className="flex gap-2 mb-2">
                             <input
+                              id="book-tags"
                               type="text"
                               value={tagInput}
                               onChange={(e) => setTagInput(e.target.value)}

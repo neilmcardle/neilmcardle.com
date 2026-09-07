@@ -137,7 +137,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
   const startX = useRef(0);
   const startWidth = useRef(DEFAULT_WIDTH);
 
-  const handleResizeStart = (e: React.MouseEvent) => {
+  const handleResizeStart = (e: React.PointerEvent) => {
     e.preventDefault();
     isResizing.current = true;
     startX.current = e.clientX;
@@ -147,8 +147,38 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     document.body.style.userSelect = "none";
   };
 
+  const commitWidth = (next: number) => {
+    const clamped = Math.min(Math.max(next, MIN_WIDTH), MAX_WIDTH);
+    setWidth(clamped);
+    if (sidebarRef.current) sidebarRef.current.style.width = `${clamped}px`;
+    if (innerRef.current) {
+      innerRef.current.style.width = `${clamped}px`;
+      innerRef.current.style.minWidth = `${clamped}px`;
+    }
+    try {
+      localStorage.setItem("me-left-panel-width", String(clamped));
+    } catch {}
+  };
+
+  const handleResizeKeyDown = (e: React.KeyboardEvent) => {
+    const step = e.shiftKey ? 48 : 16;
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      commitWidth(width + step);
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      commitWidth(width - step);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      commitWidth(MIN_WIDTH);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      commitWidth(MAX_WIDTH);
+    }
+  };
+
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
+    const onMove = (e: PointerEvent) => {
       if (!isResizing.current) return;
       const next = Math.min(
         Math.max(startWidth.current + e.clientX - startX.current, MIN_WIDTH),
@@ -182,11 +212,13 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         } catch {}
       }
     };
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
     return () => {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseup", onUp);
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
     };
   }, []);
 
@@ -317,8 +349,16 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
       </div>
 
       <div
-        className="absolute right-0 top-0 h-full w-1 cursor-col-resize z-50 hidden lg:block hover:bg-gray-300 dark:hover:bg-[#3a3a3a] transition-colors"
-        onMouseDown={handleResizeStart}
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize sidebar"
+        aria-valuenow={width}
+        aria-valuemin={MIN_WIDTH}
+        aria-valuemax={MAX_WIDTH}
+        tabIndex={0}
+        className="absolute right-0 top-0 h-full w-1 cursor-col-resize z-50 hidden lg:block touch-none hover:bg-gray-300 dark:hover:bg-[#3a3a3a] focus-visible:bg-gray-400 dark:focus-visible:bg-[#4a4a4a] focus-visible:outline-none transition-colors"
+        onPointerDown={handleResizeStart}
+        onKeyDown={handleResizeKeyDown}
       />
     </aside>
   );

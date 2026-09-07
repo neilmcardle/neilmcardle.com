@@ -2168,10 +2168,14 @@ export default function RichTextEditor({
               </h3>
             </div>
             <div className="px-6 py-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4] mb-2">
+              <label
+                htmlFor="rte-endnote-content"
+                className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4] mb-2"
+              >
                 Endnote content
               </label>
               <textarea
+                id="rte-endnote-content"
                 value={endnoteContent}
                 onChange={(e) => setEndnoteContent(e.target.value)}
                 onKeyDown={(e) => {
@@ -2244,10 +2248,14 @@ export default function RichTextEditor({
               </h3>
             </div>
             <div className="px-6 py-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4] mb-2">
+              <label
+                htmlFor="rte-caption"
+                className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4] mb-2"
+              >
                 Caption (optional)
               </label>
               <input
+                id="rte-caption"
                 type="text"
                 value={imageCaption}
                 onChange={(e) => setImageCaption(e.target.value)}

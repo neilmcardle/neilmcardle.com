@@ -125,17 +125,26 @@ export default function UpgradeModal({
           </div>
         )}
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <div
-            onClick={() => setSelectedPlan("monthly")}
-            className={`cursor-pointer rounded-lg border-2 p-6 transition-all ${
+        <fieldset className="grid md:grid-cols-2 gap-6">
+          <legend className="sr-only">Choose your plan</legend>
+          <label
+            className={`cursor-pointer rounded-lg border-2 p-6 transition-all focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-gray-900 dark:focus-within:ring-white dark:focus-within:ring-offset-[#1e1e1e] ${
               selectedPlan === "monthly"
                 ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[#111]"
                 : "border-gray-200 dark:border-[#2f2f2f] hover:border-gray-400 dark:hover:border-[#3a3a3a]"
             }`}
           >
+            <input
+              type="radio"
+              name="upgrade-plan"
+              value="monthly"
+              checked={selectedPlan === "monthly"}
+              onChange={() => setSelectedPlan("monthly")}
+              className="sr-only"
+            />
             <div className="flex items-center gap-2 mb-4">
-              <div
+              <span
+                aria-hidden="true"
                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                   selectedPlan === "monthly"
                     ? "border-gray-900 dark:border-white bg-gray-900 dark:bg-white"
@@ -145,10 +154,10 @@ export default function UpgradeModal({
                 {selectedPlan === "monthly" && (
                   <Check className="w-3 h-3 text-white dark:text-black" />
                 )}
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              </span>
+              <span className="text-lg font-semibold text-gray-900 dark:text-white">
                 Pro Monthly
-              </h3>
+              </span>
             </div>
 
             <div className="mb-4">
@@ -162,22 +171,30 @@ export default function UpgradeModal({
                 Cancel anytime, no commitment
               </p>
             </div>
-          </div>
+          </label>
 
-          <div
-            onClick={() => setSelectedPlan("lifetime")}
-            className={`cursor-pointer rounded-lg border-2 p-6 transition-all relative ${
+          <label
+            className={`cursor-pointer rounded-lg border-2 p-6 transition-all relative focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-gray-900 dark:focus-within:ring-white dark:focus-within:ring-offset-[#1e1e1e] ${
               selectedPlan === "lifetime"
                 ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[#111]"
                 : "border-gray-200 dark:border-[#2f2f2f] hover:border-gray-400 dark:hover:border-[#3a3a3a]"
             }`}
           >
+            <input
+              type="radio"
+              name="upgrade-plan"
+              value="lifetime"
+              checked={selectedPlan === "lifetime"}
+              onChange={() => setSelectedPlan("lifetime")}
+              className="sr-only"
+            />
             <div className="absolute top-3 right-3 bg-gray-900 dark:bg-white text-white dark:text-black text-xs font-semibold px-3 py-1 rounded">
               BEST VALUE
             </div>
 
             <div className="flex items-center gap-2 mb-4">
-              <div
+              <span
+                aria-hidden="true"
                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                   selectedPlan === "lifetime"
                     ? "border-gray-900 dark:border-white bg-gray-900 dark:bg-white"
@@ -187,10 +204,10 @@ export default function UpgradeModal({
                 {selectedPlan === "lifetime" && (
                   <Check className="w-3 h-3 text-white dark:text-black" />
                 )}
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              </span>
+              <span className="text-lg font-semibold text-gray-900 dark:text-white">
                 Pro Lifetime
-              </h3>
+              </span>
             </div>
 
             <div className="mb-4">
@@ -205,8 +222,8 @@ export default function UpgradeModal({
                 One-time payment, forever access
               </p>
             </div>
-          </div>
-        </div>
+          </label>
+        </fieldset>
 
         <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-[#2f2f2f]">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">

@@ -233,16 +233,24 @@ function Die({
   disabled?: boolean;
 }) {
   return (
-    <div
+    <button
+      type="button"
       className={prompt ? "die-prompt" : ""}
-      onClick={disabled ? undefined : onClick}
-      role="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={
+        value === null ? "Roll the die" : `Die showing ${value}. Roll again.`
+      }
       style={{
         width: 64,
         height: 64,
         borderRadius: 12,
         background: "#fbf7ef",
         border: "none",
+        appearance: "none",
+        WebkitAppearance: "none",
+        font: "inherit",
+        color: "inherit",
         boxShadow: `0 0 0 2px ${prompt ? "#b8860b" : COLORS.ink}, 0 4px 0 0 rgba(43,38,34,0.25), 0 6px 14px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.08)`,
         display: "grid",
         gridTemplateColumns: "repeat(3,1fr)",
@@ -281,7 +289,7 @@ function Die({
           </div>
         );
       })}
-    </div>
+    </button>
   );
 }
 
@@ -314,6 +322,18 @@ export default function Tessera() {
   const [wins, setWins] = useState({ p1: 0, p2: 0 });
   const [muted, setMuted] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!settingsOpen && !confirmDialog) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation();
+      if (confirmDialog) setConfirmDialog(null);
+      else setSettingsOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [settingsOpen, confirmDialog]);
 
   const nameOf = (p: Player) =>
     (p === "p1" ? p1Name.trim() : p2Name.trim()) ||
@@ -909,17 +929,26 @@ export default function Tessera() {
           }}
         >
           {wins.p1 > 0 && (
-            <div
+            <button
+              type="button"
               onClick={() =>
                 requestConfirm("Clear the win tally?", () =>
                   setWins({ p1: 0, p2: 0 }),
                 )
               }
-              title="Tap to clear tally"
-              style={{ cursor: "pointer" }}
+              aria-label="Clear the win tally"
+              title="Clear the win tally"
+              style={{
+                cursor: "pointer",
+                background: "none",
+                border: "none",
+                padding: 0,
+                font: "inherit",
+                color: "inherit",
+              }}
             >
               <TallyMarks count={wins.p1} color={COLORS.p1} align="flex-end" />
-            </div>
+            </button>
           )}
           <div style={{ height: 20 }}>
             {budget > 0 && turn === "p1" && (
@@ -958,21 +987,30 @@ export default function Tessera() {
           }}
         >
           {wins.p2 > 0 && (
-            <div
+            <button
+              type="button"
               onClick={() =>
                 requestConfirm("Clear the win tally?", () =>
                   setWins({ p1: 0, p2: 0 }),
                 )
               }
-              title="Tap to clear tally"
-              style={{ cursor: "pointer" }}
+              aria-label="Clear the win tally"
+              title="Clear the win tally"
+              style={{
+                cursor: "pointer",
+                background: "none",
+                border: "none",
+                padding: 0,
+                font: "inherit",
+                color: "inherit",
+              }}
             >
               <TallyMarks
                 count={wins.p2}
                 color={COLORS.p2}
                 align="flex-start"
               />
-            </div>
+            </button>
           )}
           <div style={{ height: 20 }}>
             {budget > 0 && turn === "p2" && (
@@ -1147,6 +1185,7 @@ export default function Tessera() {
           <div
             onClick={(e) => e.stopPropagation()}
             role="dialog"
+            aria-modal="true"
             aria-label="Settings"
             style={{
               width: "100%",
@@ -1180,6 +1219,8 @@ export default function Tessera() {
                 Settings
               </span>
               <button
+                type="button"
+                autoFocus
                 onClick={() => setSettingsOpen(false)}
                 aria-label="Close settings"
                 style={{
@@ -1302,6 +1343,9 @@ export default function Tessera() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="tessera-confirm-message"
             style={{
               background: "#fbf7ef",
               borderRadius: 16,
@@ -1312,6 +1356,7 @@ export default function Tessera() {
             }}
           >
             <p
+              id="tessera-confirm-message"
               style={{
                 fontFamily: "'Helvetica Neue',sans-serif",
                 fontSize: 16,
@@ -1324,6 +1369,8 @@ export default function Tessera() {
             </p>
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button
+                type="button"
+                autoFocus
                 className="btn"
                 onClick={() => setConfirmDialog(null)}
                 style={{
@@ -1334,6 +1381,7 @@ export default function Tessera() {
                 Cancel
               </button>
               <button
+                type="button"
                 className="btn"
                 onClick={() => {
                   confirmDialog.onConfirm();
