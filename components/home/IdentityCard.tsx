@@ -4,9 +4,6 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./home.module.css";
 
-const BASE_FADE =
-  "linear-gradient(180deg, rgba(10,10,10,0) 0%, rgba(10,10,10,0.5) 52%, rgba(10,10,10,0.88) 80%, rgb(10,10,10) 100%)";
-
 const MAX_TILT = 8;
 
 export type Lean = "none" | "left" | "right" | "back";
@@ -125,11 +122,6 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
 
           <div
             aria-hidden="true"
-            className={`${styles.idLayer} ${styles.idDots}`}
-          />
-
-          <div
-            aria-hidden="true"
             className={`${styles.idGlint} ${glint ? styles.idGlintOn : ""}`}
           >
             <div ref={bandRef} className={styles.idBand} />
@@ -150,18 +142,6 @@ export default function IdentityCard({ lean = "none" }: { lean?: Lean }) {
               maxWidth: "none",
               objectFit: "cover",
               pointerEvents: "none",
-            }}
-          />
-
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              left: 0,
-              bottom: 0,
-              height: "39.2857cqw",
-              width: "100cqw",
-              backgroundImage: BASE_FADE,
             }}
           />
         </div>

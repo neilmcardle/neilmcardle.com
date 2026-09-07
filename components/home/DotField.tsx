@@ -23,6 +23,11 @@ const SPLASH_LIFE_MAX = 0.9;
 const GROUND_INSET = 4;
 const SPLASH_SQUARE = 4.4;
 
+const CURSOR_RADIUS = 17;
+const CURSOR_FORCE = 430;
+const CURSOR_HIT_RADIUS = 8;
+const DRIFT_DECAY = 3.2;
+
 function mulberry32(seed: number) {
   let a = seed >>> 0;
   return () => {
@@ -40,6 +45,10 @@ type Streak = {
   speed: number;
   alpha: number;
   hit: boolean;
+  vx: number;
+  vy: number;
+  dx: number;
+  dy: number;
 };
 
 type Splash = {
@@ -103,18 +112,30 @@ export default function DotField({
       s.x = -drift + rf() * (cols + drift);
       s.y = seeded ? rf() * rows : -s.len - rf() * rows * 0.3;
       s.hit = false;
+      s.vx = 0;
+      s.vy = 0;
+      s.dx = lean;
+      s.dy = 1;
     };
 
     const groundRow = () => Math.max(1, rows - GROUND_INSET);
 
-    const splash = (x: number, alpha: number) => {
+    const splash = (
+      x: number,
+      y: number,
+      alpha: number,
+      nx: number,
+      ny: number,
+    ) => {
       const n = 4 + Math.floor(rf() * 5);
       for (let i = 0; i < n; i++) {
+        const spray = (rf() - 0.3) * 18;
+        const sp = 9 + rf() * 14;
         splashes.push({
           x,
-          y: groundRow(),
-          vx: (rf() - 0.3) * 18,
-          vy: -(9 + rf() * 14),
+          y,
+          vx: nx * sp + spray,
+          vy: ny * sp,
           t: 0,
           life: SPLASH_LIFE_MIN + rf() * (SPLASH_LIFE_MAX - SPLASH_LIFE_MIN),
           alpha: Math.min(1, Math.max(0.3, alpha) * 1.1),
@@ -145,6 +166,10 @@ export default function DotField({
           speed: 0,
           alpha: 0,
           hit: false,
+          vx: 0,
+          vy: 0,
+          dx: lean,
+          dy: 1,
         };
         reset(s, true);
         pool.push(s);
@@ -163,6 +188,7 @@ export default function DotField({
 
       const active = activeCount();
       const gust = 0.75 + 0.5 * weather;
+      const drag = Math.exp(-DRIFT_DECAY * dt);
 
       for (let i = 0; i < pool.length; i++) {
         const s = pool[i];
@@ -171,13 +197,48 @@ export default function DotField({
           continue;
         }
 
-        s.y += s.speed * gust * dt;
-        s.x += s.speed * gust * lean * dt;
+        let struck = false;
+        if (pointerLive) {
+          const ox = s.x - pointerX;
+          const oy = s.y - pointerY;
+          const d2 = ox * ox + oy * oy;
+          if (d2 < CURSOR_RADIUS * CURSOR_RADIUS) {
+            const d = Math.sqrt(d2) || 0.0001;
+            const nx = ox / d;
+            const ny = oy / d;
+            if (d < CURSOR_HIT_RADIUS) {
+              splash(
+                pointerX + nx * CURSOR_HIT_RADIUS,
+                pointerY + ny * CURSOR_HIT_RADIUS,
+                s.alpha,
+                nx,
+                ny,
+              );
+              reset(s, false);
+              struck = true;
+            } else {
+              const falloff = 1 - d / CURSOR_RADIUS;
+              const push = CURSOR_FORCE * falloff * falloff * dt;
+              s.vx += nx * push;
+              s.vy += ny * push;
+            }
+          }
+        }
+        if (struck) continue;
+
+        const moveX = s.speed * gust * lean + s.vx;
+        const moveY = s.speed * gust + s.vy;
+        s.x += moveX * dt;
+        s.y += moveY * dt;
+        s.dx = moveX;
+        s.dy = moveY;
+        s.vx *= drag;
+        s.vy *= drag;
 
         const floor = groundRow();
         if (!s.hit && s.y >= floor) {
           s.hit = true;
-          if (s.x >= 0 && s.x < cols) splash(s.x, s.alpha);
+          if (s.x >= 0 && s.x < cols) splash(s.x, groundRow(), s.alpha, 0, -1);
         }
         if (s.y - s.len > floor) reset(s, false);
       }
@@ -206,11 +267,15 @@ export default function DotField({
         const s = pool[i];
         const cells = Math.max(2, Math.round(s.len));
         const taper = s.alpha > ALPHA_MAX ? 0.3 : 0.65;
+        const speed = Math.hypot(s.dx, s.dy) || 1;
+        const ux = s.dx / speed;
+        const uy = s.dy / speed;
+        const trail = s.len * Math.hypot(1, lean);
         for (let j = 0; j < cells; j++) {
           const t = j / (cells - 1);
-          const gy = Math.round(s.y - s.len * t);
+          const gy = Math.round(s.y - trail * t * uy);
           if (gy < 0 || gy > groundRow()) continue;
-          const gx = Math.round(s.x - s.len * lean * t);
+          const gx = Math.round(s.x - trail * t * ux);
           if (gx < 0 || gx >= cols) continue;
           const a = s.alpha * (1 - t * taper);
           if (a < 0.03) continue;
@@ -244,6 +309,24 @@ export default function DotField({
     };
     frame = requestAnimationFrame(loop);
 
+    let pointerX = 0;
+    let pointerY = 0;
+    let pointerLive = false;
+
+    const onPointerMove = (e: PointerEvent) => {
+      const r = wrap.getBoundingClientRect();
+      pointerX = (e.clientX - r.left) / CELL;
+      pointerY = (e.clientY - r.top) / CELL;
+      pointerLive = true;
+    };
+    const onPointerGone = () => {
+      pointerLive = false;
+    };
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerdown", onPointerMove, { passive: true });
+    document.addEventListener("pointerleave", onPointerGone);
+    window.addEventListener("blur", onPointerGone);
+
     const io = new IntersectionObserver(
       ([e]) => {
         visible = e.isIntersecting;
@@ -264,6 +347,10 @@ export default function DotField({
     return () => {
       if (frame !== null) cancelAnimationFrame(frame);
       if (resizeTimer) window.clearTimeout(resizeTimer);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerdown", onPointerMove);
+      document.removeEventListener("pointerleave", onPointerGone);
+      window.removeEventListener("blur", onPointerGone);
       io.disconnect();
       ro.disconnect();
     };
