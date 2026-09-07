@@ -138,7 +138,7 @@ The component doesn't modify the original `users` list. It creates a new one. Th
 
 </Section>
 
-<Section title="Line 12–18: The label and search input">
+<Section title="Line 12–16: The label and search input">
 
 ```jsx start=12
 <label htmlFor="user-search">Search users</label>
@@ -156,7 +156,9 @@ The `<label>` is the visible text that names the field. `htmlFor="user-search"` 
 
 `placeholder="Search users..."` is the grey text that shows up when the input is empty, to hint at what to type. A placeholder is a hint, not a label. It vanishes the moment someone starts typing, so if it were the only thing naming this field, anyone who glanced away mid-search would come back to a box with no idea what it was for. Give an input a real label, then use the placeholder for the extra hint.
 
-But look at the next line:
+</Section>
+
+<Section title="Line 17–18: Controlling the input">
 
 ```jsx start=17
 value={query}

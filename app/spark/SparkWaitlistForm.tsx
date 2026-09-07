@@ -67,7 +67,7 @@ export function SparkWaitlistForm() {
             className={`pointer-events-none absolute left-4 transition-all duration-150 ${
               floated
                 ? "top-[7px] text-[10px] tracking-[0.08em] text-[var(--spark-gold)]"
-                : "top-1/2 -translate-y-1/2 text-[14px] text-[var(--spark-on-dark-dim)]"
+                : "top-1/2 -translate-y-1/2 text-[14px] text-white/30"
             }`}
           >
             Email address
