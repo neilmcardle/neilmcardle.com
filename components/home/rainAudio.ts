@@ -76,7 +76,6 @@ export function subscribe(fn: (on: boolean) => void) {
 }
 
 export async function start() {
-  if (!motionAllowed()) return false;
   wanted = true;
   const node = ensure();
   try {
@@ -118,7 +117,11 @@ export function suspend() {
 }
 
 export async function resume() {
-  if (!stored() || !motionAllowed()) return;
+  if (!motionAllowed()) {
+    announce(false);
+    return;
+  }
+  if (!stored()) return;
   armFromPreference();
   wanted = true;
   const node = ensure();

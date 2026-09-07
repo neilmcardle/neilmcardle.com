@@ -13,10 +13,8 @@ const PLAY =
 
 export default function RainToggle() {
   const [playing, setPlaying] = useState(false);
-  const [offered, setOffered] = useState(true);
 
   useEffect(() => {
-    setOffered(rain.motionAllowed());
     setPlaying(rain.enabled());
     const unsubscribe = rain.subscribe(setPlaying);
     void rain.resume();
@@ -25,8 +23,6 @@ export default function RainToggle() {
       rain.suspend();
     };
   }, []);
-
-  if (!offered) return null;
 
   return (
     <button
