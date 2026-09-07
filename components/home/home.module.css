@@ -6,7 +6,7 @@
   background: #0a0a0a;
   position: relative;
   isolation: isolate;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .shell {
@@ -1445,28 +1445,20 @@
 }
 
 .collapse {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  height: 0;
+  overflow: hidden;
+  transition: height 260ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .collapseOpen {
-  grid-template-rows: 1fr;
-}
-
-.collapse > * {
-  overflow: hidden;
-  min-height: 0;
+  height: var(--collapse-h, auto);
 }
 
 @media (min-width: 768px) {
   .collapse {
-    grid-template-rows: 1fr;
-    transition: none;
-  }
-
-  .collapse > * {
+    height: auto;
     overflow: visible;
+    transition: none;
   }
 }
 

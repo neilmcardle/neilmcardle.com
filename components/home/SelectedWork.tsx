@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./home.module.css";
 import {
   HomepageProjectPreview,
@@ -153,74 +153,96 @@ function ProductFeature({
         </svg>
       </button>
 
-      <div
-        className={`${styles.collapse} ${open ? styles.collapseOpen : ""} ${mediaCls}`}
-      >
-        <div>
-          <div className="pt-6 md:pt-0">{media}</div>
-        </div>
-      </div>
+      <Collapse open={open} className={mediaCls}>
+        <div className="pt-6 md:pt-0">{media}</div>
+      </Collapse>
 
-      <div
-        className={`${styles.collapse} ${open ? styles.collapseOpen : ""} ${
-          reverse ? "md:order-1" : ""
-        }`}
-      >
-        <div>
-          <div className="pt-6 md:pt-0">
-            <div
-              className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2"
-              style={{
-                fontFamily: "var(--font-inter)",
-                fontSize: "0.6875rem",
-                letterSpacing: "0.06em",
-              }}
-            >
-              <span className="text-tan">{category}</span>
-              {status && (
-                <span className="rounded-full border border-cream/20 px-2.5 py-1 text-cream/45">
-                  {status}
-                </span>
-              )}
-            </div>
-            <NameBlock
-              tileKey={tileKey}
-              name={name}
-              className="hidden md:flex"
-            />
-            <p
-              className="text-cream/70 mt-4 max-w-md"
-              style={{
-                fontFamily: "var(--font-inter)",
-                fontSize: "1.0625rem",
-                lineHeight: 1.6,
-              }}
-            >
-              {description}
-            </p>
-            <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3">
-              {external ? (
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={CTA_CLS}
-                  style={CTA_STYLE}
-                >
-                  {appleIcon && <AppleGlyph />}
-                  {linkLabel}
-                  <CtaArrow />
-                </a>
-              ) : (
-                <Link href={href} className={CTA_CLS} style={CTA_STYLE}>
-                  {linkLabel}
-                  <CtaArrow />
-                </Link>
-              )}
-            </div>
+      <Collapse open={open} className={reverse ? "md:order-1" : ""}>
+        <div className="pt-6 md:pt-0">
+          <div
+            className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2"
+            style={{
+              fontFamily: "var(--font-inter)",
+              fontSize: "0.6875rem",
+              letterSpacing: "0.06em",
+            }}
+          >
+            <span className="text-tan">{category}</span>
+            {status && (
+              <span className="rounded-full border border-cream/20 px-2.5 py-1 text-cream/45">
+                {status}
+              </span>
+            )}
+          </div>
+          <NameBlock tileKey={tileKey} name={name} className="hidden md:flex" />
+          <p
+            className="text-cream/70 mt-4 max-w-md"
+            style={{
+              fontFamily: "var(--font-inter)",
+              fontSize: "1.0625rem",
+              lineHeight: 1.6,
+            }}
+          >
+            {description}
+          </p>
+          <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3">
+            {external ? (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={CTA_CLS}
+                style={CTA_STYLE}
+              >
+                {appleIcon && <AppleGlyph />}
+                {linkLabel}
+                <CtaArrow />
+              </a>
+            ) : (
+              <Link href={href} className={CTA_CLS} style={CTA_STYLE}>
+                {linkLabel}
+                <CtaArrow />
+              </Link>
+            )}
           </div>
         </div>
-      </div>
+      </Collapse>
+    </div>
+  );
+}
+
+function Collapse({
+  open,
+  className,
+  children,
+}: {
+  open: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    const el = innerRef.current;
+    if (!el) return;
+    const measure = () => setHeight(el.scrollHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <div
+      className={`${styles.collapse} ${open ? styles.collapseOpen : ""} ${className ?? ""}`}
+      style={
+        height === null
+          ? undefined
+          : ({ "--collapse-h": `${height}px` } as React.CSSProperties)
+      }
+    >
+      <div ref={innerRef}>{children}</div>
     </div>
   );
 }
