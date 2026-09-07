@@ -5,7 +5,7 @@ import { PHASES, phaseForModule } from "./curriculum";
 
 describe("loadModule", () => {
   it("normalises frontmatter into meta", async () => {
-    const result = await loadModule("m0-make-a-real-file-yours");
+    const result = await loadModule("make-a-real-file-yours");
     expect(result.meta.title).toBeTruthy();
     expect(result.meta.module).toBe(1);
     expect(result.meta.phase.id).toBe("foundations");
@@ -13,13 +13,13 @@ describe("loadModule", () => {
   });
 
   it("returns raw mdx body", async () => {
-    const result = await loadModule("m0-make-a-real-file-yours");
+    const result = await loadModule("make-a-real-file-yours");
     expect(typeof result.mdxSource).toBe("string");
     expect(result.mdxSource.length).toBeGreaterThan(0);
   });
 
   it("parses Section-tagged modules", async () => {
-    const result = await loadModule("m8-react-fundamentals");
+    const result = await loadModule("react-fundamentals");
     expect(result.sections.length).toBeGreaterThan(0);
     result.sections.forEach((section) => {
       expect(section.title).toBeTruthy();
@@ -28,13 +28,13 @@ describe("loadModule", () => {
   });
 
   it("parses heading-tagged modules", async () => {
-    const result = await loadModule("m10-design-systems-in-code");
+    const result = await loadModule("design-systems-in-code");
     expect(result.sections.length).toBeGreaterThan(0);
     expect(result.sections[0].title).toBe("Premise");
   });
 
   it("falls back to objective when promise is absent", async () => {
-    const result = await loadModule("m10-design-systems-in-code");
+    const result = await loadModule("design-systems-in-code");
     expect(result.meta.promise).toBeTruthy();
   });
 
@@ -67,7 +67,7 @@ describe("curriculum", () => {
 
 describe("section titles", () => {
   it("keeps apostrophes inside double-quoted titles", async () => {
-    const result = await loadModule("m8-react-fundamentals");
+    const result = await loadModule("react-fundamentals");
     expect(result.sections[0].title).toBe("What's a component?");
   });
 });
@@ -80,25 +80,25 @@ describe("slug handling", () => {
   });
 
   it("still loads real slugs", async () => {
-    const result = await loadModule("m8-react-fundamentals");
+    const result = await loadModule("react-fundamentals");
     expect(result.meta.module).toBe(9);
   });
 });
 
 describe("heading-format modules", () => {
   it("keeps the prose that sits above the first h2", async () => {
-    const result = await loadModule("m18-capstone");
+    const result = await loadModule("capstone");
     expect(result.sections[0].title).toBe("Before you start");
     expect(result.sections[0].content).toContain("Your final project");
   });
 
   it("drops the leading h1, which duplicates the lesson title", async () => {
-    const result = await loadModule("m18-capstone");
+    const result = await loadModule("capstone");
     expect(result.sections[0].content).not.toContain("# Capstone");
   });
 
   it("does not invent a preamble section when there is nothing above the first h2", async () => {
-    const result = await loadModule("m10-design-systems-in-code");
+    const result = await loadModule("design-systems-in-code");
     expect(result.sections[0].title).toBe("Premise");
   });
 });
@@ -113,7 +113,7 @@ describe("frontmatter", () => {
   });
 
   it("falls back to description when promise is absent", async () => {
-    const result = await loadModule("m9-testing-react-ui");
+    const result = await loadModule("testing-react-ui");
     expect(result.meta.promise).toBeTruthy();
   });
 });

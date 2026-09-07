@@ -554,6 +554,8 @@ Add CSS:
 }
 ```
 
+That `.sr-only` class is worth a pause. It keeps the label in the page for screen readers while painting nothing on screen, so the only visible thing naming the field is the placeholder, and that disappears the moment someone types. Module one argued for a visible label and that is still the default. Hiding one is defensible when the surrounding design already answers "what goes in here", which it does for a single search box sitting directly above its own results. Put that same field in a form beside three others and the hidden label stops being enough, so show it.
+
 Run tests. All five still pass. Your refactor didn't break anything. This is the confidence you get from test-first development.
 
 ### Step 5: Add Bonus Tests

@@ -32,11 +32,6 @@ function stripFences(source: string): string {
   return source.replace(/```[\s\S]*?```/g, " ");
 }
 
-export function moduleNumberFromSlug(slug: string): number {
-  const match = slug.match(/^m(\d+)/);
-  return match ? parseInt(match[1], 10) + 1 : 0;
-}
-
 const SLUG = /^[a-z0-9][a-z0-9-]*$/;
 
 export async function loadModule(slug: string): Promise<LoadModuleResult> {
@@ -64,8 +59,7 @@ export async function loadModule(slug: string): Promise<LoadModuleResult> {
   const { data, content: mdxSource } = matter(raw);
   const sections = parseContentIntoSections(mdxSource);
 
-  const moduleNumber =
-    typeof data.module === "number" ? data.module : moduleNumberFromSlug(slug);
+  const moduleNumber = typeof data.module === "number" ? data.module : 0;
 
   const meta: ModuleMeta = {
     slug,
@@ -85,14 +79,32 @@ export async function loadModule(slug: string): Promise<LoadModuleResult> {
   return { meta, mdxSource, sections };
 }
 
+async function moduleOrder(slug: string): Promise<number> {
+  try {
+    const raw = await fs.readFile(
+      path.join(process.cwd(), "content", "spark", `${slug}.mdx`),
+      "utf8",
+    );
+    const { data } = matter(raw);
+    return typeof data.module === "number"
+      ? data.module
+      : Number.MAX_SAFE_INTEGER;
+  } catch {
+    return Number.MAX_SAFE_INTEGER;
+  }
+}
+
 export async function getAllModules(): Promise<string[]> {
   const contentDir = path.join(process.cwd(), "content", "spark");
   try {
     const files = await fs.readdir(contentDir);
-    return files
+    const slugs = files
       .filter((f) => f.endsWith(".mdx"))
-      .map((f) => f.replace(".mdx", ""))
-      .sort((a, b) => moduleNumberFromSlug(a) - moduleNumberFromSlug(b));
+      .map((f) => f.replace(".mdx", ""));
+    const ordered = await Promise.all(
+      slugs.map(async (slug) => ({ slug, order: await moduleOrder(slug) })),
+    );
+    return ordered.sort((a, b) => a.order - b.order).map((m) => m.slug);
   } catch {
     return [];
   }

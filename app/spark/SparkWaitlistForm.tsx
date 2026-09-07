@@ -48,7 +48,7 @@ export function SparkWaitlistForm() {
       <p className="text-[14px] leading-[1.6] text-[var(--spark-on-dark-muted)]">
         Done. I&apos;ll write when it&apos;s finished. In the meantime,{" "}
         <Link
-          href="/spark/lessons/m0-make-a-real-file-yours"
+          href="/spark/lessons/make-a-real-file-yours"
           className="spark-link text-white underline underline-offset-2 hover:no-underline"
         >
           start with module 1
