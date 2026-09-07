@@ -13,6 +13,7 @@ interface CodeBlockProps {
   language?: string;
   file?: string;
   focus?: string[];
+  start?: number;
 }
 
 const NOTE_PATTERNS: RegExp[] = [
@@ -65,9 +66,18 @@ function extractNotes(source: string): { code: string; notes: CodeNote[] } {
   return { code: kept.join("\n"), notes };
 }
 
+function grammarFor(code: string, language: string): string {
+  const markupFragment =
+    (language === "jsx" || language === "tsx") &&
+    code.trimStart().startsWith("<");
+  return markupFragment ? "xml" : language;
+}
+
 function highlight(code: string, language: string): string {
+  const grammar = grammarFor(code, language);
   try {
-    return hljs.highlight(code, { language, ignoreIllegals: true }).value;
+    return hljs.highlight(code, { language: grammar, ignoreIllegals: true })
+      .value;
   } catch {
     try {
       return hljs.highlightAuto(code).value;
@@ -131,6 +141,7 @@ export function CodeBlock({
   language = "javascript",
   file,
   focus = [],
+  start = 1,
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const codeRef = useRef<HTMLDivElement>(null);
@@ -206,6 +217,7 @@ export function CodeBlock({
           const lineNumber = i + 1;
           const note = noteByLine.get(lineNumber);
           const isFocused = focusedLines.has(lineNumber);
+          const shownNumber = start + i;
 
           return (
             <React.Fragment key={i}>
@@ -213,7 +225,7 @@ export function CodeBlock({
                 className={`grid grid-cols-[44px_minmax(0,1fr)] ${isFocused ? "spark-code-line-focus" : ""}`}
               >
                 <span className="select-none pr-3 text-right text-[var(--spark-on-dark-dim)]">
-                  {lineNumber}
+                  {shownNumber}
                 </span>
                 <code
                   className="hljs whitespace-pre pr-5"

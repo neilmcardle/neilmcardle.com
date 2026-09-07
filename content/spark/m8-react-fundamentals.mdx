@@ -82,8 +82,15 @@ function Form() {
 
   return (
     <div>
-      <input value={name} onChange={(e) => setName(e.target.value)} />
-      <input value={email} onChange={(e) => setEmail(e.target.value)} />
+      <label htmlFor="name">Name</label>
+      <input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+
+      <label htmlFor="email">Email</label>
+      <input
+        id="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
     </div>
   );
 }
@@ -109,11 +116,16 @@ function BMI() {
 
   return (
     <div>
+      <label htmlFor="weight">Weight in kg</label>
       <input
+        id="weight"
         value={weight}
         onChange={(e) => setWeight(Number(e.target.value))}
       />
+
+      <label htmlFor="height">Height in metres</label>
       <input
+        id="height"
         value={height}
         onChange={(e) => setHeight(Number(e.target.value))}
       />
@@ -145,12 +157,16 @@ function SearchBox() {
   const [query, setQuery] = useState("");
 
   return (
-    <input
-      type="text"
-      value={query}
-      onChange={(e) => setQuery(e.target.value)}
-      placeholder="Search..."
-    />
+    <>
+      <label htmlFor="search">Search</label>
+      <input
+        id="search"
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search..."
+      />
+    </>
   );
 }
 ```
@@ -228,7 +244,12 @@ function SearchPage() {
 
   return (
     <div>
-      <input value={query} onChange={(e) => setQuery(e.target.value)} />
+      <label htmlFor="search">Search</label>
+      <input
+        id="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
       <SearchResults results={results} />
     </div>
   );
@@ -336,13 +357,15 @@ function BookSearch() {
 
   return (
     <div>
+      <label htmlFor="book-search">Search books</label>
       <input
+        id="book-search"
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
           handleSearch(e.target.value);
         }}
-        placeholder="Search books..."
+        placeholder="Try a title or author"
       />
 
       {state === "idle" && results.length > 0 && (
@@ -381,12 +404,16 @@ Let's build a real search experience split into components. A search box, a resu
 ```jsx
 function SearchBox({ query, onQueryChange }) {
   return (
-    <input
-      type="text"
-      value={query}
-      onChange={(e) => onQueryChange(e.target.value)}
-      placeholder="Search books..."
-    />
+    <>
+      <label htmlFor="book-search">Search books</label>
+      <input
+        id="book-search"
+        type="text"
+        value={query}
+        onChange={(e) => onQueryChange(e.target.value)}
+        placeholder="Try a title or author"
+      />
+    </>
   );
 }
 

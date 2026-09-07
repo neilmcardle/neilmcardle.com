@@ -18,7 +18,7 @@ By the end, you'll have a mental model of how a component thinks. You'll be able
 
 Here's a real search component from a shipped app. It takes user input, filters a list, and shows results. The component lives in a larger app where product managers and designers use it to find users by name.
 
-```jsx
+```jsx file=SearchUsers.jsx
 import { useState } from "react";
 
 export function SearchUsers({ users = [] }) {
@@ -30,7 +30,9 @@ export function SearchUsers({ users = [] }) {
 
   return (
     <div>
+      <label htmlFor="user-search">Search users</label>
       <input
+        id="user-search"
         type="text"
         placeholder="Search users..."
         value={query}
@@ -73,7 +75,7 @@ You'll learn about `useState` in detail in the next section. For now, know that 
 
 <Section title="Line 3: Naming things we choose">
 
-```jsx
+```jsx start=3
 export function SearchUsers({ users = [] }) {
 ```
 
@@ -83,11 +85,11 @@ Let's unpack this.
 
 Another file then reaches it by name, like this:
 
-```jsx
+```jsx file=App.jsx
 import { SearchUsers } from "./SearchUsers";
 ```
 
-That is the same mechanism as line 1, running in the other direction. React exports `useState`, and line 1 imports it. Here the component is exported so that some other file can import it and put it on screen. Without `export`, `SearchUsers` would exist only inside this file and nothing else could use it.
+That is a different file, which is why its numbering starts again at 1. It is the same mechanism as line 1 of `SearchUsers.jsx`, running in the other direction. React exports `useState`, and line 1 imports it. Here the component is exported so that some other file can import it and put it on screen. Without `export`, `SearchUsers` would exist only inside this file and nothing else could use it.
 
 `function SearchUsers` says "this is a component, and we call it SearchUsers." That name is ours to choose. You could call it `UserLookup` or `UserFinder` or `Typeahead`. The word `function` is mandatory, but the name comes from us.
 
@@ -99,7 +101,7 @@ The `= []` sets a default. If nothing is passed in, `users` becomes an empty lis
 
 <Section title="Line 4: Remembering the search query">
 
-```jsx
+```jsx start=4
 const [query, setQuery] = useState("");
 ```
 
@@ -120,7 +122,7 @@ Every time the user types a letter, `setQuery` will be called, and the component
 
 <Section title="Line 6–8: Filtering the list">
 
-```jsx
+```jsx start=6
 const filtered = users.filter((user) =>
   user.name.toLowerCase().includes(query.toLowerCase()),
 );
@@ -136,23 +138,27 @@ The component doesn't modify the original `users` list. It creates a new one. Th
 
 </Section>
 
-<Section title="Line 10–12: The search input">
+<Section title="Line 12–18: The label and search input">
 
-```jsx
+```jsx start=12
+<label htmlFor="user-search">Search users</label>
 <input
+  id="user-search"
   type="text"
   placeholder="Search users..."
 ```
 
 This looks like HTML, because it basically is. In React, we can write HTML-like markup called JSX. It compiles to actual HTML and JavaScript.
 
+The `<label>` is the visible text that names the field. `htmlFor="user-search"` points at the input's matching `id="user-search"`, which ties the two together. That pairing earns its keep twice. Clicking the label puts the cursor in the field, and a screen reader says "Search users" when someone reaches it.
+
 `type="text"` makes it a plain text input field.
 
-`placeholder="Search users..."` is the grey text that shows up when the input is empty, to hint to the user what they should do.
+`placeholder="Search users..."` is the grey text that shows up when the input is empty, to hint at what to type. A placeholder is a hint, not a label. It vanishes the moment someone starts typing, so if it were the only thing naming this field, anyone who glanced away mid-search would come back to a box with no idea what it was for. Give an input a real label, then use the placeholder for the extra hint.
 
 But look at the next line:
 
-```jsx
+```jsx start=17
 value={query}
 onChange={(e) => setQuery(e.target.value)}
 ```
@@ -165,14 +171,12 @@ This cycle, type, update state, re-render, show new filtered results, happens in
 
 </Section>
 
-<Section title="Line 15–19: Handling empty results">
+<Section title="Line 21–23: Handling empty results">
 
-```jsx
+```jsx start=21
 {filtered.length === 0 ? (
   <div>No users found</div>
 ) : (
-  <ul>
-    {filtered.map(user => (
 ```
 
 This is a _ternary operator_. It's short for if-then-else.
@@ -185,9 +189,9 @@ This is a design decision baked into code. The designer and developer agreed: em
 
 </Section>
 
-<Section title="Line 20–23: Looping with .map">
+<Section title="Line 24–28: Looping with .map">
 
-```jsx
+```jsx start=24
 <ul>
   {filtered.map((user) => (
     <li key={user.id}>{user.name}</li>

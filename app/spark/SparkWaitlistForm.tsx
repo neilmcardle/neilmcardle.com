@@ -8,8 +8,11 @@ type Status = "idle" | "submitting" | "success" | "error";
 export function SparkWaitlistForm() {
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
+  const [focused, setFocused] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
+
+  const floated = focused || email.length > 0;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -58,17 +61,31 @@ export function SparkWaitlistForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3 max-w-md">
       <div className="flex flex-col sm:flex-row gap-2">
-        <input
-          type="email"
-          required
-          autoComplete="email"
-          inputMode="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@domain.com"
-          disabled={status === "submitting"}
-          className="flex-1 rounded-lg border border-white/[0.14] bg-white/[0.04] px-4 py-3 text-[14px] text-white transition-colors placeholder:text-[var(--spark-on-dark-dim)] focus:border-[var(--spark-gold)] focus:outline-none disabled:opacity-50"
-        />
+        <div className="relative flex-1">
+          <label
+            htmlFor="spark-waitlist-email"
+            className={`pointer-events-none absolute left-4 transition-all duration-150 ${
+              floated
+                ? "top-[7px] text-[10px] tracking-[0.08em] text-[var(--spark-gold)]"
+                : "top-1/2 -translate-y-1/2 text-[14px] text-[var(--spark-on-dark-dim)]"
+            }`}
+          >
+            Email address
+          </label>
+          <input
+            id="spark-waitlist-email"
+            type="email"
+            required
+            autoComplete="email"
+            inputMode="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            disabled={status === "submitting"}
+            className="w-full rounded-lg border border-white/[0.14] bg-white/[0.04] px-4 pb-[7px] pt-[23px] text-[14px] text-white transition-colors focus:border-[var(--spark-gold)] focus:outline-none disabled:opacity-50"
+          />
+        </div>
         <button
           type="submit"
           disabled={status === "submitting"}

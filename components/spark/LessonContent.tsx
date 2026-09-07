@@ -11,6 +11,7 @@ type Block =
       language: string;
       file?: string;
       focus: string[];
+      start?: number;
       body: string;
     }
   | { kind: "component"; name: string; attrs: Record<string, string> }
@@ -41,9 +42,13 @@ function parseAttributes(source: string): Record<string, string> {
   return attrs;
 }
 
-function parseFenceMeta(meta: string): { file?: string; focus: string[] } {
+function parseFenceMeta(meta: string): {
+  file?: string;
+  focus: string[];
+  start?: number;
+} {
   const attrs = parseAttributes(meta);
-  const bare = /(?:^|\s)(file|focus)=([^\s"']+)/g;
+  const bare = /(?:^|\s)(file|focus|start)=([^\s"']+)/g;
   let match;
   while ((match = bare.exec(meta)) !== null) {
     if (!attrs[match[1]]) attrs[match[1]] = match[2];
@@ -56,6 +61,7 @@ function parseFenceMeta(meta: string): { file?: string; focus: string[] } {
           .map((t) => t.trim())
           .filter(Boolean)
       : [],
+    start: attrs.start ? Number(attrs.start) : undefined,
   };
 }
 
@@ -87,7 +93,7 @@ function parseBlocks(source: string): Block[] {
     if (fence) {
       closeParagraph();
       const language = fence[1] || "javascript";
-      const { file, focus } = parseFenceMeta(fence[2] || "");
+      const { file, focus, start } = parseFenceMeta(fence[2] || "");
       const body: string[] = [];
       i++;
       while (i < lines.length && !lines[i].trimStart().startsWith("```")) {
@@ -100,6 +106,7 @@ function parseBlocks(source: string): Block[] {
         language,
         file,
         focus,
+        start,
         body: body.join("\n"),
       });
       continue;
@@ -314,6 +321,7 @@ export function LessonContent({
                 language={block.language}
                 file={block.file}
                 focus={block.focus}
+                start={block.start}
               >
                 {block.body}
               </CodeBlock>

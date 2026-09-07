@@ -174,8 +174,11 @@ export default function NoteForm() {
 
   return (
     <form action={handleSubmit}>
-      <input name="title" placeholder="Title" required />
-      <textarea name="body" placeholder="Body" required />
+      <label htmlFor="title">Title</label>
+      <input id="title" name="title" required />
+
+      <label htmlFor="body">Body</label>
+      <textarea id="body" name="body" required />
       <button type="submit">Save</button>
     </form>
   );
@@ -371,7 +374,9 @@ export default function WaitlistForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
+        <label htmlFor="email">Email address</label>
         <input
+          id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
