@@ -6,9 +6,8 @@ const CELL = 6;
 const SQUARE = 2.67;
 const INK = "216, 180, 106";
 
-const DENSITY = 430;
-const SPEED_MIN = 34;
-const SPEED_MAX = 58;
+const SPEED_MIN = 80;
+const SPEED_MAX = 136;
 const LEN_MIN = 5;
 const LEN_MAX = 16;
 const ALPHA_MIN = 0.1;
@@ -56,14 +55,21 @@ type Splash = {
 export default function DotField({
   className,
   seedOffset = 0,
-  intensity = 1,
+  count,
+  paused = false,
 }: {
   className?: string;
   seedOffset?: number;
-  intensity?: number;
+  count: number;
+  paused?: boolean;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pausedRef = useRef(paused);
+
+  useEffect(() => {
+    pausedRef.current = paused;
+  });
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -130,10 +136,6 @@ export default function DotField({
       cols = Math.ceil(w / CELL);
       rows = Math.ceil(h / CELL);
 
-      const count = Math.max(
-        14,
-        Math.round(((cols * rows) / DENSITY) * intensity),
-      );
       pool = [];
       splashes = [];
       for (let i = 0; i < count; i++) {
@@ -238,7 +240,7 @@ export default function DotField({
         frame = requestAnimationFrame(loop);
         const dt = Math.min(0.05, (t - last) / 1000);
         last = t;
-        if (!visible) return;
+        if (!visible || pausedRef.current) return;
         step(dt);
         paint();
       };
@@ -268,7 +270,7 @@ export default function DotField({
       io.disconnect();
       ro.disconnect();
     };
-  }, [seedOffset, intensity]);
+  }, [seedOffset, count]);
 
   return (
     <div ref={wrapRef} className={className} aria-hidden="true">

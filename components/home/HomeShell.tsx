@@ -1,23 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./home.module.css";
 import IdentityCard, { type Lean } from "./IdentityCard";
 import DotField from "./DotField";
 import LiveSentence from "./LiveSentence";
 import SelectedWork from "./SelectedWork";
 import SiteMenu from "./SiteMenu";
+import RainToggle from "./RainToggle";
+import * as rain from "./rainAudio";
 
 export default function HomeShell() {
   const [lean, setLean] = useState<Lean>("none");
+  const [raining, setRaining] = useState(true);
+
+  useEffect(() => {
+    setRaining(rain.enabled());
+    return rain.subscribe(setRaining);
+  }, []);
 
   return (
     <div className={styles.page}>
       <SiteMenu />
+      <RainToggle />
 
       <div className={styles.shell}>
         <header className={styles.masthead}>
-          <DotField className={styles.heroDots} intensity={2.1} />
+          <DotField className={styles.heroDots} count={32} paused={!raining} />
           <IdentityCard lean={lean} />
           <div>
             <LiveSentence onLean={setLean} />
@@ -65,7 +74,8 @@ export default function HomeShell() {
           <DotField
             className={styles.tellMoreDots}
             seedOffset={7}
-            intensity={2.2}
+            count={36}
+            paused={!raining}
           />
 
           <div className={styles.sectionHead}>

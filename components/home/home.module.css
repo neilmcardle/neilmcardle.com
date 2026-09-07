@@ -20,8 +20,32 @@
 .menuWrap {
   position: fixed;
   top: 20px;
+  left: calc(max(0px, (100vw - var(--shell-max)) / 2) + var(--gutter));
+  z-index: 70;
+}
+
+.rainToggle {
+  position: fixed;
+  top: 20px;
   right: calc(max(0px, (100vw - var(--shell-max)) / 2) + var(--gutter));
   z-index: 70;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  line-height: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: filter 220ms ease;
+}
+
+.rainToggle:hover {
+  filter: brightness(1.18);
+}
+
+.rainToggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(216, 180, 106, 0.85);
 }
 
 .backMark {
@@ -73,7 +97,7 @@
 .menuPanel {
   position: absolute;
   top: 48px;
-  right: 0;
+  left: 0;
   min-width: 194px;
   padding: 10px;
   border-radius: 14px;
@@ -91,9 +115,18 @@
 }
 
 .menuItem {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
   padding: 8px 10px;
+  border: 0;
   border-radius: 8px;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
   color: rgba(251, 249, 243, 0.82);
   font-size: 0.875rem;
   text-decoration: none;
@@ -105,6 +138,12 @@
 .menuItem:hover {
   background: rgba(251, 249, 243, 0.07);
   color: #fbf9f3;
+}
+
+.menuState {
+  font-size: 0.75rem;
+  color: #8a7f70;
+  font-variant-numeric: tabular-nums;
 }
 
 .menuRule {
@@ -1242,8 +1281,22 @@
   transform: translate(-50%, 0);
 }
 
+.rainTip {
+  composes: credentialTip;
+  bottom: auto;
+  top: calc(100% + 12px);
+  transform: translate(-50%, -5px);
+}
+
+.rainToggle:hover .rainTip,
+.rainToggle:focus-visible .rainTip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .credentialTip {
+  .credentialTip,
+  .rainTip {
     transition: opacity 190ms ease;
     transform: translate(-50%, 0);
   }
