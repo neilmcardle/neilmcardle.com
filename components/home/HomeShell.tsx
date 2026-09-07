@@ -5,7 +5,6 @@ import styles from "./home.module.css";
 import IdentityCard, { type Lean } from "./IdentityCard";
 import DotField from "./DotField";
 import LiveSentence from "./LiveSentence";
-import DailyDrawing from "./DailyDrawing";
 import SelectedWork from "./SelectedWork";
 import SiteMenu from "./SiteMenu";
 
@@ -62,8 +61,6 @@ export default function HomeShell() {
           <SelectedWork />
         </section>
 
-        <DailyDrawing index="02" />
-
         <section className={styles.tellMore}>
           <DotField
             className={styles.tellMoreDots}
@@ -73,7 +70,7 @@ export default function HomeShell() {
 
           <div className={styles.sectionHead}>
             <span className={styles.sectionNum} aria-hidden="true">
-              03
+              02
             </span>
             <span className={styles.sectionLabel}>
               Contact me, I promise I&rsquo;ll read it
