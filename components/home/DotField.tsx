@@ -4,82 +4,25 @@ import { useEffect, useRef } from "react";
 
 const CELL = 6;
 const SQUARE = 2.67;
-const LIVE = "rgba(216, 180, 106, 0.55)";
+const INK = "216, 180, 106";
 
-const GLIDER = [
-  [1, 0],
-  [2, 1],
-  [0, 2],
-  [1, 2],
-  [2, 2],
-];
-const LWSS = [
-  [1, 0],
-  [4, 0],
-  [0, 1],
-  [0, 2],
-  [4, 2],
-  [0, 3],
-  [1, 3],
-  [2, 3],
-  [3, 3],
-];
-const BLINKER = [
-  [0, 0],
-  [1, 0],
-  [2, 0],
-];
-const TOAD = [
-  [1, 0],
-  [2, 0],
-  [3, 0],
-  [0, 1],
-  [1, 1],
-  [2, 1],
-];
-const BEACON = [
-  [0, 0],
-  [1, 0],
-  [0, 1],
-  [1, 1],
-  [2, 2],
-  [3, 2],
-  [2, 3],
-  [3, 3],
-];
-const PULSAR_QUAD = [
-  [2, 0],
-  [3, 0],
-  [4, 0],
-  [0, 2],
-  [5, 2],
-  [0, 3],
-  [5, 3],
-  [0, 4],
-  [5, 4],
-  [2, 5],
-  [3, 5],
-  [4, 5],
-];
+const DENSITY = 430;
+const SPEED_MIN = 34;
+const SPEED_MAX = 58;
+const LEN_MIN = 5;
+const LEN_MAX = 16;
+const ALPHA_MIN = 0.1;
+const ALPHA_MAX = 0.26;
+const ALPHA_BRIGHT = 1;
+const BRIGHT_SHARE = 0.2;
 
-const TRAVELLERS = [GLIDER, LWSS];
-const SETTLERS = [BLINKER, TOAD, BEACON, PULSAR_QUAD];
-
-function orient(cells: number[][], variant: number) {
-  let out = cells.map(([x, y]) => [x, y]);
-  if (variant & 1) {
-    let m = 0;
-    for (const c of out) if (c[0] > m) m = c[0];
-    out = out.map(([x, y]) => [m - x, y]);
-  }
-  if (variant & 2) {
-    let m = 0;
-    for (const c of out) if (c[1] > m) m = c[1];
-    out = out.map(([x, y]) => [x, m - y]);
-  }
-  if (variant & 4) out = out.map(([x, y]) => [y, x]);
-  return out;
-}
+const WEATHER_RATE = 0.055;
+const CALM = 0.16;
+const SPLASH_GRAVITY = 52;
+const SPLASH_LIFE_MIN = 0.45;
+const SPLASH_LIFE_MAX = 0.9;
+const GROUND_INSET = 4;
+const SPLASH_SQUARE = 4.4;
 
 function mulberry32(seed: number) {
   let a = seed >>> 0;
@@ -91,14 +34,33 @@ function mulberry32(seed: number) {
   };
 }
 
+type Streak = {
+  x: number;
+  y: number;
+  len: number;
+  speed: number;
+  alpha: number;
+  hit: boolean;
+};
+
+type Splash = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  t: number;
+  life: number;
+  alpha: number;
+};
+
 export default function DotField({
   className,
   seedOffset = 0,
-  fps = 7,
+  intensity = 1,
 }: {
   className?: string;
   seedOffset?: number;
-  fps?: number;
+  intensity?: number;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -112,95 +74,158 @@ export default function DotField({
     if (!ctx) return;
 
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const rf = mulberry32(0x9e3779b1 + seedOffset * 40503);
+
+    const lean = 0.3 + rf() * 0.16;
 
     let cols = 0;
     let rows = 0;
-    let cur = new Uint8Array(0);
-    let next = new Uint8Array(0);
+    let pool: Streak[] = [];
+    let splashes: Splash[] = [];
+    let weather = 0.5;
     let frame: number | null = null;
     let last = 0;
     let visible = true;
 
-    let rf = mulberry32(1);
+    const reset = (s: Streak, seeded: boolean) => {
+      s.len = LEN_MIN + rf() * (LEN_MAX - LEN_MIN);
+      s.speed = SPEED_MIN + rf() * (SPEED_MAX - SPEED_MIN);
+      s.alpha =
+        rf() < BRIGHT_SHARE
+          ? ALPHA_MAX + rf() * (ALPHA_BRIGHT - ALPHA_MAX)
+          : ALPHA_MIN + rf() * (ALPHA_MAX - ALPHA_MIN);
+      const drift = lean * rows;
+      s.x = -drift + rf() * (cols + drift);
+      s.y = seeded ? rf() * rows : -s.len - rf() * rows * 0.3;
+      s.hit = false;
+    };
 
-    const place = (cells: number[][], ox: number, oy: number) => {
-      for (const [x, y] of cells) {
-        const gx = (((ox + x) % cols) + cols) % cols;
-        const gy = (((oy + y) % rows) + rows) % rows;
-        cur[gy * cols + gx] = 1;
+    const groundRow = () => Math.max(1, rows - GROUND_INSET);
+
+    const splash = (x: number, alpha: number) => {
+      const n = 4 + Math.floor(rf() * 5);
+      for (let i = 0; i < n; i++) {
+        splashes.push({
+          x,
+          y: groundRow(),
+          vx: (rf() - 0.3) * 18,
+          vy: -(9 + rf() * 14),
+          t: 0,
+          life: SPLASH_LIFE_MIN + rf() * (SPLASH_LIFE_MAX - SPLASH_LIFE_MIN),
+          alpha: Math.min(1, Math.max(0.3, alpha) * 1.1),
+        });
       }
-    };
-
-    const drop = (pool: number[][][]) => {
-      const shape = pool[Math.floor(rf() * pool.length)];
-      place(
-        orient(shape, Math.floor(rf() * 8)),
-        Math.floor(rf() * cols),
-        Math.floor(rf() * rows),
-      );
-    };
-
-    const seed = () => {
-      const day = Math.floor(Date.now() / 86400000) + seedOffset;
-      rf = mulberry32(day * 2654435761 + seedOffset * 40503);
-      cur.fill(0);
-      const area = (cols * rows) / 2600;
-      const nTravel = Math.max(3, Math.round(area * 1.6));
-      const nSettle = Math.max(2, Math.round(area));
-      for (let i = 0; i < nTravel; i++) drop(TRAVELLERS);
-      for (let i = 0; i < nSettle; i++) drop(SETTLERS);
     };
 
     const measure = () => {
-      const r = wrap.getBoundingClientRect();
-      if (r.width < 1 || r.height < 1) return false;
+      const w = wrap.clientWidth;
+      const h = wrap.clientHeight;
+      if (w < 1 || h < 1) return false;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(r.width * dpr);
-      canvas.height = Math.round(r.height * dpr);
-      canvas.style.width = `${r.width}px`;
-      canvas.style.height = `${r.height}px`;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      cols = Math.ceil(r.width / CELL);
-      rows = Math.ceil(r.height / CELL);
-      cur = new Uint8Array(cols * rows);
-      next = new Uint8Array(cols * rows);
-      seed();
+      cols = Math.ceil(w / CELL);
+      rows = Math.ceil(h / CELL);
+
+      const count = Math.max(
+        14,
+        Math.round(((cols * rows) / DENSITY) * intensity),
+      );
+      pool = [];
+      splashes = [];
+      for (let i = 0; i < count; i++) {
+        const s: Streak = {
+          x: 0,
+          y: 0,
+          len: 0,
+          speed: 0,
+          alpha: 0,
+          hit: false,
+        };
+        reset(s, true);
+        pool.push(s);
+      }
       return true;
     };
 
-    const step = () => {
-      for (let y = 0; y < rows; y++) {
-        const up = ((y - 1 + rows) % rows) * cols;
-        const mid = y * cols;
-        const dn = ((y + 1) % rows) * cols;
-        for (let x = 0; x < cols; x++) {
-          const l = (x - 1 + cols) % cols;
-          const r = (x + 1) % cols;
-          const n =
-            cur[up + l] +
-            cur[up + x] +
-            cur[up + r] +
-            cur[mid + l] +
-            cur[mid + r] +
-            cur[dn + l] +
-            cur[dn + x] +
-            cur[dn + r];
-          next[mid + x] = n === 3 || (n === 2 && cur[mid + x]) ? 1 : 0;
+    const activeCount = () =>
+      Math.max(2, Math.round(pool.length * (CALM + (1 - CALM) * weather)));
+
+    const step = (dt: number) => {
+      const phase = (Date.now() / 1000) * WEATHER_RATE;
+      const raw =
+        0.5 + 0.36 * Math.sin(phase) + 0.14 * Math.sin(phase * 2.7 + 1.3);
+      weather = Math.max(0, Math.min(1, raw));
+
+      const active = activeCount();
+      const gust = 0.75 + 0.5 * weather;
+
+      for (let i = 0; i < pool.length; i++) {
+        const s = pool[i];
+        if (i >= active) {
+          if (s.y > -s.len) reset(s, false);
+          continue;
         }
+
+        s.y += s.speed * gust * dt;
+        s.x += s.speed * gust * lean * dt;
+
+        const floor = groundRow();
+        if (!s.hit && s.y >= floor) {
+          s.hit = true;
+          if (s.x >= 0 && s.x < cols) splash(s.x, s.alpha);
+        }
+        if (s.y - s.len > floor) reset(s, false);
       }
-      const swap = cur;
-      cur = next;
-      next = swap;
+
+      for (let i = splashes.length - 1; i >= 0; i--) {
+        const p = splashes[i];
+        p.t += dt;
+        p.vy += SPLASH_GRAVITY * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        const floor = groundRow();
+        if (p.y > floor) {
+          p.y = floor;
+          p.vy = 0;
+          p.vx *= 0.4;
+        }
+        if (p.t > p.life) splashes.splice(i, 1);
+      }
     };
 
     const paint = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = LIVE;
-      for (let y = 0; y < rows; y++) {
-        const row = y * cols;
-        for (let x = 0; x < cols; x++) {
-          if (cur[row + x]) ctx.fillRect(x * CELL, y * CELL, SQUARE, SQUARE);
+      const active = activeCount();
+
+      for (let i = 0; i < active && i < pool.length; i++) {
+        const s = pool[i];
+        const cells = Math.max(2, Math.round(s.len));
+        const taper = s.alpha > ALPHA_MAX ? 0.3 : 0.65;
+        for (let j = 0; j < cells; j++) {
+          const t = j / (cells - 1);
+          const gy = Math.round(s.y - s.len * t);
+          if (gy < 0 || gy > groundRow()) continue;
+          const gx = Math.round(s.x - s.len * lean * t);
+          if (gx < 0 || gx >= cols) continue;
+          const a = s.alpha * (1 - t * taper);
+          if (a < 0.03) continue;
+          ctx.fillStyle = `rgba(${INK}, ${a.toFixed(3)})`;
+          ctx.fillRect(gx * CELL, gy * CELL, SQUARE, SQUARE);
         }
+      }
+
+      for (const p of splashes) {
+        const gx = Math.round(p.x);
+        const gy = Math.round(p.y);
+        if (gx < 0 || gx >= cols || gy < 0 || gy >= rows) continue;
+        const a = p.alpha * (1 - p.t / p.life);
+        if (a < 0.03) continue;
+        ctx.fillStyle = `rgba(${INK}, ${a.toFixed(3)})`;
+        ctx.fillRect(gx * CELL, gy * CELL, SPLASH_SQUARE, SPLASH_SQUARE);
       }
     };
 
@@ -208,15 +233,13 @@ export default function DotField({
     paint();
 
     if (!still) {
-      const interval = 1000 / fps;
-      let gens = 0;
+      last = performance.now();
       const loop = (t: number) => {
         frame = requestAnimationFrame(loop);
-        if (!visible || t - last < interval) return;
+        const dt = Math.min(0.05, (t - last) / 1000);
         last = t;
-        step();
-        gens += 1;
-        if (gens % Math.round(fps * 5) === 0) drop(TRAVELLERS);
+        if (!visible) return;
+        step(dt);
         paint();
       };
       frame = requestAnimationFrame(loop);
@@ -245,7 +268,7 @@ export default function DotField({
       io.disconnect();
       ro.disconnect();
     };
-  }, [seedOffset, fps]);
+  }, [seedOffset, intensity]);
 
   return (
     <div ref={wrapRef} className={className} aria-hidden="true">

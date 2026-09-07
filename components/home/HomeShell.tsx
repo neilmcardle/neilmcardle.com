@@ -18,7 +18,7 @@ export default function HomeShell() {
 
       <div className={styles.shell}>
         <header className={styles.masthead}>
-          <DotField className={styles.heroDots} fps={2.5} />
+          <DotField className={styles.heroDots} intensity={2.1} />
           <IdentityCard lean={lean} />
           <div>
             <LiveSentence onLean={setLean} />
@@ -65,7 +65,11 @@ export default function HomeShell() {
         <DailyDrawing index="02" />
 
         <section className={styles.tellMore}>
-          <DotField className={styles.tellMoreDots} seedOffset={7} />
+          <DotField
+            className={styles.tellMoreDots}
+            seedOffset={7}
+            intensity={2.2}
+          />
 
           <div className={styles.sectionHead}>
             <span className={styles.sectionNum} aria-hidden="true">

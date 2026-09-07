@@ -188,7 +188,7 @@
   pointer-events: none;
   background-image: url(/hero/dot-matrix.svg);
   background-size: 6px 6px;
-  opacity: 0.55;
+  opacity: 0.9;
   -webkit-mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0.9) 0%,
@@ -216,7 +216,7 @@
   pointer-events: none;
   background-image: url(/hero/dot-matrix.svg);
   background-size: 6px 6px;
-  opacity: 0.55;
+  opacity: 0.9;
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
