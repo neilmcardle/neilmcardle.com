@@ -8,12 +8,14 @@ const DEG_PER_PX = 0.8;
 const FRICTION = 0.982;
 const MIN_VELOCITY = 0.12;
 const MAX_VELOCITY = 55;
+const SAMPLE_MS = 120;
 const SETTLE_MS = 520;
 
 const SIZE = 112;
 const THICKNESS = 15;
 const SLICES = 48;
 const LIGHT = [-0.36, 0.46, 0.81];
+const REST_TILT = 12;
 
 export default function ProfileCoin() {
   const coinRef = useRef<HTMLDivElement>(null);
@@ -24,6 +26,7 @@ export default function ProfileCoin() {
   const moved = useRef(0);
   const lastX = useRef(0);
   const lastAt = useRef(0);
+  const samples = useRef<{ x: number; t: number }[]>([]);
   const frame = useRef<number | null>(null);
   const reduced = useRef(false);
 
@@ -40,7 +43,7 @@ export default function ProfileCoin() {
     const el = coinRef.current;
     if (!el) return;
     const a = (angle.current * Math.PI) / 180;
-    el.style.transform = `rotateY(${angle.current}deg)`;
+    el.style.transform = `rotateX(${REST_TILT}deg) rotateY(${angle.current}deg)`;
     el.style.filter = `brightness(${(0.62 + 0.38 * Math.abs(Math.cos(a))).toFixed(3)})`;
 
     const cosA = Math.cos(a);
@@ -100,6 +103,7 @@ export default function ProfileCoin() {
       velocity.current = 0;
       lastX.current = event.clientX;
       lastAt.current = performance.now();
+      samples.current = [{ x: event.clientX, t: lastAt.current }];
       event.currentTarget.setPointerCapture(event.pointerId);
     },
     [],
@@ -113,12 +117,14 @@ export default function ProfileCoin() {
       const dt = Math.max(1, now - lastAt.current);
       moved.current += Math.abs(dx);
       angle.current += dx * DEG_PER_PX;
-      const instant = (dx * DEG_PER_PX * 16) / dt;
-      const blended = velocity.current * 0.35 + instant * 0.65;
-      velocity.current = Math.max(
-        -MAX_VELOCITY,
-        Math.min(MAX_VELOCITY, blended),
-      );
+      void dt;
+      samples.current.push({ x: event.clientX, t: now });
+      while (
+        samples.current.length > 2 &&
+        now - samples.current[0].t > SAMPLE_MS
+      ) {
+        samples.current.shift();
+      }
       lastX.current = event.clientX;
       lastAt.current = now;
       paint();
@@ -129,6 +135,22 @@ export default function ProfileCoin() {
   const onPointerUp = useCallback(() => {
     if (!dragging.current) return;
     dragging.current = false;
+
+    const trail = samples.current;
+    const last = trail[trail.length - 1];
+    const first = trail[0];
+    if (last && first && last.t > first.t) {
+      const perFrame =
+        ((last.x - first.x) * DEG_PER_PX * 16) / (last.t - first.t);
+      velocity.current = Math.max(
+        -MAX_VELOCITY,
+        Math.min(MAX_VELOCITY, perFrame),
+      );
+    } else {
+      velocity.current = 0;
+    }
+    samples.current = [];
+
     if (reduced.current || Math.abs(velocity.current) <= MIN_VELOCITY) {
       settle();
       return;

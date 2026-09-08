@@ -6,8 +6,7 @@ import { MarkEdge, MarkPlate } from "./ProductBadge";
 import styles from "./home.module.css";
 
 const PAGES: { label: string; href: string; external?: boolean }[] = [
-  { label: "Selected work", href: "/#work" },
-  { label: "Daily landscape", href: "/daily" },
+  { label: "Work", href: "/#work" },
   { label: "Paintings", href: "/paintings" },
   { label: "Archive", href: "/archive" },
 ];
