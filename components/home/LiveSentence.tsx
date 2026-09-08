@@ -8,12 +8,12 @@ import {
   useState,
 } from "react";
 import styles from "./home.module.css";
-import type { Lean } from "./IdentityCard";
+export type Lean = "none" | "left" | "right" | "back";
 
 export default function LiveSentence({
   onLean,
 }: {
-  onLean: (lean: Lean) => void;
+  onLean?: (lean: Lean) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [anchor, setAnchor] = useState<DOMRect | null>(null);
@@ -24,7 +24,7 @@ export default function LiveSentence({
       if (closeTimer.current) window.clearTimeout(closeTimer.current);
       setAnchor(el.getBoundingClientRect());
       setOpen(true);
-      onLean("left");
+      onLean?.("left");
     },
     [onLean],
   );
@@ -34,7 +34,7 @@ export default function LiveSentence({
     closeTimer.current = window.setTimeout(() => {
       setOpen(false);
       setAnchor(null);
-      onLean("none");
+      onLean?.("none");
     }, 260);
   }, [onLean]);
 
@@ -47,7 +47,7 @@ export default function LiveSentence({
     const close = () => {
       setOpen(false);
       setAnchor(null);
-      onLean("none");
+      onLean?.("none");
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();

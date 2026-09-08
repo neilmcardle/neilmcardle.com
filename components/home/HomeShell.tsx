@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import styles from "./home.module.css";
-import IdentityCard, { type Lean } from "./IdentityCard";
+import Image from "next/image";
 import DotField from "./DotField";
 import LiveSentence from "./LiveSentence";
 import SelectedWork from "./SelectedWork";
@@ -11,7 +11,6 @@ import RainToggle from "./RainToggle";
 import * as rain from "./rainAudio";
 
 export default function HomeShell() {
-  const [lean, setLean] = useState<Lean>("none");
   const [raining, setRaining] = useState(true);
 
   useEffect(() => {
@@ -27,9 +26,36 @@ export default function HomeShell() {
       <div className={styles.shell}>
         <header className={styles.masthead}>
           <DotField className={styles.heroDots} count={32} paused={!raining} />
-          <IdentityCard lean={lean} />
-          <div>
-            <LiveSentence onLean={setLean} />
+
+          <div className={styles.profile}>
+            <div className={styles.profileTop}>
+              <div className={styles.heroAvatar}>
+                <Image
+                  src="/hero/portrait.png"
+                  alt="Neil McArdle"
+                  width={480}
+                  height={480}
+                  sizes="112px"
+                  priority
+                />
+              </div>
+
+              <div className={styles.profileMeta}>
+                <h1 className={styles.profileName}>Neil McArdle</h1>
+                <a
+                  className={styles.profileHandle}
+                  href="https://x.com/BetterNeil"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  @BetterNeil
+                </a>
+              </div>
+            </div>
+
+            <div className={styles.profileBio}>
+              <LiveSentence />
+            </div>
 
             <p className={styles.credentialsEyebrow}>Trusted by</p>
 
@@ -49,7 +75,7 @@ export default function HomeShell() {
               <Credential
                 src="/logos/banner-of-truth.svg"
                 alt="The Banner of Truth"
-                height={30}
+                height={26}
                 tip="Previously"
               />
             </div>
@@ -70,7 +96,7 @@ export default function HomeShell() {
           <SelectedWork />
         </section>
 
-        <section className={styles.tellMore}>
+        <section id="contact" className={styles.tellMore}>
           <DotField
             className={styles.tellMoreDots}
             seedOffset={7}

@@ -1,6 +1,7 @@
 .page {
   --shell-max: 1120px;
   --gutter: clamp(20px, 5vw, 64px);
+  --hero-top: clamp(88px, 8vw, 96px);
   min-height: 100vh;
   min-height: 100svh;
   background: #0a0a0a;
@@ -14,19 +15,19 @@
   z-index: 1;
   max-width: var(--shell-max);
   margin: 0 auto;
-  padding: clamp(28px, 6vw, 72px) var(--gutter) 72px;
+  padding: var(--hero-top) var(--gutter) 72px;
 }
 
 .menuWrap {
   position: fixed;
-  top: 20px;
+  top: 24px;
   left: calc(max(0px, (100vw - var(--shell-max)) / 2) + var(--gutter));
   z-index: 70;
 }
 
 .rainToggle {
   position: fixed;
-  top: 20px;
+  top: 24px;
   right: calc(max(0px, (100vw - var(--shell-max)) / 2) + var(--gutter));
   z-index: 70;
   display: block;
@@ -208,11 +209,68 @@
   color: #fbf9f3;
 }
 
+.heroAvatar {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #0a0a0a;
+  box-shadow: 0 0 0 1px #8a7f70;
+  flex-shrink: 0;
+}
+
+.heroAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 28%;
+}
+
+.profile {
+  position: relative;
+  z-index: 1;
+}
+
+.profileTop {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.profileMeta {
+  min-width: 0;
+}
+
+.profileName {
+  margin: 0;
+  color: #fbf9f3;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.profileHandle {
+  display: inline-block;
+  margin-top: 4px;
+  color: #8a7f70;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.profileHandle:hover {
+  color: #d8b46a;
+}
+
+.profileBio {
+  margin-top: 32px;
+}
+
 .masthead {
   position: relative;
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
-  gap: clamp(28px, 5vw, 56px);
+  gap: clamp(24px, 5vw, 56px);
   align-items: center;
 }
 
@@ -221,7 +279,7 @@
   left: 50%;
   width: 100vw;
   transform: translateX(-50%);
-  top: -72px;
+  top: calc(-1 * var(--hero-top));
   bottom: -56px;
   z-index: 0;
   pointer-events: none;
@@ -286,7 +344,7 @@
 }
 
 .sentenceWrap {
-  padding-top: 6px;
+  padding-top: 0;
 }
 
 .sentence {
@@ -330,18 +388,18 @@
 }
 
 .credentialsEyebrow {
-  margin: 30px 0 0;
+  margin: 32px 0 0;
   color: #8a7f70;
   font-size: 0.6875rem;
   letter-spacing: 0.06em;
 }
 
 .credentials {
-  margin: 12px 0 0;
+  margin: 16px 0 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 28px;
+  gap: 32px;
 }
 
 .credentialLogo {
@@ -484,98 +542,6 @@
   letter-spacing: 0.04em;
   line-height: 1;
   display: block;
-}
-
-.idOuter {
-  width: 100%;
-  max-width: 300px;
-  aspect-ratio: 336 / 400;
-  container-type: inline-size;
-  perspective: 900px;
-  flex-shrink: 0;
-}
-
-.idTilt {
-  width: 100%;
-  height: 100%;
-  transform-origin: 50% 50%;
-  transition:
-    rotate 560ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.idCard {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  border-radius: 3.5714cqw;
-  background: linear-gradient(180deg, #14120e 0%, #0a0a09 55%, #000000 100%);
-}
-
-@media (max-width: 860px) {
-  .idOuter {
-    max-width: none;
-  }
-}
-
-.idLayer {
-  position: absolute;
-  inset: 0;
-}
-
-.idDots {
-  background-image: url(/hero/dot-matrix.svg);
-  background-size: 6px 6px;
-  opacity: 0.9;
-}
-
-.idGlint {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  mix-blend-mode: screen;
-  transition: opacity 260ms ease;
-  mask-image: url(/hero/dot-mask.svg);
-  mask-size: 6px 6px;
-  -webkit-mask-image: url(/hero/dot-mask.svg);
-  -webkit-mask-size: 6px 6px;
-}
-
-.idGlintOn {
-  opacity: 1;
-}
-
-.idBand {
-  position: absolute;
-  left: -28.2738cqw;
-  top: -50.5952cqw;
-  height: 244.0476cqw;
-  width: 56.5476cqw;
-  background-image: linear-gradient(
-    90deg,
-    rgba(111, 233, 255, 0) 0%,
-    rgba(111, 233, 255, 0.24) 22%,
-    rgba(255, 255, 255, 0.5) 44%,
-    rgba(255, 122, 217, 0.26) 62%,
-    rgba(255, 217, 138, 0.18) 80%,
-    rgba(255, 217, 138, 0) 100%
-  );
-  transform: translateX(50cqw) rotate(-18deg);
-}
-
-.idSweep {
-  animation: idSweep 1500ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-@keyframes idSweep {
-  from {
-    transform: translateX(-17.8571cqw) rotate(-18deg);
-  }
-  to {
-    transform: translateX(119.0476cqw) rotate(-18deg);
-  }
 }
 
 .daily {
@@ -924,7 +890,7 @@
 }
 
 .work {
-  margin-top: clamp(96px, 14vw, 168px);
+  margin-top: clamp(56px, 8vw, 96px);
 }
 
 .alsoLink {
