@@ -267,6 +267,77 @@
   margin-top: 32px;
 }
 
+.coinStage {
+  width: var(--coin-size);
+  height: var(--coin-size);
+  perspective: 620px;
+  touch-action: pan-y;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.coinStage:active {
+  cursor: grabbing;
+}
+
+.coin {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.coinFace {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #0a0a0a;
+  box-shadow:
+    0 0 0 1px #8a7f70,
+    inset 0 0 12px rgba(0, 0, 0, 0.55);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(calc(var(--coin-thickness) / 2));
+}
+
+.coinFace img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 28%;
+  transform: scaleX(-1);
+  user-select: none;
+}
+
+.coinBack {
+  display: grid;
+  place-items: center;
+  color: #d8b46a;
+  transform: rotateY(180deg) translateZ(calc(var(--coin-thickness) / 2));
+}
+
+.coinBack svg {
+  width: 42%;
+  height: 42%;
+}
+
+.coinEdge {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.coinEdge span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--coin-thickness);
+  margin-left: calc(var(--coin-thickness) / -2);
+  background: linear-gradient(90deg, #4f4941 0%, #b0a08a 50%, #4f4941 100%);
+}
+
 .masthead {
   position: relative;
   display: grid;

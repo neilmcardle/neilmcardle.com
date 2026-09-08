@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import styles from "./home.module.css";
 import Image from "next/image";
 import DotField from "./DotField";
+import ProfileCoin from "./ProfileCoin";
 import LiveSentence from "./LiveSentence";
 import SelectedWork from "./SelectedWork";
 import SiteMenu from "./SiteMenu";
@@ -29,16 +30,7 @@ export default function HomeShell() {
 
           <div className={styles.profile}>
             <div className={styles.profileTop}>
-              <div className={styles.heroAvatar}>
-                <Image
-                  src="/hero/portrait.png"
-                  alt="Neil McArdle"
-                  width={480}
-                  height={480}
-                  sizes="112px"
-                  priority
-                />
-              </div>
+              <ProfileCoin />
 
               <div className={styles.profileMeta}>
                 <h1 className={styles.profileName}>Neil McArdle</h1>
