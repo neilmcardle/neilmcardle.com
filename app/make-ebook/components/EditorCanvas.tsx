@@ -6,7 +6,7 @@ import RichTextEditor from "./RichTextEditor";
 import BookMindAgent from "./BookMindAgent";
 import ChapterScrollRail from "./ChapterScrollRail";
 import type { FocusSettings as FocusModeSettings } from "../hooks/useFocusMode";
-import { ModKey } from "./marketing/sections-v2/PlatformKey";
+import { ModKey } from "./PlatformKey";
 
 interface Chapter {
   id: string;

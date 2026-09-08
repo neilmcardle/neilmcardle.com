@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { BookRecord } from "../types";
 import {
   loadBookLibrary,
@@ -8,6 +8,7 @@ import {
 } from "../utils/bookLibrary";
 
 const SAME_SAVE_WINDOW_MS = 5000;
+const SYNC_THROTTLE_MS = 10000;
 
 function withLocalOnlyFields(cloud: BookRecord, local: BookRecord): BookRecord {
   const localChapters = new Map(local.chapters.map((ch) => [ch.id, ch]));
@@ -48,9 +49,17 @@ export function useCloudSync({
     BookRecord
   > | null>(null);
 
-  useEffect(() => {
-    async function fetchAndSyncSupabaseBooks() {
+  const syncingRef = useRef(false);
+  const lastSyncRef = useRef(0);
+  const conflictsOpenRef = useRef(false);
+
+  const syncNow = useCallback(
+    async (force = false) => {
+      if (syncingRef.current || conflictsOpenRef.current) return;
+      if (!force && Date.now() - lastSyncRef.current < SYNC_THROTTLE_MS) return;
       if (user && user.id) {
+        syncingRef.current = true;
+        lastSyncRef.current = Date.now();
         try {
           const supabaseBooks = await import("@/lib/supabaseEbooks").then((m) =>
             m.fetchEbooksFromSupabase(user.id),
@@ -116,11 +125,36 @@ export function useCloudSync({
           }
         } catch (err) {
           console.error("Failed to sync Supabase books:", err);
+        } finally {
+          syncingRef.current = false;
         }
       }
-    }
-    fetchAndSyncSupabaseBooks();
-  }, [user]);
+    },
+    [user, isLoadingBookRef, setLibraryBooks],
+  );
+
+  useEffect(() => {
+    conflictsOpenRef.current = syncConflicts.length > 0;
+  }, [syncConflicts]);
+
+  useEffect(() => {
+    void syncNow(true);
+
+    const onFocus = () => void syncNow();
+    const onOnline = () => void syncNow(true);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void syncNow();
+    };
+
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("online", onOnline);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("online", onOnline);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [syncNow]);
 
   function handleResolveSyncConflict(choice: "local" | "cloud" | "both") {
     if (!syncMergedMap || syncConflicts.length === 0) return;
@@ -165,5 +199,6 @@ export function useCloudSync({
     syncMergedMap,
     setSyncMergedMap,
     handleResolveSyncConflict,
+    syncNow,
   };
 }

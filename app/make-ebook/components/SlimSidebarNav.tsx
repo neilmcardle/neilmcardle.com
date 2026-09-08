@@ -86,7 +86,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
   const [loggingOut, setLoggingOut] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
-  const showUpgradeRow = tier === "free" && !isGrandfathered;
+  const showUpgradeRow = false;
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -167,7 +167,10 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
               <div className="flex items-center">
                 <SubscriptionBadge />
               </div>
-              <p className="text-sm font-medium leading-none truncate">
+              <p
+                className="text-125 font-medium leading-snug normal-case tracking-normal break-all text-gray-900 dark:text-[#e5e5e5]"
+                title={user?.email || undefined}
+              >
                 {user?.email || "user@email.com"}
               </p>
             </div>

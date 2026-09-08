@@ -1,23 +1,21 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { ArrowRight, Menu, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { ArrowRight, Menu, X } from "lucide-react";
 
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuth } from "@/lib/hooks/useAuth";
 
 type MarketingNavProps = {
   onFeaturesClick?: () => void;
-  onPricingClick?: () => void;
   onMyBooksClick?: () => void;
   libraryCount?: number;
 };
 
 export default function MarketingNav({
   onFeaturesClick,
-  onPricingClick,
   onMyBooksClick,
   libraryCount = 0,
 }: MarketingNavProps) {
@@ -31,8 +29,8 @@ export default function MarketingNav({
   useEffect(() => {
     const onScroll = () => setNavScrolled(window.scrollY > 8);
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -42,21 +40,21 @@ export default function MarketingNav({
     if (!drawer) return;
 
     const focusable = drawer.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
     );
     focusable[0]?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         e.preventDefault();
         setMobileMenuOpen(false);
         menuButtonRef.current?.focus();
         return;
       }
-      if (e.key !== 'Tab') return;
+      if (e.key !== "Tab") return;
 
       const items = drawer.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
       if (items.length === 0) return;
       const first = items[0];
@@ -71,24 +69,15 @@ export default function MarketingNav({
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [mobileMenuOpen]);
 
   const handleFeatures = () => {
     if (onFeaturesClick) {
       onFeaturesClick();
     } else {
-      router.push('/make-ebook#features');
-    }
-    setMobileMenuOpen(false);
-  };
-
-  const handlePricing = () => {
-    if (onPricingClick) {
-      onPricingClick();
-    } else {
-      router.push('/make-ebook#pricing');
+      router.push("/make-ebook#features");
     }
     setMobileMenuOpen(false);
   };
@@ -97,27 +86,32 @@ export default function MarketingNav({
     if (onMyBooksClick) {
       onMyBooksClick();
     } else {
-      router.push('/make-ebook');
+      router.push("/make-ebook");
     }
     setMobileMenuOpen(false);
   };
 
   const handleSignUp = () => {
-    router.push('/make-ebook/signin?mode=signup');
+    router.push("/make-ebook/signin?mode=signup");
     setMobileMenuOpen(false);
   };
 
   const handleSignIn = () => {
-    router.push('/make-ebook/signin?mode=signin');
+    router.push("/make-ebook/signin?mode=signin");
     setMobileMenuOpen(false);
   };
 
   const handleLogoClick = () => {
-    if (typeof window !== 'undefined' && window.location.pathname === '/make-ebook') {
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname === "/make-ebook"
+    ) {
+      const reduce = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
     } else {
-      router.push('/make-ebook');
+      router.push("/make-ebook");
     }
   };
 
@@ -125,19 +119,32 @@ export default function MarketingNav({
     <nav
       className={`sticky top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${
         navScrolled || mobileMenuOpen
-          ? 'bg-[#1e1e1e]/90 backdrop-blur-lg border-b border-[#2f2f2f]'
-          : 'bg-transparent border-b border-transparent'
+          ? "bg-[#1e1e1e]/90 backdrop-blur-lg border-b border-[#2f2f2f]"
+          : "bg-transparent border-b border-transparent"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-        <div className="flex items-center justify-between" style={{ height: '4.5rem' }}>
+        <div
+          className="flex items-center justify-between"
+          style={{ height: "4.5rem" }}
+        >
           <button
             onClick={handleLogoClick}
             className="flex items-center gap-2 hover:opacity-70 transition-opacity"
             aria-label="makeEbook home"
           >
-            <Image src="/make-ebook-logo.svg" alt="" width={22} height={22} className="invert" aria-hidden="true" />
-            <span className="font-serif font-bold text-white" style={{ fontSize: '1.0625rem', letterSpacing: '-0.02em' }}>
+            <Image
+              src="/make-ebook-logo.svg"
+              alt=""
+              width={22}
+              height={22}
+              className="invert"
+              aria-hidden="true"
+            />
+            <span
+              className="font-serif font-bold text-white"
+              style={{ fontSize: "1.0625rem", letterSpacing: "-0.02em" }}
+            >
               makeEbook
             </span>
           </button>
@@ -148,12 +155,6 @@ export default function MarketingNav({
               className="text-sm text-white/55 hover:text-white transition-colors"
             >
               Features
-            </button>
-            <button
-              onClick={handlePricing}
-              className="text-sm text-white/55 hover:text-white transition-colors"
-            >
-              Pricing
             </button>
             <Link
               href="/make-ebook/blog"
@@ -198,11 +199,15 @@ export default function MarketingNav({
             ref={menuButtonRef}
             className="md:hidden -mr-2 p-2 text-white"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileMenuOpen}
             aria-controls="marketing-mobile-menu"
           >
-            {mobileMenuOpen ? <X size={26} strokeWidth={1.75} /> : <Menu size={26} strokeWidth={1.75} />}
+            {mobileMenuOpen ? (
+              <X size={26} strokeWidth={1.75} />
+            ) : (
+              <Menu size={26} strokeWidth={1.75} />
+            )}
           </button>
         </div>
       </div>
@@ -219,18 +224,9 @@ export default function MarketingNav({
                 <button
                   onClick={handleFeatures}
                   className="block w-full text-left py-3 text-3xl font-bold text-white hover:opacity-70 transition-opacity"
-                  style={{ letterSpacing: '-0.025em' }}
+                  style={{ letterSpacing: "-0.025em" }}
                 >
                   Features
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={handlePricing}
-                  className="block w-full text-left py-3 text-3xl font-bold text-white hover:opacity-70 transition-opacity"
-                  style={{ letterSpacing: '-0.025em' }}
-                >
-                  Pricing
                 </button>
               </li>
               <li>
@@ -238,7 +234,7 @@ export default function MarketingNav({
                   href="/make-ebook/blog"
                   onClick={() => setMobileMenuOpen(false)}
                   className="block w-full text-left py-3 text-3xl font-bold text-white hover:opacity-70 transition-opacity"
-                  style={{ letterSpacing: '-0.025em' }}
+                  style={{ letterSpacing: "-0.025em" }}
                 >
                   Blog
                 </Link>
@@ -256,7 +252,10 @@ export default function MarketingNav({
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </button>
                   <button
-                    onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                    onClick={() => {
+                      signOut();
+                      setMobileMenuOpen(false);
+                    }}
                     className="block w-full text-center text-sm text-white/50 hover:text-white transition-colors"
                   >
                     Sign out

@@ -1,12 +1,10 @@
-// Generate a manuscript brief as one streaming call.
-// Streams NDJSON, one JSON object per chapter, separated by newlines.
+import { NextRequest, NextResponse } from "next/server";
+import { requireBriefAccess } from "@/lib/auth/requireBriefAccess";
+import { refundMonthlyBrief } from "@/lib/ai/briefGrant";
+import { streamWithFallback, SystemBlock } from "../_lib/anthropic";
 
-import { NextRequest, NextResponse } from 'next/server';
-import { requireProUser } from '../_lib/proAuth';
-import { streamWithFallback, SystemBlock } from '../_lib/anthropic';
+export const runtime = "nodejs";
 
-export const runtime = 'nodejs';
-// Serverless function timeout cap.
 export const maxDuration = 60;
 
 interface BriefRequest {
@@ -19,32 +17,46 @@ interface BriefRequest {
 const encoder = new TextEncoder();
 
 function ndjsonLine(obj: unknown): Uint8Array {
-  return encoder.encode(JSON.stringify(obj) + '\n');
+  return encoder.encode(JSON.stringify(obj) + "\n");
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireProUser(req);
+  const auth = await requireBriefAccess(req);
   if (!auth.ok) return auth.response!;
+
+  const refundIfGranted = async () => {
+    if (auth.usedFreeGrant && auth.user) await refundMonthlyBrief(auth.user.id);
+  };
 
   let body: BriefRequest;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    await refundIfGranted();
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 
   if (!body.chapters || body.chapters.length === 0) {
-    return NextResponse.json({ error: 'No chapters provided' }, { status: 400 });
+    await refundIfGranted();
+    return NextResponse.json(
+      { error: "No chapters provided" },
+      { status: 400 },
+    );
   }
 
-  // Manuscript block is marked as the prompt-cache breakpoint.
   const manuscriptBlock = body.chapters
-    .map((ch, i) => `[CHAPTER ${i + 1}] [${ch.type.toUpperCase()}] ${ch.title || `Chapter ${i + 1}`}\n${ch.content}`)
-    .join('\n\n---\n\n');
+    .map(
+      (ch, i) =>
+        `[CHAPTER ${i + 1}] [${ch.type.toUpperCase()}] ${ch.title || `Chapter ${i + 1}`}\n${ch.content}`,
+    )
+    .join("\n\n---\n\n");
 
   const systemBlocks: SystemBlock[] = [
     {
-      type: 'text',
+      type: "text",
       text: `You are Book Mind's indexer. Your job is to read a complete manuscript and emit one structured summary per chapter, in order. The output is consumed by an editorial AI that uses these summaries to ground its answers without re-reading the whole book.
 
 Output format: NDJSON, one chapter per line. Each line MUST be a single valid JSON object of exactly this shape:
@@ -61,49 +73,54 @@ Rules:
 Begin emitting NDJSON immediately. Do not include any text before the first JSON object.`,
     },
     {
-      type: 'text',
+      type: "text",
       text: `Book metadata:
-- Title: ${body.title || 'Untitled'}
-- Author: ${body.author || 'Unknown'}
-- Genre: ${body.genre || 'Not specified'}
+- Title: ${body.title || "Untitled"}
+- Author: ${body.author || "Unknown"}
+- Genre: ${body.genre || "Not specified"}
 - ${body.chapters.length} chapters total
 
 === MANUSCRIPT ===
 ${manuscriptBlock}
 === END ===`,
-      cache_control: { type: 'ephemeral' },
+      cache_control: { type: "ephemeral" },
     },
   ];
 
   const stream = new ReadableStream({
     async start(controller) {
-      // Buffer text deltas across newlines so we can re-emit complete NDJSON lines.
-      let buffer = '';
+      let buffer = "";
       try {
         for await (const delta of streamWithFallback({
-          tier: 'live',
+          tier: "live",
           systemBlocks,
           messages: [
-            { role: 'user', content: 'Index this manuscript now. Begin emitting one JSON line per chapter.' },
+            {
+              role: "user",
+              content:
+                "Index this manuscript now. Begin emitting one JSON line per chapter.",
+            },
           ],
           maxTokens: 8192,
           temperature: 0.2,
-          label: 'brief',
+          label: "brief",
         })) {
           buffer += delta;
-          const lines = buffer.split('\n');
-          buffer = lines.pop() ?? '';
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
           for (const line of lines) {
             const trimmed = line.trim();
             if (!trimmed) continue;
-            controller.enqueue(encoder.encode(trimmed + '\n'));
+            controller.enqueue(encoder.encode(trimmed + "\n"));
           }
         }
         const trailing = buffer.trim();
-        if (trailing) controller.enqueue(encoder.encode(trailing + '\n'));
+        if (trailing) controller.enqueue(encoder.encode(trailing + "\n"));
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Brief generation failed';
-        controller.enqueue(ndjsonLine({ type: 'error', error: message }));
+        const message =
+          err instanceof Error ? err.message : "Brief generation failed";
+        await refundIfGranted();
+        controller.enqueue(ndjsonLine({ type: "error", error: message }));
       } finally {
         controller.close();
       }
@@ -112,9 +129,9 @@ ${manuscriptBlock}
 
   return new Response(stream, {
     headers: {
-      'Content-Type': 'application/x-ndjson',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
+      "Content-Type": "application/x-ndjson",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
     },
   });
 }

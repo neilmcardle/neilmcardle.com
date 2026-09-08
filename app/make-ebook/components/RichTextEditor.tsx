@@ -16,7 +16,7 @@ import Image from "next/image";
 import DOMPurify from "dompurify";
 import { useTheme } from "../../../lib/contexts/ThemeContext";
 import EditorContextMenu, { ContextMenuGroup } from "./EditorContextMenu";
-import { useIsMac } from "./marketing/sections-v2/PlatformKey";
+import { useIsMac } from "./PlatformKey";
 
 interface RichTextEditorProps extends Omit<
   HTMLAttributes<HTMLDivElement>,

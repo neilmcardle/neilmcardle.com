@@ -16,7 +16,7 @@ type Block =
     }
   | { kind: "component"; name: string; attrs: Record<string, string> }
   | { kind: "heading"; level: 3 | 4; text: string }
-  | { kind: "list"; ordered: boolean; items: string[] }
+  | { kind: "list"; ordered: boolean; items: ListItem[] }
   | { kind: "checklist"; items: string[] }
   | { kind: "table"; head: string[]; rows: string[][] }
   | { kind: "rule" }
@@ -25,9 +25,15 @@ type Block =
 const FENCE = /^```(\S*)\s*(.*)$/;
 const COMPONENT_TAG = /^<([A-Z]\w*)([\s\S]*?)\/>\s*$/;
 const HEADING = /^(#{3,4})\s+(.*)$/;
+interface ListItem {
+  text: string;
+  children: string[];
+}
+
 const UNORDERED = /^[-*]\s+(.+)$/;
 const TASK = /^\s*[-*]\s+\[([ xX])\]\s+(.+)$/;
 const ORDERED = /^\d+[.)]\s+(.+)$/;
+const SUB_ITEM = /^\s{1,}[-*]\s+(.+)$/;
 const TABLE_ROW = /^\|(.+)\|\s*$/;
 const TABLE_DIVIDER = /^\|[\s:|-]+\|\s*$/;
 const RULE = /^(---|\*\*\*|___)\s*$/;
@@ -202,21 +208,50 @@ function parseBlocks(source: string): Block[] {
     if (unordered || ordered) {
       closeParagraph();
       const isOrdered = Boolean(ordered);
-      const items: string[] = [];
+      const items: ListItem[] = [];
+      const matchItem = (candidate: string) =>
+        isOrdered ? candidate.match(ORDERED) : candidate.match(UNORDERED);
+
       while (i < lines.length) {
-        const itemMatch = isOrdered
-          ? lines[i].match(ORDERED)
-          : lines[i].match(UNORDERED);
+        const itemMatch = matchItem(lines[i]);
         if (itemMatch) {
-          items.push(itemMatch[1].trim());
+          items.push({ text: itemMatch[1].trim(), children: [] });
           i++;
           continue;
         }
+
+        const sub = lines[i].match(SUB_ITEM);
+        if (sub && items.length > 0) {
+          items[items.length - 1].children.push(sub[1].trim());
+          i++;
+          continue;
+        }
+
         if (/^\s{2,}\S/.test(lines[i]) && items.length > 0) {
-          items[items.length - 1] += ` ${lines[i].trim()}`;
+          const last = items[items.length - 1];
+          if (last.children.length > 0) {
+            last.children[last.children.length - 1] += ` ${lines[i].trim()}`;
+          } else {
+            last.text += ` ${lines[i].trim()}`;
+          }
           i++;
           continue;
         }
+
+        if (lines[i].trim() === "") {
+          let ahead = i + 1;
+          while (ahead < lines.length && lines[ahead].trim() === "") ahead++;
+          const continues =
+            ahead < lines.length &&
+            (matchItem(lines[ahead]) !== null ||
+              SUB_ITEM.test(lines[ahead]) ||
+              /^\s{2,}\S/.test(lines[ahead]));
+          if (continues) {
+            i = ahead;
+            continue;
+          }
+        }
+
         break;
       }
       blocks.push({ kind: "list", ordered: isOrdered, items });
@@ -367,41 +402,54 @@ export function LessonContent({
               />
             );
 
-          case "list":
-            return block.ordered ? (
-              <ol key={i} className="my-5 flex list-none flex-col gap-2.5 pl-0">
+          case "list": {
+            const Tag = block.ordered ? "ol" : "ul";
+            return (
+              <Tag
+                key={i}
+                className="my-5 flex list-none flex-col gap-2.5 pl-0"
+              >
                 {block.items.map((item, j) => (
                   <li
                     key={j}
                     className="grid grid-cols-[26px_minmax(0,1fr)] gap-3"
                   >
-                    <span className="pt-0.5 text-right spark-mono text-[12px] text-[var(--spark-gold-ink)]">
-                      {j + 1}
-                    </span>
+                    {block.ordered ? (
+                      <span className="pt-0.5 text-right spark-mono text-[12px] tabular-nums text-[var(--spark-gold-ink)]">
+                        {j + 1}
+                      </span>
+                    ) : (
+                      <span
+                        aria-hidden
+                        className="mt-[11px] h-[5px] w-[5px] justify-self-end rounded-full bg-[var(--spark-gold-deep)]"
+                      />
+                    )}
                     <span className="text-[16px] leading-[1.72] text-[#44423e]">
-                      {renderInline(item, `ol${i}-${j}`)}
+                      {renderInline(item.text, `li${i}-${j}`)}
+                      {item.children.length > 0 && (
+                        <span className="mt-2 flex list-none flex-col gap-1.5">
+                          {item.children.map((child, k) => (
+                            <span
+                              key={k}
+                              className="grid grid-cols-[16px_minmax(0,1fr)] gap-2.5"
+                            >
+                              <span
+                                aria-hidden
+                                className="mt-[10px] h-[4px] w-[4px] justify-self-end rounded-full bg-[var(--spark-faint)]"
+                              />
+                              <span className="text-[15px] leading-[1.68] text-[var(--spark-muted)]">
+                                {renderInline(child, `li${i}-${j}-${k}`)}
+                              </span>
+                            </span>
+                          ))}
+                        </span>
+                      )}
                     </span>
                   </li>
                 ))}
-              </ol>
-            ) : (
-              <ul key={i} className="my-5 flex list-none flex-col gap-2.5 pl-0">
-                {block.items.map((item, j) => (
-                  <li
-                    key={j}
-                    className="grid grid-cols-[26px_minmax(0,1fr)] gap-3"
-                  >
-                    <span
-                      aria-hidden
-                      className="mt-[11px] h-[5px] w-[5px] justify-self-end rounded-full bg-[var(--spark-gold-deep)]"
-                    />
-                    <span className="text-[16px] leading-[1.72] text-[#44423e]">
-                      {renderInline(item, `ul${i}-${j}`)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              </Tag>
             );
+          }
 
           case "table":
             return (

@@ -6,7 +6,7 @@ import AutoSaveIndicator from "./AutoSaveIndicator";
 import ChapterNavDropdown from "./ChapterNavDropdown";
 import ModeMenu from "./ModeMenu";
 import LayoutSwitcher, { RightPanelMode } from "./LayoutSwitcher";
-import { useIsMac } from "./marketing/sections-v2/PlatformKey";
+import { useIsMac } from "./PlatformKey";
 import {
   DropdownMenu,
   DropdownMenuContent,

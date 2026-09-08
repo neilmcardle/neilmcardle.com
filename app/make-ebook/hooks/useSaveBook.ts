@@ -12,6 +12,7 @@ import {
   saveBookToLibrary,
   removeBookFromLibrary,
 } from "../utils/bookLibrary";
+import { toStoredCover } from "../utils/assetStore";
 import {
   ensureChapterIds,
   migrateEndnoteReferences,
@@ -194,16 +195,21 @@ export function useSaveBook({
             : previousMemory,
       };
 
+      const localBookData = {
+        ...bookData,
+        coverFile: await toStoredCover(coverUrl),
+      };
+
       let id: string;
       try {
-        id = saveBookToLibrary(user?.id ?? "", bookData);
+        id = saveBookToLibrary(user?.id ?? "", localBookData);
       } catch (storageErr) {
         console.error("localStorage save failed:", storageErr);
         setDialogState({
           open: true,
-          title: "Storage Full",
+          title: "Out of local storage",
           message:
-            "Your browser storage is full. Try deleting old books from your library to free up space.",
+            "This browser hit its storage limit, so the save did not finish. Version history is usually what fills it, since every save keeps a full copy of the book. Clearing history on older books frees the most room.",
           variant: "alert",
           onConfirm: () => setDialogState((prev) => ({ ...prev, open: false })),
         });
@@ -232,7 +238,7 @@ export function useSaveBook({
         );
         if (supabaseData?.id && supabaseData.id !== id) {
           removeBookFromLibrary(user.id, id);
-          saveBookToLibrary(user.id, { ...bookData, id: supabaseData.id });
+          saveBookToLibrary(user.id, { ...localBookData, id: supabaseData.id });
           setCurrentBookId(supabaseData.id);
           setLibraryBooks(loadBookLibrary(user.id));
         }

@@ -10,7 +10,7 @@ import React, {
 import { createPortal } from "react-dom";
 import { useBookMind } from "../../hooks/useBookMind";
 import { toast } from "sonner";
-import { useIsMac } from "../marketing/sections-v2/PlatformKey";
+import { useIsMac } from "../PlatformKey";
 import InlineEditSheet from "./InlineEditSheet";
 import { Spinner } from "../Spinner";
 

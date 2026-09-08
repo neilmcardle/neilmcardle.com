@@ -25,6 +25,8 @@ export const users = pgTable("users", {
   stripePriceId: text("stripe_price_id"),
   hasLifetimeAccess: boolean("has_lifetime_access").default(false).notNull(),
   lifetimePaymentId: text("lifetime_payment_id"),
+
+  aiBriefUsedAt: timestamp("ai_brief_used_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

@@ -1,15 +1,21 @@
 "use client";
 import { useState } from "react";
-import type { FocusSettings, ColumnWidth, AmbientSound } from "../hooks/useFocusMode";
-import { useIsMac } from "./marketing/sections-v2/PlatformKey";
+import type {
+  FocusSettings,
+  ColumnWidth,
+  AmbientSound,
+} from "../hooks/useFocusMode";
+import { useIsMac } from "./PlatformKey";
 
 interface Props {
   settings: FocusSettings;
-  onChangeSetting: <K extends keyof FocusSettings>(key: K, value: FocusSettings[K]) => void;
+  onChangeSetting: <K extends keyof FocusSettings>(
+    key: K,
+    value: FocusSettings[K],
+  ) => void;
   onExit: () => void;
 }
 
-// ── Toggle row ────────────────────────────────────────────────────────────────
 function Toggle({
   label,
   description,
@@ -26,7 +32,9 @@ function Toggle({
       <div className="min-w-0">
         <p className="text-sm text-white/90 leading-tight">{label}</p>
         {description && (
-          <p className="text-xs text-white/45 mt-1 leading-tight">{description}</p>
+          <p className="text-xs text-white/45 mt-1 leading-tight">
+            {description}
+          </p>
         )}
       </div>
       <button
@@ -53,23 +61,20 @@ const COL_OPTIONS: { value: ColumnWidth; label: string }[] = [
 ];
 
 const SOUND_OPTIONS: { value: AmbientSound; label: string }[] = [
-  { value: "none",        label: "Off"         },
-  { value: "pink-noise",  label: "Pink noise"  },
-  { value: "rain-light",  label: "Rain light"  },
+  { value: "none", label: "Off" },
+  { value: "pink-noise", label: "Pink noise" },
+  { value: "rain-light", label: "Rain light" },
   { value: "rain-medium", label: "Rain medium" },
-  { value: "waves",       label: "Waves"       },
-  { value: "fire",        label: "Fire"        },
-  { value: "train",       label: "Train"       },
+  { value: "waves", label: "Waves" },
+  { value: "fire", label: "Fire" },
+  { value: "train", label: "Train" },
 ];
 
-// ── Floating panel (shown when focus mode is active) ─────────────────────────
-// Positioned top-right so it's easy to find after entering focus mode.
 export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
     <div className="fixed top-4 right-4 z-[90] flex flex-col items-end gap-2 select-none">
-      {/* The always-visible focus pill — top right */}
       <button
         onClick={() => setOpen((p) => !p)}
         title={open ? "Close settings" : "Focus settings"}
@@ -93,11 +98,8 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
         {open ? "Done" : "Focus"}
       </button>
 
-      {/* Settings panel */}
       {open && (
         <div className="w-64 rounded-2xl bg-[#161616] backdrop-blur-xl border border-white/20 shadow-2xl p-4 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
-
-          {/* Interface toggles */}
           <p className="text-2xs font-semibold text-white/45 uppercase tracking-widest mb-2">
             Interface
           </p>
@@ -114,7 +116,6 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
             onChange={(v) => onChangeSetting("hideChrome", v)}
           />
 
-          {/* Column width */}
           <div className="py-2.5 border-b border-white/10">
             <p className="text-sm text-white/90 mb-2">Column width</p>
             <div className="flex items-center gap-2 p-1 rounded-full bg-white/8 border border-white/10">
@@ -134,7 +135,6 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
             </div>
           </div>
 
-          {/* Writing toggles */}
           <p className="text-2xs font-semibold text-white/45 uppercase tracking-widest mt-3 mb-2">
             Writing
           </p>
@@ -151,7 +151,6 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
             onChange={(v) => onChangeSetting("paragraphFocus", v)}
           />
 
-          {/* Ambient sound */}
           <p className="text-2xs font-semibold text-white/45 uppercase tracking-widest mt-3 mb-2">
             Ambient sound
           </p>
@@ -179,7 +178,9 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
                 max={1}
                 step={0.02}
                 value={settings.ambientVolume}
-                onChange={(e) => onChangeSetting("ambientVolume", parseFloat(e.target.value))}
+                onChange={(e) =>
+                  onChangeSetting("ambientVolume", parseFloat(e.target.value))
+                }
                 className="flex-1 h-1 accent-white cursor-pointer"
               />
               <span className="text-white/50 text-2xs w-7 text-right">
@@ -188,7 +189,6 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
             </div>
           )}
 
-          {/* Exit — clearly labelled as leaving focus mode, not closing the panel */}
           <div className="border-t border-white/10 mt-4 pt-3">
             <button
               onClick={onExit}
@@ -199,18 +199,16 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
           </div>
         </div>
       )}
-
     </div>
   );
 }
 
-// ── Entry button for the status bar (when NOT in focus mode) ──────────────────
 export function FocusModeButton({ onClick }: { onClick: () => void }) {
   const isMac = useIsMac();
   return (
     <button
       onClick={onClick}
-      title={`Enter focus mode  ${isMac ? '⌘⇧F' : 'Ctrl+Shift+F'}`}
+      title={`Enter focus mode  ${isMac ? "⌘⇧F" : "Ctrl+Shift+F"}`}
       className="flex items-center gap-2 px-3 h-10 rounded-lg bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors group"
     >
       <svg

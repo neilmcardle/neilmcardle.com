@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import { toDisplayCover } from "../utils/assetStore";
+import { clearVersions, versionKey } from "../utils/versionStore";
 import { uuidv4 } from "../utils/uuid";
 import { Endnote, EndnoteReference } from "../types";
 import { exportEpub } from "../utils/exportEpub";
@@ -100,7 +102,10 @@ export function useLibrary({
       setShowMarketingPage(false);
       loadMetadata({ ...loaded, id: loaded.id });
       setTags(loaded.tags || []);
-      setCoverUrl(loaded.coverFile || null);
+      setCoverUrl(null);
+      void toDisplayCover(loaded.coverFile).then((cover) => {
+        setCoverUrl(cover);
+      });
 
       const loadedChapters =
         loaded.chapters &&
@@ -183,11 +188,7 @@ export function useLibrary({
         removeBookFromLibrary(user?.id ?? "", id);
         setLibraryBooks(loadBookLibrary(user?.id ?? ""));
 
-        try {
-          localStorage.removeItem(`makeebook-versions-${id}`);
-        } catch (e) {
-          /* non-critical */
-        }
+        void clearVersions(versionKey(user?.id, id));
         cleanupExportHistory(id);
 
         if (currentBookId === id) {
@@ -228,11 +229,7 @@ export function useLibrary({
 
           removeBookFromLibrary(user?.id ?? "", id);
 
-          try {
-            localStorage.removeItem(`makeebook-versions-${id}`);
-          } catch (e) {
-            /* non-critical */
-          }
+          void clearVersions(versionKey(user?.id, id));
           cleanupExportHistory(id);
 
           if (currentBookId === id) {
