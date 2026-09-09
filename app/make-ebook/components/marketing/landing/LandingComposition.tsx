@@ -111,7 +111,7 @@ export default function LandingComposition({
 
       <main>
         <section
-          className={`${SHELL} pt-24 pb-28 sm:pt-32 sm:pb-36 text-center`}
+          className={`${SHELL} pt-14 pb-20 sm:pt-32 sm:pb-36 text-center`}
         >
           <Image
             src="/make-ebook-logo.svg"
@@ -122,19 +122,19 @@ export default function LandingComposition({
             aria-hidden="true"
           />
           <h1
-            className="mx-auto mt-10 max-w-[15ch] font-serif font-bold text-white text-balance"
+            className="mx-auto mt-8 max-w-[15ch] font-serif font-bold text-white text-balance"
             style={SECTION_TIERS.cinematic.title}
           >
             Built for the writers who finish.
           </h1>
           <p
-            className="mx-auto mt-7 max-w-[52ch] text-lg sm:text-xl text-white/65 text-pretty"
+            className="mx-auto mt-5 max-w-[52ch] text-base sm:text-xl text-white/65 text-pretty"
             style={BODY}
           >
             Write, format, and export Kindle-ready books. Book Mind AI reads
             your whole manuscript and keeps your listing safe on Amazon.
           </p>
-          <div className="mt-11">
+          <div className="mt-8 sm:mt-11">
             <button
               onClick={startWriting}
               className="px-8 py-4 text-base sm:text-lg font-semibold bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
@@ -147,7 +147,7 @@ export default function LandingComposition({
           </div>
         </section>
 
-        <section className={`${SHELL} pb-28 sm:pb-36`}>
+        <section className={`${SHELL} pb-20 sm:pb-36`}>
           <div className="mx-auto max-w-[46ch] text-center">
             <div className={EYEBROW}>The editor</div>
             <h2
@@ -161,7 +161,7 @@ export default function LandingComposition({
               device.
             </p>
           </div>
-          <div className="mt-14 sm:mt-16">
+          <div className="mt-10 sm:mt-16">
             <ReaderSpreadVisual />
           </div>
         </section>
@@ -181,7 +181,7 @@ export default function LandingComposition({
 
         <FaqSection />
 
-        <section className="relative overflow-hidden bg-[#141413] text-[#faf9f5] py-28 sm:py-40 text-center">
+        <section className="relative overflow-hidden bg-[#141413] text-[#faf9f5] py-20 sm:py-40 text-center">
           <div
             aria-hidden
             className="hidden sm:block absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 font-serif italic font-bold leading-none pointer-events-none z-0 text-white"
@@ -226,7 +226,7 @@ export default function LandingComposition({
 
       <footer className="border-t border-[#2f2f2f]">
         <div
-          className={`${SHELL} flex flex-wrap items-center gap-x-8 gap-y-3 py-7 text-sm text-white/35`}
+          className={`${SHELL} flex flex-wrap items-center gap-x-5 gap-y-2 sm:gap-x-8 sm:gap-y-3 py-7 text-sm text-white/35`}
         >
           <span>&copy; makeEbook {new Date().getFullYear()}</span>
           <Link
@@ -254,7 +254,7 @@ export default function LandingComposition({
           >
             Cookie preferences
           </button>
-          <span className="ml-auto">
+          <span className="w-full sm:w-auto sm:ml-auto">
             A{" "}
             <a
               href="https://neilmcardle.com"
@@ -281,9 +281,8 @@ function FeatureRow({
 }) {
   return (
     <section id={anchor} className={SHELL} style={{ scrollMarginTop: "5rem" }}>
-      <div className="grid items-center gap-10 py-14 sm:py-16 lg:min-h-[744px] lg:grid-cols-2 lg:gap-16 lg:py-14">
-        <div className={flip ? "lg:order-2" : ""}>{row.visual}</div>
-        <div className={flip ? "lg:order-1" : ""}>
+      <div className="grid items-center gap-7 py-10 sm:gap-10 sm:py-14 lg:min-h-[744px] lg:grid-cols-2 lg:gap-16 lg:py-14">
+        <div className={flip ? "lg:order-1" : "lg:order-2"}>
           <div className={EYEBROW}>{row.eyebrow}</div>
           <h3
             className="mt-3 font-serif font-bold text-white text-balance"
@@ -292,12 +291,13 @@ function FeatureRow({
             {row.title}
           </h3>
           <p
-            className="mt-5 max-w-[46ch] text-lg text-white/65 text-pretty"
+            className="mt-4 max-w-[46ch] text-base sm:text-lg text-white/65 text-pretty"
             style={BODY}
           >
             {row.body}
           </p>
         </div>
+        <div className={flip ? "lg:order-2" : "lg:order-1"}>{row.visual}</div>
       </div>
     </section>
   );

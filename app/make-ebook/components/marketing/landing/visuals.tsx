@@ -217,15 +217,15 @@ export function CoversVisual() {
       bg: "#1a2540",
       fg: "#f5ecd5",
       r: -8,
-      x: -34,
+      x: -30,
       y: 8,
       z: 1,
     },
     {
       t: "A Quiet Conspiracy of Moths",
       a: "Mehta",
-      bg: "#7a1a1a",
-      fg: "#f5e8c7",
+      bg: "#f0e9da",
+      fg: "#3a2d14",
       r: 0,
       x: 0,
       y: 0,
@@ -237,7 +237,7 @@ export function CoversVisual() {
       bg: "#0e3a2e",
       fg: "#e8d7a8",
       r: 8,
-      x: 34,
+      x: 30,
       y: 8,
       z: 2,
     },
@@ -245,7 +245,7 @@ export function CoversVisual() {
 
   return (
     <Slot>
-      <div className="relative w-[70%] aspect-[2/3]">
+      <div className="relative w-[56%] sm:w-[64%] aspect-[2/3]">
         {books.map((b) => (
           <div
             key={b.a}
@@ -293,9 +293,6 @@ export function ExportVisual() {
           <div
             key={name}
             className={`${PANEL} flex items-center gap-4 px-5 py-4`}
-            style={{
-              transform: `translateX(${i === 1 ? 34 : i === 2 ? 17 : 0}px)`,
-            }}
           >
             <span
               className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center font-mono text-[10px] font-semibold ${
@@ -368,8 +365,8 @@ export function ReaderSpreadVisual() {
   ];
 
   return (
-    <div className="relative mx-auto w-full max-w-[1075px] aspect-[16/9]">
-      <div className="absolute inset-0 rounded-[20px] overflow-hidden flex flex-col bg-[#f7f4ea] shadow-[0_50px_120px_-40px_rgba(0,0,0,0.9)]">
+    <div className="relative mx-auto w-full max-w-[1075px] sm:aspect-[16/9]">
+      <div className="sm:absolute sm:inset-0 rounded-[20px] overflow-hidden flex flex-col bg-[#f7f4ea] shadow-[0_50px_120px_-40px_rgba(0,0,0,0.9)]">
         <div className="flex items-center justify-center px-5 py-3.5 border-b border-gray-200 bg-white/60">
           <span
             className="text-[12.5px] text-gray-500 italic"
@@ -400,7 +397,7 @@ export function ReaderSpreadVisual() {
             {body.map((p, i) => (
               <p
                 key={i}
-                className={`mb-3.5 text-justify ${
+                className={`mb-3.5 text-justify ${i > 1 ? "hidden sm:block" : ""} ${
                   i === 0
                     ? "first-letter:font-serif first-letter:font-bold first-letter:text-[58px] first-letter:float-left first-letter:leading-[0.8] first-letter:mr-2.5 first-letter:mt-1 first-letter:text-gray-900"
                     : "indent-[1.5em]"

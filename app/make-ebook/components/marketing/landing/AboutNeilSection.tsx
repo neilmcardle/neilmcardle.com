@@ -67,7 +67,7 @@ export default function AboutNeilSection() {
                 Built by someone who lived the pain.
               </h2>
               <div
-                className="space-y-5 text-white/65"
+                className="space-y-5 text-white/65 text-pretty"
                 style={{
                   fontFamily: "Georgia, serif",
                   fontSize: 17,

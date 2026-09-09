@@ -112,7 +112,7 @@ export default function ComparisonSection() {
           <div>
             <div className={EYEBROW}>Why not just use&hellip;</div>
             <h2
-              className="mt-3 font-serif font-bold text-white"
+              className="mt-3 font-serif font-bold text-white text-balance"
               style={SECTION_TIERS.standard.title}
             >
               The tools you&rsquo;ve tried, honestly compared.
@@ -163,7 +163,7 @@ export default function ComparisonSection() {
           </div>
 
           <div className="lg:hidden mt-10 space-y-4">
-            {ROWS.map((r) => (
+            {ROWS.filter((r) => r.feat === "Price to start").map((r) => (
               <div key={r.feat} className={`${PANEL} p-5`}>
                 <div className="font-medium text-white/85">{r.feat}</div>
                 <div className="text-[12px] text-white/35 mt-1 mb-4">
