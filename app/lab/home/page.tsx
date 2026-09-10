@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomepageLab() {
-  return <HomeShell refresh />;
+  return <HomeShell refresh dock />;
 }

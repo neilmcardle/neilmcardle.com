@@ -15,7 +15,7 @@ function audioContext() {
   return context;
 }
 
-export function createSample(src: string) {
+export function createSample(src: string, enabled: () => boolean = isSoundOn) {
   let buffer: AudioBuffer | null = null;
   let loading: Promise<void> | null = null;
 
@@ -39,7 +39,7 @@ export function createSample(src: string) {
       ensure();
     },
     play(volume = 0.25) {
-      if (!isSoundOn()) return;
+      if (!enabled()) return;
       const ctx = ensure();
       if (!ctx || !buffer) return;
       if (ctx.state === "suspended") void ctx.resume();

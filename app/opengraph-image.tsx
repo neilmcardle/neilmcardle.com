@@ -79,7 +79,7 @@ export default async function OpenGraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "64px 72px",
+          padding: "64px 72px 136px",
         }}
       >
         <svg width="52" height="52" viewBox="0 0 63 63">

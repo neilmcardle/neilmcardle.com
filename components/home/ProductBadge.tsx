@@ -2,7 +2,7 @@ import { useId } from "react";
 import { SPARK_MARK_PATH } from "@/components/spark/SparkMark";
 import styles from "./home.module.css";
 
-type BadgeKey = "makeebook" | "coverly" | "doodlewire" | "spark";
+export type BadgeKey = "makeebook" | "coverly" | "doodlewire" | "spark";
 
 const SHADOW_MATRIX = "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0";
 const SHADOW_COLOUR = "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0";

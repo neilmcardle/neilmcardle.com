@@ -1,5 +1,5 @@
 import HomeShell from "@/components/home/HomeShell";
 
 export default function Homepage() {
-  return <HomeShell refresh />;
+  return <HomeShell refresh dock />;
 }

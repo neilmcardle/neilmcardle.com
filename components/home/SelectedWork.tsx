@@ -3,14 +3,11 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import styles from "./home.module.css";
-import {
-  HomepageProjectPreview,
-  type ProjectKey,
-} from "@/components/HomepageProjectPreview";
-import ProductBadge from "./ProductBadge";
+import { HomepageProjectPreview } from "@/components/HomepageProjectPreview";
+import ProductBadge, { type BadgeKey } from "./ProductBadge";
 
-const FEATURES: {
-  tileKey: ProjectKey;
+export type Feature = {
+  tileKey: BadgeKey;
   category: string;
   name: string;
   description: string;
@@ -20,7 +17,9 @@ const FEATURES: {
   external?: boolean;
   appleIcon?: boolean;
   reverse?: boolean;
-}[] = [
+};
+
+export const FEATURES: Feature[] = [
   {
     tileKey: "makeebook",
     category: "Writing platform",
@@ -95,7 +94,7 @@ function ProductFeature({
   status,
   appleIcon,
   reverse,
-}: (typeof FEATURES)[number]) {
+}: Feature) {
   const mediaInner = (
     <div className="block w-full">
       <div className="relative flex items-center justify-center">
@@ -187,24 +186,12 @@ function ProductFeature({
             {description}
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3">
-            {external ? (
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={CTA_CLS}
-                style={CTA_STYLE}
-              >
-                {appleIcon && <AppleGlyph />}
-                {linkLabel}
-                <CtaArrow />
-              </a>
-            ) : (
-              <Link href={href} className={CTA_CLS} style={CTA_STYLE}>
-                {linkLabel}
-                <CtaArrow />
-              </Link>
-            )}
+            <ProductLink
+              href={href}
+              external={external}
+              linkLabel={linkLabel}
+              appleIcon={appleIcon}
+            />
           </div>
         </div>
       </Collapse>
@@ -248,21 +235,89 @@ function Collapse({
   );
 }
 
+export function ProductDetail({ feature }: { feature: Feature }) {
+  return (
+    <div className={styles.dockSplit}>
+      <div className={styles.dockSide}>
+        <ProductBadge badge={feature.tileKey} size={40} />
+        <h2 className={styles.dockTitle}>{feature.name}</h2>
+        <dl className={styles.dockFacts}>
+          <div>
+            <dt>Type</dt>
+            <dd>{feature.category}</dd>
+          </div>
+          {feature.status && (
+            <div>
+              <dt>Status</dt>
+              <dd>{feature.status}</dd>
+            </div>
+          )}
+          <div>
+            <dt>About</dt>
+            <dd>{feature.description}</dd>
+          </div>
+        </dl>
+        <div className={styles.dockSideLink}>
+          <ProductLink
+            href={feature.href}
+            external={feature.external}
+            linkLabel={feature.linkLabel}
+            appleIcon={feature.appleIcon}
+          />
+        </div>
+      </div>
+      <div className={styles.dockGallery}>
+        <div className={styles.dockShot}>
+          <HomepageProjectPreview
+            k={feature.tileKey}
+            sizes="(max-width: 760px) 100vw, (max-width: 1048px) calc(100vw - 400px), 648px"
+            bare
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProductLink({
+  href,
+  external,
+  linkLabel,
+  appleIcon,
+}: Pick<Feature, "href" | "external" | "linkLabel" | "appleIcon">) {
+  return external ? (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={CTA_CLS}
+      style={CTA_STYLE}
+    >
+      {appleIcon && <AppleGlyph />}
+      {linkLabel}
+      <CtaArrow />
+    </a>
+  ) : (
+    <Link href={href} className={CTA_CLS} style={CTA_STYLE}>
+      {linkLabel}
+      <CtaArrow />
+    </Link>
+  );
+}
+
 function NameBlock({
   tileKey,
   name,
   className,
 }: {
-  tileKey: ProjectKey;
+  tileKey: BadgeKey;
   name: string;
   className: string;
 }) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <span className="flex-shrink-0 leading-none">
-        <ProductBadge
-          badge={tileKey as "makeebook" | "coverly" | "doodlewire" | "spark"}
-        />
+        <ProductBadge badge={tileKey} />
       </span>
       <h3
         className={styles.workName}

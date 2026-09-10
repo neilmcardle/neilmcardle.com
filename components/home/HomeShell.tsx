@@ -1,18 +1,26 @@
 "use client";
 
-import { useLayoutEffect, useState, useSyncExternalStore } from "react";
+import { useLayoutEffect, useSyncExternalStore } from "react";
 import styles from "./home.module.css";
 import Image from "next/image";
+import CopyEmail from "./CopyEmail";
 import DotField from "./DotField";
 import GlowField from "./GlowField";
 import LiveSentence from "./LiveSentence";
+import ProductDock from "./ProductDock";
 import SelectedWork from "./SelectedWork";
 import SiteMenu from "./SiteMenu";
 import MotionToggle from "./MotionToggle";
 import { motionEnabled, subscribeMotion } from "./motion";
 import { syncTheme } from "./theme";
 
-export default function HomeShell({ refresh = false }: { refresh?: boolean }) {
+export default function HomeShell({
+  refresh = false,
+  dock = false,
+}: {
+  refresh?: boolean;
+  dock?: boolean;
+}) {
   const moving = useSyncExternalStore(
     subscribeMotion,
     motionEnabled,
@@ -23,14 +31,12 @@ export default function HomeShell({ refresh = false }: { refresh?: boolean }) {
     if (refresh) syncTheme();
   }, [refresh]);
 
+  const pageClass = refresh
+    ? `${styles.page} ${styles.glass} ${styles.themed}`
+    : styles.page;
+
   return (
-    <div
-      className={
-        refresh
-          ? `${styles.page} ${styles.glass} ${styles.themed}`
-          : styles.page
-      }
-    >
+    <div className={dock ? `${pageClass} ${styles.dockPage}` : pageClass}>
       <SiteMenu themeToggle={refresh} />
       <MotionToggle />
 
@@ -41,6 +47,7 @@ export default function HomeShell({ refresh = false }: { refresh?: boolean }) {
           ) : (
             <DotField className={styles.heroDots} count={32} paused={!moving} />
           )}
+          {dock && <div className={styles.dockGrid} aria-hidden="true" />}
 
           <div className={styles.profile}>
             <div className={styles.profileTop}>
@@ -97,39 +104,45 @@ export default function HomeShell({ refresh = false }: { refresh?: boolean }) {
           </div>
         </header>
 
-        <section id="work" className={styles.work}>
-          <div className={styles.sectionHead}>
-            <span className={styles.sectionNum} aria-hidden="true">
-              01
-            </span>
-            <span className={styles.sectionLabel}>
-              A few things I&rsquo;m building
-            </span>
-            <span className={styles.rule} />
-          </div>
+        {!dock && (
+          <>
+            <section id="work" className={styles.work}>
+              <div className={styles.sectionHead}>
+                <span className={styles.sectionNum} aria-hidden="true">
+                  01
+                </span>
+                <span className={styles.sectionLabel}>
+                  A few things I&rsquo;m building
+                </span>
+                <span className={styles.rule} />
+              </div>
 
-          <SelectedWork />
-        </section>
+              <SelectedWork />
+            </section>
 
-        <section id="contact" className={styles.tellMore}>
-          <div className={styles.tellMoreDots} aria-hidden="true" />
+            <section id="contact" className={styles.tellMore}>
+              <div className={styles.tellMoreDots} aria-hidden="true" />
 
-          <div className={styles.sectionHead}>
-            <span className={styles.sectionNum} aria-hidden="true">
-              02
-            </span>
-            <span className={styles.sectionLabel}>
-              Contact me, I promise I&rsquo;ll read it
-            </span>
-            <span className={styles.rule} />
-          </div>
+              <div className={styles.sectionHead}>
+                <span className={styles.sectionNum} aria-hidden="true">
+                  02
+                </span>
+                <span className={styles.sectionLabel}>
+                  Contact me, I promise I&rsquo;ll read it
+                </span>
+                <span className={styles.rule} />
+              </div>
 
-          <div className={styles.tellMoreBody}>
-            <h2 className={styles.tellMoreTitle}>Tell me more.</h2>
-            <CopyEmail />
-          </div>
-        </section>
+              <div className={styles.tellMoreBody}>
+                <h2 className={styles.tellMoreTitle}>Tell me more.</h2>
+                <CopyEmail />
+              </div>
+            </section>
+          </>
+        )}
       </div>
+
+      {dock && <ProductDock />}
     </div>
   );
 }
@@ -157,68 +170,5 @@ function Credential({
         {tip}
       </span>
     </span>
-  );
-}
-
-const EMAIL = "neil@neilmcardle.com";
-
-function CopyEmail() {
-  const [copied, setCopied] = useState(false);
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(EMAIL);
-    } catch {
-      const field = document.createElement("textarea");
-      field.value = EMAIL;
-      field.setAttribute("readonly", "");
-      field.style.position = "fixed";
-      field.style.opacity = "0";
-      document.body.appendChild(field);
-      field.select();
-      document.execCommand("copy");
-      field.remove();
-    }
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
-  };
-
-  return (
-    <button type="button" className={styles.tellMoreCopy} onClick={copy}>
-      <span>{EMAIL}</span>
-      {copied ? (
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M20 6 9 17l-5-5" />
-        </svg>
-      ) : (
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.7}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <rect x="9" y="9" width="11" height="11" rx="2" />
-          <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-        </svg>
-      )}
-      <span className={styles.srOnly} aria-live="polite">
-        {copied ? "Email address copied" : ""}
-      </span>
-    </button>
   );
 }

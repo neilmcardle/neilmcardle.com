@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -9,6 +8,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { MarkEdge, MarkPlate } from "./ProductBadge";
+import { menuClick } from "./menuSound";
 import { motionEnabled } from "./motion";
 import {
   currentTheme,
@@ -17,12 +17,6 @@ import {
   type SiteTheme,
 } from "./theme";
 import styles from "./home.module.css";
-
-const PAGES: { label: string; href: string; external?: boolean }[] = [
-  { label: "Work", href: "/#work" },
-  { label: "Paintings", href: "/paintings" },
-  { label: "Archive", href: "/archive" },
-];
 
 const SOCIAL: { label: string; href: string; path: string }[] = [
   {
@@ -139,7 +133,10 @@ export default function SiteMenu({
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={open ? "Close menu" : "Open menu"}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          menuClick.prime();
+          setOpen((v) => !v);
+        }}
       >
         <svg
           width="40"
@@ -217,33 +214,19 @@ export default function SiteMenu({
 
       {open && (
         <div className={styles.menuPanel} role="menu">
-          {PAGES.map((p) => (
-            <Link
-              key={p.href}
-              href={p.href}
-              role="menuitem"
-              className={styles.menuItem}
-              onClick={() => setOpen(false)}
-            >
-              {p.label}
-            </Link>
-          ))}
-
-          <div className={styles.menuRule} />
-
           {themeToggle && (
             <>
               <button
                 type="button"
-                role="menuitemcheckbox"
-                aria-checked={dark}
+                role="menuitem"
                 className={styles.menuItem}
                 onClick={() => {
+                  menuClick.play();
                   if (switchRef.current)
                     switchTheme(dark ? "light" : "dark", switchRef.current);
                 }}
               >
-                Dark mode
+                {dark ? "Light mode" : "Dark mode"}
                 <span
                   ref={switchRef}
                   className={styles.themeSwitch}
@@ -291,7 +274,10 @@ export default function SiteMenu({
                 rel="noopener noreferrer"
                 aria-label={sm.label}
                 className={styles.menuSocialLink}
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  menuClick.play();
+                  setOpen(false);
+                }}
               >
                 <svg
                   width="16"
@@ -315,20 +301,6 @@ export default function SiteMenu({
                 <span className={styles.menuDay}>{stamp.day}</span>
               </span>
             )}
-          </div>
-
-          <div className={styles.menuRule} />
-
-          <div className={styles.menuFine}>
-            <span className={styles.menuCopy}>&copy; 2026 Neil McArdle</span>
-            <Link
-              href="/privacy"
-              role="menuitem"
-              className={styles.menuFineLink}
-              onClick={() => setOpen(false)}
-            >
-              Privacy
-            </Link>
           </div>
         </div>
       )}

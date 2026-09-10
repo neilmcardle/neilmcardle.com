@@ -27,11 +27,15 @@ export default function FoilCard({
   image,
   className = "",
   hideFade = false,
+  sizes = "(max-width: 767px) 100vw, 50vw",
+  bare = false,
 }: {
   mark?: ReactNode;
   image?: { src: string; alt: string };
   className?: string;
   hideFade?: boolean;
+  sizes?: string;
+  bare?: boolean;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const glintRef = useRef<HTMLDivElement>(null);
@@ -122,11 +126,14 @@ export default function FoilCard({
     >
       <div
         ref={cardRef}
-        className="relative isolate aspect-video w-full overflow-hidden rounded-[12px] border border-white/5"
+        className={`relative isolate aspect-video w-full overflow-hidden ${
+          bare ? "rounded-[8px]" : "rounded-[12px] border border-white/5"
+        }`}
         style={{
           background: CARD_GRADIENT,
-          boxShadow:
-            "inset 0 0 0 1px rgba(255,255,255,0.06), 0px 18px 20px rgba(0,0,0,0.55)",
+          boxShadow: bare
+            ? "none"
+            : "inset 0 0 0 1px rgba(255,255,255,0.06), 0px 18px 20px rgba(0,0,0,0.55)",
         }}
       >
         {image ? (
@@ -134,7 +141,7 @@ export default function FoilCard({
             src={image.src}
             alt={image.alt}
             fill
-            sizes="(max-width: 767px) 100vw, 50vw"
+            sizes={sizes}
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (

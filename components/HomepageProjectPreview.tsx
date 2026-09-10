@@ -25,9 +25,11 @@ export type ProjectKey =
 
 interface PreviewProps {
   k: ProjectKey;
+  sizes?: string;
+  bare?: boolean;
 }
 
-export function HomepageProjectPreview({ k }: PreviewProps) {
+export function HomepageProjectPreview({ k, sizes, bare }: PreviewProps) {
   const isGlass =
     k === "makeebook" ||
     k === "doodlewire" ||
@@ -42,6 +44,8 @@ export function HomepageProjectPreview({ k }: PreviewProps) {
         className="w-full"
         image={{ src: "/screenshots/makeebook.png", alt: "makeEbook editor" }}
         hideFade
+        sizes={sizes}
+        bare={bare}
       />
     );
   }
@@ -51,6 +55,8 @@ export function HomepageProjectPreview({ k }: PreviewProps) {
         className="w-full"
         image={{ src: "/screenshots/coverly.png", alt: "Coverly book covers" }}
         hideFade
+        sizes={sizes}
+        bare={bare}
       />
     );
   }
@@ -60,6 +66,8 @@ export function HomepageProjectPreview({ k }: PreviewProps) {
         className="w-full"
         image={{ src: "/screenshots/spark.png", alt: "Spark lesson view" }}
         hideFade
+        sizes={sizes}
+        bare={bare}
       />
     );
   }
@@ -72,6 +80,8 @@ export function HomepageProjectPreview({ k }: PreviewProps) {
           alt: "DoodleWire mobile UI",
         }}
         hideFade
+        sizes={sizes}
+        bare={bare}
       />
     );
   }
