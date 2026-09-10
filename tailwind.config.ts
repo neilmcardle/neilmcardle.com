@@ -33,6 +33,12 @@ const config = {
       colors: {
         cream: "#fbf9f3", // primary light text / surfaces on black
         tan: "#8a7f70", // muted labels, borders, hairlines
+        site: {
+          ink: "rgb(var(--home-ink-rgb) / <alpha-value>)",
+          muted: "rgb(var(--home-muted-rgb) / <alpha-value>)",
+          accent: "rgb(var(--home-accent-rgb) / <alpha-value>)",
+          "accent-strong": "var(--home-accent-strong)",
+        },
 
         gold: "#d8b46a",
         "gold-bright": "#f0d091",

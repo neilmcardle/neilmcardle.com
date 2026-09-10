@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { Metadata } from "next";
 
+import SitePage from "@/components/home/SitePage";
 import { PAINTINGS, type Painting } from "./paintings";
 
 export const metadata: Metadata = {
@@ -21,39 +21,12 @@ export const metadata: Metadata = {
 
 export default function ArtPage() {
   return (
-    <div className="min-h-screen bg-black relative isolate overflow-hidden">
-      <div className="max-w-6xl mx-auto pl-6 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pt-12 sm:pt-24 lg:pt-12 pb-20">
-        {/* Eyebrow: logomark + hairline + back link */}
+    <SitePage>
+      <div className="pb-20">
         <header className="mb-12 sm:mb-20">
-          <div className="mb-5 sm:mb-8 flex items-center gap-4">
-            <Link
-              href="/"
-              className="inline-block py-2 -my-2 text-tan hover:text-cream transition-colors"
-              style={{
-                fontSize: "0.75rem",
-                fontFamily: "var(--font-jetbrains-mono)",
-                letterSpacing: "0.13em",
-                textTransform: "uppercase",
-              }}
-            >
-              ← Back
-            </Link>
-            <div className="flex-1 h-[1px] bg-tan/50" />
-            <Link href="/" aria-label="Neil McArdle — home">
-              <Image
-                src="/dark-neil-mcardle-logomark.svg"
-                alt="Neil McArdle"
-                width={26}
-                height={26}
-                style={{ color: "transparent" }}
-              />
-            </Link>
-          </div>
-
-          {/* Hero */}
           <div className="max-w-3xl">
             <div
-              className="text-tan mb-6"
+              className="text-site-muted mb-6"
               style={{
                 fontSize: "0.75rem",
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -71,7 +44,7 @@ export default function ArtPage() {
                 letterSpacing: "0.2em",
                 paddingRight: "0.24em",
                 lineHeight: "0.95",
-                color: "var(--cream)",
+                color: "var(--home-ink)",
                 marginBottom: "1.75rem",
                 textTransform: "uppercase",
               }}
@@ -81,26 +54,25 @@ export default function ArtPage() {
               then pixels
             </h1>
             <p
-              className="text-cream/70 max-w-2xl"
+              className="text-site-ink/70 max-w-2xl"
               style={{
                 fontFamily: "var(--font-inter)",
                 fontSize: "1rem",
                 lineHeight: 1.7,
               }}
             >
-              I have been painting since graduating in Fine Art in 2006. Painting came first,
-              then graphic design in 2013, then product design in 2021. My most recent paintings
-              sold to a collector in London. See them below.
+              I have been painting since graduating in Fine Art in 2006.
+              Painting came first, then graphic design in 2013, then product
+              design in 2021. My most recent paintings sold to a collector in
+              London. See them below.
             </p>
           </div>
         </header>
 
-        {/* Commissions — deliberately quiet. Available, but framed as the
-            occasional sideline it is, not a service with a price and a CTA. */}
         <section className="mb-16">
           <div className="flex items-center gap-8 mb-8">
             <h2
-              className="text-tan"
+              className="text-site-muted"
               style={{
                 fontSize: "0.75rem",
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -110,10 +82,10 @@ export default function ArtPage() {
             >
               + Commissions
             </h2>
-            <div className="flex-1 h-[2px] bg-tan/50" />
+            <div className="flex-1 h-[2px] bg-site-muted/50" />
           </div>
           <p
-            className="text-cream/70 max-w-2xl"
+            className="text-site-ink/70 max-w-2xl"
             style={{
               fontFamily: "var(--font-inter)",
               fontSize: "0.9375rem",
@@ -125,7 +97,7 @@ export default function ArtPage() {
             resonates and you have a piece in mind,{" "}
             <a
               href="mailto:neil@neilmcardle.com?subject=Painting%20commission"
-              className="text-cream underline decoration-tan underline-offset-4 hover:decoration-cream transition-colors"
+              className="text-site-ink underline decoration-site-muted underline-offset-4 hover:decoration-site-ink transition-colors"
             >
               write to me
             </a>{" "}
@@ -133,11 +105,10 @@ export default function ArtPage() {
           </p>
         </section>
 
-        {/* Featured paintings: alternating layout for visual rhythm */}
         <section className="mb-20">
           <div className="flex items-center gap-8 mb-12">
             <h2
-              className="text-tan"
+              className="text-site-muted"
               style={{
                 fontSize: "0.75rem",
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -147,37 +118,47 @@ export default function ArtPage() {
             >
               + Selected paintings
             </h2>
-            <div className="flex-1 h-[2px] bg-tan/50" />
+            <div className="flex-1 h-[2px] bg-site-muted/50" />
           </div>
 
           <div className="flex flex-col gap-20 sm:gap-28">
             {PAINTINGS.map((painting, i) => (
-              <FeaturedPainting key={painting.slug} painting={painting} reverse={i % 2 === 1} />
+              <FeaturedPainting
+                key={painting.slug}
+                painting={painting}
+                reverse={i % 2 === 1}
+              />
             ))}
           </div>
         </section>
 
-        <footer className="pt-12 border-t-2 border-tan/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <footer className="pt-12 border-t-2 border-site-muted/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <p
-            className="text-tan"
+            className="text-site-muted"
             style={{ fontFamily: "var(--font-inter)", fontSize: "0.75rem" }}
           >
             © 2026 Neil McArdle
           </p>
           <a
             href="mailto:neil@neilmcardle.com"
-            className="inline-block py-2 -my-2 text-cream/70 hover:text-cream transition-colors"
+            className="inline-block py-2 -my-2 text-site-ink/70 hover:text-site-ink transition-colors"
             style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
           >
             neil@neilmcardle.com
           </a>
         </footer>
       </div>
-    </div>
+    </SitePage>
   );
 }
 
-function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: boolean }) {
+function FeaturedPainting({
+  painting,
+  reverse,
+}: {
+  painting: Painting;
+  reverse: boolean;
+}) {
   const aspect = painting.aspect ?? "4/5";
   const yearLine = painting.acquiredYear
     ? `Painted ${painting.year} · Acquired ${painting.acquiredYear}`
@@ -193,7 +174,7 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
     >
       <div className={reverse ? "lg:order-2" : ""}>
         <figure
-          className="relative border-2 border-tan/50 overflow-hidden"
+          className="relative border-2 border-site-muted/50 overflow-hidden"
           style={{ aspectRatio: aspect }}
         >
           <Image
@@ -204,12 +185,15 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
             sizes="(max-width: 1024px) 100vw, 360px"
           />
         </figure>
-        {/* Gallery-style red dot for sold pieces, sat left under the image. */}
+
         {painting.status === "sold" && (
           <div className="mt-3 flex items-center gap-2">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500" aria-hidden />
             <span
-              className="text-cream/80"
+              className="inline-block w-2.5 h-2.5 rounded-full bg-red-500"
+              aria-hidden
+            />
+            <span
+              className="text-site-ink/80"
               style={{
                 fontSize: "0.6875rem",
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -225,7 +209,7 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
 
       <div>
         <div
-          className="text-tan mb-4"
+          className="text-site-muted mb-4"
           style={{
             fontSize: "0.6875rem",
             fontFamily: "var(--font-jetbrains-mono)",
@@ -237,7 +221,7 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
         </div>
 
         <h3
-          className="text-cream mb-5"
+          className="text-site-ink mb-5"
           style={{
             fontFamily: "var(--font-eb-garamond)",
             fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
@@ -252,7 +236,9 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
         <dl className="mb-6 space-y-1.5">
           <MetaRow label="Medium" value={painting.medium} />
           <MetaRow label="Size" value={painting.dimensions} />
-          {painting.collector && <MetaRow label="Acquired by" value={painting.collector} />}
+          {painting.collector && (
+            <MetaRow label="Acquired by" value={painting.collector} />
+          )}
         </dl>
 
         <div className="space-y-4">
@@ -261,7 +247,7 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
               return (
                 <blockquote
                   key={i}
-                  className="border-l-4 border-tan pl-5 py-1 text-cream/90 italic"
+                  className="border-l-4 border-site-muted pl-5 py-1 text-site-ink/90 italic"
                   style={{
                     fontFamily: "var(--font-eb-garamond)",
                     fontSize: "1.0625rem",
@@ -275,7 +261,7 @@ function FeaturedPainting({ painting, reverse }: { painting: Painting; reverse: 
             return (
               <p
                 key={i}
-                className="text-cream/75"
+                className="text-site-ink/75"
                 style={{
                   fontFamily: "var(--font-inter)",
                   fontSize: "0.9375rem",
@@ -296,7 +282,7 @@ function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-3">
       <dt
-        className="text-tan w-[7.5rem] flex-shrink-0 whitespace-nowrap"
+        className="text-site-muted w-[7.5rem] flex-shrink-0 whitespace-nowrap"
         style={{
           fontSize: "0.6875rem",
           fontFamily: "var(--font-jetbrains-mono)",
@@ -308,7 +294,7 @@ function MetaRow({ label, value }: { label: string; value: string }) {
         {label}
       </dt>
       <dd
-        className="text-cream/85"
+        className="text-site-ink/85"
         style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
       >
         {value}
