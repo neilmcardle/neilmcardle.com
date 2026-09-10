@@ -30,7 +30,7 @@ export default function PrivacyPage() {
           className="text-site-muted mb-2"
           style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem" }}
         >
-          Last updated: 27 June 2026
+          Last updated: 10 September 2026
         </p>
         <p
           className="text-site-ink/60 mb-12"
@@ -63,6 +63,13 @@ export default function PrivacyPage() {
               your email address and whatever you choose to put in your message.
             </li>
             <li>
+              <strong className="text-site-ink/85">
+                If you join a waitlist:
+              </strong>{" "}
+              your email address, so I can tell you when the project launches. A
+              confirmation email is sent when you sign up.
+            </li>
+            <li>
               <strong className="text-site-ink/85">If you subscribe:</strong>{" "}
               billing details handled by Stripe. Stripe processes your payment
               and card data directly; I never see or store your full card
@@ -79,18 +86,21 @@ export default function PrivacyPage() {
 
         <Section title="3. Legal bases">
           I process contact data to respond to you and to perform or enter into
-          a contract (Article 6(1)(b) UK GDPR). I use aggregate analytics on the
-          basis of legitimate interest in understanding and improving the site
-          (Article 6(1)(f)). Any advertising or measurement cookies are used
-          only with your consent (Article 6(1)(a)).
+          a contract (Article 6(1)(b) UK GDPR). I keep waitlist emails on the
+          basis of your consent (Article 6(1)(a)), which you can withdraw at any
+          time. I use aggregate analytics on the basis of legitimate interest in
+          understanding and improving the site (Article 6(1)(f)). Any
+          advertising or measurement cookies are used only with your consent
+          (Article 6(1)(a)).
         </Section>
 
         <Section title="4. Who I share it with">
           I do not sell or rent your data. I share it only with the providers
           that run the site and the business: Vercel (hosting and cookie-less
-          analytics) and Stripe (payments). Where you have consented to
-          advertising cookies, measurement data is shared with Google. I also
-          disclose data where the law requires it.
+          analytics), Supabase (database), Resend (email delivery) and Stripe
+          (payments). Where you have consented to advertising cookies,
+          measurement data is shared with Google. I also disclose data where the
+          law requires it.
         </Section>
 
         <Section title="5. Cookies">
@@ -131,10 +141,10 @@ export default function PrivacyPage() {
         </Section>
 
         <Section title="8. International transfers">
-          Some providers (Vercel, Stripe, Google) may process data outside the
-          UK. Where they do, transfers are protected by mechanisms such as the
-          UK Addendum to the EU Standard Contractual Clauses or the UK Extension
-          to the EU-US Data Privacy Framework.
+          Some providers (Vercel, Supabase, Resend, Stripe, Google) may process
+          data outside the UK. Where they do, transfers are protected by
+          mechanisms such as the UK Addendum to the EU Standard Contractual
+          Clauses or the UK Extension to the EU-US Data Privacy Framework.
         </Section>
 
         <Section title="9. Complaints">

@@ -114,6 +114,15 @@ export function SparkWaitlistForm() {
       {status === "error" && message && (
         <p className="text-[13px] text-[var(--spark-terracotta)]">{message}</p>
       )}
+      <p className="text-[12px] leading-[1.6] text-[var(--spark-on-dark-muted)]">
+        I&apos;ll only email you about Spark.{" "}
+        <Link
+          href="/privacy"
+          className="spark-link underline underline-offset-2 hover:text-white hover:no-underline"
+        >
+          Privacy policy
+        </Link>
+      </p>
     </form>
   );
 }
