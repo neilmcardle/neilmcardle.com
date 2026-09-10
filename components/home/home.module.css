@@ -387,14 +387,26 @@
 .profileHandle {
   display: inline-block;
   margin-top: 4px;
-  color: var(--home-muted, #8a7f70);
+  color: rgb(var(--home-ink-rgb, 251 249 243) / 0.64);
   font-size: 0.875rem;
   text-decoration: none;
   transition: color 200ms ease;
 }
 
+.profileHandleName {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: rgb(var(--home-ink-rgb, 251 249 243) / 0.32);
+  transition: text-decoration-color 200ms ease;
+}
+
 .profileHandle:hover {
   color: var(--home-accent, #d8b46a);
+}
+
+.profileHandle:hover .profileHandleName {
+  text-decoration-color: currentColor;
 }
 
 .profileBio {
@@ -1733,8 +1745,17 @@
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   padding-bottom: 128px;
+}
+
+.dockPage .shell::before,
+.dockPage .shell::after {
+  content: "";
+  flex: 1 1 0;
+}
+
+.dockPage .shell::after {
+  flex-grow: 2;
 }
 
 .dockPage .heroShader {

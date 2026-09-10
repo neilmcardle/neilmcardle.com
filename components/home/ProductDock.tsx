@@ -171,7 +171,7 @@ export default function ProductDock() {
                   </span>
                   <h2 className={styles.dockPanelTitle}>Tell me more.</h2>
                   <p className={styles.dockPanelMeta}>
-                    Contact me, I promise I&rsquo;ll read it
+                    I promise I&rsquo;ll read it
                   </p>
                   <div className={styles.dockSideLink}>
                     <CopyEmail />

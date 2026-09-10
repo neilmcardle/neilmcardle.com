@@ -70,7 +70,7 @@ export default function HomeShell({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  @BetterNeil
+                  @<span className={styles.profileHandleName}>BetterNeil</span>
                 </a>
               </div>
             </div>

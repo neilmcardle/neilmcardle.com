@@ -129,7 +129,7 @@ const THEME_EASE = 12;
 
 export type GlowShader = {
   setPaused(next: boolean): void;
-  setTheme(next: "dark" | "light"): void;
+  setTheme(next: "dark" | "light", instant?: boolean): void;
   destroy(): void;
 };
 
@@ -342,10 +342,10 @@ export function createGlowShader(
       paused = next;
       refresh();
     },
-    setTheme(next) {
+    setTheme(next, instant = false) {
       if (disposed) return;
       target = next === "light" ? 1 : 0;
-      if (paused) mode = target;
+      if (paused || instant) mode = target;
       refresh();
     },
     destroy,

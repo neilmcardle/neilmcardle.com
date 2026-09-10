@@ -29,7 +29,12 @@ export default function GlowField({
       return;
     }
     shaderRef.current = shader;
-    const unsubscribe = subscribeTheme(() => shader.setTheme(currentTheme()));
+    const unsubscribe = subscribeTheme(() =>
+      shader.setTheme(
+        currentTheme(),
+        document.documentElement.classList.contains("theme-reveal"),
+      ),
+    );
     return () => {
       unsubscribe();
       shader.destroy();

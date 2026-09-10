@@ -7,9 +7,9 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { flushSync } from "react-dom";
 import { MarkEdge, MarkPlate } from "./ProductBadge";
 import { menuClick } from "./menuSound";
-import { motionEnabled } from "./motion";
 import {
   currentTheme,
   setTheme,
@@ -39,9 +39,7 @@ const SOCIAL: { label: string; href: string; path: string }[] = [
 const isDark = () => currentTheme() === "dark";
 
 function switchTheme(next: SiteTheme, origin: HTMLElement) {
-  const still =
-    !motionEnabled() ||
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (still || !("startViewTransition" in document)) {
     setTheme(next);
     return;
@@ -54,27 +52,25 @@ function switchTheme(next: SiteTheme, origin: HTMLElement) {
     Math.max(y, window.innerHeight - y),
   );
   const root = document.documentElement;
+  root.style.setProperty("--reveal-x", `${x}px`);
+  root.style.setProperty("--reveal-y", `${y}px`);
+  root.style.setProperty("--reveal-r", `${Math.ceil(radius)}px`);
   root.classList.add("theme-reveal");
-  const transition = document.startViewTransition(() => setTheme(next));
-  transition.ready
-    .then(() => {
-      root.animate(
-        {
-          clipPath: [
-            `circle(0px at ${x}px ${y}px)`,
-            `circle(${radius}px at ${x}px ${y}px)`,
-          ],
-        },
-        {
-          duration: 380,
-          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-          pseudoElement: "::view-transition-new(root)",
-        },
-      );
-    })
-    .catch(() => undefined);
-  transition.finished.finally(() => root.classList.remove("theme-reveal"));
+  const transition = document.startViewTransition(() =>
+    flushSync(() => setTheme(next)),
+  );
+  reveal = transition;
+  transition.ready.catch(() => undefined);
+  transition.finished.finally(() => {
+    if (reveal !== transition) return;
+    reveal = null;
+    root.classList.remove("theme-reveal");
+    for (const name of ["--reveal-x", "--reveal-y", "--reveal-r"])
+      root.style.removeProperty(name);
+  });
 }
+
+let reveal: ViewTransition | null = null;
 
 export default function SiteMenu({
   themeToggle = false,
