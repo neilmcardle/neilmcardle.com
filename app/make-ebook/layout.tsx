@@ -2,6 +2,7 @@ import React from "react";
 import type { Metadata, Viewport } from "next";
 
 import AdsTracking from "@/components/AdsTracking";
+import MakeEbookProviders from "./components/MakeEbookProviders";
 
 const TITLE = "makeEbook. Free Browser-Based Ebook Editor & EPUB Creator";
 const DESCRIPTION =
@@ -52,7 +53,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#faf9f5" },
@@ -60,54 +61,53 @@ export const viewport: Viewport = {
   ],
 };
 
-// SoftwareApplication schema.org JSON-LD for search engines.
 const softwareApplicationSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  '@id': 'https://makeebook.ink/#software',
-  name: 'makeEbook',
-  url: 'https://makeebook.ink',
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "@id": "https://makeebook.ink/#software",
+  name: "makeEbook",
+  url: "https://makeebook.ink",
   description: DESCRIPTION,
-  applicationCategory: 'WritingApplication',
-  operatingSystem: 'Web Browser',
+  applicationCategory: "WritingApplication",
+  operatingSystem: "Web Browser",
   offers: [
     {
-      '@type': 'Offer',
-      name: 'Free',
-      price: '0',
-      priceCurrency: 'USD',
+      "@type": "Offer",
+      name: "Free",
+      price: "0",
+      priceCurrency: "USD",
     },
     {
-      '@type': 'Offer',
-      name: 'Pro',
-      price: '9',
-      priceCurrency: 'USD',
+      "@type": "Offer",
+      name: "Pro",
+      price: "9",
+      priceCurrency: "USD",
       priceSpecification: {
-        '@type': 'UnitPriceSpecification',
-        price: '9',
-        priceCurrency: 'USD',
-        unitText: 'MONTH',
+        "@type": "UnitPriceSpecification",
+        price: "9",
+        priceCurrency: "USD",
+        unitText: "MONTH",
       },
     },
     {
-      '@type': 'Offer',
-      name: 'Lifetime',
-      price: '149',
-      priceCurrency: 'USD',
+      "@type": "Offer",
+      name: "Lifetime",
+      price: "149",
+      priceCurrency: "USD",
     },
   ],
   creator: {
-    '@type': 'Person',
-    name: 'Neil McArdle',
-    url: 'https://neilmcardle.com',
+    "@type": "Person",
+    name: "Neil McArdle",
+    url: "https://neilmcardle.com",
   },
   featureList: [
-    'EPUB and PDF export',
-    'Drag and drop chapter management',
-    'AI manuscript analysis (Book Mind)',
-    'Live ebook preview',
-    'Multi-language support',
-    'Works offline as a PWA',
+    "EPUB and PDF export",
+    "Drag and drop chapter management",
+    "AI manuscript analysis (Book Mind)",
+    "Live ebook preview",
+    "Multi-language support",
+    "Works offline as a PWA",
   ],
 };
 
@@ -120,12 +120,14 @@ export default function MakeEbookLayout({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(softwareApplicationSchema),
+        }}
       />
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
-      {children}
+      <MakeEbookProviders>{children}</MakeEbookProviders>
       <AdsTracking />
     </>
   );

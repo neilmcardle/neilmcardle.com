@@ -78,6 +78,8 @@ export default function SiteMenu({
   themeToggle?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [shown, setShown] = useState(false);
+  if (open && !shown) setShown(true);
 
   const [stamp, setStamp] = useState<{ year: number; day: number } | null>(
     null,
@@ -208,10 +210,47 @@ export default function SiteMenu({
         </svg>
       </button>
 
-      {open && (
-        <div className={styles.menuPanel} role="menu">
+      {shown && (
+        <div
+          className={styles.menuPanel}
+          role="menu"
+          data-state={open ? "open" : "closing"}
+          inert={!open}
+          onAnimationEnd={(event) => {
+            if (event.target === event.currentTarget && !open) setShown(false);
+          }}
+        >
+          <div className={styles.menuSocial}>
+            {SOCIAL.map((sm) => (
+              <a
+                key={sm.label}
+                href={sm.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={sm.label}
+                className={styles.menuSocialLink}
+                onClick={() => {
+                  menuClick.play();
+                  setOpen(false);
+                }}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d={sm.path} />
+                </svg>
+              </a>
+            ))}
+          </div>
+
           {themeToggle && (
             <>
+              <div className={styles.menuRule} />
+
               <button
                 type="button"
                 role="menuitem"
@@ -256,37 +295,8 @@ export default function SiteMenu({
                   </span>
                 </span>
               </button>
-
-              <div className={styles.menuRule} />
             </>
           )}
-
-          <div className={styles.menuSocial}>
-            {SOCIAL.map((sm) => (
-              <a
-                key={sm.label}
-                href={sm.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={sm.label}
-                className={styles.menuSocialLink}
-                onClick={() => {
-                  menuClick.play();
-                  setOpen(false);
-                }}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d={sm.path} />
-                </svg>
-              </a>
-            ))}
-          </div>
 
           <div className={styles.menuRule} />
 

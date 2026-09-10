@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
 import styles from "./home.module.css";
 import { HomepageProjectPreview } from "@/components/HomepageProjectPreview";
 import ProductBadge, { type BadgeKey } from "./ProductBadge";
@@ -16,7 +15,6 @@ export type Feature = {
   status?: string;
   external?: boolean;
   appleIcon?: boolean;
-  reverse?: boolean;
 };
 
 export const FEATURES: Feature[] = [
@@ -29,7 +27,6 @@ export const FEATURES: Feature[] = [
     href: "https://makeebook.ink",
     linkLabel: "makeebook.ink",
     external: true,
-    reverse: true,
   },
   {
     tileKey: "coverly",
@@ -50,7 +47,6 @@ export const FEATURES: Feature[] = [
     linkLabel: "App Store",
     external: true,
     appleIcon: true,
-    reverse: true,
   },
   {
     tileKey: "spark",
@@ -73,174 +69,14 @@ const CTA_STYLE = {
   textTransform: "uppercase" as const,
 };
 
-export default function SelectedWork() {
-  return (
-    <div className="space-y-16 sm:space-y-24">
-      {FEATURES.map((f) => (
-        <ProductFeature key={f.name} {...f} />
-      ))}
-    </div>
-  );
-}
-
-function ProductFeature({
-  tileKey,
-  category,
-  name,
-  description,
-  href,
-  external,
-  linkLabel,
-  status,
-  appleIcon,
-  reverse,
-}: Feature) {
-  const mediaInner = (
-    <div className="block w-full">
-      <div className="relative flex items-center justify-center">
-        <div className={`relative w-full ${styles.workShadow}`}>
-          <HomepageProjectPreview k={tileKey} />
-        </div>
-      </div>
-    </div>
-  );
-
-  const [open, setOpen] = useState(false);
-
-  const mediaCls = reverse ? "md:order-2" : "";
-  const media = external ? (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block"
-      aria-label={name}
-    >
-      {mediaInner}
-    </a>
-  ) : (
-    <Link href={href} className="block" aria-label={name}>
-      {mediaInner}
-    </Link>
-  );
-
-  return (
-    <div className="group grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-14 items-center">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        className="md:hidden flex w-full items-center gap-3 text-left"
-      >
-        <NameBlock tileKey={tileKey} name={name} className="flex-1" />
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.6}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-          className={`flex-shrink-0 ${styles.workMuted} transition-transform duration-300 ${
-            open ? "rotate-45" : ""
-          }`}
-        >
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-      </button>
-
-      <Collapse open={open} className={mediaCls}>
-        <div className="pt-6 md:pt-0">{media}</div>
-      </Collapse>
-
-      <Collapse open={open} className={reverse ? "md:order-1" : ""}>
-        <div className="pt-6 md:pt-0">
-          <div
-            className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2"
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "0.6875rem",
-              letterSpacing: "0.06em",
-            }}
-          >
-            <span className={styles.workMuted}>{category}</span>
-            {status && (
-              <span
-                className={`rounded-full border px-2.5 py-1 ${styles.workStatus}`}
-              >
-                {status}
-              </span>
-            )}
-          </div>
-          <NameBlock tileKey={tileKey} name={name} className="hidden md:flex" />
-          <p
-            className={`${styles.workBody} mt-4 max-w-md`}
-            style={{
-              fontFamily: "var(--font-inter)",
-              fontSize: "1.0625rem",
-              lineHeight: 1.6,
-            }}
-          >
-            {description}
-          </p>
-          <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3">
-            <ProductLink
-              href={href}
-              external={external}
-              linkLabel={linkLabel}
-              appleIcon={appleIcon}
-            />
-          </div>
-        </div>
-      </Collapse>
-    </div>
-  );
-}
-
-function Collapse({
-  open,
-  className,
-  children,
-}: {
-  open: boolean;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  const innerRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number | null>(null);
-
-  useEffect(() => {
-    const el = innerRef.current;
-    if (!el) return;
-    const measure = () => setHeight(el.scrollHeight);
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  return (
-    <div
-      className={`${styles.collapse} ${open ? styles.collapseOpen : ""} ${className ?? ""}`}
-      style={
-        height === null
-          ? undefined
-          : ({ "--collapse-h": `${height}px` } as React.CSSProperties)
-      }
-    >
-      <div ref={innerRef}>{children}</div>
-    </div>
-  );
-}
-
 export function ProductDetail({ feature }: { feature: Feature }) {
   return (
     <div className={styles.dockSplit}>
       <div className={styles.dockSide}>
-        <ProductBadge badge={feature.tileKey} size={40} />
-        <h2 className={styles.dockTitle}>{feature.name}</h2>
+        <div className={styles.dockHead}>
+          <ProductBadge badge={feature.tileKey} size={40} />
+          <h2 className={styles.dockTitle}>{feature.name}</h2>
+        </div>
         <dl className={styles.dockFacts}>
           <div>
             <dt>Type</dt>
@@ -302,36 +138,6 @@ function ProductLink({
       {linkLabel}
       <CtaArrow />
     </Link>
-  );
-}
-
-function NameBlock({
-  tileKey,
-  name,
-  className,
-}: {
-  tileKey: BadgeKey;
-  name: string;
-  className: string;
-}) {
-  return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      <span className="flex-shrink-0 leading-none">
-        <ProductBadge badge={tileKey} />
-      </span>
-      <h3
-        className={styles.workName}
-        style={{
-          fontFamily: "var(--font-inter)",
-          fontSize: "clamp(2rem, 4vw, 2.75rem)",
-          fontWeight: 400,
-          letterSpacing: "-0.02em",
-          lineHeight: 1.05,
-        }}
-      >
-        {name}
-      </h3>
-    </div>
   );
 }
 

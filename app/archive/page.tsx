@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { GeistMono } from "geist/font/mono";
 
 import SitePage from "@/components/home/SitePage";
 
@@ -186,7 +187,7 @@ function Row({ entry }: { entry: Entry }) {
 export default function ArchivePage() {
   return (
     <SitePage>
-      <div className="max-w-3xl pb-24">
+      <div className={`${GeistMono.variable} max-w-3xl pb-24`}>
         <h1
           className="text-site-ink"
           style={{

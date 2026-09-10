@@ -1,0 +1,749 @@
+.root {
+  --bone: #ebe8e4;
+  --card: #fdfcfb;
+  --ink: #000000;
+  --ink-idle: rgba(0, 0, 0, 0.43);
+  --ink-hover: rgba(0, 0, 0, 0.7);
+  --row: #59544f;
+  --muted: #736d64;
+  --muted-bone: #6e685f;
+  --line: #d7d2cc;
+  --dot: rgba(0, 0, 0, 0.17);
+  --pill-hover: #e1ddd7;
+  --display: var(--font-geist-sans), var(--font-inter), system-ui, sans-serif;
+  --ui: var(--font-inter), system-ui, sans-serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --header: 96px;
+
+  min-height: 100svh;
+  padding: 16px 16px 32px;
+  background: var(--bone);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 16px;
+  line-height: 1.5;
+  caret-color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.root ::selection {
+  background: var(--ink);
+  color: var(--bone);
+}
+
+.root :focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "brand email"
+    "nav nav";
+  align-items: center;
+  gap: 16px;
+}
+
+.wordmark {
+  grid-area: brand;
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.wordmarkLink {
+  display: inline-grid;
+  grid-template-columns: 20px auto;
+  align-items: center;
+  column-gap: 8px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+.mark {
+  grid-row: span 2;
+  width: 20px;
+  height: 20px;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.role {
+  grid-column: 2;
+  font-family: var(--ui);
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--muted-bone);
+}
+
+.nav {
+  grid-area: nav;
+  display: flex;
+  gap: 24px;
+}
+
+.navLink {
+  color: var(--ink);
+  font-size: 0.9375rem;
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 0, 0, 0.24);
+  text-underline-offset: 6px;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color 200ms var(--ease);
+}
+
+.navLink:hover {
+  text-decoration-color: currentColor;
+}
+
+.emailPill {
+  grid-area: email;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px 0 4px;
+  border: 0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font: 500 0.9375rem / 1 var(--ui);
+  cursor: pointer;
+  box-shadow:
+    inset 0 0 0 1px var(--line),
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 8px 16px rgba(0, 0, 0, 0.05);
+  transition:
+    box-shadow 240ms var(--ease),
+    transform 240ms var(--ease);
+}
+
+.emailPill:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px #c9c3bc,
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+.emailPill:active {
+  transform: translateY(0);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--bone);
+}
+
+.avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 24%;
+}
+
+.emailLabel {
+  display: grid;
+  justify-items: center;
+}
+
+.emailLabel > span {
+  grid-area: 1 / 1;
+}
+
+.concealed {
+  visibility: hidden;
+}
+
+.labelLong {
+  display: none;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "index"
+    "card"
+    "meta";
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.aside {
+  display: contents;
+}
+
+.index {
+  grid-area: index;
+}
+
+.indexList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.indexButton {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-idle);
+  font-family: var(--display);
+  font-size: clamp(1.75rem, 8vw, 2.5rem);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 220ms var(--ease);
+}
+
+@media (hover: hover) {
+  .indexButton:hover {
+    color: var(--ink-hover);
+  }
+}
+
+.indexButton:focus-visible {
+  color: var(--ink-hover);
+  outline-offset: 8px;
+}
+
+.indexButton[aria-pressed="true"] {
+  color: var(--ink);
+}
+
+.indexCount {
+  flex: none;
+  min-width: 1.86em;
+  font-variant-numeric: tabular-nums;
+}
+
+.indexLabel {
+  text-wrap: balance;
+}
+
+.card {
+  grid-area: card;
+  min-width: 0;
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 16px 32px rgba(0, 0, 0, 0.04);
+}
+
+.cardHead {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 24px 8px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.search {
+  position: relative;
+  width: 100%;
+}
+
+.searchInput {
+  width: 100%;
+  height: 48px;
+  padding: 0 48px 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: 400 1rem / 1 var(--ui);
+  box-shadow: inset 0 0 0 1px var(--line);
+  appearance: none;
+  transition: box-shadow 200ms var(--ease);
+}
+
+.searchInput::placeholder {
+  color: var(--muted);
+}
+
+.searchInput::-webkit-search-cancel-button {
+  display: none;
+}
+
+.searchInput:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--row);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.clear {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--row);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background-color 200ms var(--ease);
+}
+
+.clear:hover {
+  background: var(--bone);
+}
+
+.list {
+  padding: 0 24px 32px;
+}
+
+.group {
+  margin-top: 32px;
+  transition: opacity 260ms var(--ease);
+}
+
+.group + .group {
+  margin-top: 56px;
+}
+
+.dim {
+  opacity: 0.24;
+}
+
+.groupTitle {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font: 400 1.125rem / 1.4 var(--ui);
+}
+
+.sub {
+  margin-top: 32px;
+}
+
+.groupTitle + .sub {
+  margin-top: 8px;
+}
+
+.subTitle {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rows::before,
+.rowItem::after {
+  content: "";
+  display: block;
+  height: 2px;
+  background-image: radial-gradient(circle, var(--dot) 1px, transparent 1.3px);
+  background-position: 0 center;
+  background-size: 8px 2px;
+}
+
+.rowLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 62px;
+  color: var(--row);
+  font-size: 1rem;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: color 200ms var(--ease);
+}
+
+.rowLink:hover {
+  color: var(--ink);
+}
+
+.rowTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.external {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  color: var(--muted);
+  transition:
+    color 200ms var(--ease),
+    transform 200ms var(--ease);
+}
+
+.rowLink:hover .external {
+  color: var(--ink);
+  transform: translate(1px, -1px);
+}
+
+.pills {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+.pillTag {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--bone);
+  color: var(--row);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  transition: background-color 200ms var(--ease);
+}
+
+.pillTag + .pillTag {
+  display: none;
+}
+
+.rowLink:hover .pillTag {
+  background: var(--pill-hover);
+}
+
+.replay .rowItem {
+  animation: rowIn 560ms var(--ease) both;
+}
+
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.empty {
+  padding: 48px 0 16px;
+}
+
+.emptyText {
+  margin: 0 0 16px;
+  color: var(--row);
+}
+
+.emptyAction {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+}
+
+.meta {
+  grid-area: meta;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: start;
+  gap: 24px 16px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.metaItem {
+  display: flex;
+  grid-column: span 3;
+  align-items: center;
+  gap: 16px;
+}
+
+.emailItem {
+  display: flex;
+  grid-column: span 3;
+  flex-direction: column;
+  gap: 4px;
+  align-self: center;
+  min-width: 0;
+}
+
+.emailLink {
+  color: var(--ink);
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 0, 0, 0.24);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+.clock {
+  flex: none;
+  width: 56px;
+  height: 56px;
+}
+
+.clockFace {
+  fill: var(--ink);
+}
+
+.clockMark {
+  fill: #ffffff;
+}
+
+.hand {
+  stroke: #ffffff;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.metaText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+
+.metaLabel {
+  color: var(--muted-bone);
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+
+.metaValue {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.client {
+  display: flex;
+  grid-column: span 2;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.clientLogo {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+  filter: brightness(0);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 480px) {
+  .wordmarkLink {
+    grid-template-columns: 20px auto auto;
+  }
+
+  .mark {
+    grid-row: auto;
+  }
+
+  .role {
+    grid-column: auto;
+    font-family: var(--display);
+    font-size: inherit;
+    font-weight: 300;
+    letter-spacing: inherit;
+    color: var(--ink);
+  }
+}
+
+@media (min-width: 600px) {
+  .labelShort {
+    display: none;
+  }
+
+  .labelLong {
+    display: inline;
+  }
+
+  .pillTag + .pillTag {
+    display: inline-flex;
+  }
+
+  .metaItem {
+    grid-column: 1 / -1;
+  }
+
+  .emailItem {
+    display: none;
+  }
+}
+
+@media (min-width: 960px) {
+  .root {
+    padding: 0 32px 32px;
+  }
+
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas: "brand nav email";
+    column-gap: 32px;
+    height: var(--header);
+    background: var(--bone);
+  }
+
+  .nav {
+    gap: 32px;
+  }
+
+  .navLink {
+    font-size: 1rem;
+    text-decoration-color: transparent;
+  }
+
+  .main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: "aside card";
+    column-gap: 40px;
+    margin-top: 0;
+  }
+
+  .aside {
+    grid-area: aside;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 48px;
+  }
+
+  .index {
+    padding-top: 16px;
+  }
+
+  .indexButton {
+    font-size: clamp(2.5rem, 4.2vw, 4rem);
+    line-height: 1.06;
+  }
+
+  .cardHead {
+    padding: 32px 32px 8px;
+  }
+
+  .cardTitle {
+    font-size: 1.75rem;
+  }
+
+  .list {
+    padding: 0 32px 40px;
+  }
+
+  .meta {
+    margin: 0;
+  }
+}
+
+@media (min-width: 1280px) {
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 24px 40px;
+  }
+}
+
+@media (min-width: 960px) and (min-height: 640px) {
+  .aside {
+    position: sticky;
+    top: var(--header);
+    height: calc(100svh - var(--header) - 32px);
+  }
+}
+
+@media (min-width: 1200px) {
+  .cardHead {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .search {
+    flex: 0 1 320px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .replay .rowItem {
+    animation: none;
+  }
+
+  .group,
+  .indexButton,
+  .rowLink,
+  .external,
+  .pillTag,
+  .emailPill,
+  .searchInput,
+  .navLink {
+    transition: none;
+  }
+}

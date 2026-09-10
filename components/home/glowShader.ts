@@ -126,6 +126,7 @@ void main() {
 const MAX_PIXELS = 2400000;
 const MAX_SCALE = 1;
 const THEME_EASE = 12;
+const SPEED = 0.35;
 
 export type GlowShader = {
   setPaused(next: boolean): void;
@@ -275,7 +276,7 @@ export function createGlowShader(
     const delta =
       previous === null ? 0 : Math.min((now - previous) / 1000, 0.1);
     previous = now;
-    if (moving()) elapsed += delta;
+    if (moving()) elapsed += delta * SPEED;
     if (mode !== target) {
       mode += (target - mode) * (1 - Math.exp(-delta * THEME_EASE));
       if (Math.abs(target - mode) < 0.002) mode = target;

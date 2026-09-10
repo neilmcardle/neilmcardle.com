@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLastBrowse } from "@/lib/coverly/last-browse";
+import { FLY_EVENT, type FlyEventDetail } from "@/lib/coverly/board-fly";
 import { BoardsIcon } from "./boards-icon";
 import { CoverflowIcon } from "./coverflow-icon";
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type IconName = "grid" | "layout";
 type NavItem = { href: string; label: string; icon?: IconName };
@@ -17,6 +18,8 @@ type IconComponent = React.ComponentType<{
 }>;
 
 const ICON_HEIGHT = 16;
+const BOARDS_HREF = "/coverly/boards";
+const RELEASE_MS = 800;
 
 const ICONS: Record<IconName, { Comp: IconComponent; width: number }> = {
   grid: {
@@ -40,6 +43,7 @@ export function NavCapsule({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
   const browseHref = useLastBrowse();
+  const [catching, setCatching] = useState(false);
 
   const isActive = (href: string) =>
     href === "/coverly/browse"
@@ -52,6 +56,29 @@ export function NavCapsule({ items }: { items: NavItem[] }) {
   const navRef = useRef<HTMLElement>(null);
   const pillRef = useRef<HTMLSpanElement>(null);
   const settledRef = useRef(false);
+  const pendingRef = useRef(0);
+  const releaseRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const onFly = (event: Event) => {
+      const { phase } = (event as CustomEvent<FlyEventDetail>).detail;
+      if (phase === "start") {
+        pendingRef.current += 1;
+        if (releaseRef.current) clearTimeout(releaseRef.current);
+        if (!reduceMotion) setCatching(true);
+        return;
+      }
+      pendingRef.current = Math.max(0, pendingRef.current - 1);
+      if (pendingRef.current === 0) {
+        releaseRef.current = setTimeout(() => setCatching(false), RELEASE_MS);
+      }
+    };
+    document.addEventListener(FLY_EVENT, onFly);
+    return () => {
+      document.removeEventListener(FLY_EVENT, onFly);
+      if (releaseRef.current) clearTimeout(releaseRef.current);
+    };
+  }, [reduceMotion]);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -104,14 +131,14 @@ export function NavCapsule({ items }: { items: NavItem[] }) {
       />
       {items.map((item, i) => {
         const active = i === activeIndex;
+        const isBoards = item.href === BOARDS_HREF;
+        const open = active || (isBoards && catching);
         const icon = item.icon ? ICONS[item.icon] : null;
         return (
           <Link
             key={item.href}
             href={item.href === "/coverly/browse" ? browseHref : item.href}
-            data-fly-target={
-              item.href === "/coverly/boards" ? "board" : undefined
-            }
+            data-fly-target={isBoards ? "board" : undefined}
             aria-current={active ? "page" : undefined}
             data-nav-active={active ? "" : undefined}
             className={`relative flex items-center rounded-full py-1.5 pl-3.5 pr-4 text-sm font-medium transition-colors duration-200 ${
@@ -123,12 +150,13 @@ export function NavCapsule({ items }: { items: NavItem[] }) {
             {icon && (
               <motion.span
                 aria-hidden="true"
+                data-fly-icon={isBoards ? "" : undefined}
                 className="relative z-10 grid overflow-hidden"
                 initial={false}
                 animate={{
-                  width: active ? icon.width : 0,
-                  opacity: active ? 1 : 0,
-                  marginRight: active ? 6 : 0,
+                  width: open ? icon.width : 0,
+                  opacity: open ? 1 : 0,
+                  marginRight: open ? 6 : 0,
                 }}
                 transition={transition}
               >

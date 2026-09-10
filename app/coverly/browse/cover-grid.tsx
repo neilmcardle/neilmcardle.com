@@ -16,7 +16,8 @@ import { TunerPanel } from "./tuner-panel";
 import { DOCK_FIELDS, DOCK_TITLE, FLY_FIELDS, FLY_TITLE } from "./tuner-fields";
 import { dockTuner, useDockConfig } from "@/lib/coverly/dock-config";
 import { flyTuner } from "@/lib/coverly/fly-config";
-import { flyToBoard } from "@/lib/coverly/board-fly";
+import { flyToBoard, primeFlySounds } from "@/lib/coverly/board-fly";
+import { useMediaQuery } from "@/lib/coverly/use-media-query";
 import {
   fetchCoverDetail,
   fetchSimilarCovers,
@@ -28,7 +29,7 @@ import {
   type CoverCard as CoverCardType,
   type CoverFilters,
 } from "@/lib/coverly/queries";
-import { AddToBoard } from "./add-to-board";
+import { AddToBoard, type AddToBoardHandle } from "./add-to-board";
 import { HeartButton } from "./heart-button";
 import { useLikes } from "@/lib/coverly/use-likes";
 import type { LayoutMode } from "./view-controls";
@@ -465,6 +466,41 @@ function BrowseCard({
   onLike: () => void;
 }) {
   const imgRef = useRef<HTMLImageElement>(null);
+  const boardRef = useRef<AddToBoardHandle>(null);
+  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const precise = useMediaQuery("(hover: hover) and (pointer: fine)");
+
+  useEffect(
+    () => () => {
+      if (openTimer.current) clearTimeout(openTimer.current);
+    },
+    [],
+  );
+
+  const handleClick = (event: React.MouseEvent) => {
+    if (!precise || event.detail === 0) {
+      onOpen();
+      return;
+    }
+    if (event.detail > 2) return;
+    if (openTimer.current) {
+      clearTimeout(openTimer.current);
+      openTimer.current = null;
+      boardRef.current?.quickSave();
+      return;
+    }
+    if (event.detail === 2) {
+      onOpen();
+      boardRef.current?.quickSave();
+      return;
+    }
+    primeFlySounds();
+    openTimer.current = setTimeout(() => {
+      openTimer.current = null;
+      onOpen();
+    }, DOUBLE_CLICK_MS);
+  };
+
   return (
     <div
       data-card-id={cover.id}
@@ -472,7 +508,10 @@ function BrowseCard({
       className="group/card"
     >
       <button
-        onClick={onOpen}
+        onClick={handleClick}
+        onMouseDown={(event) => {
+          if (event.detail > 1) event.preventDefault();
+        }}
         aria-expanded={selected}
         className="block h-full w-full text-left"
       >
@@ -514,6 +553,7 @@ function BrowseCard({
         <HeartButton liked={liked} onToggle={onLike} />
       </div>
       <AddToBoard
+        ref={boardRef}
         coverId={cover.id}
         variant="icon"
         flyFrom={() => imgRef.current}
@@ -521,6 +561,8 @@ function BrowseCard({
     </div>
   );
 }
+
+const DOUBLE_CLICK_MS = 200;
 
 const TAGS: [keyof CoverDetailData, string][] = [
   ["sub_genre", "Sub-genre"],

@@ -2,17 +2,9 @@ import type React from "react";
 import type { Metadata } from "next";
 import "./globals.css";
 import "../styles/immersive.css";
-import "../styles/vendor/draft-js.css";
-import "dialkit/styles.css";
-import { AuthProvider } from "@/lib/hooks/useAuth";
-import { SubscriptionProvider } from "@/lib/hooks/useSubscription";
-import { ThemeProvider } from "@/lib/contexts/ThemeContext";
 import { THEME_SCRIPT } from "@/components/home/theme";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";
-import { GeistMono } from "geist/font/mono";
 import {
   Cantarell,
   Inter,
@@ -27,6 +19,7 @@ const cantarell = Cantarell({
   weight: ["400", "700"],
   variable: "--font-cantarell",
   display: "swap",
+  preload: false,
 });
 
 const inter = Inter({
@@ -39,18 +32,21 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
   display: "swap",
+  preload: false,
 });
 
 const ebGaramond = EB_Garamond({
   subsets: ["latin"],
   variable: "--font-eb-garamond",
   display: "swap",
+  preload: false,
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
   display: "swap",
+  preload: false,
 });
 
 const zillaSlab = Zilla_Slab({
@@ -58,6 +54,7 @@ const zillaSlab = Zilla_Slab({
   weight: ["700"],
   variable: "--font-zilla-slab",
   display: "swap",
+  preload: false,
 });
 
 const TITLE = "Neil McArdle · Product Designer";
@@ -130,7 +127,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${GeistMono.variable} ${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable}`}
+      className={`${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -144,17 +141,9 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
         />
-        <AuthProvider>
-          <SubscriptionProvider>
-            <ThemeProvider>
-              <div className="min-h-screen flex flex-col">
-                <main className="flex-1">{children}</main>
-              </div>
-              <Toaster />
-              <SonnerToaster />
-            </ThemeProvider>
-          </SubscriptionProvider>
-        </AuthProvider>
+        <div className="min-h-screen flex flex-col">
+          <main className="flex-1">{children}</main>
+        </div>
         <NeilAgent />
         <Analytics />
       </body>

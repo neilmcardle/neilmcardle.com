@@ -36,6 +36,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
+    return () => applyThemeClass("light");
   }, []);
 
   useEffect(() => {

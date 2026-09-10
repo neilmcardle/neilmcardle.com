@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useImperativeHandle, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bookmark, Check, X } from "lucide-react";
 import { flyToBoard, primeFlySounds } from "@/lib/coverly/board-fly";
-import { rememberLastBoard } from "@/lib/coverly/last-board";
+import { getLastBoard, rememberLastBoard } from "@/lib/coverly/last-board";
 import {
   addCoverToBoard,
   createBoard,
@@ -22,16 +22,33 @@ const PICKER_OPEN_EVENT = "coverly:picker-open";
 type Status =
   | { kind: "saved"; board: Board }
   | { kind: "removed"; board: Board }
+  | { kind: "already"; board: Board }
   | { kind: "error"; message: string };
+
+const BUTTON_VERB = {
+  saved: "Saved to",
+  removed: "Removed from",
+  already: "Already in",
+} as const;
+
+const ICON_VERB = {
+  saved: "Saved",
+  removed: "Removed",
+  already: "Already in",
+} as const;
+
+export type AddToBoardHandle = { quickSave: () => void };
 
 export function AddToBoard({
   coverId,
   variant = "icon",
   flyFrom,
+  ref,
 }: {
   coverId: string;
   variant?: "icon" | "button";
   flyFrom: () => HTMLImageElement | null;
+  ref?: React.Ref<AddToBoardHandle>;
 }) {
   const boards = useBoards();
   const hydrated = useHydrated();
@@ -135,9 +152,8 @@ export function AddToBoard({
     }
     const result = addCoverToBoard(board.id, coverId);
     if (result === "added") {
-      flyToBoard(flyFrom());
       rememberLastBoard(board);
-      flash({ kind: "saved", board });
+      flyToBoard(flyFrom()).then(() => flash({ kind: "saved", board }));
     } else {
       flash({ kind: "error", message: "Couldn't save" });
     }
@@ -150,6 +166,22 @@ export function AddToBoard({
     setNewName("");
     toggleBoard(board);
   };
+
+  useImperativeHandle(ref, () => ({
+    quickSave() {
+      const last = getLastBoard();
+      const board = last ? boards.find((b) => b.id === last.id) : undefined;
+      if (!board) {
+        openPicker();
+        return;
+      }
+      if (board.covers.includes(coverId)) {
+        flash({ kind: "already", board });
+        return;
+      }
+      toggleBoard(board);
+    },
+  }));
 
   if (!hydrated) return null;
 
@@ -246,9 +278,7 @@ export function AddToBoard({
                   {status.kind === "saved" && (
                     <Check className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
                   )}
-                  <span>
-                    {status.kind === "saved" ? "Saved to" : "Removed from"}
-                  </span>
+                  <span>{BUTTON_VERB[status.kind]}</span>
                   <Link
                     href={`/coverly/boards/${status.board.id}`}
                     className="truncate font-medium underline underline-offset-2 hover:opacity-80"
@@ -270,7 +300,7 @@ export function AddToBoard({
         >
           {status.kind === "error"
             ? status.message
-            : `${status.kind === "saved" ? "Saved" : "Removed"} · ${status.board.name}`}
+            : `${ICON_VERB[status.kind]} · ${status.board.name}`}
         </div>
       )}
 

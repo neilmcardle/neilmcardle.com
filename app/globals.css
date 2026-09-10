@@ -2462,19 +2462,6 @@ button.spark-card:hover,
   animation: me-breathe 1.6s ease-in-out infinite;
 }
 
-.dialkit-panel-toolbar.dialkit-panel-toolbar {
-  display: none;
-}
-
-.dialkit-panel.dialkit-panel,
-.dialkit-panel-inner.dialkit-panel-inner {
-  border-radius: 10px;
-}
-
-.dialkit-panel-inner.dialkit-panel-inline {
-  padding-bottom: 10px;
-}
-
 html.theme-reveal::view-transition-old(root),
 html.theme-reveal::view-transition-new(root) {
   animation: none;
