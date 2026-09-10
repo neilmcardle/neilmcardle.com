@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { MarkEdge, MarkPlate } from "./ProductBadge";
-import * as rain from "./rainAudio";
+import { motionEnabled, setMotion, subscribeMotion } from "./motion";
 import styles from "./home.module.css";
 
 const SHADOW_MATRIX = "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0";
@@ -11,29 +11,20 @@ const SHADOW_COLOUR = "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0";
 const PLAY =
   "M47.4223 27.9777C48.8964 28.7147 48.8964 30.8183 47.4223 31.5554L21.8944 44.3193C20.5646 44.9842 19 44.0172 19 42.5304V17.0026C19 15.5158 20.5646 14.5488 21.8944 15.2137L47.4223 27.9777Z";
 
-export default function RainToggle() {
-  const [playing, setPlaying] = useState(false);
-
-  useEffect(() => {
-    setPlaying(rain.enabled());
-    const unsubscribe = rain.subscribe(setPlaying);
-    void rain.resume();
-    return () => {
-      unsubscribe();
-      rain.suspend();
-    };
-  }, []);
+export default function MotionToggle() {
+  const moving = useSyncExternalStore(
+    subscribeMotion,
+    motionEnabled,
+    () => true,
+  );
+  const label = moving ? "Pause motion" : "Play motion";
 
   return (
     <button
       type="button"
-      className={styles.rainToggle}
-      aria-pressed={playing}
-      aria-label={playing ? "Stop raining" : "Let it rain"}
-      onClick={() => {
-        if (playing) rain.stop();
-        else void rain.start();
-      }}
+      className={styles.motionToggle}
+      aria-label={label}
+      onClick={() => setMotion(!moving)}
     >
       <svg
         width="40"
@@ -42,10 +33,10 @@ export default function RainToggle() {
         fill="none"
         aria-hidden="true"
       >
-        <MarkPlate id="rainmark" />
+        <MarkPlate id="motionmark" />
 
-        {playing ? (
-          <g filter="url(#rainmark-drop)">
+        {moving ? (
+          <g className={styles.markGlyph} filter="url(#motionmark-drop)">
             <rect
               x="16"
               y="14.5"
@@ -64,15 +55,15 @@ export default function RainToggle() {
             />
           </g>
         ) : (
-          <g filter="url(#rainmark-drop)">
+          <g className={styles.markGlyph} filter="url(#motionmark-drop)">
             <path d={PLAY} fill="#D9D9D9" />
           </g>
         )}
 
         <defs>
-          <MarkEdge id="rainmark" />
+          <MarkEdge id="motionmark" />
           <filter
-            id="rainmark-drop"
+            id="motionmark-drop"
             x="12"
             y="12.5"
             width="41"
@@ -96,10 +87,6 @@ export default function RainToggle() {
           </filter>
         </defs>
       </svg>
-
-      <span className={styles.rainTip} role="tooltip">
-        {playing ? "Stop raining" : "Let it rain"}
-      </span>
     </button>
   );
 }

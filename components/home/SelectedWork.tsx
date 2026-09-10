@@ -65,8 +65,7 @@ const FEATURES: {
   },
 ];
 
-const CTA_CLS =
-  "group/cta inline-flex items-center gap-2 text-gold hover:text-gold-bright transition-colors";
+const CTA_CLS = `group/cta inline-flex items-center gap-2 transition-colors ${styles.workCta}`;
 
 const CTA_STYLE = {
   fontFamily: "var(--font-inter)",
@@ -100,7 +99,7 @@ function ProductFeature({
   const mediaInner = (
     <div className="block w-full">
       <div className="relative flex items-center justify-center">
-        <div className="relative w-full drop-shadow-[0_26px_55px_rgba(0,0,0,0.7)]">
+        <div className={`relative w-full ${styles.workShadow}`}>
           <HomepageProjectPreview k={tileKey} />
         </div>
       </div>
@@ -145,7 +144,7 @@ function ProductFeature({
           strokeLinecap="round"
           strokeLinejoin="round"
           aria-hidden="true"
-          className={`flex-shrink-0 text-tan transition-transform duration-300 ${
+          className={`flex-shrink-0 ${styles.workMuted} transition-transform duration-300 ${
             open ? "rotate-45" : ""
           }`}
         >
@@ -167,16 +166,18 @@ function ProductFeature({
               letterSpacing: "0.06em",
             }}
           >
-            <span className="text-tan">{category}</span>
+            <span className={styles.workMuted}>{category}</span>
             {status && (
-              <span className="rounded-full border border-cream/20 px-2.5 py-1 text-cream/45">
+              <span
+                className={`rounded-full border px-2.5 py-1 ${styles.workStatus}`}
+              >
                 {status}
               </span>
             )}
           </div>
           <NameBlock tileKey={tileKey} name={name} className="hidden md:flex" />
           <p
-            className="text-cream/70 mt-4 max-w-md"
+            className={`${styles.workBody} mt-4 max-w-md`}
             style={{
               fontFamily: "var(--font-inter)",
               fontSize: "1.0625rem",
@@ -264,7 +265,7 @@ function NameBlock({
         />
       </span>
       <h3
-        className="text-cream"
+        className={styles.workName}
         style={{
           fontFamily: "var(--font-inter)",
           fontSize: "clamp(2rem, 4vw, 2.75rem)",

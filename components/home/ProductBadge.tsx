@@ -1,5 +1,6 @@
 import { useId } from "react";
 import { SPARK_MARK_PATH } from "@/components/spark/SparkMark";
+import styles from "./home.module.css";
 
 type BadgeKey = "makeebook" | "coverly" | "doodlewire" | "spark";
 
@@ -14,6 +15,7 @@ export function MarkPlate({ id }: { id: string }) {
   return (
     <>
       <rect
+        className={styles.markPlate}
         x="0.5"
         y="0.5"
         width="62"
@@ -28,6 +30,7 @@ export function MarkPlate({ id }: { id: string }) {
           (y === DOT_FIRST || y === DOT_LAST) ? null : (
             <rect
               key={`${x}-${y}`}
+              className={styles.markDot}
               x={x}
               y={y}
               width="3.25"
@@ -165,26 +168,26 @@ export default function ProductBadge({
       <MarkPlate id={id} />
 
       {badge === "makeebook" && (
-        <g filter={`url(#${id}-drop)`}>
+        <g className={styles.markGlyph} filter={`url(#${id}-drop)`}>
           <path d={MAKEEBOOK_TOP} fill="#FBF9F3" />
           <path d={MAKEEBOOK_BOTTOM} fill="#FBF9F3" />
         </g>
       )}
 
       {badge === "coverly" && (
-        <g filter={`url(#${id}-drop)`}>
+        <g className={styles.markGlyph} filter={`url(#${id}-drop)`}>
           <path d={COVERLY_MARK} fill="#FBF9F3" />
         </g>
       )}
 
       {badge === "spark" && (
-        <g filter={`url(#${id}-drop)`}>
+        <g className={styles.markGlyph} filter={`url(#${id}-drop)`}>
           <path d={SPARK_MARK_PATH} fill="#FEFEFE" />
         </g>
       )}
 
       {badge === "doodlewire" && (
-        <g filter={`url(#${id}-drop)`}>
+        <g className={styles.markGlyph} filter={`url(#${id}-drop)`}>
           <path
             fillRule="evenodd"
             clipRule="evenodd"

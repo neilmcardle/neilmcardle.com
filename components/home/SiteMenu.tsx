@@ -1,8 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { MarkEdge, MarkPlate } from "./ProductBadge";
+import { motionEnabled } from "./motion";
+import {
+  currentTheme,
+  setTheme,
+  subscribeTheme,
+  type SiteTheme,
+} from "./theme";
 import styles from "./home.module.css";
 
 const PAGES: { label: string; href: string; external?: boolean }[] = [
@@ -29,7 +42,51 @@ const SOCIAL: { label: string; href: string; path: string }[] = [
   },
 ];
 
-export default function SiteMenu() {
+const isDark = () => currentTheme() === "dark";
+
+function switchTheme(next: SiteTheme, origin: HTMLElement) {
+  const still =
+    !motionEnabled() ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (still || !("startViewTransition" in document)) {
+    setTheme(next);
+    return;
+  }
+  const box = origin.getBoundingClientRect();
+  const x = box.left + box.width / 2;
+  const y = box.top + box.height / 2;
+  const radius = Math.hypot(
+    Math.max(x, window.innerWidth - x),
+    Math.max(y, window.innerHeight - y),
+  );
+  const root = document.documentElement;
+  root.classList.add("theme-reveal");
+  const transition = document.startViewTransition(() => setTheme(next));
+  transition.ready
+    .then(() => {
+      root.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${radius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 380,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          pseudoElement: "::view-transition-new(root)",
+        },
+      );
+    })
+    .catch(() => undefined);
+  transition.finished.finally(() => root.classList.remove("theme-reveal"));
+}
+
+export default function SiteMenu({
+  themeToggle = false,
+}: {
+  themeToggle?: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   const [stamp, setStamp] = useState<{ year: number; day: number } | null>(
@@ -37,6 +94,8 @@ export default function SiteMenu() {
   );
   const wrapRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const switchRef = useRef<HTMLSpanElement>(null);
+  const dark = useSyncExternalStore(subscribeTheme, isDark, () => true);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -90,11 +149,11 @@ export default function SiteMenu() {
           aria-hidden="true"
         >
           <MarkPlate id="nmark" />
-          <g filter="url(#nmark-shadow-a)">
+          <g className={styles.markGlyph} filter="url(#nmark-shadow-a)">
             <path d="M45 45L32 31.2985V18H45V45Z" fill="#FEFEFE" />
             <path d="M18 18L32 31.6343L32 45L18 45L18 18Z" fill="#FEFEFE" />
           </g>
-          <g filter="url(#nmark-shadow-b)">
+          <g className={styles.markGlyph} filter="url(#nmark-shadow-b)">
             <path d="M45 45L32 31.2985V18H45V45Z" fill="#FEFEFE" />
             <path d="M18 18L32 31.6343L32 45L18 45L18 18Z" fill="#FEFEFE" />
           </g>
@@ -171,6 +230,57 @@ export default function SiteMenu() {
           ))}
 
           <div className={styles.menuRule} />
+
+          {themeToggle && (
+            <>
+              <button
+                type="button"
+                role="menuitemcheckbox"
+                aria-checked={dark}
+                className={styles.menuItem}
+                onClick={() => {
+                  if (switchRef.current)
+                    switchTheme(dark ? "light" : "dark", switchRef.current);
+                }}
+              >
+                Dark mode
+                <span
+                  ref={switchRef}
+                  className={styles.themeSwitch}
+                  data-dark={dark}
+                  aria-hidden="true"
+                >
+                  <span className={styles.themeKnob} />
+                  <span className={`${styles.themeIcon} ${styles.themeSun}`}>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                    >
+                      <circle cx="12" cy="12" r="4.2" />
+                      <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" />
+                    </svg>
+                  </span>
+                  <span className={`${styles.themeIcon} ${styles.themeMoon}`}>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M20.3 14.7A8.5 8.5 0 0 1 9.3 3.7a8.5 8.5 0 1 0 11 11Z" />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+
+              <div className={styles.menuRule} />
+            </>
+          )}
 
           <div className={styles.menuSocial}>
             {SOCIAL.map((sm) => (

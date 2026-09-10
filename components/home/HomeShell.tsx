@@ -1,31 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState, useSyncExternalStore } from "react";
 import styles from "./home.module.css";
 import Image from "next/image";
 import DotField from "./DotField";
+import GlowField from "./GlowField";
 import LiveSentence from "./LiveSentence";
 import SelectedWork from "./SelectedWork";
 import SiteMenu from "./SiteMenu";
-import RainToggle from "./RainToggle";
-import * as rain from "./rainAudio";
+import MotionToggle from "./MotionToggle";
+import { motionEnabled, subscribeMotion } from "./motion";
+import { syncTheme } from "./theme";
 
-export default function HomeShell() {
-  const [raining, setRaining] = useState(true);
+export default function HomeShell({ refresh = false }: { refresh?: boolean }) {
+  const moving = useSyncExternalStore(
+    subscribeMotion,
+    motionEnabled,
+    () => true,
+  );
 
-  useEffect(() => {
-    setRaining(rain.enabled());
-    return rain.subscribe(setRaining);
-  }, []);
+  useLayoutEffect(() => {
+    if (refresh) syncTheme();
+  }, [refresh]);
 
   return (
-    <div className={styles.page}>
-      <SiteMenu />
-      <RainToggle />
+    <div
+      className={
+        refresh
+          ? `${styles.page} ${styles.glass} ${styles.themed}`
+          : styles.page
+      }
+    >
+      <SiteMenu themeToggle={refresh} />
+      <MotionToggle />
 
       <div className={styles.shell}>
         <header className={styles.masthead}>
-          <DotField className={styles.heroDots} count={32} paused={!raining} />
+          {refresh ? (
+            <GlowField className={styles.heroShader} paused={!moving} />
+          ) : (
+            <DotField className={styles.heroDots} count={32} paused={!moving} />
+          )}
 
           <div className={styles.profile}>
             <div className={styles.profileTop}>
@@ -97,12 +112,7 @@ export default function HomeShell() {
         </section>
 
         <section id="contact" className={styles.tellMore}>
-          <DotField
-            className={styles.tellMoreDots}
-            seedOffset={7}
-            count={36}
-            paused={!raining}
-          />
+          <div className={styles.tellMoreDots} aria-hidden="true" />
 
           <div className={styles.sectionHead}>
             <span className={styles.sectionNum} aria-hidden="true">

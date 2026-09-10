@@ -87,6 +87,8 @@ export default function DotField({
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    const ink =
+      getComputedStyle(wrap).getPropertyValue("--home-rain-rgb").trim() || INK;
 
     const rf = mulberry32(0x9e3779b1 + seedOffset * 40503);
 
@@ -279,7 +281,7 @@ export default function DotField({
           if (gx < 0 || gx >= cols) continue;
           const a = s.alpha * (1 - t * taper);
           if (a < 0.03) continue;
-          ctx.fillStyle = `rgba(${INK}, ${a.toFixed(3)})`;
+          ctx.fillStyle = `rgba(${ink}, ${a.toFixed(3)})`;
           ctx.fillRect(gx * CELL, gy * CELL, SQUARE, SQUARE);
         }
       }
@@ -290,7 +292,7 @@ export default function DotField({
         if (gx < 0 || gx >= cols || gy < 0 || gy >= rows) continue;
         const a = p.alpha * (1 - p.t / p.life);
         if (a < 0.03) continue;
-        ctx.fillStyle = `rgba(${INK}, ${a.toFixed(3)})`;
+        ctx.fillStyle = `rgba(${ink}, ${a.toFixed(3)})`;
         ctx.fillRect(gx * CELL, gy * CELL, SPLASH_SQUARE, SPLASH_SQUARE);
       }
     };

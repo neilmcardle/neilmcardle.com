@@ -55,6 +55,11 @@ const nextConfig = {
         destination: "/doodlewire/:path*",
         permanent: true,
       },
+      {
+        source: "/design",
+        destination: "/hello",
+        permanent: true,
+      },
     ];
   },
   async headers() {

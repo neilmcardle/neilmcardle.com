@@ -2474,3 +2474,9 @@ button.spark-card:hover,
 .dialkit-panel-inner.dialkit-panel-inline {
   padding-bottom: 10px;
 }
+
+html.theme-reveal::view-transition-old(root),
+html.theme-reveal::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

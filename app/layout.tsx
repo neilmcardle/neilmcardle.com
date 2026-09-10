@@ -7,6 +7,7 @@ import "dialkit/styles.css";
 import { AuthProvider } from "@/lib/hooks/useAuth";
 import { SubscriptionProvider } from "@/lib/hooks/useSubscription";
 import { ThemeProvider } from "@/lib/contexts/ThemeContext";
+import { THEME_SCRIPT } from "@/components/home/theme";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import NeilAgent from "@/components/NeilAgent";
@@ -130,7 +131,11 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${GeistMono.variable} ${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body
         className="font-sans antialiased"
         style={{ fontFamily: "var(--font-inter)" }}

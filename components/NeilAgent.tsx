@@ -24,7 +24,6 @@ const HIDDEN_ROUTES = [
   "/doodlewire",
   "/paintings",
   "/tessera",
-  "/design",
 ];
 
 const HIDDEN_HOSTS = ["makeebook.ink", "www.makeebook.ink"];
