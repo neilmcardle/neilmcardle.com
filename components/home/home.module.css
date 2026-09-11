@@ -639,6 +639,20 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .ben {
+    animation-duration: 900ms !important;
+  }
+
+  .benArt {
+    animation-duration: 1100ms !important;
+  }
+
+  .benTime {
+    animation-duration: 240ms, 400ms !important;
+  }
+}
+
 @media (max-width: 640px) {
   .ben {
     left: auto;
