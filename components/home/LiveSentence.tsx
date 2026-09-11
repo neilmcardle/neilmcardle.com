@@ -15,10 +15,7 @@ const londonTime = () => LONDON_TIME.format(new Date());
 
 export default function LiveSentence() {
   const [play, setPlay] = useState(0);
-  const start = () => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    setPlay((current) => current || Date.now());
-  };
+  const start = () => setPlay((current) => current || Date.now());
 
   return (
     <div className={styles.sentenceWrap}>
