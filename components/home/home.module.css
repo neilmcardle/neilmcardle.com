@@ -640,9 +640,16 @@
 }
 
 @media (max-width: 640px) {
+  .ben {
+    left: auto;
+    right: calc(0.267em + 2px);
+    bottom: calc(100% - 0.22em);
+  }
+
   .benTime {
     left: auto;
-    right: calc(0.1em + 1px);
+    right: calc(0.267em + 2px + 2.4em * 229.37 / 1254.11 + 0.3em + 1px);
+    bottom: calc(100% + 1.148em + 1px);
   }
 }
 
