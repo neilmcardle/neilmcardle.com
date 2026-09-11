@@ -261,7 +261,7 @@ export default function SiteMenu({
                     switchTheme(dark ? "light" : "dark", switchRef.current);
                 }}
               >
-                {dark ? "Light mode" : "Dark mode"}
+                {dark ? "Lighten up" : "Go dark"}
                 <span
                   ref={switchRef}
                   className={styles.themeSwitch}
