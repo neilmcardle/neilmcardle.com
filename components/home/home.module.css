@@ -75,20 +75,6 @@
   backdrop-filter: blur(12px) saturate(1.4);
 }
 
-.glass .heroBadge {
-  border: 1px solid var(--home-glass-edge);
-  border-radius: 20px;
-  padding: 6px;
-  background: var(--home-glass);
-  -webkit-backdrop-filter: blur(12px) saturate(1.4);
-  backdrop-filter: blur(12px) saturate(1.4);
-}
-
-.glass .heroBadge img {
-  border-radius: 13px;
-  background: #0a0a0a;
-}
-
 .shell {
   position: relative;
   z-index: 1;
@@ -454,35 +440,6 @@
   width: var(--coin-thickness);
   margin-left: calc(var(--coin-thickness) / -2);
   background: linear-gradient(90deg, #4f4941 0%, #b0a08a 50%, #4f4941 100%);
-}
-
-.heroBadge {
-  width: 124px;
-  height: 124px;
-  flex-shrink: 0;
-  border: 2px solid transparent;
-  border-radius: 12px;
-  background:
-    linear-gradient(#0a0a0a, #0a0a0a) padding-box,
-    linear-gradient(
-        45deg,
-        #1e1e1e 0%,
-        #363636 34.1%,
-        #d7d7d7 49%,
-        #414141 59.1%,
-        #353536 100%
-      )
-      border-box;
-}
-
-.heroBadge img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  object-fit: cover;
-  object-position: 50% 22%;
-  transform: scaleX(-1);
 }
 
 .masthead {
@@ -1107,6 +1064,50 @@
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.pinMark {
+  position: relative;
+  display: inline-block;
+  flex: none;
+}
+
+.pinMark > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 17%;
+  object-fit: cover;
+  object-position: 50% 22%;
+}
+
+.pinMark canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: grab;
+  touch-action: none;
+  transition: opacity 400ms ease;
+}
+
+.pinMark canvas:active {
+  cursor: grabbing;
+}
+
+.pinMark canvas[data-ready] {
+  opacity: 1;
+}
+
+.pinMark > svg,
+.pinMark > img {
+  visibility: hidden;
+}
+
+.pinMark[data-fallback] > svg,
+.pinMark[data-fallback] > img {
+  visibility: visible;
 }
 
 .dockTitle {

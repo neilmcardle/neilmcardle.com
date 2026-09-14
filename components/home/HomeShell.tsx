@@ -2,8 +2,8 @@
 
 import { useLayoutEffect, useSyncExternalStore } from "react";
 import styles from "./home.module.css";
-import Image from "next/image";
 import GlowField from "./GlowField";
+import PinMark from "./PinMark";
 import LiveSentence from "./LiveSentence";
 import ProductDock from "./ProductDock";
 import SiteMenu from "./SiteMenu";
@@ -36,16 +36,7 @@ export default function HomeShell() {
 
           <div className={styles.profile}>
             <div className={styles.profileTop}>
-              <div className={styles.heroBadge}>
-                <Image
-                  src="/hero/portrait.png"
-                  alt="Neil McArdle"
-                  width={480}
-                  height={480}
-                  sizes="124px"
-                  priority
-                />
-              </div>
+              <PinMark face="portrait" size={124} zoom={4.7} />
 
               <div className={styles.profileMeta}>
                 <h1 className={styles.profileName}>Neil McArdle</h1>

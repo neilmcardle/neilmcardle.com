@@ -3,7 +3,8 @@
 import Link from "next/link";
 import styles from "./home.module.css";
 import { HomepageProjectPreview } from "@/components/HomepageProjectPreview";
-import ProductBadge, { type BadgeKey } from "./ProductBadge";
+import type { BadgeKey } from "./ProductBadge";
+import PinMark from "./PinMark";
 
 export type Feature = {
   tileKey: BadgeKey;
@@ -74,7 +75,7 @@ export function ProductDetail({ feature }: { feature: Feature }) {
     <div className={styles.dockSplit}>
       <div className={styles.dockSide}>
         <div className={styles.dockHead}>
-          <ProductBadge badge={feature.tileKey} size={40} />
+          <PinMark face={feature.tileKey} size={60} />
           <h2 className={styles.dockTitle}>{feature.name}</h2>
         </div>
         <dl className={styles.dockFacts}>
