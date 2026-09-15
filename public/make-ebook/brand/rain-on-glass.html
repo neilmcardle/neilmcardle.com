@@ -27,6 +27,11 @@
         width: 100vw;
         height: 100vh;
         z-index: 1;
+        opacity: 0;
+        transition: opacity 700ms ease;
+      }
+      #canvas.ready {
+        opacity: 1;
       }
     </style>
   </head>
@@ -325,8 +330,21 @@
           return c;
         }
 
-        var textureFgCanvas = generateCityBg(96, 64, 1);
-        var textureBgCanvas = generateCityBg(384, 256, 8);
+        function flatCanvas(w, h, hex) {
+          var c = createCanvas(w, h);
+          var ctx = c.getContext("2d");
+          ctx.fillStyle = hex;
+          ctx.fillRect(0, 0, w, h);
+          return c;
+        }
+
+        var customGround = /[?&](bg|color)=/.test(window.location.search);
+        var textureFgCanvas = customGround
+          ? flatCanvas(96, 64, "#0b0b0b")
+          : generateCityBg(96, 64, 1);
+        var textureBgCanvas = customGround
+          ? flatCanvas(384, 256, "#0b0b0b")
+          : generateCityBg(384, 256, 8);
 
         var dropsGfx = [];
         var clearDropletsGfx = null;
@@ -998,6 +1016,10 @@
             uploadTexture(2, fgTex, fg);
             uploadTexture(3, bgTex, bg);
             bgRatio = bg.width / bg.height;
+            canvas.classList.add("ready");
+          };
+          img.onerror = function () {
+            canvas.classList.add("ready");
           };
           img.src = url;
         }
@@ -1065,7 +1087,9 @@
                 : "#" + glowParam
               : ground;
           setBackgroundColor(ground, glow);
+          canvas.classList.add("ready");
         } else if (bgParam) setBackgroundImage(bgParam);
+        else canvas.classList.add("ready");
         window.addEventListener("message", function (e) {
           if (e.data && e.data.type === "bg" && typeof e.data.url === "string")
             setBackgroundImage(e.data.url);
