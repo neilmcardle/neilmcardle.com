@@ -1,8 +1,20 @@
 const isDev = process.env.NODE_ENV === "development";
 
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://unpkg.com https://www.googletagmanager.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "media-src 'self' blob: https://*.elevenlabs.io",
+  "connect-src 'self' https://lbwlsmxfmkjhugrdwtqn.supabase.co https://hhsiuvalashrqtpluxan.supabase.co https://api.elevenlabs.io https://api.us.elevenlabs.io wss://api.elevenlabs.io wss://api.us.elevenlabs.io https://fonts.googleapis.com https://fonts.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.co.uk https://googleads.g.doubleclick.net https://stats.g.doubleclick.net",
+  "worker-src 'self' blob:",
+  "frame-ancestors 'self'",
+].join("; ");
+
 const nextConfig = {
   typescript: {
-    ignoreBuildErrors: true, // Temporarily ignore for project setup
+    ignoreBuildErrors: true,
   },
   turbopack: {},
 
@@ -87,16 +99,7 @@ const nextConfig = {
               headers: [
                 {
                   key: "Content-Security-Policy",
-                  value:
-                    "default-src 'self'; " +
-                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://www.googletagmanager.com; " +
-                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-                    "img-src 'self' data: blob: https:; " +
-                    "font-src 'self' data: https://fonts.gstatic.com; " +
-                    "media-src 'self' blob: https://*.mux.com https://*.elevenlabs.io; " +
-                    "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://firebase.googleapis.com https://firestore.googleapis.com https://hhsiuvalashrqtpluxan.supabase.co https://agisftsuzxiwctupgeol.supabase.co https://lbwlsmxfmkjhugrdwtqn.supabase.co https://api.x.ai https://*.mux.com https://inferred.litix.io https://api.elevenlabs.io https://api.us.elevenlabs.io wss://api.elevenlabs.io wss://api.us.elevenlabs.io https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.co.uk https://googleads.g.doubleclick.net https://stats.g.doubleclick.net; " +
-                    "worker-src 'self' blob:; " +
-                    "frame-ancestors 'none';",
+                  value: contentSecurityPolicy,
                 },
                 {
                   key: "Cache-Control",
@@ -104,7 +107,7 @@ const nextConfig = {
                 },
                 {
                   key: "X-Frame-Options",
-                  value: "DENY",
+                  value: "SAMEORIGIN",
                 },
                 {
                   key: "X-Content-Type-Options",
