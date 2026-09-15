@@ -6,7 +6,7 @@ import { track } from "@vercel/analytics";
 
 import { useAuth } from "@/lib/hooks/useAuth";
 
-import LandingComposition from "./marketing/landing/LandingComposition";
+import BrandLanding from "./marketing/brand/BrandLanding";
 
 interface MarketingLandingPageProps {
   onStartWritingAction: () => void;
@@ -29,5 +29,5 @@ export default function MarketingLandingPage({
     ? onStartWritingAction
     : () => router.push("/make-ebook/signin?mode=signup");
 
-  return <LandingComposition onStartWriting={startWriting} hideNav={hideNav} />;
+  return <BrandLanding onStartWriting={startWriting} hideNav={hideNav} />;
 }

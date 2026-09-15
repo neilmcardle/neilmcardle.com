@@ -62,18 +62,18 @@ export default function MarketingFooter({
           <div className="col-span-2 md:col-span-4">
             <div className="flex items-center gap-2 mb-4">
               <Image
-                src="/make-ebook-logo.svg"
+                src="/make-ebook/brand/mark.svg"
                 alt=""
-                width={20}
-                height={20}
-                className="invert opacity-60"
+                width={82}
+                height={30}
+                className="h-[20px] w-auto opacity-60"
                 aria-hidden="true"
               />
               <span
-                className="font-serif font-bold text-white/80"
+                className="font-semibold text-white/80"
                 style={{ fontSize: "1rem", letterSpacing: "-0.02em" }}
               >
-                makeEbook
+                makeebook
               </span>
             </div>
             <p className="text-sm text-white/40 max-w-xs text-pretty">

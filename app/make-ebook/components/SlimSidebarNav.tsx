@@ -336,11 +336,11 @@ export default function SlimSidebarNav({
             aria-label="Go to home"
           >
             <Image
-              src="/make-ebook-logo.svg"
-              alt="makeEBook"
-              width={40}
-              height={40}
-              className="w-10 h-10 dark:invert"
+              src="/make-ebook/brand/mark.svg"
+              alt="makeEbook"
+              width={82}
+              height={30}
+              className="w-10 h-auto invert dark:invert-0"
               priority
             />
           </button>

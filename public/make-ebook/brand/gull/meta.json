@@ -1,0 +1,5 @@
+{
+  "box": [176, 144],
+  "rows": ["fly-in", "land", "settle", "fly-out"],
+  "counts": { "fly-in": 8, "land": 8, "settle": 6, "fly-out": 8 }
+}

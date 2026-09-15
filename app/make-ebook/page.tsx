@@ -1471,11 +1471,11 @@ function MakeEbookPage() {
                     aria-label="Go to home"
                   >
                     <Image
-                      src="/make-ebook-logomark.svg"
-                      alt="makeEBook logo"
-                      width={100}
-                      height={39}
-                      className="h-[39px] w-[100px] dark:invert"
+                      src="/make-ebook/brand/mark.svg"
+                      alt="makeEbook"
+                      width={82}
+                      height={30}
+                      className="h-[30px] w-auto invert dark:invert-0"
                       priority
                     />
                   </button>

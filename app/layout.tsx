@@ -7,6 +7,7 @@ import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";
 import {
   Cantarell,
+  Cormorant_Garamond,
   Inter,
   Playfair_Display,
   EB_Garamond,
@@ -45,6 +46,15 @@ const ebGaramond = EB_Garamond({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
+  display: "swap",
+  preload: false,
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
   display: "swap",
   preload: false,
 });
@@ -127,7 +137,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable}`}
+      className={`${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable} ${cormorant.variable}`}
       suppressHydrationWarning
     >
       <head>

@@ -134,18 +134,18 @@ export default function MarketingNav({
             aria-label="makeEbook home"
           >
             <Image
-              src="/make-ebook-logo.svg"
+              src="/make-ebook/brand/mark.svg"
               alt=""
-              width={22}
-              height={22}
-              className="invert"
+              width={82}
+              height={30}
+              className="h-[22px] w-auto"
               aria-hidden="true"
             />
             <span
-              className="font-serif font-bold text-white"
+              className="font-semibold text-white"
               style={{ fontSize: "1.0625rem", letterSpacing: "-0.02em" }}
             >
-              makeEbook
+              makeebook
             </span>
           </button>
 
