@@ -1211,7 +1211,9 @@
   position: relative;
   display: grid;
   place-items: center;
+  container-type: inline-size;
   aspect-ratio: 16 / 7;
+  padding-inline: 8%;
   overflow: hidden;
   border-radius: 8px;
   background: #14140f;
@@ -1221,19 +1223,19 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 26px;
+  gap: min(26px, 5.3cqw);
 }
 
 .mbLockupMark {
   display: block;
   flex: none;
   width: auto;
-  height: 40px;
+  height: min(40px, 8.2cqw);
 }
 
 .mbWordmark {
   color: #f3efe5;
-  font-size: 2.25rem;
+  font-size: min(2.25rem, 7.3cqw);
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1;
