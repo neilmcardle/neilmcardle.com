@@ -5,18 +5,21 @@ import { useState } from "react";
 import { Wordmark } from "./BrandMark";
 import styles from "./brand.module.css";
 
-const LINKS = [
-  { href: "#product", label: "Product" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "/make-ebook/signin", label: "Sign in" },
-];
+const SIGNUP = "/make-ebook/signin?mode=signup";
 
 type BrandNavProps = {
-  onStartWriting: () => void;
+  onStartWriting?: () => void;
+  onLanding?: boolean;
 };
 
-export function BrandNav({ onStartWriting }: BrandNavProps) {
+export function BrandNav({ onStartWriting, onLanding = false }: BrandNavProps) {
   const [open, setOpen] = useState(false);
+  const home = onLanding ? "" : "/make-ebook";
+  const links = [
+    { href: `${home}#product`, label: "Product" },
+    { href: `${home}#pricing`, label: "Pricing" },
+    { href: "/make-ebook/signin", label: "Sign in" },
+  ];
 
   return (
     <header className={styles.nav}>
@@ -25,7 +28,7 @@ export function BrandNav({ onStartWriting }: BrandNavProps) {
           <Wordmark />
         </Link>
         <nav className={styles.links} aria-label="Primary">
-          {LINKS.map((l) => (
+          {links.map((l) => (
             <Link key={l.label} href={l.href} className={styles.link}>
               {l.label}
             </Link>
@@ -62,7 +65,7 @@ export function BrandNav({ onStartWriting }: BrandNavProps) {
         id="lab-menu"
         className={`${styles.menu} ${open ? styles.menuOpen : ""}`}
       >
-        {LINKS.map((l) => (
+        {links.map((l) => (
           <Link
             key={l.label}
             href={l.href}
@@ -72,16 +75,26 @@ export function BrandNav({ onStartWriting }: BrandNavProps) {
             {l.label}
           </Link>
         ))}
-        <button
-          type="button"
-          className={styles.cta}
-          onClick={() => {
-            setOpen(false);
-            onStartWriting();
-          }}
-        >
-          Start writing. It&rsquo;s free.
-        </button>
+        {onStartWriting ? (
+          <button
+            type="button"
+            className={styles.cta}
+            onClick={() => {
+              setOpen(false);
+              onStartWriting();
+            }}
+          >
+            Start writing. It&rsquo;s free.
+          </button>
+        ) : (
+          <Link
+            href={SIGNUP}
+            className={styles.cta}
+            onClick={() => setOpen(false)}
+          >
+            Start writing. It&rsquo;s free.
+          </Link>
+        )}
       </div>
     </header>
   );

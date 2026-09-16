@@ -38,18 +38,19 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/social-make-ebook.png",
-        width: 1200,
-        height: 630,
-        alt: "makeEbook. Write, format, and export a professional EPUB.",
+        url: "/make-ebook/brand/social.jpg",
+        width: 2400,
+        height: 1260,
+        alt: "makeebook. From manuscript to store-ready ebook.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
+    site: "@makeEbook",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/social-make-ebook.png"],
+    images: ["/make-ebook/brand/social.jpg"],
   },
 };
 

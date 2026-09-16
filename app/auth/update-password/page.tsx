@@ -4,45 +4,21 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, AlertCircle, CheckCircle, KeyRound } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
+import {
+  AuthCard,
+  BrandPage,
+  RainStage,
+} from "@/app/make-ebook/components/marketing/brand/BrandPage";
+import brand from "@/app/make-ebook/components/marketing/brand/brand.module.css";
+import ui from "@/app/make-ebook/components/marketing/brand/page.module.css";
 
-const PAGE =
-  "min-h-screen bg-me-cream dark:bg-me-cream-dark flex items-center justify-center px-4";
-const CARD =
-  "w-full max-w-md rounded-2xl border border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#1e1e1e] shadow-sm p-8 sm:p-10";
-const FIELD =
-  "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-[#2f2f2f] bg-white dark:bg-[#262626] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-[#737373] focus:outline-none focus:ring-2 focus:ring-gray-900/15 dark:focus:ring-white/20 focus:border-gray-900 dark:focus:border-[#555] transition-shadow disabled:opacity-50";
-const CTA =
-  "w-full py-3.5 px-6 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2";
-
-function Title({ children }: { children: React.ReactNode }) {
+function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <h1
-      className="text-gray-900 dark:text-white text-balance"
-      style={{
-        fontFamily: "var(--font-playfair)",
-        fontWeight: 400,
-        fontSize: "clamp(1.5rem, 1vw + 1.25rem, 1.875rem)",
-        letterSpacing: "-0.03em",
-        lineHeight: 1.15,
-      }}
-    >
-      {children}
-    </h1>
-  );
-}
-
-function Sub({ children }: { children: React.ReactNode }) {
-  return (
-    <p
-      className="mt-3 text-gray-600 dark:text-[#a3a3a3] text-pretty"
-      style={{
-        fontFamily: "var(--font-playfair)",
-        lineHeight: 1.55,
-        fontStyle: "italic",
-      }}
-    >
-      {children}
-    </p>
+    <BrandPage>
+      <RainStage>
+        <AuthCard>{children}</AuthCard>
+      </RainStage>
+    </BrandPage>
   );
 }
 
@@ -145,124 +121,114 @@ export default function UpdatePasswordPage() {
 
   if (checkingSession) {
     return (
-      <div className={PAGE}>
-        <div className={CARD}>
-          <div className="flex flex-col items-center gap-3">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400 dark:text-[#737373]" />
-            <p className="text-13 text-gray-600 dark:text-[#a3a3a3]">
-              Verifying reset link
-            </p>
+      <Shell>
+        <div className={ui.center}>
+          <div className={ui.badge}>
+            <Loader2 className={`h-5 w-5 ${ui.spin}`} />
           </div>
+          <p className={`${ui.sub} m-0`}>Verifying reset link</p>
         </div>
-      </div>
+      </Shell>
     );
   }
 
   if (!isValidSession) {
     return (
-      <div className={PAGE}>
-        <div className={CARD}>
-          <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800 flex items-center justify-center mb-6">
-            <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
-          </div>
-          <Title>Invalid reset link.</Title>
-          <Sub>This password reset link is invalid or has expired.</Sub>
-          <button
-            type="button"
-            onClick={() => router.push("/make-ebook/signin?mode=reset")}
-            className={`${CTA} mt-8`}
-          >
-            Request a new link
-          </button>
+      <Shell>
+        <div className={`${ui.badge} ${ui.badgeError}`}>
+          <AlertCircle className="w-5 h-5" />
         </div>
-      </div>
+        <h1 className={ui.title}>Invalid reset link.</h1>
+        <p className={ui.sub}>
+          This password reset link is invalid or has expired.
+        </p>
+        <button
+          type="button"
+          onClick={() => router.push("/make-ebook/signin?mode=reset")}
+          className={`${brand.cta} ${ui.submit} mt-8`}
+        >
+          Request a new link
+        </button>
+      </Shell>
     );
   }
 
   if (success) {
     return (
-      <div className={PAGE}>
-        <div className={CARD}>
-          <div className="w-12 h-12 rounded-full bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-800 flex items-center justify-center mb-6">
-            <CheckCircle className="w-6 h-6 text-green-700 dark:text-green-400" />
-          </div>
-          <Title>Password updated.</Title>
-          <Sub>Taking you back to makeEbook.</Sub>
+      <Shell>
+        <div className={`${ui.badge} ${ui.badgeSuccess}`}>
+          <CheckCircle className="w-5 h-5" />
         </div>
-      </div>
+        <h1 className={ui.title}>Password updated.</h1>
+        <p className={ui.sub}>Taking you back to makeebook.</p>
+      </Shell>
     );
   }
 
   return (
-    <div className={PAGE}>
-      <div className={CARD}>
-        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-[#262626] flex items-center justify-center mb-6">
-          <KeyRound className="w-6 h-6 text-[#444] dark:text-[#a3a3a3]" />
-        </div>
-        <Title>Set a new password.</Title>
-        <Sub>Choose something strong. You will not need to do this again.</Sub>
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-          {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-900 dark:text-red-200 text-pretty">
-                  {error}
-                </p>
-              </div>
-            </div>
-          )}
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4] mb-2"
-            >
-              New password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter new password"
-              required
-              minLength={6}
-              disabled={isLoading}
-              className={FIELD}
-            />
-            <p className="mt-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
-              At least 6 characters.
-            </p>
-          </div>
-
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4] mb-2"
-            >
-              Confirm new password
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm new password"
-              required
-              minLength={6}
-              disabled={isLoading}
-              className={FIELD}
-            />
-          </div>
-
-          <button type="submit" className={CTA} disabled={isLoading}>
-            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            Update password
-          </button>
-        </form>
+    <Shell>
+      <div className={ui.badge}>
+        <KeyRound className="w-5 h-5" />
       </div>
-    </div>
+      <h1 className={ui.title}>Set a new password.</h1>
+      <p className={ui.sub}>
+        Choose something strong. You will not need to do this again.
+      </p>
+
+      <form onSubmit={handleSubmit} className={ui.form}>
+        {error && (
+          <div className={`${ui.notice} ${ui.noticeError}`} role="alert">
+            <AlertCircle className="w-4 h-4" />
+            <p className="m-0">{error}</p>
+          </div>
+        )}
+
+        <div>
+          <label htmlFor="password" className={ui.label}>
+            New password
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter new password"
+            required
+            minLength={6}
+            autoComplete="new-password"
+            disabled={isLoading}
+            className={ui.field}
+          />
+          <p className={ui.hint}>At least 6 characters.</p>
+        </div>
+
+        <div>
+          <label htmlFor="confirmPassword" className={ui.label}>
+            Confirm new password
+          </label>
+          <input
+            id="confirmPassword"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm new password"
+            required
+            minLength={6}
+            autoComplete="new-password"
+            disabled={isLoading}
+            className={ui.field}
+          />
+        </div>
+
+        <button
+          type="submit"
+          className={`${brand.cta} ${ui.submit}`}
+          disabled={isLoading}
+        >
+          {isLoading && <Loader2 className={`h-4 w-4 ${ui.spin}`} />}
+          Update password
+        </button>
+      </form>
+    </Shell>
   );
 }

@@ -17,19 +17,24 @@ export const metadata: Metadata = {
     url: "https://makeebook.ink/blog",
     images: [
       {
-        url: "/social-make-ebook.png",
-        width: 1200,
-        height: 630,
+        url: "/make-ebook/brand/social.jpg",
+        width: 2400,
+        height: 1260,
         alt: "makeEbook Blog. Ebook writing and self-publishing guides.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/social-make-ebook.png"],
+    site: "@makeEbook",
+    images: ["/make-ebook/brand/social.jpg"],
   },
 };
 
-export default function BlogLayout({ children }: { children: React.ReactNode }) {
+export default function BlogLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <>{children}</>;
 }

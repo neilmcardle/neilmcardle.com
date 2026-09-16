@@ -1140,6 +1140,20 @@
   line-height: 1.6;
 }
 
+.dockHandle {
+  color: inherit;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.dockHandle:hover {
+  color: var(--home-accent, #d8b46a);
+}
+
+.dockHandle:hover .profileHandleName {
+  text-decoration-color: currentColor;
+}
+
 .dockSideLink {
   margin-top: 24px;
 }

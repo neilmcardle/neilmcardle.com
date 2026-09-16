@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { getAllPosts } from "./posts";
 import { ArrowRight } from "lucide-react";
-import MarketingNav from "../components/MarketingNav";
-import MarketingFooter from "../components/MarketingFooter";
+import { BrandPage } from "../components/marketing/brand/BrandPage";
+import brand from "../components/marketing/brand/brand.module.css";
+import styles from "./blog.module.css";
+import { BlogCta } from "./BlogCta";
 
 export default function BlogIndex() {
   const posts = getAllPosts();
@@ -39,74 +41,47 @@ export default function BlogIndex() {
   };
 
   return (
-    <div className="relative min-h-screen bg-me-cream text-gray-700">
+    <BrandPage>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }}
       />
-      <MarketingNav />
-
-      <header
-        id="main-content"
-        className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-20 pb-16 sm:pt-28 sm:pb-20"
-      >
-        <div className="max-w-3xl">
-          <h1
-            className="font-serif font-bold text-gray-900 text-balance"
-            style={{
-              fontSize: "clamp(2.5rem, 5vw + 0.5rem, 4.5rem)",
-              letterSpacing: "-0.04em",
-              lineHeight: 1.02,
-            }}
-          >
-            Ebook writing &amp; self-publishing guides
+      <main id="main-content" className={`${brand.shell} ${styles.main}`}>
+        <header className={styles.hero}>
+          <p className={styles.eyebrow}>Blog</p>
+          <h1 className={styles.title}>
+            Ebook writing and self-publishing guides
           </h1>
-          <p
-            className="mt-6 text-xl sm:text-2xl text-gray-600 max-w-xl text-pretty"
-            style={{ fontFamily: "Georgia, serif", lineHeight: 1.5 }}
-          >
+          <p className={styles.lede}>
             Practical guides for writing, formatting, and publishing your first
             ebook on Kindle, Kobo, and Apple Books.
           </p>
-        </div>
-      </header>
+        </header>
 
-      <main className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pb-28">
-        <div className="grid gap-6 lg:gap-8 md:grid-cols-2 max-w-5xl">
+        <div className={styles.grid}>
           {posts.map((post) => (
             <Link
               key={post.slug}
               href={`/make-ebook/blog/${post.slug}`}
-              className="group block rounded-2xl border border-gray-200 bg-white overflow-hidden hover:border-gray-300 hover:shadow-sm transition-all"
+              className={styles.card}
             >
               {post.image && (
-                <div className="aspect-[16/9] bg-me-cream flex items-center justify-center overflow-hidden border-b border-gray-200">
+                <div className={styles.cardImage}>
                   <img
                     src={post.image}
                     alt={post.imageAlt ?? post.title}
-                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                     loading="lazy"
                   />
                 </div>
               )}
-              <div className="p-8">
-                <span className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
+              <div className={styles.cardBody}>
+                <span className={styles.eyebrow} style={{ margin: 0 }}>
                   {post.category}
                 </span>
-                <h2
-                  className="text-xl font-semibold text-gray-900 mt-3 mb-3 text-balance"
-                  style={{ letterSpacing: "-0.02em" }}
-                >
-                  {post.title}
-                </h2>
-                <p
-                  className="text-gray-600 mb-5 line-clamp-2 text-pretty"
-                  style={{ fontFamily: "Georgia, serif", lineHeight: 1.55 }}
-                >
-                  {post.description}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
+                <h2 className={styles.cardTitle}>{post.title}</h2>
+                <p className={styles.cardText}>{post.description}</p>
+                <div className={styles.cardMeta}>
+                  <span>
                     {new Date(post.date).toLocaleDateString("en-GB", {
                       day: "numeric",
                       month: "long",
@@ -114,15 +89,17 @@ export default function BlogIndex() {
                     })}{" "}
                     &middot; {post.readingTime}
                   </span>
-                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </div>
               </div>
             </Link>
           ))}
         </div>
-      </main>
 
-      <MarketingFooter showWordmark={false} />
-    </div>
+        <div className={styles.article}>
+          <BlogCta />
+        </div>
+      </main>
+    </BrandPage>
   );
 }

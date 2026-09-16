@@ -12,6 +12,7 @@ import {
   Playfair_Display,
   EB_Garamond,
   JetBrains_Mono,
+  Libre_Baskerville,
   Zilla_Slab,
 } from "next/font/google";
 
@@ -55,6 +56,15 @@ const cormorant = Cormorant_Garamond({
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
+  display: "swap",
+  preload: false,
+});
+
+const libreBaskerville = Libre_Baskerville({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-baskerville",
   display: "swap",
   preload: false,
 });
@@ -137,7 +147,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable} ${cormorant.variable}`}
+      className={`${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable} ${cormorant.variable} ${libreBaskerville.variable}`}
       suppressHydrationWarning
     >
       <head>

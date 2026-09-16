@@ -6,7 +6,7 @@ const PANEL =
 const RULE = "border-[#2a2a28]";
 const ACID = "#deea53";
 const MANUSCRIPT = {
-  fontFamily: '"Libre Baskerville", Georgia, serif',
+  fontFamily: 'var(--font-baskerville), "Libre Baskerville", Georgia, serif',
 } as const;
 
 function Slot({ children }: { children: React.ReactNode }) {

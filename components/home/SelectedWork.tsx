@@ -17,6 +17,7 @@ export type Feature = {
   status?: string;
   external?: boolean;
   appleIcon?: boolean;
+  x?: string;
 };
 
 export const FEATURES: Feature[] = [
@@ -29,6 +30,7 @@ export const FEATURES: Feature[] = [
     href: "https://makeebook.ink",
     linkLabel: "makeebook.ink",
     external: true,
+    x: "makeebook",
   },
   {
     tileKey: "coverly",
@@ -94,6 +96,21 @@ export function ProductDetail({ feature }: { feature: Feature }) {
             <dt>About</dt>
             <dd>{feature.description}</dd>
           </div>
+          {feature.x && (
+            <div>
+              <dt>On X</dt>
+              <dd>
+                <a
+                  className={styles.dockHandle}
+                  href={`https://x.com/${feature.x}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  @<span className={styles.profileHandleName}>{feature.x}</span>
+                </a>
+              </dd>
+            </div>
+          )}
         </dl>
         <div className={styles.dockSideLink}>
           <ProductLink

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { openCookieConsent } from "@/components/CookieConsent";
+import { BrandFooter } from "./BrandFooter";
 import { BrandNav } from "./BrandNav";
 import { Gull } from "./Gull";
 import { HeroVideo } from "./HeroVideo";
@@ -129,7 +129,7 @@ export default function BrandLanding({
         </a>
       </section>
 
-      {!hideNav && <BrandNav onStartWriting={onStartWriting} />}
+      {!hideNav && <BrandNav onStartWriting={onStartWriting} onLanding />}
 
       <main>
         <section id="hero" className={styles.hero}>
@@ -275,49 +275,7 @@ export default function BrandLanding({
         </section>
       </main>
 
-      <footer className={styles.footer}>
-        <div className={`${styles.shell} ${styles.footerInner}`}>
-          <span>&copy; makeEbook {new Date().getFullYear()}</span>
-          <nav className={styles.footerLinks} aria-label="Footer">
-            <Link href="/make-ebook/blog" className={styles.footerLink}>
-              Blog
-            </Link>
-            <a
-              href="https://makeebook.ink/privacy"
-              className={styles.footerLink}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Privacy
-            </a>
-            <a
-              href="https://makeebook.ink/terms"
-              className={styles.footerLink}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Terms
-            </a>
-            <button
-              type="button"
-              onClick={openCookieConsent}
-              className={styles.footerLink}
-            >
-              Cookie preferences
-            </button>
-          </nav>
-          <span>
-            A{" "}
-            <a
-              href="https://neilmcardle.com"
-              className={`${styles.footerLink} ${styles.footerHome}`}
-            >
-              neilmcardle.com
-            </a>{" "}
-            project.
-          </span>
-        </div>
-      </footer>
+      <BrandFooter />
     </div>
   );
 }

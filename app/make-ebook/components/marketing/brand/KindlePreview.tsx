@@ -4,7 +4,7 @@ import { useState } from "react";
 import styles from "./brand.module.css";
 
 const MANUSCRIPT = {
-  fontFamily: '"Libre Baskerville", Georgia, serif',
+  fontFamily: 'var(--font-baskerville), "Libre Baskerville", Georgia, serif',
 } as const;
 
 const DEVICES = [
