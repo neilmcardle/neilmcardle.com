@@ -1168,15 +1168,20 @@
   flex: none;
 }
 
-.mbShot {
+.mbVideo {
+  position: relative;
   overflow: hidden;
+  aspect-ratio: 2218 / 940;
   border-radius: 8px;
+  background: #0a0a0a;
 }
 
-.mbShot img {
+.mbVideo video {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.05);
 }
 
 .mbRain {
@@ -1205,6 +1210,58 @@
   position: relative;
   width: 34%;
   height: auto;
+}
+
+.mbControls {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 1;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.mbRain:hover .mbControls,
+.mbVideo:hover .mbControls,
+.mbControls:focus-within,
+.mbControls[data-pinned] {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .mbControls {
+    opacity: 1;
+  }
+}
+
+.mbControl {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgb(216 212 201 / 0.26);
+  border-radius: 999px;
+  background: rgb(11 11 11 / 0.72);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #d8d4c9;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.mbControl:hover {
+  border-color: rgb(216 212 201 / 0.4);
+  color: #f3efe5;
+}
+
+.mbControl:focus-visible {
+  outline: 2px solid #deea53;
+  outline-offset: 2px;
 }
 
 .mbGrid {

@@ -49,6 +49,8 @@
         var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
         var paused = false;
+        var held = false;
+        var drawn = false;
         var reducedMotion = window.matchMedia(
           "(prefers-reduced-motion: reduce)",
         ).matches;
@@ -58,6 +60,7 @@
 
         window.addEventListener("message", function (e) {
           if (!e.data) return;
+          if (e.data.type === "playback") held = !e.data.playing;
           if (e.data.type === "param") {
             if (e.data.name === "RAIN_AMOUNT")
               RAIN_AMOUNT = parseFloat(e.data.value) || 1.0;
@@ -1111,7 +1114,7 @@
 
         function render() {
           requestAnimationFrame(render);
-          if (paused || reducedMotion) return;
+          if (paused || reducedMotion || (held && drawn)) return;
 
           rdUpdate();
 
@@ -1147,6 +1150,7 @@
 
           gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
           gl.drawArrays(gl.TRIANGLES, 0, 6);
+          drawn = canvas.classList.contains("ready");
         }
 
         function createSplash(clientX, clientY) {
