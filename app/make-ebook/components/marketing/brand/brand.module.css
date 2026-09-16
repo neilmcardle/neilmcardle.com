@@ -261,22 +261,19 @@
 
 .heroSound {
   position: absolute;
-  right: 60px;
+  right: calc(max(0px, (100% - 1616px) / 2) + 60px);
   bottom: 28px;
   z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  display: grid;
+  place-items: center;
+  width: 36px;
   height: 36px;
-  padding: 0 14px 0 12px;
+  padding: 0;
   border-radius: 999px;
   border: 1px solid rgba(216, 212, 201, 0.18);
   background: rgba(11, 11, 11, 0.55);
   backdrop-filter: blur(8px);
   color: var(--clay);
-  font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 500;
   cursor: pointer;
   transition:
     color 180ms var(--ease),

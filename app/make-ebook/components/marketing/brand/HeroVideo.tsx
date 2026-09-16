@@ -198,7 +198,6 @@ export function HeroVideo() {
             />
           )}
         </svg>
-        <span>{audible ? "Sound on" : "Sound off"}</span>
       </button>
     </>
   );
