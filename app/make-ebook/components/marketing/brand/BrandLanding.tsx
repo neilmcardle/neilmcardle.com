@@ -139,11 +139,10 @@ export default function BrandLanding({
             <div className={styles.heroCopy}>
               <h1 className={styles.h1}>
                 From manuscript to{" "}
-                <span className={styles.nowrap}>store-ready</span> book.
+                <span className={styles.nowrap}>store-ready</span> ebook.
               </h1>
               <p className={styles.lede}>
-                Write, format, preview and export professional ebooks from one
-                private workspace.
+                Write, preview and export from your private workspace.
               </p>
               <div className={styles.ctaRow}>
                 <button

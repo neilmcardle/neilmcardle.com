@@ -785,6 +785,10 @@
   .readerCopy {
     padding-top: 168px;
   }
+
+  .heroSound {
+    bottom: 148px;
+  }
 }
 
 .plans {
