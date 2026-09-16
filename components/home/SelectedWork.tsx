@@ -5,6 +5,7 @@ import styles from "./home.module.css";
 import { HomepageProjectPreview } from "@/components/HomepageProjectPreview";
 import type { BadgeKey } from "./ProductBadge";
 import PinMark from "./PinMark";
+import MakeEbookMocks from "./MakeEbookMocks";
 
 export type Feature = {
   tileKey: BadgeKey;
@@ -22,7 +23,7 @@ export const FEATURES: Feature[] = [
   {
     tileKey: "makeebook",
     category: "Writing platform",
-    name: "makeEbook",
+    name: "makeebook",
     description:
       "An AI-first platform that takes a manuscript to a store-ready ebook. Brand, product, and engineering end-to-end.",
     href: "https://makeebook.ink",
@@ -104,13 +105,17 @@ export function ProductDetail({ feature }: { feature: Feature }) {
         </div>
       </div>
       <div className={styles.dockGallery}>
-        <div className={styles.dockShot}>
-          <HomepageProjectPreview
-            k={feature.tileKey}
-            sizes="(max-width: 760px) 100vw, (max-width: 1048px) calc(100vw - 400px), 648px"
-            bare
-          />
-        </div>
+        {feature.tileKey === "makeebook" ? (
+          <MakeEbookMocks />
+        ) : (
+          <div className={styles.dockShot}>
+            <HomepageProjectPreview
+              k={feature.tileKey}
+              sizes="(max-width: 760px) 100vw, (max-width: 1048px) calc(100vw - 400px), 648px"
+              bare
+            />
+          </div>
+        )}
       </div>
     </div>
   );
