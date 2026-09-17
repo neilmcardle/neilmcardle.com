@@ -181,7 +181,9 @@ export function RewriteDemo() {
       {kept}
     </span>
   ) : (
-    <span className={open ? styles.selection : undefined}>{TARGET}</span>
+    <span className={`${styles.sentence} ${open ? styles.selection : ""}`}>
+      {TARGET}
+    </span>
   );
 
   return (
@@ -690,7 +692,7 @@ export function FocusCard() {
 }
 
 export function OfflineCard() {
-  const [online, setOnline] = useState(true);
+  const [saving, setSaving] = useState(true);
   return (
     <Stage
       image="/make-ebook/brand/stages/stage-pencils.jpg"
@@ -699,29 +701,25 @@ export function OfflineCard() {
       <Window title="makeebook" className={styles.miniPane}>
         <div className={styles.paneBody}>
           <div className={styles.switchRow} style={{ marginTop: 0 }}>
-            <span>Wi-Fi</span>
+            <span>Save on device</span>
             <button
               type="button"
               role="switch"
-              aria-checked={online}
-              aria-label="Wi-Fi"
-              className={`${styles.switch} ${online ? styles.switchOn : ""}`}
-              onClick={() => setOnline((v) => !v)}
+              aria-checked={saving}
+              aria-label="Save on device"
+              className={`${styles.switch} ${saving ? styles.switchOn : ""}`}
+              onClick={() => setSaving((v) => !v)}
             />
           </div>
           <div className={styles.switchRow}>
             <span className={styles.saved} style={{ display: "inline-flex" }}>
-              <span className={styles.savedDot} />
-              Saved on this device
+              <span
+                className={`${styles.savedDot} ${saving ? "" : styles.savingDot}`}
+              />
+              {saving ? "Saved on this device" : "Not saved on this device"}
             </span>
-            <span className={styles.fileMeta}>just now</span>
+            <span className={styles.fileMeta}>{saving ? "just now" : ""}</span>
           </div>
-          {!online && (
-            <p className={styles.banner}>
-              You are offline. Keep writing, every change is saved on this
-              device.
-            </p>
-          )}
         </div>
       </Window>
     </Stage>
@@ -736,7 +734,7 @@ const COVERS = [
 ] as const;
 
 export function CoverCard() {
-  const [coverId, setCoverId] = useState<(typeof COVERS)[number]["id"]>("ink");
+  const [coverId, setCoverId] = useState<(typeof COVERS)[number]["id"]>("acid");
   const cover = COVERS.find((c) => c.id === coverId) ?? COVERS[0];
   return (
     <Stage

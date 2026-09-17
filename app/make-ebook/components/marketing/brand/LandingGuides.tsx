@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getAllPosts } from "../../../blog/posts";
 import styles from "./landing.module.css";
@@ -21,6 +22,17 @@ export function GuideCards() {
             href={`/make-ebook/blog/${post.slug}`}
             className={styles.guide}
           >
+            <span className={styles.guideThumb}>
+              {post.image && (
+                <Image
+                  src={post.image}
+                  alt=""
+                  fill
+                  sizes="112px"
+                  className={styles.guideThumbImage}
+                />
+              )}
+            </span>
             <span className={styles.guideMeta}>
               {formatDate(post.date)} &middot; {post.category}
             </span>

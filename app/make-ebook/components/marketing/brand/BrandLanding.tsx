@@ -30,10 +30,9 @@ const GuideCards = dynamic(
     loading: () => (
       <div className={landing.guides} aria-hidden="true">
         {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className={`${landing.guide} ${landing.guideSkeleton}`}
-          />
+          <div key={i} className={`${landing.guide} ${landing.guideSkeleton}`}>
+            <span className={landing.guideThumb} />
+          </div>
         ))}
       </div>
     ),
@@ -216,7 +215,7 @@ export function BrandIntro() {
   return (
     <section id="intro" className={styles.intro}>
       <iframe
-        src="/make-ebook/brand/rain-on-glass.html?bg=/make-ebook/brand/library-window.jpg"
+        src="/make-ebook/brand/rain-on-glass.html?bg=/make-ebook/brand/library-lamp.jpg"
         title=""
         aria-hidden="true"
         tabIndex={-1}
@@ -408,7 +407,7 @@ export default function BrandLanding({
               </SmallCard>
               <SmallCard
                 title="Works offline"
-                desc="Install it like an app and keep writing on a train. Every change saves to your device first."
+                desc="Every change saves to your device first."
                 link={{
                   label: "Learn about the best offline ebook editors",
                   href: "/make-ebook/blog/best-offline-ebook-editors",
