@@ -437,7 +437,7 @@ export default function BrandLanding({
                 </h3>
                 <TextLink
                   link={{
-                    label: "Meet Neil McArdle",
+                    label: "neilmcardle.com",
                     href: "https://neilmcardle.com",
                     external: true,
                   }}
