@@ -2,53 +2,38 @@ export interface BlogPost {
   slug: string;
   title: string;
   description: string;
-  /** ISO date string for when the post was first published. */
   date: string;
-  /**
-   * ISO date string for the last meaningful update. Used by the byline
-   * ("Updated April 2026") and the Article JSON-LD `dateModified` field.
-   * Defaults to `date` when omitted.
-   */
   updatedDate?: string;
   readingTime: string;
   category: string;
   keywords: string[];
-  content: string; // HTML content
-  /**
-   * Optional FAQ section. Renders as visible HTML at the end of the post
-   * and emits FAQPage JSON-LD for rich results on "People Also Ask" queries.
-   */
+  content: string;
   faqs?: { q: string; a: string }[];
-  /**
-   * Optional hero illustration. Path relative to /public, e.g.
-   * "/blog/how-to-write-an-ebook.png". Renders above the post header and
-   * overrides the default OG card image for richer social previews.
-   * When absent, the default site social image is used.
-   */
   image?: string;
-  /** Alt text for the hero illustration. */
   imageAlt?: string;
 }
 
 export const posts: BlogPost[] = [
   {
-    slug: 'how-to-write-an-ebook',
-    title: 'How to Write an Ebook: Complete Beginner\'s Guide',
-    description: 'Learn how to write, format, and publish your first ebook step by step. From outline to published EPUB, everything a beginner needs to know.',
-    date: '2026-04-05',
-    updatedDate: '2026-04-20',
-    readingTime: '14 min read',
-    category: 'Getting Started',
+    slug: "how-to-write-an-ebook",
+    title: "How to Write an Ebook: Complete Beginner's Guide",
+    description:
+      "Learn how to write, format, and publish your first ebook step by step. From outline to published EPUB, everything a beginner needs to know.",
+    date: "2026-04-05",
+    updatedDate: "2026-04-20",
+    readingTime: "14 min read",
+    category: "Getting Started",
     keywords: [
-      'how to write an ebook',
-      'ebook writing guide',
-      'write ebook',
-      'ebook for beginners',
-      'self-publishing guide',
-      'EPUB formatting',
+      "how to write an ebook",
+      "ebook writing guide",
+      "write ebook",
+      "ebook for beginners",
+      "self-publishing guide",
+      "EPUB formatting",
     ],
-    image: '/blog/how-to-write-an-ebook.png',
-    imageAlt: 'Ink illustration of an ornate hardcover book with the title How to Write an Ebook: Complete Beginner\'s Guide on the front.',
+    image: "/blog/how-to-write-an-ebook.png",
+    imageAlt:
+      "Ink illustration of an ornate hardcover book with the title How to Write an Ebook: Complete Beginner's Guide on the front.",
     content: `
       <p class="lead">Writing an ebook has never been more accessible. Whether you're a first-time author or an experienced writer exploring self-publishing, this guide walks you through every step, from idea to published EPUB.</p>
 
@@ -139,45 +124,47 @@ export const posts: BlogPost[] = [
     `,
     faqs: [
       {
-        q: 'How long does it take to write an ebook?',
-        a: 'Most first-time authors finish a draft in 2 to 3 months writing 500 words a day. A 20,000-word ebook takes about 40 writing days at that pace. Editing adds another 4 to 6 weeks.',
+        q: "How long does it take to write an ebook?",
+        a: "Most first-time authors finish a draft in 2 to 3 months writing 500 words a day. A 20,000-word ebook takes about 40 writing days at that pace. Editing adds another 4 to 6 weeks.",
       },
       {
-        q: 'How many words should an ebook be?',
-        a: 'Most non-fiction ebooks land between 15,000 and 40,000 words. Fiction ebooks typically run 50,000 to 90,000 words. Shorter ebooks (under 10,000 words) work for tight, focused guides but are hard to price competitively.',
+        q: "How many words should an ebook be?",
+        a: "Most non-fiction ebooks land between 15,000 and 40,000 words. Fiction ebooks typically run 50,000 to 90,000 words. Shorter ebooks (under 10,000 words) work for tight, focused guides but are hard to price competitively.",
       },
       {
-        q: 'Do I need an editor to self-publish an ebook?',
-        a: 'A professional editor is a strong investment if the budget allows, especially for fiction. If not, do three self-edit passes (structural, line, proofread) and pair them with AI manuscript analysis to catch inconsistencies a single pair of eyes will miss.',
+        q: "Do I need an editor to self-publish an ebook?",
+        a: "A professional editor is a strong investment if the budget allows, especially for fiction. If not, do three self-edit passes (structural, line, proofread) and pair them with AI manuscript analysis to catch inconsistencies a single pair of eyes will miss.",
       },
       {
-        q: 'What format does Amazon KDP require?',
-        a: 'Amazon KDP accepts EPUB as the preferred format for ebooks. KDP also accepts .docx, but EPUB gives you proper chapter structure, working navigation, and predictable typography on Kindle devices.',
+        q: "What format does Amazon KDP require?",
+        a: "Amazon KDP accepts EPUB as the preferred format for ebooks. KDP also accepts .docx, but EPUB gives you proper chapter structure, working navigation, and predictable typography on Kindle devices.",
       },
       {
-        q: 'Can I write an ebook without expensive design software?',
-        a: 'Yes. A browser-based editor like makeEbook handles writing, chapter management, and EPUB export at no cost. For the cover, free tools like Canva cover the basics, though a professional cover is worth the investment for serious releases.',
+        q: "Can I write an ebook without expensive design software?",
+        a: "Yes. A browser-based editor like makeEbook handles writing, chapter management, and EPUB export at no cost. For the cover, free tools like Canva cover the basics, though a professional cover is worth the investment for serious releases.",
       },
     ],
   },
   {
-    slug: 'best-ebook-creation-tools',
-    title: 'The Best Ebook Creation Tools: A Detailed Comparison',
-    description: 'Compare the top ebook creation tools for self-publishing authors. Scrivener, Atticus, Vellum, and makeEbook. Features, pricing, and which is right for you.',
-    date: '2026-04-05',
-    updatedDate: '2026-04-20',
-    readingTime: '12 min read',
-    category: 'Tools & Comparisons',
+    slug: "best-ebook-creation-tools",
+    title: "The Best Ebook Creation Tools: A Detailed Comparison",
+    description:
+      "Compare the top ebook creation tools for self-publishing authors. Scrivener, Atticus, Vellum, and makeEbook. Features, pricing, and which is right for you.",
+    date: "2026-04-05",
+    updatedDate: "2026-04-20",
+    readingTime: "12 min read",
+    category: "Tools & Comparisons",
     keywords: [
-      'best ebook creation tools',
-      'ebook writing software',
-      'ebook creator',
-      'Scrivener alternative',
-      'free ebook software',
-      'Vellum vs Atticus',
+      "best ebook creation tools",
+      "ebook writing software",
+      "ebook creator",
+      "Scrivener alternative",
+      "free ebook software",
+      "Vellum vs Atticus",
     ],
-    image: '/blog/ebook-tools-comparison.png',
-    imageAlt: 'Ink drawing of five writing implements arranged in a row: quill, typewriter, fountain pen, stylus, pencil.',
+    image: "/blog/ebook-tools-comparison.png",
+    imageAlt:
+      "Ink drawing of five writing implements arranged in a row: quill, typewriter, fountain pen, stylus, pencil.",
     content: `
       <p class="lead">Choosing the right ebook creation tool can make the difference between a frustrating process and a smooth path to publication. Here's an honest comparison of the best options available today.</p>
 
@@ -297,45 +284,48 @@ export const posts: BlogPost[] = [
     faqs: [
       {
         q: "What's the best free Scrivener alternative?",
-        a: 'For most self-publishing authors, makeEbook is the closest free alternative. Browser-based, drag-and-drop chapter management, and EPUB export on the free tier. Reedsy Book Editor is the other free option, but its features are thinner and it ties you to the Reedsy marketplace.',
+        a: "For most self-publishing authors, makeEbook is the closest free alternative. Browser-based, drag-and-drop chapter management, and EPUB export on the free tier. Reedsy Book Editor is the other free option, but its features are thinner and it ties you to the Reedsy marketplace.",
       },
       {
-        q: 'Which ebook software is best for beginners?',
-        a: 'Beginners do best with a browser-based tool that exports a professional EPUB without configuration. makeEbook and Reedsy Book Editor are the two best free options. Scrivener is powerful but the learning curve costs most beginners weeks of productivity.',
+        q: "Which ebook software is best for beginners?",
+        a: "Beginners do best with a browser-based tool that exports a professional EPUB without configuration. makeEbook and Reedsy Book Editor are the two best free options. Scrivener is powerful but the learning curve costs most beginners weeks of productivity.",
       },
       {
-        q: 'Is Vellum worth the price?',
+        q: "Is Vellum worth the price?",
         a: "Vellum produces arguably the best-looking ebooks of any tool. It's worth the $199 if you're on a Mac and plan to publish multiple titles. It's not worth it if you're on Windows or Linux (Vellum is Mac only) or publishing a single book.",
       },
       {
-        q: 'Can I write an ebook entirely in the browser?',
+        q: "Can I write an ebook entirely in the browser?",
         a: "Yes. Browser-based tools like makeEbook, Atticus, and Reedsy Book Editor handle everything from writing through EPUB export in the browser. makeEbook also runs offline as a PWA, so you can write on a flight and sync when you're back online.",
       },
       {
-        q: 'Do I need to pay for EPUB export?',
-        a: 'No. makeEbook and Reedsy Book Editor both offer free EPUB export. Scrivener, Atticus, and Vellum require a paid license for the app, though their EPUB export is included in that license. If keeping costs low matters, start with a free tool.',
+        q: "Do I need to pay for EPUB export?",
+        a: "No. makeEbook and Reedsy Book Editor both offer free EPUB export. Scrivener, Atticus, and Vellum require a paid license for the app, though their EPUB export is included in that license. If keeping costs low matters, start with a free tool.",
       },
     ],
   },
   {
-    slug: 'free-scrivener-alternatives',
-    title: 'Free Scrivener Alternatives: 5 Best Writing Tools for Self-Publishers',
-    description: 'The best Scrivener alternatives for self-publishing authors in 2026. Free and paid tools compared on features, ease of use, and EPUB export.',
-    date: '2026-04-20',
-    updatedDate: '2026-04-20',
-    readingTime: '11 min read',
-    category: 'Tools & Comparisons',
+    slug: "free-scrivener-alternatives",
+    title:
+      "Free Scrivener Alternatives: 5 Best Writing Tools for Self-Publishers",
+    description:
+      "The best Scrivener alternatives for self-publishing authors in 2026. Free and paid tools compared on features, ease of use, and EPUB export.",
+    date: "2026-04-20",
+    updatedDate: "2026-04-20",
+    readingTime: "11 min read",
+    category: "Tools & Comparisons",
     keywords: [
-      'Scrivener alternative',
-      'Scrivener alternative free',
-      'free Scrivener alternative',
-      'best Scrivener alternatives',
-      'alternatives to Scrivener',
-      'Scrivener alternative for Mac',
-      'Scrivener alternative for Windows',
+      "Scrivener alternative",
+      "Scrivener alternative free",
+      "free Scrivener alternative",
+      "best Scrivener alternatives",
+      "alternatives to Scrivener",
+      "Scrivener alternative for Mac",
+      "Scrivener alternative for Windows",
     ],
-    image: '/blog/five-alternatives.png',
-    imageAlt: 'Ink illustration representing five Scrivener alternatives for self-publishing authors.',
+    image: "/blog/five-alternatives.png",
+    imageAlt:
+      "Ink illustration representing five Scrivener alternatives for self-publishing authors.",
     content: `
       <p class="lead">Scrivener is a classic, but it isn't right for everyone. If you're hunting for a simpler, cheaper, or browser-based Scrivener alternative, here are the five best options in 2026, including two that are completely free.</p>
 
@@ -458,45 +448,47 @@ export const posts: BlogPost[] = [
     `,
     faqs: [
       {
-        q: 'Is there a free alternative to Scrivener?',
-        a: 'Yes. The two main free alternatives are makeEbook and Reedsy Book Editor. Both run in the browser, handle chapter management, and export a clean EPUB without a paywall. makeEbook also works offline as a PWA, which matters if you write on flights or without reliable internet.',
+        q: "Is there a free alternative to Scrivener?",
+        a: "Yes. The two main free alternatives are makeEbook and Reedsy Book Editor. Both run in the browser, handle chapter management, and export a clean EPUB without a paywall. makeEbook also works offline as a PWA, which matters if you write on flights or without reliable internet.",
       },
       {
-        q: 'What is the best Scrivener alternative for Mac?',
-        a: 'If typography and design matter most, Vellum is the top choice for Mac. If you want something free and cross-machine, makeEbook runs in any browser on any Mac. If you want a paid, all-in-one writing and formatting tool that also runs on Windows, Atticus is the strongest option.',
+        q: "What is the best Scrivener alternative for Mac?",
+        a: "If typography and design matter most, Vellum is the top choice for Mac. If you want something free and cross-machine, makeEbook runs in any browser on any Mac. If you want a paid, all-in-one writing and formatting tool that also runs on Windows, Atticus is the strongest option.",
       },
       {
-        q: 'What is the best Scrivener alternative for Windows?',
-        a: 'Vellum does not run on Windows. For Windows users, the best alternatives are makeEbook (free, browser-based), Atticus (paid, all-in-one), and Reedsy Book Editor (free, browser-based with marketplace integration). makeEbook is the closest match for Scrivener users who want chapter management without the learning curve.',
+        q: "What is the best Scrivener alternative for Windows?",
+        a: "Vellum does not run on Windows. For Windows users, the best alternatives are makeEbook (free, browser-based), Atticus (paid, all-in-one), and Reedsy Book Editor (free, browser-based with marketplace integration). makeEbook is the closest match for Scrivener users who want chapter management without the learning curve.",
       },
       {
-        q: 'Can I export my Scrivener project to another tool?',
-        a: 'Yes. In Scrivener, use File, Compile to export your project as a DOCX file. That DOCX can then be imported into makeEbook, Atticus, or Reedsy Book Editor. Your chapters come across, but you may need to re-check metadata (title, author, ISBN) in the new tool.',
+        q: "Can I export my Scrivener project to another tool?",
+        a: "Yes. In Scrivener, use File, Compile to export your project as a DOCX file. That DOCX can then be imported into makeEbook, Atticus, or Reedsy Book Editor. Your chapters come across, but you may need to re-check metadata (title, author, ISBN) in the new tool.",
       },
       {
-        q: 'Is Scrivener still worth it in 2026?',
+        q: "Is Scrivener still worth it in 2026?",
         a: "Scrivener is still excellent for long-form non-fiction and for writers who use research folders heavily. If you're writing a straightforward ebook and the main goal is a clean EPUB on Amazon KDP, it's overkill. A browser-based tool like makeEbook gets you to a published file in a fraction of the time.",
       },
     ],
   },
   {
-    slug: 'how-to-create-an-ebook-cover',
-    title: 'How to Create an Ebook Cover: Complete Guide for Self-Publishers',
-    description: 'Design an ebook cover that sells. Dimensions, composition rules, tools, and mistakes to avoid when creating a cover for Amazon KDP, Apple Books, and Kobo.',
-    date: '2026-04-20',
-    updatedDate: '2026-04-20',
-    readingTime: '10 min read',
-    category: 'Design',
+    slug: "how-to-create-an-ebook-cover",
+    title: "How to Create an Ebook Cover: Complete Guide for Self-Publishers",
+    description:
+      "Design an ebook cover that sells. Dimensions, composition rules, tools, and mistakes to avoid when creating a cover for Amazon KDP, Apple Books, and Kobo.",
+    date: "2026-04-20",
+    updatedDate: "2026-04-20",
+    readingTime: "10 min read",
+    category: "Design",
     keywords: [
-      'how to create an ebook cover',
-      'ebook cover design',
-      'DIY ebook cover',
-      'ebook cover size',
-      'ebook cover software',
-      'KDP cover dimensions',
+      "how to create an ebook cover",
+      "ebook cover design",
+      "DIY ebook cover",
+      "ebook cover size",
+      "ebook cover software",
+      "KDP cover dimensions",
     ],
-    image: '/blog/how-create-ebook-cover.png',
-    imageAlt: 'Ink drawing of a large, closed leatherbound book standing upright with drawing tools and sketches on the table surrounding it.',
+    image: "/blog/how-create-ebook-cover.png",
+    imageAlt:
+      "Ink drawing of a large, closed leatherbound book standing upright with drawing tools and sketches on the table surrounding it.",
     content: `
       <p class="lead">Your cover does more work than any other piece of your ebook. It's the thumbnail on Amazon, the icon on a reader's shelf, and the image every single potential buyer sees before reading a word. Here's how to design one that earns the click.</p>
 
@@ -562,45 +554,47 @@ export const posts: BlogPost[] = [
     `,
     faqs: [
       {
-        q: 'What size should an ebook cover be?',
-        a: 'The safe default is 1,600 pixels wide by 2,560 pixels tall, RGB, saved as JPEG. That meets every major store\'s requirements (Amazon KDP, Apple Books, Kobo, Google Play Books). Minimum is 1,000 pixels on the longest side.',
+        q: "What size should an ebook cover be?",
+        a: "The safe default is 1,600 pixels wide by 2,560 pixels tall, RGB, saved as JPEG. That meets every major store's requirements (Amazon KDP, Apple Books, Kobo, Google Play Books). Minimum is 1,000 pixels on the longest side.",
       },
       {
-        q: 'Can I design my own ebook cover?',
-        a: 'Yes. Canva has templates, makeEbook has a built-in cover generator, and Photoshop or Affinity Designer give full control. DIY works best for simple typographic covers. For commercially ambitious books, a professional designer is usually worth the spend.',
+        q: "Can I design my own ebook cover?",
+        a: "Yes. Canva has templates, makeEbook has a built-in cover generator, and Photoshop or Affinity Designer give full control. DIY works best for simple typographic covers. For commercially ambitious books, a professional designer is usually worth the spend.",
       },
       {
-        q: 'How much does a professional ebook cover cost?',
-        a: 'Pre-made covers on Fiverr start around $50. Custom covers from specialist designers typically run $200 to $800 depending on complexity. For a book you plan to market seriously, $300 to $500 is a reasonable budget.',
+        q: "How much does a professional ebook cover cost?",
+        a: "Pre-made covers on Fiverr start around $50. Custom covers from specialist designers typically run $200 to $800 depending on complexity. For a book you plan to market seriously, $300 to $500 is a reasonable budget.",
       },
       {
-        q: 'What format should the cover file be?',
-        a: 'JPEG is the safest choice. Every major store accepts it. Keep the file under 50 MB, use RGB colour space (not CMYK, which is for print), and make sure the resolution is at least 1,000 pixels on the longest side.',
+        q: "What format should the cover file be?",
+        a: "JPEG is the safest choice. Every major store accepts it. Keep the file under 50 MB, use RGB colour space (not CMYK, which is for print), and make sure the resolution is at least 1,000 pixels on the longest side.",
       },
       {
-        q: 'Do I need a different cover for print?',
+        q: "Do I need a different cover for print?",
         a: "Yes, if you're publishing in print as well. Print covers need a spine, a back cover, CMYK colour space, and specific bleed allowances. A print cover cannot be reused as an ebook cover without a redesign.",
       },
     ],
   },
   {
-    slug: 'ai-manuscript-analysis',
-    title: 'Using AI to Improve Your Ebook Manuscript: A Practical Guide',
-    description: 'How to use AI tools for manuscript analysis, editing, and polishing. What AI does well, what it does badly, and how to integrate it without losing your voice.',
-    date: '2026-04-20',
-    updatedDate: '2026-04-20',
-    readingTime: '11 min read',
-    category: 'Writing',
+    slug: "ai-manuscript-analysis",
+    title: "Using AI to Improve Your Ebook Manuscript: A Practical Guide",
+    description:
+      "How to use AI tools for manuscript analysis, editing, and polishing. What AI does well, what it does badly, and how to integrate it without losing your voice.",
+    date: "2026-04-20",
+    updatedDate: "2026-04-20",
+    readingTime: "11 min read",
+    category: "Writing",
     keywords: [
-      'AI writing assistant',
-      'AI manuscript analysis',
-      'AI ebook editor',
-      'AI for authors',
-      'AI editing tools',
-      'AI content editor',
+      "AI writing assistant",
+      "AI manuscript analysis",
+      "AI ebook editor",
+      "AI for authors",
+      "AI editing tools",
+      "AI content editor",
     ],
-    image: '/blog/using-ai-improve-ebook-manuscript.png',
-    imageAlt: 'Ink drawing of a magnifying glass over a page of text with small ticks floating above flagged phrases.',
+    image: "/blog/using-ai-improve-ebook-manuscript.png",
+    imageAlt:
+      "Ink drawing of a magnifying glass over a page of text with small ticks floating above flagged phrases.",
     content: `
       <p class="lead">AI doesn't replace editors, and it doesn't write books that sell. What it does, when used well, is make you a more disciplined self-editor. Here's a practical guide to using AI on your ebook manuscript without surrendering your voice.</p>
 
@@ -664,45 +658,47 @@ export const posts: BlogPost[] = [
     `,
     faqs: [
       {
-        q: 'Can AI write an entire ebook for me?',
+        q: "Can AI write an entire ebook for me?",
         a: "Technically yes, but it's a bad idea. AI-generated prose reads flat, reviewers will flag it, and Amazon's spam filter actively targets wholly AI-generated books. Use AI to edit and analyse, not to draft. The books that sell are the ones with a human voice.",
       },
       {
-        q: 'Will using AI get my book delisted on Amazon?',
+        q: "Will using AI get my book delisted on Amazon?",
         a: "No, provided you disclose accurately. Amazon allows AI-assisted and AI-generated books if you mark them correctly on upload. The books that get delisted are the ones that lie about AI use or that trip the spam filter with AI-telltale patterns (uniform chapter lengths, repetitive phrasing).",
       },
       {
-        q: 'What\'s the difference between AI-assisted and AI-generated content?',
-        a: 'AI-assisted means AI helped with brainstorming, research, or editing, but the final text is yours. AI-generated means AI wrote the text, even if you edited it. Amazon KDP treats these differently at upload. When in doubt, AI-generated is the more conservative declaration.',
+        q: "What's the difference between AI-assisted and AI-generated content?",
+        a: "AI-assisted means AI helped with brainstorming, research, or editing, but the final text is yours. AI-generated means AI wrote the text, even if you edited it. Amazon KDP treats these differently at upload. When in doubt, AI-generated is the more conservative declaration.",
       },
       {
-        q: 'Should I use AI for my first draft?',
+        q: "Should I use AI for my first draft?",
         a: "No. A first draft in your voice is the only way the book ends up sounding like you. AI is most useful after the draft is done, for inconsistency detection, line-editing, and generating blurbs.",
       },
       {
-        q: 'What\'s the best AI tool for ebook manuscripts?',
-        a: 'For whole-manuscript analysis, Book Mind in makeEbook is purpose-built for the job. For discrete editing tasks, Claude and ChatGPT are strong general-purpose tools. For proofreading, Grammarly remains solid. Different tools for different jobs.',
+        q: "What's the best AI tool for ebook manuscripts?",
+        a: "For whole-manuscript analysis, Book Mind in makeEbook is purpose-built for the job. For discrete editing tasks, Claude and ChatGPT are strong general-purpose tools. For proofreading, Grammarly remains solid. Different tools for different jobs.",
       },
     ],
   },
   {
-    slug: 'best-offline-ebook-editors',
-    title: 'Best Offline Ebook Editors: Write Without Internet in 2026',
-    description: 'The best offline ebook editors for writers who travel, work on planes, or prefer to write without distraction. Desktop apps and offline-capable web tools compared.',
-    date: '2026-04-20',
-    updatedDate: '2026-04-20',
-    readingTime: '9 min read',
-    category: 'Tools & Comparisons',
+    slug: "best-offline-ebook-editors",
+    title: "Best Offline Ebook Editors: Write Without Internet in 2026",
+    description:
+      "The best offline ebook editors for writers who travel, work on planes, or prefer to write without distraction. Desktop apps and offline-capable web tools compared.",
+    date: "2026-04-20",
+    updatedDate: "2026-04-20",
+    readingTime: "9 min read",
+    category: "Tools & Comparisons",
     keywords: [
-      'offline ebook editor',
-      'ebook writing offline',
-      'ebook editor no internet',
-      'PWA ebook editor',
-      'offline writing software',
-      'best offline writing apps',
+      "offline ebook editor",
+      "ebook writing offline",
+      "ebook editor no internet",
+      "PWA ebook editor",
+      "offline writing software",
+      "best offline writing apps",
     ],
-    image: '/blog/best-offline-ebook-editors.png',
-    imageAlt: 'Ink drawing of an aeroplane window view with a notebook on the tray table and a pen resting on it.',
+    image: "/blog/best-offline-ebook-editors.png",
+    imageAlt:
+      "Ink drawing of an aeroplane window view with a notebook on the tray table and a pen resting on it.",
     content: `
       <p class="lead">Not every writing session happens with reliable internet. Flights, hotel rooms, cabins, co-working spots with flaky wifi. An ebook editor that stops working when your connection drops is a real problem. Here are the best offline ebook editors in 2026.</p>
 
@@ -804,45 +800,48 @@ export const posts: BlogPost[] = [
     `,
     faqs: [
       {
-        q: 'What is the best free offline ebook editor?',
+        q: "What is the best free offline ebook editor?",
         a: "makeEbook installs as a Progressive Web App, so the tool is cached on your device and works offline without an account. Free local writing, free EPUB export, and cloud sync on the Pro tier if you want it.",
       },
       {
-        q: 'Does Scrivener work offline?',
-        a: 'Yes. Scrivener is a desktop app. It stores your project as a local file and requires no internet to function. Syncing between machines requires a paid Dropbox or iCloud integration, but core writing is fully offline.',
+        q: "Does Scrivener work offline?",
+        a: "Yes. Scrivener is a desktop app. It stores your project as a local file and requires no internet to function. Syncing between machines requires a paid Dropbox or iCloud integration, but core writing is fully offline.",
       },
       {
-        q: 'Can I write ebooks on a plane?',
-        a: 'Yes, if you use a tool that supports full offline mode. makeEbook (as a PWA), Scrivener, Vellum, iA Writer, and desktop Word all work without internet. Reedsy Book Editor and most pure cloud tools do not.',
+        q: "Can I write ebooks on a plane?",
+        a: "Yes, if you use a tool that supports full offline mode. makeEbook (as a PWA), Scrivener, Vellum, iA Writer, and desktop Word all work without internet. Reedsy Book Editor and most pure cloud tools do not.",
       },
       {
-        q: 'Do PWAs really work offline?',
+        q: "Do PWAs really work offline?",
         a: "A properly-built PWA caches the app's code and assets on first visit. After that, you can open the tool without internet, write, save locally, and export files. When you reconnect, sync catches up. makeEbook is an example of a PWA that works this way.",
       },
       {
-        q: 'Is Microsoft Word good for writing ebooks?',
+        q: "Is Microsoft Word good for writing ebooks?",
         a: "Word is fine for drafting, but it doesn't produce a clean EPUB. If you draft in Word, plan to import the .docx into a dedicated ebook tool (makeEbook, Atticus, Scrivener) for formatting and EPUB export.",
       },
     ],
   },
   {
-    slug: 'lifetime-license-vs-subscription',
-    title: 'Lifetime License vs Subscription: Which Ebook Tools Offer Better Value?',
-    description: 'The real cost of subscription vs lifetime-license ebook tools. A grown-up look at total cost of ownership over 24 months for Scrivener, Vellum, Atticus, and makeEbook.',
-    date: '2026-04-20',
-    updatedDate: '2026-04-20',
-    readingTime: '10 min read',
-    category: 'Tools & Comparisons',
+    slug: "lifetime-license-vs-subscription",
+    title:
+      "Lifetime License vs Subscription: Which Ebook Tools Offer Better Value?",
+    description:
+      "The real cost of subscription vs lifetime-license ebook tools. A grown-up look at total cost of ownership over 24 months for Scrivener, Vellum, Atticus, and makeEbook.",
+    date: "2026-04-20",
+    updatedDate: "2026-04-20",
+    readingTime: "10 min read",
+    category: "Tools & Comparisons",
     keywords: [
-      'lifetime license ebook software',
-      'one-time payment ebook tools',
-      'ebook software subscription',
-      'writing software lifetime license',
-      'subscription vs one-time payment',
-      'writing tools pricing',
+      "lifetime license ebook software",
+      "one-time payment ebook tools",
+      "ebook software subscription",
+      "writing software lifetime license",
+      "subscription vs one-time payment",
+      "writing tools pricing",
     ],
-    image: '/blog/lifetime-license-vs-subscription.png',
-    imageAlt: 'Ink drawing of a wax seal being pressed onto a document with a small torn calendar page curling at the corner.',
+    image: "/blog/lifetime-license-vs-subscription.png",
+    imageAlt:
+      "Ink drawing of a wax seal being pressed onto a document with a small torn calendar page curling at the corner.",
     content: `
       <p class="lead">Subscription software is everywhere, and subscription fatigue is real. For most self-publishing authors, a lifetime license beats a subscription over 24 months. Here's the math, tool by tool, and the cases where subscription is still the right call.</p>
 
@@ -931,15 +930,15 @@ export const posts: BlogPost[] = [
     `,
     faqs: [
       {
-        q: 'Is a lifetime license really forever?',
+        q: "Is a lifetime license really forever?",
         a: "Usually yes, but read the fine print. Most lifetime licenses include all future minor updates. Major version upgrades (every 5 to 10 years) may cost extra. If the company shuts down, the software keeps working on your machine, though you won't get new features.",
       },
       {
-        q: 'Which ebook tools offer lifetime licenses?',
-        a: 'Scrivener ($49), Vellum ($199+), Atticus ($225+), makeEbook ($149), and ProWritingAid ($399) all offer lifetime licenses. Grammarly and Adobe InDesign are subscription-only.',
+        q: "Which ebook tools offer lifetime licenses?",
+        a: "Scrivener ($49), Vellum ($199+), Atticus ($225+), makeEbook ($149), and ProWritingAid ($399) all offer lifetime licenses. Grammarly and Adobe InDesign are subscription-only.",
       },
       {
-        q: 'Is $149 for makeEbook lifetime worth it?',
+        q: "Is $149 for makeEbook lifetime worth it?",
         a: "If you'll use makeEbook for more than 17 months, yes. The lifetime tier breaks even against the $9-per-month subscription at 17 months and pays for itself on every subsequent month. For multi-book authors, it's the clearest deal in the space.",
       },
       {
@@ -947,7 +946,7 @@ export const posts: BlogPost[] = [
         a: "The software on your machine keeps working. You won't get updates, cloud sync will stop if it relied on their servers, but the core app continues functioning. This is the resilience argument for lifetime over subscription.",
       },
       {
-        q: 'Can I switch from subscription to lifetime later?',
+        q: "Can I switch from subscription to lifetime later?",
         a: "Most tools let you. If you start on monthly and decide to commit, check for upgrade paths. Some companies credit your recent subscription payments against the lifetime cost, others don't. Worth emailing support before you upgrade.",
       },
     ],
@@ -955,7 +954,7 @@ export const posts: BlogPost[] = [
 ];
 
 export function getPostBySlug(slug: string): BlogPost | undefined {
-  return posts.find(p => p.slug === slug);
+  return posts.find((p) => p.slug === slug);
 }
 
 export function getAllPosts(): BlogPost[] {

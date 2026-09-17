@@ -986,14 +986,67 @@
         var fgTex = initTexture(2, textureFgCanvas);
         var bgTex = initTexture(3, textureBgCanvas);
 
+        function boxBlurPass(src, dst, w, h, r, horizontal) {
+          var len = horizontal ? w : h;
+          var lines = horizontal ? h : w;
+          var div = r * 2 + 1;
+          for (var line = 0; line < lines; line++) {
+            for (var ch = 0; ch < 4; ch++) {
+              var sum = 0;
+              for (var k = -r; k <= r; k++) {
+                var kk = k < 0 ? 0 : k >= len ? len - 1 : k;
+                sum +=
+                  src[(horizontal ? line * w + kk : kk * w + line) * 4 + ch];
+              }
+              for (var i = 0; i < len; i++) {
+                dst[(horizontal ? line * w + i : i * w + line) * 4 + ch] =
+                  sum / div;
+                var outI = i - r < 0 ? 0 : i - r;
+                var inI = i + r + 1 >= len ? len - 1 : i + r + 1;
+                sum +=
+                  src[(horizontal ? line * w + inI : inI * w + line) * 4 + ch] -
+                  src[
+                    (horizontal ? line * w + outI : outI * w + line) * 4 + ch
+                  ];
+              }
+            }
+          }
+        }
+
+        function blurCanvas(c, sigma) {
+          var r = Math.max(
+            1,
+            Math.round((Math.sqrt(4 * sigma * sigma + 1) - 1) / 2),
+          );
+          var ctx = c.getContext("2d");
+          var image = ctx.getImageData(0, 0, c.width, c.height);
+          var a = image.data;
+          var b = new Uint8ClampedArray(a.length);
+          for (var pass = 0; pass < 3; pass++) {
+            boxBlurPass(a, b, c.width, c.height, r, true);
+            boxBlurPass(b, a, c.width, c.height, r, false);
+          }
+          ctx.putImageData(image, 0, 0);
+        }
+
         function coverCanvas(img, w, h, blurPx) {
           var c = createCanvas(w, h);
           var ctx = c.getContext("2d");
           var scale = Math.max(w / img.naturalWidth, h / img.naturalHeight);
           var dw = img.naturalWidth * scale;
           var dh = img.naturalHeight * scale;
-          if (blurPx > 0) ctx.filter = "blur(" + blurPx + "px)";
+          if (blurPx > 4) {
+            var half = createCanvas(Math.round(w / 2), Math.round(h / 2));
+            half
+              .getContext("2d")
+              .drawImage(img, (w - dw) / 4, (h - dh) / 4, dw / 2, dh / 2);
+            blurCanvas(half, blurPx / 2);
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(half, 0, 0, w, h);
+            return c;
+          }
           ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+          if (blurPx > 0) blurCanvas(c, blurPx);
           return c;
         }
 

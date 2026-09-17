@@ -18,7 +18,7 @@ export function RainStage({ children }: { children: React.ReactNode }) {
   return (
     <main id="main-content" className={page.stage}>
       <iframe
-        src="/make-ebook/brand/rain-on-glass.html?bg=/make-ebook/brand/pier.jpg"
+        src="/make-ebook/brand/rain-on-glass.html?bg=/make-ebook/brand/library-window.jpg"
         title=""
         aria-hidden="true"
         tabIndex={-1}
