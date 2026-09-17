@@ -33,6 +33,7 @@ import {
 import Image from "next/image";
 import EmptyEditorState from "./components/EmptyEditorState";
 import MarketingLandingPage from "./components/MarketingLandingPage";
+import { BrandLoader } from "./components/marketing/brand/BrandLoader";
 import BinIcon from "./components/icons/BinIcon";
 import { LANGUAGES, today } from "./utils/constants";
 import { CHAPTER_TEMPLATES, Chapter, Endnote, EndnoteReference } from "./types";
@@ -3746,7 +3747,7 @@ function MakeEbookPage() {
 
 export default function MakeEbookPageWrapper() {
   return (
-    <Suspense fallback={<div>Creating makeEbook...</div>}>
+    <Suspense fallback={<BrandLoader />}>
       <MakeEbookPage />
     </Suspense>
   );

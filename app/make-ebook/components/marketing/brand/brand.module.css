@@ -781,3 +781,49 @@
     transition: none;
   }
 }
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: #0b0b0b;
+}
+
+.loaderMark {
+  width: 132px;
+  aspect-ratio: 82 / 30;
+  background: linear-gradient(
+    100deg,
+    rgba(243, 239, 229, 0.14) 30%,
+    rgba(243, 239, 229, 0.55) 50%,
+    rgba(243, 239, 229, 0.14) 70%
+  );
+  background-size: 250% 100%;
+  -webkit-mask: url("/make-ebook/brand/mark.svg") center / contain no-repeat;
+  mask: url("/make-ebook/brand/mark.svg") center / contain no-repeat;
+  animation: loaderShimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes loaderShimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero {
+    scroll-margin-top: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loaderMark {
+    animation: none;
+    background: rgba(243, 239, 229, 0.3);
+  }
+}

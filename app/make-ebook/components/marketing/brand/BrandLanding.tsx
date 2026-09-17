@@ -24,11 +24,32 @@ import { StudioDemo } from "./StudioDemo";
 import styles from "./brand.module.css";
 import landing from "./landing.module.css";
 
-const GuideCards = dynamic(() =>
-  import("./LandingGuides").then((m) => m.GuideCards),
+const GuideCards = dynamic(
+  () => import("./LandingGuides").then((m) => m.GuideCards),
+  {
+    loading: () => (
+      <div className={landing.guides} aria-hidden="true">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className={`${landing.guide} ${landing.guideSkeleton}`}
+          />
+        ))}
+      </div>
+    ),
+  },
 );
-const GuideLinks = dynamic(() =>
-  import("./LandingGuides").then((m) => m.GuideLinks),
+const GuideLinks = dynamic(
+  () => import("./LandingGuides").then((m) => m.GuideLinks),
+  {
+    loading: () => (
+      <>
+        {[0, 1, 2, 3].map((i) => (
+          <li key={i} className={landing.linkSkeleton} aria-hidden="true" />
+        ))}
+      </>
+    ),
+  },
 );
 
 const STORES = [
@@ -207,6 +228,18 @@ export function BrandIntro() {
         href="#hero"
         className={styles.introChevron}
         aria-label="Scroll to the product"
+        onClick={(e) => {
+          const intro = document.getElementById("intro");
+          if (!intro) return;
+          e.preventDefault();
+          const reduced = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+          ).matches;
+          window.scrollTo({
+            top: intro.getBoundingClientRect().bottom + window.scrollY,
+            behavior: reduced ? "auto" : "smooth",
+          });
+        }}
       >
         <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
           <path

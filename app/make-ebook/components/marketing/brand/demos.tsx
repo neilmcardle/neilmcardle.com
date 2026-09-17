@@ -75,26 +75,29 @@ export function ImportDemo() {
               </span>
               <span>{step >= 3 ? "100%" : ""}</span>
             </div>
-            {step >= 3 && (
-              <p className={styles.found}>
-                {BOOK.chapterCount} chapters &middot; {BOOK.wordCount} words
-              </p>
-            )}
+            <p
+              className={`${styles.found} ${step >= 3 ? styles.shown : styles.reserved}`}
+            >
+              {BOOK.chapterCount} chapters &middot; {BOOK.wordCount} words
+            </p>
             <div>
-              {IMPORTED.slice(0, rowsShown).map(([n, title, words]) => (
-                <div key={n} className={styles.importRow}>
+              {IMPORTED.map(([n, title, words], i) => (
+                <div
+                  key={`${run}-${n}`}
+                  className={`${styles.importRow} ${i < rowsShown ? styles.shown : styles.reserved}`}
+                >
                   <span className={styles.rowNum}>{n}</span>
                   <span>{title}</span>
                   <span className={styles.importWords}>{words}w</span>
                 </div>
               ))}
-              {step >= 10 && (
-                <div className={styles.importRow}>
-                  <span />
-                  <span className={styles.fileMeta}>and 38 more</span>
-                  <span />
-                </div>
-              )}
+              <div
+                className={`${styles.importRow} ${step >= 10 ? styles.shown : styles.reserved}`}
+              >
+                <span />
+                <span className={styles.fileMeta}>and 38 more</span>
+                <span />
+              </div>
             </div>
           </div>
           <div className={styles.paneFoot}>
@@ -197,82 +200,87 @@ export function RewriteDemo() {
                 from the bag. {sentence}
               </p>
             </div>
-            {open ? (
-              <div className={styles.takes}>
-                <div className={styles.takesHead}>
-                  <div
-                    className={styles.seg}
-                    role="group"
-                    aria-label="Rewrite style"
-                  >
-                    {TAKES.map((t) => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        aria-pressed={tab === t.id}
-                        className={`${styles.segItem} ${tab === t.id ? styles.segActive : ""}`}
-                        onClick={() => {
-                          setChars(0);
-                          setTab(t.id);
-                        }}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
+            <div className={styles.rewriteActions}>
+              {open ? (
+                <div className={styles.takes}>
+                  <div className={styles.takesHead}>
+                    <div
+                      className={styles.seg}
+                      role="group"
+                      aria-label="Rewrite style"
+                    >
+                      {TAKES.map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          aria-pressed={tab === t.id}
+                          className={`${styles.segItem} ${tab === t.id ? styles.segActive : ""}`}
+                          onClick={() => {
+                            setChars(0);
+                            setTab(t.id);
+                          }}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                    <span className={styles.tag}>Book Mind</span>
                   </div>
-                  <span className={styles.tag}>Book Mind</span>
+                  <p className={styles.takeText}>{take.text.slice(0, shown)}</p>
+                  <div className={styles.takesFoot}>
+                    <button
+                      type="button"
+                      className={styles.btn}
+                      onClick={() => setOpen(false)}
+                    >
+                      Keep mine
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.btn}
+                      disabled={shown < take.text.length}
+                      onClick={() => {
+                        setKept(take.text);
+                        setOpen(false);
+                      }}
+                    >
+                      Use this take
+                    </button>
+                  </div>
                 </div>
-                <p className={styles.takeText}>{take.text.slice(0, shown)}</p>
-                <div className={styles.takesFoot}>
-                  <button
-                    type="button"
-                    className={styles.btn}
-                    onClick={() => setOpen(false)}
-                  >
-                    Keep mine
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.btn}
-                    disabled={shown < take.text.length}
-                    onClick={() => {
-                      setKept(take.text);
-                      setOpen(false);
-                    }}
-                  >
-                    Use this take
-                  </button>
+              ) : (
+                <div
+                  className={styles.paneFoot}
+                  style={{ padding: "12px 0 0" }}
+                >
+                  <span>
+                    {kept
+                      ? "Replaced. Your original is one click away."
+                      : "Select a sentence to rewrite it."}
+                  </span>
+                  {kept ? (
+                    <button
+                      type="button"
+                      className={styles.btn}
+                      onClick={() => {
+                        setKept(null);
+                        show(true);
+                      }}
+                    >
+                      Undo
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.btn}
+                      onClick={() => show(true)}
+                    >
+                      Rewrite selection
+                    </button>
+                  )}
                 </div>
-              </div>
-            ) : (
-              <div className={styles.paneFoot} style={{ padding: "12px 0 0" }}>
-                <span>
-                  {kept
-                    ? "Replaced. Your original is one click away."
-                    : "Select a sentence to rewrite it."}
-                </span>
-                {kept ? (
-                  <button
-                    type="button"
-                    className={styles.btn}
-                    onClick={() => {
-                      setKept(null);
-                      show(true);
-                    }}
-                  >
-                    Undo
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className={styles.btn}
-                    onClick={() => show(true)}
-                  >
-                    Rewrite selection
-                  </button>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </Window>
       </div>
@@ -376,8 +384,11 @@ export function PreflightDemo() {
         >
           <div className={styles.paneBody}>
             <ul className={styles.checks}>
-              {CHECKS.slice(0, step).map((c) => (
-                <li key={c.text} className={styles.check}>
+              {CHECKS.map((c, i) => (
+                <li
+                  key={c.text}
+                  className={`${styles.check} ${i < step ? styles.shown : styles.reserved}`}
+                >
                   <span
                     className={`${styles.checkIcon} ${c.kind === "ok" ? styles.ok : styles.warn}`}
                     aria-hidden="true"
@@ -391,39 +402,46 @@ export function PreflightDemo() {
                 </li>
               ))}
             </ul>
-            {step >= 7 && (
-              <div className={styles.disclosure}>
-                <p className={styles.disclosureQ}>
-                  Was AI used to write this book?
-                </p>
-                <div
-                  className={styles.options}
-                  role="radiogroup"
-                  aria-label="AI use"
-                >
-                  {DISCLOSURE.map((d) => (
-                    <button
-                      key={d.id}
-                      type="button"
-                      role="radio"
-                      aria-checked={choice === d.id}
-                      className={`${styles.option} ${choice === d.id ? styles.optionActive : ""}`}
-                      onClick={() => setChoice(d.id)}
-                    >
-                      {d.label}
-                    </button>
-                  ))}
-                </div>
-                {picked && (
-                  <div key={picked.id} className={styles.kdp}>
-                    <p>{picked.kdp}</p>
-                    <button type="button" className={styles.btn} onClick={copy}>
-                      {copied ? "Copied" : "Copy"}
-                    </button>
-                  </div>
-                )}
+            <div
+              className={`${styles.disclosure} ${step >= 7 ? styles.shown : styles.reserved}`}
+            >
+              <p className={styles.disclosureQ}>
+                Was AI used to write this book?
+              </p>
+              <div
+                className={styles.options}
+                role="radiogroup"
+                aria-label="AI use"
+              >
+                {DISCLOSURE.map((d) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={choice === d.id}
+                    className={`${styles.option} ${choice === d.id ? styles.optionActive : ""}`}
+                    onClick={() => setChoice(d.id)}
+                  >
+                    {d.label}
+                  </button>
+                ))}
               </div>
-            )}
+              <div className={styles.kdp}>
+                <p key={picked?.id ?? "none"}>
+                  {picked
+                    ? picked.kdp
+                    : "Pick an answer and the text for KDP appears here."}
+                </p>
+                <button
+                  type="button"
+                  className={styles.btn}
+                  onClick={copy}
+                  disabled={!picked}
+                >
+                  {copied ? "Copied" : "Copy"}
+                </button>
+              </div>
+            </div>
           </div>
           <div className={styles.paneFoot}>
             <span>
@@ -544,34 +562,41 @@ export function ExportDemo() {
                 <dd>{BOOK.chapterCount}</dd>
               </div>
             </dl>
-            {phase === "working" && (
-              <>
-                <div className={styles.progress} key={run}>
-                  <div
-                    className={styles.progressBar}
-                    style={{ width: "100%" }}
-                  />
-                </div>
-                <div className={styles.progressLabel}>
-                  <span>
-                    {label === 0
-                      ? `Building ${BOOK.chapterCount} chapters`
-                      : "Adding the cover and contents"}
+            <div className={styles.exportStatus}>
+              {phase === "idle" && (
+                <p className={styles.exportIdle}>
+                  Choose a format and export. The file lands in your downloads.
+                </p>
+              )}
+              {phase === "working" && (
+                <>
+                  <div className={styles.progress} key={run}>
+                    <div
+                      className={styles.progressBar}
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+                  <div className={styles.progressLabel}>
+                    <span>
+                      {label === 0
+                        ? `Building ${BOOK.chapterCount} chapters`
+                        : "Adding the cover and contents"}
+                    </span>
+                  </div>
+                </>
+              )}
+              {phase === "done" && (
+                <div className={styles.fileDone}>
+                  <span className={styles.fileIcon}>{format.label}</span>
+                  <span className={styles.fileDoneText}>
+                    {format.file}
+                    <span className={styles.fileMeta}>
+                      {format.size} &middot; {format.done}
+                    </span>
                   </span>
                 </div>
-              </>
-            )}
-            {phase === "done" && (
-              <div className={styles.fileDone}>
-                <span className={styles.fileIcon}>{format.label}</span>
-                <span className={styles.fileDoneText}>
-                  {format.file}
-                  <span className={styles.fileMeta}>
-                    {format.size} &middot; {format.done}
-                  </span>
-                </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
           <div className={styles.paneFoot}>
             <span>Open standards, nothing locked in</span>
@@ -609,7 +634,7 @@ const SOUNDS = [
   {
     id: "rain",
     label: "Rain",
-    path: "M6 12l-1 3M10 12l-1 3M14 12l-1 3M5 10a4 4 0 0 1 1-7.8A5 5 0 0 1 15.5 5 3 3 0 0 1 15 10H5z",
+    path: "M6 11h8.5a3 3 0 0 0 .4-5.97A4.5 4.5 0 0 0 6.2 6.1 2.5 2.5 0 0 0 6 11zM7 14l-1 3M10.5 14l-1 3M14 14l-1 3",
   },
   {
     id: "waves",
