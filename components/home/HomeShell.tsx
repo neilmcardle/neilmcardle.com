@@ -8,6 +8,7 @@ import LiveSentence from "./LiveSentence";
 import ProductDock from "./ProductDock";
 import SiteMenu from "./SiteMenu";
 import MotionToggle from "./MotionToggle";
+import PageCurl from "./PageCurl";
 import { motionEnabled, subscribeMotion } from "./motion";
 import { syncTheme } from "./theme";
 
@@ -82,6 +83,7 @@ export default function HomeShell() {
       </div>
 
       <ProductDock />
+      <PageCurl />
     </div>
   );
 }

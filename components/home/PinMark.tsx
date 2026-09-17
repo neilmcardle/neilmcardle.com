@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import Image from "next/image";
-import type { Material, MeshPhysicalMaterial, Texture } from "three";
+import type {
+  Material,
+  MeshPhysicalMaterial,
+  Texture,
+  WebGLRenderer,
+} from "three";
 import ProductBadge, {
   MARK_SHAPES,
   N_MARK_SHAPE,
   type BadgeKey,
 } from "./ProductBadge";
+import { currentTheme, subscribeTheme, type SiteTheme } from "./theme";
 import styles from "./home.module.css";
 
 type PinFace = BadgeKey | "portrait";
@@ -18,6 +24,26 @@ const REST_Y = (-149 * Math.PI) / 180;
 const TAU = Math.PI * 2;
 const COAST = 0.85;
 const SETTLE = 0.5;
+
+const PORTRAIT = {
+  dark: { plate: 0x0b1213, rim: 0x0b1313, mark: 0xa7b3b1, exposure: 0.63 },
+  light: { plate: 0xf6f4ef, rim: 0xe6e3dc, mark: 0x14120e, exposure: 1 },
+};
+
+type PortraitParts = {
+  renderer: WebGLRenderer;
+  plate: MeshPhysicalMaterial;
+  rim: MeshPhysicalMaterial;
+  mark: MeshPhysicalMaterial;
+};
+
+function paintPortrait(parts: PortraitParts, theme: SiteTheme) {
+  const tone = PORTRAIT[theme];
+  parts.plate.color.setHex(tone.plate);
+  parts.rim.color.setHex(tone.rim);
+  parts.mark.color.setHex(tone.mark);
+  parts.renderer.toneMappingExposure = tone.exposure;
+}
 
 const svgDoc = (inner: string) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63 63">${inner}</svg>`;
@@ -32,6 +58,18 @@ export default function PinMark({
   zoom?: number;
 }) {
   const hostRef = useRef<HTMLSpanElement>(null);
+  const partsRef = useRef<PortraitParts | null>(null);
+  const theme = useSyncExternalStore(
+    subscribeTheme,
+    currentTheme,
+    () => "light" as const,
+  );
+  const themeRef = useRef(theme);
+
+  useEffect(() => {
+    themeRef.current = theme;
+    if (partsRef.current) paintPortrait(partsRef.current, theme);
+  }, [theme]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -263,6 +301,16 @@ export default function PinMark({
       back.position.z = -lift;
       pin.add(back);
 
+      if (portrait) {
+        partsRef.current = {
+          renderer,
+          plate: plateMaterial,
+          rim: rimMaterial,
+          mark: markMaterial,
+        };
+        paintPortrait(partsRef.current, themeRef.current);
+      }
+
       pin.rotation.set(portrait ? (-2 * Math.PI) / 180 : -0.1, REST_Y, 0);
       scene.add(pin);
 
@@ -339,6 +387,7 @@ export default function PinMark({
         pmrem.dispose();
         renderer.dispose();
         canvas.remove();
+        partsRef.current = null;
         delete host.dataset.ready;
       };
     };

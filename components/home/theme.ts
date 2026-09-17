@@ -3,20 +3,20 @@ const listeners = new Set<() => void>();
 
 export type SiteTheme = "dark" | "light";
 
-export const THEME_SCRIPT = `try{if(localStorage.getItem("${KEY}")==="light")document.documentElement.dataset.siteTheme="light"}catch(e){}`;
+export const THEME_SCRIPT = `try{document.documentElement.dataset.siteTheme=localStorage.getItem("${KEY}")==="dark"?"dark":"light"}catch(e){document.documentElement.dataset.siteTheme="light"}`;
 
 export function currentTheme(): SiteTheme {
-  if (typeof document === "undefined") return "dark";
-  return document.documentElement.dataset.siteTheme === "light"
-    ? "light"
-    : "dark";
+  if (typeof document === "undefined") return "light";
+  return document.documentElement.dataset.siteTheme === "dark"
+    ? "dark"
+    : "light";
 }
 
 function stored(): SiteTheme {
   try {
-    return window.localStorage.getItem(KEY) === "light" ? "light" : "dark";
+    return window.localStorage.getItem(KEY) === "dark" ? "dark" : "light";
   } catch {
-    return "dark";
+    return "light";
   }
 }
 
