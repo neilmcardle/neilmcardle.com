@@ -1513,7 +1513,7 @@
 }
 
 .curl {
-  --curl: 44px;
+  --curl: 22px;
   position: fixed;
   left: 0;
   bottom: 0;
@@ -1524,7 +1524,7 @@
   border: 0;
   background: none;
   cursor: pointer;
-  filter: drop-shadow(3px -2px 3px rgb(0 0 0 / 0.28));
+  filter: drop-shadow(2px -1px 2px rgb(0 0 0 / 0.3));
   transition:
     width 420ms cubic-bezier(0.22, 1, 0.36, 1),
     height 420ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -1533,7 +1533,11 @@
 
 .curl:hover,
 .curl:focus-visible {
-  --curl: 96px;
+  --curl: 48px;
+}
+
+.curl[data-open] {
+  --curl: 140px;
 }
 
 .curl:focus-visible {
@@ -1548,8 +1552,44 @@
 
 .curlUnder {
   clip-path: polygon(0 0, 0 100%, 100% 100%);
-  background: repeating-conic-gradient(#6d6d6d 0 25%, #8c8c8c 0 50%) 0 0 / 2px
+  background: repeating-conic-gradient(#141414 0 25%, #1e1e1e 0 50%) 0 0 / 2px
     2px;
+}
+
+.curlNote {
+  position: absolute;
+  left: 8px;
+  bottom: 9px;
+  color: #e6e4de;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.45);
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.curl[data-open] .curlNote {
+  opacity: 1;
+  transition-delay: 260ms;
+}
+
+.curlClose {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: rgb(0 0 0 / 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.curl[data-open] .curlClose {
+  opacity: 1;
+  transition-delay: 260ms;
 }
 
 .curlFlap {
