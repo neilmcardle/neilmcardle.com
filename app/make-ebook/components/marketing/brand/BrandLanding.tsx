@@ -314,7 +314,7 @@ export default function BrandLanding({
 
           <section className={landing.bandTight}>
             <p className={landing.stripCaption}>
-              Books made in makeebook open on
+              Export one file for every major store
             </p>
             <div className={landing.strip}>
               {STORES.map((store) => (
@@ -353,7 +353,7 @@ export default function BrandLanding({
                 title="Ask for another way to say it."
                 desc="Select a sentence and Book Mind offers three takes. Use the one that sounds like you, or keep your own."
                 link={{
-                  label: "How Book Mind reads a manuscript",
+                  label: "Learn how Book Mind reads a manuscript",
                   href: "/make-ebook/blog/ai-manuscript-analysis",
                 }}
               >
@@ -385,7 +385,7 @@ export default function BrandLanding({
                 title="One book, every store."
                 desc="EPUB for Kindle, Apple Books and Kobo, PDF for proofing, DOCX for your editor. Open formats, so nothing you make here is trapped here."
                 link={{
-                  label: "Compare ebook creation tools",
+                  label: "Learn how ebook creation tools compare",
                   href: "/make-ebook/blog/best-ebook-creation-tools",
                 }}
               >
@@ -410,7 +410,7 @@ export default function BrandLanding({
                 title="Works offline"
                 desc="Install it like an app and keep writing on a train. Every change saves to your device first."
                 link={{
-                  label: "The best offline ebook editors",
+                  label: "Learn about the best offline ebook editors",
                   href: "/make-ebook/blog/best-offline-ebook-editors",
                 }}
               >
@@ -420,7 +420,7 @@ export default function BrandLanding({
                 title="Free covers"
                 desc="Your title and name, set in type that suits the book, in the colour you choose."
                 link={{
-                  label: "How to create an ebook cover",
+                  label: "Learn how to create an ebook cover",
                   href: "/make-ebook/blog/how-to-create-an-ebook-cover",
                 }}
               >
@@ -505,7 +505,7 @@ export default function BrandLanding({
             </div>
             <TextLink
               link={{
-                label: "Lifetime licence or subscription?",
+                label: "Learn whether lifetime or subscription suits you",
                 href: "/make-ebook/blog/lifetime-license-vs-subscription",
               }}
               className={landing.textLink}
