@@ -100,7 +100,7 @@ const GROUPS: Group[] = [
     entries: [
       {
         title: "Sol0",
-        category: "Sci-fi Novel · Made with makeEbook",
+        category: "Sci-fi Novel · Made with makeebook",
         description:
           "He came to Mars expecting solitude. He found home. Listen on ElevenReader.",
         href: "https://elevenreader.io/audiobooks/sol0-audiobook/lDuTf0Co8szKJBdzzAnu",

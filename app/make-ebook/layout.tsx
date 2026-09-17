@@ -4,7 +4,7 @@ import type { Metadata, Viewport } from "next";
 import AdsTracking from "@/components/AdsTracking";
 import MakeEbookProviders from "./components/MakeEbookProviders";
 
-const TITLE = "makeEbook. Free Browser-Based Ebook Editor & EPUB Creator";
+const TITLE = "makeebook. Free Browser-Based Ebook Editor & EPUB Creator";
 const DESCRIPTION =
   "Free browser-based ebook editor. Write, format, and export professional EPUBs for Kindle, Kobo, and Apple Books. No install, no credit card.";
 
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "makeEbook",
+    title: "makeebook",
   },
   icons: {
     icon: [
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: "https://makeebook.ink",
-    siteName: "makeEbook",
+    siteName: "makeebook",
     type: "website",
     images: [
       {
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@makeEbook",
+    site: "@makeebook",
     title: TITLE,
     description: DESCRIPTION,
     images: ["/make-ebook/brand/social.jpg"],
@@ -67,7 +67,7 @@ const softwareApplicationSchema = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "@id": "https://makeebook.ink/#software",
-  name: "makeEbook",
+  name: "makeebook",
   url: "https://makeebook.ink",
   description: DESCRIPTION,
   applicationCategory: "WritingApplication",

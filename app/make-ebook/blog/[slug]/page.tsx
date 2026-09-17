@@ -53,7 +53,7 @@ export async function generateMetadata({
       modifiedTime: post.updatedDate ?? post.date,
       authors: ["https://neilmcardle.com"],
       url: `https://makeebook.ink/blog/${post.slug}`,
-      siteName: "makeEbook",
+      siteName: "makeebook",
       ...(ogImages && { images: ogImages }),
     },
     twitter: {
@@ -88,7 +88,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     },
     publisher: {
       "@type": "Organization",
-      name: "makeEbook",
+      name: "makeebook",
       logo: {
         "@type": "ImageObject",
         url: "https://makeebook.ink/make-ebook/brand/mark.svg",

@@ -1473,7 +1473,7 @@ function MakeEbookPage() {
                   >
                     <Image
                       src="/make-ebook/brand/mark.svg"
-                      alt="makeEbook"
+                      alt="makeebook"
                       width={82}
                       height={30}
                       className="h-[30px] w-auto invert dark:invert-0"

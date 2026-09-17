@@ -40,7 +40,7 @@ export default function PrivacyPage() {
             lineHeight: 1.6,
           }}
         >
-          This policy covers neilmcardle.com. makeEbook has its own{" "}
+          This policy covers neilmcardle.com. makeebook has its own{" "}
           <a href="https://makeebook.ink/privacy" className={LINK}>
             privacy policy
           </a>

@@ -283,7 +283,7 @@ function ThemeToggleButton() {
   const { theme, toggleTheme } = useTheme();
 
   const label =
-    theme === "makeebook" ? "makeEbook" : theme === "dark" ? "Dark" : "Light";
+    theme === "makeebook" ? "makeebook" : theme === "dark" ? "Dark" : "Light";
 
   return (
     <Tooltip text={`Theme: ${label}`}>
@@ -337,7 +337,7 @@ export default function SlimSidebarNav({
           >
             <Image
               src="/make-ebook/brand/mark.svg"
-              alt="makeEbook"
+              alt="makeebook"
               width={82}
               height={30}
               className="w-10 h-auto invert dark:invert-0"

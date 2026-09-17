@@ -13,13 +13,13 @@ export default function BlogIndex() {
     "@context": "https://schema.org",
     "@type": "Blog",
     "@id": "https://makeebook.ink/blog#blog",
-    name: "makeEbook Blog",
+    name: "makeebook Blog",
     description:
       "Guides, tips, and tools for writing, formatting, and self-publishing ebooks.",
     url: "https://makeebook.ink/blog",
     publisher: {
       "@type": "Organization",
-      name: "makeEbook",
+      name: "makeebook",
       logo: {
         "@type": "ImageObject",
         url: "https://makeebook.ink/make-ebook/brand/mark.svg",

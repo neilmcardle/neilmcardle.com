@@ -45,7 +45,7 @@ const FILTER_LABEL: Record<Filter, string> = {
 
 const WORKS: Work[] = [
   {
-    title: "makeEbook",
+    title: "makeebook",
     group: "products",
     sub: "Shipped",
     href: "https://makeebook.ink",

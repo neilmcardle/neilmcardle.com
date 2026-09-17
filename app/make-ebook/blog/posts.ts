@@ -57,7 +57,7 @@ export const posts: BlogPost[] = [
       <h2>3. Write Your First Draft</h2>
       <p>The first draft is about getting words on the page, not perfection. Set a daily word count goal of 500 to 1,000 words and write consistently. Most ebooks are 10,000 to 30,000 words, so at 500 words per day you'll have a draft in 3 to 8 weeks.</p>
       <h3>A writing tool that stays out of your way</h3>
-      <p>Use a distraction-free writing tool that lets you focus on one chapter at a time. Drag-and-drop chapter management helps you reorganise as your ideas evolve. <a href="/make-ebook">makeEbook</a> is built around this: a clean editor, chapter list on the side, and no menus clamouring for your attention.</p>
+      <p>Use a distraction-free writing tool that lets you focus on one chapter at a time. Drag-and-drop chapter management helps you reorganise as your ideas evolve. <a href="/make-ebook">makeebook</a> is built around this: a clean editor, chapter list on the side, and no menus clamouring for your attention.</p>
 
       <h2>4. Edit and Polish Your Manuscript</h2>
       <p>Editing is where good writing becomes great. Do at least three passes:</p>
@@ -66,7 +66,7 @@ export const posts: BlogPost[] = [
         <li><strong>Line edit.</strong> Tighten sentences, cut filler, improve clarity.</li>
         <li><strong>Proofread.</strong> Catch typos, grammar issues, and formatting inconsistencies.</li>
       </ol>
-      <p>AI-powered manuscript analysis tools can help catch inconsistencies across chapters, like a character's eye colour changing or contradictory advice. Book Mind, makeEbook's editorial assistant, reads your entire manuscript and surfaces issues a human editor would flag.</p>
+      <p>AI-powered manuscript analysis tools can help catch inconsistencies across chapters, like a character's eye colour changing or contradictory advice. Book Mind, makeebook's editorial assistant, reads your entire manuscript and surfaces issues a human editor would flag.</p>
 
       <h2>5. Format Your Ebook for EPUB Publishing</h2>
       <p>Your ebook needs to be in EPUB format for most platforms (Amazon KDP, Apple Books, Kobo, Google Play Books). EPUB is the universal standard for ebooks. It's responsive, accessible, and works on every e-reader.</p>
@@ -97,7 +97,7 @@ export const posts: BlogPost[] = [
         <li><strong>Google Play Books.</strong> Growing marketplace with global reach.</li>
       </ul>
       <p>You can publish on all of these simultaneously. There's no exclusivity requirement unless you opt into Amazon's KDP Select programme.</p>
-      <p>Picking the right ebook creation tool is half the battle here. Our <a href="/make-ebook/blog/best-ebook-creation-tools">detailed comparison of the best ebook creation tools</a> walks through Scrivener, Vellum, Atticus, and makeEbook side by side.</p>
+      <p>Picking the right ebook creation tool is half the battle here. Our <a href="/make-ebook/blog/best-ebook-creation-tools">detailed comparison of the best ebook creation tools</a> walks through Scrivener, Vellum, Atticus, and makeebook side by side.</p>
 
       <h2>8. Launch and Market Your Ebook</h2>
       <p>Publishing is only the beginning. Promote your ebook through:</p>
@@ -120,7 +120,7 @@ export const posts: BlogPost[] = [
 
       <h2>Start Writing Today</h2>
       <p>The hardest part of writing an ebook is starting. You don't need expensive software or a publishing deal. You need a tool that gets out of your way and lets you write.</p>
-      <p><a href="/make-ebook">makeEbook</a> is a free, browser-based ebook editor that lets you write, organise chapters, and export professional EPUB files in minutes. No installation, no learning curve. Open your browser and start writing.</p>
+      <p><a href="/make-ebook">makeebook</a> is a free, browser-based ebook editor that lets you write, organise chapters, and export professional EPUB files in minutes. No installation, no learning curve. Open your browser and start writing.</p>
     `,
     faqs: [
       {
@@ -141,7 +141,7 @@ export const posts: BlogPost[] = [
       },
       {
         q: "Can I write an ebook without expensive design software?",
-        a: "Yes. A browser-based editor like makeEbook handles writing, chapter management, and EPUB export at no cost. For the cover, free tools like Canva cover the basics, though a professional cover is worth the investment for serious releases.",
+        a: "Yes. A browser-based editor like makeebook handles writing, chapter management, and EPUB export at no cost. For the cover, free tools like Canva cover the basics, though a professional cover is worth the investment for serious releases.",
       },
     ],
   },
@@ -149,7 +149,7 @@ export const posts: BlogPost[] = [
     slug: "best-ebook-creation-tools",
     title: "The Best Ebook Creation Tools: A Detailed Comparison",
     description:
-      "Compare the top ebook creation tools for self-publishing authors. Scrivener, Atticus, Vellum, and makeEbook. Features, pricing, and which is right for you.",
+      "Compare the top ebook creation tools for self-publishing authors. Scrivener, Atticus, Vellum, and makeebook. Features, pricing, and which is right for you.",
     date: "2026-04-05",
     updatedDate: "2026-04-20",
     readingTime: "12 min read",
@@ -171,8 +171,8 @@ export const posts: BlogPost[] = [
       <h2>Quick Picks</h2>
       <p>If you want the short answer:</p>
       <ul>
-        <li><strong>Best free option:</strong> <a href="/make-ebook">makeEbook</a>. Full EPUB export on the free tier.</li>
-        <li><strong>Best for beginners:</strong> <a href="/make-ebook">makeEbook</a>. Browser-based, zero learning curve, no install.</li>
+        <li><strong>Best free option:</strong> <a href="/make-ebook">makeebook</a>. Full EPUB export on the free tier.</li>
+        <li><strong>Best for beginners:</strong> <a href="/make-ebook">makeebook</a>. Browser-based, zero learning curve, no install.</li>
         <li><strong>Best for Mac users who want beautiful output:</strong> Vellum.</li>
         <li><strong>Best for power users and long-form non-fiction:</strong> Scrivener.</li>
         <li><strong>Best all-in-one paid tool:</strong> Atticus.</li>
@@ -234,9 +234,9 @@ export const posts: BlogPost[] = [
       </ul>
       <p><strong>Verdict:</strong> Good free option, but limited features for authors who want more control.</p>
 
-      <h2>makeEbook</h2>
+      <h2>makeebook</h2>
       <p><strong>Best for:</strong> Authors who want a simple, modern tool with AI features and free EPUB export.</p>
-      <p><a href="/make-ebook">makeEbook</a> is a browser-based ebook editor that focuses on simplicity without sacrificing professional output. The free tier includes full EPUB and PDF export, which most competitors charge for. The Pro tier adds AI-powered manuscript analysis (Book Mind), cloud sync, and version history.</p>
+      <p><a href="/make-ebook">makeebook</a> is a browser-based ebook editor that focuses on simplicity without sacrificing professional output. The free tier includes full EPUB and PDF export, which most competitors charge for. The Pro tier adds AI-powered manuscript analysis (Book Mind), cloud sync, and version history.</p>
       <ul>
         <li><strong>Price:</strong> Free (full export), $9 per month Pro, $149 lifetime.</li>
         <li><strong>EPUB export:</strong> Yes (free tier).</li>
@@ -247,7 +247,7 @@ export const posts: BlogPost[] = [
       <p><strong>Verdict:</strong> The best option for beginners and authors who want to start writing immediately without a financial commitment. The AI features in the Pro tier add genuine value for manuscript polishing.</p>
 
       <h2>Looking for a Free Scrivener Alternative?</h2>
-      <p>Scrivener's $49 price tag isn't the real barrier. The steeper cost is the time it takes to learn. If you want organised chapter management, drag-and-drop reordering, and EPUB export without the learning curve, <a href="/make-ebook">makeEbook</a> is the closest free Scrivener alternative for most self-publishing authors. Browser-based, no install, and the free tier exports a store-ready EPUB.</p>
+      <p>Scrivener's $49 price tag isn't the real barrier. The steeper cost is the time it takes to learn. If you want organised chapter management, drag-and-drop reordering, and EPUB export without the learning curve, <a href="/make-ebook">makeebook</a> is the closest free Scrivener alternative for most self-publishing authors. Browser-based, no install, and the free tier exports a store-ready EPUB.</p>
       <p>Reedsy Book Editor is the other free option worth considering, though its feature set is thinner and it's tied to the Reedsy marketplace.</p>
 
       <h2>Comparison Table</h2>
@@ -259,7 +259,7 @@ export const posts: BlogPost[] = [
             <th>Atticus</th>
             <th>Vellum</th>
             <th>Reedsy</th>
-            <th>makeEbook</th>
+            <th>makeebook</th>
           </tr>
         </thead>
         <tbody>
@@ -278,17 +278,17 @@ export const posts: BlogPost[] = [
 
       <h2>Our Recommendation</h2>
       <p>If you're just starting out, don't spend hundreds of dollars on software before you've written your first chapter. Start with a free tool that produces professional output, and upgrade later if you need advanced features.</p>
-      <p><a href="/make-ebook">makeEbook</a> lets you start writing in seconds. No download, no signup required for the free tier. Write your book, export a professional EPUB, and publish to Amazon KDP, Apple Books, or any platform.</p>
+      <p><a href="/make-ebook">makeebook</a> lets you start writing in seconds. No download, no signup required for the free tier. Write your book, export a professional EPUB, and publish to Amazon KDP, Apple Books, or any platform.</p>
       <p>If you haven't started your manuscript yet, our <a href="/make-ebook/blog/how-to-write-an-ebook">complete beginner's guide to writing an ebook</a> walks you through the entire process, from outline to published EPUB.</p>
     `,
     faqs: [
       {
         q: "What's the best free Scrivener alternative?",
-        a: "For most self-publishing authors, makeEbook is the closest free alternative. Browser-based, drag-and-drop chapter management, and EPUB export on the free tier. Reedsy Book Editor is the other free option, but its features are thinner and it ties you to the Reedsy marketplace.",
+        a: "For most self-publishing authors, makeebook is the closest free alternative. Browser-based, drag-and-drop chapter management, and EPUB export on the free tier. Reedsy Book Editor is the other free option, but its features are thinner and it ties you to the Reedsy marketplace.",
       },
       {
         q: "Which ebook software is best for beginners?",
-        a: "Beginners do best with a browser-based tool that exports a professional EPUB without configuration. makeEbook and Reedsy Book Editor are the two best free options. Scrivener is powerful but the learning curve costs most beginners weeks of productivity.",
+        a: "Beginners do best with a browser-based tool that exports a professional EPUB without configuration. makeebook and Reedsy Book Editor are the two best free options. Scrivener is powerful but the learning curve costs most beginners weeks of productivity.",
       },
       {
         q: "Is Vellum worth the price?",
@@ -296,11 +296,11 @@ export const posts: BlogPost[] = [
       },
       {
         q: "Can I write an ebook entirely in the browser?",
-        a: "Yes. Browser-based tools like makeEbook, Atticus, and Reedsy Book Editor handle everything from writing through EPUB export in the browser. makeEbook also runs offline as a PWA, so you can write on a flight and sync when you're back online.",
+        a: "Yes. Browser-based tools like makeebook, Atticus, and Reedsy Book Editor handle everything from writing through EPUB export in the browser. makeebook also runs offline as a PWA, so you can write on a flight and sync when you're back online.",
       },
       {
         q: "Do I need to pay for EPUB export?",
-        a: "No. makeEbook and Reedsy Book Editor both offer free EPUB export. Scrivener, Atticus, and Vellum require a paid license for the app, though their EPUB export is included in that license. If keeping costs low matters, start with a free tool.",
+        a: "No. makeebook and Reedsy Book Editor both offer free EPUB export. Scrivener, Atticus, and Vellum require a paid license for the app, though their EPUB export is included in that license. If keeping costs low matters, start with a free tool.",
       },
     ],
   },
@@ -331,7 +331,7 @@ export const posts: BlogPost[] = [
 
       <h2>Quick Picks</h2>
       <ul>
-        <li><strong>Best free Scrivener alternative:</strong> <a href="/make-ebook">makeEbook</a>. Browser-based, zero learning curve, free EPUB export.</li>
+        <li><strong>Best free Scrivener alternative:</strong> <a href="/make-ebook">makeebook</a>. Browser-based, zero learning curve, free EPUB export.</li>
         <li><strong>Best for Mac users who want beautiful output:</strong> Vellum.</li>
         <li><strong>Best paid all-in-one:</strong> Atticus.</li>
         <li><strong>Best free marketplace-integrated option:</strong> Reedsy Book Editor.</li>
@@ -357,8 +357,8 @@ export const posts: BlogPost[] = [
         <li><strong>Price that matches your needs.</strong> If you're writing one ebook, free is fine. If you're writing ten, a lifetime license is worth the investment.</li>
       </ul>
 
-      <h2>1. makeEbook: Best Free Scrivener Alternative</h2>
-      <p><a href="/make-ebook">makeEbook</a> is browser-based, free, and built specifically for self-publishing authors. The free tier handles writing, chapter management, and EPUB export without asking for a credit card. The Pro tier adds AI manuscript analysis (Book Mind), cloud sync, and Amazon KDP pre-flight checks.</p>
+      <h2>1. makeebook: Best Free Scrivener Alternative</h2>
+      <p><a href="/make-ebook">makeebook</a> is browser-based, free, and built specifically for self-publishing authors. The free tier handles writing, chapter management, and EPUB export without asking for a credit card. The Pro tier adds AI manuscript analysis (Book Mind), cloud sync, and Amazon KDP pre-flight checks.</p>
       <ul>
         <li><strong>Price:</strong> Free. Pro is $9 per month or $149 lifetime.</li>
         <li><strong>Platform:</strong> Browser (works offline as a PWA).</li>
@@ -421,7 +421,7 @@ export const posts: BlogPost[] = [
         </thead>
         <tbody>
           <tr><td>Scrivener</td><td>$49</td><td>Mac, Windows, iOS</td><td>No</td><td>Paid add-on</td><td>Steep</td></tr>
-          <tr><td>makeEbook</td><td>Free</td><td>Browser (offline PWA)</td><td>Yes</td><td>Pro tier</td><td>Very low</td></tr>
+          <tr><td>makeebook</td><td>Free</td><td>Browser (offline PWA)</td><td>Yes</td><td>Pro tier</td><td>Very low</td></tr>
           <tr><td>Reedsy</td><td>Free</td><td>Browser</td><td>Yes</td><td>Yes</td><td>Low</td></tr>
           <tr><td>Atticus</td><td>$225+</td><td>Browser, desktop</td><td>No</td><td>Yes</td><td>Moderate</td></tr>
           <tr><td>Vellum</td><td>$199+</td><td>Mac only</td><td>No</td><td>No</td><td>Low</td></tr>
@@ -433,14 +433,14 @@ export const posts: BlogPost[] = [
       <p>If you already have a Scrivener project and want to move it, the path depends on your destination tool:</p>
       <ol>
         <li><strong>Compile to DOCX.</strong> In Scrivener, go to File, Compile, and choose Microsoft Word (.docx) as the output format. This is the universal bridge, most ebook tools can import it.</li>
-        <li><strong>Open the DOCX in your new tool.</strong> makeEbook, Atticus, and Reedsy all accept DOCX import. Your chapters come across, though you may need to re-tag chapter breaks if Scrivener's structure didn't map cleanly.</li>
+        <li><strong>Open the DOCX in your new tool.</strong> makeebook, Atticus, and Reedsy all accept DOCX import. Your chapters come across, though you may need to re-tag chapter breaks if Scrivener's structure didn't map cleanly.</li>
         <li><strong>Re-check your metadata.</strong> Title, author, language, and ISBN often don't migrate. Set them fresh in the new tool before exporting.</li>
         <li><strong>Do an EPUB export and validate.</strong> Your first export in the new tool is a shakedown run. Open it on a Kindle or in an EPUB reader and check that chapters, table of contents, and typography all look right.</li>
       </ol>
       <p>If you're still at the outline stage, don't migrate. Just start fresh in the new tool. The time you'd spend on migration is better spent writing.</p>
 
       <h2>Our Pick for Most Writers</h2>
-      <p>For 80% of self-publishing authors, <a href="/make-ebook">makeEbook</a> is the best free Scrivener alternative. Browser-based, zero install, full EPUB export on the free tier, and AI manuscript analysis if you want it. The learning curve is measured in minutes, not weeks.</p>
+      <p>For 80% of self-publishing authors, <a href="/make-ebook">makeebook</a> is the best free Scrivener alternative. Browser-based, zero install, full EPUB export on the free tier, and AI manuscript analysis if you want it. The learning curve is measured in minutes, not weeks.</p>
       <p>If you're a Mac user who publishes a lot and cares deeply about typography, Vellum is the one paid tool worth the money.</p>
 
       <h2>Further Reading</h2>
@@ -449,23 +449,23 @@ export const posts: BlogPost[] = [
     faqs: [
       {
         q: "Is there a free alternative to Scrivener?",
-        a: "Yes. The two main free alternatives are makeEbook and Reedsy Book Editor. Both run in the browser, handle chapter management, and export a clean EPUB without a paywall. makeEbook also works offline as a PWA, which matters if you write on flights or without reliable internet.",
+        a: "Yes. The two main free alternatives are makeebook and Reedsy Book Editor. Both run in the browser, handle chapter management, and export a clean EPUB without a paywall. makeebook also works offline as a PWA, which matters if you write on flights or without reliable internet.",
       },
       {
         q: "What is the best Scrivener alternative for Mac?",
-        a: "If typography and design matter most, Vellum is the top choice for Mac. If you want something free and cross-machine, makeEbook runs in any browser on any Mac. If you want a paid, all-in-one writing and formatting tool that also runs on Windows, Atticus is the strongest option.",
+        a: "If typography and design matter most, Vellum is the top choice for Mac. If you want something free and cross-machine, makeebook runs in any browser on any Mac. If you want a paid, all-in-one writing and formatting tool that also runs on Windows, Atticus is the strongest option.",
       },
       {
         q: "What is the best Scrivener alternative for Windows?",
-        a: "Vellum does not run on Windows. For Windows users, the best alternatives are makeEbook (free, browser-based), Atticus (paid, all-in-one), and Reedsy Book Editor (free, browser-based with marketplace integration). makeEbook is the closest match for Scrivener users who want chapter management without the learning curve.",
+        a: "Vellum does not run on Windows. For Windows users, the best alternatives are makeebook (free, browser-based), Atticus (paid, all-in-one), and Reedsy Book Editor (free, browser-based with marketplace integration). makeebook is the closest match for Scrivener users who want chapter management without the learning curve.",
       },
       {
         q: "Can I export my Scrivener project to another tool?",
-        a: "Yes. In Scrivener, use File, Compile to export your project as a DOCX file. That DOCX can then be imported into makeEbook, Atticus, or Reedsy Book Editor. Your chapters come across, but you may need to re-check metadata (title, author, ISBN) in the new tool.",
+        a: "Yes. In Scrivener, use File, Compile to export your project as a DOCX file. That DOCX can then be imported into makeebook, Atticus, or Reedsy Book Editor. Your chapters come across, but you may need to re-check metadata (title, author, ISBN) in the new tool.",
       },
       {
         q: "Is Scrivener still worth it in 2026?",
-        a: "Scrivener is still excellent for long-form non-fiction and for writers who use research folders heavily. If you're writing a straightforward ebook and the main goal is a clean EPUB on Amazon KDP, it's overkill. A browser-based tool like makeEbook gets you to a published file in a fraction of the time.",
+        a: "Scrivener is still excellent for long-form non-fiction and for writers who use research folders heavily. If you're writing a straightforward ebook and the main goal is a clean EPUB on Amazon KDP, it's overkill. A browser-based tool like makeebook gets you to a published file in a fraction of the time.",
       },
     ],
   },
@@ -522,7 +522,7 @@ export const posts: BlogPost[] = [
 
       <h2>How to Design an Ebook Cover: Three Paths</h2>
       <h3>Path 1: In-app cover generator (fastest, free)</h3>
-      <p>Some ebook tools include a cover generator that uses your title, author name, and genre to produce a clean cover. <a href="/make-ebook">makeEbook</a> has a built-in cover generator that produces a store-ready cover in seconds. No design skills required, and it's free.</p>
+      <p>Some ebook tools include a cover generator that uses your title, author name, and genre to produce a clean cover. <a href="/make-ebook">makeebook</a> has a built-in cover generator that produces a store-ready cover in seconds. No design skills required, and it's free.</p>
       <p>This works best when you want a quiet, typographic cover rather than a photographic one. If your book is literary fiction, non-fiction, or essays, a generated cover is often all you need.</p>
       <h3>Path 2: DIY with Canva or Photoshop</h3>
       <p>Canva has ebook cover templates you can customise. Photoshop and Affinity Designer offer more control but require design skills. DIY works if you have a clear vision and the time to execute it, or if your genre has simple conventions you can match (a lot of non-fiction, for example).</p>
@@ -559,7 +559,7 @@ export const posts: BlogPost[] = [
       },
       {
         q: "Can I design my own ebook cover?",
-        a: "Yes. Canva has templates, makeEbook has a built-in cover generator, and Photoshop or Affinity Designer give full control. DIY works best for simple typographic covers. For commercially ambitious books, a professional designer is usually worth the spend.",
+        a: "Yes. Canva has templates, makeebook has a built-in cover generator, and Photoshop or Affinity Designer give full control. DIY works best for simple typographic covers. For commercially ambitious books, a professional designer is usually worth the spend.",
       },
       {
         q: "How much does a professional ebook cover cost?",
@@ -630,7 +630,7 @@ export const posts: BlogPost[] = [
 
       <h2>Tools Worth Considering</h2>
       <ul>
-        <li><strong>Book Mind in <a href="/make-ebook">makeEbook</a>.</strong> Purpose-built for manuscript-level analysis. Reads the whole book, flags inconsistencies, surfaces pacing issues, and handles blurb generation. Pro tier.</li>
+        <li><strong>Book Mind in <a href="/make-ebook">makeebook</a>.</strong> Purpose-built for manuscript-level analysis. Reads the whole book, flags inconsistencies, surfaces pacing issues, and handles blurb generation. Pro tier.</li>
         <li><strong>Claude or ChatGPT.</strong> General-purpose but capable. Good for discrete tasks (tightening a paragraph, summarising a chapter). Context window limits on longer books.</li>
         <li><strong>ProWritingAid.</strong> Traditional grammar-and-style tool with AI features. Strong on sentence-level issues, weak on whole-manuscript analysis.</li>
         <li><strong>Grammarly.</strong> Useful for the final proofreading pass. Not built for manuscript work.</li>
@@ -654,7 +654,7 @@ export const posts: BlogPost[] = [
 
       <h2>Start With One AI Pass</h2>
       <p>If you're new to using AI on manuscripts, start with one experiment: run your current draft through an inconsistency-detection tool and see what it catches. That single pass will show you where AI helps and where it doesn't, without overcommitting to an AI-heavy workflow.</p>
-      <p>When you're ready to go deeper, <a href="/make-ebook">makeEbook's Book Mind</a> is built specifically for manuscript-level analysis. If you haven't started your manuscript yet, our <a href="/make-ebook/blog/how-to-write-an-ebook">beginner's guide to writing an ebook</a> walks through the whole process.</p>
+      <p>When you're ready to go deeper, <a href="/make-ebook">makeebook's Book Mind</a> is built specifically for manuscript-level analysis. If you haven't started your manuscript yet, our <a href="/make-ebook/blog/how-to-write-an-ebook">beginner's guide to writing an ebook</a> walks through the whole process.</p>
     `,
     faqs: [
       {
@@ -675,7 +675,7 @@ export const posts: BlogPost[] = [
       },
       {
         q: "What's the best AI tool for ebook manuscripts?",
-        a: "For whole-manuscript analysis, Book Mind in makeEbook is purpose-built for the job. For discrete editing tasks, Claude and ChatGPT are strong general-purpose tools. For proofreading, Grammarly remains solid. Different tools for different jobs.",
+        a: "For whole-manuscript analysis, Book Mind in makeebook is purpose-built for the job. For discrete editing tasks, Claude and ChatGPT are strong general-purpose tools. For proofreading, Grammarly remains solid. Different tools for different jobs.",
       },
     ],
   },
@@ -719,8 +719,8 @@ export const posts: BlogPost[] = [
       </ol>
       <p>If you're writing on a long flight, you need level 1. Most "cloud" tools are level 2 or 3.</p>
 
-      <h2>1. makeEbook (PWA): Best Free Offline Ebook Editor</h2>
-      <p><a href="/make-ebook">makeEbook</a> installs as a Progressive Web App, which means the tool itself is cached on your device. You can open it without internet, write, add chapters, and export EPUB files. When you reconnect, your work syncs (on the Pro tier). Local-only writing works without an account.</p>
+      <h2>1. makeebook (PWA): Best Free Offline Ebook Editor</h2>
+      <p><a href="/make-ebook">makeebook</a> installs as a Progressive Web App, which means the tool itself is cached on your device. You can open it without internet, write, add chapters, and export EPUB files. When you reconnect, your work syncs (on the Pro tier). Local-only writing works without an account.</p>
       <ul>
         <li><strong>Platform:</strong> Any browser, any device.</li>
         <li><strong>Offline capability:</strong> Full. PWA caches the app.</li>
@@ -776,7 +776,7 @@ export const posts: BlogPost[] = [
           </tr>
         </thead>
         <tbody>
-          <tr><td>makeEbook (PWA)</td><td>Full</td><td>Any browser</td><td>Yes, free</td><td>Free</td></tr>
+          <tr><td>makeebook (PWA)</td><td>Full</td><td>Any browser</td><td>Yes, free</td><td>Free</td></tr>
           <tr><td>Scrivener</td><td>Full</td><td>Mac, Windows, iOS</td><td>Yes, via Compile</td><td>$49</td></tr>
           <tr><td>Vellum</td><td>Full</td><td>Mac only</td><td>Yes</td><td>$199+</td></tr>
           <tr><td>Microsoft Word</td><td>Full (desktop)</td><td>Mac, Windows</td><td>No (needs other tool)</td><td>$7/mo</td></tr>
@@ -793,7 +793,7 @@ export const posts: BlogPost[] = [
         <li>Syncs reliably when you're back online.</li>
         <li>Handles EPUB export without a round trip to a cloud service.</li>
       </ul>
-      <p>makeEbook's PWA model hits all three. Scrivener hits all three on desktop but requires a paid sync add-on. Vellum hits the first and third on Mac but has no sync.</p>
+      <p>makeebook's PWA model hits all three. Scrivener hits all three on desktop but requires a paid sync add-on. Vellum hits the first and third on Mac but has no sync.</p>
 
       <h2>Further Reading</h2>
       <p>For a broader look at ebook creation tools (not just offline ones), see our <a href="/make-ebook/blog/best-ebook-creation-tools">comparison of the best ebook creation tools</a>. If you're specifically hunting for Scrivener alternatives, our <a href="/make-ebook/blog/free-scrivener-alternatives">guide to free Scrivener alternatives</a> covers that in depth.</p>
@@ -801,7 +801,7 @@ export const posts: BlogPost[] = [
     faqs: [
       {
         q: "What is the best free offline ebook editor?",
-        a: "makeEbook installs as a Progressive Web App, so the tool is cached on your device and works offline without an account. Free local writing, free EPUB export, and cloud sync on the Pro tier if you want it.",
+        a: "makeebook installs as a Progressive Web App, so the tool is cached on your device and works offline without an account. Free local writing, free EPUB export, and cloud sync on the Pro tier if you want it.",
       },
       {
         q: "Does Scrivener work offline?",
@@ -809,15 +809,15 @@ export const posts: BlogPost[] = [
       },
       {
         q: "Can I write ebooks on a plane?",
-        a: "Yes, if you use a tool that supports full offline mode. makeEbook (as a PWA), Scrivener, Vellum, iA Writer, and desktop Word all work without internet. Reedsy Book Editor and most pure cloud tools do not.",
+        a: "Yes, if you use a tool that supports full offline mode. makeebook (as a PWA), Scrivener, Vellum, iA Writer, and desktop Word all work without internet. Reedsy Book Editor and most pure cloud tools do not.",
       },
       {
         q: "Do PWAs really work offline?",
-        a: "A properly-built PWA caches the app's code and assets on first visit. After that, you can open the tool without internet, write, save locally, and export files. When you reconnect, sync catches up. makeEbook is an example of a PWA that works this way.",
+        a: "A properly-built PWA caches the app's code and assets on first visit. After that, you can open the tool without internet, write, save locally, and export files. When you reconnect, sync catches up. makeebook is an example of a PWA that works this way.",
       },
       {
         q: "Is Microsoft Word good for writing ebooks?",
-        a: "Word is fine for drafting, but it doesn't produce a clean EPUB. If you draft in Word, plan to import the .docx into a dedicated ebook tool (makeEbook, Atticus, Scrivener) for formatting and EPUB export.",
+        a: "Word is fine for drafting, but it doesn't produce a clean EPUB. If you draft in Word, plan to import the .docx into a dedicated ebook tool (makeebook, Atticus, Scrivener) for formatting and EPUB export.",
       },
     ],
   },
@@ -826,7 +826,7 @@ export const posts: BlogPost[] = [
     title:
       "Lifetime License vs Subscription: Which Ebook Tools Offer Better Value?",
     description:
-      "The real cost of subscription vs lifetime-license ebook tools. A grown-up look at total cost of ownership over 24 months for Scrivener, Vellum, Atticus, and makeEbook.",
+      "The real cost of subscription vs lifetime-license ebook tools. A grown-up look at total cost of ownership over 24 months for Scrivener, Vellum, Atticus, and makeebook.",
     date: "2026-04-20",
     updatedDate: "2026-04-20",
     readingTime: "10 min read",
@@ -875,8 +875,8 @@ export const posts: BlogPost[] = [
       <h3>Atticus: $225 to $375 one-time</h3>
       <p>Lifetime license, no subscription option. All future updates included. Works in browser and desktop.</p>
       <p><strong>Verdict:</strong> One of the clearest "buy and own" deals in the space. High upfront cost is the barrier.</p>
-      <h3>makeEbook: Free, $9/month Pro, or $149 lifetime</h3>
-      <p><a href="/make-ebook">makeEbook</a> offers all three pricing models. The lifetime tier breaks even against the monthly subscription at 17 months, which is shorter than the 24-month heuristic. For any author planning to publish more than one book, lifetime is the clear choice.</p>
+      <h3>makeebook: Free, $9/month Pro, or $149 lifetime</h3>
+      <p><a href="/make-ebook">makeebook</a> offers all three pricing models. The lifetime tier breaks even against the monthly subscription at 17 months, which is shorter than the 24-month heuristic. For any author planning to publish more than one book, lifetime is the clear choice.</p>
       <p><strong>Verdict:</strong> The lifetime option is the best deal in the space for authors committed to self-publishing long-term.</p>
       <h3>ProWritingAid: $30/month or $399 lifetime</h3>
       <p>Subscription-heavy tool with a lifetime option. Lifetime breaks even at 13 months.</p>
@@ -899,7 +899,7 @@ export const posts: BlogPost[] = [
           </tr>
         </thead>
         <tbody>
-          <tr><td>makeEbook</td><td>$216</td><td>$149</td><td>Lifetime</td></tr>
+          <tr><td>makeebook</td><td>$216</td><td>$149</td><td>Lifetime</td></tr>
           <tr><td>ProWritingAid</td><td>$720</td><td>$399</td><td>Lifetime</td></tr>
           <tr><td>Scrivener</td><td>N/A</td><td>$49</td><td>Lifetime</td></tr>
           <tr><td>Vellum</td><td>N/A</td><td>$199</td><td>Lifetime</td></tr>
@@ -923,7 +923,7 @@ export const posts: BlogPost[] = [
 
       <h2>For Most Self-Publishing Authors: Go Lifetime</h2>
       <p>If you're committed to self-publishing, a lifetime license is almost always the right economic choice. The upfront cost is higher, but the total cost over three or four books is lower, and you're insulated from pricing changes or the tool being discontinued.</p>
-      <p><a href="/make-ebook">makeEbook's lifetime tier at $149</a> is the best value in the space for committed self-publishers. It breaks even against the subscription in under 18 months, and you never pay again.</p>
+      <p><a href="/make-ebook">makeebook's lifetime tier at $149</a> is the best value in the space for committed self-publishers. It breaks even against the subscription in under 18 months, and you never pay again.</p>
 
       <h2>Further Reading</h2>
       <p>For a side-by-side look at the tools themselves, see our <a href="/make-ebook/blog/best-ebook-creation-tools">comparison of the best ebook creation tools</a>. If you're considering Scrivener specifically, our <a href="/make-ebook/blog/free-scrivener-alternatives">guide to free Scrivener alternatives</a> covers that.</p>
@@ -935,11 +935,11 @@ export const posts: BlogPost[] = [
       },
       {
         q: "Which ebook tools offer lifetime licenses?",
-        a: "Scrivener ($49), Vellum ($199+), Atticus ($225+), makeEbook ($149), and ProWritingAid ($399) all offer lifetime licenses. Grammarly and Adobe InDesign are subscription-only.",
+        a: "Scrivener ($49), Vellum ($199+), Atticus ($225+), makeebook ($149), and ProWritingAid ($399) all offer lifetime licenses. Grammarly and Adobe InDesign are subscription-only.",
       },
       {
-        q: "Is $149 for makeEbook lifetime worth it?",
-        a: "If you'll use makeEbook for more than 17 months, yes. The lifetime tier breaks even against the $9-per-month subscription at 17 months and pays for itself on every subsequent month. For multi-book authors, it's the clearest deal in the space.",
+        q: "Is $149 for makeebook lifetime worth it?",
+        a: "If you'll use makeebook for more than 17 months, yes. The lifetime tier breaks even against the $9-per-month subscription at 17 months and pays for itself on every subsequent month. For multi-book authors, it's the clearest deal in the space.",
       },
       {
         q: "What happens if a lifetime license company goes out of business?",

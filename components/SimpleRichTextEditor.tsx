@@ -291,7 +291,7 @@ export function SimpleRichTextEditor({
               <TooltipContent className="max-w-xs">
                 <p>
                   Link functionality is disabled in this demo version only. In
-                  the full makeEbook product, you'll be able to add
+                  the full makeebook product, you'll be able to add
                   eReader-compatible links to your content.
                 </p>
               </TooltipContent>

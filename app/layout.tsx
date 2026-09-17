@@ -79,7 +79,7 @@ const zillaSlab = Zilla_Slab({
 
 const TITLE = "Neil McArdle · Product Designer";
 const DESCRIPTION =
-  "Product designer in London. Building makeEbook, Coverly, DoodleWire and Spark.";
+  "Product designer in London. Building makeebook, Coverly, DoodleWire and Spark.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://neilmcardle.com"),
