@@ -98,7 +98,7 @@ export default function BookDetailsPanel({
             htmlFor={`${idPrefix}-cover-image`}
             className="block text-11 font-medium text-gray-600 dark:text-[var(--clay-muted)] mb-2"
           >
-            Cover Image
+            Cover image
           </label>
           <div className="w-full aspect-[2/3] max-h-52 bg-gray-50 dark:bg-[var(--ink-raised)] rounded-card border border-gray-200 dark:border-[var(--rule)] overflow-hidden flex items-center justify-center mb-2">
             {coverFile ? (
@@ -121,8 +121,26 @@ export default function BookDetailsPanel({
             accept="image/*"
             onChange={handleCoverChange}
             disabled={lockedSections.cover}
-            className="w-full text-12 text-[var(--clay-muted)] file:mr-2 file:py-2 file:px-3 file:rounded-chip file:border-0 file:text-11 file:font-medium file:bg-gray-100 dark:file:bg-[var(--ink-raised)] file:text-gray-700 dark:file:text-[var(--clay)] hover:file:bg-gray-200 dark:hover:file:bg-[var(--rule)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="peer sr-only"
           />
+          <label
+            htmlFor={`${idPrefix}-cover-image`}
+            className="flex w-full items-center justify-center gap-2 py-2 text-11 font-medium rounded-card border border-[color:color-mix(in_srgb,var(--paper)_16%,transparent)] text-[var(--clay)] cursor-pointer transition-colors hover:text-[var(--paper)] hover:bg-[color:color-mix(in_srgb,var(--paper)_7%,transparent)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--acid)] peer-disabled:opacity-50 peer-disabled:cursor-not-allowed"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.7}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+            </svg>
+            {coverFile ? "Replace the image" : "Upload an image"}
+          </label>
           {setCoverFile && (
             <button
               type="button"

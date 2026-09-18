@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import CurlMind from "./CurlMind";
 import styles from "./home.module.css";
 
 export default function PageCurl() {
@@ -37,6 +38,11 @@ export default function PageCurl() {
       onClick={() => setOpen((value) => !value)}
     >
       <span className={styles.curlUnder}>
+        {open && (
+          <span className={styles.curlMascot}>
+            <CurlMind />
+          </span>
+        )}
         <span className={styles.curlNote} aria-hidden="true">
           neilOS coming soon…
         </span>
