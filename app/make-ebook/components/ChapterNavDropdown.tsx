@@ -50,9 +50,7 @@ export default function ChapterNavDropdown({
         className="w-64 max-h-[400px] overflow-y-auto bg-white dark:bg-[var(--ink-panel)] border border-gray-200 dark:border-[var(--rule)]"
         align="start"
       >
-        <DropdownMenuLabel className="text-xs font-semibold text-gray-500 dark:text-[var(--clay-muted)] uppercase tracking-wide">
-          Chapters ({chapters.length})
-        </DropdownMenuLabel>
+        <DropdownMenuLabel>Chapters ({chapters.length})</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {chapters.map((chapter, index) => {
           const isSelected = index === selectedChapter;
