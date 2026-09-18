@@ -4,6 +4,7 @@ import type React from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Arrow, Stage, Window, useInView, useReducedMotion } from "./AppWindow";
 import { ACTIVE_CHAPTER, BOOK, CHAPTERS, countWords } from "./sampleBook";
+import BookMindMark from "../../bookmind/BookMindMark";
 import styles from "./landing.module.css";
 
 type Part = string | { cite: number };
@@ -517,6 +518,12 @@ export function StudioDemo() {
 
         <Window
           title="Book Mind"
+          icon={
+            <BookMindMark
+              className={styles.titleMark}
+              thinking={!!convo && !done}
+            />
+          }
           right={<span className={styles.tag}>Pro</span>}
           className={styles.mind}
         >

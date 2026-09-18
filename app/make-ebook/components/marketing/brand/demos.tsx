@@ -12,6 +12,7 @@ import {
   useTimeline,
 } from "./AppWindow";
 import { BOOK, CHAPTERS } from "./sampleBook";
+import BookMindMark from "../../bookmind/BookMindMark";
 import styles from "./landing.module.css";
 
 const IMPORTED = [
@@ -227,7 +228,13 @@ export function RewriteDemo() {
                         </button>
                       ))}
                     </div>
-                    <span className={styles.tag}>Book Mind</span>
+                    <span className={`${styles.tag} ${styles.tagMind}`}>
+                      <BookMindMark
+                        className={styles.tagMark}
+                        thinking={shown < take.text.length}
+                      />
+                      Book Mind
+                    </span>
                   </div>
                   <p className={styles.takeText}>{take.text.slice(0, shown)}</p>
                   <div className={styles.takesFoot}>

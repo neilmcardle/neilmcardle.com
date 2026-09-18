@@ -25,11 +25,13 @@ export function Stage({
 
 export function Window({
   title,
+  icon,
   right,
   className = "",
   children,
 }: {
   title: string;
+  icon?: React.ReactNode;
   right?: React.ReactNode;
   className?: string;
   children: React.ReactNode;
@@ -42,7 +44,10 @@ export function Window({
           <span />
           <span />
         </div>
-        <span className={styles.titleText}>{title}</span>
+        <span className={styles.titleText}>
+          {icon}
+          {title}
+        </span>
         <div className={styles.titleRight}>{right}</div>
       </div>
       {children}

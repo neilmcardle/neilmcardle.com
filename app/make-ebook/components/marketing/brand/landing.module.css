@@ -434,6 +434,21 @@
   composes: tag from "../../../styles/studio.module.css";
 }
 
+.tagMind {
+  gap: 5px;
+  padding-left: 3px;
+}
+
+.tagMark {
+  width: 13px;
+  height: 13px;
+}
+
+.titleMark {
+  width: 16px;
+  height: 16px;
+}
+
 .takeText {
   composes: takeText from "../../../styles/studio.module.css";
 }
