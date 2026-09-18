@@ -4,10 +4,9 @@ import React from "react";
 import BookMindAgent from "./BookMindAgent";
 import { ChapterIndex } from "./ChapterIndex";
 import PreviewSurface from "./PreviewSurface";
-import ChapterPanel, { sectionLabelFor } from "./ChapterPanel";
+import ChapterPanel from "./ChapterPanel";
 import styles from "../styles/studio.module.css";
 import type { FocusSettings as FocusModeSettings } from "../hooks/useFocusMode";
-import { ModKey } from "./PlatformKey";
 
 interface Chapter {
   id: string;
@@ -64,7 +63,6 @@ interface EditorCanvasProps {
 
   isBookMindLoading?: boolean;
   onOpenBookMind?: () => void;
-  onBookMindHistory?: () => void;
 }
 
 export default function EditorCanvas({
@@ -85,72 +83,35 @@ export default function EditorCanvas({
   starters,
   isBookMindLoading = false,
   onOpenBookMind,
-  onBookMindHistory,
 }: EditorCanvasProps) {
   const chapter = chapters[selectedChapter];
-  const sectionLabel = sectionLabelFor(chapter);
 
   const chapterWordCount =
     bookStats.chapterStats?.[selectedChapter]?.wordCount ?? 0;
 
+  const detail = [
+    sessionStats.wordsThisSession > 0
+      ? `+${sessionStats.wordsThisSession.toLocaleString()} this session`
+      : null,
+    todayWords > 0 ? `${todayWords.toLocaleString()} today` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   const footer = (
     <div className={styles.canvasFoot}>
-      <span className={styles.footLeft}>
-        {onBookMindHistory && (
-          <button
-            type="button"
-            onClick={onBookMindHistory}
-            className={styles.footButton}
-            title="History"
-            aria-label="Recent conversations"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.8}
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </button>
-        )}
-        <span>{sectionLabel}</span>
-        {onInlineEditRequest && (
-          <span className={styles.footKeys}>
-            <kbd className={styles.footKey}>
-              <ModKey keyName="K" />
-            </kbd>
-            <span>edit with AI</span>
-            <kbd className={styles.footKey}>/</kbd>
-            <span>commands</span>
-          </span>
-        )}
-        {sessionStats.wordsThisSession > 0 && (
-          <span className={styles.footGain}>
-            +{sessionStats.wordsThisSession.toLocaleString()} this session
-          </span>
-        )}
-        {todayWords > 0 && <span>{todayWords.toLocaleString()} today</span>}
-      </span>
-      <span className={styles.footLeft}>
-        <span>{chapterWordCount.toLocaleString()} words</span>
+      <span className={styles.footLeft} title={detail || undefined}>
+        <span>
+          {chapterWordCount.toLocaleString()}{" "}
+          {chapterWordCount === 1 ? "word" : "words"}
+        </span>
         <span className={styles.footDim}>
           {bookStats.totalWords.toLocaleString()} in the book
         </span>
-        {onOpenBookMind && (
-          <BookMindAgent
-            isLoading={isBookMindLoading}
-            onOpen={onOpenBookMind}
-          />
-        )}
       </span>
+      {onOpenBookMind && (
+        <BookMindAgent isLoading={isBookMindLoading} onOpen={onOpenBookMind} />
+      )}
     </div>
   );
 

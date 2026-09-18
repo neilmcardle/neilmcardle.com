@@ -1,11 +1,12 @@
 "use client";
+
 import { useState } from "react";
 import type {
   FocusSettings,
   ColumnWidth,
   AmbientSound,
 } from "../hooks/useFocusMode";
-import { useIsMac } from "./PlatformKey";
+import styles from "../styles/studio.module.css";
 
 interface Props {
   settings: FocusSettings;
@@ -16,83 +17,109 @@ interface Props {
   onExit: () => void;
 }
 
-function Toggle({
+const CLOUD =
+  "M6 11h8.5a3 3 0 0 0 .4-5.97A4.5 4.5 0 0 0 6.2 6.1 2.5 2.5 0 0 0 6 11z";
+
+const SOUNDS: {
+  value: Exclude<AmbientSound, "none" | "custom">;
+  label: string;
+  path: string;
+}[] = [
+  {
+    value: "rain-light",
+    label: "Light rain",
+    path: `${CLOUD}M10.5 14l-1 3`,
+  },
+  {
+    value: "rain-medium",
+    label: "Rain",
+    path: `${CLOUD}M7 14l-1 3M10.5 14l-1 3M14 14l-1 3`,
+  },
+  {
+    value: "waves",
+    label: "Waves",
+    path: "M2 8c2-2 4-2 6 0s4 2 6 0 3-1.5 4-1M2 13c2-2 4-2 6 0s4 2 6 0 3-1.5 4-1",
+  },
+  {
+    value: "fire",
+    label: "Fire",
+    path: "M10 18c3 0 5-2 5-5 0-3-2-4-3-7-1 2-2 3-3 3 0-2-1-4-2-6-1 3-4 5-4 10 0 3 3 5 7 5z",
+  },
+  {
+    value: "train",
+    label: "Train",
+    path: "M5 3h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM3 9h14M7 15l-2 3M13 15l2 3M6.5 12h.01M13.5 12h.01",
+  },
+  {
+    value: "pink-noise",
+    label: "Pink noise",
+    path: "M2 10h2l2-4 2 8 2-10 2 12 2-8 2 4h2",
+  },
+];
+
+const COLUMNS: { value: ColumnWidth; label: string }[] = [
+  { value: "normal", label: "Normal" },
+  { value: "full", label: "Full" },
+];
+
+function Switch({
   label,
-  description,
+  hint,
   checked,
   onChange,
 }: {
   label: string;
-  description?: string;
+  hint?: string;
   checked: boolean;
-  onChange: (v: boolean) => void;
+  onChange: (value: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-2.5 border-b border-white/10 last:border-0">
-      <div className="min-w-0">
-        <p className="text-sm text-white/90 leading-tight">{label}</p>
-        {description && (
-          <p className="text-xs text-white/45 mt-1 leading-tight">
-            {description}
-          </p>
-        )}
-      </div>
+    <div className={styles.focusRow}>
+      <span className={styles.focusRowText}>
+        <span className={styles.focusRowLabel}>{label}</span>
+        {hint && <span className={styles.focusRowHint}>{hint}</span>}
+      </span>
       <button
+        type="button"
         role="switch"
         aria-checked={checked}
+        aria-label={label}
+        className={`${styles.switch} ${checked ? styles.switchOn : ""}`}
         onClick={() => onChange(!checked)}
-        className={`relative flex-shrink-0 inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus:outline-none ${
-          checked ? "bg-white/80" : "bg-white/15"
-        }`}
-      >
-        <span
-          className={`inline-block h-3.5 w-3.5 rounded-full transition-transform duration-200 ${
-            checked
-              ? "translate-x-4 bg-[var(--ink-raised)]"
-              : "translate-x-1 bg-white/50"
-          }`}
-        />
-      </button>
+      />
     </div>
   );
 }
 
-const COL_OPTIONS: { value: ColumnWidth; label: string }[] = [
-  { value: "full", label: "Full" },
-  { value: "normal", label: "Normal" },
-];
-
-const SOUND_OPTIONS: { value: AmbientSound; label: string }[] = [
-  { value: "none", label: "Off" },
-  { value: "pink-noise", label: "Pink noise" },
-  { value: "rain-light", label: "Rain light" },
-  { value: "rain-medium", label: "Rain medium" },
-  { value: "waves", label: "Waves" },
-  { value: "fire", label: "Fire" },
-  { value: "train", label: "Train" },
-];
-
 export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
   const [open, setOpen] = useState(false);
+  const [lastSound, setLastSound] = useState<AmbientSound>(
+    settings.ambientSound !== "none" ? settings.ambientSound : "rain-light",
+  );
+  const soundOn = settings.ambientSound !== "none";
+
+  const pickSound = (value: AmbientSound) => {
+    setLastSound(value);
+    onChangeSetting("ambientSound", value);
+  };
 
   return (
-    <div className="fixed top-4 right-4 z-[90] flex flex-col items-end gap-2 select-none">
+    <div className={styles.focusDock}>
       <button
+        type="button"
         onClick={() => setOpen((p) => !p)}
-        title={open ? "Close settings" : "Focus settings"}
-        className={`flex items-center gap-2 px-3 h-8 rounded-full text-xs font-medium transition-all duration-300 shadow-lg backdrop-blur-md border ${
-          open
-            ? "bg-white text-[var(--ink-deep)] border-transparent opacity-100"
-            : "bg-[color:color-mix(in_srgb,var(--ink-deep)_70%,transparent)] border-white/10 text-white/50 opacity-60 hover:opacity-100 hover:text-white/80"
-        }`}
+        aria-expanded={open}
+        className={`${styles.focusTrigger} ${open ? styles.focusTriggerOpen : ""}`}
       >
         <svg
-          className="w-3.5 h-3.5 flex-shrink-0"
+          width="14"
+          height="14"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth={1.6}
           strokeLinecap="round"
+          aria-hidden="true"
         >
           <circle cx="12" cy="12" r="3" />
           <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
@@ -101,35 +128,34 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
       </button>
 
       {open && (
-        <div className="w-64 rounded-2xl bg-[var(--ink-window)] backdrop-blur-xl border border-white/20 shadow-2xl p-4 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
-          <p className="text-2xs font-semibold text-white/45 uppercase tracking-widest mb-2">
-            Interface
-          </p>
-          <Toggle
+        <div
+          className={styles.focusPanel}
+          role="dialog"
+          aria-label="Focus settings"
+        >
+          <p className={styles.micro}>Screen</p>
+          <Switch
             label="Full screen"
-            description="Hide browser chrome"
+            hint="Hide the browser around the page"
             checked={settings.fullScreen}
             onChange={(v) => onChangeSetting("fullScreen", v)}
           />
-          <Toggle
+          <Switch
             label="Minimal interface"
-            description="Hide nav and toolbar"
+            hint="Hide the menus and toolbar"
             checked={settings.hideChrome}
             onChange={(v) => onChangeSetting("hideChrome", v)}
           />
-
-          <div className="py-2.5 border-b border-white/10">
-            <p className="text-sm text-white/90 mb-2">Column width</p>
-            <div className="flex items-center gap-2 p-1 rounded-full bg-white/8 border border-white/10">
-              {COL_OPTIONS.map(({ value, label }) => (
+          <div className={styles.focusRow}>
+            <span className={styles.focusRowLabel}>Column</span>
+            <div className={styles.seg} role="group" aria-label="Column width">
+              {COLUMNS.map(({ value, label }) => (
                 <button
                   key={value}
+                  type="button"
+                  aria-pressed={settings.columnWidth === value}
+                  className={`${styles.segItem} ${settings.columnWidth === value ? styles.segActive : ""}`}
                   onClick={() => onChangeSetting("columnWidth", value)}
-                  className={`flex-1 py-1 rounded-full text-xs font-medium transition-all ${
-                    settings.columnWidth === value
-                      ? "bg-white text-[var(--ink-deep)] shadow-sm"
-                      : "text-white/50 hover:text-white/80"
-                  }`}
                 >
                   {label}
                 </button>
@@ -137,96 +163,91 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
             </div>
           </div>
 
-          <p className="text-2xs font-semibold text-white/45 uppercase tracking-widest mt-3 mb-2">
-            Writing
-          </p>
-          <Toggle
+          <p className={`${styles.micro} ${styles.focusSection}`}>Writing</p>
+          <Switch
             label="Typewriter mode"
-            description="Keeps the cursor centred"
+            hint="Keeps the line you're writing centred"
             checked={settings.typewriterMode}
             onChange={(v) => onChangeSetting("typewriterMode", v)}
           />
-          <Toggle
+          <Switch
             label="Paragraph focus"
-            description="Dims everything except the current paragraph"
+            hint="Dims everything but the current paragraph"
             checked={settings.paragraphFocus}
             onChange={(v) => onChangeSetting("paragraphFocus", v)}
           />
 
-          <p className="text-2xs font-semibold text-white/45 uppercase tracking-widest mt-3 mb-2">
-            Ambient sound
-          </p>
-          <div className="grid grid-cols-3 gap-1 mb-3">
-            {SOUND_OPTIONS.map(({ value, label }) => (
-              <button
-                key={value}
-                onClick={() => onChangeSetting("ambientSound", value)}
-                className={`px-2 py-2 rounded-lg text-2xs font-medium transition-colors text-center ${
-                  settings.ambientSound === value
-                    ? "bg-white text-[var(--ink-deep)]"
-                    : "bg-white/8 text-white/55 hover:bg-white/12 hover:text-white/90"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+          <p className={`${styles.micro} ${styles.focusSection}`}>Sound</p>
+          <div
+            className={styles.tiles}
+            role="radiogroup"
+            aria-label="Ambient sound"
+          >
+            {SOUNDS.map((s) => {
+              const active = soundOn && settings.ambientSound === s.value;
+              return (
+                <button
+                  key={s.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  className={`${styles.tile} ${active ? styles.tileActive : ""}`}
+                  onClick={() => pickSound(s.value)}
+                >
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.4}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d={s.path} />
+                  </svg>
+                  {s.label}
+                </button>
+              );
+            })}
           </div>
-          {settings.ambientSound !== "none" && (
-            <div className="flex items-center gap-3 mb-1">
-              <span className="text-white/50 text-2xs">Vol</span>
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.02}
-                value={settings.ambientVolume}
-                onChange={(e) =>
-                  onChangeSetting("ambientVolume", parseFloat(e.target.value))
-                }
-                className="flex-1 h-1 accent-white cursor-pointer"
-              />
-              <span className="text-white/50 text-2xs w-7 text-right">
-                {Math.round(settings.ambientVolume * 100)}%
-              </span>
-            </div>
-          )}
+          <Switch
+            label={soundOn ? "Sound on" : "Sound off"}
+            checked={soundOn}
+            onChange={(v) =>
+              v ? pickSound(lastSound) : onChangeSetting("ambientSound", "none")
+            }
+          />
+          <div className={styles.volumeRow} aria-disabled={!soundOn}>
+            <span className={styles.focusRowLabel}>Volume</span>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.02}
+              value={settings.ambientVolume}
+              disabled={!soundOn}
+              aria-label="Volume"
+              className={styles.range}
+              style={
+                {
+                  "--fill": `${Math.round(settings.ambientVolume * 100)}%`,
+                } as React.CSSProperties
+              }
+              onChange={(e) =>
+                onChangeSetting("ambientVolume", parseFloat(e.target.value))
+              }
+            />
+            <span className={styles.volumeValue}>
+              {Math.round(settings.ambientVolume * 100)}%
+            </span>
+          </div>
 
-          <div className="border-t border-white/10 mt-4 pt-3">
-            <button
-              onClick={onExit}
-              className="w-full py-2 rounded-full border border-white/15 text-xs text-white/50 hover:text-white/90 hover:border-white/30 transition-colors"
-            >
-              Exit focus mode <span className="opacity-40 ml-1">Esc</span>
-            </button>
-          </div>
+          <button type="button" onClick={onExit} className={styles.focusExit}>
+            Exit focus mode
+            <kbd>Esc</kbd>
+          </button>
         </div>
       )}
     </div>
-  );
-}
-
-export function FocusModeButton({ onClick }: { onClick: () => void }) {
-  const isMac = useIsMac();
-  return (
-    <button
-      onClick={onClick}
-      title={`Enter focus mode  ${isMac ? "⌘⇧F" : "Ctrl+Shift+F"}`}
-      className="flex items-center gap-2 px-3 h-10 rounded-lg bg-gray-100 dark:bg-[var(--ink-raised)] hover:bg-gray-200 dark:hover:bg-[var(--rule)] transition-colors group"
-    >
-      <svg
-        className="w-6 h-6 text-[var(--clay-muted)] group-hover:text-gray-600 dark:group-hover:text-[var(--clay)] transition-colors"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.6}
-        strokeLinecap="round"
-      >
-        <circle cx="12" cy="12" r="3" />
-        <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
-      </svg>
-      <span className="text-xs text-[var(--clay-muted)] group-hover:text-gray-600 dark:group-hover:text-[var(--clay)] transition-colors">
-        Focus
-      </span>
-    </button>
   );
 }

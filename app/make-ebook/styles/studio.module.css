@@ -393,8 +393,11 @@
 
 .canvasFoot {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 16px;
   flex: none;
+  white-space: nowrap;
   padding: 10px 16px;
   border-top: 1px solid rgba(243, 239, 229, 0.07);
   font-family: var(--font-mono);
@@ -2838,4 +2841,235 @@ button:hover > .avatar {
 button:focus-visible > .avatar {
   outline: 2px solid var(--acid);
   outline-offset: 2px;
+}
+
+.focusDock {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  user-select: none;
+}
+
+.focusTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 13px;
+  border: 1px solid rgba(243, 239, 229, 0.12);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink-deep) 72%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--clay-muted);
+  opacity: 0.7;
+  cursor: pointer;
+  transition:
+    opacity 200ms var(--ease),
+    color 200ms var(--ease);
+}
+
+.focusTrigger:hover {
+  opacity: 1;
+  color: var(--paper);
+}
+
+.focusTriggerOpen {
+  border-color: transparent;
+  background: var(--paper);
+  color: var(--ink-deep);
+  opacity: 1;
+}
+
+.focusTriggerOpen:hover {
+  color: var(--ink-deep);
+}
+
+.focusTrigger:focus-visible,
+.focusExit:focus-visible,
+.range:focus-visible {
+  outline: 2px solid var(--acid);
+  outline-offset: 2px;
+}
+
+.focusPanel {
+  width: 300px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 72px);
+  overflow-y: auto;
+  padding: 16px 16px 14px;
+  border: 1px solid rgba(243, 239, 229, 0.12);
+  border-radius: 16px;
+  background: var(--ink-window);
+  box-shadow: 0 30px 70px -25px rgba(0, 0, 0, 0.85);
+  animation: rise 220ms var(--ease) both;
+  scrollbar-width: none;
+}
+
+.focusPanel::-webkit-scrollbar {
+  display: none;
+}
+
+.focusSection {
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.focusPanel .micro:first-child {
+  margin-bottom: 4px;
+}
+
+.focusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(243, 239, 229, 0.06);
+}
+
+.focusRowText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.focusRowLabel {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--paper);
+}
+
+.focusRowHint {
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--clay-muted);
+}
+
+.focusPanel .tiles {
+  margin-bottom: 4px;
+}
+
+.focusPanel .tile {
+  height: 64px;
+}
+
+.volumeRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0 4px;
+}
+
+.volumeRow[aria-disabled="true"] {
+  opacity: 0.4;
+}
+
+.range {
+  flex: 1;
+  min-width: 0;
+  height: 20px;
+  margin: 0;
+  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.range:disabled {
+  cursor: not-allowed;
+}
+
+.range::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--paper) var(--fill, 0%),
+    rgba(243, 239, 229, 0.16) var(--fill, 0%)
+  );
+}
+
+.range::-moz-range-track {
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(243, 239, 229, 0.16);
+}
+
+.range::-moz-range-progress {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--paper);
+}
+
+.range::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  margin-top: -5.5px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--paper);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--paper);
+}
+
+.volumeValue {
+  flex: none;
+  width: 34px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-align: right;
+  color: var(--clay-muted);
+}
+
+.focusExit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 36px;
+  margin-top: 14px;
+  border: 1px solid rgba(243, 239, 229, 0.14);
+  border-radius: 999px;
+  background: none;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--clay);
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease),
+    color 160ms var(--ease);
+}
+
+.focusExit:hover {
+  border-color: rgba(243, 239, 229, 0.32);
+  color: var(--paper);
+}
+
+.focusExit kbd {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--clay-muted);
+}
+
+.canvasFoot button {
+  font-family: var(--font-ui);
 }

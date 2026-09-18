@@ -1956,11 +1956,6 @@ function MakeEbookPage() {
                     onOpenBookMind={
                       hasBookMind ? () => setBookMindOpen(true) : undefined
                     }
-                    onBookMindHistory={
-                      hasBookMind
-                        ? () => setHistoryModal("versions")
-                        : undefined
-                    }
                   />
                 </section>
               )}
