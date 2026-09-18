@@ -4,9 +4,9 @@ import type { Metadata, Viewport } from "next";
 import AdsTracking from "@/components/AdsTracking";
 import MakeEbookProviders from "./components/MakeEbookProviders";
 
-const TITLE = "makeebook. Free Browser-Based Ebook Editor & EPUB Creator";
+const TITLE = "makeebook, the eBook editor made for your manuscript";
 const DESCRIPTION =
-  "Free browser-based ebook editor. Write, format, and export professional EPUBs for Kindle, Kobo, and Apple Books. No install, no credit card.";
+  "Bring the manuscript you have. Edit and preview every chapter, check it with Book Mind, and export EPUB, PDF and Word ready for Amazon, Apple Books and Kobo. Free to start, in your browser.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://makeebook.ink"),
@@ -38,10 +38,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/make-ebook/brand/social.jpg",
+        url: "/make-ebook/brand/social-v2.jpg",
         width: 2400,
         height: 1260,
-        alt: "makeebook. From manuscript to store-ready ebook.",
+        alt: "makeebook.ink. The eBook editor made for your manuscript.",
       },
     ],
   },
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     site: "@makeebook",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/make-ebook/brand/social.jpg"],
+    images: ["/make-ebook/brand/social-v2.jpg"],
   },
 };
 
