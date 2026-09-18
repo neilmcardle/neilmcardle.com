@@ -81,10 +81,15 @@ function IndexList({
   const listRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
-    const active = listRef.current?.querySelector<HTMLElement>(
-      '[aria-current="true"]',
-    );
-    active?.scrollIntoView({ block: "nearest" });
+    const list = listRef.current;
+    const active = list?.querySelector<HTMLElement>('[aria-current="true"]');
+    if (!list || !active) return;
+    const top = active.offsetTop - list.offsetTop;
+    if (top < list.scrollTop) {
+      list.scrollTop = top;
+    } else if (top + active.offsetHeight > list.scrollTop + list.clientHeight) {
+      list.scrollTop = top + active.offsetHeight - list.clientHeight;
+    }
   }, [selectedChapter]);
 
   return (
