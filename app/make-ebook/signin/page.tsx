@@ -295,7 +295,7 @@ function SignInContent() {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0b0b0b]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[var(--ink-deep)]" />}>
       <SignInContent />
     </Suspense>
   );

@@ -91,8 +91,8 @@ export default function ChapterScrollRail({
             <span
               className={`block w-[3px] rounded-full overflow-hidden transition-all duration-300 ${
                 isCurrent
-                  ? "h-8 bg-gray-200 dark:bg-[#3a3a3a]"
-                  : "h-3.5 bg-gray-200 dark:bg-[#2f2f2f] group-hover:bg-gray-300 dark:group-hover:bg-[#4a4a4a]"
+                  ? "h-8 bg-gray-200 dark:bg-[var(--ink-hover)]"
+                  : "h-3.5 bg-gray-200 dark:bg-[var(--rule)] group-hover:bg-gray-300 dark:group-hover:bg-[var(--ink-hover)]"
               }`}
             >
               {isCurrent && (

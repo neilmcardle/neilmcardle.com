@@ -112,7 +112,7 @@ function ProBody({
   return (
     <>
       <div className="flex-1 overflow-y-auto min-h-0 px-6 py-5 space-y-4">
-        <p className="text-xs text-gray-500 dark:text-[#a3a3a3] uppercase tracking-wider font-semibold">
+        <p className="text-xs text-gray-500 dark:text-[var(--clay-muted)] uppercase tracking-wider font-semibold">
           Amazon KDP pre-flight
         </p>
 
@@ -124,7 +124,7 @@ function ProBody({
                 <span className="text-sm font-medium text-gray-900 dark:text-white">
                   {check.label}
                 </span>
-                <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed mt-1">
+                <p className="text-xs text-gray-500 dark:text-[var(--clay-muted)] leading-relaxed mt-1">
                   {check.message}
                 </p>
               </div>
@@ -143,8 +143,8 @@ function ProBody({
         )}
 
         {allClear && warns.length > 0 && (
-          <div className="p-3 rounded-xl bg-gray-50 dark:bg-[#252525] border border-gray-200 dark:border-[#3a3a3a]">
-            <p className="text-xs text-gray-600 dark:text-[#a3a3a3]">
+          <div className="p-3 rounded-xl bg-gray-50 dark:bg-[var(--ink-panel)] border border-gray-200 dark:border-[var(--ink-hover)]">
+            <p className="text-xs text-gray-600 dark:text-[var(--clay-muted)]">
               {warns.length}{" "}
               {warns.length === 1 ? "recommendation" : "recommendations"} worth
               addressing before publishing.
@@ -161,10 +161,10 @@ function ProBody({
         )}
       </div>
 
-      <div className="px-6 py-4 border-t border-gray-200 dark:border-[#2f2f2f] flex items-center justify-end gap-3">
+      <div className="px-6 py-4 border-t border-gray-200 dark:border-[var(--rule)] flex items-center justify-end gap-3">
         <button
           onClick={onClose}
-          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[var(--clay)] hover:text-gray-900 dark:hover:text-white transition-colors"
         >
           Cancel
         </button>
@@ -196,9 +196,9 @@ function FreeBody({
   return (
     <>
       <div className="px-6 py-5 space-y-4">
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-[#252525] border border-gray-200 dark:border-[#3a3a3a]">
+        <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-[var(--ink-panel)] border border-gray-200 dark:border-[var(--ink-hover)]">
           <svg
-            className="w-5 h-5 text-gray-400 dark:text-[#737373] flex-shrink-0 mt-1"
+            className="w-5 h-5 text-gray-400 dark:text-[var(--clay-muted)] flex-shrink-0 mt-1"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -214,7 +214,7 @@ function FreeBody({
             <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2 text-balance">
               Pre-flight check skipped
             </p>
-            <p className="text-xs text-gray-500 dark:text-[#a3a3a3] leading-relaxed text-pretty">
+            <p className="text-xs text-gray-500 dark:text-[var(--clay-muted)] leading-relaxed text-pretty">
               Amazon delists books that fail KDP requirements. Pro shows a
               pre-flight check for word count, title, and metadata before you
               export. You can still export without it.
@@ -223,13 +223,13 @@ function FreeBody({
         </div>
       </div>
 
-      <div className="px-6 py-4 border-t border-gray-200 dark:border-[#2f2f2f] flex items-center justify-between gap-3">
+      <div className="px-6 py-4 border-t border-gray-200 dark:border-[var(--rule)] flex items-center justify-between gap-3">
         <button
           onClick={() => {
             onDownload();
             onClose();
           }}
-          className="text-sm font-medium text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="text-sm font-medium text-gray-600 dark:text-[var(--clay-muted)] hover:text-gray-900 dark:hover:text-white transition-colors"
         >
           Download {formatLabel} anyway
         </button>

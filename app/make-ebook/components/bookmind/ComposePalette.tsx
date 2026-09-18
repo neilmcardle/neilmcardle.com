@@ -251,15 +251,15 @@ export default function ComposePalette({
         zIndex: 1000,
         maxHeight: layout.maxHeight,
       }}
-      className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#2f2f2f] rounded-xl shadow-2xl overflow-hidden flex flex-col"
+      className="bg-white dark:bg-[var(--ink)] border border-gray-200 dark:border-[var(--rule)] rounded-xl shadow-2xl overflow-hidden flex flex-col"
       role="dialog"
       aria-label="Compose with Book Mind"
     >
       {!selectedCommand ? (
         <>
           <div className="px-3 pt-3 pb-2">
-            <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-gray-100 dark:bg-[#262626]">
-              <span className="text-xs text-gray-400 dark:text-[#737373] font-mono">
+            <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink-raised)]">
+              <span className="text-xs text-gray-400 dark:text-[var(--clay-muted)] font-mono">
                 /
               </span>
               <input
@@ -268,7 +268,7 @@ export default function ComposePalette({
                 onChange={(e) => setFilter(e.target.value)}
                 onKeyDown={handleFilterKey}
                 placeholder="Type a command..."
-                className="flex-1 bg-transparent border-none outline-none text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373]"
+                className="flex-1 bg-transparent border-none outline-none text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[var(--clay-muted)]"
               />
             </div>
           </div>
@@ -278,18 +278,18 @@ export default function ComposePalette({
               <button
                 key={cmd.id}
                 onClick={() => handleSelectCommand(cmd)}
-                className="w-full flex items-start gap-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-[#232323] transition-colors"
+                className="w-full flex items-start gap-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-[var(--ink-panel)] transition-colors"
               >
-                <span className="text-xs font-mono text-[#008ff0] dark:text-[#008ff0] whitespace-nowrap mt-1">
+                <span className="text-xs font-mono text-[var(--acid)] dark:text-[var(--acid)] whitespace-nowrap mt-1">
                   {cmd.label}
                 </span>
-                <span className="text-xs text-gray-600 dark:text-[#a3a3a3] leading-relaxed">
+                <span className="text-xs text-gray-600 dark:text-[var(--clay-muted)] leading-relaxed">
                   {cmd.description}
                 </span>
               </button>
             ))}
             {filtered.length === 0 && (
-              <p className="px-4 py-3 text-xs text-gray-400 dark:text-[#737373] text-center">
+              <p className="px-4 py-3 text-xs text-gray-400 dark:text-[var(--clay-muted)] text-center">
                 No matching commands
               </p>
             )}
@@ -297,12 +297,12 @@ export default function ComposePalette({
         </>
       ) : (
         <>
-          <div className="px-3 pt-3 pb-2 border-b border-gray-100 dark:border-[#262626]">
+          <div className="px-3 pt-3 pb-2 border-b border-gray-100 dark:border-[var(--ink-raised)]">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-mono text-[#008ff0]">
+              <span className="text-xs font-mono text-[var(--acid)]">
                 {selectedCommand.label}
               </span>
-              <span className="text-xs text-gray-400 dark:text-[#737373]">
+              <span className="text-xs text-gray-400 dark:text-[var(--clay-muted)]">
                 {selectedCommand.description}
               </span>
             </div>
@@ -315,7 +315,7 @@ export default function ComposePalette({
                   onKeyDown={handleInstructionKey}
                   placeholder="Describe what you want..."
                   disabled={isLoading}
-                  className="flex-1 text-xs px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#262626] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373] disabled:opacity-50"
+                  className="flex-1 text-xs px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink-raised)] border-none outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[var(--clay-muted)] disabled:opacity-50"
                 />
                 <button
                   onClick={() => handleGenerate(selectedCommand, instruction)}
@@ -323,7 +323,7 @@ export default function ComposePalette({
                     isLoading ||
                     (!instruction.trim() && selectedCommand.id !== "continue")
                   }
-                  className="text-xs px-3 py-2 rounded-lg bg-[#008ff0] text-white font-medium disabled:opacity-50 hover:bg-[#3560e6] transition-colors"
+                  className="text-xs px-3 py-2 rounded-lg bg-[var(--paper)] text-[var(--ink-deep)] font-medium disabled:opacity-50 hover:bg-[var(--clay)] transition-colors"
                 >
                   {isLoading ? "..." : "Go"}
                 </button>
@@ -332,7 +332,7 @@ export default function ComposePalette({
           </div>
 
           {isLoading && (
-            <div className="px-4 py-4 flex items-center gap-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
+            <div className="px-4 py-4 flex items-center gap-2 text-xs text-gray-500 dark:text-[var(--clay-muted)]">
               <Spinner size="xs" />
               Writing...
             </div>
@@ -340,16 +340,16 @@ export default function ComposePalette({
 
           {result && (
             <div className="flex-1 overflow-y-auto px-4 py-3">
-              <p className="text-sm text-gray-800 dark:text-[#f5f5f5] leading-relaxed whitespace-pre-wrap">
+              <p className="text-sm text-gray-800 dark:text-[var(--paper)] leading-relaxed whitespace-pre-wrap">
                 {result}
               </p>
             </div>
           )}
 
           {result && (
-            <div className="px-3 py-2 border-t border-gray-100 dark:border-[#262626] bg-gray-50 dark:bg-[#181818] flex items-center justify-between">
-              <p className="text-2xs text-gray-400 dark:text-[#737373]">
-                <kbd className="inline-flex items-center px-1 py-0 rounded border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-[#262626] text-gray-600 dark:text-[#a3a3a3] font-mono text-[10px] mx-0.5">
+            <div className="px-3 py-2 border-t border-gray-100 dark:border-[var(--ink-raised)] bg-gray-50 dark:bg-[var(--ink-window)] flex items-center justify-between">
+              <p className="text-2xs text-gray-400 dark:text-[var(--clay-muted)]">
+                <kbd className="inline-flex items-center px-1 py-0 rounded border border-gray-200 dark:border-[var(--ink-hover)] bg-white dark:bg-[var(--ink-raised)] text-gray-600 dark:text-[var(--clay-muted)] font-mono text-[10px] mx-0.5">
                   Tab
                 </kbd>{" "}
                 to insert
@@ -361,14 +361,14 @@ export default function ComposePalette({
                     setResult(null);
                     handleGenerate(selectedCommand, instruction);
                   }}
-                  className="text-xs px-3 py-1 text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white rounded transition-colors"
+                  className="text-xs px-3 py-1 text-gray-600 dark:text-[var(--clay-muted)] hover:text-gray-900 dark:hover:text-white rounded transition-colors"
                 >
                   Try again
                 </button>
                 <button
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={handleAccept}
-                  className="text-xs px-3 py-1 bg-[#008ff0] text-white rounded font-medium hover:bg-[#3560e6] transition-colors"
+                  className="text-xs px-3 py-1 bg-[var(--paper)] text-[var(--ink-deep)] rounded font-medium hover:bg-[var(--clay)] transition-colors"
                 >
                   Insert
                 </button>

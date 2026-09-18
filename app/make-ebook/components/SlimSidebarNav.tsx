@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useTheme } from "@/lib/contexts/ThemeContext";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import SubscriptionBadge from "./SubscriptionBadge";
 import UpgradeModal from "./UpgradeModal";
@@ -15,15 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  LogOut,
-  CreditCard,
-  Sparkles,
-  BookOpen,
-  Moon,
-  Sun,
-  Check,
-} from "lucide-react";
+import { LogOut, CreditCard, Sparkles, Check } from "lucide-react";
 
 interface SlimSidebarNavProps {
   activeView: "library" | "book" | "chapters" | null;
@@ -69,11 +60,11 @@ function Tooltip({
       {children}
       {position && (
         <div
-          className="fixed left-[80px] px-2 py-1 bg-gray-900 dark:bg-[#2f2f2f] text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-[9999] -translate-y-1/2 group-hover:-translate-y-[calc(50%+10px)] transition-[opacity,transform] duration-[var(--me-dur)]"
+          className="fixed left-[80px] px-2 py-1 bg-gray-900 dark:bg-[var(--rule)] text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-[9999] -translate-y-1/2 group-hover:-translate-y-[calc(50%+10px)] transition-[opacity,transform] duration-[var(--me-dur)]"
           style={{ top: `${position.top}px` }}
         >
           {text}
-          <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900 dark:border-r-[#2f2f2f]" />
+          <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900 dark:border-r-[var(--rule)]" />
         </div>
       )}
     </div>
@@ -119,7 +110,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
   if (loading) {
     return (
       <Tooltip text="Loading...">
-        <div className="relative w-12 h-12 rounded-lg bg-gray-100 dark:bg-[#262626] animate-pulse" />
+        <div className="relative w-12 h-12 rounded-lg bg-gray-100 dark:bg-[var(--ink-raised)] animate-pulse" />
       </Tooltip>
     );
   }
@@ -128,13 +119,13 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
     return (
       <Tooltip text="Sign In">
         <button
-          className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#262626] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+          className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
           aria-label="User menu"
         >
           <img
             src="/user-icon.svg"
             alt="user icon"
-            className="w-5 h-5 text-gray-600 dark:text-[#626262] dark:invert"
+            className="w-5 h-5 text-gray-600 dark:text-[var(--clay-muted)] dark:invert"
           />
         </button>
       </Tooltip>
@@ -146,18 +137,18 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#262626] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+            className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
             aria-label="User menu"
           >
             <img
               src="/user-icon.svg"
               alt="user icon"
-              className="w-5 h-5 text-gray-600 dark:text-[#626262] dark:invert"
+              className="w-5 h-5 text-gray-600 dark:text-[var(--clay-muted)] dark:invert"
             />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className="w-56 bg-white dark:bg-[#252525]"
+          className="w-56 bg-white dark:bg-[var(--ink-panel)]"
           align="end"
           sideOffset={8}
           forceMount
@@ -168,7 +159,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
                 <SubscriptionBadge />
               </div>
               <p
-                className="text-125 font-medium leading-snug normal-case tracking-normal break-all text-gray-900 dark:text-[#e5e5e5]"
+                className="text-125 font-medium leading-snug normal-case tracking-normal break-all text-gray-900 dark:text-[var(--paper)]"
                 title={user?.email || undefined}
               >
                 {user?.email || "user@email.com"}
@@ -279,33 +270,6 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
   );
 }
 
-function ThemeToggleButton() {
-  const { theme, toggleTheme } = useTheme();
-
-  const label =
-    theme === "makeebook" ? "makeebook" : theme === "dark" ? "Dark" : "Light";
-
-  return (
-    <Tooltip text={`Theme: ${label}`}>
-      <button
-        onClick={toggleTheme}
-        className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#262626] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
-        aria-label={`Theme: ${label}. Click to change.`}
-      >
-        <div className="text-gray-600 dark:text-[#626262]">
-          {theme === "makeebook" ? (
-            <BookOpen className="w-5 h-5" />
-          ) : theme === "dark" ? (
-            <Moon className="w-5 h-5" />
-          ) : (
-            <Sun className="w-5 h-5" />
-          )}
-        </div>
-      </button>
-    </Tooltip>
-  );
-}
-
 export default function SlimSidebarNav({
   activeView,
   onViewChange,
@@ -327,7 +291,7 @@ export default function SlimSidebarNav({
   };
 
   return (
-    <aside className="hidden lg:flex flex-col w-16 bg-gray-50 dark:bg-[#151515] h-screen items-center relative z-50 border-r border-gray-200 dark:border-[#2a2a2a]">
+    <aside className="hidden lg:flex flex-col w-16 bg-gray-50 dark:bg-[var(--ink)] h-screen items-center relative z-50 border-r border-gray-200 dark:border-[var(--rule)]">
       <div className="flex-shrink-0 pt-6 pb-6">
         <Tooltip text="makeEBook">
           <button
@@ -353,13 +317,13 @@ export default function SlimSidebarNav({
         >
           <button
             onClick={() => handleViewClick("library")}
-            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "library" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"}`}
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "library" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[var(--rule)]"}`}
             aria-label={
               hasSyncConflicts ? "Library — action needed" : "Library"
             }
           >
             <svg
-              className={`w-5 h-5 transition-colors ${activeView === "library" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[#626262]"}`}
+              className={`w-5 h-5 transition-colors ${activeView === "library" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[var(--clay-muted)]"}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -375,7 +339,7 @@ export default function SlimSidebarNav({
             {hasSyncConflicts && (
               <span
                 aria-hidden
-                className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-gray-50 dark:ring-[#151515]"
+                className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-gray-50 dark:ring-[var(--ink)]"
               />
             )}
           </button>
@@ -385,11 +349,11 @@ export default function SlimSidebarNav({
           <button
             data-tour="book-details"
             onClick={() => handleViewClick("book")}
-            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "book" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"}`}
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "book" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[var(--rule)]"}`}
             aria-label="Book"
           >
             <svg
-              className={`w-5 h-5 transition-colors ${activeView === "book" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[#626262]"}`}
+              className={`w-5 h-5 transition-colors ${activeView === "book" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[var(--clay-muted)]"}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -408,11 +372,11 @@ export default function SlimSidebarNav({
           <button
             data-tour="chapters"
             onClick={() => handleViewClick("chapters")}
-            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "chapters" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"}`}
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "chapters" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[var(--rule)]"}`}
             aria-label="Chapters"
           >
             <svg
-              className={`w-5 h-5 transition-colors ${activeView === "chapters" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[#626262]"}`}
+              className={`w-5 h-5 transition-colors ${activeView === "chapters" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[var(--clay-muted)]"}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -428,7 +392,7 @@ export default function SlimSidebarNav({
         </Tooltip>
       </nav>
 
-      <div className="flex-shrink-0 flex flex-col gap-3 w-full px-2 pb-6 border-t border-gray-200 dark:border-[#2a2a2a] pt-4">
+      <div className="flex-shrink-0 flex flex-col gap-3 w-full px-2 pb-6 border-t border-gray-200 dark:border-[var(--rule)] pt-4">
         <UserDropdownSlim onStartTour={onStartTour} />
       </div>
     </aside>

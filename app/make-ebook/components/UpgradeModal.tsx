@@ -118,8 +118,8 @@ export default function UpgradeModal({
       <ModalHeader title="Choose your plan" onClose={onClose} />
       <ModalBody className="space-y-6">
         {feature && (
-          <div className="bg-gray-50 dark:bg-[#111] border border-gray-300 dark:border-[#2f2f2f] rounded-lg p-4">
-            <p className="text-sm text-gray-700 dark:text-[#d4d4d4] text-center">
+          <div className="bg-gray-50 dark:bg-[var(--ink-deep)] border border-gray-300 dark:border-[var(--rule)] rounded-lg p-4">
+            <p className="text-sm text-gray-700 dark:text-[var(--clay)] text-center">
               <strong>{feature}</strong> is a Pro feature
             </p>
           </div>
@@ -128,10 +128,10 @@ export default function UpgradeModal({
         <fieldset className="grid md:grid-cols-2 gap-6">
           <legend className="sr-only">Choose your plan</legend>
           <label
-            className={`cursor-pointer rounded-lg border-2 p-6 transition-all focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-gray-900 dark:focus-within:ring-white dark:focus-within:ring-offset-[#1e1e1e] ${
+            className={`cursor-pointer rounded-lg border-2 p-6 transition-all focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-gray-900 dark:focus-within:ring-white dark:focus-within:ring-offset-[var(--ink)] ${
               selectedPlan === "monthly"
-                ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[#111]"
-                : "border-gray-200 dark:border-[#2f2f2f] hover:border-gray-400 dark:hover:border-[#3a3a3a]"
+                ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[var(--ink-deep)]"
+                : "border-gray-200 dark:border-[var(--rule)] hover:border-gray-400 dark:hover:border-[var(--ink-hover)]"
             }`}
           >
             <input
@@ -148,7 +148,7 @@ export default function UpgradeModal({
                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                   selectedPlan === "monthly"
                     ? "border-gray-900 dark:border-white bg-gray-900 dark:bg-white"
-                    : "border-gray-400 dark:border-[#3a3a3a]"
+                    : "border-gray-400 dark:border-[var(--ink-hover)]"
                 }`}
               >
                 {selectedPlan === "monthly" && (
@@ -163,21 +163,21 @@ export default function UpgradeModal({
             <div className="mb-4">
               <div className="text-3xl font-bold text-gray-900 dark:text-white">
                 $9
-                <span className="text-lg text-gray-600 dark:text-[#a3a3a3]">
+                <span className="text-lg text-gray-600 dark:text-[var(--clay-muted)]">
                   /mo
                 </span>
               </div>
-              <p className="text-sm text-gray-600 dark:text-[#a3a3a3] mt-1">
+              <p className="text-sm text-gray-600 dark:text-[var(--clay-muted)] mt-1">
                 Cancel anytime, no commitment
               </p>
             </div>
           </label>
 
           <label
-            className={`cursor-pointer rounded-lg border-2 p-6 transition-all relative focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-gray-900 dark:focus-within:ring-white dark:focus-within:ring-offset-[#1e1e1e] ${
+            className={`cursor-pointer rounded-lg border-2 p-6 transition-all relative focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-gray-900 dark:focus-within:ring-white dark:focus-within:ring-offset-[var(--ink)] ${
               selectedPlan === "lifetime"
-                ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[#111]"
-                : "border-gray-200 dark:border-[#2f2f2f] hover:border-gray-400 dark:hover:border-[#3a3a3a]"
+                ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[var(--ink-deep)]"
+                : "border-gray-200 dark:border-[var(--rule)] hover:border-gray-400 dark:hover:border-[var(--ink-hover)]"
             }`}
           >
             <input
@@ -198,7 +198,7 @@ export default function UpgradeModal({
                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                   selectedPlan === "lifetime"
                     ? "border-gray-900 dark:border-white bg-gray-900 dark:bg-white"
-                    : "border-gray-400 dark:border-[#3a3a3a]"
+                    : "border-gray-400 dark:border-[var(--ink-hover)]"
                 }`}
               >
                 {selectedPlan === "lifetime" && (
@@ -213,19 +213,19 @@ export default function UpgradeModal({
             <div className="mb-4">
               <div className="text-3xl font-bold text-gray-900 dark:text-white">
                 $149
-                <span className="text-lg text-gray-600 dark:text-[#a3a3a3]">
+                <span className="text-lg text-gray-600 dark:text-[var(--clay-muted)]">
                   {" "}
                   once
                 </span>
               </div>
-              <p className="text-sm text-gray-600 dark:text-[#a3a3a3] mt-1">
+              <p className="text-sm text-gray-600 dark:text-[var(--clay-muted)] mt-1">
                 One-time payment, forever access
               </p>
             </div>
           </label>
         </fieldset>
 
-        <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-[#2f2f2f]">
+        <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-[var(--rule)]">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
             Pro includes:
           </h3>
@@ -234,14 +234,14 @@ export default function UpgradeModal({
             {features.map((f, i) => (
               <div
                 key={i}
-                className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#2f2f2f] rounded-lg"
+                className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-[var(--ink-deep)] border border-gray-200 dark:border-[var(--rule)] rounded-lg"
               >
                 <f.icon className="w-5 h-5 text-gray-900 dark:text-white mt-1 flex-shrink-0" />
                 <div>
                   <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
                     {f.title}
                   </h4>
-                  <p className="text-xs text-gray-600 dark:text-[#a3a3a3] mt-1">
+                  <p className="text-xs text-gray-600 dark:text-[var(--clay-muted)] mt-1">
                     {f.desc}
                   </p>
                 </div>
@@ -250,8 +250,8 @@ export default function UpgradeModal({
           </div>
         </div>
 
-        <div className="bg-gray-50 dark:bg-[#111] rounded-lg p-4">
-          <p className="text-xs text-gray-600 dark:text-[#a3a3a3]">
+        <div className="bg-gray-50 dark:bg-[var(--ink-deep)] rounded-lg p-4">
+          <p className="text-xs text-gray-600 dark:text-[var(--clay-muted)]">
             <strong>Free tier includes:</strong> Unlimited books, EPUB/PDF
             export, professional typography, offline mode, version history,
             export history
@@ -280,7 +280,7 @@ export default function UpgradeModal({
               : "Buy Lifetime - $149"}
         </button>
 
-        <p className="text-xs text-center text-gray-500 dark:text-[#a3a3a3]">
+        <p className="text-xs text-center text-gray-500 dark:text-[var(--clay-muted)]">
           Secure checkout powered by Stripe • 30-day money back guarantee
         </p>
       </ModalBody>

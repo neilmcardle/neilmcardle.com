@@ -121,6 +121,11 @@ export default function MakeEbookLayout({
   return (
     <>
       <script
+        dangerouslySetInnerHTML={{
+          __html: `document.documentElement.classList.add("dark")`,
+        }}
+      />
+      <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(softwareApplicationSchema),

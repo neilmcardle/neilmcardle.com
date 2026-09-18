@@ -205,8 +205,8 @@ export default function LivePreviewPanel({
   );
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-[#252525]">
-      <div className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-[#2f2f2f]">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-[var(--ink-panel)]">
+      <div className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-[var(--rule)]">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
             Live Preview
@@ -214,7 +214,7 @@ export default function LivePreviewPanel({
           {onClose && (
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 dark:text-white/40 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#2e2e2e] transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 dark:text-white/40 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[var(--ink-hover)] transition-colors"
               title="Close preview"
             >
               <svg
@@ -299,7 +299,7 @@ export default function LivePreviewPanel({
 
       <div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 overflow-hidden">
         <div
-          className="relative bg-[#2a2a2a] p-2 shadow-2xl max-w-full"
+          className="relative bg-[var(--rule)] p-2 shadow-2xl max-w-full"
           style={{ width: dims.width + 16, borderRadius: 20 }}
         >
           <div
@@ -439,7 +439,7 @@ export default function LivePreviewPanel({
             <button
               onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
               disabled={currentPage === 0}
-              className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-[var(--rule)] text-gray-600 dark:text-[var(--clay)] hover:bg-gray-300 dark:hover:bg-[var(--ink-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label="Previous page"
             >
               <svg
@@ -456,7 +456,7 @@ export default function LivePreviewPanel({
                 />
               </svg>
             </button>
-            <span className="text-xs text-gray-400 dark:text-[#737373] tabular-nums">
+            <span className="text-xs text-gray-400 dark:text-[var(--clay-muted)] tabular-nums">
               {currentPage + 1} / {totalPages}
             </span>
             <button
@@ -464,7 +464,7 @@ export default function LivePreviewPanel({
                 setCurrentPage((p) => Math.min(totalPages - 1, p + 1))
               }
               disabled={currentPage >= totalPages - 1}
-              className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-[var(--rule)] text-gray-600 dark:text-[var(--clay)] hover:bg-gray-300 dark:hover:bg-[var(--ink-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label="Next page"
             >
               <svg
@@ -486,7 +486,7 @@ export default function LivePreviewPanel({
       </div>
 
       {chapters.length > 1 && (
-        <div className="flex-shrink-0 px-3 pb-2 border-t border-gray-200 dark:border-[#2f2f2f]">
+        <div className="flex-shrink-0 px-3 pb-2 border-t border-gray-200 dark:border-[var(--rule)]">
           <div className="flex gap-1 overflow-x-auto py-2">
             {chapters.map((ch, i) => (
               <button
@@ -495,7 +495,7 @@ export default function LivePreviewPanel({
                 className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
                   i === selectedChapter
                     ? "bg-gray-900 text-white dark:bg-white dark:text-black"
-                    : "bg-gray-200 dark:bg-[#262626] text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-300 dark:hover:bg-[#2f2f2f]"
+                    : "bg-gray-200 dark:bg-[var(--ink-raised)] text-gray-600 dark:text-[var(--clay)] hover:bg-gray-300 dark:hover:bg-[var(--rule)]"
                 }`}
               >
                 {ch.title || `Ch ${i + 1}`}
@@ -505,7 +505,7 @@ export default function LivePreviewPanel({
         </div>
       )}
 
-      <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-[#2f2f2f]">
+      <div className="flex-shrink-0 p-3 border-t border-gray-200 dark:border-[var(--rule)]">
         <div className="flex items-center justify-center gap-3">
           {(["light", "sepia", "dark"] as const).map((t) => (
             <button
@@ -514,7 +514,7 @@ export default function LivePreviewPanel({
               className={`w-6 h-6 rounded-full border-2 transition-all ${
                 theme === t
                   ? "scale-110 border-gray-900 dark:border-white shadow-md"
-                  : "border-gray-300 dark:border-[#3a3a3a] hover:border-gray-500"
+                  : "border-gray-300 dark:border-[var(--ink-hover)] hover:border-gray-500"
               }`}
               style={{
                 backgroundColor:

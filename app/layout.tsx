@@ -2,6 +2,7 @@ import type React from "react";
 import type { Metadata } from "next";
 import "./globals.css";
 import "../styles/immersive.css";
+import "./make-ebook/styles/tokens.css";
 import { THEME_SCRIPT } from "@/components/home/theme";
 import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";

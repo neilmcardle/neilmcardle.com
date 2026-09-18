@@ -80,7 +80,6 @@ import { useWritingGoals } from "./hooks/useWritingGoals";
 import { useVersionHistory } from "./hooks/useVersionHistory";
 import { useExportHistory } from "./hooks/useExportHistory";
 import HistoryPanel from "./components/HistoryPanel";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import EPUBReaderModal from "./components/EPUBReaderModal";
 import ConfirmDialog from "./components/ConfirmDialog";
 import FindReplacePanel from "./components/FindReplacePanel";
@@ -1207,10 +1206,10 @@ function MakeEbookPage() {
     <>
       <TrialBanner />
 
-      <div className="bg-white dark:bg-[#1e1e1e] text-[#15161a] dark:text-[#e5e5e5]">
+      <div className="bg-white dark:bg-[var(--ink)] text-[var(--ink)] dark:text-[var(--paper)]">
         {newBookConfirmOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#1e1e1e] rounded shadow-2xl p-6 max-w-md w-full">
+            <div className="bg-white dark:bg-[var(--ink)] rounded shadow-2xl p-6 max-w-md w-full">
               <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
                 Start New Book?
               </h2>
@@ -1221,13 +1220,13 @@ function MakeEbookPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setNewBookConfirmOpen(false)}
-                  className="flex-1 px-4 py-2 rounded border border-[#E8E8E8] dark:border-gray-600 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-[#F2F2F2] dark:hover:bg-gray-800 transition-colors"
+                  className="flex-1 px-4 py-2 rounded border border-[var(--clay)] dark:border-gray-600 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-[var(--paper)] dark:hover:bg-gray-800 transition-colors"
                 >
                   Go Back
                 </button>
                 <button
                   onClick={handleNewBookConfirm}
-                  className="flex-1 px-4 py-2 rounded bg-[#181a1d] dark:bg-[#262626] text-white text-sm font-medium hover:bg-[#23252a] dark:hover:bg-[#3a3a3a] transition-colors"
+                  className="flex-1 px-4 py-2 rounded bg-[var(--ink-raised)] dark:bg-[var(--ink-raised)] text-white text-sm font-medium hover:bg-[var(--ink-raised)] dark:hover:bg-[var(--ink-hover)] transition-colors"
                 >
                   Continue
                 </button>
@@ -1238,7 +1237,7 @@ function MakeEbookPage() {
 
         {saveDialogOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#1e1e1e] rounded shadow-2xl p-6 max-w-md w-full">
+            <div className="bg-white dark:bg-[var(--ink)] rounded shadow-2xl p-6 max-w-md w-full">
               <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
                 Save Book
               </h2>
@@ -1249,7 +1248,7 @@ function MakeEbookPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setSaveDialogOpen(false)}
-                  className="flex-1 px-4 py-2 rounded border border-[#E8E8E8] dark:border-gray-600 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-[#F2F2F2] dark:hover:bg-gray-800 transition-colors"
+                  className="flex-1 px-4 py-2 rounded border border-[var(--clay)] dark:border-gray-600 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-[var(--paper)] dark:hover:bg-gray-800 transition-colors"
                 >
                   Cancel
                 </button>
@@ -1261,7 +1260,7 @@ function MakeEbookPage() {
                 </button>
                 <button
                   onClick={saveBook.handleSaveAsNewVersion}
-                  className="flex-1 px-4 py-2 rounded bg-[#181a1d] dark:bg-[#262626] text-white text-sm font-medium hover:bg-[#23252a] dark:hover:bg-[#3a3a3a] transition-colors"
+                  className="flex-1 px-4 py-2 rounded bg-[var(--ink-raised)] dark:bg-[var(--ink-raised)] text-white text-sm font-medium hover:bg-[var(--ink-raised)] dark:hover:bg-[var(--ink-hover)] transition-colors"
                 >
                   Save as New
                 </button>
@@ -1272,7 +1271,7 @@ function MakeEbookPage() {
 
         {docImport.importDialogOpen && (
           <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl p-6 max-w-md w-full">
+            <div className="bg-white dark:bg-[var(--ink)] rounded-xl shadow-2xl p-6 max-w-md w-full">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   Import Document
@@ -1388,11 +1387,11 @@ function MakeEbookPage() {
         )}
 
         {mobileBookMindOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 flex flex-col animate-slide-in-from-bottom bg-white dark:bg-[#252525]">
-            <div className="flex items-center justify-end px-3 py-2 border-b border-gray-200 dark:border-[#2f2f2f] flex-shrink-0">
+          <div className="lg:hidden fixed inset-0 z-50 flex flex-col animate-slide-in-from-bottom bg-white dark:bg-[var(--ink-panel)]">
+            <div className="flex items-center justify-end px-3 py-2 border-b border-gray-200 dark:border-[var(--rule)] flex-shrink-0">
               <button
                 onClick={() => setMobileBookMindOpen(false)}
-                className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] transition-colors"
                 aria-label="Close Book Mind"
               >
                 <svg
@@ -1456,12 +1455,12 @@ function MakeEbookPage() {
           />
 
           <div
-            className={`absolute top-0 left-0 h-full w-full bg-white dark:bg-[#1e1e1e] shadow-2xl transform transition-transform duration-200 ease-out ${
+            className={`absolute top-0 left-0 h-full w-full bg-white dark:bg-[var(--ink)] shadow-2xl transform transition-transform duration-200 ease-out ${
               mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
             }`}
           >
             <div className="flex flex-col h-full">
-              <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-[#2f2f2f]">
+              <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-[var(--rule)]">
                 <div className="flex items-center justify-between pr-0">
                   <button
                     onClick={() => {
@@ -1496,14 +1495,14 @@ function MakeEbookPage() {
 
               <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 dark:hover:scrollbar-thumb-gray-500">
                 <div className="px-4 space-y-2 py-2">
-                  <div className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
+                  <div className="border-b border-gray-200 dark:border-[var(--rule)] pb-2">
                     <button
                       onClick={() => expandMobileSection("library")}
                       className="flex items-center justify-between py-2 w-full text-left"
                     >
                       <div className="flex items-center gap-2">
                         <svg
-                          className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white"
+                          className="w-5 h-5 flex-shrink-0 text-[var(--ink-deep)] dark:text-white"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -1516,7 +1515,7 @@ function MakeEbookPage() {
                           <rect x="16" y="5" width="3" height="15" rx="0.5" />
                           <path d="M3 20h18" />
                         </svg>
-                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">
+                        <span className="text-sm font-semibold text-[var(--ink-deep)] dark:text-[var(--paper)]">
                           Library
                         </span>
                         <span className="text-xs text-gray-600 dark:text-gray-400">
@@ -1553,7 +1552,7 @@ function MakeEbookPage() {
                                 if (library.multiSelectMode)
                                   library.setSelectedBookIds(new Set());
                               }}
-                              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${library.multiSelectMode ? "bg-blue-100 dark:bg-blue-900/30" : "hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"}`}
+                              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded transition-colors ${library.multiSelectMode ? "bg-blue-100 dark:bg-blue-900/30" : "hover:bg-gray-50 dark:hover:bg-[var(--rule)]"}`}
                               title={
                                 library.multiSelectMode
                                   ? "Cancel selection"
@@ -1589,7 +1588,7 @@ function MakeEbookPage() {
                                 />
                               </svg>
                               <span
-                                className={`text-2xs font-medium ${library.multiSelectMode ? "text-blue-600 dark:text-blue-400" : "text-[#050505] dark:text-[#e5e5e5]"}`}
+                                className={`text-2xs font-medium ${library.multiSelectMode ? "text-blue-600 dark:text-blue-400" : "text-[var(--ink-deep)] dark:text-[var(--paper)]"}`}
                               >
                                 {library.multiSelectMode ? "Cancel" : "Select"}
                               </span>
@@ -1600,7 +1599,7 @@ function MakeEbookPage() {
                               showNewBookConfirmation();
                               setMobileSidebarOpen(false);
                             }}
-                            className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                            className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[var(--rule)] rounded transition-colors"
                             title="New book"
                           >
                             <svg
@@ -1625,7 +1624,7 @@ function MakeEbookPage() {
                                 d="M9 14h6M12 11v6"
                               />
                             </svg>
-                            <span className="text-2xs font-medium text-[#050505] dark:text-[#e5e5e5]">
+                            <span className="text-2xs font-medium text-[var(--ink-deep)] dark:text-[var(--paper)]">
                               New
                             </span>
                           </button>
@@ -1634,7 +1633,7 @@ function MakeEbookPage() {
                               docImport.showImportDialog();
                               setMobileSidebarOpen(false);
                             }}
-                            className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                            className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[var(--rule)] rounded transition-colors"
                             title="Import document"
                           >
                             <svg
@@ -1655,13 +1654,13 @@ function MakeEbookPage() {
                                 d="M4 19h16"
                               />
                             </svg>
-                            <span className="text-2xs font-medium text-[#050505] dark:text-[#e5e5e5]">
+                            <span className="text-2xs font-medium text-[var(--ink-deep)] dark:text-[var(--paper)]">
                               Import
                             </span>
                           </button>
                         </div>
                         {library.multiSelectMode && libraryBooks.length > 0 && (
-                          <div className="flex items-center justify-between mt-2 px-2 py-1.5 bg-gray-50 dark:bg-[#262626] rounded-md">
+                          <div className="flex items-center justify-between mt-2 px-2 py-1.5 bg-gray-50 dark:bg-[var(--ink-raised)] rounded-md">
                             <button
                               onClick={library.toggleSelectAll}
                               className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
@@ -1691,8 +1690,8 @@ function MakeEbookPage() {
                                   key={i}
                                   className="animate-pulse flex items-center gap-2"
                                 >
-                                  <div className="h-3 bg-gray-200 dark:bg-[#2f2f2f] rounded w-3/4" />
-                                  <div className="h-2 bg-gray-100 dark:bg-[#262626] rounded w-1/4" />
+                                  <div className="h-3 bg-gray-200 dark:bg-[var(--rule)] rounded w-3/4" />
+                                  <div className="h-2 bg-gray-100 dark:bg-[var(--ink-raised)] rounded w-1/4" />
                                 </div>
                               ))}
                             </div>
@@ -1711,8 +1710,8 @@ function MakeEbookPage() {
                                   key={book.id}
                                   className={`group flex items-center justify-between py-2 px-2 rounded transition-colors ${
                                     isSelected || isChecked
-                                      ? "bg-gray-100 dark:bg-[#262626]"
-                                      : "hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                                      ? "bg-gray-100 dark:bg-[var(--ink-raised)]"
+                                      : "hover:bg-gray-50 dark:hover:bg-[var(--rule)]"
                                   }`}
                                 >
                                   {library.multiSelectMode && (
@@ -1768,7 +1767,7 @@ function MakeEbookPage() {
                                             book.id,
                                           )
                                         }
-                                        className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded hidden"
+                                        className="p-1 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)] rounded hidden"
                                         title="Export as EPUB"
                                       >
                                         <img
@@ -1786,7 +1785,7 @@ function MakeEbookPage() {
                                         onClick={() =>
                                           library.handleDeleteBook(book.id)
                                         }
-                                        className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                                        className="p-1 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)] rounded"
                                         title="Delete"
                                       >
                                         <TrashIcon className="w-4 h-4 dark:invert" />
@@ -1803,7 +1802,7 @@ function MakeEbookPage() {
                   </div>
 
                   <div
-                    className={`border-b border-gray-200 dark:border-[#2f2f2f] pb-2 transition-colors duration-1000 ease-out ${
+                    className={`border-b border-gray-200 dark:border-[var(--rule)] pb-2 transition-colors duration-1000 ease-out ${
                       bookJustLoaded ? "bg-gray-100/80 dark:bg-gray-700/20" : ""
                     }`}
                   >
@@ -1813,7 +1812,7 @@ function MakeEbookPage() {
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <svg
-                          className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white"
+                          className="w-5 h-5 flex-shrink-0 text-[var(--ink-deep)] dark:text-white"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -1826,7 +1825,7 @@ function MakeEbookPage() {
                           <path d="M8 7h8M8 11h8M8 15h5" />
                         </svg>
                         <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                          <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">
+                          <span className="text-sm font-semibold text-[var(--ink-deep)] dark:text-[var(--paper)]">
                             Book
                           </span>
                           {title && (
@@ -1849,7 +1848,7 @@ function MakeEbookPage() {
                           <button
                             onClick={() => saveBook.handleSaveBook()}
                             disabled={!!saveFeedback}
-                            className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors disabled:opacity-50"
+                            className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[var(--rule)] rounded transition-colors disabled:opacity-50"
                             title={saveFeedback ? "Saved!" : "Save book"}
                           >
                             {saveFeedback ? (
@@ -1877,7 +1876,7 @@ function MakeEbookPage() {
                           </button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <button className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors">
+                              <button className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[var(--rule)] rounded transition-colors">
                                 <DownloadIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
                                 <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                                   Export
@@ -1940,7 +1939,7 @@ function MakeEbookPage() {
                           >
                             Cover Image
                           </label>
-                          <div className="w-full aspect-[2/3] max-h-52 bg-gray-100 dark:bg-[#2a2a2a] rounded border border-gray-200 dark:border-[#2f2f2f] overflow-hidden flex items-center justify-center mb-2">
+                          <div className="w-full aspect-[2/3] max-h-52 bg-gray-100 dark:bg-[var(--rule)] rounded border border-gray-200 dark:border-[var(--rule)] overflow-hidden flex items-center justify-center mb-2">
                             {coverUrl ? (
                               <img
                                 src={coverUrl}
@@ -1961,7 +1960,7 @@ function MakeEbookPage() {
                             accept="image/*"
                             onChange={handleCoverChange}
                             disabled={lockedSections.bookInfo}
-                            className="w-full text-sm text-[#C0C0C0] file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[#2a2a2a] file:text-[#050505] dark:file:text-[#e5e5e5] hover:file:bg-gray-200 dark:hover:file:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full text-sm text-[var(--clay-muted)] file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-gray-100 dark:file:bg-[var(--rule)] file:text-[var(--ink-deep)] dark:file:text-[var(--paper)] hover:file:bg-gray-200 dark:hover:file:bg-[var(--ink-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
                           />
                         </div>
 
@@ -1978,7 +1977,7 @@ function MakeEbookPage() {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--rule)] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[var(--ink-deep)] dark:text-[var(--paper)]"
                             placeholder="Book title"
                           />
                         </div>
@@ -1996,7 +1995,7 @@ function MakeEbookPage() {
                             value={author}
                             onChange={(e) => setAuthor(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--rule)] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[var(--ink-deep)] dark:text-[var(--paper)]"
                             placeholder="Author name"
                           />
                         </div>
@@ -2013,7 +2012,7 @@ function MakeEbookPage() {
                             value={blurb}
                             onChange={(e) => setBlurb(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5] resize-none"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--rule)] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[var(--ink-deep)] dark:text-[var(--paper)] resize-none"
                             placeholder="Brief description"
                             rows={3}
                           />
@@ -2032,7 +2031,7 @@ function MakeEbookPage() {
                             value={publisher}
                             onChange={(e) => setPublisher(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--rule)] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[var(--ink-deep)] dark:text-[var(--paper)]"
                             placeholder="Publisher name"
                           />
                         </div>
@@ -2050,7 +2049,7 @@ function MakeEbookPage() {
                             value={pubDate}
                             onChange={(e) => setPubDate(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--rule)] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[var(--ink-deep)] dark:text-[var(--paper)]"
                           />
                         </div>
 
@@ -2066,7 +2065,7 @@ function MakeEbookPage() {
                             value={language}
                             onChange={(e) => setLanguage(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--rule)] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[var(--ink-deep)] dark:text-[var(--paper)]"
                           >
                             {LANGUAGES.map((lang) => (
                               <option key={lang} value={lang}>
@@ -2089,7 +2088,7 @@ function MakeEbookPage() {
                             value={genre}
                             onChange={(e) => setGenre(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--rule)] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[var(--ink-deep)] dark:text-[var(--paper)]"
                             placeholder="e.g. Fiction, Mystery"
                           />
                         </div>
@@ -2107,7 +2106,7 @@ function MakeEbookPage() {
                             value={isbn}
                             onChange={(e) => setIsbn(e.target.value)}
                             disabled={lockedSections.bookInfo}
-                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                            className="w-full px-3 py-2 text-sm rounded bg-white dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--rule)] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[var(--ink-deep)] dark:text-[var(--paper)]"
                             placeholder="ISBN number"
                           />
                         </div>
@@ -2129,13 +2128,13 @@ function MakeEbookPage() {
                                 e.key === "Enter" && handleAddTag()
                               }
                               disabled={lockedSections.bookInfo}
-                              className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[#050505] dark:text-[#e5e5e5]"
+                              className="flex-1 px-3 py-2 text-sm rounded bg-white dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--rule)] focus:border-black dark:focus:border-white outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[var(--ink-deep)] dark:text-[var(--paper)]"
                               placeholder="e.g., fiction, thriller, mystery, romance"
                             />
                             <button
                               onClick={handleAddTag}
                               disabled={lockedSections.bookInfo}
-                              className="px-3 py-2 rounded bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              className="px-3 py-2 rounded bg-gray-100 dark:bg-[var(--ink-raised)] hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                               <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
                             </button>
@@ -2145,7 +2144,7 @@ function MakeEbookPage() {
                               {tags.map((tag) => (
                                 <span
                                   key={tag}
-                                  className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-gray-100 dark:bg-[#262626] text-[#050505] dark:text-[#e5e5e5]"
+                                  className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-gray-100 dark:bg-[var(--ink-raised)] text-[var(--ink-deep)] dark:text-[var(--paper)]"
                                 >
                                   {tag}
                                   <button
@@ -2163,14 +2162,14 @@ function MakeEbookPage() {
                     </CollapsibleSection>
                   </div>
 
-                  <div className="border-b border-gray-200 dark:border-[#2f2f2f] pb-2">
+                  <div className="border-b border-gray-200 dark:border-[var(--rule)] pb-2">
                     <button
                       onClick={() => expandMobileSection("chapters")}
                       className="flex items-center justify-between py-2 w-full text-left"
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <svg
-                          className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white"
+                          className="w-5 h-5 flex-shrink-0 text-[var(--ink-deep)] dark:text-white"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -2182,7 +2181,7 @@ function MakeEbookPage() {
                           <path d="M14 2v6h6" />
                           <path d="M16 13H8M16 17H8M10 9H8" />
                         </svg>
-                        <span className="text-sm font-semibold text-[#050505] dark:text-[#e5e5e5]">
+                        <span className="text-sm font-semibold text-[var(--ink-deep)] dark:text-[var(--paper)]">
                           Chapters
                         </span>
                         <span className="text-xs text-gray-600 dark:text-gray-400">
@@ -2206,7 +2205,7 @@ function MakeEbookPage() {
                                   !chapterTypeDropdownOpen,
                                 )
                               }
-                              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] rounded transition-colors"
+                              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-50 dark:hover:bg-[var(--rule)] rounded transition-colors"
                               title="Add chapter"
                             >
                               <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-white" />
@@ -2218,7 +2217,7 @@ function MakeEbookPage() {
                             {chapterTypeDropdownOpen && (
                               <div
                                 ref={dropdownRef}
-                                className="absolute left-0 top-full mt-1 w-56 bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl border border-gray-200 dark:border-[#2f2f2f] z-50 py-2 max-h-96 overflow-y-auto"
+                                className="absolute left-0 top-full mt-1 w-56 bg-white dark:bg-[var(--ink)] rounded-lg shadow-xl border border-gray-200 dark:border-[var(--rule)] z-50 py-2 max-h-96 overflow-y-auto"
                               >
                                 <div className="space-y-3 px-2">
                                   <div>
@@ -2246,7 +2245,7 @@ function MakeEbookPage() {
                                               1000,
                                             );
                                           }}
-                                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[var(--rule)] text-sm text-[var(--ink-deep)] dark:text-[var(--paper)]"
                                         >
                                           {template.title}
                                         </button>
@@ -2279,7 +2278,7 @@ function MakeEbookPage() {
                                               1000,
                                             );
                                           }}
-                                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[var(--rule)] text-sm text-[var(--ink-deep)] dark:text-[var(--paper)]"
                                         >
                                           {template.title}
                                         </button>
@@ -2312,7 +2311,7 @@ function MakeEbookPage() {
                                               1000,
                                             );
                                           }}
-                                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-sm text-[#050505] dark:text-[#e5e5e5]"
+                                          className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-[var(--rule)] text-sm text-[var(--ink-deep)] dark:text-[var(--paper)]"
                                         >
                                           {template.title}
                                         </button>
@@ -2374,10 +2373,10 @@ function MakeEbookPage() {
                                 dragOverIndex === i
                                   ? "border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20"
                                   : isSelected
-                                    ? "bg-gray-100 dark:bg-[#262626] border border-transparent"
+                                    ? "bg-gray-100 dark:bg-[var(--ink-raised)] border border-transparent"
                                     : isJustAdded
                                       ? "bg-gray-100/80 dark:bg-gray-700/20 border border-transparent"
-                                      : "border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                                      : "border border-transparent hover:bg-gray-50 dark:hover:bg-[var(--rule)]"
                               }`}
                               style={
                                 {
@@ -2415,7 +2414,7 @@ function MakeEbookPage() {
                               </div>
                               <div className="flex items-center gap-1">
                                 <button
-                                  className="lg:hidden me-reveal p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded"
+                                  className="lg:hidden me-reveal p-1 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)] rounded"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleSelectChapter(i);
@@ -2437,7 +2436,7 @@ function MakeEbookPage() {
                                 </button>
 
                                 <button
-                                  className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? "opacity-100 text-gray-600 dark:text-gray-300" : "me-reveal text-gray-400 dark:text-gray-500"}`}
+                                  className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)] rounded ${ch.locked ? "opacity-100 text-gray-600 dark:text-gray-300" : "me-reveal text-gray-400 dark:text-gray-500"}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleToggleChapterLock(i);
@@ -2539,7 +2538,7 @@ function MakeEbookPage() {
                                           e.stopPropagation();
                                           setPendingDeleteIndex(null);
                                         }}
-                                        className="p-1 rounded text-gray-500 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-colors"
+                                        className="p-1 rounded text-gray-500 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)] transition-colors"
                                         aria-label="Cancel"
                                         title="Cancel (Esc)"
                                       >
@@ -2559,7 +2558,7 @@ function MakeEbookPage() {
                                     </div>
                                   ) : (
                                     <button
-                                      className="me-reveal p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded text-gray-600 dark:text-gray-400"
+                                      className="me-reveal p-1 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)] rounded text-gray-600 dark:text-gray-400"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setPendingDeleteIndex(i);
@@ -2579,10 +2578,10 @@ function MakeEbookPage() {
                 </div>
               </div>
 
-              <footer className="flex-shrink-0 py-1.5 px-4 border-t border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#1e1e1e]">
+              <footer className="flex-shrink-0 py-1.5 px-4 border-t border-gray-200 dark:border-[var(--rule)] bg-white dark:bg-[var(--ink)]">
                 <div className="flex items-center justify-between">
                   <UserDropdownMobile />
-                  <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-[#737373]">
+                  <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-[var(--clay-muted)]">
                     <button
                       onClick={() => {
                         setMobileSidebarOpen(false);
@@ -2593,7 +2592,7 @@ function MakeEbookPage() {
                           chapters.length === 0 ? 800 : 400,
                         );
                       }}
-                      className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
+                      className="hover:text-gray-600 dark:hover:text-[var(--clay-muted)] transition-colors"
                     >
                       Tour
                     </button>
@@ -2601,7 +2600,7 @@ function MakeEbookPage() {
                       href="https://makeebook.ink/terms"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
+                      className="hover:text-gray-600 dark:hover:text-[var(--clay-muted)] transition-colors"
                     >
                       Terms
                     </a>
@@ -2609,7 +2608,7 @@ function MakeEbookPage() {
                       href="https://makeebook.ink/privacy"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
+                      className="hover:text-gray-600 dark:hover:text-[var(--clay-muted)] transition-colors"
                     >
                       Privacy
                     </a>
@@ -2634,7 +2633,7 @@ function MakeEbookPage() {
           />
 
           <div
-            className={`absolute top-0 right-0 h-full w-full bg-white dark:bg-[#1e1e1e] shadow-2xl transform transition-transform duration-200 ease-out ${
+            className={`absolute top-0 right-0 h-full w-full bg-white dark:bg-[var(--ink)] shadow-2xl transform transition-transform duration-200 ease-out ${
               mobileChaptersOpen ? "translate-x-0" : "translate-x-full"
             }`}
           >
@@ -2642,7 +2641,7 @@ function MakeEbookPage() {
               <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-2">
                   <svg
-                    className="w-5 h-5 flex-shrink-0 text-[#050505] dark:text-white"
+                    className="w-5 h-5 flex-shrink-0 text-[var(--ink-deep)] dark:text-white"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -2654,13 +2653,13 @@ function MakeEbookPage() {
                     <path d="M14 2v6h6" />
                     <path d="M16 13H8M16 17H8M10 9H8" />
                   </svg>
-                  <h3 className="text-sm font-bold text-[#050505] dark:text-[#e5e5e5]">
+                  <h3 className="text-sm font-bold text-[var(--ink-deep)] dark:text-[var(--paper)]">
                     Chapters list
                   </h3>
                 </div>
                 <button
                   onClick={() => setMobileChaptersOpen(false)}
-                  className="flex items-center justify-center px-5 py-4 rounded-full bg-white dark:bg-[#1e1e1e] gap-2 focus:outline-none transition-opacity relative"
+                  className="flex items-center justify-center px-5 py-4 rounded-full bg-white dark:bg-[var(--ink)] gap-2 focus:outline-none transition-opacity relative"
                   aria-label="Close chapters menu"
                   style={{ minWidth: 56, minHeight: 56 }}
                 >
@@ -2680,7 +2679,7 @@ function MakeEbookPage() {
                     src="/close-sidebar-icon.svg"
                   />
                   <span
-                    className="text-base font-medium text-[#23242a] dark:text-[#e5e5e5] underline"
+                    className="text-base font-medium text-[var(--ink-raised)] dark:text-[var(--paper)] underline"
                     style={{ zIndex: 2 }}
                   >
                     Close
@@ -2689,7 +2688,7 @@ function MakeEbookPage() {
               </div>
 
               <div className="flex-1 overflow-y-auto px-4 pb-4">
-                <p className="text-2xs text-[#737373] dark:text-gray-400 mb-3">
+                <p className="text-2xs text-[var(--clay-muted)] dark:text-gray-400 mb-3">
                   Drag to reorder
                 </p>
 
@@ -2744,10 +2743,10 @@ function MakeEbookPage() {
                           dragOverIndex === i
                             ? "border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20"
                             : isSelected
-                              ? "bg-gray-100 dark:bg-[#262626] border border-transparent"
+                              ? "bg-gray-100 dark:bg-[var(--ink-raised)] border border-transparent"
                               : isJustAdded
                                 ? "bg-gray-100/80 dark:bg-gray-700/20 border border-transparent"
-                                : "border border-transparent hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+                                : "border border-transparent hover:bg-gray-50 dark:hover:bg-[var(--rule)]"
                         }`}
                         style={
                           {
@@ -2786,7 +2785,7 @@ function MakeEbookPage() {
                         </div>
 
                         <button
-                          className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded ${ch.locked ? "opacity-100 text-gray-600 dark:text-gray-300" : "me-reveal text-gray-400 dark:text-gray-500"}`}
+                          className={`transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)] rounded ${ch.locked ? "opacity-100 text-gray-600 dark:text-gray-300" : "me-reveal text-gray-400 dark:text-gray-500"}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleToggleChapterLock(i);
@@ -2886,7 +2885,7 @@ function MakeEbookPage() {
                                   e.stopPropagation();
                                   setPendingDeleteIndex(null);
                                 }}
-                                className="p-1 rounded text-gray-500 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-colors"
+                                className="p-1 rounded text-gray-500 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)] transition-colors"
                                 aria-label="Cancel"
                                 title="Cancel (Esc)"
                               >
@@ -2906,7 +2905,7 @@ function MakeEbookPage() {
                             </div>
                           ) : (
                             <button
-                              className="me-reveal p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded text-gray-600 dark:text-gray-400"
+                              className="me-reveal p-1 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)] rounded text-gray-600 dark:text-gray-400"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setPendingDeleteIndex(i);
@@ -2926,24 +2925,24 @@ function MakeEbookPage() {
                         setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)
                       }
                       aria-label="Add new chapter"
-                      className="hover:opacity-70 transition-opacity flex items-center gap-2 w-full px-3 py-2 bg-white dark:bg-[#262626] rounded border border-gray-200 dark:border-[#2f2f2f] shadow-sm"
+                      className="hover:opacity-70 transition-opacity flex items-center gap-2 w-full px-3 py-2 bg-white dark:bg-[var(--ink-raised)] rounded border border-gray-200 dark:border-[var(--rule)] shadow-sm"
                     >
                       <PlusIcon className="w-4 h-4" />
-                      <span className="text-sm font-medium text-[#050505] dark:text-[#e5e5e5]">
+                      <span className="text-sm font-medium text-[var(--ink-deep)] dark:text-[var(--paper)]">
                         Add Chapter
                       </span>
                     </button>
                     {chapterTypeDropdownOpen && (
                       <div
                         ref={dropdownRef}
-                        className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[#1e1e1e] rounded border border-[#E8E8E8] dark:border-[#2f2f2f] shadow-lg max-h-96 overflow-y-auto"
+                        className="absolute z-50 top-full left-0 mt-1 w-full bg-white dark:bg-[var(--ink)] rounded border border-[var(--clay)] dark:border-[var(--rule)] shadow-lg max-h-96 overflow-y-auto"
                       >
                         <div className="p-3">
                           <div className="space-y-4">
                             <div>
                               <div className="mb-3">
                                 <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">
+                                  <span className="text-[var(--ink-deep)] dark:text-white">
                                     Front Matter
                                   </span>
                                 </h4>
@@ -2972,10 +2971,10 @@ function MakeEbookPage() {
                                           1000,
                                         );
                                       }}
-                                      className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
+                                      className="w-full text-left px-3 py-2 rounded-md hover:bg-[var(--paper)] dark:hover:bg-[var(--rule)] transition-colors"
                                     >
                                       <div className="text-sm font-medium">
-                                        <span className="text-[#15161a] dark:text-white">
+                                        <span className="text-[var(--ink)] dark:text-white">
                                           {template.title}
                                         </span>
                                       </div>
@@ -2987,7 +2986,7 @@ function MakeEbookPage() {
                             <div>
                               <div className="mb-3">
                                 <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">
+                                  <span className="text-[var(--ink-deep)] dark:text-white">
                                     Main Content
                                   </span>
                                 </h4>
@@ -3014,10 +3013,10 @@ function MakeEbookPage() {
                                         1000,
                                       );
                                     }}
-                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
+                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[var(--paper)] dark:hover:bg-[var(--rule)] transition-colors"
                                   >
                                     <div className="text-sm font-medium">
-                                      <span className="text-[#15161a] dark:text-white">
+                                      <span className="text-[var(--ink)] dark:text-white">
                                         {template.title}
                                       </span>
                                     </div>
@@ -3028,7 +3027,7 @@ function MakeEbookPage() {
                             <div>
                               <div className="mb-3">
                                 <h4 className="text-xs font-semibold px-3 uppercase tracking-wider">
-                                  <span className="text-[#050505] dark:text-white">
+                                  <span className="text-[var(--ink-deep)] dark:text-white">
                                     Back Matter
                                   </span>
                                 </h4>
@@ -3057,10 +3056,10 @@ function MakeEbookPage() {
                                           1000,
                                         );
                                       }}
-                                      className="w-full text-left px-3 py-2 rounded-md hover:bg-[#F2F2F2] dark:hover:bg-[#2a2a2a] transition-colors"
+                                      className="w-full text-left px-3 py-2 rounded-md hover:bg-[var(--paper)] dark:hover:bg-[var(--rule)] transition-colors"
                                     >
                                       <div className="text-sm font-medium">
-                                        <span className="text-[#15161a] dark:text-white">
+                                        <span className="text-[var(--ink)] dark:text-white">
                                           {template.title}
                                         </span>
                                       </div>
@@ -3176,16 +3175,16 @@ function MakeEbookPage() {
 
           <main
             data-editor-scroll
-            className={`flex-1 flex flex-col bg-white dark:bg-[#1e1e1e] ${chapters.length === 0 ? "px-0 py-0" : "px-2 py-8"} ${chapters.length > 0 ? "lg:pl-0" : "lg:pl-0"} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}
+            className={`flex-1 flex flex-col bg-white dark:bg-[var(--ink)] ${chapters.length === 0 ? "px-0 py-0" : "px-2 py-8"} ${chapters.length > 0 ? "lg:pl-0" : "lg:pl-0"} lg:pr-0 lg:py-0 min-w-0 overflow-x-hidden overflow-y-auto relative`}
           >
             {chapters.length > 0 && (
-              <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[#1e1e1e]">
-                <div className="flex items-center justify-between px-2 py-1.5 gap-1 border-b border-gray-200 dark:border-[#2f2f2f]">
+              <div className="lg:hidden fixed top-0 left-0 right-0 z-10 bg-white dark:bg-[var(--ink)]">
+                <div className="flex items-center justify-between px-2 py-1.5 gap-1 border-b border-gray-200 dark:border-[var(--rule)]">
                   <div className="flex items-center gap-0.5">
                     <button
                       data-tour="mobile-menu"
                       onClick={() => setMobileSidebarOpen(true)}
-                      className="p-1.5 ml-[5px] rounded-lg hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors flex-shrink-0"
+                      className="p-1.5 ml-[5px] rounded-lg hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors flex-shrink-0"
                       aria-label="Open menu"
                     >
                       <img
@@ -3204,11 +3203,11 @@ function MakeEbookPage() {
                   {chapters.length > 0 && (
                     <div className="flex items-center gap-1 flex-1 min-w-0 justify-center">
                       <div className="min-w-0 text-center">
-                        <div className="text-13 font-semibold truncate text-gray-900 dark:text-[#f5f5f5]">
+                        <div className="text-13 font-semibold truncate text-gray-900 dark:text-[var(--paper)]">
                           {title?.trim() || "Untitled book"}
                         </div>
                         {!isDirty && (
-                          <div className="text-2xs text-gray-400 dark:text-[#737373]">
+                          <div className="text-2xs text-gray-400 dark:text-[var(--clay-muted)]">
                             Saved
                           </div>
                         )}
@@ -3292,7 +3291,7 @@ function MakeEbookPage() {
 
                   <div
                     key={chapters[selectedChapter]?.id ?? selectedChapter}
-                    className="me-chapter-in flex-shrink-0 bg-white dark:bg-[#1e1e1e] border-none pb-1 px-2"
+                    className="me-chapter-in flex-shrink-0 bg-white dark:bg-[var(--ink)] border-none pb-1 px-2"
                   >
                     <div className="mt-0">
                       <div className="flex items-center gap-0 py-1">
@@ -3319,7 +3318,7 @@ function MakeEbookPage() {
                           src="/dark-chapter-title-icon.svg"
                         />
                         <input
-                          className="flex-1 bg-transparent text-base sm:text-lg font-medium text-[#23242a] dark:text-[#e5e5e5] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[#a0a0a0] dark:placeholder:text-[#a0a0a0] placeholder:font-normal touch-manipulation min-w-0"
+                          className="flex-1 bg-transparent text-base sm:text-lg font-medium text-[var(--ink-raised)] dark:text-[var(--paper)] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[var(--clay-muted)] dark:placeholder:text-[var(--clay-muted)] placeholder:font-normal touch-manipulation min-w-0"
                           style={{
                             border: "none",
                             backgroundColor: "transparent",
@@ -3345,7 +3344,7 @@ function MakeEbookPage() {
                       style={{ minHeight: "400px" }}
                     >
                       {chapters[selectedChapter]?.locked && (
-                        <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-[#262626] border-b border-gray-200 dark:border-[#2f2f2f] text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-[var(--ink-raised)] border-b border-gray-200 dark:border-[var(--rule)] text-xs text-gray-500 dark:text-gray-400">
                           <LockIcon className="w-3.5 h-3.5 flex-shrink-0" />
                           <span>
                             This chapter is locked. Click the lock icon in the
@@ -3364,7 +3363,7 @@ function MakeEbookPage() {
                             ? "Write your first chapter here..."
                             : "Now add some content to your chapter..."
                         }
-                        className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
+                        className="h-full text-lg placeholder:text-[var(--clay-muted)] placeholder:text-lg"
                         onCreateEndnote={endnotesHook.handleCreateEndnote}
                         chapterId={chapters[selectedChapter]?.id}
                         hasEndnotes={endnotes.length > 0}
@@ -3390,7 +3389,7 @@ function MakeEbookPage() {
                   onOpenBook={(id) => library.handleLoadBook(id)}
                 />
               ) : (
-                <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2 bg-white dark:bg-[#1e1e1e]">
+                <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2 bg-white dark:bg-[var(--ink)]">
                   <EditorHeader
                     isDirty={isDirty}
                     isSaving={isSaving}
@@ -3632,7 +3631,7 @@ function MakeEbookPage() {
                   zIndex: 900,
                   pointerEvents: "none",
                 }}
-                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-900/90 dark:bg-[#2a2a2a]/95 text-white text-[11px] font-medium shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-1 duration-200"
+                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-900/90 dark:bg-[var(--rule)]/95 text-white text-[11px] font-medium shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-1 duration-200"
               >
                 <svg
                   className="w-3 h-3 opacity-70"

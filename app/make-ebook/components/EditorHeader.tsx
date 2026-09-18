@@ -100,7 +100,7 @@ export default function EditorHeader({
         {isDirty && !isSaving && (
           <button
             onClick={onSaveNow}
-            className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-transparent hover:bg-gray-200 dark:hover:bg-[#333] transition-colors duration-[var(--me-dur)] text-125 font-medium text-gray-700 dark:text-[#d4d4d4]"
+            className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-transparent hover:bg-gray-200 dark:hover:bg-[var(--rule)] transition-colors duration-[var(--me-dur)] text-125 font-medium text-gray-700 dark:text-[var(--clay)]"
             title={`Save now (${isMac ? "⌘S" : "Ctrl+S"})`}
           >
             <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
@@ -132,7 +132,7 @@ export default function EditorHeader({
             <button
               title="More actions"
               aria-label="More actions"
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-transparent text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-200 dark:hover:bg-[#333] transition-colors duration-[var(--me-dur)]"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-transparent text-gray-500 dark:text-[var(--clay-muted)] hover:bg-gray-200 dark:hover:bg-[var(--rule)] transition-colors duration-[var(--me-dur)]"
             >
               <svg
                 className="w-5 h-5"
@@ -209,7 +209,7 @@ export default function EditorHeader({
         </DropdownMenu>
 
         <span
-          className="w-px h-6 bg-gray-200 dark:bg-[#2f2f2f] mx-1"
+          className="w-px h-6 bg-gray-200 dark:bg-[var(--rule)] mx-1"
           aria-hidden="true"
         />
 
@@ -248,7 +248,7 @@ export default function EditorHeader({
               className="flex items-center gap-2 cursor-pointer"
             >
               <svg
-                className="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-[#737373]"
+                className="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-[var(--clay-muted)]"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -272,7 +272,7 @@ export default function EditorHeader({
               className="flex items-center gap-2 cursor-pointer"
             >
               <svg
-                className="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-[#737373]"
+                className="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-[var(--clay-muted)]"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -294,7 +294,7 @@ export default function EditorHeader({
               className="flex items-center gap-2 cursor-pointer"
             >
               <svg
-                className="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-[#737373]"
+                className="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-[var(--clay-muted)]"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"

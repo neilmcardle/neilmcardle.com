@@ -40,7 +40,7 @@ export default function ChapterCompleteToggle({
       : "bg-gray-900 dark:bg-white border-transparent text-white dark:text-gray-900"
     : selected
       ? "border-white/40 dark:border-gray-400 text-transparent hover:border-white/70 dark:hover:border-gray-600"
-      : "border-gray-300 dark:border-[#4a4a4a] text-transparent hover:border-gray-400 dark:hover:border-[#6a6a6a]";
+      : "border-gray-300 dark:border-[var(--ink-hover)] text-transparent hover:border-gray-400 dark:hover:border-[var(--clay-muted)]";
 
   return (
     <button

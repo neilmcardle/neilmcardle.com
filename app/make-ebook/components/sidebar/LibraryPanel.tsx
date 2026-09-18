@@ -66,11 +66,11 @@ export default function LibraryPanel({
   }, [hovered]);
 
   return (
-    <div className="border-b border-gray-200 dark:border-[#2f2f2f] pb-3">
+    <div className="border-b border-gray-200 dark:border-[var(--rule)] pb-3">
       <div className="flex items-center justify-between py-3 px-3">
         <div className="flex items-center gap-2.5">
           <svg
-            className="w-4 h-4 text-gray-600 dark:text-[#a3a3a3]"
+            className="w-4 h-4 text-gray-600 dark:text-[var(--clay-muted)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -83,10 +83,10 @@ export default function LibraryPanel({
             <rect x="16" y="5" width="3" height="15" rx="0.5" />
             <path d="M3 20h18" />
           </svg>
-          <span className="text-125 font-semibold text-gray-900 dark:text-[#e5e5e5]">
+          <span className="text-125 font-semibold text-gray-900 dark:text-[var(--paper)]">
             Library
           </span>
-          <span className="text-11 text-gray-500 dark:text-[#a3a3a3]">
+          <span className="text-11 text-gray-500 dark:text-[var(--clay-muted)]">
             ({libraryBooks.length})
           </span>
         </div>
@@ -97,8 +97,8 @@ export default function LibraryPanel({
               onClick={() => setMultiSelectMode(!multiSelectMode)}
               className={`flex items-center justify-center h-8 w-8 rounded-chip transition-all duration-150 ${
                 multiSelectMode
-                  ? "bg-[#008ff0]/10 dark:bg-[#008ff0]/15 text-[#008ff0]"
-                  : "text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] hover:text-gray-700 dark:hover:text-[#d4d4d4]"
+                  ? "bg-[var(--paper)]/10 dark:bg-[var(--paper)]/15 text-[var(--acid)]"
+                  : "text-gray-500 dark:text-[var(--clay-muted)] hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] hover:text-gray-700 dark:hover:text-[var(--clay)]"
               }`}
               title={multiSelectMode ? "Cancel selection" : "Select multiple"}
             >
@@ -118,7 +118,7 @@ export default function LibraryPanel({
           )}
           <button
             onClick={showNewBookConfirmation}
-            className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] hover:text-gray-700 dark:hover:text-[#d4d4d4] transition-all duration-150"
+            className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[var(--clay-muted)] hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] hover:text-gray-700 dark:hover:text-[var(--clay)] transition-all duration-150"
             title="New book"
           >
             <svg
@@ -137,7 +137,7 @@ export default function LibraryPanel({
           </button>
           <button
             onClick={showImportDialog}
-            className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] hover:text-gray-700 dark:hover:text-[#d4d4d4] transition-all duration-150 pr-3"
+            className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[var(--clay-muted)] hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] hover:text-gray-700 dark:hover:text-[var(--clay)] transition-all duration-150 pr-3"
             title="Import document"
           >
             <svg
@@ -157,16 +157,16 @@ export default function LibraryPanel({
       </div>
 
       {multiSelectMode && libraryBooks.length > 0 && (
-        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-[#2d2d2d] rounded-card gap-2 mx-2 mb-2">
+        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-[var(--ink-raised)] rounded-card gap-2 mx-2 mb-2">
           <button
             onClick={toggleSelectAll}
-            className="text-11 font-medium text-[#008ff0] hover:underline"
+            className="text-11 font-medium text-[var(--acid)] hover:underline"
           >
             {selectedBookIds.size === libraryBooks.length
               ? "Deselect All"
               : "Select All"}
           </button>
-          <span className="text-11 text-gray-500 dark:text-[#a3a3a3]">
+          <span className="text-11 text-gray-500 dark:text-[var(--clay-muted)]">
             {selectedBookIds.size} selected
           </span>
           <button
@@ -213,7 +213,7 @@ export default function LibraryPanel({
           >
             <span
               aria-hidden
-              className="pointer-events-none absolute inset-x-1 rounded-[7px] bg-gray-100 dark:bg-[#2d2d2d]"
+              className="pointer-events-none absolute inset-x-1 rounded-[7px] bg-gray-100 dark:bg-[var(--ink-raised)]"
               style={{
                 top: box?.top ?? 0,
                 height: box?.height ?? 0,
@@ -247,7 +247,7 @@ export default function LibraryPanel({
                     }
                     aria-pressed={multiSelectMode ? isChecked : isSelected}
                     aria-label={book.title || "Untitled"}
-                    className="absolute inset-0 z-0 rounded-[7px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#008ff0]/40"
+                    className="absolute inset-0 z-0 rounded-[7px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--acid)]/40"
                   />
 
                   {multiSelectMode && (
@@ -259,7 +259,7 @@ export default function LibraryPanel({
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => toggleBookSelection(book.id)}
-                        className="w-4 h-4 rounded border-gray-300 dark:border-[#3a3a3a] text-[#008ff0] focus:ring-[#008ff0] dark:focus:ring-[#008ff0] cursor-pointer"
+                        className="w-4 h-4 rounded border-gray-300 dark:border-[var(--ink-hover)] text-[var(--acid)] focus:ring-[var(--acid)] dark:focus:ring-[var(--acid)] cursor-pointer"
                       />
                     </label>
                   )}
@@ -268,13 +268,13 @@ export default function LibraryPanel({
                     <div
                       className={`text-125 font-medium truncate ${
                         isSelected || isChecked
-                          ? "text-gray-900 dark:text-[#f5f5f5]"
-                          : "text-gray-700 dark:text-[#d4d4d4]"
+                          ? "text-gray-900 dark:text-[var(--paper)]"
+                          : "text-gray-700 dark:text-[var(--clay)]"
                       }`}
                     >
                       {book.title || "Untitled"}
                     </div>
-                    <div className="text-11 text-gray-500 dark:text-[#a3a3a3] truncate">
+                    <div className="text-11 text-gray-500 dark:text-[var(--clay-muted)] truncate">
                       {book.author || "Unknown author"}
                     </div>
                   </div>
@@ -296,7 +296,7 @@ export default function LibraryPanel({
                           e.stopPropagation();
                           handleDeleteBook(book.id);
                         }}
-                        className="p-2 rounded-chip text-gray-400 dark:text-[#737373] hover:bg-gray-200 dark:hover:bg-[#2d2d2d] hover:text-gray-600 dark:hover:text-[#a3a3a3] transition-colors"
+                        className="p-2 rounded-chip text-gray-400 dark:text-[var(--clay-muted)] hover:bg-gray-200 dark:hover:bg-[var(--ink-raised)] hover:text-gray-600 dark:hover:text-[var(--clay-muted)] transition-colors"
                         title="Delete book"
                       >
                         <svg

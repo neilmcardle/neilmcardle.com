@@ -2,15 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Book Mind inline-edit highlight. Applied to the span that wraps
-   accepted Cmd-K rewrites. Fades from a soft blue flash to transparent
-   over 2 seconds so the user sees exactly where the new text landed. */
 @keyframes bm-highlight-fade {
   0% {
-    background-color: rgba(0, 143, 240, 0.22);
+    background-color: rgba(52, 211, 153, 0.22);
   }
   60% {
-    background-color: rgba(0, 143, 240, 0.08);
+    background-color: rgba(52, 211, 153, 0.08);
   }
   100% {
     background-color: transparent;
@@ -71,7 +68,7 @@ select:focus-visible {
 .skip-link:focus,
 .skip-link:focus-visible {
   transform: translateY(0);
-  outline: 2px solid #008ff0;
+  outline: 2px solid var(--acid);
   outline-offset: 2px;
 }
 
@@ -254,53 +251,17 @@ html.dark {
   }
 }
 
-/* ── makeEbook Design System Tokens ─────────────────────────────────────────
-   Use these instead of arbitrary hex values in components.
-
-   Dark surface palette (3 levels — covers all dark-mode backgrounds):
-     --me-base    #1e1e1e  Main panel / sidebar backgrounds
-     --me-surface #262626  Elevated surface (inputs, cards)
-     --me-raised  #2f2f2f  Borders, hover states, tooltips
-
-   Text hierarchy:
-     --me-text-primary    primary readable text
-     --me-text-secondary  secondary / supporting text
-     --me-text-muted      disabled, metadata, timestamps
-     --me-text-placeholder placeholder text in inputs
-
-   Brand accent:
-     --me-accent  #008ff0  Chapter active state, focus ring
-─────────────────────────────────────────────────────────────────────────── */
 :root {
-  --me-base: #1e1e1e;
-  --me-surface: #262626;
-  --me-raised: #2f2f2f;
+  --me-base: var(--ink);
+  --me-surface: var(--ink-raised);
+  --me-raised: var(--rule);
 
-  --me-text-primary: #0a0a0a;
-  --me-text-secondary: #555555;
-  --me-text-muted: #888888;
-  --me-text-placeholder: #a0a0a0;
+  --me-text-primary: var(--paper);
+  --me-text-secondary: var(--clay);
+  --me-text-muted: var(--clay-muted);
+  --me-text-placeholder: var(--clay-muted);
 
-  --me-accent: #008ff0;
-}
-.dark {
-  --me-text-primary: #f5f5f5;
-  --me-text-secondary: #a3a3a3;
-  --me-text-muted: #737373;
-  --me-text-placeholder: #666666;
-}
-
-/* makeEbook mode — the editor's default theme: dark/charcoal chrome with a
-   cream paper writing surface. The dark chrome reuses the dark palette (the
-   sidebar gets a `.dark` wrapper), so this block only needs the paper content
-   tokens consumed by the `me:` utilities on the writing surfaces. */
-.makeebook {
-  --me-content: #f7f4ea;
-  --me-content-raised: #fffdf7;
-  --me-ink: #2a2a28;
-  --me-ink-secondary: #57534e;
-  --me-ink-muted: #8a8378;
-  --me-paper-border: rgba(0, 0, 0, 0.06);
+  --me-accent: var(--acid);
 }
 
 /* Make borders much lighter for subtle divider lines */
@@ -331,13 +292,6 @@ html.dark {
     background: #1a1a1a;
     border: 1px solid #333333;
     box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.2);
-  }
-
-  html.paper .card,
-  html.paper .sidebar-card {
-    background: #f9f4e6 !important;
-    border: 1px solid #d9d0b8 !important;
-    box-shadow: 0 1px 6px 0 rgba(100, 80, 40, 0.06);
   }
 
   /* Pill-shaped main buttons */
@@ -379,16 +333,6 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   background: rgba(85, 85, 85, 0.7);
 }
 
-/* Paper mode scrollbar */
-html.paper ::-webkit-scrollbar-thumb {
-  background: rgba(180, 160, 120, 0.4);
-  border-radius: 8px;
-}
-
-html.paper ::-webkit-scrollbar-thumb:hover {
-  background: rgba(160, 140, 100, 0.6);
-}
-
 /* Spacing helpers for cards/sections */
 .section {
   padding: 1.25rem 1.5rem;
@@ -398,19 +342,9 @@ html.paper ::-webkit-scrollbar-thumb:hover {
   border: 1px solid #ececec;
 }
 
-html[data-theme="dark"] .section {
-  background: #1a1a1a;
-  border: 1px solid #333333;
-}
-
 html.dark .section {
   background: #1a1a1a;
   border: 1px solid #333333;
-}
-
-html.paper .section {
-  background: #f9f4e6 !important;
-  border: 1px solid #d9d0b8 !important;
 }
 
 /* Tag pills */
@@ -425,12 +359,6 @@ html.paper .section {
   align-items: center;
   margin-right: 0.5rem;
   margin-bottom: 0.5rem;
-}
-
-html[data-theme="dark"] .tag-pill {
-  background: #2a2a2a;
-  border: 1px solid #444444;
-  color: #b0b0b0;
 }
 
 html.dark .tag-pill {
@@ -451,16 +379,6 @@ html.dark .tag-pill {
 .input-search:focus {
   border: 1.5px solid #d4d4d4;
   outline: none;
-}
-
-html[data-theme="dark"] .input-search {
-  border: 1px solid #444444;
-  background: #1e1e1e;
-  color: #e5e5e5;
-}
-
-html[data-theme="dark"] .input-search:focus {
-  border: 1.5px solid #666666;
 }
 
 html.dark .input-search {
@@ -508,40 +426,6 @@ textarea:focus {
   outline: none;
 }
 
-html.paper input,
-html.paper select,
-html.paper textarea {
-  border: 1px solid #d9d0b8 !important;
-  background: #f9f4e6 !important;
-  color: #2c2416 !important;
-}
-
-html.paper input:focus,
-html.paper select:focus,
-html.paper textarea:focus {
-  border: 1.5px solid #c4b896 !important;
-}
-
-html.paper input::placeholder,
-html.paper textarea::placeholder {
-  color: #9a8b6e !important;
-  opacity: 1;
-}
-
-html[data-theme="dark"] input,
-html[data-theme="dark"] select,
-html[data-theme="dark"] textarea {
-  border: 1px solid #444444;
-  background: #1e1e1e;
-  color: #e5e5e5;
-}
-
-html[data-theme="dark"] input:focus,
-html[data-theme="dark"] select:focus,
-html[data-theme="dark"] textarea:focus {
-  border: 1.5px solid #666666;
-}
-
 /* Remove outline on buttons for softer look */
 button:focus {
   outline: none;
@@ -553,21 +437,12 @@ html.dark button:focus {
   box-shadow: none;
 }
 
-html[data-theme="dark"] button:focus {
-  outline: none;
-  box-shadow: none;
-}
-
 /* Subtle shadow for floating containers */
 .shadow-card {
   box-shadow: 0 2px 12px 0 rgba(60, 60, 60, 0.06);
 }
 
 html.dark .shadow-card {
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
-}
-
-html[data-theme="dark"] .shadow-card {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
 }
 
@@ -835,29 +710,25 @@ html.dark .bg-cream {
   background-color: #2a2416;
 }
 
-html[data-theme="dark"] .bg-cream {
-  background-color: #2a2416;
-}
-
 /* ── Editor content typography ──────────────────────────────────────────── */
 [contenteditable] h1 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display);
   font-size: 1.875rem;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.2;
   margin: 1.5rem 0 1rem;
   letter-spacing: -0.02em;
 }
 [contenteditable] h2 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display);
   font-size: 1.375rem;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.3;
   margin: 1.25rem 0 0.75rem;
   letter-spacing: -0.01em;
 }
 [contenteditable] h3 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display);
   font-size: 1.125rem;
   font-weight: 600;
   line-height: 1.4;
@@ -867,7 +738,7 @@ html[data-theme="dark"] .bg-cream {
   margin: 0 0 0.75rem;
 }
 [contenteditable] blockquote {
-  border-left: 2px solid #008ff0;
+  border-left: 2px solid var(--rule);
   padding-left: 0.75rem;
   font-style: italic;
   opacity: 0.75;
@@ -880,13 +751,8 @@ html[data-theme="dark"] .bg-cream {
 }
 
 html.dark .ProseMirror {
-  background: #1e1e1e;
-  color: #e5e5e5;
-}
-
-html[data-theme="dark"] .ProseMirror {
-  background: #1e1e1e;
-  color: #e5e5e5;
+  background: var(--ink);
+  color: var(--clay);
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
@@ -898,11 +764,7 @@ html[data-theme="dark"] .ProseMirror {
 }
 
 html.dark .ProseMirror p.is-editor-empty:first-child::before {
-  color: #666666;
-}
-
-html[data-theme="dark"] .ProseMirror p.is-editor-empty:first-child::before {
-  color: #666666;
+  color: var(--clay-muted);
 }
 
 /* Optional: Add some basic styling for content */
@@ -933,55 +795,22 @@ html[data-theme="dark"] .ProseMirror p.is-editor-empty:first-child::before {
   line-height: 1.6;
 }
 
-/* chapter active / not active */
 .chapter-pill {
-  background: #181a1d;
-  color: rgba(255, 255, 255, 0.75);
+  background: var(--ink-raised);
+  color: var(--clay);
   transition:
     background 0.18s,
-    color 0.18s,
-    box-shadow 0.18s;
+    color 0.18s;
 }
+
 .chapter-pill-active {
-  background: #008ff0; /* a blue highlight, or pick your brand color */
-  color: #fff;
-  box-shadow: 0 2px 8px -3px #008ff033;
+  background: var(--paper);
+  color: var(--ink-deep);
 }
+
 .chapter-pill:not(.chapter-pill-active):hover {
-  background: #23252a;
-  color: #fff;
-}
-
-html.dark .chapter-pill {
-  background: #2a2a2a;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-html.dark .chapter-pill-active {
-  background: #008ff0;
-  color: #fff;
-  box-shadow: 0 2px 8px -3px #008ff033;
-}
-
-html.dark .chapter-pill:not(.chapter-pill-active):hover {
-  background: #3a3a3a;
-  color: #fff;
-}
-
-html[data-theme="dark"] .chapter-pill {
-  background: #2a2a2a;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-html[data-theme="dark"] .chapter-pill-active {
-  background: #008ff0;
-  color: #fff;
-  box-shadow: 0 2px 8px -3px #008ff033;
-}
-
-html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
-  background: #3a3a3a;
-  color: #fff;
+  background: var(--rule);
+  color: var(--paper);
 }
 
 /* Hide scrollbar but keep scrollable - for mobile compact toolbar */
@@ -1021,11 +850,6 @@ html[data-theme="dark"] .chapter-pill:not(.chapter-pill-active):hover {
     background: #e5e5e5;
     color: #1a1a1a;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-  html.paper [data-tooltip]::after {
-    background: #3d3426;
-    color: #f9f4e6;
-    box-shadow: 0 2px 8px rgba(50, 40, 20, 0.2);
   }
   [data-tooltip]:hover::after {
     opacity: 1;

@@ -120,7 +120,7 @@ export default function ResizableRightPanel({
     <div
       ref={panelRef}
       style={{ width: isExpanded ? width : 0 }}
-      className={`hidden lg:flex flex-col flex-shrink-0 h-screen overflow-hidden border-l-2 border-gray-300 dark:border-[#404040] relative transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-x-hidden shadow-xl dark:shadow-black/20 ${className}`}
+      className={`hidden lg:flex flex-col flex-shrink-0 h-screen overflow-hidden border-l-2 border-gray-300 dark:border-[var(--rule)] relative transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-x-hidden shadow-xl dark:shadow-black/20 ${className}`}
     >
       <div
         role="separator"
@@ -130,7 +130,7 @@ export default function ResizableRightPanel({
         aria-valuemin={MIN_WIDTH}
         aria-valuemax={MAX_WIDTH}
         tabIndex={0}
-        className="absolute left-0 top-0 h-full w-1 cursor-col-resize z-50 touch-none hover:bg-gray-300 dark:hover:bg-[#3a3a3a] focus-visible:bg-gray-400 dark:focus-visible:bg-[#4a4a4a] focus-visible:outline-none transition-colors"
+        className="absolute left-0 top-0 h-full w-1 cursor-col-resize z-50 touch-none hover:bg-gray-300 dark:hover:bg-[var(--ink-hover)] focus-visible:bg-gray-400 dark:focus-visible:bg-[var(--ink-hover)] focus-visible:outline-none transition-colors"
         onPointerDown={handleResizeStart}
         onKeyDown={handleResizeKeyDown}
       />

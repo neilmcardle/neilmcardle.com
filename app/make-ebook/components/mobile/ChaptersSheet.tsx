@@ -62,7 +62,7 @@ export default function ChaptersSheet({
       />
 
       <div
-        className={`absolute left-0 right-0 bottom-0 max-h-[80vh] flex flex-col rounded-t-[20px] bg-white dark:bg-[#252525] border-t border-gray-200 dark:border-[#2f2f2f] shadow-[0_-12px_32px_rgba(0,0,0,0.28)] transition-transform duration-300 ease-out motion-reduce:transition-none ${
+        className={`absolute left-0 right-0 bottom-0 max-h-[80vh] flex flex-col rounded-t-[20px] bg-white dark:bg-[var(--ink-panel)] border-t border-gray-200 dark:border-[var(--rule)] shadow-[0_-12px_32px_rgba(0,0,0,0.28)] transition-transform duration-300 ease-out motion-reduce:transition-none ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
@@ -73,15 +73,15 @@ export default function ChaptersSheet({
           aria-label="Close chapters"
           className="flex justify-center py-3 flex-shrink-0"
         >
-          <span className="w-9 h-1 rounded-full bg-gray-300 dark:bg-[#4a4a4a]" />
+          <span className="w-9 h-1 rounded-full bg-gray-300 dark:bg-[var(--ink-hover)]" />
         </button>
 
         <div className="flex items-center justify-between px-5 pb-3 flex-shrink-0">
           <div className="min-w-0">
-            <div className="text-125 font-semibold text-gray-900 dark:text-[#f5f5f5]">
+            <div className="text-125 font-semibold text-gray-900 dark:text-[var(--paper)]">
               Chapters
             </div>
-            <div className="text-11 text-gray-500 dark:text-[#737373] mt-0.5 tabular-nums">
+            <div className="text-11 text-gray-500 dark:text-[var(--clay-muted)] mt-0.5 tabular-nums">
               {completed} of {chapters.length} complete &middot;{" "}
               {totalWords.toLocaleString()} words
             </div>
@@ -90,7 +90,7 @@ export default function ChaptersSheet({
             type="button"
             onClick={onAddChapter}
             aria-label="Add chapter"
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-[#2f2f2f] text-gray-700 dark:text-[#d4d4d4] flex-shrink-0"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-[var(--rule)] text-gray-700 dark:text-[var(--clay)] flex-shrink-0"
           >
             <svg
               className="w-4 h-4"
@@ -105,14 +105,14 @@ export default function ChaptersSheet({
           </button>
         </div>
 
-        <div className="flex items-center gap-3 px-6 pb-1.5 flex-shrink-0 border-b border-gray-100 dark:border-[#2f2f2f]">
-          <span className="w-11 -ml-2 flex-shrink-0 text-center text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[#737373]">
+        <div className="flex items-center gap-3 px-6 pb-1.5 flex-shrink-0 border-b border-gray-100 dark:border-[var(--rule)]">
+          <span className="w-11 -ml-2 flex-shrink-0 text-center text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[var(--clay-muted)]">
             Done
           </span>
-          <span className="flex-1 min-w-0 text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[#737373]">
+          <span className="flex-1 min-w-0 text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[var(--clay-muted)]">
             Chapter
           </span>
-          <span className="text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[#737373] text-right">
+          <span className="text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[var(--clay-muted)] text-right">
             Words
           </span>
         </div>
@@ -145,7 +145,7 @@ export default function ChaptersSheet({
                     className={`flex-1 min-w-0 truncate text-sm ${
                       isSelected
                         ? "font-semibold text-white dark:text-gray-900"
-                        : "text-gray-800 dark:text-[#d4d4d4]"
+                        : "text-gray-800 dark:text-[var(--clay)]"
                     }`}
                   >
                     {chapter.title?.trim() || "Untitled"}
@@ -155,7 +155,7 @@ export default function ChaptersSheet({
                       className={`text-11 tabular-nums flex-shrink-0 ${
                         isSelected
                           ? "text-white/60 dark:text-gray-500"
-                          : "text-gray-400 dark:text-[#5c5c5c]"
+                          : "text-gray-400 dark:text-[var(--clay-muted)]"
                       }`}
                     >
                       {wordCounts[i].toLocaleString()}

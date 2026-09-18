@@ -20,8 +20,8 @@ export default function LayoutSwitcher({
       }
       title={mode === "live-preview" ? "Close preview" : "Open preview"}
       className="flex items-center gap-2 h-10 px-4 rounded-full text-125 font-medium whitespace-nowrap transition-colors duration-[var(--me-dur)]
-        bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-[#d4d4d4] border border-gray-200 dark:border-transparent
-        hover:bg-gray-200 dark:hover:bg-[#333]
+        bg-gray-100 dark:bg-[var(--ink-raised)] text-gray-700 dark:text-[var(--clay)] border border-gray-200 dark:border-transparent
+        hover:bg-gray-200 dark:hover:bg-[var(--rule)]
         data-[active=true]:bg-gray-900 dark:data-[active=true]:bg-white data-[active=true]:text-white dark:data-[active=true]:text-gray-900 data-[active=true]:border-transparent"
       data-active={mode === "live-preview"}
     >

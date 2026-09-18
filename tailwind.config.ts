@@ -1,6 +1,5 @@
 import type { Config } from "tailwindcss";
 import typography from "@tailwindcss/typography";
-import plugin from "tailwindcss/plugin";
 
 const config = {
   darkMode: ["class"],
@@ -212,13 +211,7 @@ const config = {
       },
     },
   },
-  plugins: [
-    typography,
-
-    plugin(({ addVariant }) => {
-      addVariant("me", "html.makeebook &");
-    }),
-  ],
+  plugins: [typography],
 } satisfies Config;
 
 export default config;

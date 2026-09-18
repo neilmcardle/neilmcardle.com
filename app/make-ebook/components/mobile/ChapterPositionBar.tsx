@@ -55,7 +55,7 @@ export default function ChapterPositionBar({
               className={`block w-full rounded-full transition-all duration-300 ease-out motion-reduce:transition-none ${
                 isCurrent
                   ? "h-[3px] bg-gray-900 dark:bg-white"
-                  : "h-[2px] bg-gray-200 dark:bg-[#3a3a3a]"
+                  : "h-[2px] bg-gray-200 dark:bg-[var(--ink-hover)]"
               }`}
             />
           </button>

@@ -25,7 +25,7 @@ export function OfflineIndicator({
       className={`flex items-center gap-2 px-3 py-2 rounded-full text-xs font-medium transition-colors ${
         isOnline
           ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-          : "bg-gray-100 dark:bg-[#262626] text-gray-600 dark:text-[#a3a3a3]"
+          : "bg-gray-100 dark:bg-[var(--ink-raised)] text-gray-600 dark:text-[var(--clay-muted)]"
       }`}
     >
       {isSyncing ? (
@@ -71,7 +71,7 @@ export function OfflineIndicator({
       {isOnline && pendingSyncCount > 0 && !isSyncing && (
         <button
           onClick={onSyncAction}
-          className="ml-1 p-1 hover:bg-gray-100 dark:hover:bg-[#2f2f2f] rounded transition-colors"
+          className="ml-1 p-1 hover:bg-gray-100 dark:hover:bg-[var(--rule)] rounded transition-colors"
           title="Sync now"
         >
           <svg
@@ -105,7 +105,9 @@ export function OfflineIndicatorCompact({
   return (
     <div
       className={`flex items-center justify-center w-6 h-6 rounded-full ${
-        isOnline ? "text-blue-500" : "text-gray-500 dark:text-[#a3a3a3]"
+        isOnline
+          ? "text-blue-500"
+          : "text-gray-500 dark:text-[var(--clay-muted)]"
       }`}
       title={
         isSyncing

@@ -1,0 +1,33 @@
+:root {
+  --ink: #141413;
+  --ink-deep: #0b0b0b;
+  --ink-window: #161614;
+  --ink-rail: #151513;
+  --ink-panel: #1b1b18;
+  --ink-raised: #262626;
+  --ink-popover: #1c1c19;
+  --ink-chip: #1f1f1b;
+  --ink-sunken: #1a1a17;
+  --ink-well: #121211;
+  --rule: #2a2a28;
+  --ink-hover: #32322e;
+  --paper: #f3efe5;
+  --clay: #d8d4c9;
+  --clay-muted: #8e8b82;
+  --acid: #deea53;
+  --acid-hover: #ebf58b;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --warning-fill: rgba(251, 191, 36, 0.16);
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-ui: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-wordmark: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-manuscript:
+    var(--font-baskerville), "Libre Baskerville", Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 20px;
+  --r-xl: 24px;
+}

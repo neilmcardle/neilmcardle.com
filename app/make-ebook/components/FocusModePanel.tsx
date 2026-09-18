@@ -81,7 +81,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
         className={`flex items-center gap-2 px-3 h-8 rounded-full text-xs font-medium transition-all duration-300 shadow-lg backdrop-blur-md border ${
           open
             ? "bg-white text-gray-900 border-transparent opacity-100"
-            : "bg-[#111]/70 border-white/10 text-white/50 opacity-60 hover:opacity-100 hover:text-white/80"
+            : "bg-[var(--ink-deep)]/70 border-white/10 text-white/50 opacity-60 hover:opacity-100 hover:text-white/80"
         }`}
       >
         <svg
@@ -99,7 +99,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
       </button>
 
       {open && (
-        <div className="w-64 rounded-2xl bg-[#161616] backdrop-blur-xl border border-white/20 shadow-2xl p-4 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="w-64 rounded-2xl bg-[var(--ink-window)] backdrop-blur-xl border border-white/20 shadow-2xl p-4 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
           <p className="text-2xs font-semibold text-white/45 uppercase tracking-widest mb-2">
             Interface
           </p>
@@ -209,10 +209,10 @@ export function FocusModeButton({ onClick }: { onClick: () => void }) {
     <button
       onClick={onClick}
       title={`Enter focus mode  ${isMac ? "⌘⇧F" : "Ctrl+Shift+F"}`}
-      className="flex items-center gap-2 px-3 h-10 rounded-lg bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors group"
+      className="flex items-center gap-2 px-3 h-10 rounded-lg bg-gray-100 dark:bg-[var(--ink-raised)] hover:bg-gray-200 dark:hover:bg-[var(--rule)] transition-colors group"
     >
       <svg
-        className="w-6 h-6 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4] transition-colors"
+        className="w-6 h-6 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[var(--clay)] transition-colors"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -222,7 +222,7 @@ export function FocusModeButton({ onClick }: { onClick: () => void }) {
         <circle cx="12" cy="12" r="3" />
         <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
       </svg>
-      <span className="text-xs text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[#d4d4d4] transition-colors">
+      <span className="text-xs text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[var(--clay)] transition-colors">
         Focus
       </span>
     </button>

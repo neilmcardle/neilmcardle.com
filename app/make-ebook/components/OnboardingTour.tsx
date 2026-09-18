@@ -1,7 +1,13 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
-import type { OnboardingStep } from '../hooks/useOnboarding';
+import React, {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useRef,
+} from "react";
+import type { OnboardingStep } from "../hooks/useOnboarding";
 
 interface OnboardingTourProps {
   isTourActive: boolean;
@@ -38,7 +44,9 @@ export default function OnboardingTour({
   const [targetRect, setTargetRect] = useState<TargetRect | null>(null);
   const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
   const [arrowStyle, setArrowStyle] = useState<React.CSSProperties>({});
-  const [arrowDirection, setArrowDirection] = useState<'top' | 'bottom' | 'left' | 'right'>('top');
+  const [arrowDirection, setArrowDirection] = useState<
+    "top" | "bottom" | "left" | "right"
+  >("top");
   const [visible, setVisible] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const nextBtnRef = useRef<HTMLButtonElement>(null);
@@ -48,16 +56,15 @@ export default function OnboardingTour({
 
     const el = document.querySelector(stepData.target);
     if (!el) {
-      // Fallback: center on screen
       setTargetRect(null);
       setTooltipStyle({
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
       });
-      setArrowDirection('top');
-      setArrowStyle({ display: 'none' });
+      setArrowDirection("top");
+      setArrowStyle({ display: "none" });
       return;
     }
 
@@ -71,7 +78,6 @@ export default function OnboardingTour({
       right: rect.right,
     });
 
-    // Calculate tooltip position after render
     requestAnimationFrame(() => {
       if (!tooltipRef.current) return;
       const tooltip = tooltipRef.current.getBoundingClientRect();
@@ -86,68 +92,81 @@ export default function OnboardingTour({
       if (isMobile) {
         const spaceBelow = vh - rect.bottom;
         const spaceAbove = rect.top;
-        placement = spaceBelow > spaceAbove ? 'bottom' : 'top';
-        left = Math.max(VIEWPORT_MARGIN, Math.min(vw - tooltip.width - VIEWPORT_MARGIN, (vw - tooltip.width) / 2));
+        placement = spaceBelow > spaceAbove ? "bottom" : "top";
+        left = Math.max(
+          VIEWPORT_MARGIN,
+          Math.min(
+            vw - tooltip.width - VIEWPORT_MARGIN,
+            (vw - tooltip.width) / 2,
+          ),
+        );
       } else {
-        // Smart placement: flip if not enough room on the preferred side
         const spaceLeft = rect.left - PADDING - TOOLTIP_GAP;
         const spaceRight = vw - rect.right - PADDING - TOOLTIP_GAP;
         const spaceTop = rect.top - PADDING - TOOLTIP_GAP;
         const spaceBottom = vh - rect.bottom - PADDING - TOOLTIP_GAP;
 
-        if (placement === 'left' && spaceLeft < tooltip.width) {
-          placement = spaceRight >= tooltip.width ? 'right' : 'bottom';
-        } else if (placement === 'right' && spaceRight < tooltip.width) {
-          placement = spaceLeft >= tooltip.width ? 'left' : 'bottom';
-        } else if (placement === 'top' && spaceTop < tooltip.height) {
-          placement = spaceBottom >= tooltip.height ? 'bottom' : 'right';
-        } else if (placement === 'bottom' && spaceBottom < tooltip.height) {
-          placement = spaceTop >= tooltip.height ? 'top' : 'right';
+        if (placement === "left" && spaceLeft < tooltip.width) {
+          placement = spaceRight >= tooltip.width ? "right" : "bottom";
+        } else if (placement === "right" && spaceRight < tooltip.width) {
+          placement = spaceLeft >= tooltip.width ? "left" : "bottom";
+        } else if (placement === "top" && spaceTop < tooltip.height) {
+          placement = spaceBottom >= tooltip.height ? "bottom" : "right";
+        } else if (placement === "bottom" && spaceBottom < tooltip.height) {
+          placement = spaceTop >= tooltip.height ? "top" : "right";
         }
       }
 
-      if (placement === 'bottom') {
+      if (placement === "bottom") {
         top = rect.bottom + PADDING + TOOLTIP_GAP;
         if (!isMobile) left = rect.left + rect.width / 2 - tooltip.width / 2;
-        setArrowDirection('top');
-      } else if (placement === 'top') {
+        setArrowDirection("top");
+      } else if (placement === "top") {
         top = rect.top - PADDING - TOOLTIP_GAP - tooltip.height;
         if (!isMobile) left = rect.left + rect.width / 2 - tooltip.width / 2;
-        setArrowDirection('bottom');
-      } else if (placement === 'left') {
+        setArrowDirection("bottom");
+      } else if (placement === "left") {
         top = rect.top + rect.height / 2 - tooltip.height / 2;
         left = rect.left - PADDING - TOOLTIP_GAP - tooltip.width;
-        setArrowDirection('right');
-      } else if (placement === 'right') {
+        setArrowDirection("right");
+      } else if (placement === "right") {
         top = rect.top + rect.height / 2 - tooltip.height / 2;
         left = rect.right + PADDING + TOOLTIP_GAP;
-        setArrowDirection('left');
+        setArrowDirection("left");
       }
 
-      // Clamp to viewport
-      top = Math.max(VIEWPORT_MARGIN, Math.min(vh - tooltip.height - VIEWPORT_MARGIN, top));
-      left = Math.max(VIEWPORT_MARGIN, Math.min(vw - tooltip.width - VIEWPORT_MARGIN, left));
+      top = Math.max(
+        VIEWPORT_MARGIN,
+        Math.min(vh - tooltip.height - VIEWPORT_MARGIN, top),
+      );
+      left = Math.max(
+        VIEWPORT_MARGIN,
+        Math.min(vw - tooltip.width - VIEWPORT_MARGIN, left),
+      );
 
-      setTooltipStyle({ position: 'fixed', top, left });
+      setTooltipStyle({ position: "fixed", top, left });
 
-      // Position arrow
       const arrowPos: React.CSSProperties = {};
-      if (placement === 'bottom' || placement === 'top') {
-        const arrowLeft = Math.max(16, Math.min(tooltip.width - 16, rect.left + rect.width / 2 - left));
+      if (placement === "bottom" || placement === "top") {
+        const arrowLeft = Math.max(
+          16,
+          Math.min(tooltip.width - 16, rect.left + rect.width / 2 - left),
+        );
         arrowPos.left = arrowLeft;
       } else {
-        const arrowTop = Math.max(16, Math.min(tooltip.height - 16, rect.top + rect.height / 2 - top));
+        const arrowTop = Math.max(
+          16,
+          Math.min(tooltip.height - 16, rect.top + rect.height / 2 - top),
+        );
         arrowPos.top = arrowTop;
       }
       setArrowStyle(arrowPos);
     });
   }, [stepData]);
 
-  // Update positions on step change, resize, scroll
   useLayoutEffect(() => {
     if (!isTourActive || !stepData) return;
 
-    // Delay to allow sidebar panels to open, then recalculate after transitions settle
     const timer1 = setTimeout(() => {
       updatePosition();
       setVisible(true);
@@ -156,7 +175,10 @@ export default function OnboardingTour({
       updatePosition();
     }, 400);
 
-    return () => { clearTimeout(timer1); clearTimeout(timer2); };
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
   }, [isTourActive, stepData, currentStep, updatePosition]);
 
   useEffect(() => {
@@ -168,33 +190,30 @@ export default function OnboardingTour({
     const handleResize = () => updatePosition();
     const handleScroll = () => updatePosition();
 
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("scroll", handleScroll, true);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", handleScroll, true);
     };
   }, [isTourActive, updatePosition]);
 
-  // Escape key to dismiss
   useEffect(() => {
     if (!isTourActive) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onSkip();
+      if (e.key === "Escape") onSkip();
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isTourActive, onSkip]);
 
-  // Focus the Next button when step changes
   useEffect(() => {
     if (isTourActive && visible) {
       setTimeout(() => nextBtnRef.current?.focus(), 200);
     }
   }, [isTourActive, visible, currentStep]);
 
-  // Reset visibility on step change for smooth transition
   useEffect(() => {
     if (isTourActive) {
       setVisible(false);
@@ -208,16 +227,11 @@ export default function OnboardingTour({
 
   return (
     <>
-      {/* Transparent click-away backdrop */}
-      <div
-        className="fixed inset-0 z-[200]"
-        onClick={onSkip}
-      />
+      <div className="fixed inset-0 z-[200]" onClick={onSkip} />
 
-      {/* Highlight ring around target element */}
       {targetRect && (
         <div
-          className={`fixed z-[200] pointer-events-none rounded-lg border-2 border-[#111]/40 dark:border-white/40 transition-all duration-300 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
+          className={`fixed z-[200] pointer-events-none rounded-lg border-2 border-[var(--ink-deep)]/40 dark:border-white/40 transition-all duration-300 ease-out ${visible ? "opacity-100" : "opacity-0"}`}
           style={{
             top: targetRect.top - PADDING,
             left: targetRect.left - PADDING,
@@ -227,119 +241,124 @@ export default function OnboardingTour({
         />
       )}
 
-      {/* Tooltip */}
       <div
         ref={tooltipRef}
         role="dialog"
         aria-modal="true"
         aria-label={`Onboarding tour step ${currentStep + 1} of ${totalSteps}`}
-        className={`fixed z-[201] w-[300px] max-w-[calc(100vw-32px)] bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl border border-[#111]/40 dark:border-white/40 p-4 transition-all duration-150 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        className={`fixed z-[201] w-[300px] max-w-[calc(100vw-32px)] bg-white dark:bg-[var(--ink)] rounded-xl shadow-2xl border border-[var(--ink-deep)]/40 dark:border-white/40 p-4 transition-all duration-150 ${visible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
         style={tooltipStyle}
       >
-        {/* Arrow — border layer (matches tooltip border) */}
         <div
           className="absolute w-0 h-0"
           style={{
             ...arrowStyle,
-            ...(arrowDirection === 'top' && {
+            ...(arrowDirection === "top" && {
               top: -7,
-              borderLeft: '7px solid transparent',
-              borderRight: '7px solid transparent',
-              borderBottom: '7px solid var(--tour-border-color)',
-              transform: 'translateX(-7px)',
+              borderLeft: "7px solid transparent",
+              borderRight: "7px solid transparent",
+              borderBottom: "7px solid var(--tour-border-color)",
+              transform: "translateX(-7px)",
             }),
-            ...(arrowDirection === 'bottom' && {
+            ...(arrowDirection === "bottom" && {
               bottom: -7,
-              borderLeft: '7px solid transparent',
-              borderRight: '7px solid transparent',
-              borderTop: '7px solid var(--tour-border-color)',
-              transform: 'translateX(-7px)',
+              borderLeft: "7px solid transparent",
+              borderRight: "7px solid transparent",
+              borderTop: "7px solid var(--tour-border-color)",
+              transform: "translateX(-7px)",
             }),
-            ...(arrowDirection === 'left' && {
+            ...(arrowDirection === "left" && {
               left: -7,
-              borderTop: '7px solid transparent',
-              borderBottom: '7px solid transparent',
-              borderRight: '7px solid var(--tour-border-color)',
-              transform: 'translateY(-7px)',
+              borderTop: "7px solid transparent",
+              borderBottom: "7px solid transparent",
+              borderRight: "7px solid var(--tour-border-color)",
+              transform: "translateY(-7px)",
             }),
-            ...(arrowDirection === 'right' && {
+            ...(arrowDirection === "right" && {
               right: -7,
-              borderTop: '7px solid transparent',
-              borderBottom: '7px solid transparent',
-              borderLeft: '7px solid var(--tour-border-color)',
-              transform: 'translateY(-7px)',
+              borderTop: "7px solid transparent",
+              borderBottom: "7px solid transparent",
+              borderLeft: "7px solid var(--tour-border-color)",
+              transform: "translateY(-7px)",
             }),
-          }}
-        />
-        {/* Arrow — fill layer (background color) */}
-        <div
-          className="absolute w-0 h-0"
-          style={{
-            ...arrowStyle,
-            ...(arrowDirection === 'top' && {
-              top: -5,
-              borderLeft: '6px solid transparent',
-              borderRight: '6px solid transparent',
-              borderBottom: '6px solid var(--arrow-color, white)',
-              transform: 'translateX(-6px)',
-            }),
-            ...(arrowDirection === 'bottom' && {
-              bottom: -5,
-              borderLeft: '6px solid transparent',
-              borderRight: '6px solid transparent',
-              borderTop: '6px solid var(--arrow-color, white)',
-              transform: 'translateX(-6px)',
-            }),
-            ...(arrowDirection === 'left' && {
-              left: -5,
-              borderTop: '6px solid transparent',
-              borderBottom: '6px solid transparent',
-              borderRight: '6px solid var(--arrow-color, white)',
-              transform: 'translateY(-6px)',
-            }),
-            ...(arrowDirection === 'right' && {
-              right: -5,
-              borderTop: '6px solid transparent',
-              borderBottom: '6px solid transparent',
-              borderLeft: '6px solid var(--arrow-color, white)',
-              transform: 'translateY(-6px)',
-            }),
-            // @ts-expect-error CSS custom property
-            '--arrow-color': 'var(--tour-arrow-bg)',
           }}
         />
 
-        {/* Header */}
+        <div
+          className="absolute w-0 h-0"
+          style={{
+            ...arrowStyle,
+            ...(arrowDirection === "top" && {
+              top: -5,
+              borderLeft: "6px solid transparent",
+              borderRight: "6px solid transparent",
+              borderBottom: "6px solid var(--arrow-color, white)",
+              transform: "translateX(-6px)",
+            }),
+            ...(arrowDirection === "bottom" && {
+              bottom: -5,
+              borderLeft: "6px solid transparent",
+              borderRight: "6px solid transparent",
+              borderTop: "6px solid var(--arrow-color, white)",
+              transform: "translateX(-6px)",
+            }),
+            ...(arrowDirection === "left" && {
+              left: -5,
+              borderTop: "6px solid transparent",
+              borderBottom: "6px solid transparent",
+              borderRight: "6px solid var(--arrow-color, white)",
+              transform: "translateY(-6px)",
+            }),
+            ...(arrowDirection === "right" && {
+              right: -5,
+              borderTop: "6px solid transparent",
+              borderBottom: "6px solid transparent",
+              borderLeft: "6px solid var(--arrow-color, white)",
+              transform: "translateY(-6px)",
+            }),
+            // @ts-expect-error CSS custom property
+            "--arrow-color": "var(--tour-arrow-bg)",
+          }}
+        />
+
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-400 dark:text-[#737373]">
+          <span className="text-xs text-gray-400 dark:text-[var(--clay-muted)]">
             Step {currentStep + 1} of {totalSteps}
           </span>
           <button
             onClick={onSkip}
-            className="p-1 -m-1 text-gray-400 hover:text-gray-600 dark:text-[#737373] dark:hover:text-[#d4d4d4] transition-colors"
+            className="p-1 -m-1 text-gray-400 hover:text-gray-600 dark:text-[var(--clay-muted)] dark:hover:text-[var(--clay)] transition-colors"
             aria-label="Close tour"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.6}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
 
-        {/* Content */}
-        <h3 className="text-sm font-bold text-gray-900 dark:text-[#f5f5f5] mb-1">
+        <h3 className="text-sm font-bold text-gray-900 dark:text-[var(--paper)] mb-1">
           {stepData.title}
         </h3>
-        <p className="text-sm text-gray-600 dark:text-[#d4d4d4] mb-4 leading-relaxed">
+        <p className="text-sm text-gray-600 dark:text-[var(--clay)] mb-4 leading-relaxed">
           {stepData.description}
         </p>
 
-        {/* Navigation */}
         <div className="flex items-center justify-between">
           <div>
             {!isFirstStep && (
               <button
                 onClick={onPrev}
-                className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#a3a3a3] dark:hover:text-[#e5e5e5] transition-colors"
+                className="text-sm text-gray-500 hover:text-gray-700 dark:text-[var(--clay-muted)] dark:hover:text-[var(--paper)] transition-colors"
               >
                 Back
               </button>
@@ -349,7 +368,7 @@ export default function OnboardingTour({
             {!isLastStep && (
               <button
                 onClick={onSkip}
-                className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#a3a3a3] dark:hover:text-[#e5e5e5] transition-colors"
+                className="text-sm text-gray-500 hover:text-gray-700 dark:text-[var(--clay-muted)] dark:hover:text-[var(--paper)] transition-colors"
               >
                 Skip
               </button>
@@ -357,15 +376,14 @@ export default function OnboardingTour({
             <button
               ref={nextBtnRef}
               onClick={onNext}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-[#111] hover:bg-gray-800 dark:hover:bg-[#e5e5e5] transition-colors"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] hover:bg-gray-800 dark:hover:bg-[var(--paper)] transition-colors"
             >
-              {isLastStep ? 'Done' : 'Next'}
+              {isLastStep ? "Done" : "Next"}
             </button>
           </div>
         </div>
       </div>
 
-      {/* CSS custom properties for arrow colors */}
       <style jsx global>{`
         :root {
           --tour-arrow-bg: white;

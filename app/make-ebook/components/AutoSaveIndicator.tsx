@@ -45,7 +45,7 @@ export function AutoSaveIndicator({
     }
     return (
       <div
-        className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[#262626] text-125 text-gray-500 dark:text-[#a3a3a3]"
+        className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] text-125 text-gray-500 dark:text-[var(--clay-muted)]"
         title="Saving..."
       >
         <Spinner size="md" />
@@ -67,7 +67,7 @@ export function AutoSaveIndicator({
     }
     return (
       <div
-        className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[#262626] text-125 text-gray-500 dark:text-[#a3a3a3]"
+        className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] text-125 text-gray-500 dark:text-[var(--clay-muted)]"
         title="Unsaved changes"
       >
         <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
@@ -109,7 +109,7 @@ export function AutoSaveIndicator({
     }
     return (
       <div
-        className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[#262626] text-125 text-gray-500 dark:text-[#a3a3a3]"
+        className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] text-125 text-gray-500 dark:text-[var(--clay-muted)]"
         title={titleText}
       >
         {hasCloudSync ? (

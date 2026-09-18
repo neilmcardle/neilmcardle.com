@@ -54,7 +54,7 @@ export function Modal({
       aria-label={label}
     >
       <div
-        className={`me-rise-in flex flex-col w-full ${WIDTHS[width]} max-h-[90vh] overflow-hidden bg-white dark:bg-[#1c1c1c] rounded-modal border border-gray-200 dark:border-white/10 shadow-modal ${className}`}
+        className={`me-rise-in flex flex-col w-full ${WIDTHS[width]} max-h-[90vh] overflow-hidden bg-white dark:bg-[var(--ink-panel)] rounded-modal border border-gray-200 dark:border-white/10 shadow-modal ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}
@@ -78,11 +78,11 @@ export function ModalHeader({
   return (
     <div className="flex-shrink-0 flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200 dark:border-white/10">
       <div className="min-w-0">
-        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-[#f5f5f5] truncate">
+        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-[var(--paper)] truncate">
           {title}
         </h2>
         {subtitle && (
-          <p className="text-11 text-gray-500 dark:text-[#a3a3a3] mt-0.5">
+          <p className="text-11 text-gray-500 dark:text-[var(--clay-muted)] mt-0.5">
             {subtitle}
           </p>
         )}
@@ -94,7 +94,7 @@ export function ModalHeader({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="p-2 rounded-control text-gray-500 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors duration-[var(--me-dur-fast)]"
+            className="p-2 rounded-control text-gray-500 dark:text-[var(--clay-muted)] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors duration-[var(--me-dur-fast)]"
           >
             <svg
               className="w-4 h-4"

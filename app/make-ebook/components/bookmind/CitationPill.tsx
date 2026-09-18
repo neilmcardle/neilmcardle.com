@@ -1,8 +1,5 @@
 "use client";
 
-// A compact clickable chapter reference. Navigation is delegated to the
-// parent via a callback so the pill is reusable across surfaces.
-
 import React from "react";
 
 interface CitationPillProps {
@@ -28,7 +25,7 @@ export default function CitationPill({
     <button
       type="button"
       onClick={handleClick}
-      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#008ff0]/10 dark:bg-[#008ff0]/15 text-[#008ff0] hover:bg-[#008ff0]/15 dark:hover:bg-[#008ff0]/25 transition-colors text-[11px] font-medium align-baseline"
+      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--paper)]/10 dark:bg-[var(--paper)]/15 text-[var(--acid)] hover:bg-[var(--paper)]/15 dark:hover:bg-[var(--paper)]/25 transition-colors text-[11px] font-medium align-baseline"
       title={`Jump to ${label}`}
     >
       <svg

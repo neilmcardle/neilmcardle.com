@@ -62,11 +62,11 @@ function Tab({
     >
       {tab === "bookmind" ? (
         <BookMindMark
-          className={`w-[18px] h-[18px] ${active ? "text-gray-900 dark:text-[#f5f5f5]" : "text-gray-400 dark:text-[#737373]"}`}
+          className={`w-[18px] h-[18px] ${active ? "text-gray-900 dark:text-[var(--paper)]" : "text-gray-400 dark:text-[var(--clay-muted)]"}`}
         />
       ) : (
         <svg
-          className={`w-5 h-5 ${active ? "text-gray-900 dark:text-[#f5f5f5]" : "text-gray-400 dark:text-[#737373]"}`}
+          className={`w-5 h-5 ${active ? "text-gray-900 dark:text-[var(--paper)]" : "text-gray-400 dark:text-[var(--clay-muted)]"}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -81,8 +81,8 @@ function Tab({
       <span
         className={`text-[10px] leading-none ${
           active
-            ? "font-semibold text-gray-900 dark:text-[#f5f5f5]"
-            : "text-gray-400 dark:text-[#737373]"
+            ? "font-semibold text-gray-900 dark:text-[var(--paper)]"
+            : "text-gray-400 dark:text-[var(--clay-muted)]"
         }`}
       >
         {LABELS[tab]}
@@ -113,7 +113,7 @@ export default function MobileTabBar({
   return (
     <nav
       aria-label="Editor sections"
-      className="fixed bottom-0 left-0 right-0 z-[90] bg-gray-50 dark:bg-[#151515] border-t border-gray-200 dark:border-[#2a2a2a]"
+      className="fixed bottom-0 left-0 right-0 z-[90] bg-gray-50 dark:bg-[var(--ink)] border-t border-gray-200 dark:border-[var(--rule)]"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div
@@ -125,7 +125,7 @@ export default function MobileTabBar({
         {activeIndex >= 0 && (
           <span
             aria-hidden="true"
-            className="absolute top-1.5 h-14 rounded-[10px] bg-gray-100 dark:bg-[#262626] transition-transform duration-[var(--me-dur-slow)] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
+            className="absolute top-1.5 h-14 rounded-[10px] bg-gray-100 dark:bg-[var(--ink-raised)] transition-transform duration-[var(--me-dur-slow)] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
             style={{
               left: 8,
               width: `calc((100% - 16px - ${(tabs.length - 1) * 4}px) / ${tabs.length})`,

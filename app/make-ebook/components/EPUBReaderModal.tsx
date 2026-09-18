@@ -110,13 +110,13 @@ export default function EPUBReaderModal({
 
   return (
     <div className="fixed inset-0 z-[10000] bg-black/50 backdrop-blur-sm flex items-center justify-center me-fade-in">
-      <div className="absolute top-0 left-0 right-0 h-16 bg-[#f0eee6]/95 dark:bg-[#1e1e1e]/90 backdrop-blur-sm border-b border-[#e4e4de] dark:border-[#333] flex items-center justify-between px-6 z-10">
-        <h2 className="text-lg font-semibold text-[#141413] dark:text-white">
+      <div className="absolute top-0 left-0 right-0 h-16 bg-[var(--paper)]/95 dark:bg-[var(--ink)]/90 backdrop-blur-sm border-b border-[var(--clay)] dark:border-[var(--rule)] flex items-center justify-between px-6 z-10">
+        <h2 className="text-lg font-semibold text-[var(--ink)] dark:text-white">
           {bookTitle || "EPUB Preview"}
         </h2>
         <button
           onClick={onClose}
-          className="px-4 py-2 text-sm font-medium text-[#141413] dark:text-white hover:bg-[#e9e8e4] dark:hover:bg-white/10 rounded-lg transition-colors"
+          className="px-4 py-2 text-sm font-medium text-[var(--ink)] dark:text-white hover:bg-[var(--paper)] dark:hover:bg-white/10 rounded-lg transition-colors"
         >
           Close
         </button>
@@ -125,33 +125,33 @@ export default function EPUBReaderModal({
       <div className="w-full h-full pt-16 pb-20">
         <div
           ref={viewerRef}
-          className={`w-full h-full bg-[#faf9f5] dark:bg-white ${error ? "hidden" : ""}`}
+          className={`w-full h-full bg-[var(--paper)] dark:bg-white ${error ? "hidden" : ""}`}
           style={{ maxWidth: "800px", margin: "0 auto" }}
         />
         {error && (
           <div className="flex flex-col items-center justify-center h-full gap-3 px-8 text-center">
-            <p className="text-sm font-medium text-[#141413] dark:text-white">
+            <p className="text-sm font-medium text-[var(--ink)] dark:text-white">
               This preview could not be opened.
             </p>
-            <p className="text-11 text-[#141413]/60 dark:text-[#a3a3a3] max-w-sm">
+            <p className="text-11 text-[var(--ink)]/60 dark:text-[var(--clay-muted)] max-w-sm">
               {error}
             </p>
-            <p className="text-11 text-[#141413]/60 dark:text-[#a3a3a3]">
+            <p className="text-11 text-[var(--ink)]/60 dark:text-[var(--clay-muted)]">
               Your download is unaffected. The file itself is fine.
             </p>
           </div>
         )}
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f0eee6]/95 dark:bg-[#1e1e1e]/90 backdrop-blur-sm border-t border-[#e4e4de] dark:border-[#333] flex items-center justify-center gap-4 z-10">
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-[var(--paper)]/95 dark:bg-[var(--ink)]/90 backdrop-blur-sm border-t border-[var(--clay)] dark:border-[var(--rule)] flex items-center justify-center gap-4 z-10">
         <button
           onClick={handlePrevPage}
           disabled={!isReady || !canGoPrev}
-          className="px-6 py-3 bg-[#141413] dark:bg-white text-[#faf9f5] dark:text-[#111] rounded-lg font-medium hover:bg-[#141413]/80 dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-6 py-3 bg-[var(--ink)] dark:bg-white text-[var(--paper)] dark:text-[var(--ink-deep)] rounded-lg font-medium hover:bg-[var(--ink)]/80 dark:hover:bg-[var(--paper)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           ← Previous
         </button>
-        <div className="text-sm text-[#141413]/60 dark:text-[#a3a3a3]">
+        <div className="text-sm text-[var(--ink)]/60 dark:text-[var(--clay-muted)]">
           {error
             ? "Preview unavailable"
             : isReady
@@ -161,7 +161,7 @@ export default function EPUBReaderModal({
         <button
           onClick={handleNextPage}
           disabled={!isReady || !canGoNext}
-          className="px-6 py-3 bg-[#141413] dark:bg-white text-[#faf9f5] dark:text-[#111] rounded-lg font-medium hover:bg-[#141413]/80 dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-6 py-3 bg-[var(--ink)] dark:bg-white text-[var(--paper)] dark:text-[var(--ink-deep)] rounded-lg font-medium hover:bg-[var(--ink)]/80 dark:hover:bg-[var(--paper)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           Next →
         </button>
