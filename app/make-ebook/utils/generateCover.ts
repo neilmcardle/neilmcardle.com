@@ -5,6 +5,7 @@ export interface CoverPalette {
 }
 
 export const COVER_PALETTES: CoverPalette[] = [
+  { name: "makeebook yellow", bg: "#deea53", fg: "#0b0b0b" },
   { name: "Midnight", bg: "#1a2540", fg: "#f5ecd5" },
   { name: "Cinnabar", bg: "#7a1a1a", fg: "#f5e8c7" },
   { name: "Vellum", bg: "#f0e9da", fg: "#3a2d14" },

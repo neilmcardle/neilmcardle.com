@@ -7,6 +7,7 @@ import {
   generateCoverDataUrl,
   type CoverPalette,
 } from "../../utils/generateCover";
+import studio from "../../styles/studio.module.css";
 
 interface GenerateCoverModalProps {
   open: boolean;
@@ -94,31 +95,32 @@ export default function GenerateCoverModal({
               />
             )}
           </div>
-          <p className="mt-2 text-center text-xs text-gray-500 dark:text-[var(--clay-muted)] font-medium">
+          <p className="mt-2 text-center text-xs text-[var(--clay-muted)] font-medium">
             {selected.name}
           </p>
         </div>
 
         <div className="flex-1">
-          <div className="text-xs font-medium text-gray-700 dark:text-[var(--clay-muted)] mb-3">
-            Colour
-          </div>
-          <div className="grid grid-cols-6 sm:grid-cols-4 gap-2">
-            {COVER_PALETTES.map((palette) => {
+          {(() => {
+            const [house, ...classics] = COVER_PALETTES;
+            const swatch = (palette: CoverPalette, featured = false) => {
               const active = palette.name === selected.name;
               return (
                 <button
                   key={palette.name}
                   type="button"
                   onClick={() => setSelected(palette)}
-                  className={`relative aspect-[2/3] rounded transition-all overflow-hidden ${
-                    active
-                      ? "ring-2 ring-offset-2 ring-[var(--ink)] dark:ring-white dark:ring-offset-[var(--ink)] scale-[1.03]"
-                      : "hover:scale-[1.02]"
-                  }`}
-                  style={{ background: palette.bg }}
+                  aria-pressed={active}
                   aria-label={palette.name}
                   title={palette.name}
+                  className={`relative aspect-[2/3] rounded-[3px] transition-transform overflow-hidden ${
+                    featured ? "w-14 flex-shrink-0" : ""
+                  } ${
+                    active
+                      ? "ring-2 ring-offset-2 ring-[var(--paper)] ring-offset-[var(--ink-panel)] scale-[1.03]"
+                      : "hover:scale-[1.03]"
+                  }`}
+                  style={{ background: palette.bg }}
                 >
                   <span
                     className="absolute left-1 top-0 bottom-0 w-px"
@@ -126,11 +128,32 @@ export default function GenerateCoverModal({
                   />
                 </button>
               );
-            })}
-          </div>
+            };
+            return (
+              <>
+                <div className="flex items-center gap-4 mb-5">
+                  {swatch(house, true)}
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-medium text-[var(--paper)]">
+                      makeebook yellow
+                    </p>
+                    <p className="text-[11.5px] text-[var(--clay-muted)] mt-1">
+                      The house cover. Black type on Finish Acid.
+                    </p>
+                  </div>
+                </div>
+                <div className="text-[11.5px] font-medium text-[var(--clay-muted)] mb-3">
+                  Or a classic
+                </div>
+                <div className="grid grid-cols-6 sm:grid-cols-4 gap-2">
+                  {classics.map((palette) => swatch(palette))}
+                </div>
+              </>
+            );
+          })()}
 
           {(!title || !author) && (
-            <p className="mt-4 text-xs text-amber-700 dark:text-[var(--warning)]">
+            <p className="mt-4 text-xs text-[var(--warning)]">
               {!title && !author
                 ? "Add a title and author to the Book panel for a better cover."
                 : !title
@@ -141,19 +164,11 @@ export default function GenerateCoverModal({
         </div>
       </div>
 
-      <ModalFooter className="bg-gray-50 dark:bg-white/[0.02]">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[var(--clay)] hover:text-[var(--ink-deep)] dark:hover:text-white transition-colors"
-        >
+      <ModalFooter>
+        <button type="button" onClick={onClose} className={studio.quiet}>
           Cancel
         </button>
-        <button
-          type="button"
-          onClick={handleAccept}
-          className="px-5 py-2 text-sm font-semibold bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--rule)] rounded-full transition-colors"
-        >
+        <button type="button" onClick={handleAccept} className={studio.acid}>
           Use this cover
         </button>
       </ModalFooter>
