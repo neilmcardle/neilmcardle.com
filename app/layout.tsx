@@ -7,6 +7,7 @@ import { THEME_SCRIPT } from "@/components/home/theme";
 import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";
 import {
+  Archivo,
   Cantarell,
   Cormorant_Garamond,
   Inter,
@@ -57,6 +58,14 @@ const cormorant = Cormorant_Garamond({
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
+  display: "swap",
+  preload: false,
+});
+
+const archivo = Archivo({
+  subsets: ["latin"],
+  axes: ["wdth"],
+  variable: "--font-archivo",
   display: "swap",
   preload: false,
 });
@@ -148,7 +157,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable} ${cormorant.variable} ${libreBaskerville.variable}`}
+      className={`${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable} ${cormorant.variable} ${libreBaskerville.variable} ${archivo.variable}`}
       suppressHydrationWarning
     >
       <head>

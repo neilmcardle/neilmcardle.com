@@ -1604,22 +1604,24 @@
 .cvLockup {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
   color: #f3f2ee;
 }
 
 .cvLockup svg {
-  width: 34px;
-  height: 34px;
+  width: 82px;
+  height: auto;
 }
 
 .cvLockup > span {
-  font-size: 1.75rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-family: var(--font-archivo), "Archivo", system-ui, sans-serif;
+  font-stretch: 72%;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   line-height: 1;
 }
 
@@ -1804,7 +1806,7 @@
 }
 
 .cvDotDim {
-  opacity: 0.22;
+  opacity: 0.4;
 }
 
 @media (prefers-reduced-motion: reduce) {
