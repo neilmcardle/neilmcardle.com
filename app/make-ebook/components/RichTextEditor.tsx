@@ -51,7 +51,7 @@ type FormatState = Record<string, boolean>;
 
 const BTN =
   "w-full px-2 py-2 text-sm font-medium rounded border border-[var(--rule)] bg-white hover:bg-[var(--ink-raised)] transition disabled:opacity-50 disabled:cursor-not-allowed overflow-visible";
-const BTN_ACTIVE = "bg-[var(--ink-raised)] shadow-inner";
+const BTN_ACTIVE = "bg-[var(--paper)] text-[var(--ink-deep)]";
 
 const INLINE = [
   { cmd: "bold", label: "B", title: "Bold" },
@@ -1168,8 +1168,8 @@ export default function RichTextEditor({
                   disabled={disabled}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-[0.96] transition-transform touch-manipulation ${
                     formats[b.cmd]
-                      ? "bg-[var(--paper)]/15 dark:bg-[var(--paper)]/20 text-[var(--acid)]"
-                      : "bg-gray-100 dark:bg-[var(--ink)] text-gray-700 dark:text-[var(--clay)]"
+                      ? "bg-[var(--paper)] text-[var(--ink-deep)]"
+                      : "bg-transparent text-[var(--clay)]"
                   } ${b.className || ""}`}
                 >
                   {b.label}
@@ -1198,7 +1198,7 @@ export default function RichTextEditor({
                     disabled={disabled}
                     className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold transition-colors touch-manipulation ${
                       active
-                        ? "bg-gray-200 dark:bg-[var(--ink-hover)] text-gray-900 dark:text-white"
+                        ? "bg-[var(--paper)] text-[var(--ink-deep)]"
                         : "text-gray-500 dark:text-[var(--clay-muted)] hover:text-gray-700 dark:hover:text-[var(--clay)]"
                     }`}
                   >
@@ -1221,8 +1221,8 @@ export default function RichTextEditor({
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
                   formats["justifyLeft"]
-                    ? "bg-[var(--paper)]/15 dark:bg-[var(--paper)]/20"
-                    : "bg-gray-100 dark:bg-[var(--ink)]"
+                    ? "bg-[var(--paper)] text-[var(--ink-deep)]"
+                    : "bg-transparent"
                 }`}
               >
                 <img
@@ -1233,11 +1233,7 @@ export default function RichTextEditor({
                   style={{
                     borderRadius: 0,
                     boxShadow: "none",
-                    filter: formats["justifyLeft"]
-                      ? "invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)"
-                      : theme === "dark"
-                        ? "invert(1)"
-                        : "invert(0)",
+                    filter: formats["justifyLeft"] ? "invert(0)" : "invert(1)",
                   }}
                 />
               </button>
@@ -1251,8 +1247,8 @@ export default function RichTextEditor({
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
                   formats["justifyCenter"]
-                    ? "bg-[var(--paper)]/15 dark:bg-[var(--paper)]/20"
-                    : "bg-gray-100 dark:bg-[var(--ink)]"
+                    ? "bg-[var(--paper)] text-[var(--ink-deep)]"
+                    : "bg-transparent"
                 }`}
               >
                 <img
@@ -1264,10 +1260,8 @@ export default function RichTextEditor({
                     borderRadius: 0,
                     boxShadow: "none",
                     filter: formats["justifyCenter"]
-                      ? "invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)"
-                      : theme === "dark"
-                        ? "invert(1)"
-                        : "invert(0)",
+                      ? "invert(0)"
+                      : "invert(1)",
                   }}
                 />
               </button>
@@ -1281,8 +1275,8 @@ export default function RichTextEditor({
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
                   formats["justifyRight"]
-                    ? "bg-[var(--paper)]/15 dark:bg-[var(--paper)]/20"
-                    : "bg-gray-100 dark:bg-[var(--ink)]"
+                    ? "bg-[var(--paper)] text-[var(--ink-deep)]"
+                    : "bg-transparent"
                 }`}
               >
                 <img
@@ -1293,11 +1287,7 @@ export default function RichTextEditor({
                   style={{
                     borderRadius: 0,
                     boxShadow: "none",
-                    filter: formats["justifyRight"]
-                      ? "invert(35%) sepia(100%) saturate(500%) hue-rotate(200deg)"
-                      : theme === "dark"
-                        ? "invert(1)"
-                        : "invert(0)",
+                    filter: formats["justifyRight"] ? "invert(0)" : "invert(1)",
                   }}
                 />
               </button>
@@ -1463,7 +1453,7 @@ export default function RichTextEditor({
                 aria-label="Insert link"
                 type="button"
                 disabled={disabled}
-                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
+                className="w-9 h-9 rounded-lg bg-transparent flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
               >
                 <Image
                   src="/link-icon.svg"
@@ -1482,7 +1472,7 @@ export default function RichTextEditor({
                 aria-label="Insert anchor"
                 type="button"
                 disabled={disabled}
-                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
+                className="w-9 h-9 rounded-lg bg-transparent flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
               >
                 <Image
                   src="/anchor-icon.svg"
@@ -1561,7 +1551,7 @@ export default function RichTextEditor({
                     setShowMoreMenu(false);
                   }}
                   disabled={!onCreateEndnote}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-[var(--ink-raised)] disabled:opacity-50"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-transparent text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-[var(--ink-raised)] disabled:opacity-50"
                 >
                   <Image
                     src="/endnote-icon.svg"
@@ -1580,7 +1570,7 @@ export default function RichTextEditor({
                     handleAnchorClick();
                     setShowMoreMenu(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-[var(--ink-raised)]"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-transparent text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-[var(--ink-raised)]"
                 >
                   <Image
                     src="/anchor-icon.svg"
@@ -1599,7 +1589,7 @@ export default function RichTextEditor({
                     handleImageButtonClick();
                     setShowMoreMenu(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-[var(--ink-raised)]"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-transparent text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-[var(--ink-raised)]"
                 >
                   <img
                     src="/image-icon.svg"
@@ -1618,8 +1608,8 @@ export default function RichTextEditor({
                   }}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium active:bg-[var(--ink-raised)] ${
                     formats["heading3"]
-                      ? "bg-[var(--ink-raised)] dark:bg-white text-white dark:text-[var(--ink-raised)]"
-                      : "bg-gray-100 dark:bg-[var(--ink)] text-gray-700 dark:text-[var(--clay)]"
+                      ? "bg-[var(--paper)] text-[var(--ink-deep)]"
+                      : "bg-transparent text-[var(--clay)]"
                   }`}
                 >
                   H3
@@ -1636,7 +1626,7 @@ export default function RichTextEditor({
                   focusEditor();
                   document.execCommand("undo");
                 }}
-                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)]"
+                className="w-9 h-9 rounded-lg bg-transparent flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)]"
                 title="Undo"
               >
                 <Image
@@ -1654,7 +1644,7 @@ export default function RichTextEditor({
                   focusEditor();
                   document.execCommand("redo");
                 }}
-                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)]"
+                className="w-9 h-9 rounded-lg bg-transparent flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)]"
                 title="Redo"
               >
                 <Image
@@ -1678,8 +1668,8 @@ export default function RichTextEditor({
                   onClick={() => applyInlineOrAlign(b.cmd)}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-[0.96] transition-transform ${
                     formats[b.cmd]
-                      ? "bg-[var(--ink-raised)] dark:bg-white text-white dark:text-[var(--ink-raised)]"
-                      : "bg-gray-100 dark:bg-[var(--ink)] text-gray-700 dark:text-[var(--clay)]"
+                      ? "bg-[var(--paper)] text-[var(--ink-deep)]"
+                      : "bg-transparent text-[var(--clay)]"
                   } ${b.className || ""}`}
                   title={b.title}
                 >
@@ -1698,8 +1688,8 @@ export default function RichTextEditor({
                   onClick={() => applyHeading(h.level)}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-[0.96] transition-transform ${
                     formats[`heading${h.level}`]
-                      ? "bg-[var(--ink-raised)] dark:bg-white text-white dark:text-[var(--ink-raised)]"
-                      : "bg-gray-100 dark:bg-[var(--ink)] text-gray-700 dark:text-[var(--clay)]"
+                      ? "bg-[var(--paper)] text-[var(--ink-deep)]"
+                      : "bg-transparent text-[var(--clay)]"
                   }`}
                   title={h.title}
                 >
@@ -1717,7 +1707,7 @@ export default function RichTextEditor({
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
                   formats["justifyLeft"]
                     ? "bg-[var(--ink-raised)] dark:bg-white"
-                    : "bg-gray-100 dark:bg-[var(--ink)]"
+                    : "bg-transparent"
                 }`}
                 title="Align Left"
               >
@@ -1744,7 +1734,7 @@ export default function RichTextEditor({
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
                   formats["justifyCenter"]
                     ? "bg-[var(--ink-raised)] dark:bg-white"
-                    : "bg-gray-100 dark:bg-[var(--ink)]"
+                    : "bg-transparent"
                 }`}
                 title="Align Center"
               >
@@ -1771,7 +1761,7 @@ export default function RichTextEditor({
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
                   formats["justifyRight"]
                     ? "bg-[var(--ink-raised)] dark:bg-white"
-                    : "bg-gray-100 dark:bg-[var(--ink)]"
+                    : "bg-transparent"
                 }`}
                 title="Align Right"
               >
@@ -1799,7 +1789,7 @@ export default function RichTextEditor({
             <button
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => handleLinkClick()}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)] flex-shrink-0"
+              className="w-9 h-9 rounded-lg bg-transparent flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)] flex-shrink-0"
               title="Insert Link"
             >
               <Image
@@ -1820,7 +1810,7 @@ export default function RichTextEditor({
                 emitChange();
                 refreshStates();
               }}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)] flex-shrink-0"
+              className="w-9 h-9 rounded-lg bg-transparent flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)] flex-shrink-0"
               title="Remove all formatting (bold, italic, etc.)"
             >
               <img
@@ -1837,7 +1827,7 @@ export default function RichTextEditor({
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform flex-shrink-0 ${
                 showMoreMenu
                   ? "bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400"
-                  : "bg-gray-100 dark:bg-[var(--ink)] text-gray-700 dark:text-[var(--clay)]"
+                  : "bg-transparent text-[var(--clay)]"
               }`}
               title="More options"
             >

@@ -41,7 +41,7 @@ import EditorLeftNav from "./components/EditorLeftNav";
 import CollapsibleSection from "./components/CollapsibleSection";
 import MobileTabBar from "./components/mobile/MobileTabBar";
 import ChaptersSheet from "./components/mobile/ChaptersSheet";
-import ChapterPositionBar from "./components/mobile/ChapterPositionBar";
+import { ChapterIndexDrawer } from "./components/ChapterIndex";
 import ChaptersPanel from "./components/sidebar/ChaptersPanel";
 import LibraryPanel from "./components/sidebar/LibraryPanel";
 import BookDetailsPanel from "./components/sidebar/BookDetailsPanel";
@@ -1894,8 +1894,8 @@ function MakeEbookPage() {
                 />
               ) : (
                 <>
-                  <ChapterPositionBar
-                    count={chapters.length}
+                  <ChapterIndexDrawer
+                    chapters={chapters}
                     selectedChapter={selectedChapter}
                     onSelectChapter={handleSelectChapter}
                   />

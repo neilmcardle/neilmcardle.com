@@ -2,7 +2,7 @@
 
 import React from "react";
 import BookMindAgent from "./BookMindAgent";
-import ChapterScrollRail from "./ChapterScrollRail";
+import { ChapterIndex } from "./ChapterIndex";
 import PreviewSurface from "./PreviewSurface";
 import ChapterPanel, { sectionLabelFor } from "./ChapterPanel";
 import styles from "../styles/studio.module.css";
@@ -166,7 +166,7 @@ export default function EditorCanvas({
   return (
     <>
       <div className="w-full flex-1 min-h-0 flex">
-        <ChapterScrollRail
+        <ChapterIndex
           chapters={chapters}
           selectedChapter={selectedChapter}
           onSelectChapter={onChapterSelect}
