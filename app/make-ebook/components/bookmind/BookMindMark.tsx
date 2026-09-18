@@ -8,11 +8,17 @@ interface BookMindMarkProps {
   thinking?: boolean;
 }
 
+const BALL_STOPS = [
+  { offset: 0, color: "#ffffff" },
+  { offset: 0.504808, color: "#deea53" },
+  { offset: 0.774038, color: "#a7b03e" },
+  { offset: 1, color: "#51533e" },
+];
+
 const EYE_STOPS = [
   { offset: 0, color: "#ffffff" },
-  { offset: 0.505, color: "#deea53" },
-  { offset: 0.774, color: "#a7b03e" },
-  { offset: 1, color: "#51533e" },
+  { offset: 0.100962, color: "#ffffff" },
+  { offset: 0.605769, color: "#000000" },
 ];
 
 export default function BookMindMark({
@@ -40,7 +46,7 @@ export default function BookMindMark({
     <svg
       className={`${styles.mindMark} ${className ?? ""}`}
       data-state={state}
-      viewBox="0 0 176 176"
+      viewBox="0 0 180 180"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
@@ -52,15 +58,15 @@ export default function BookMindMark({
           cy="0"
           r="1"
           gradientUnits="userSpaceOnUse"
-          gradientTransform="translate(88 34.2222) rotate(90) scale(128.278)"
+          gradientTransform="translate(90 72.875) rotate(90) scale(97.625)"
         >
-          <stop stopColor="#565656" />
-          <stop offset="0.485577" stopColor="#444444" />
-          <stop offset="0.951923" stopColor="#000000" />
+          {BALL_STOPS.map((s) => (
+            <stop key={s.offset} offset={s.offset} stopColor={s.color} />
+          ))}
         </radialGradient>
         {[
-          ["l", "translate(92.6096 79.4821)"],
-          ["r", "translate(137.064 73.1804)"],
+          ["l", "translate(94.6096 79.4821)"],
+          ["r", "translate(139.064 73.1804)"],
         ].map(([side, at]) => (
           <radialGradient
             key={side}
@@ -94,27 +100,33 @@ export default function BookMindMark({
         </filter>
       </defs>
       <g className={styles.mindBall}>
-        <circle cx="88" cy="88" r="88" fill={`url(#${id}-ball)`} />
+        <circle
+          cx="90"
+          cy="88"
+          r="88"
+          fill={`url(#${id}-ball)`}
+          filter={`url(#${id}-shade)`}
+        />
         <g className={styles.mindEyes}>
           <g className={styles.mindEye} filter={`url(#${id}-shade)`}>
             <rect
-              x="81.1096"
+              x="83.1096"
               y="63.3336"
               width="23"
               height="39"
               rx="11.5"
-              transform="rotate(-4.05442 81.1096 63.3336)"
+              transform="rotate(-4.05442 83.1096 63.3336)"
               fill={`url(#${id}-eye-l)`}
             />
           </g>
           <g className={styles.mindEye} filter={`url(#${id}-shade)`}>
             <rect
-              x="125.564"
+              x="127.564"
               y="57.032"
               width="23"
               height="39"
               rx="11.5"
-              transform="rotate(-12.8462 125.564 57.032)"
+              transform="rotate(-12.8462 127.564 57.032)"
               fill={`url(#${id}-eye-r)`}
             />
           </g>

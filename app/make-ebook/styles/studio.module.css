@@ -3044,11 +3044,11 @@ button:focus-visible > .avatar {
 }
 
 .mindBall {
-  transform-origin: 88px 176px;
+  transform-origin: 90px 176px;
 }
 
 .mindEyes {
-  transform-origin: 115px 80px;
+  transform-origin: 117px 80px;
   animation: mind-glance 9s var(--ease) infinite;
 }
 
