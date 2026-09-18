@@ -1,13 +1,19 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 
-export type ColumnWidth = "narrow" | "normal" | "full";
-export type AmbientSound = "none" | "pink-noise" | "rain-light" | "rain-medium" | "waves" | "fire" | "train" | "custom";
+export type AmbientSound =
+  | "none"
+  | "pink-noise"
+  | "rain-light"
+  | "rain-medium"
+  | "waves"
+  | "fire"
+  | "train"
+  | "custom";
 
 export interface FocusSettings {
-  hideChrome: boolean;     // sidebar + status bar
-  hideToolbar: boolean;    // formatting toolbar in the editor
-  columnWidth: ColumnWidth;
+  hideChrome: boolean;
+  hideToolbar: boolean;
   typewriterMode: boolean;
   paragraphFocus: boolean;
   fullScreen: boolean;
@@ -18,7 +24,6 @@ export interface FocusSettings {
 const DEFAULTS: FocusSettings = {
   hideChrome: true,
   hideToolbar: false,
-  columnWidth: "full",
   typewriterMode: true,
   paragraphFocus: false,
   fullScreen: true,
@@ -32,7 +37,6 @@ export function useFocusMode() {
   const [active, setActive] = useState(false);
   const [settings, setSettings] = useState<FocusSettings>(DEFAULTS);
 
-  // Load persisted settings on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -40,14 +44,16 @@ export function useFocusMode() {
     } catch {}
   }, []);
 
-  // Persist settings whenever they change
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     } catch {}
   }, [settings]);
 
-  function setSetting<K extends keyof FocusSettings>(key: K, value: FocusSettings[K]) {
+  function setSetting<K extends keyof FocusSettings>(
+    key: K,
+    value: FocusSettings[K],
+  ) {
     setSettings((prev) => ({ ...prev, [key]: value }));
   }
 
@@ -62,7 +68,6 @@ export function useFocusMode() {
     setActive((prev) => !prev);
   }, []);
 
-  // Enter / exit fullscreen in sync with the setting + focus active state
   useEffect(() => {
     if (active && settings.fullScreen) {
       if (!document.fullscreenElement) {
@@ -75,7 +80,6 @@ export function useFocusMode() {
     }
   }, [active, settings.fullScreen]);
 
-  // Sync fullScreen setting back when the browser exits fullscreen (e.g. user presses Esc)
   useEffect(() => {
     function handleFsChange() {
       if (!document.fullscreenElement && settings.fullScreen) {
@@ -83,14 +87,18 @@ export function useFocusMode() {
       }
     }
     document.addEventListener("fullscreenchange", handleFsChange);
-    return () => document.removeEventListener("fullscreenchange", handleFsChange);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFsChange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings.fullScreen]);
 
-  // Keyboard: ⌘⇧F toggles, Escape exits
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "f") {
+      if (
+        (e.metaKey || e.ctrlKey) &&
+        e.shiftKey &&
+        e.key.toLowerCase() === "f"
+      ) {
         e.preventDefault();
         toggleFocusMode();
         return;

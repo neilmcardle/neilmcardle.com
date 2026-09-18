@@ -884,21 +884,6 @@ html.dark .ProseMirror p.is-editor-empty:first-child::before {
   transition: opacity 0.2s ease;
 }
 
-/* Column widths */
-.focus-col-narrow {
-  max-width: 600px;
-  margin-inline: auto;
-  width: 100%;
-}
-
-.focus-col-normal {
-  max-width: 800px;
-  margin-inline: auto;
-  width: 100%;
-}
-
-/* focus-col-full = default layout, no class needed */
-
 /* Hide chrome (sidebar / status bar) */
 .focus-hide-chrome {
   opacity: 0;

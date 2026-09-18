@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type {
-  FocusSettings,
-  ColumnWidth,
-  AmbientSound,
-} from "../hooks/useFocusMode";
+import type { FocusSettings, AmbientSound } from "../hooks/useFocusMode";
 import styles from "../styles/studio.module.css";
 
 interface Props {
@@ -55,11 +51,6 @@ const SOUNDS: {
     label: "Pink noise",
     path: "M2 10h2l2-4 2 8 2-10 2 12 2-8 2 4h2",
   },
-];
-
-const COLUMNS: { value: ColumnWidth; label: string }[] = [
-  { value: "normal", label: "Normal" },
-  { value: "full", label: "Full" },
 ];
 
 function Switch({
@@ -146,23 +137,6 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
             checked={settings.hideChrome}
             onChange={(v) => onChangeSetting("hideChrome", v)}
           />
-          <div className={styles.focusRow}>
-            <span className={styles.focusRowLabel}>Column</span>
-            <div className={styles.seg} role="group" aria-label="Column width">
-              {COLUMNS.map(({ value, label }) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={settings.columnWidth === value}
-                  className={`${styles.segItem} ${settings.columnWidth === value ? styles.segActive : ""}`}
-                  onClick={() => onChangeSetting("columnWidth", value)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <p className={`${styles.micro} ${styles.focusSection}`}>Writing</p>
           <Switch
             label="Typewriter mode"

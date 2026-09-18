@@ -136,12 +136,6 @@ export default function EditorCanvas({
           data-tour="editor"
           className={[
             "w-full flex-1 min-h-0 flex flex-col transition-all duration-300",
-            focus.active && focus.settings.columnWidth === "narrow"
-              ? "focus-col-narrow"
-              : "",
-            focus.active && focus.settings.columnWidth === "normal"
-              ? "focus-col-normal"
-              : "",
             focus.active && focus.settings.paragraphFocus
               ? "paragraph-focus"
               : "",
