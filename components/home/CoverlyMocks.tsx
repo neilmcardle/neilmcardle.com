@@ -1,6 +1,11 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import {
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type PointerEvent,
+} from "react";
 import { COVERLY_COVERS, COVERLY_PALETTE } from "./coverlyCovers";
 import { LOGOMARK_PATH, LOGOMARK_VIEWBOX } from "@/app/coverly/logomark";
 import { motionEnabled, subscribeMotion } from "./motion";
@@ -56,7 +61,7 @@ export default function CoverlyMocks() {
       <Wall moving={moving} />
       <Ribbon />
       <Fan moving={moving} />
-      <ColourMap />
+      <Views />
     </div>
   );
 }
@@ -129,34 +134,43 @@ function Ribbon() {
   );
   const left = ((hover + 0.5) / stripes.length) * 100;
 
+  const pick = (event: PointerEvent<HTMLDivElement>) => {
+    const box = event.currentTarget.getBoundingClientRect();
+    const ratio = (event.clientX - box.left) / box.width;
+    const next = Math.min(
+      stripes.length - 1,
+      Math.max(0, Math.floor(ratio * stripes.length)),
+    );
+    if (next !== hover) setHover(next);
+  };
+
   return (
     <div className={styles.cvRibbonTile}>
       <div className={styles.cvShelf}>
-        {
-          <span
-            key={active.cover.src}
-            className={styles.cvPulled}
-            style={{
-              left: `${left}%`,
-              backgroundImage: `url(${active.cover.src})`,
-              backgroundColor: active.cover.color,
-            }}
-            role="img"
-            aria-label={`${active.cover.title} by ${active.cover.author}`}
-          />
-        }
+        <span
+          key={active.cover.src}
+          className={styles.cvPulled}
+          style={{
+            left: `${left}%`,
+            backgroundImage: `url(${active.cover.src})`,
+            backgroundColor: active.cover.color,
+          }}
+          role="img"
+          aria-label={`${active.cover.title} by ${active.cover.author}`}
+        />
       </div>
       <div
         className={styles.cvRibbon}
         role="img"
         aria-label="Book covers ordered by hue"
+        onPointerDown={pick}
+        onPointerMove={pick}
       >
         {stripes.map((stripe, i) => (
           <span
             key={`${stripe.color}-${i}`}
             className={`${styles.cvStripe} ${hover === i ? styles.cvStripeUp : ""}`}
             style={{ background: stripe.color }}
-            onPointerEnter={() => setHover(i)}
           />
         ))}
       </div>
@@ -203,70 +217,58 @@ function Fan({ moving }: { moving: boolean }) {
   );
 }
 
-function ColourMap() {
-  const [hover, setHover] = useState<number | null>(null);
-
-  const dots = useMemo(
-    () =>
-      COVERLY_PALETTE.map((color, i) => {
-        const { h, l } = hsl(color);
-        return { color, i, hue: h, x: 3 + (h / 360) * 94, y: 92 - l * 76 };
-      }),
-    [],
-  );
-  const covers = useMemo(
-    () => COVERLY_COVERS.map((cover) => ({ cover, hue: hsl(cover.color).h })),
-    [],
-  );
-  const active = hover === null ? null : dots[hover];
-  const preview = active
-    ? covers.reduce((best, item) =>
-        Math.abs(item.hue - active.hue) < Math.abs(best.hue - active.hue)
-          ? item
-          : best,
-      ).cover
-    : null;
+function Views() {
+  const [view, setView] = useState<"grid" | "shelf">("shelf");
+  const grid = COVERLY_COVERS.slice(8, 20);
+  const shelves = [COVERLY_COVERS.slice(20, 26), COVERLY_COVERS.slice(26, 32)];
 
   return (
-    <div className={styles.cvMapTile}>
-      <p className={styles.cvMapHead}>
-        <span>Every cover, plotted by colour</span>
-        <span>{active ? active.color : "hover a dot"}</span>
-      </p>
-      <div className={styles.cvMap} onPointerLeave={() => setHover(null)}>
-        <span className={styles.cvAxis} style={{ left: 10, top: 8 }}>
-          light
-        </span>
-        <span className={styles.cvAxis} style={{ left: 10, bottom: 8 }}>
-          dark
-        </span>
-        <span className={styles.cvAxis} style={{ right: 10, bottom: 8 }}>
-          hue
-        </span>
-        {dots.map((dot) => (
-          <span
-            key={`${dot.color}-${dot.i}`}
-            className={`${styles.cvDot} ${active && active.i !== dot.i ? styles.cvDotDim : ""}`}
-            style={{
-              left: `${dot.x}%`,
-              top: `${dot.y}%`,
-              background: dot.color,
-            }}
-            onPointerEnter={() => setHover(dot.i)}
-          />
+    <div className={styles.cvViews}>
+      <div className={styles.cvSeg} role="group" aria-label="View">
+        {(["grid", "shelf"] as const).map((option) => (
+          <button
+            key={option}
+            type="button"
+            aria-pressed={view === option}
+            className={`${styles.cvSegItem} ${view === option ? styles.cvSegOn : ""}`}
+            onClick={() => setView(option)}
+          >
+            {option === "grid" ? "Grid" : "Bookshelf"}
+          </button>
         ))}
-        {active && preview && (
-          <span
-            className={styles.cvMapPreview}
-            style={{
-              left: `${Math.min(88, Math.max(12, active.x))}%`,
-              top: `${active.y}%`,
-              backgroundImage: `url(${preview.src})`,
-              backgroundColor: preview.color,
-            }}
-            role="img"
-            aria-label={preview.title}
-          />
+      </div>
+      <div className={styles.cvViewsBody}>
+        {view === "grid" ? (
+          <div className={styles.cvGrid}>
+            {grid.map((cover) => (
+              <span
+                key={cover.src}
+                className={styles.cvViewCover}
+                style={{
+                  backgroundImage: `url(${cover.src})`,
+                  backgroundColor: cover.color,
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className={styles.cvShelves}>
+            {shelves.map((row, r) => (
+              <div key={r} className={styles.cvShelfRow}>
+                {row.map((cover, i) => (
+                  <span
+                    key={cover.src}
+                    className={styles.cvViewCover}
+                    style={{
+                      width: `${12 + ((i * 5 + r * 3) % 5)}%`,
+                      backgroundImage: `url(${cover.src})`,
+                      backgroundColor: cover.color,
+                    }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
