@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
 import styles from "./home.module.css";
 
 const EYES = [
@@ -6,11 +6,54 @@ const EYES = [
   { x: 127.6, y: 57, rotate: -12.85, cx: 139.1, cy: 73.2 },
 ];
 
+const REACH_X = 30;
+const REACH_Y = 22;
+const EYE_X = 117;
+const EYE_Y = 80;
+
 export default function CurlMind() {
   const id = useId().replace(/:/g, "");
+  const svgRef = useRef<SVGSVGElement>(null);
+  const eyesRef = useRef<SVGGElement>(null);
+
+  useEffect(() => {
+    const svg = svgRef.current;
+    const eyes = eyesRef.current;
+    if (!svg || !eyes) return;
+    let frame = 0;
+    let pointer: { x: number; y: number } | null = null;
+
+    const look = () => {
+      frame = 0;
+      if (!pointer) return;
+      const box = svg.getBoundingClientRect();
+      const scale = box.width / 180;
+      const dx = pointer.x - (box.left + EYE_X * scale);
+      const dy = pointer.y - (box.top + EYE_Y * scale);
+      const distance = Math.hypot(dx, dy) || 1;
+      const pull = Math.min(1, distance / 160);
+      const x = (dx / distance) * REACH_X * pull;
+      const y = (dy / distance) * REACH_Y * pull;
+      eyes.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+      eyes.dataset.tracking = "true";
+    };
+
+    const move = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+      pointer = { x: event.clientX, y: event.clientY };
+      if (!frame) frame = requestAnimationFrame(look);
+    };
+
+    window.addEventListener("pointermove", move);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
 
   return (
     <svg
+      ref={svgRef}
       className={styles.curlMind}
       viewBox="0 0 180 180"
       fill="none"
@@ -47,7 +90,7 @@ export default function CurlMind() {
         ))}
       </defs>
       <circle cx="90" cy="88" r="88" fill={`url(#${id}-ball)`} />
-      <g className={styles.curlMindEyes}>
+      <g ref={eyesRef} className={styles.curlMindEyes}>
         {EYES.map((eye, i) => (
           <g key={i} className={styles.curlMindEye}>
             <rect
