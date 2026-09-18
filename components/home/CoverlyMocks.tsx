@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { COVERLY_COVERS, COVERLY_PALETTE } from "./coverlyCovers";
-import { COVERLY_MARK } from "./ProductBadge";
+import { LOGOMARK_PATH, LOGOMARK_VIEWBOX } from "@/app/coverly/logomark";
 import { motionEnabled, subscribeMotion } from "./motion";
 import styles from "./home.module.css";
 
@@ -94,8 +94,8 @@ function Wall({ moving }: { moving: boolean }) {
       </div>
       <span className={styles.cvVignette} aria-hidden="true" />
       <span className={styles.cvLockup}>
-        <svg viewBox="0 0 63 63" aria-hidden="true">
-          <path d={COVERLY_MARK} fill="currentColor" />
+        <svg viewBox={LOGOMARK_VIEWBOX} aria-hidden="true">
+          <path d={LOGOMARK_PATH} fill="currentColor" />
         </svg>
         <span>coverly</span>
       </span>
