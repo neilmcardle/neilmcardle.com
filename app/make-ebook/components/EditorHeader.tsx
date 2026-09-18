@@ -5,8 +5,8 @@ import { SaveIcon } from "./icons";
 import AutoSaveIndicator from "./AutoSaveIndicator";
 import ChapterNavDropdown from "./ChapterNavDropdown";
 import ModeMenu from "./ModeMenu";
-import LayoutSwitcher, { RightPanelMode } from "./LayoutSwitcher";
 import { useIsMac } from "./PlatformKey";
+import styles from "../styles/studio.module.css";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,8 +48,8 @@ export interface EditorHeaderProps {
   flowMode: boolean;
   onToggleFlowMode: () => void;
 
-  rightPanelMode: RightPanelMode;
-  onRightPanelModeChange: (mode: RightPanelMode) => void;
+  surfaceMode: "edit" | "preview";
+  onSurfaceModeChange: (mode: "edit" | "preview") => void;
 
   onExportEPUB: () => void;
   onExportPDF: () => void;
@@ -76,8 +76,8 @@ export default function EditorHeader({
   onToggleFocusMode,
   flowMode,
   onToggleFlowMode,
-  rightPanelMode,
-  onRightPanelModeChange,
+  surfaceMode,
+  onSurfaceModeChange,
   onExportEPUB,
   onExportPDF,
   onExportDocx,
@@ -122,10 +122,19 @@ export default function EditorHeader({
           flowMode={flowMode}
           onToggleFlow={onToggleFlowMode}
         />
-        <LayoutSwitcher
-          mode={rightPanelMode}
-          onChange={onRightPanelModeChange}
-        />
+        <div className={styles.seg} role="group" aria-label="View">
+          {(["edit", "preview"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              aria-pressed={surfaceMode === m}
+              className={`${styles.segItem} ${surfaceMode === m ? styles.segActive : ""}`}
+              onClick={() => onSurfaceModeChange(m)}
+            >
+              {m === "edit" ? "Edit" : "Preview"}
+            </button>
+          ))}
+        </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

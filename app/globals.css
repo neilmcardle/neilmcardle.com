@@ -122,8 +122,8 @@ body,
 /* Dark mode base styles */
 html.dark body,
 html.dark .bg-app {
-  background: #0f0f0f;
-  color: #e5e5e5;
+  background: var(--ink);
+  color: var(--clay);
 }
 
 html.dark {

@@ -5,6 +5,7 @@ import { LockIcon } from "./icons";
 import RichTextEditor from "./RichTextEditor";
 import BookMindAgent from "./BookMindAgent";
 import ChapterScrollRail from "./ChapterScrollRail";
+import PreviewSurface from "./PreviewSurface";
 import type { FocusSettings as FocusModeSettings } from "../hooks/useFocusMode";
 import { ModKey } from "./PlatformKey";
 
@@ -38,6 +39,7 @@ interface FocusState {
 interface EditorCanvasProps {
   chapters: Chapter[];
   selectedChapter: number;
+  mode: "edit" | "preview";
   onChapterTitleChange: (index: number, title: string) => void;
   onChapterContentChange: (index: number, html: string) => void;
   onChapterSelect?: (index: number) => void;
@@ -67,6 +69,7 @@ interface EditorCanvasProps {
 export default function EditorCanvas({
   chapters,
   selectedChapter,
+  mode,
   onChapterTitleChange,
   onChapterContentChange,
   onChapterSelect,
@@ -92,6 +95,77 @@ export default function EditorCanvas({
 
   const chapterWordCount =
     bookStats.chapterStats?.[selectedChapter]?.wordCount ?? 0;
+
+  const footer = (
+    <div className="flex-shrink-0 flex items-center justify-between px-6 py-2 border-t border-gray-100 dark:border-gray-800/50">
+      <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-400">
+        {onBookMindHistory && (
+          <button
+            onClick={onBookMindHistory}
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors flex-shrink-0"
+            title="History"
+            aria-label="Recent conversations"
+          >
+            <svg
+              className="w-4 h-4 text-gray-500 dark:text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.8}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </button>
+        )}
+        <span className="flex items-center gap-2">
+          <span className="text-gray-300 dark:text-gray-500">Chapter:</span>
+          <span className="tabular-nums">
+            {chapterWordCount.toLocaleString()} words
+          </span>
+        </span>
+        <span className="text-gray-300 dark:text-gray-600">|</span>
+        <span className="flex items-center gap-2">
+          <span className="text-gray-300 dark:text-gray-500">Book:</span>
+          <span className="tabular-nums">
+            {bookStats.totalWords.toLocaleString()} words
+          </span>
+        </span>
+        {sessionStats.wordsThisSession > 0 && (
+          <>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <span className="text-green-500/70 dark:text-green-500/50 tabular-nums">
+              +{sessionStats.wordsThisSession.toLocaleString()} this session
+            </span>
+          </>
+        )}
+        {todayWords > 0 && (
+          <>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <span className="text-gray-500 dark:text-gray-400 tabular-nums">
+              {todayWords.toLocaleString()} today
+            </span>
+          </>
+        )}
+      </div>
+
+      {onOpenBookMind && (
+        <BookMindAgent isLoading={isBookMindLoading} onOpen={onOpenBookMind} />
+      )}
+    </div>
+  );
+
+  if (mode === "preview") {
+    return (
+      <>
+        <PreviewSurface chapters={chapters} selectedChapter={selectedChapter} />
+        {footer}
+      </>
+    );
+  }
 
   return (
     <>
@@ -201,71 +275,7 @@ export default function EditorCanvas({
             />
           </div>
 
-          <div className="flex-shrink-0 flex items-center justify-between px-6 py-2 border-t border-gray-100 dark:border-gray-800/50">
-            <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-400">
-              {onBookMindHistory && (
-                <button
-                  onClick={onBookMindHistory}
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors flex-shrink-0"
-                  title="History"
-                  aria-label="Recent conversations"
-                >
-                  <svg
-                    className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.8}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </button>
-              )}
-              <span className="flex items-center gap-2">
-                <span className="text-gray-300 dark:text-gray-500">
-                  Chapter:
-                </span>
-                <span className="tabular-nums">
-                  {chapterWordCount.toLocaleString()} words
-                </span>
-              </span>
-              <span className="text-gray-300 dark:text-gray-600">|</span>
-              <span className="flex items-center gap-2">
-                <span className="text-gray-300 dark:text-gray-500">Book:</span>
-                <span className="tabular-nums">
-                  {bookStats.totalWords.toLocaleString()} words
-                </span>
-              </span>
-              {sessionStats.wordsThisSession > 0 && (
-                <>
-                  <span className="text-gray-300 dark:text-gray-600">|</span>
-                  <span className="text-green-500/70 dark:text-green-500/50 tabular-nums">
-                    +{sessionStats.wordsThisSession.toLocaleString()} this
-                    session
-                  </span>
-                </>
-              )}
-              {todayWords > 0 && (
-                <>
-                  <span className="text-gray-300 dark:text-gray-600">|</span>
-                  <span className="text-gray-500 dark:text-gray-400 tabular-nums">
-                    {todayWords.toLocaleString()} today
-                  </span>
-                </>
-              )}
-            </div>
-
-            {onOpenBookMind && (
-              <BookMindAgent
-                isLoading={isBookMindLoading}
-                onOpen={onOpenBookMind}
-              />
-            )}
-          </div>
+          {footer}
         </div>
       </div>
     </>

@@ -3,7 +3,6 @@
 import React from "react";
 import SlimSidebarNav from "./SlimSidebarNav";
 import CollapsibleSidebar from "./CollapsibleSidebar";
-import type { RightPanelMode } from "./LayoutSwitcher";
 import type { BookRecord } from "../types";
 
 interface Chapter {
@@ -32,7 +31,7 @@ export interface EditorLeftNavProps {
   onLogoClick: () => void;
   onStartTour: () => void;
   onBookMindToggle: () => void;
-  rightPanelMode: RightPanelMode;
+  isBookMindOpen: boolean;
 
   libraryBooks: Book[];
   selectedBookId: string | null;
@@ -126,7 +125,7 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         onLogoClick={props.onLogoClick}
         onStartTour={props.onStartTour}
         onBookMindToggle={props.onBookMindToggle}
-        isBookMindOpen={props.rightPanelMode === "inspector"}
+        isBookMindOpen={props.isBookMindOpen}
         hasSyncConflicts={props.syncConflicts.length > 0}
       />
 
