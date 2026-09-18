@@ -3265,9 +3265,6 @@ function MakeEbookPage() {
                   onPasteManuscript={handlePasteManuscript}
                   onUploadFile={docImport.showImportDialog}
                   onOpenLibrary={() => setMobileSidebarOpen(true)}
-                  libraryBooks={libraryBooks}
-                  libraryLoading={libraryLoading}
-                  onOpenBook={(id) => library.handleLoadBook(id)}
                 />
               ) : surfaceMode === "preview" ? (
                 <PreviewSurface
@@ -3378,9 +3375,6 @@ function MakeEbookPage() {
                   onPasteManuscript={handlePasteManuscript}
                   onUploadFile={docImport.showImportDialog}
                   onOpenLibrary={() => setSidebarView("library")}
-                  libraryBooks={libraryBooks}
-                  libraryLoading={libraryLoading}
-                  onOpenBook={(id) => library.handleLoadBook(id)}
                 />
               ) : (
                 <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2 bg-white dark:bg-[var(--ink)]">
