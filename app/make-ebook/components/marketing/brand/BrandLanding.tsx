@@ -1,6 +1,8 @@
 "use client";
 
 import type React from "react";
+import { useState } from "react";
+import { track } from "@vercel/analytics";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
@@ -71,6 +73,7 @@ const PLANS = [
     ],
     cta: "Start free",
     primary: false,
+    checkout: undefined,
   },
   {
     name: "Pro",
@@ -83,6 +86,7 @@ const PLANS = [
     ],
     cta: "Start with Pro",
     primary: true,
+    checkout: { endpoint: "/api/checkout", tier: "pro" },
   },
   {
     name: "Lifetime",
@@ -94,8 +98,71 @@ const PLANS = [
     ],
     cta: "Buy Lifetime",
     primary: false,
+    checkout: { endpoint: "/api/checkout-lifetime", tier: "lifetime" },
   },
 ];
+
+function PlanButton({
+  label,
+  primary,
+  checkout,
+  onStartWriting,
+}: {
+  label: string;
+  primary: boolean;
+  checkout?: { endpoint: string; tier: string };
+  onStartWriting: () => void;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const start = async () => {
+    if (!checkout) {
+      onStartWriting();
+      return;
+    }
+    track("checkout_started", { tier: checkout.tier, from: "landing" });
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(checkout.endpoint, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.url) {
+        throw new Error(data.error || "Checkout could not start.");
+      }
+      window.location.href = data.url;
+    } catch (err) {
+      setError(
+        err instanceof Error && err.message === "Already subscribed to Pro"
+          ? "You already have Pro."
+          : "Checkout could not start. Try again in a moment.",
+      );
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        className={`${primary ? landing.acid : landing.btn} ${landing.planCta}`}
+        onClick={start}
+        disabled={loading}
+        aria-busy={loading || undefined}
+      >
+        {loading ? "Opening checkout" : label}
+      </button>
+      {error && (
+        <p className={landing.planError} role="alert">
+          {error}
+        </p>
+      )}
+    </>
+  );
+}
 
 type CardLink = {
   label: string;
@@ -481,13 +548,12 @@ export default function BrandLanding({
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
-                  <button
-                    type="button"
-                    className={`${plan.primary ? landing.acid : landing.btn} ${landing.planCta}`}
-                    onClick={onStartWriting}
-                  >
-                    {plan.cta}
-                  </button>
+                  <PlanButton
+                    label={plan.cta}
+                    primary={plan.primary}
+                    checkout={plan.checkout}
+                    onStartWriting={onStartWriting}
+                  />
                 </div>
               ))}
             </div>
