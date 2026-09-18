@@ -2579,42 +2579,69 @@
 }
 
 .chapterIndex {
+  --wheel-row: 30px;
+  --wheel-height: 330px;
   position: relative;
   display: flex;
   flex: none;
   align-items: center;
-  width: 136px;
-  padding: 24px 0 24px 20px;
+  width: 176px;
+  padding: 0 0 0 22px;
+  opacity: 0.55;
+  transition: opacity 220ms var(--ease);
+}
+
+.chapterIndex:hover,
+.chapterIndex:focus-within {
+  opacity: 1;
 }
 
 .indexList {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
   width: 100%;
-  max-height: 100%;
+  height: var(--wheel-height);
   margin: 0;
-  padding: 0;
+  padding: calc((var(--wheel-height) - var(--wheel-row)) / 2) 0;
   overflow-y: auto;
   list-style: none;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
   scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 32%,
+    #000 68%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 32%,
+    #000 68%,
+    transparent
+  );
 }
 
 .indexList::-webkit-scrollbar {
   display: none;
 }
 
+.indexList li {
+  scroll-snap-align: center;
+}
+
 .indexItem {
-  position: relative;
   display: flex;
   align-items: center;
   width: 100%;
-  height: 20px;
+  height: var(--wheel-row);
   padding: 0;
   border: 0;
   background: none;
   text-align: left;
   cursor: pointer;
+  transform-origin: left center;
+  will-change: transform, opacity;
 }
 
 .indexItem:focus-visible {
@@ -2623,83 +2650,46 @@
   border-radius: 3px;
 }
 
-.indexLine {
-  display: none;
-  flex: none;
-  width: 10px;
-  height: 2px;
-  border-radius: 2px;
-  background: rgba(243, 239, 229, 0.22);
-  transition:
-    width 220ms var(--ease),
-    background 220ms var(--ease);
-}
-
-.indexItemCurrent .indexLine {
-  width: 18px;
-  background: var(--paper);
-}
-
 .indexLabel {
   display: block;
   width: 100%;
   overflow: hidden;
   font-family: var(--font-ui);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 500;
   line-height: 1;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   white-space: nowrap;
-  color: var(--clay-muted);
-  opacity: 0.22;
-  -webkit-mask-image: linear-gradient(90deg, #000 72%, transparent);
-  mask-image: linear-gradient(90deg, #000 72%, transparent);
-  transition:
-    opacity 180ms var(--ease),
-    color 180ms var(--ease);
-}
-
-.indexItemCurrent .indexLabel {
-  opacity: 0.55;
-  color: var(--paper);
-}
-
-.indexProgress {
-  opacity: 0.4;
-  transition: opacity 180ms var(--ease);
-}
-
-.chapterIndex:hover .indexLabel,
-.chapterIndex:focus-within .indexLabel {
-  opacity: 0.6;
-}
-
-.chapterIndex:hover .indexItemCurrent .indexLabel,
-.chapterIndex:focus-within .indexItemCurrent .indexLabel,
-.chapterIndex .indexItem:hover .indexLabel {
-  opacity: 1;
-}
-
-.chapterIndex .indexItem:hover .indexLabel {
   color: var(--clay);
+  -webkit-mask-image: linear-gradient(90deg, #000 78%, transparent);
+  mask-image: linear-gradient(90deg, #000 78%, transparent);
+  transition: color 180ms var(--ease);
 }
 
-.chapterIndex .indexItemCurrent .indexLabel {
+.indexItem:hover .indexLabel,
+.indexItemCurrent .indexLabel {
   color: var(--paper);
 }
 
-.chapterIndex:hover .indexProgress,
-.chapterIndex:focus-within .indexProgress {
-  opacity: 1;
+.wheelBand {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  right: 0;
+  height: var(--wheel-row);
+  border-top: 1px solid rgba(243, 239, 229, 0.12);
+  border-bottom: 1px solid rgba(243, 239, 229, 0.12);
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .indexProgress {
   position: absolute;
   left: 0;
-  right: 18px;
-  bottom: 2px;
+  right: 0;
+  bottom: -1px;
   height: 1px;
-  background: color-mix(in srgb, var(--acid) 22%, transparent);
+  overflow: hidden;
 }
 
 .indexProgress span {
@@ -2710,74 +2700,9 @@
   transition: transform 120ms linear;
 }
 
-@media (max-width: 1279px) {
-  .chapterIndex {
-    width: 34px;
-    padding: 0 0 0 10px;
-  }
-
-  .indexList {
-    position: absolute;
-    top: 50%;
-    left: 4px;
-    z-index: 6;
-    width: 30px;
-    max-height: 80%;
-    padding: 10px 8px;
-    border: 1px solid transparent;
-    border-radius: 10px;
-    transform: translateY(-50%);
-    transition:
-      width 220ms var(--ease),
-      background 220ms var(--ease),
-      border-color 220ms var(--ease);
-  }
-
-  .indexLine {
-    display: block;
-  }
-
-  .indexLabel {
-    display: none;
-  }
-
-  .indexProgress {
-    display: none;
-  }
-
-  .chapterIndex:hover .indexList,
-  .chapterIndex:focus-within .indexList {
-    width: 220px;
-    border-color: rgba(243, 239, 229, 0.1);
-    background: var(--ink-popover);
-    box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.8);
-  }
-
-  .chapterIndex:hover .indexLine,
-  .chapterIndex:focus-within .indexLine {
-    display: none;
-  }
-
-  .chapterIndex:hover .indexLabel,
-  .chapterIndex:focus-within .indexLabel {
-    display: block;
-  }
-
-  .chapterIndex:hover .indexProgress,
-  .chapterIndex:focus-within .indexProgress {
-    display: block;
-  }
-}
-
 @media (max-width: 1023px) {
   .chapterIndex {
     display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .indexList {
-    transition: none;
   }
 }
 

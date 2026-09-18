@@ -61,62 +61,14 @@ function useEditorProgress(selectedChapter: number, count: number) {
   return { progress, scrollable };
 }
 
-function IndexList({
-  chapters,
-  selectedChapter,
-  onSelect,
-  progress,
-  scrollable,
-  className,
-}: {
-  chapters: IndexChapter[];
-  selectedChapter: number;
-  onSelect: (index: number) => void;
-  progress: number;
-  scrollable: boolean;
-  className: string;
-}) {
-  const listRef = useRef<HTMLOListElement>(null);
-
-  useEffect(() => {
-    const list = listRef.current;
-    const active = list?.querySelector<HTMLElement>('[aria-current="true"]');
-    if (!list || !active) return;
-    const top = active.offsetTop - list.offsetTop;
-    if (top < list.scrollTop) {
-      list.scrollTop = top;
-    } else if (top + active.offsetHeight > list.scrollTop + list.clientHeight) {
-      list.scrollTop = top + active.offsetHeight - list.clientHeight;
-    }
-  }, [selectedChapter]);
-
-  return (
-    <ol ref={listRef} className={className}>
-      {chapters.map((ch, i) => {
-        const current = i === selectedChapter;
-        const label = labelFor(chapters, i);
-        return (
-          <li key={ch.id}>
-            <button
-              type="button"
-              className={`${styles.indexItem} ${current ? styles.indexItemCurrent : ""}`}
-              aria-current={current ? "true" : undefined}
-              title={label}
-              onClick={() => onSelect(i)}
-            >
-              <span className={styles.indexLine} aria-hidden="true" />
-              <span className={styles.indexLabel}>{label}</span>
-              {current && scrollable && (
-                <span className={styles.indexProgress} aria-hidden="true">
-                  <span style={{ transform: `scaleX(${progress})` }} />
-                </span>
-              )}
-            </button>
-          </li>
-        );
-      })}
-    </ol>
-  );
+function paintWheel(list: HTMLOListElement, row: number) {
+  const offset = list.scrollTop / row;
+  const items = list.querySelectorAll<HTMLElement>("[data-wheel-item]");
+  items.forEach((item, i) => {
+    const d = Math.min(Math.abs(i - offset), 5);
+    item.style.transform = `scale(${1 - d * 0.085})`;
+    item.style.opacity = String(Math.max(0.1, 1 - d * 0.26));
+  });
 }
 
 export function ChapterIndex({
@@ -128,18 +80,129 @@ export function ChapterIndex({
     selectedChapter,
     chapters.length,
   );
+  const listRef = useRef<HTMLOListElement>(null);
+  const selectedRef = useRef(selectedChapter);
+  const targetRef = useRef<number | null>(null);
+  const mountedRef = useRef(false);
+  const onSelectRef = useRef(onSelectChapter);
+
+  useEffect(() => {
+    selectedRef.current = selectedChapter;
+    onSelectRef.current = onSelectChapter;
+  });
+
+  const rowHeight = () =>
+    listRef.current?.querySelector<HTMLElement>("[data-wheel-item]")
+      ?.offsetHeight || 30;
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const row = rowHeight();
+    const top = selectedChapter * row;
+    if (Math.abs(list.scrollTop - top) < 1) {
+      paintWheel(list, row);
+      mountedRef.current = true;
+      return;
+    }
+    targetRef.current = selectedChapter;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    list.scrollTo({
+      top,
+      behavior: mountedRef.current && !reduce ? "smooth" : "auto",
+    });
+    paintWheel(list, row);
+    mountedRef.current = true;
+  }, [selectedChapter, chapters.length]);
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    let frame = 0;
+    let settle: ReturnType<typeof setTimeout> | undefined;
+    const onScroll = () => {
+      const row = rowHeight();
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => paintWheel(list, row));
+      clearTimeout(settle);
+      settle = setTimeout(() => {
+        const index = Math.max(
+          0,
+          Math.min(
+            list.querySelectorAll("[data-wheel-item]").length - 1,
+            Math.round(list.scrollTop / row),
+          ),
+        );
+        if (targetRef.current !== null && targetRef.current === index) {
+          targetRef.current = null;
+          return;
+        }
+        targetRef.current = null;
+        if (index !== selectedRef.current) onSelectRef.current?.(index);
+      }, 160);
+    };
+    list.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      list.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+      clearTimeout(settle);
+    };
+  }, [chapters.length]);
+
   if (chapters.length < 2) return null;
 
+  const step = (delta: number) => {
+    const next = Math.max(
+      0,
+      Math.min(chapters.length - 1, selectedChapter + delta),
+    );
+    if (next !== selectedChapter) onSelectChapter?.(next);
+  };
+
   return (
-    <nav aria-label="Chapters" className={styles.chapterIndex}>
-      <IndexList
-        chapters={chapters}
-        selectedChapter={selectedChapter}
-        onSelect={(i) => onSelectChapter?.(i)}
-        progress={progress}
-        scrollable={scrollable}
-        className={styles.indexList}
-      />
+    <nav
+      aria-label="Chapters"
+      className={styles.chapterIndex}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          step(1);
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          step(-1);
+        }
+      }}
+    >
+      <span className={styles.wheelBand} aria-hidden="true">
+        {scrollable && (
+          <span className={styles.indexProgress}>
+            <span style={{ transform: `scaleX(${progress})` }} />
+          </span>
+        )}
+      </span>
+      <ol ref={listRef} className={styles.indexList}>
+        {chapters.map((ch, i) => {
+          const current = i === selectedChapter;
+          const label = labelFor(chapters, i);
+          return (
+            <li key={ch.id}>
+              <button
+                type="button"
+                data-wheel-item
+                className={`${styles.indexItem} ${current ? styles.indexItemCurrent : ""}`}
+                aria-current={current ? "true" : undefined}
+                tabIndex={current ? 0 : -1}
+                title={label}
+                onClick={() => onSelectChapter?.(i)}
+              >
+                <span className={styles.indexLabel}>{label}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
     </nav>
   );
 }
