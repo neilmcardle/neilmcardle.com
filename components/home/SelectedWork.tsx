@@ -7,6 +7,9 @@ import type { BadgeKey } from "./ProductBadge";
 import PinMark from "./PinMark";
 import CoverlyMocks from "./CoverlyMocks";
 import DoodleWireShots from "./DoodleWireShots";
+import dynamic from "next/dynamic";
+
+const SparkMocks = dynamic(() => import("./SparkMocks"), { ssr: false });
 import MakeEbookMocks from "./MakeEbookMocks";
 
 export type Feature = {
@@ -130,6 +133,8 @@ export function ProductDetail({ feature }: { feature: Feature }) {
           <CoverlyMocks />
         ) : feature.tileKey === "doodlewire" ? (
           <DoodleWireShots />
+        ) : feature.tileKey === "spark" ? (
+          <SparkMocks />
         ) : (
           <div className={styles.dockShot}>
             <HomepageProjectPreview

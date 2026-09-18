@@ -1527,6 +1527,60 @@
   }
 }
 
+.spStack {
+  --pad: var(--spark-pad);
+  --pad-deep: var(--spark-pad-deep);
+  --grid: var(--spark-grid);
+  --sheet: var(--spark-sheet);
+  --graphite: var(--spark-text);
+  --pencil: var(--spark-muted);
+  --faint: var(--spark-faint);
+  --rule: var(--spark-rule);
+  --arc: var(--spark-arc);
+  --arc-hover: var(--spark-arc-hover);
+  --arc-light: var(--spark-arc-light);
+  --editor: var(--spark-ink);
+  --editor-line: var(--spark-ink-line);
+  --editor-ink: #e8eedd;
+  --editor-dim: #5f665a;
+  --pass: var(--spark-pass);
+  --redline: var(--spark-redline);
+  --font-display: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-ui: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --ease: var(--spark-ease);
+  --cell: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--graphite);
+  font-family: var(--font-ui);
+}
+
+.spStack > * {
+  flex: none;
+}
+
+.spStack > .spIntro {
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+}
+
+.spStack .spGlyph {
+  height: 72px;
+}
+
+.spStack .spWord {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+}
+
+.spStack > .spStage {
+  min-height: 0;
+  padding: 20px;
+}
+
 .dwShots {
   display: flex;
   gap: 12px;
