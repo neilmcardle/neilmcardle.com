@@ -63,7 +63,7 @@ export default function SelectionActionBar({
   return (
     <div
       className="me-rise-in fixed left-3 right-3 z-[110] flex items-center gap-1 p-1.5 rounded-[12px] bg-[var(--ink-deep)] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
-      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 84px)" }}
+      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 92px)" }}
     >
       <button
         type="button"

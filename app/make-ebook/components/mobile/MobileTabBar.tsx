@@ -63,31 +63,29 @@ export default function MobileTabBar({
   return (
     <nav
       aria-label="Editor sections"
-      className={styles.tabBar}
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className={styles.dock}
+      style={{
+        bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
+      }}
     >
-      <div
-        className={styles.tabBarRow}
-        style={{
-          gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`,
-        }}
-      >
-        {tabs.map(({ tab, onSelect }) => {
-          const isActive = active === tab;
-          return (
-            <button
-              key={tab}
-              type="button"
-              onClick={onSelect}
-              aria-current={isActive ? "page" : undefined}
-              className={`${styles.tab} ${isActive ? styles.tabActive : ""}`}
-            >
+      {tabs.map(({ tab, onSelect }) => {
+        const isActive = active === tab;
+        return (
+          <button
+            key={tab}
+            type="button"
+            onClick={onSelect}
+            aria-label={LABELS[tab]}
+            aria-current={isActive ? "page" : undefined}
+            className={styles.dockItem}
+          >
+            <span className={styles.dockIcon}>
               {tab === "bookmind" ? (
-                <BookMindMark className="w-[18px] h-[18px]" />
+                <BookMindMark className="w-[19px] h-[19px]" />
               ) : (
                 <svg
-                  width="18"
-                  height="18"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -99,11 +97,13 @@ export default function MobileTabBar({
                   {ICONS[tab]}
                 </svg>
               )}
+            </span>
+            <span className={styles.dockLabel} aria-hidden="true">
               <span>{LABELS[tab]}</span>
-            </button>
-          );
-        })}
-      </div>
+            </span>
+          </button>
+        );
+      })}
     </nav>
   );
 }

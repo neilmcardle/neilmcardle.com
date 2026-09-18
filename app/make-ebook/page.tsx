@@ -41,7 +41,6 @@ import EditorLeftNav from "./components/EditorLeftNav";
 import CollapsibleSection from "./components/CollapsibleSection";
 import MobileTabBar from "./components/mobile/MobileTabBar";
 import ChaptersSheet from "./components/mobile/ChaptersSheet";
-import { ChapterIndexDrawer } from "./components/ChapterIndex";
 import ChaptersPanel from "./components/sidebar/ChaptersPanel";
 import LibraryPanel from "./components/sidebar/LibraryPanel";
 import BookDetailsPanel from "./components/sidebar/BookDetailsPanel";
@@ -1883,7 +1882,7 @@ function MakeEbookPage() {
             <div
               data-tour="mobile-editor"
               data-mobile-editor
-              className={`lg:hidden flex flex-col ${chapters.length === 0 ? "" : "pt-[52px] pb-[66px]"} flex-1 min-h-0 overflow-hidden`}
+              className={`lg:hidden flex flex-col ${chapters.length === 0 ? "" : "pt-[52px] pb-[92px]"} flex-1 min-h-0 overflow-hidden`}
             >
               {chapters.length === 0 ? (
                 <div className="flex-1" />
@@ -1894,12 +1893,6 @@ function MakeEbookPage() {
                 />
               ) : (
                 <>
-                  <ChapterIndexDrawer
-                    chapters={chapters}
-                    selectedChapter={selectedChapter}
-                    onSelectChapter={handleSelectChapter}
-                  />
-
                   <ChapterPanel
                     chapter={chapters[selectedChapter]}
                     selectedChapter={selectedChapter}

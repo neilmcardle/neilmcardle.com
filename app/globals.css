@@ -2319,7 +2319,6 @@ html[data-keyboard="open"] [data-mobile-editor] {
   padding: 0;
 }
 
-html[data-keyboard="open"] [data-chapter-position],
 html[data-keyboard="open"] [data-chapter-eyebrow] {
   display: none;
 }

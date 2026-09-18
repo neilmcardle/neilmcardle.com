@@ -15,8 +15,6 @@ interface ChapterIndexProps {
   onSelectChapter?: (index: number) => void;
 }
 
-const PULL_THRESHOLD = 28;
-
 function labelFor(chapters: IndexChapter[], index: number) {
   const title = chapters[index]?.title?.trim();
   if (title) return title;
@@ -143,104 +141,5 @@ export function ChapterIndex({
         className={styles.indexList}
       />
     </nav>
-  );
-}
-
-export function ChapterIndexDrawer({
-  chapters,
-  selectedChapter,
-  onSelectChapter,
-}: ChapterIndexProps) {
-  const [open, setOpen] = useState(false);
-  const pull = useRef<{ x: number; y: number } | null>(null);
-  const push = useRef<{ x: number; y: number } | null>(null);
-  const { progress, scrollable } = useEditorProgress(
-    selectedChapter,
-    chapters.length,
-  );
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
-
-  if (chapters.length < 2) return null;
-
-  return (
-    <div data-chapter-position>
-      <button
-        type="button"
-        className={styles.indexStub}
-        aria-label="Show chapters"
-        aria-expanded={open}
-        onClick={() => setOpen(true)}
-        onTouchStart={(e) => {
-          const t = e.touches[0];
-          pull.current = { x: t.clientX, y: t.clientY };
-        }}
-        onTouchMove={(e) => {
-          const from = pull.current;
-          const t = e.touches[0];
-          if (!from || !t) return;
-          const dx = t.clientX - from.x;
-          if (dx > PULL_THRESHOLD && Math.abs(t.clientY - from.y) < dx) {
-            pull.current = null;
-            setOpen(true);
-          }
-        }}
-        onTouchEnd={() => {
-          pull.current = null;
-        }}
-      >
-        {chapters.map((ch, i) => (
-          <span
-            key={ch.id}
-            className={`${styles.stubLine} ${i === selectedChapter ? styles.stubLineCurrent : ""}`}
-          />
-        ))}
-      </button>
-
-      <div
-        className={`${styles.indexScrim} ${open ? styles.indexScrimOpen : ""}`}
-        onClick={() => setOpen(false)}
-        aria-hidden="true"
-      />
-      <nav
-        aria-label="Chapters"
-        aria-hidden={!open}
-        className={`${styles.indexDrawer} ${open ? styles.indexDrawerOpen : ""}`}
-        onTouchStart={(e) => {
-          const t = e.touches[0];
-          push.current = { x: t.clientX, y: t.clientY };
-        }}
-        onTouchMove={(e) => {
-          const from = push.current;
-          const t = e.touches[0];
-          if (!from || !t) return;
-          const dx = from.x - t.clientX;
-          if (dx > PULL_THRESHOLD && Math.abs(t.clientY - from.y) < dx) {
-            push.current = null;
-            setOpen(false);
-          }
-        }}
-      >
-        <p className={styles.indexDrawerHead}>Chapters</p>
-        <IndexList
-          chapters={chapters}
-          selectedChapter={selectedChapter}
-          onSelect={(i) => {
-            onSelectChapter?.(i);
-            setOpen(false);
-          }}
-          progress={progress}
-          scrollable={scrollable}
-          className={styles.indexDrawerList}
-        />
-      </nav>
-    </div>
   );
 }
