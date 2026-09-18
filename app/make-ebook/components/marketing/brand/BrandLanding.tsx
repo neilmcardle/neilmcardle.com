@@ -109,7 +109,7 @@ function TextLink({ link, className }: { link: CardLink; className: string }) {
   const content = (
     <>
       {link.label}
-      <Arrow direction={link.external ? "out" : "right"} />
+      {link.external && <Arrow direction="out" />}
     </>
   );
   if (link.onClick) {
@@ -278,7 +278,7 @@ export function BrandHero({ onStartWriting }: { onStartWriting: () => void }) {
               onClick={onStartWriting}
               className={styles.cta}
             >
-              Start writing <span aria-hidden="true">&rarr;</span>
+              Start writing
             </button>
             <span className={styles.free}>It&rsquo;s free.</span>
           </div>
@@ -520,7 +520,7 @@ export default function BrandLanding({
               className={styles.cta}
               onClick={onStartWriting}
             >
-              Start writing <span aria-hidden="true">&rarr;</span>
+              Start writing
             </button>
           </section>
         </div>

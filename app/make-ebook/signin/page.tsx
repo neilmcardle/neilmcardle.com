@@ -3,13 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
-import {
-  Loader2,
-  Mail,
-  CheckCircle,
-  AlertCircle,
-  ArrowRight,
-} from "lucide-react";
+import { Loader2, Mail, CheckCircle, AlertCircle } from "lucide-react";
 import {
   AuthCard,
   BrandPage,
@@ -239,14 +233,7 @@ function SignInContent() {
           disabled={isLoading}
           className={`${brand.cta} ${ui.submit}`}
         >
-          {isLoading ? (
-            <Loader2 className={`w-5 h-5 ${ui.spin}`} />
-          ) : (
-            <>
-              {ctaLabel}
-              <ArrowRight className="w-4 h-4" />
-            </>
-          )}
+          {isLoading ? <Loader2 className={`w-5 h-5 ${ui.spin}`} /> : ctaLabel}
         </button>
 
         <p className={ui.switch}>

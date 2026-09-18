@@ -32,7 +32,7 @@ export default function MakeEbookError({
           )}
           <div className={ui.statusActions}>
             <button type="button" onClick={reset} className={brand.cta}>
-              Try again <span aria-hidden="true">&rarr;</span>
+              Try again
             </button>
             <Link href="/make-ebook" className={brand.ctaGhost}>
               Back to the homepage

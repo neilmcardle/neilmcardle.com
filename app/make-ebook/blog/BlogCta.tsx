@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import brand from "../components/marketing/brand/brand.module.css";
 import styles from "./blog.module.css";
 
@@ -12,7 +11,6 @@ export function BlogCta() {
       </p>
       <Link href="/make-ebook" className={brand.cta}>
         Start writing
-        <ArrowRight className="w-4 h-4" aria-hidden="true" />
       </Link>
     </div>
   );

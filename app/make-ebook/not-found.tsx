@@ -24,7 +24,7 @@ export default function NotFound() {
           </p>
           <div className={ui.statusActions}>
             <Link href="/make-ebook" className={brand.cta}>
-              Back to the homepage <span aria-hidden="true">&rarr;</span>
+              Back to the homepage
             </Link>
             <Link href="/make-ebook/blog" className={brand.ctaGhost}>
               Read the blog
