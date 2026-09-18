@@ -24,7 +24,7 @@ export function OfflineIndicator({
     <div
       className={`flex items-center gap-2 px-3 py-2 rounded-full text-xs font-medium transition-colors ${
         isOnline
-          ? "bg-blue-50 dark:bg-[var(--paper)]/20 text-blue-600 dark:text-[var(--paper)]"
+          ? "bg-blue-50 dark:bg-[color:color-mix(in_srgb,var(--paper)_20%,transparent)] text-blue-600 dark:text-[var(--paper)]"
           : "bg-gray-100 dark:bg-[var(--ink-raised)] text-gray-600 dark:text-[var(--clay-muted)]"
       }`}
     >

@@ -25,7 +25,7 @@ export default function CitationPill({
     <button
       type="button"
       onClick={handleClick}
-      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--paper)]/10 dark:bg-[var(--paper)]/15 text-[var(--acid)] hover:bg-[var(--paper)]/15 dark:hover:bg-[var(--paper)]/25 transition-colors text-[11px] font-medium align-baseline"
+      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[color:color-mix(in_srgb,var(--paper)_10%,transparent)] dark:bg-[color:color-mix(in_srgb,var(--paper)_15%,transparent)] text-[var(--acid)] hover:bg-[color:color-mix(in_srgb,var(--paper)_15%,transparent)] dark:hover:bg-[color:color-mix(in_srgb,var(--paper)_25%,transparent)] transition-colors text-[11px] font-medium align-baseline"
       title={`Jump to ${label}`}
     >
       <svg

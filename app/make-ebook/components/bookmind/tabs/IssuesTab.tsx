@@ -149,7 +149,7 @@ export default function IssuesTab({
                   className="p-3 rounded-xl bg-gray-50 dark:bg-[var(--ink-raised)] border border-gray-100 dark:border-[var(--rule)]"
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded text-amber-600 bg-amber-500/10 dark:text-[var(--warning)] dark:bg-[var(--warning)]/15">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded text-amber-600 bg-amber-500/10 dark:text-[var(--warning)] dark:bg-[color:color-mix(in_srgb,var(--warning)_15%,transparent)]">
                       Issue
                     </span>
                     <div className="flex items-center gap-1">

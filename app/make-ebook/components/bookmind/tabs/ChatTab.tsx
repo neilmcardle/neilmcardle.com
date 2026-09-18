@@ -510,7 +510,7 @@ export default function ChatTab({
 
       {trialMode && trialExhausted ? (
         <div className="flex-shrink-0 px-3 pb-3 pt-2">
-          <div className="rounded-card border border-blue-200 dark:border-[var(--ink-hover)] bg-blue-50 dark:bg-[var(--paper)]/20 px-3 py-3 text-center">
+          <div className="rounded-card border border-blue-200 dark:border-[var(--ink-hover)] bg-blue-50 dark:bg-[color:color-mix(in_srgb,var(--paper)_20%,transparent)] px-3 py-3 text-center">
             <p className="text-12 font-semibold text-gray-900 dark:text-white mb-2">
               Free analysis used
             </p>

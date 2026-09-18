@@ -390,7 +390,7 @@ export default function InlineEditPopover({
                 type="button"
                 onClick={handleAccept}
                 aria-label="Accept this suggestion"
-                className="group w-full text-left rounded-lg p-2 -m-2 cursor-pointer transition-colors hover:bg-[var(--paper)]/5 dark:hover:bg-[var(--paper)]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--acid)]/40"
+                className="group w-full text-left rounded-lg p-2 -m-2 cursor-pointer transition-colors hover:bg-[color:color-mix(in_srgb,var(--paper)_5%,transparent)] dark:hover:bg-[color:color-mix(in_srgb,var(--paper)_10%,transparent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--acid)_40%,transparent)]"
               >
                 <p className="text-2xs uppercase tracking-wider text-[var(--acid)] font-medium mb-1 flex items-center gap-2">
                   Suggestion
@@ -438,7 +438,7 @@ export default function InlineEditPopover({
                 <button
                   onClick={handleMoreTakes}
                   disabled={isLoading}
-                  className="px-3 py-1 text-xs font-medium text-[var(--acid)] border border-[var(--acid)]/30 hover:bg-[var(--paper)]/5 dark:hover:bg-[var(--paper)]/10 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
+                  className="px-3 py-1 text-xs font-medium text-[var(--acid)] border border-[color:color-mix(in_srgb,var(--acid)_30%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--paper)_5%,transparent)] dark:hover:bg-[color:color-mix(in_srgb,var(--paper)_10%,transparent)] rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
                 >
                   More takes
                 </button>

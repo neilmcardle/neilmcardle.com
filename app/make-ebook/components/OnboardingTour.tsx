@@ -231,7 +231,7 @@ export default function OnboardingTour({
 
       {targetRect && (
         <div
-          className={`fixed z-[200] pointer-events-none rounded-lg border-2 border-[var(--ink-deep)]/40 dark:border-white/40 transition-all duration-300 ease-out ${visible ? "opacity-100" : "opacity-0"}`}
+          className={`fixed z-[200] pointer-events-none rounded-lg border-2 border-[color:color-mix(in_srgb,var(--ink-deep)_40%,transparent)] dark:border-white/40 transition-all duration-300 ease-out ${visible ? "opacity-100" : "opacity-0"}`}
           style={{
             top: targetRect.top - PADDING,
             left: targetRect.left - PADDING,
@@ -246,7 +246,7 @@ export default function OnboardingTour({
         role="dialog"
         aria-modal="true"
         aria-label={`Onboarding tour step ${currentStep + 1} of ${totalSteps}`}
-        className={`fixed z-[201] w-[300px] max-w-[calc(100vw-32px)] bg-white dark:bg-[var(--ink)] rounded-xl shadow-2xl border border-[var(--ink-deep)]/40 dark:border-white/40 p-4 transition-all duration-150 ${visible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+        className={`fixed z-[201] w-[300px] max-w-[calc(100vw-32px)] bg-white dark:bg-[var(--ink)] rounded-xl shadow-2xl border border-[color:color-mix(in_srgb,var(--ink-deep)_40%,transparent)] dark:border-white/40 p-4 transition-all duration-150 ${visible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
         style={tooltipStyle}
       >
         <div

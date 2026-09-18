@@ -235,7 +235,7 @@ export default function GhostTextOverlay({
             void generate();
           }}
           aria-label="Generate AI suggestion"
-          className="flex items-center gap-2 px-2 py-1 rounded-full bg-white/95 dark:bg-[var(--ink)]/95 border border-gray-200 dark:border-[var(--rule)] shadow-sm backdrop-blur-sm transition-colors hover:border-[var(--acid)]/40 hover:bg-[var(--paper)]/5 dark:hover:bg-[var(--paper)]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--acid)]/40 cursor-pointer"
+          className="flex items-center gap-2 px-2 py-1 rounded-full bg-white/95 dark:bg-[color:color-mix(in_srgb,var(--ink)_95%,transparent)] border border-gray-200 dark:border-[var(--rule)] shadow-sm backdrop-blur-sm transition-colors hover:border-[color:color-mix(in_srgb,var(--acid)_40%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--paper)_5%,transparent)] dark:hover:bg-[color:color-mix(in_srgb,var(--paper)_10%,transparent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--acid)_40%,transparent)] cursor-pointer"
         >
           <svg
             className="w-3 h-3 text-[var(--acid)]"
@@ -292,7 +292,7 @@ export default function GhostTextOverlay({
               onMouseDown={(e) => e.preventDefault()}
               onClick={accept}
               aria-label="Insert suggestion"
-              className="group w-full text-left rounded-md -m-1 p-1 transition-colors hover:bg-[var(--paper)]/5 dark:hover:bg-[var(--paper)]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--acid)]/40 cursor-pointer"
+              className="group w-full text-left rounded-md -m-1 p-1 transition-colors hover:bg-[color:color-mix(in_srgb,var(--paper)_5%,transparent)] dark:hover:bg-[color:color-mix(in_srgb,var(--paper)_10%,transparent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--acid)_40%,transparent)] cursor-pointer"
             >
               <p
                 className="text-sm text-gray-700 dark:text-[var(--clay)] leading-relaxed"

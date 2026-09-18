@@ -226,7 +226,7 @@ function VersionsTab({
                     <span className="text-sm font-medium text-gray-900 dark:text-[var(--paper)]">
                       {formatTimestamp(version.timestamp)}
                     </span>
-                    {isLatest && <LatestPill tone="green" />}
+                    {isLatest && <LatestPill />}
                   </div>
                   <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-[var(--clay-muted)]">
                     <span>{version.wordCount.toLocaleString()} words</span>
@@ -376,7 +376,7 @@ function ExportsTab({
                     <span className="text-sm font-medium text-gray-900 dark:text-[var(--paper)]">
                       {formatTimestamp(exp.timestamp)}
                     </span>
-                    {isLatest && <LatestPill tone="blue" />}
+                    {isLatest && <LatestPill />}
                   </div>
                   <div className="text-xs text-gray-700 dark:text-[var(--clay)] truncate mt-1">
                     {exp.title}
@@ -492,13 +492,11 @@ function EmptyState({
   );
 }
 
-function LatestPill({ tone }: { tone: "green" | "blue" }) {
-  const classes =
-    tone === "green"
-      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-      : "bg-blue-100 dark:bg-[var(--paper)]/30 text-blue-700 dark:text-[var(--paper)]";
+function LatestPill() {
   return (
-    <span className={`text-2xs px-2 py-1 rounded ${classes}`}>Latest</span>
+    <span className="inline-flex items-center h-5 px-2 rounded-full border border-[rgba(243,239,229,0.22)] text-[11px] font-medium text-[var(--paper)]">
+      Latest
+    </span>
   );
 }
 

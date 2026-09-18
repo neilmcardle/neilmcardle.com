@@ -157,7 +157,7 @@ export default function PreflightTab({
                     className={`p-3 rounded-card border ${
                       isBlock
                         ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/40"
-                        : "bg-amber-50 dark:bg-[var(--warning)]/20 border-amber-200 dark:border-[var(--warning)]/40"
+                        : "bg-amber-50 dark:bg-[color:color-mix(in_srgb,var(--warning)_20%,transparent)] border-amber-200 dark:border-[color:color-mix(in_srgb,var(--warning)_40%,transparent)]"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -250,7 +250,7 @@ export default function PreflightTab({
                 onClick={() => setSelectedDisclosure(opt.id)}
                 className={`w-full text-left px-3 py-2.5 rounded-control text-11 transition-colors ${
                   selectedDisclosure === opt.id
-                    ? "bg-[var(--paper)]/10 dark:bg-[var(--paper)]/15 text-[var(--acid)] font-medium"
+                    ? "bg-[color:color-mix(in_srgb,var(--paper)_10%,transparent)] dark:bg-[color:color-mix(in_srgb,var(--paper)_15%,transparent)] text-[var(--acid)] font-medium"
                     : "bg-gray-50 dark:bg-[var(--ink-raised)] text-gray-700 dark:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)]"
                 }`}
               >

@@ -110,7 +110,7 @@ export default function EPUBReaderModal({
 
   return (
     <div className="fixed inset-0 z-[10000] bg-black/50 backdrop-blur-sm flex items-center justify-center me-fade-in">
-      <div className="absolute top-0 left-0 right-0 h-16 bg-[var(--paper)]/95 dark:bg-[var(--ink)]/90 backdrop-blur-sm border-b border-[var(--clay)] dark:border-[var(--rule)] flex items-center justify-between px-6 z-10">
+      <div className="absolute top-0 left-0 right-0 h-16 bg-[color:color-mix(in_srgb,var(--paper)_95%,transparent)] dark:bg-[color:color-mix(in_srgb,var(--ink)_90%,transparent)] backdrop-blur-sm border-b border-[var(--clay)] dark:border-[var(--rule)] flex items-center justify-between px-6 z-10">
         <h2 className="text-lg font-semibold text-[var(--ink)] dark:text-white">
           {bookTitle || "EPUB Preview"}
         </h2>
@@ -133,25 +133,25 @@ export default function EPUBReaderModal({
             <p className="text-sm font-medium text-[var(--ink)] dark:text-white">
               This preview could not be opened.
             </p>
-            <p className="text-11 text-[var(--ink)]/60 dark:text-[var(--clay-muted)] max-w-sm">
+            <p className="text-11 text-[color:color-mix(in_srgb,var(--ink)_60%,transparent)] dark:text-[var(--clay-muted)] max-w-sm">
               {error}
             </p>
-            <p className="text-11 text-[var(--ink)]/60 dark:text-[var(--clay-muted)]">
+            <p className="text-11 text-[color:color-mix(in_srgb,var(--ink)_60%,transparent)] dark:text-[var(--clay-muted)]">
               Your download is unaffected. The file itself is fine.
             </p>
           </div>
         )}
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-[var(--paper)]/95 dark:bg-[var(--ink)]/90 backdrop-blur-sm border-t border-[var(--clay)] dark:border-[var(--rule)] flex items-center justify-center gap-4 z-10">
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-[color:color-mix(in_srgb,var(--paper)_95%,transparent)] dark:bg-[color:color-mix(in_srgb,var(--ink)_90%,transparent)] backdrop-blur-sm border-t border-[var(--clay)] dark:border-[var(--rule)] flex items-center justify-center gap-4 z-10">
         <button
           onClick={handlePrevPage}
           disabled={!isReady || !canGoPrev}
-          className="px-6 py-3 bg-[var(--ink)] dark:bg-white text-[var(--paper)] dark:text-[var(--ink-deep)] rounded-lg font-medium hover:bg-[var(--ink)]/80 dark:hover:bg-[var(--paper)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-6 py-3 bg-[var(--ink)] dark:bg-white text-[var(--paper)] dark:text-[var(--ink-deep)] rounded-lg font-medium hover:bg-[color:color-mix(in_srgb,var(--ink)_80%,transparent)] dark:hover:bg-[var(--paper)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           ← Previous
         </button>
-        <div className="text-sm text-[var(--ink)]/60 dark:text-[var(--clay-muted)]">
+        <div className="text-sm text-[color:color-mix(in_srgb,var(--ink)_60%,transparent)] dark:text-[var(--clay-muted)]">
           {error
             ? "Preview unavailable"
             : isReady
@@ -161,7 +161,7 @@ export default function EPUBReaderModal({
         <button
           onClick={handleNextPage}
           disabled={!isReady || !canGoNext}
-          className="px-6 py-3 bg-[var(--ink)] dark:bg-white text-[var(--paper)] dark:text-[var(--ink-deep)] rounded-lg font-medium hover:bg-[var(--ink)]/80 dark:hover:bg-[var(--paper)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-6 py-3 bg-[var(--ink)] dark:bg-white text-[var(--paper)] dark:text-[var(--ink-deep)] rounded-lg font-medium hover:bg-[color:color-mix(in_srgb,var(--ink)_80%,transparent)] dark:hover:bg-[var(--paper)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           Next →
         </button>

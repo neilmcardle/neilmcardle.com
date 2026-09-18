@@ -83,7 +83,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
         className={`flex items-center gap-2 px-3 h-8 rounded-full text-xs font-medium transition-all duration-300 shadow-lg backdrop-blur-md border ${
           open
             ? "bg-white text-[var(--ink-deep)] border-transparent opacity-100"
-            : "bg-[var(--ink-deep)]/70 border-white/10 text-white/50 opacity-60 hover:opacity-100 hover:text-white/80"
+            : "bg-[color:color-mix(in_srgb,var(--ink-deep)_70%,transparent)] border-white/10 text-white/50 opacity-60 hover:opacity-100 hover:text-white/80"
         }`}
       >
         <svg

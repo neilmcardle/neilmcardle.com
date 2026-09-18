@@ -19,14 +19,15 @@ const CARD_TYPE_LABELS: Record<AnalyticalCard["type"], string> = {
 };
 
 const CARD_TYPE_COLORS: Record<AnalyticalCard["type"], string> = {
-  theme: "text-[var(--acid)] bg-[var(--paper)]/10 dark:bg-[var(--paper)]/15",
+  theme:
+    "text-[var(--acid)] bg-[color:color-mix(in_srgb,var(--paper)_10%,transparent)] dark:bg-[color:color-mix(in_srgb,var(--paper)_15%,transparent)]",
   character:
     "text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/15",
   inconsistency:
-    "text-amber-600 bg-amber-500/10 dark:text-[var(--warning)] dark:bg-[var(--warning)]/15",
+    "text-amber-600 bg-amber-500/10 dark:text-[var(--warning)] dark:bg-[color:color-mix(in_srgb,var(--warning)_15%,transparent)]",
   pacing:
     "text-purple-600 bg-purple-500/10 dark:text-purple-400 dark:bg-purple-500/15",
-  note: "text-gray-600 bg-gray-500/10 dark:text-[var(--clay)] dark:bg-[var(--ink-hover)]/15",
+  note: "text-gray-600 bg-gray-500/10 dark:text-[var(--clay)] dark:bg-[color:color-mix(in_srgb,var(--ink-hover)_15%,transparent)]",
 };
 
 export default function CardRenderer({
