@@ -3,7 +3,7 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { SPARK_MARK_PATH } from "@/components/spark/SparkMark";
-import styles from "./spark-brand.module.css";
+import styles from "./landing.module.css";
 
 export function Mark({ className }: { className?: string }) {
   return (
@@ -400,11 +400,11 @@ export function StateDemo() {
 
   const said =
     step === 4
-      ? "onClick runs and calls setCount with count + 1."
+      ? "`onClick` runs and calls `setCount` with `count + 1`."
       : step === 1
         ? "React stores the new value and runs the component again."
         : step === 5
-          ? `This render reads count as ${count}, so the label changes.`
+          ? `This render reads \`count\` as ${count}, so the label changes.`
           : "Click the button to watch one render happen.";
 
   return (
@@ -432,7 +432,7 @@ export function StateDemo() {
           </button>
         </div>
         <p className={styles.stateSaid} aria-live="polite">
-          {said}
+          {inlineCode(said)}
         </p>
         <ol className={styles.renderLog}>
           {log.map((entry) => (
@@ -488,11 +488,13 @@ export function CheckDemo() {
         className={`${styles.checkWhy} ${picked === null ? styles.checkWhyIdle : ""}`}
         aria-live="polite"
       >
-        {picked === null
-          ? "Pick an answer to see the reasoning."
-          : solved
-            ? "Correct. If nothing passes users in, the list is empty instead of missing, and filtering an empty list is fine."
-            : "Not quite. The default only decides what users is when nothing is passed in. Without it, filter would run on something missing and the component would stop rendering."}
+        {inlineCode(
+          picked === null
+            ? "Pick an answer to see the reasoning."
+            : solved
+              ? "Correct. If nothing passes `users` in, the list is empty instead of missing, and filtering an empty list is fine."
+              : "Not quite. The default only decides what `users` is when nothing is passed in. Without it, `filter` would run on something missing and the component would stop rendering.",
+        )}
       </p>
     </div>
   );

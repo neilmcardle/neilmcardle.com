@@ -2782,12 +2782,10 @@
   cursor: pointer;
   transition:
     background-color 240ms cubic-bezier(0.4, 0, 0.2, 1),
-    color 240ms cubic-bezier(0.4, 0, 0.2, 1),
-    padding 320ms cubic-bezier(0.4, 0, 0.2, 1);
+    color 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dockItem[aria-current="page"] {
-  padding-right: 16px;
   background: rgba(243, 239, 229, 0.1);
   color: var(--paper);
 }
@@ -2805,36 +2803,8 @@
   height: var(--dock-tile);
 }
 
-.dockLabel {
-  display: grid;
-  grid-template-columns: 0fr;
-  margin-left: 0;
-  opacity: 0;
-  font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  transition:
-    grid-template-columns 320ms cubic-bezier(0.4, 0, 0.2, 1),
-    margin-left 320ms cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 240ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dockLabel > span {
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.dockItem[aria-current="page"] .dockLabel {
-  grid-template-columns: 1fr;
-  margin-left: 10px;
-  opacity: 1;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .dockItem,
-  .dockLabel {
+  .dockItem {
     transition: none;
   }
 }

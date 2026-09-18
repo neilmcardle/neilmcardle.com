@@ -98,9 +98,6 @@ export default function MobileTabBar({
                 </svg>
               )}
             </span>
-            <span className={styles.dockLabel} aria-hidden="true">
-              <span>{LABELS[tab]}</span>
-            </span>
           </button>
         );
       })}

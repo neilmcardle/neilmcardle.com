@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { Caret, Mark } from "../demos";
-import styles from "../spark-brand.module.css";
+import { Caret, Mark } from "../landing-demos";
+import styles from "../landing.module.css";
+
+export const metadata: Metadata = {
+  title: "Spark brand direction",
+  robots: { index: false, follow: false },
+};
 
 const AUDIT = [
   {
@@ -142,19 +148,19 @@ const REJECTED = [
 const ROLLOUT = [
   {
     head: "Tokens",
-    body: "Replace the --spark set in globals.css with the pad set, and point every gold usage at Arc or Graphite by role.",
+    body: "The --spark set in globals.css is now the pad set. Every gold use became Arc, Arc Light on code surfaces, Graphite or Pass, by role.",
   },
   {
     head: "Landing and curriculum",
-    body: "One front door: the landing becomes this composition and the curriculum index adopts the pad list with gutter numbers.",
+    body: "One front door. The landing is this composition and the curriculum index uses the pad list with gutter numbers.",
   },
   {
     head: "Lesson reader",
-    body: "The black sidebar becomes Sheet on Pad, headings move to JetBrains Mono 800, the progress spine turns Arc.",
+    body: "The black sidebar is now Pad beside a Sheet reading column, headings are JetBrains Mono 800 and the progress spine is Arc.",
   },
   {
     head: "Widgets",
-    body: "Swap the raw gold and terracotta values and font-serif for tokens so every widget follows the palette.",
+    body: "Raw gold and terracotta values and font-serif were swapped for tokens, and every widget now sits on a grid stage.",
   },
 ];
 
@@ -163,7 +169,7 @@ export default function SparkDirectionPage() {
     <div className={styles.page}>
       <header className={styles.nav}>
         <div className={`${styles.shell} ${styles.navInner}`}>
-          <Link href="/lab/spark-brand" className={styles.brand}>
+          <Link href="/spark" className={styles.brand}>
             <Mark />
             <span className={styles.wordmark}>spark</span>
           </Link>
@@ -172,7 +178,7 @@ export default function SparkDirectionPage() {
             <a href="#palette">Palette</a>
             <a href="#type">Type</a>
             <Link
-              href="/lab/spark-brand"
+              href="/spark"
               className={`${styles.arcButton} ${styles.small}`}
             >
               See the landing
@@ -204,7 +210,7 @@ export default function SparkDirectionPage() {
         <section id="audit" className={styles.dirSection}>
           <p className={styles.dirEyebrow}>00 · Audit</p>
           <h2 className={`${styles.sectionHead} ${styles.display}`}>
-            What Spark looks like today.
+            What Spark looked like before.
           </h2>
           <div className={styles.rules}>
             {AUDIT.map((a, i) => (
@@ -238,7 +244,7 @@ export default function SparkDirectionPage() {
             </div>
             <div className={styles.rule}>
               <b>Headline</b>
-              Start from an empty file.
+              Spark is your path to Design Engineer.
             </div>
             <div className={styles.rule}>
               <b>Relationship to the other two</b>
@@ -311,7 +317,10 @@ export default function SparkDirectionPage() {
               <br />
               ligatures off
             </div>
-            <div className={styles.mono} style={{ fontSize: 16 }}>
+            <div
+              className={styles.mono}
+              style={{ fontSize: 16, color: "var(--graphite)" }}
+            >
               {'if (count === 0) return "Nothing yet"; // == is not ==='}
             </div>
           </div>
@@ -396,9 +405,9 @@ export default function SparkDirectionPage() {
         </section>
 
         <section className={styles.dirSection}>
-          <p className={styles.dirEyebrow}>07 · Rollout after sign-off</p>
+          <p className={styles.dirEyebrow}>07 · Rollout</p>
           <h2 className={`${styles.sectionHead} ${styles.display}`}>
-            What changes in the product.
+            What changed in the product.
           </h2>
           <div className={styles.rules}>
             {ROLLOUT.map((r) => (
@@ -415,7 +424,7 @@ export default function SparkDirectionPage() {
             See it applied
             <Caret />
           </h2>
-          <Link href="/lab/spark-brand" className={styles.arcButton}>
+          <Link href="/spark" className={styles.arcButton}>
             Open the landing
           </Link>
         </section>
