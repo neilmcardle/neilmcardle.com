@@ -14,14 +14,20 @@ import { LogOut, Sparkles } from "lucide-react";
 import SubscriptionBadge from "./SubscriptionBadge";
 import ManageBillingButton from "./ManageBillingButton";
 import UpgradeModal from "./UpgradeModal";
+import AccountAvatar from "./AccountAvatar";
 
-export function UserDropdownMobile() {
+export function UserDropdownMobile({
+  onStartTour,
+}: {
+  onStartTour?: () => void;
+}) {
   const { user, signOut, loading } = useAuth();
-  const { tier, isGrandfathered } = useSubscription();
+  const { tier, isGrandfathered, stripeCustomerId } = useSubscription();
   const [loggingOut, setLoggingOut] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const showUpgradeRow = tier === "free" && !isGrandfathered;
+  const showBilling = tier === "pro" && !isGrandfathered && !!stripeCustomerId;
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -49,16 +55,11 @@ export function UserDropdownMobile() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors px-0 -ml-2"
-            aria-label="User menu"
+            type="button"
+            className="inline-flex w-10 h-10 items-center justify-center rounded-full -ml-1"
+            aria-label="Account menu"
           >
-            <img
-              src="/user-icon.svg"
-              alt="user icon"
-              width={24}
-              height={24}
-              className="dark:invert"
-            />
+            <AccountAvatar email={user.email} />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -93,17 +94,29 @@ export function UserDropdownMobile() {
               <DropdownMenuSeparator />
             </>
           )}
-          {!showUpgradeRow && (
+          {showBilling && (
             <>
-              <div className="px-2 py-2 empty:hidden">
+              <div className="px-2 py-2">
                 <ManageBillingButton
                   variant="ghost"
                   size="sm"
                   className="w-full justify-start"
                 />
               </div>
+              <DropdownMenuSeparator />
             </>
           )}
+          {onStartTour && (
+            <DropdownMenuItem onClick={onStartTour} className="cursor-pointer">
+              Take the tour
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem asChild>
+            <a href="/make-ebook/terms">Terms</a>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <a href="/make-ebook/privacy">Privacy</a>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={handleLogout}

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import SubscriptionBadge from "./SubscriptionBadge";
+import AccountAvatar from "./AccountAvatar";
 import UpgradeModal from "./UpgradeModal";
 import {
   DropdownMenu,
@@ -137,14 +138,11 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
-            aria-label="User menu"
+            type="button"
+            className="relative w-12 h-12 rounded-full flex items-center justify-center"
+            aria-label="Account menu"
           >
-            <img
-              src="/user-icon.svg"
-              alt="user icon"
-              className="w-5 h-5 text-gray-600 dark:text-[var(--clay-muted)] dark:invert"
-            />
+            <AccountAvatar email={user?.email} />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

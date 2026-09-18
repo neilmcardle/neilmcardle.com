@@ -2002,12 +2002,12 @@
 .drawerBrand {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   padding: 0;
   border: 0;
   background: none;
   font-family: var(--font-wordmark);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--paper);
@@ -2804,4 +2804,38 @@
   .dockItem {
     transition: none;
   }
+}
+
+@media (min-width: 1024px) {
+  .mobileBar {
+    display: none;
+  }
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(243, 239, 229, 0.18);
+  border-radius: 999px;
+  background: rgba(243, 239, 229, 0.08);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--paper);
+  transition:
+    border-color 160ms var(--ease),
+    background 160ms var(--ease);
+}
+
+button:hover > .avatar {
+  border-color: rgba(243, 239, 229, 0.4);
+  background: rgba(243, 239, 229, 0.12);
+}
+
+button:focus-visible > .avatar {
+  outline: 2px solid var(--acid);
+  outline-offset: 2px;
 }

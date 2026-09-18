@@ -1479,9 +1479,9 @@ function MakeEbookPage() {
                   <Image
                     src="/make-ebook/brand/mark.svg"
                     alt=""
-                    width={54}
-                    height={20}
-                    className="h-[18px] w-auto"
+                    width={38}
+                    height={14}
+                    className="h-[13px] w-auto"
                     priority
                   />
                   <span>makeebook</span>
@@ -1671,41 +1671,17 @@ function MakeEbookPage() {
               </div>
 
               <footer className={studio.drawerFoot}>
-                <div className="flex items-center justify-between">
-                  <UserDropdownMobile />
-                  <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-[var(--clay-muted)]">
-                    <button
-                      onClick={() => {
-                        setMobileSidebarOpen(false);
-                        onboarding.resetOnboarding();
-                        if (chapters.length === 0) clearEditorState();
-                        setTimeout(
-                          () => onboarding.startTour(),
-                          chapters.length === 0 ? 800 : 400,
-                        );
-                      }}
-                      className="hover:text-gray-600 dark:hover:text-[var(--clay-muted)] transition-colors"
-                    >
-                      Tour
-                    </button>
-                    <a
-                      href="https://makeebook.ink/terms"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-gray-600 dark:hover:text-[var(--clay-muted)] transition-colors"
-                    >
-                      Terms
-                    </a>
-                    <a
-                      href="https://makeebook.ink/privacy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-gray-600 dark:hover:text-[var(--clay-muted)] transition-colors"
-                    >
-                      Privacy
-                    </a>
-                  </div>
-                </div>
+                <UserDropdownMobile
+                  onStartTour={() => {
+                    setMobileSidebarOpen(false);
+                    onboarding.resetOnboarding();
+                    if (chapters.length === 0) clearEditorState();
+                    setTimeout(
+                      () => onboarding.startTour(),
+                      chapters.length === 0 ? 800 : 400,
+                    );
+                  }}
+                />
               </footer>
             </div>
           </div>
