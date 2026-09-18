@@ -3033,3 +3033,121 @@ button:focus-visible > .avatar {
 .canvasFoot button {
   font-family: var(--font-ui);
 }
+
+.mindMark {
+  overflow: visible;
+}
+
+.mindBall,
+.mindEyes {
+  transform-box: view-box;
+}
+
+.mindBall {
+  transform-origin: 88px 176px;
+}
+
+.mindEyes {
+  transform-origin: 115px 80px;
+  animation: mind-glance 9s var(--ease) infinite;
+}
+
+.mindEye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mind-blink 5.4s ease-in-out infinite;
+}
+
+.mindMark[data-state="thinking"] .mindEyes {
+  animation: mind-read 2.2s ease-in-out infinite;
+}
+
+.mindMark[data-state="thinking"] .mindEye {
+  animation-duration: 3.1s;
+}
+
+.mindMark[data-state="answered"] .mindBall {
+  animation: mind-hop 700ms cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+.mindMark[data-state="answered"] .mindEye {
+  animation: mind-smile 1s var(--ease) both;
+}
+
+.mindMark[data-state="answered"] .mindEyes {
+  animation: none;
+}
+
+@keyframes mind-blink {
+  0%,
+  91%,
+  100% {
+    transform: scaleY(1);
+  }
+  94% {
+    transform: scaleY(0.12);
+  }
+}
+
+@keyframes mind-glance {
+  0%,
+  62%,
+  100% {
+    transform: translate(0, 0);
+  }
+  68%,
+  84% {
+    transform: translate(-24px, 14px);
+  }
+  90% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes mind-read {
+  0% {
+    transform: translate(-46px, 8px);
+  }
+  40% {
+    transform: translate(2px, 8px);
+  }
+  50% {
+    transform: translate(-46px, 22px);
+  }
+  90% {
+    transform: translate(2px, 22px);
+  }
+  100% {
+    transform: translate(-46px, 8px);
+  }
+}
+
+@keyframes mind-hop {
+  40% {
+    transform: translateY(-10px) scale(0.97, 1.03);
+  }
+  70% {
+    transform: translateY(0) scale(1.03, 0.97);
+  }
+}
+
+@keyframes mind-smile {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  25%,
+  70% {
+    transform: translateY(-4px) scaleY(0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mindEyes,
+  .mindEye,
+  .mindMark[data-state] .mindBall,
+  .mindMark[data-state] .mindEyes,
+  .mindMark[data-state] .mindEye {
+    animation: none;
+  }
+}
