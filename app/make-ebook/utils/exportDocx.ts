@@ -246,7 +246,7 @@ export async function exportDocx({
   }
 
   const doc = new Document({
-    creator: author || "makeEbook",
+    creator: author || "makeebook",
     title: title || "Untitled",
     description: publisher || "",
     sections: [

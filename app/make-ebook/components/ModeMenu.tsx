@@ -20,7 +20,7 @@ function Switch({ on }: { on: boolean }) {
   return (
     <span
       className={`relative inline-block w-8 h-4 rounded-full transition-colors flex-shrink-0 ${
-        on ? "bg-[#008ff0]" : "bg-gray-300 dark:bg-[#3a3a3a]"
+        on ? "bg-[var(--paper)]" : "bg-gray-300 dark:bg-[var(--ink-hover)]"
       }`}
       aria-hidden
     >
@@ -49,10 +49,10 @@ export default function ModeMenu({
         <button
           title="Writing modes"
           aria-label="Writing modes"
-          className="flex items-center gap-2 px-3 h-10 rounded-full bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-transparent hover:bg-gray-200 dark:hover:bg-[#333] transition-colors duration-[var(--me-dur)]"
+          className="flex items-center gap-2 px-3 h-10 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-transparent hover:bg-gray-200 dark:hover:bg-[var(--rule)] transition-colors duration-[var(--me-dur)]"
         >
           <svg
-            className={`w-4 h-4 transition-colors duration-[var(--me-dur)] ${anyOn ? "text-[#008ff0]" : "text-gray-500 dark:text-[#a3a3a3]"}`}
+            className={`w-4 h-4 transition-colors duration-[var(--me-dur)] ${anyOn ? "text-[var(--acid)]" : "text-gray-500 dark:text-[var(--clay-muted)]"}`}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -63,7 +63,7 @@ export default function ModeMenu({
             <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
           </svg>
           <span
-            className={`text-125 font-medium transition-colors duration-[var(--me-dur)] ${anyOn ? "text-[#008ff0]" : "text-gray-700 dark:text-[#d4d4d4]"}`}
+            className={`text-125 font-medium transition-colors duration-[var(--me-dur)] ${anyOn ? "text-[var(--acid)]" : "text-gray-700 dark:text-[var(--clay)]"}`}
           >
             Modes
           </span>
@@ -78,7 +78,7 @@ export default function ModeMenu({
           className="flex items-start gap-3 px-3 py-2.5 cursor-pointer"
         >
           <svg
-            className="w-4 h-4 mt-1 text-gray-500 dark:text-[#a3a3a3] flex-shrink-0"
+            className="w-4 h-4 mt-1 text-gray-500 dark:text-[var(--clay-muted)] flex-shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -89,10 +89,10 @@ export default function ModeMenu({
             <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
           </svg>
           <div className="flex-1 min-w-0">
-            <p className="text-125 font-medium text-gray-900 dark:text-[#e5e5e5]">
+            <p className="text-125 font-medium text-gray-900 dark:text-[var(--paper)]">
               Focus mode
             </p>
-            <p className="text-11 text-gray-500 dark:text-[#a3a3a3] leading-snug mt-1">
+            <p className="text-11 text-gray-500 dark:text-[var(--clay-muted)] leading-snug mt-1">
               Hide chrome and write without distractions.
             </p>
           </div>
@@ -110,17 +110,17 @@ export default function ModeMenu({
             className="flex items-start gap-3 px-3 py-2.5 cursor-pointer"
           >
             <svg
-              className="w-4 h-4 mt-1 text-[#008ff0] flex-shrink-0"
+              className="w-4 h-4 mt-1 text-[var(--acid)] flex-shrink-0"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
               <path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6L12 2z" />
             </svg>
             <div className="flex-1 min-w-0">
-              <p className="text-125 font-medium text-gray-900 dark:text-[#e5e5e5]">
+              <p className="text-125 font-medium text-gray-900 dark:text-[var(--paper)]">
                 Flow mode
               </p>
-              <p className="text-11 text-gray-500 dark:text-[#a3a3a3] leading-snug mt-1">
+              <p className="text-11 text-gray-500 dark:text-[var(--clay-muted)] leading-snug mt-1">
                 AI suggests the next sentence when you pause. Tab to accept.
               </p>
             </div>

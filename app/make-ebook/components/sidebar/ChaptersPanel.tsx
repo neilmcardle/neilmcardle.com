@@ -79,7 +79,7 @@ function HandleDragIcon({ isSelected }: { isSelected: boolean }) {
       className={`relative w-4 h-5 shrink-0 flex items-center justify-center ${
         isSelected
           ? "text-white/45 dark:text-gray-400"
-          : "text-gray-400 dark:text-[#737373]"
+          : "text-gray-400 dark:text-[var(--clay-muted)]"
       }`}
       aria-hidden="true"
     >
@@ -150,12 +150,12 @@ export default function ChaptersPanel({
   return (
     <div
       data-tour="chapters"
-      className="border-b border-gray-200 dark:border-[#2f2f2f] pb-3"
+      className="border-b border-gray-200 dark:border-[var(--rule)] pb-3"
     >
       <div className="flex items-center justify-between py-3 px-3">
         <div className="flex items-center gap-2">
           <svg
-            className="w-4 h-4 text-gray-600 dark:text-[#a3a3a3]"
+            className="w-4 h-4 text-gray-600 dark:text-[var(--clay-muted)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -167,10 +167,10 @@ export default function ChaptersPanel({
             <path d="M14 2v6h6" />
             <path d="M16 13H8M16 17H8M10 9H8" />
           </svg>
-          <span className="text-125 font-semibold text-gray-900 dark:text-[#e5e5e5]">
+          <span className="text-125 font-semibold text-gray-900 dark:text-[var(--paper)]">
             Chapters
           </span>
-          <span className="text-11 text-gray-500 dark:text-[#a3a3a3]">
+          <span className="text-11 text-gray-500 dark:text-[var(--clay-muted)]">
             ({chapters.length})
           </span>
         </div>
@@ -180,17 +180,17 @@ export default function ChaptersPanel({
               onClick={() =>
                 setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)
               }
-              className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[#a3a3a3] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] hover:text-gray-700 dark:hover:text-[#d4d4d4] transition-all duration-150"
+              className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[var(--clay-muted)] hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] hover:text-gray-700 dark:hover:text-[var(--clay)] transition-all duration-150"
               title="Add chapter"
             >
-              <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-[#d4d4d4]" />
+              <PlusIcon className="w-4 h-4 dark:[&_path]:stroke-[var(--clay)]" />
             </button>
 
             {chapterTypeDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-[#252525] rounded-card shadow-lg border border-gray-200 dark:border-[#2f2f2f] z-50 py-1 max-h-96 overflow-y-auto">
+              <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-[var(--ink-panel)] rounded-card shadow-lg border border-gray-200 dark:border-[var(--rule)] z-50 py-1 max-h-96 overflow-y-auto">
                 <div className="space-y-1">
                   <div>
-                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[#a3a3a3] uppercase tracking-[0.08em]">
+                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[var(--clay-muted)] uppercase tracking-[0.08em]">
                       Front Matter
                     </div>
                     {CHAPTER_TEMPLATES.frontmatter.map((template) => (
@@ -205,7 +205,7 @@ export default function ChaptersPanel({
                           );
                           setChapterTypeDropdownOpen(false);
                         }}
-                        className="w-full text-left px-3 py-2 rounded-[6px] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-125 text-gray-900 dark:text-[#e5e5e5] transition-colors"
+                        className="w-full text-left px-3 py-2 rounded-[6px] hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] text-125 text-gray-900 dark:text-[var(--paper)] transition-colors"
                       >
                         {template.title}
                       </button>
@@ -213,7 +213,7 @@ export default function ChaptersPanel({
                   </div>
 
                   <div>
-                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[#a3a3a3] uppercase tracking-[0.08em]">
+                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[var(--clay-muted)] uppercase tracking-[0.08em]">
                       Main Content
                     </div>
                     {CHAPTER_TEMPLATES.content.map((template) => (
@@ -228,7 +228,7 @@ export default function ChaptersPanel({
                           );
                           setChapterTypeDropdownOpen(false);
                         }}
-                        className="w-full text-left px-3 py-2 rounded-[6px] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-125 text-gray-900 dark:text-[#e5e5e5] transition-colors"
+                        className="w-full text-left px-3 py-2 rounded-[6px] hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] text-125 text-gray-900 dark:text-[var(--paper)] transition-colors"
                       >
                         {template.title}
                       </button>
@@ -236,7 +236,7 @@ export default function ChaptersPanel({
                   </div>
 
                   <div>
-                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[#a3a3a3] uppercase tracking-[0.08em]">
+                    <div className="px-3 py-2 text-10 font-semibold text-gray-600 dark:text-[var(--clay-muted)] uppercase tracking-[0.08em]">
                       Back Matter
                     </div>
                     {CHAPTER_TEMPLATES.backmatter.map((template) => (
@@ -251,7 +251,7 @@ export default function ChaptersPanel({
                           );
                           setChapterTypeDropdownOpen(false);
                         }}
-                        className="w-full text-left px-3 py-2 rounded-[6px] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-125 text-gray-900 dark:text-[#e5e5e5] transition-colors"
+                        className="w-full text-left px-3 py-2 rounded-[6px] hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] text-125 text-gray-900 dark:text-[var(--paper)] transition-colors"
                       >
                         {template.title}
                       </button>
@@ -288,7 +288,7 @@ export default function ChaptersPanel({
           />
         ) : (
           <>
-            <p className="text-10 text-gray-500 dark:text-[#737373] px-2 py-2 mb-2">
+            <p className="text-10 text-gray-500 dark:text-[var(--clay-muted)] px-2 py-2 mb-2">
               Drag to reorder
             </p>
             {chapters.map((ch, i) => {
@@ -313,7 +313,7 @@ export default function ChaptersPanel({
                       ? "border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20"
                       : isSelected
                         ? "bg-gray-900 dark:bg-white"
-                        : "hover:bg-gray-100 dark:hover:bg-[#2d2d2d]"
+                        : "hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)]"
                   }`}
                   style={{
                     opacity:
@@ -341,12 +341,12 @@ export default function ChaptersPanel({
                   )}
                   <div className="flex flex-col flex-1 min-w-0 gap-2">
                     <span
-                      className={`text-10 ${isSelected ? "text-white/55 dark:text-gray-500" : "text-gray-500 dark:text-[#737373]"}`}
+                      className={`text-10 ${isSelected ? "text-white/55 dark:text-gray-500" : "text-gray-500 dark:text-[var(--clay-muted)]"}`}
                     >
                       {typeLabel}
                     </span>
                     <span
-                      className={`text-125 truncate ${isSelected ? "text-white dark:text-gray-900 font-semibold" : "text-gray-700 dark:text-[#d4d4d4]"}`}
+                      className={`text-125 truncate ${isSelected ? "text-white dark:text-gray-900 font-semibold" : "text-gray-700 dark:text-[var(--clay)]"}`}
                     >
                       {chapterTitle}
                     </span>
@@ -356,7 +356,7 @@ export default function ChaptersPanel({
                       className={`text-10 tabular-nums flex-shrink-0 ${
                         isSelected
                           ? "text-white/55 dark:text-gray-500"
-                          : "text-gray-400 dark:text-[#5c5c5c]"
+                          : "text-gray-400 dark:text-[var(--clay-muted)]"
                       }`}
                     >
                       {wordCount.toLocaleString()}
@@ -368,8 +368,8 @@ export default function ChaptersPanel({
                         isSelected
                           ? "text-white/70 dark:text-gray-600 hover:bg-white/15 dark:hover:bg-black/10"
                           : ch.locked
-                            ? "text-gray-600 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#333]"
-                            : "text-gray-300 dark:text-[#5c5c5c] hover:text-gray-600 dark:hover:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#333]"
+                            ? "text-gray-600 dark:text-[var(--clay)] hover:bg-gray-200 dark:hover:bg-[var(--rule)]"
+                            : "text-gray-300 dark:text-[var(--clay-muted)] hover:text-gray-600 dark:hover:text-[var(--clay)] hover:bg-gray-200 dark:hover:bg-[var(--rule)]"
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -433,7 +433,7 @@ export default function ChaptersPanel({
                         className="flex items-center gap-1 animate-in fade-in zoom-in-95 slide-in-from-right-1 duration-150"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <span className="px-2 text-10 font-medium text-gray-500 dark:text-[#a3a3a3]">
+                        <span className="px-2 text-10 font-medium text-gray-500 dark:text-[var(--clay-muted)]">
                           Delete?
                         </span>
                         <button
@@ -464,7 +464,7 @@ export default function ChaptersPanel({
                             e.stopPropagation();
                             setPendingDeleteIndex(null);
                           }}
-                          className="p-2 rounded-chip text-gray-500 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors flex-shrink-0"
+                          className="p-2 rounded-chip text-gray-500 hover:bg-gray-200 dark:hover:bg-[var(--rule)] transition-colors flex-shrink-0"
                           aria-label="Cancel"
                           title="Cancel (Esc)"
                         >
@@ -487,7 +487,7 @@ export default function ChaptersPanel({
                         className={`transition-colors p-2 rounded-chip flex-shrink-0 ${
                           isSelected
                             ? "text-white/70 dark:text-gray-600 hover:bg-white/15 dark:hover:bg-black/10"
-                            : "text-gray-300 dark:text-[#5c5c5c] hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[#333]"
+                            : "text-gray-300 dark:text-[var(--clay-muted)] hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[var(--rule)]"
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();

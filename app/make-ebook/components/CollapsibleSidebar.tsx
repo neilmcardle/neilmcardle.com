@@ -232,13 +232,13 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
     >
       <div
         ref={innerRef}
-        className="flex flex-col h-full bg-white dark:bg-[#1e1e1e] border-r border-gray-200 dark:border-[#2a2a2a]"
+        className="flex flex-col h-full bg-white dark:bg-[var(--ink)] border-r border-gray-200 dark:border-[var(--rule)]"
         style={{ width, minWidth: width }}
       >
         <div className="flex justify-end px-4 pt-2 pb-2">
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-50 dark:hover:bg-[#262626] rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-50 dark:hover:bg-[var(--ink-raised)] rounded-lg transition-colors"
             title="Close panel"
             aria-label="Close panel"
           >
@@ -255,7 +255,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 pb-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#C0C0C0] hover:scrollbar-thumb-[#C0C0C0] dark:scrollbar-thumb-[#C0C0C0] dark:hover:scrollbar-thumb-[#C0C0C0]">
+        <div className="flex-1 overflow-y-auto px-4 pb-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[var(--clay-muted)] hover:scrollbar-thumb-[var(--clay-muted)] dark:scrollbar-thumb-[var(--clay-muted)] dark:hover:scrollbar-thumb-[var(--clay-muted)]">
           {activeView === "library" && (
             <>
               <SyncConflictBanner
@@ -356,7 +356,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         aria-valuemin={MIN_WIDTH}
         aria-valuemax={MAX_WIDTH}
         tabIndex={0}
-        className="absolute right-0 top-0 h-full w-1 cursor-col-resize z-50 hidden lg:block touch-none hover:bg-gray-300 dark:hover:bg-[#3a3a3a] focus-visible:bg-gray-400 dark:focus-visible:bg-[#4a4a4a] focus-visible:outline-none transition-colors"
+        className="absolute right-0 top-0 h-full w-1 cursor-col-resize z-50 hidden lg:block touch-none hover:bg-gray-300 dark:hover:bg-[var(--ink-hover)] focus-visible:bg-gray-400 dark:focus-visible:bg-[var(--ink-hover)] focus-visible:outline-none transition-colors"
         onPointerDown={handleResizeStart}
         onKeyDown={handleResizeKeyDown}
       />

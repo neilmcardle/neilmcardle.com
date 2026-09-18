@@ -1114,11 +1114,11 @@ export default function RichTextEditor({
 
   return (
     <div
-      className={`relative border-none rounded bg-white dark:bg-[#1e1e1e] me:bg-[var(--me-content)] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
+      className={`relative border-none rounded bg-white dark:bg-[var(--ink)] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
       {toast && (
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-[#111] text-sm rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] text-sm rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
           {toast}
         </div>
       )}
@@ -1141,7 +1141,7 @@ export default function RichTextEditor({
                 aria-label="Undo"
                 type="button"
                 disabled={disabled}
-                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] text-gray-700 dark:text-[var(--clay)] active:scale-[0.96] transition-all touch-manipulation"
               >
                 <img
                   src="/undo-icon.svg"
@@ -1161,7 +1161,7 @@ export default function RichTextEditor({
                 aria-label="Redo"
                 type="button"
                 disabled={disabled}
-                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-700 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] text-gray-700 dark:text-[var(--clay)] active:scale-[0.96] transition-all touch-manipulation"
               >
                 <img
                   src="/redo-icon.svg"
@@ -1173,7 +1173,7 @@ export default function RichTextEditor({
               </button>
             </div>
 
-            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[var(--rule)] flex-shrink-0" />
 
             <div className="flex items-center gap-2 flex-shrink-0">
               {INLINE.map((b) => (
@@ -1188,8 +1188,8 @@ export default function RichTextEditor({
                   disabled={disabled}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-[0.96] transition-transform touch-manipulation ${
                     formats[b.cmd]
-                      ? "bg-[#008ff0]/15 dark:bg-[#008ff0]/20 text-[#008ff0]"
-                      : "bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]"
+                      ? "bg-[var(--paper)]/15 dark:bg-[var(--paper)]/20 text-[var(--acid)]"
+                      : "bg-gray-100 dark:bg-[var(--ink)] text-gray-700 dark:text-[var(--clay)]"
                   } ${b.className || ""}`}
                 >
                   {b.label}
@@ -1197,7 +1197,7 @@ export default function RichTextEditor({
               ))}
             </div>
 
-            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[var(--rule)] flex-shrink-0" />
 
             <div
               role="group"
@@ -1218,8 +1218,8 @@ export default function RichTextEditor({
                     disabled={disabled}
                     className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold transition-colors touch-manipulation ${
                       active
-                        ? "bg-gray-200 dark:bg-[#3a3a3a] text-gray-900 dark:text-white"
-                        : "text-gray-500 dark:text-[#a3a3a3] hover:text-gray-700 dark:hover:text-[#d4d4d4]"
+                        ? "bg-gray-200 dark:bg-[var(--ink-hover)] text-gray-900 dark:text-white"
+                        : "text-gray-500 dark:text-[var(--clay-muted)] hover:text-gray-700 dark:hover:text-[var(--clay)]"
                     }`}
                   >
                     {h.label}
@@ -1228,7 +1228,7 @@ export default function RichTextEditor({
               })}
             </div>
 
-            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[var(--rule)] flex-shrink-0" />
 
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
@@ -1241,8 +1241,8 @@ export default function RichTextEditor({
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
                   formats["justifyLeft"]
-                    ? "bg-[#008ff0]/15 dark:bg-[#008ff0]/20"
-                    : "bg-gray-100 dark:bg-[#1e1e1e]"
+                    ? "bg-[var(--paper)]/15 dark:bg-[var(--paper)]/20"
+                    : "bg-gray-100 dark:bg-[var(--ink)]"
                 }`}
               >
                 <img
@@ -1271,8 +1271,8 @@ export default function RichTextEditor({
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
                   formats["justifyCenter"]
-                    ? "bg-[#008ff0]/15 dark:bg-[#008ff0]/20"
-                    : "bg-gray-100 dark:bg-[#1e1e1e]"
+                    ? "bg-[var(--paper)]/15 dark:bg-[var(--paper)]/20"
+                    : "bg-gray-100 dark:bg-[var(--ink)]"
                 }`}
               >
                 <img
@@ -1301,8 +1301,8 @@ export default function RichTextEditor({
                 disabled={disabled}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation ${
                   formats["justifyRight"]
-                    ? "bg-[#008ff0]/15 dark:bg-[#008ff0]/20"
-                    : "bg-gray-100 dark:bg-[#1e1e1e]"
+                    ? "bg-[var(--paper)]/15 dark:bg-[var(--paper)]/20"
+                    : "bg-gray-100 dark:bg-[var(--ink)]"
                 }`}
               >
                 <img
@@ -1323,7 +1323,7 @@ export default function RichTextEditor({
               </button>
             </div>
 
-            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[var(--rule)] flex-shrink-0" />
 
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
@@ -1377,7 +1377,7 @@ export default function RichTextEditor({
                 aria-label="Outdent"
                 type="button"
                 disabled={disabled}
-                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] text-gray-600 dark:text-[var(--clay)] active:scale-[0.96] transition-all touch-manipulation"
               >
                 <svg
                   className="w-3.5 h-3.5"
@@ -1437,7 +1437,7 @@ export default function RichTextEditor({
                 aria-label="Indent"
                 type="button"
                 disabled={disabled}
-                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-gray-600 dark:text-[#d4d4d4] active:scale-[0.96] transition-all touch-manipulation"
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] text-gray-600 dark:text-[var(--clay)] active:scale-[0.96] transition-all touch-manipulation"
               >
                 <svg
                   className="w-3.5 h-3.5"
@@ -1454,7 +1454,7 @@ export default function RichTextEditor({
               </button>
             </div>
 
-            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[var(--rule)] flex-shrink-0" />
 
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
@@ -1464,7 +1464,7 @@ export default function RichTextEditor({
                 aria-label="Insert endnote"
                 type="button"
                 disabled={disabled || !onCreateEndnote}
-                className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation disabled:opacity-50"
+                className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation disabled:opacity-50"
               >
                 <Image
                   src="/endnote-icon.svg"
@@ -1483,7 +1483,7 @@ export default function RichTextEditor({
                 aria-label="Insert link"
                 type="button"
                 disabled={disabled}
-                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
+                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
               >
                 <Image
                   src="/link-icon.svg"
@@ -1502,7 +1502,7 @@ export default function RichTextEditor({
                 aria-label="Insert anchor"
                 type="button"
                 disabled={disabled}
-                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
+                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:scale-[0.96] transition-transform touch-manipulation"
               >
                 <Image
                   src="/anchor-icon.svg"
@@ -1516,7 +1516,7 @@ export default function RichTextEditor({
               </button>
             </div>
 
-            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[var(--rule)] flex-shrink-0" />
 
             <button
               onMouseDown={(e) => e.preventDefault()}
@@ -1525,7 +1525,7 @@ export default function RichTextEditor({
               aria-label="Insert image"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation flex-shrink-0"
+              className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation flex-shrink-0"
             >
               <img
                 src="/image-icon.svg"
@@ -1548,7 +1548,7 @@ export default function RichTextEditor({
               aria-label="Remove all formatting"
               type="button"
               disabled={disabled}
-              className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2d2d2d] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation flex-shrink-0"
+              className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation flex-shrink-0"
             >
               <img
                 src="/clear-erase-icon.svg"
@@ -1564,11 +1564,11 @@ export default function RichTextEditor({
 
       {!hideToolbar && showCompactToolbar && (
         <div
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-[200] bg-white dark:bg-[#1e1e1e] border-t border-gray-200 dark:border-[#2f2f2f] shadow-lg"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-[200] bg-white dark:bg-[var(--ink)] border-t border-gray-200 dark:border-[var(--rule)] shadow-lg"
           style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
           {showMoreMenu && (
-            <div className="absolute bottom-full left-0 right-0 bg-white dark:bg-[#1e1e1e] border-t border-gray-200 dark:border-[#2f2f2f] shadow-lg p-3">
+            <div className="absolute bottom-full left-0 right-0 bg-white dark:bg-[var(--ink)] border-t border-gray-200 dark:border-[var(--rule)] shadow-lg p-3">
               <div className="flex flex-wrap gap-2">
                 <button
                   onMouseDown={(e) => e.preventDefault()}
@@ -1577,7 +1577,7 @@ export default function RichTextEditor({
                     setShowMoreMenu(false);
                   }}
                   disabled={!onCreateEndnote}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] text-sm font-medium text-gray-700 dark:text-[#d4d4d4] active:bg-gray-200 disabled:opacity-50"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-gray-200 disabled:opacity-50"
                 >
                   <Image
                     src="/endnote-icon.svg"
@@ -1596,7 +1596,7 @@ export default function RichTextEditor({
                     handleAnchorClick();
                     setShowMoreMenu(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] text-sm font-medium text-gray-700 dark:text-[#d4d4d4] active:bg-gray-200"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-gray-200"
                 >
                   <Image
                     src="/anchor-icon.svg"
@@ -1615,7 +1615,7 @@ export default function RichTextEditor({
                     handleImageButtonClick();
                     setShowMoreMenu(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] text-sm font-medium text-gray-700 dark:text-[#d4d4d4] active:bg-gray-200"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-gray-200"
                 >
                   <img
                     src="/image-icon.svg"
@@ -1634,8 +1634,8 @@ export default function RichTextEditor({
                   }}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium active:bg-gray-200 ${
                     formats["heading3"]
-                      ? "bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]"
-                      : "bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]"
+                      ? "bg-[var(--ink-raised)] dark:bg-white text-white dark:text-[var(--ink-raised)]"
+                      : "bg-gray-100 dark:bg-[var(--ink)] text-gray-700 dark:text-[var(--clay)]"
                   }`}
                 >
                   H3
@@ -1652,7 +1652,7 @@ export default function RichTextEditor({
                   focusEditor();
                   document.execCommand("undo");
                 }}
-                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a]"
+                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)]"
                 title="Undo"
               >
                 <Image
@@ -1670,7 +1670,7 @@ export default function RichTextEditor({
                   focusEditor();
                   document.execCommand("redo");
                 }}
-                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a]"
+                className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)]"
                 title="Redo"
               >
                 <Image
@@ -1684,7 +1684,7 @@ export default function RichTextEditor({
               </button>
             </div>
 
-            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[var(--rule)] flex-shrink-0" />
 
             <div className="flex items-center gap-2 flex-shrink-0">
               {INLINE.map((b) => (
@@ -1694,8 +1694,8 @@ export default function RichTextEditor({
                   onClick={() => applyInlineOrAlign(b.cmd)}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold active:scale-[0.96] transition-transform ${
                     formats[b.cmd]
-                      ? "bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]"
-                      : "bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]"
+                      ? "bg-[var(--ink-raised)] dark:bg-white text-white dark:text-[var(--ink-raised)]"
+                      : "bg-gray-100 dark:bg-[var(--ink)] text-gray-700 dark:text-[var(--clay)]"
                   } ${b.className || ""}`}
                   title={b.title}
                 >
@@ -1704,7 +1704,7 @@ export default function RichTextEditor({
               ))}
             </div>
 
-            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[var(--rule)] flex-shrink-0" />
 
             <div className="flex items-center gap-2 flex-shrink-0">
               {HEADINGS.slice(0, 3).map((h) => (
@@ -1714,8 +1714,8 @@ export default function RichTextEditor({
                   onClick={() => applyHeading(h.level)}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold active:scale-[0.96] transition-transform ${
                     formats[`heading${h.level}`]
-                      ? "bg-[#181a1d] dark:bg-white text-white dark:text-[#181a1d]"
-                      : "bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]"
+                      ? "bg-[var(--ink-raised)] dark:bg-white text-white dark:text-[var(--ink-raised)]"
+                      : "bg-gray-100 dark:bg-[var(--ink)] text-gray-700 dark:text-[var(--clay)]"
                   }`}
                   title={h.title}
                 >
@@ -1724,7 +1724,7 @@ export default function RichTextEditor({
               ))}
             </div>
 
-            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[var(--rule)] flex-shrink-0" />
 
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
@@ -1732,8 +1732,8 @@ export default function RichTextEditor({
                 onClick={() => applyInlineOrAlign("justifyLeft")}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
                   formats["justifyLeft"]
-                    ? "bg-[#181a1d] dark:bg-white"
-                    : "bg-gray-100 dark:bg-[#1e1e1e]"
+                    ? "bg-[var(--ink-raised)] dark:bg-white"
+                    : "bg-gray-100 dark:bg-[var(--ink)]"
                 }`}
                 title="Align Left"
               >
@@ -1759,8 +1759,8 @@ export default function RichTextEditor({
                 onClick={() => applyInlineOrAlign("justifyCenter")}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
                   formats["justifyCenter"]
-                    ? "bg-[#181a1d] dark:bg-white"
-                    : "bg-gray-100 dark:bg-[#1e1e1e]"
+                    ? "bg-[var(--ink-raised)] dark:bg-white"
+                    : "bg-gray-100 dark:bg-[var(--ink)]"
                 }`}
                 title="Align Center"
               >
@@ -1786,8 +1786,8 @@ export default function RichTextEditor({
                 onClick={() => applyInlineOrAlign("justifyRight")}
                 className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform ${
                   formats["justifyRight"]
-                    ? "bg-[#181a1d] dark:bg-white"
-                    : "bg-gray-100 dark:bg-[#1e1e1e]"
+                    ? "bg-[var(--ink-raised)] dark:bg-white"
+                    : "bg-gray-100 dark:bg-[var(--ink)]"
                 }`}
                 title="Align Right"
               >
@@ -1810,12 +1810,12 @@ export default function RichTextEditor({
               </button>
             </div>
 
-            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[var(--rule)] flex-shrink-0" />
 
             <button
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => handleLinkClick()}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a] flex-shrink-0"
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)] flex-shrink-0"
               title="Insert Link"
             >
               <Image
@@ -1836,7 +1836,7 @@ export default function RichTextEditor({
                 emitChange();
                 refreshStates();
               }}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#1e1e1e] flex items-center justify-center active:bg-gray-200 dark:active:bg-[#3a3a3a] flex-shrink-0"
+              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[var(--ink)] flex items-center justify-center active:bg-gray-200 dark:active:bg-[var(--ink-hover)] flex-shrink-0"
               title="Remove all formatting (bold, italic, etc.)"
             >
               <img
@@ -1853,7 +1853,7 @@ export default function RichTextEditor({
               className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-[0.96] transition-transform flex-shrink-0 ${
                 showMoreMenu
                   ? "bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400"
-                  : "bg-gray-100 dark:bg-[#1e1e1e] text-gray-700 dark:text-[#d4d4d4]"
+                  : "bg-gray-100 dark:bg-[var(--ink)] text-gray-700 dark:text-[var(--clay)]"
               }`}
               title="More options"
             >
@@ -1864,7 +1864,7 @@ export default function RichTextEditor({
               </svg>
             </button>
 
-            <div className="w-px h-6 bg-gray-300 dark:bg-[#2f2f2f] flex-shrink-0" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-[var(--rule)] flex-shrink-0" />
 
             <button
               onMouseDown={(e) => e.preventDefault()}
@@ -1883,13 +1883,13 @@ export default function RichTextEditor({
 
       <div className="flex-1 min-w-0 relative flex flex-col min-h-0">
         {showPlaceholder && (
-          <div className="absolute left-6 top-6 text-[#737373] text-lg pointer-events-none select-none z-10">
+          <div className="absolute left-6 top-6 text-[var(--clay-muted)] text-lg pointer-events-none select-none z-10">
             {placeholder}
           </div>
         )}
         <div
           ref={editorRef}
-          className="editor-root p-6 text-base focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-y-auto flex-1 min-h-0 overflow-x-hidden text-gray-900 dark:text-white/80 me:text-[var(--me-ink)]"
+          className="editor-root p-6 text-base focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-y-auto flex-1 min-h-0 overflow-x-hidden text-gray-900 dark:text-white/80"
           style={{
             minHeight: Math.max(minHeight, 200),
             maxHeight: "calc(100vh - 300px)",
@@ -2004,7 +2004,7 @@ export default function RichTextEditor({
           }
         `}</style>
         {showWordCount && (
-          <div className="px-4 pb-2 text-3xs text-[#86868B] dark:text-[#a3a3a3] flex justify-between items-center select-none">
+          <div className="px-4 pb-2 text-3xs text-[var(--clay-muted)] dark:text-[var(--clay-muted)] flex justify-between items-center select-none">
             <div className="lg:hidden flex items-center space-x-2">
               <a
                 href="https://makeebook.ink/terms"
@@ -2045,7 +2045,7 @@ export default function RichTextEditor({
 
       <div
         onMouseDown={toolbarMouseDown}
-        className={`hidden w-32 border-l bg-[#F7F7F7] flex-col gap-4 p-2 overflow-y-auto ${
+        className={`hidden w-32 border-l bg-[var(--paper)] flex-col gap-4 p-2 overflow-y-auto ${
           focused ? "opacity-100" : "opacity-70"
         } transition`}
       >
@@ -2159,10 +2159,10 @@ export default function RichTextEditor({
           onClick={() => setShowEndnoteModal(false)}
         >
           <div
-            className="bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl w-full max-w-md mx-4"
+            className="bg-white dark:bg-[var(--ink)] rounded-lg shadow-xl w-full max-w-md mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#2f2f2f]">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[var(--rule)]">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Add Endnote
               </h3>
@@ -2170,7 +2170,7 @@ export default function RichTextEditor({
             <div className="px-6 py-4">
               <label
                 htmlFor="rte-endnote-content"
-                className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4] mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-[var(--clay)] mb-2"
               >
                 Endnote content
               </label>
@@ -2190,7 +2190,7 @@ export default function RichTextEditor({
                 placeholder="Enter your endnote text here..."
                 autoFocus
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-[#444] rounded-lg bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[var(--ink-hover)] rounded-lg bg-white dark:bg-[var(--ink)] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
               />
               {!hasEndnotes && (
                 <p className="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-start gap-2">
@@ -2214,17 +2214,17 @@ export default function RichTextEditor({
                 </p>
               )}
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 dark:border-[#2f2f2f] flex justify-end gap-2">
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-[var(--rule)] flex justify-end gap-2">
               <button
                 onClick={() => setShowEndnoteModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f] rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)] rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddEndnote}
                 disabled={!endnoteContent.trim()}
-                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-[#111] hover:opacity-90 rounded-lg transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-[var(--ink-deep)] hover:opacity-90 rounded-lg transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add Endnote
               </button>
@@ -2239,10 +2239,10 @@ export default function RichTextEditor({
           onClick={() => setShowImageCaptionModal(false)}
         >
           <div
-            className="bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl w-full max-w-md mx-4"
+            className="bg-white dark:bg-[var(--ink)] rounded-lg shadow-xl w-full max-w-md mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#2f2f2f]">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[var(--rule)]">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Add Image Caption
               </h3>
@@ -2250,7 +2250,7 @@ export default function RichTextEditor({
             <div className="px-6 py-4">
               <label
                 htmlFor="rte-caption"
-                className="block text-sm font-medium text-gray-700 dark:text-[#d4d4d4] mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-[var(--clay)] mb-2"
               >
                 Caption (optional)
               </label>
@@ -2271,25 +2271,25 @@ export default function RichTextEditor({
                 }}
                 placeholder="E.g., Figure 1: Market trends in 2024"
                 autoFocus
-                className="w-full px-3 py-2 border border-gray-300 dark:border-[#444] rounded-lg bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[var(--ink-hover)] rounded-lg bg-white dark:bg-[var(--ink)] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
               />
-              <p className="mt-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
+              <p className="mt-2 text-xs text-gray-500 dark:text-[var(--clay-muted)]">
                 Press Enter to add image, or Esc to cancel
               </p>
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 dark:border-[#2f2f2f] flex justify-end gap-2">
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-[var(--rule)] flex justify-end gap-2">
               <button
                 onClick={() => {
                   setShowImageCaptionModal(false);
                   setPendingImageSrc(null);
                 }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f] rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)] rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddImageWithCaption}
-                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-[#111] hover:opacity-90 rounded-lg transition-opacity"
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-[var(--ink-deep)] hover:opacity-90 rounded-lg transition-opacity"
               >
                 Add Image
               </button>
@@ -2319,7 +2319,7 @@ function Section({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-2xs font-semibold tracking-wide uppercase text-[#86868B] select-none">
+      <div className="text-2xs font-semibold tracking-wide uppercase text-[var(--clay-muted)] select-none">
         {label}
       </div>
       {children}

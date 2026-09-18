@@ -282,15 +282,15 @@ export default function InlineEditPopover({
         display: "flex",
         flexDirection: "column",
       }}
-      className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-[#2f2f2f] rounded-xl shadow-2xl overflow-hidden"
+      className="bg-white dark:bg-[var(--ink)] border border-gray-200 dark:border-[var(--rule)] rounded-xl shadow-2xl overflow-hidden"
       role="dialog"
       aria-label="Edit selection with Book Mind"
     >
-      <div className="px-4 pt-3 pb-2 border-b border-gray-100 dark:border-[#262626] flex-shrink-0">
-        <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium mb-1">
+      <div className="px-4 pt-3 pb-2 border-b border-gray-100 dark:border-[var(--ink-raised)] flex-shrink-0">
+        <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[var(--clay-muted)] font-medium mb-1">
           Editing
         </p>
-        <p className="text-xs text-gray-500 dark:text-[#a3a3a3] italic truncate">
+        <p className="text-xs text-gray-500 dark:text-[var(--clay-muted)] italic truncate">
           &ldquo;
           {request.selectedText.length > 80
             ? request.selectedText.slice(0, 80) + "…"
@@ -302,7 +302,7 @@ export default function InlineEditPopover({
       <div className="px-4 pt-3 pb-2 flex-shrink-0">
         <div className="flex items-start gap-2">
           <svg
-            className="w-4 h-4 text-[#008ff0] flex-shrink-0 mt-1"
+            className="w-4 h-4 text-[var(--acid)] flex-shrink-0 mt-1"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -321,14 +321,14 @@ export default function InlineEditPopover({
             placeholder="Make this tighter, rewrite as dialogue, add sensory detail…"
             rows={1}
             disabled={isLoading}
-            className="flex-1 bg-transparent border-none outline-none text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#737373] resize-none leading-relaxed disabled:opacity-50"
+            className="flex-1 bg-transparent border-none outline-none text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[var(--clay-muted)] resize-none leading-relaxed disabled:opacity-50"
             style={{ minHeight: 22, maxHeight: 80 }}
           />
         </div>
       </div>
 
       {(isLoading || hasAnyResult || error) && (
-        <div className="flex-1 min-h-0 overflow-y-auto border-t border-gray-100 dark:border-[#262626]">
+        <div className="flex-1 min-h-0 overflow-y-auto border-t border-gray-100 dark:border-[var(--ink-raised)]">
           {error && (
             <div className="px-4 py-3 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30">
               {error}
@@ -337,7 +337,7 @@ export default function InlineEditPopover({
 
           {(hasAnyResult || isLoading) && numAlternatives > 1 && (
             <div className="px-4 pt-3 pb-1 flex items-center gap-3">
-              <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium">
+              <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[var(--clay-muted)] font-medium">
                 {isLoading && !hasAnyResult
                   ? "Generating 3 alternatives…"
                   : "Alternatives"}
@@ -350,23 +350,23 @@ export default function InlineEditPopover({
                     disabled={r === null}
                     className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center transition-all ${
                       i === activeIndex && r !== null
-                        ? "bg-[#008ff0] text-white"
+                        ? "bg-[var(--paper)] text-[var(--ink-deep)]"
                         : r !== null
-                          ? "bg-gray-200 dark:bg-[#2f2f2f] text-gray-600 dark:text-[#a3a3a3] hover:bg-gray-300 dark:hover:bg-[#3a3a3a]"
-                          : "bg-gray-100 dark:bg-[#262626] text-gray-300 dark:text-[#525252]"
+                          ? "bg-gray-200 dark:bg-[var(--rule)] text-gray-600 dark:text-[var(--clay-muted)] hover:bg-gray-300 dark:hover:bg-[var(--ink-hover)]"
+                          : "bg-gray-100 dark:bg-[var(--ink-raised)] text-gray-300 dark:text-[var(--clay-muted)]"
                     }`}
                     title={r !== null ? `Alternative ${i + 1}` : "Generating…"}
                   >
                     {r !== null ? (
                       i + 1
                     ) : (
-                      <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-[#525252] animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-[var(--clay-muted)] animate-pulse" />
                     )}
                   </button>
                 ))}
               </div>
               {completedCount > 0 && (
-                <span className="text-2xs text-gray-400 dark:text-[#737373]">
+                <span className="text-2xs text-gray-400 dark:text-[var(--clay-muted)]">
                   {completedCount}/{numAlternatives} ready
                 </span>
               )}
@@ -376,10 +376,10 @@ export default function InlineEditPopover({
           {activeResult && (
             <div className="px-4 pt-2 pb-3 space-y-3">
               <div>
-                <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium mb-1">
+                <p className="text-2xs uppercase tracking-wider text-gray-400 dark:text-[var(--clay-muted)] font-medium mb-1">
                   Original
                 </p>
-                <p className="text-xs text-gray-400 dark:text-[#636363] leading-relaxed line-through decoration-gray-300 dark:decoration-[#525252]">
+                <p className="text-xs text-gray-400 dark:text-[var(--clay-muted)] leading-relaxed line-through decoration-gray-300 dark:decoration-[var(--clay-muted)]">
                   {request.selectedText.length > 300
                     ? request.selectedText.slice(0, 300) + "…"
                     : request.selectedText}
@@ -390,15 +390,15 @@ export default function InlineEditPopover({
                 type="button"
                 onClick={handleAccept}
                 aria-label="Accept this suggestion"
-                className="group w-full text-left rounded-lg p-2 -m-2 cursor-pointer transition-colors hover:bg-[#008ff0]/5 dark:hover:bg-[#008ff0]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#008ff0]/40"
+                className="group w-full text-left rounded-lg p-2 -m-2 cursor-pointer transition-colors hover:bg-[var(--paper)]/5 dark:hover:bg-[var(--paper)]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--acid)]/40"
               >
-                <p className="text-2xs uppercase tracking-wider text-[#008ff0] font-medium mb-1 flex items-center gap-2">
+                <p className="text-2xs uppercase tracking-wider text-[var(--acid)] font-medium mb-1 flex items-center gap-2">
                   Suggestion
-                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] normal-case tracking-normal text-gray-400 dark:text-[#737373]">
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] normal-case tracking-normal text-gray-400 dark:text-[var(--clay-muted)]">
                     click to accept
                   </span>
                 </p>
-                <p className="text-sm text-gray-800 dark:text-[#f5f5f5] leading-relaxed whitespace-pre-wrap">
+                <p className="text-sm text-gray-800 dark:text-[var(--paper)] leading-relaxed whitespace-pre-wrap">
                   {activeResult}
                 </p>
               </button>
@@ -406,7 +406,7 @@ export default function InlineEditPopover({
           )}
 
           {isLoading && !hasAnyResult && (
-            <div className="px-4 py-4 flex items-center gap-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
+            <div className="px-4 py-4 flex items-center gap-2 text-xs text-gray-500 dark:text-[var(--clay-muted)]">
               <Spinner size="xs" />
               Rewriting…
             </div>
@@ -414,8 +414,8 @@ export default function InlineEditPopover({
         </div>
       )}
 
-      <div className="px-3 py-2 border-t border-gray-100 dark:border-[#262626] bg-gray-50 dark:bg-[#181818] flex items-center justify-between gap-2 flex-shrink-0">
-        <p className="text-2xs text-gray-400 dark:text-[#737373] leading-tight min-w-0 truncate">
+      <div className="px-3 py-2 border-t border-gray-100 dark:border-[var(--ink-raised)] bg-gray-50 dark:bg-[var(--ink-window)] flex items-center justify-between gap-2 flex-shrink-0">
+        <p className="text-2xs text-gray-400 dark:text-[var(--clay-muted)] leading-tight min-w-0 truncate">
           {hasAnyResult ? (
             <>
               {numAlternatives > 1 && (
@@ -438,7 +438,7 @@ export default function InlineEditPopover({
                 <button
                   onClick={handleMoreTakes}
                   disabled={isLoading}
-                  className="px-3 py-1 text-xs font-medium text-[#008ff0] border border-[#008ff0]/30 hover:bg-[#008ff0]/5 dark:hover:bg-[#008ff0]/10 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
+                  className="px-3 py-1 text-xs font-medium text-[var(--acid)] border border-[var(--acid)]/30 hover:bg-[var(--paper)]/5 dark:hover:bg-[var(--paper)]/10 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
                 >
                   More takes
                 </button>
@@ -446,14 +446,14 @@ export default function InlineEditPopover({
               <button
                 onClick={handleRegenerate}
                 disabled={isLoading}
-                className="px-3 py-1 text-xs font-medium text-gray-600 dark:text-[#a3a3a3] border border-gray-200 dark:border-[#3a3a3a] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
+                className="px-3 py-1 text-xs font-medium text-gray-600 dark:text-[var(--clay-muted)] border border-gray-200 dark:border-[var(--ink-hover)] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
               >
                 Try again
               </button>
               <button
                 onClick={handleAccept}
                 disabled={!activeResult}
-                className="px-3 py-1 text-xs font-medium bg-[#008ff0] text-white hover:bg-[#3560e6] rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
+                className="px-3 py-1 text-xs font-medium bg-[var(--paper)] text-[var(--ink-deep)] hover:bg-[var(--clay)] rounded-md transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
               >
                 Accept
               </button>
@@ -463,7 +463,7 @@ export default function InlineEditPopover({
             <button
               onClick={() => handleSubmit()}
               disabled={!instruction.trim()}
-              className="px-3 py-1 text-xs font-medium bg-[#008ff0] text-white hover:bg-[#3560e6] rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
+              className="px-3 py-1 text-xs font-medium bg-[var(--paper)] text-[var(--ink-deep)] hover:bg-[var(--clay)] rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
             >
               Rewrite
             </button>
@@ -477,7 +477,7 @@ export default function InlineEditPopover({
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="inline-flex items-center px-1 py-0 rounded border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-[#262626] text-gray-600 dark:text-[#a3a3a3] font-mono text-[10px] leading-tight mx-0.5">
+    <kbd className="inline-flex items-center px-1 py-0 rounded border border-gray-200 dark:border-[var(--ink-hover)] bg-white dark:bg-[var(--ink-raised)] text-gray-600 dark:text-[var(--clay-muted)] font-mono text-[10px] leading-tight mx-0.5">
       {children}
     </kbd>
   );

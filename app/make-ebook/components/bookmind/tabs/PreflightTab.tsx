@@ -107,7 +107,7 @@ export default function PreflightTab({
   const needsAttention = [...blocks, ...warns];
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#252525] text-gray-900 dark:text-white">
+    <div className="flex flex-col h-full bg-white dark:bg-[var(--ink-panel)] text-gray-900 dark:text-white">
       <div className="flex-1 overflow-y-auto min-h-0">
         <div className="px-4 pt-4 pb-5">
           <div className="flex items-baseline gap-2">
@@ -117,25 +117,25 @@ export default function PreflightTab({
             >
               {passes.length}
             </span>
-            <span className="text-125 text-gray-500 dark:text-[#a3a3a3]">
+            <span className="text-125 text-gray-500 dark:text-[var(--clay-muted)]">
               of {checks.length} checks clear
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3">
             {blocks.length > 0 && (
-              <span className="flex items-center gap-1.5 text-11 text-gray-600 dark:text-[#a3a3a3]">
+              <span className="flex items-center gap-1.5 text-11 text-gray-600 dark:text-[var(--clay-muted)]">
                 <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
                 {blocks.length} blocking
               </span>
             )}
             {warns.length > 0 && (
-              <span className="flex items-center gap-1.5 text-11 text-gray-600 dark:text-[#a3a3a3]">
+              <span className="flex items-center gap-1.5 text-11 text-gray-600 dark:text-[var(--clay-muted)]">
                 <span className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0" />
                 {warns.length} to look at
               </span>
             )}
             {passes.length > 0 && (
-              <span className="flex items-center gap-1.5 text-11 text-gray-600 dark:text-[#a3a3a3]">
+              <span className="flex items-center gap-1.5 text-11 text-gray-600 dark:text-[var(--clay-muted)]">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
                 {passes.length} clear
               </span>
@@ -145,7 +145,7 @@ export default function PreflightTab({
 
         {needsAttention.length > 0 && (
           <div className="px-3">
-            <h3 className="px-1 pb-2 text-10 font-semibold uppercase tracking-[0.15em] text-gray-500 dark:text-[#a3a3a3]">
+            <h3 className="px-1 pb-2 text-10 font-semibold uppercase tracking-[0.15em] text-gray-500 dark:text-[var(--clay-muted)]">
               Needs you
             </h3>
             <div className="space-y-2">
@@ -191,7 +191,7 @@ export default function PreflightTab({
                         {check.label}
                       </span>
                     </div>
-                    <p className="text-11 leading-relaxed text-gray-600 dark:text-[#a3a3a3] mt-1.5">
+                    <p className="text-11 leading-relaxed text-gray-600 dark:text-[var(--clay-muted)] mt-1.5">
                       {check.message}
                     </p>
                   </div>
@@ -203,7 +203,7 @@ export default function PreflightTab({
 
         {passes.length > 0 && (
           <div className="px-3 pt-5">
-            <h3 className="px-1 pb-1.5 text-10 font-semibold uppercase tracking-[0.15em] text-gray-500 dark:text-[#a3a3a3]">
+            <h3 className="px-1 pb-1.5 text-10 font-semibold uppercase tracking-[0.15em] text-gray-500 dark:text-[var(--clay-muted)]">
               Clear
             </h3>
             <div>
@@ -224,7 +224,7 @@ export default function PreflightTab({
                     <polyline points="4 12 9 17 20 6" />
                   </svg>
                   <span
-                    className="flex-1 min-w-0 text-125 text-gray-700 dark:text-[#d4d4d4] truncate"
+                    className="flex-1 min-w-0 text-125 text-gray-700 dark:text-[var(--clay)] truncate"
                     title={check.message}
                   >
                     {check.label}
@@ -236,10 +236,10 @@ export default function PreflightTab({
         )}
 
         <div ref={disclosureRef} className="px-3 pt-6 pb-5">
-          <h3 className="px-1 pb-1.5 text-10 font-semibold uppercase tracking-[0.15em] text-gray-500 dark:text-[#a3a3a3]">
+          <h3 className="px-1 pb-1.5 text-10 font-semibold uppercase tracking-[0.15em] text-gray-500 dark:text-[var(--clay-muted)]">
             AI disclosure
           </h3>
-          <p className="px-1 text-11 text-gray-500 dark:text-[#a3a3a3] mb-3 leading-relaxed">
+          <p className="px-1 text-11 text-gray-500 dark:text-[var(--clay-muted)] mb-3 leading-relaxed">
             Amazon delists for undisclosed AI, not for using it. Pick how this
             book was written and we write the text for KDP.
           </p>
@@ -250,8 +250,8 @@ export default function PreflightTab({
                 onClick={() => setSelectedDisclosure(opt.id)}
                 className={`w-full text-left px-3 py-2.5 rounded-control text-11 transition-colors ${
                   selectedDisclosure === opt.id
-                    ? "bg-[#008ff0]/10 dark:bg-[#008ff0]/15 text-[#008ff0] font-medium"
-                    : "bg-gray-50 dark:bg-[#262626] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f]"
+                    ? "bg-[var(--paper)]/10 dark:bg-[var(--paper)]/15 text-[var(--acid)] font-medium"
+                    : "bg-gray-50 dark:bg-[var(--ink-raised)] text-gray-700 dark:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)]"
                 }`}
               >
                 {opt.label}
@@ -260,14 +260,14 @@ export default function PreflightTab({
           </div>
 
           {activeDisclosure && (
-            <div className="mt-3 p-3 rounded-card bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#2f2f2f]">
-              <p className="text-11 text-gray-700 dark:text-[#d4d4d4] leading-relaxed mb-2">
+            <div className="mt-3 p-3 rounded-card bg-gray-50 dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--rule)]">
+              <p className="text-11 text-gray-700 dark:text-[var(--clay)] leading-relaxed mb-2">
                 {activeDisclosure.disclosure}
               </p>
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleCopyDisclosure}
-                  className="text-11 font-medium text-[#008ff0] hover:text-[#3560e6] transition-colors"
+                  className="text-11 font-medium text-[var(--acid)] hover:text-[var(--acid-hover)] transition-colors"
                 >
                   {copied ? "Copied to clipboard" : "Copy disclosure text"}
                 </button>
@@ -281,7 +281,7 @@ export default function PreflightTab({
                       setTimeout(() => setAddedChapter(false), 2000);
                     }}
                     disabled={addedChapter}
-                    className="text-11 font-medium text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white transition-colors disabled:text-emerald-600 dark:disabled:text-emerald-400"
+                    className="text-11 font-medium text-gray-600 dark:text-[var(--clay-muted)] hover:text-gray-900 dark:hover:text-white transition-colors disabled:text-emerald-600 dark:disabled:text-emerald-400"
                   >
                     {addedChapter
                       ? "Added to book"
@@ -295,7 +295,7 @@ export default function PreflightTab({
       </div>
 
       {onExport && (
-        <div className="flex-shrink-0 px-4 py-4 border-t border-gray-200 dark:border-[#2f2f2f]">
+        <div className="flex-shrink-0 px-4 py-4 border-t border-gray-200 dark:border-[var(--rule)]">
           <button
             onClick={onExport}
             className="w-full flex items-center justify-center gap-2 h-11 rounded-pill bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:opacity-90 transition-opacity"
@@ -315,7 +315,7 @@ export default function PreflightTab({
             </svg>
             <span>Export book</span>
           </button>
-          <p className="text-10 text-center text-gray-400 dark:text-[#737373] mt-2.5">
+          <p className="text-10 text-center text-gray-400 dark:text-[var(--clay-muted)] mt-2.5">
             {blocks.length > 0
               ? `${blocks.length} blocking ${blocks.length === 1 ? "issue" : "issues"} to fix first.`
               : warns.length > 0
@@ -330,11 +330,11 @@ export default function PreflightTab({
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#252525] text-gray-900 dark:text-white">
+    <div className="flex flex-col h-full bg-white dark:bg-[var(--ink-panel)] text-gray-900 dark:text-white">
       <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
         <div className="flex items-center gap-2">
           <svg
-            className="w-5 h-5 text-gray-500 dark:text-[#a3a3a3]"
+            className="w-5 h-5 text-gray-500 dark:text-[var(--clay-muted)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -350,8 +350,10 @@ function EmptyState({ message }: { message: string }) {
       </div>
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center space-y-3 max-w-[260px]">
-          <BookIcon className="w-8 h-8 text-gray-300 dark:text-[#737373] mx-auto" />
-          <p className="text-sm text-gray-500 dark:text-[#a3a3a3]">{message}</p>
+          <BookIcon className="w-8 h-8 text-gray-300 dark:text-[var(--clay-muted)] mx-auto" />
+          <p className="text-sm text-gray-500 dark:text-[var(--clay-muted)]">
+            {message}
+          </p>
         </div>
       </div>
     </div>

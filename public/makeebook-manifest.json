@@ -1,6 +1,6 @@
 {
-  "name": "makeEbook",
-  "short_name": "makeEbook",
+  "name": "makeebook",
+  "short_name": "makeebook",
   "description": "Create beautiful eBooks right in your browser",
   "start_url": "/",
   "display": "standalone",

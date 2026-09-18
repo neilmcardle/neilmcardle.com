@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | makeEbook Blog",
-    default: "Ebook Writing & Self-Publishing Guides | makeEbook Blog",
+    template: "%s | makeebook Blog",
+    default: "Ebook Writing & Self-Publishing Guides | makeebook Blog",
   },
   description:
     "Guides, tips, and tools for writing, formatting, and self-publishing ebooks. From first draft to published EPUB on Kindle, Kobo, and Apple Books.",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     canonical: "https://makeebook.ink/blog",
   },
   openGraph: {
-    siteName: "makeEbook",
+    siteName: "makeebook",
     type: "website",
     url: "https://makeebook.ink/blog",
     images: [
@@ -20,13 +20,13 @@ export const metadata: Metadata = {
         url: "/make-ebook/brand/social.jpg",
         width: 2400,
         height: 1260,
-        alt: "makeEbook Blog. Ebook writing and self-publishing guides.",
+        alt: "makeebook Blog. Ebook writing and self-publishing guides.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    site: "@makeEbook",
+    site: "@makeebook",
     images: ["/make-ebook/brand/social.jpg"],
   },
 };

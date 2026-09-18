@@ -1,9 +1,5 @@
 "use client";
 
-// Full slide-over for long analytical responses. Renders content in a
-// generous reading width with serif typography. Citation pills still
-// work here so the user can jump into the editor.
-
 import React from "react";
 import {
   Sheet,
@@ -31,7 +27,6 @@ export default function ReadingView({
   chapters,
   onNavigate,
 }: ReadingViewProps) {
-  // Try the structured path first; fall back to markdown rendering.
   const structured = tryParseAnalyticalResponse(content);
 
   const handleNavigate = (chapterIndex: number, chapterId?: string) => {
@@ -43,11 +38,11 @@ export default function ReadingView({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-[min(80vw,880px)] p-0 bg-white dark:bg-[#1a1a1a] border-l border-gray-200 dark:border-[#2f2f2f]"
+        className="w-full sm:max-w-[min(80vw,880px)] p-0 bg-white dark:bg-[var(--ink-window)] border-l border-gray-200 dark:border-[var(--rule)]"
       >
         <div className="h-full flex flex-col">
-          <SheetHeader className="px-8 pt-8 pb-4 border-b border-gray-100 dark:border-[#262626] text-left space-y-1">
-            <p className="text-xs uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium">
+          <SheetHeader className="px-8 pt-8 pb-4 border-b border-gray-100 dark:border-[var(--ink-raised)] text-left space-y-1">
+            <p className="text-xs uppercase tracking-wider text-gray-400 dark:text-[var(--clay-muted)] font-medium">
               Book Mind reading view
             </p>
             <SheetTitle
@@ -71,8 +66,10 @@ export default function ReadingView({
                 />
               ) : (
                 <div
-                  className="text-[15px] leading-[1.75] text-gray-800 dark:text-[#e5e5e5] [&>p+p]:mt-4 [&>p]:m-0"
-                  dangerouslySetInnerHTML={{ __html: formatBookMindMessage(content) }}
+                  className="text-[15px] leading-[1.75] text-gray-800 dark:text-[var(--paper)] [&>p+p]:mt-4 [&>p]:m-0"
+                  dangerouslySetInnerHTML={{
+                    __html: formatBookMindMessage(content),
+                  }}
                 />
               )}
             </div>

@@ -42,7 +42,7 @@ export function HomepageProjectPreview({ k, sizes, bare }: PreviewProps) {
     return (
       <FoilCard
         className="w-full"
-        image={{ src: "/screenshots/makeebook.png", alt: "makeEbook editor" }}
+        image={{ src: "/screenshots/makeebook.png", alt: "makeebook editor" }}
         hideFade
         sizes={sizes}
         bare={bare}

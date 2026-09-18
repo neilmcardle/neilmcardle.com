@@ -5,6 +5,7 @@ import styles from "./home.module.css";
 import { HomepageProjectPreview } from "@/components/HomepageProjectPreview";
 import type { BadgeKey } from "./ProductBadge";
 import PinMark from "./PinMark";
+import CoverlyMocks from "./CoverlyMocks";
 import MakeEbookMocks from "./MakeEbookMocks";
 
 export type Feature = {
@@ -124,6 +125,8 @@ export function ProductDetail({ feature }: { feature: Feature }) {
       <div className={styles.dockGallery}>
         {feature.tileKey === "makeebook" ? (
           <MakeEbookMocks />
+        ) : feature.tileKey === "coverly" ? (
+          <CoverlyMocks />
         ) : (
           <div className={styles.dockShot}>
             <HomepageProjectPreview

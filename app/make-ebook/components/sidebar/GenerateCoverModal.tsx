@@ -94,13 +94,13 @@ export default function GenerateCoverModal({
               />
             )}
           </div>
-          <p className="mt-2 text-center text-xs text-gray-500 dark:text-[#a3a3a3] font-medium">
+          <p className="mt-2 text-center text-xs text-gray-500 dark:text-[var(--clay-muted)] font-medium">
             {selected.name}
           </p>
         </div>
 
         <div className="flex-1">
-          <div className="text-xs font-medium text-gray-700 dark:text-[#a3a3a3] mb-3">
+          <div className="text-xs font-medium text-gray-700 dark:text-[var(--clay-muted)] mb-3">
             Colour
           </div>
           <div className="grid grid-cols-6 sm:grid-cols-4 gap-2">
@@ -113,7 +113,7 @@ export default function GenerateCoverModal({
                   onClick={() => setSelected(palette)}
                   className={`relative aspect-[2/3] rounded transition-all overflow-hidden ${
                     active
-                      ? "ring-2 ring-offset-2 ring-[#141413] dark:ring-white dark:ring-offset-[#1e1e1e] scale-[1.03]"
+                      ? "ring-2 ring-offset-2 ring-[var(--ink)] dark:ring-white dark:ring-offset-[var(--ink)] scale-[1.03]"
                       : "hover:scale-[1.02]"
                   }`}
                   style={{ background: palette.bg }}
@@ -145,14 +145,14 @@ export default function GenerateCoverModal({
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[#d4d4d4] hover:text-[#050505] dark:hover:text-white transition-colors"
+          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[var(--clay)] hover:text-[var(--ink-deep)] dark:hover:text-white transition-colors"
         >
           Cancel
         </button>
         <button
           type="button"
           onClick={handleAccept}
-          className="px-5 py-2 text-sm font-semibold bg-[#141413] text-[#faf9f5] hover:bg-[#2a2a28] rounded-full transition-colors"
+          className="px-5 py-2 text-sm font-semibold bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--rule)] rounded-full transition-colors"
         >
           Use this cover
         </button>

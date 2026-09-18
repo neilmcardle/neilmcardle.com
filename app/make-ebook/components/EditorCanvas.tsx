@@ -97,7 +97,7 @@ export default function EditorCanvas({
     <>
       <div
         key={chapter?.id ?? selectedChapter}
-        className="me-chapter-in flex-shrink-0 px-6 pt-6 pb-4 bg-white dark:bg-[#1e1e1e] dark:border-b dark:border-[#2f2f2f]"
+        className="me-chapter-in flex-shrink-0 px-6 pt-6 pb-4 bg-white dark:bg-[var(--ink)] dark:border-b dark:border-[var(--rule)]"
       >
         <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-gray-400 dark:text-white/30 mb-2 select-none">
           {sectionLabel}
@@ -151,18 +151,18 @@ export default function EditorCanvas({
         >
           {onInlineEditRequest && (
             <div className="mt-2 mb-3 flex-shrink-0 flex items-center justify-end px-6">
-              <div className="hidden lg:flex items-center gap-2 text-2xs text-gray-400 dark:text-[#737373]">
+              <div className="hidden lg:flex items-center gap-2 text-2xs text-gray-400 dark:text-[var(--clay-muted)]">
                 <span className="flex items-center gap-1">
-                  <kbd className="inline-flex items-center px-2 py-1 rounded bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#3a3a3a] text-gray-500 dark:text-[#a3a3a3] font-mono text-[10px] leading-none">
+                  <kbd className="inline-flex items-center px-2 py-1 rounded bg-gray-100 dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--ink-hover)] text-gray-500 dark:text-[var(--clay-muted)] font-mono text-[10px] leading-none">
                     <ModKey keyName="K" />
                   </kbd>
                   <span>edit with AI</span>
                 </span>
-                <span className="text-gray-300 dark:text-[#3a3a3a]">
+                <span className="text-gray-300 dark:text-[var(--ink-hover)]">
                   &middot;
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="inline-flex items-center px-2 py-1 rounded bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#3a3a3a] text-gray-500 dark:text-[#a3a3a3] font-mono text-[10px] leading-none">
+                  <kbd className="inline-flex items-center px-2 py-1 rounded bg-gray-100 dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--ink-hover)] text-gray-500 dark:text-[var(--clay-muted)] font-mono text-[10px] leading-none">
                     /
                   </kbd>
                   <span>commands</span>
@@ -173,7 +173,7 @@ export default function EditorCanvas({
 
           <div className="flex-1 min-h-0">
             {chapter?.locked && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-[#262626] border-b border-gray-200 dark:border-[#2f2f2f] text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-[var(--ink-raised)] border-b border-gray-200 dark:border-[var(--rule)] text-xs text-gray-500 dark:text-gray-400">
                 <LockIcon className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>
                   This chapter is locked. Click the lock icon in the chapter
@@ -190,7 +190,7 @@ export default function EditorCanvas({
                   ? "Start writing, or type / for AI commands..."
                   : "Continue writing, or type / for AI commands..."
               }
-              className="h-full text-lg placeholder:text-[#a0a0a0] placeholder:text-lg"
+              className="h-full text-lg placeholder:text-[var(--clay-muted)] placeholder:text-lg"
               onCreateEndnote={onCreateEndnote}
               chapterId={chapter?.id}
               hasEndnotes={endnotesCount > 0}

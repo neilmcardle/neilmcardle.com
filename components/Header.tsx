@@ -21,7 +21,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
           {showBack && <BackArrowButton className="mr-2" label="Back" />}
           <Image
             src="/make-ebook/brand/mark.svg"
-            alt="makeEbook"
+            alt="makeebook"
             width={82}
             height={30}
             className="h-[26px] w-auto ml-2 block lg:hidden invert dark:invert-0"
@@ -29,7 +29,7 @@ export function Header({ onNewBook }: HeaderProps = {}) {
           />
           <Image
             src="/make-ebook/brand/mark.svg"
-            alt="makeEbook"
+            alt="makeebook"
             width={82}
             height={30}
             className="h-[30px] w-auto ml-[4px] hidden lg:block invert dark:invert-0"

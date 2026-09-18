@@ -1,23 +1,14 @@
-'use client';
+"use client";
 
-// Shared primitives used by both Book Mind surfaces:
-//   - The inline right-panel (<BookMindPanel/>)
-//   - The standalone /make-ebook/book-mind page
-//
-// Deliberately NOT a unified chat component. The two surfaces have genuinely
-// different layouts (cramped right panel vs. full-page chat with avatars and
-// sidebar session history) and forcing them to share a rendering component
-// would mean carrying 8+ config props for one tool. Keep the shells separate,
-// share the primitives. If you change ThinkingDots or formatBookMindMessage
-// here, both surfaces update — no drift.
+import React from "react";
+import DOMPurify from "dompurify";
+import type { BookMindAction } from "../hooks/useBookMind";
 
-import React from 'react';
-import DOMPurify from 'dompurify';
-import type { BookMindAction } from '../hooks/useBookMind';
-
-// Book icon — the same book glyph used throughout Book Mind. Default stroke
-// and size can be overridden per call site.
-export function BookMindIcon({ className = 'w-4 h-4' }: { className?: string }) {
+export function BookMindIcon({
+  className = "w-4 h-4",
+}: {
+  className?: string;
+}) {
   return (
     <svg
       className={className}
@@ -33,50 +24,42 @@ export function BookMindIcon({ className = 'w-4 h-4' }: { className?: string }) 
   );
 }
 
-// Bouncing dots for the "Book Mind is thinking" state. Uses the default
-// Tailwind animate-bounce keyframe with three staggered delays so it reads as
-// a sequence rather than three synchronised dots.
 export function ThinkingDots() {
   return (
     <span className="inline-flex items-center gap-1 py-1">
       {[0, 150, 300].map((delay) => (
         <span
           key={delay}
-          className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-[#737373] animate-bounce"
-          style={{ animationDelay: `${delay}ms`, animationDuration: '900ms' }}
+          className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-[var(--clay-muted)] animate-bounce"
+          style={{ animationDelay: `${delay}ms`, animationDuration: "900ms" }}
         />
       ))}
     </span>
   );
 }
 
-// Very light markdown-to-HTML for Book Mind replies. Bold (**x**) and double
-// newlines become paragraphs. Single newlines become <br/>. Model output is
-// grounded in user-supplied manuscript text, so prompt-injection can coerce
-// raw HTML into the stream — sanitise before handing to dangerouslySetInnerHTML.
 export function formatBookMindMessage(content: string): string {
-  if (!content) return '';
-  const escaped = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  if (!content) return "";
+  const escaped = content
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
   const html = escaped
     .split(/\n\n+/)
-    .map((para) =>
-      `<p>${para
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br />')
-      }</p>`
+    .map(
+      (para) =>
+        `<p>${para
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\n/g, "<br />")}</p>`,
     )
-    .join('');
-  if (typeof window === 'undefined') return html;
+    .join("");
+  if (typeof window === "undefined") return html;
   return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em'],
+    ALLOWED_TAGS: ["p", "br", "strong", "em"],
     ALLOWED_ATTR: [],
   });
 }
 
-// Full superset of quick actions. The inline panel renders the first four
-// (the most-used set in a small space). The standalone page renders all six,
-// including the more detailed timeline and word-frequency reviews that make
-// sense when the user has opened the full-page chat.
 export interface BookMindQuickAction {
   action: BookMindAction;
   label: string;
@@ -84,16 +67,33 @@ export interface BookMindQuickAction {
 }
 
 export const BOOK_MIND_QUICK_ACTIONS: readonly BookMindQuickAction[] = [
-  { action: 'summarize-book',       label: 'Summarise',       description: 'Full book overview' },
-  { action: 'list-characters',      label: 'Characters',      description: 'Who appears where' },
-  { action: 'find-inconsistencies', label: 'Inconsistencies', description: 'Plot holes & gaps' },
-  { action: 'analyze-themes',       label: 'Themes',          description: 'Big ideas' },
-  { action: 'timeline-review',      label: 'Timeline',        description: 'Chronology check' },
-  { action: 'word-frequency',       label: 'Word usage',      description: 'Overused phrases' },
+  {
+    action: "summarize-book",
+    label: "Summarise",
+    description: "Full book overview",
+  },
+  {
+    action: "list-characters",
+    label: "Characters",
+    description: "Who appears where",
+  },
+  {
+    action: "find-inconsistencies",
+    label: "Inconsistencies",
+    description: "Plot holes & gaps",
+  },
+  { action: "analyze-themes", label: "Themes", description: "Big ideas" },
+  {
+    action: "timeline-review",
+    label: "Timeline",
+    description: "Chronology check",
+  },
+  {
+    action: "word-frequency",
+    label: "Word usage",
+    description: "Overused phrases",
+  },
 ];
 
-// The compact subset surfaced in the right-panel where vertical space is
-// tight. Kept as a separate export so the call site reads `COMPACT_QUICK_ACTIONS`
-// instead of a magic `.slice(0, 4)`.
 export const BOOK_MIND_COMPACT_QUICK_ACTIONS: readonly BookMindQuickAction[] =
   BOOK_MIND_QUICK_ACTIONS.slice(0, 4);

@@ -99,13 +99,13 @@ export default function HistoryPanel({
           onClick={() => switchTab("versions")}
           className={`flex-1 px-4 py-2.5 text-10 font-medium uppercase tracking-[0.15em] transition-colors duration-[var(--me-dur-fast)] ${
             activeTab === "versions"
-              ? "text-gray-900 dark:text-[#f5f5f5] border-b-2 border-gray-900 dark:border-[#f5f5f5] -mb-px"
-              : "text-gray-500 dark:text-[#a3a3a3] hover:text-gray-700 dark:hover:text-[#d4d4d4]"
+              ? "text-gray-900 dark:text-[var(--paper)] border-b-2 border-gray-900 dark:border-[var(--paper)] -mb-px"
+              : "text-gray-500 dark:text-[var(--clay-muted)] hover:text-gray-700 dark:hover:text-[var(--clay)]"
           }`}
         >
           Versions
           {versions.length > 0 && (
-            <span className="ml-2 text-gray-400 dark:text-[#666]">
+            <span className="ml-2 text-gray-400 dark:text-[var(--clay-muted)]">
               {versions.length}
             </span>
           )}
@@ -116,13 +116,13 @@ export default function HistoryPanel({
           onClick={() => switchTab("exports")}
           className={`flex-1 px-4 py-2.5 text-10 font-medium uppercase tracking-[0.15em] transition-colors duration-[var(--me-dur-fast)] ${
             activeTab === "exports"
-              ? "text-gray-900 dark:text-[#f5f5f5] border-b-2 border-gray-900 dark:border-[#f5f5f5] -mb-px"
-              : "text-gray-500 dark:text-[#a3a3a3] hover:text-gray-700 dark:hover:text-[#d4d4d4]"
+              ? "text-gray-900 dark:text-[var(--paper)] border-b-2 border-gray-900 dark:border-[var(--paper)] -mb-px"
+              : "text-gray-500 dark:text-[var(--clay-muted)] hover:text-gray-700 dark:hover:text-[var(--clay)]"
           }`}
         >
           Exports
           {exports.length > 0 && (
-            <span className="ml-2 text-gray-400 dark:text-[#666]">
+            <span className="ml-2 text-gray-400 dark:text-[var(--clay-muted)]">
               {exports.length}
             </span>
           )}
@@ -214,21 +214,21 @@ function VersionsTab({
         return (
           <div
             key={version.id}
-            className={`border-b border-gray-100 dark:border-[#2f2f2f] ${isExpanded ? "bg-gray-50 dark:bg-[#1f1f1f]" : ""}`}
+            className={`border-b border-gray-100 dark:border-[var(--rule)] ${isExpanded ? "bg-gray-50 dark:bg-[var(--ink-panel)]" : ""}`}
           >
             <button
               onClick={() => setExpandedId(isExpanded ? null : version.id)}
-              className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors"
+              className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-[var(--ink-panel)] transition-colors"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900 dark:text-[#f5f5f5]">
+                    <span className="text-sm font-medium text-gray-900 dark:text-[var(--paper)]">
                       {formatTimestamp(version.timestamp)}
                     </span>
                     {isLatest && <LatestPill tone="green" />}
                   </div>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-[var(--clay-muted)]">
                     <span>{version.wordCount.toLocaleString()} words</span>
                     <span>•</span>
                     <span>{version.chapterCount} chapters</span>
@@ -254,15 +254,15 @@ function VersionsTab({
                   </div>
                 )}
 
-                <div className="bg-white dark:bg-[#1e1e1e] rounded-lg border border-gray-200 dark:border-[#2f2f2f] p-2 mb-3">
-                  <div className="text-xs text-gray-500 dark:text-[#a3a3a3] mb-1">
+                <div className="bg-white dark:bg-[var(--ink)] rounded-lg border border-gray-200 dark:border-[var(--rule)] p-2 mb-3">
+                  <div className="text-xs text-gray-500 dark:text-[var(--clay-muted)] mb-1">
                     Chapters:
                   </div>
                   <div className="space-y-1 max-h-24 overflow-y-auto">
                     {version.chapters.slice(0, 5).map((ch, i) => (
                       <div
                         key={ch.id}
-                        className="text-xs text-gray-700 dark:text-[#d4d4d4] truncate"
+                        className="text-xs text-gray-700 dark:text-[var(--clay)] truncate"
                       >
                         {i + 1}. {ch.title || "Untitled Chapter"}
                       </div>
@@ -299,7 +299,7 @@ function VersionsTab({
                   </button>
                   <button
                     onClick={() => onDelete(version.id)}
-                    className="p-2 rounded-lg border border-gray-200 dark:border-[#2f2f2f] text-gray-500 dark:text-[#a3a3a3] hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
+                    className="p-2 rounded-lg border border-gray-200 dark:border-[var(--rule)] text-gray-500 dark:text-[var(--clay-muted)] hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
                     title="Delete this version"
                     aria-label="Delete this version"
                   >
@@ -335,8 +335,11 @@ function ExportsTab({
   if (isLoading) {
     return (
       <div className="p-6 flex flex-col items-center gap-2">
-        <Spinner size="lg" className="text-gray-400 dark:text-[#737373]" />
-        <p className="text-11 text-gray-500 dark:text-[#a3a3a3]">
+        <Spinner
+          size="lg"
+          className="text-gray-400 dark:text-[var(--clay-muted)]"
+        />
+        <p className="text-11 text-gray-500 dark:text-[var(--clay-muted)]">
           Loading export history
         </p>
       </div>
@@ -361,24 +364,24 @@ function ExportsTab({
         return (
           <div
             key={exp.id}
-            className={`border-b border-gray-100 dark:border-[#2f2f2f] ${isExpanded ? "bg-gray-50 dark:bg-[#1f1f1f]" : ""}`}
+            className={`border-b border-gray-100 dark:border-[var(--rule)] ${isExpanded ? "bg-gray-50 dark:bg-[var(--ink-panel)]" : ""}`}
           >
             <button
               onClick={() => setExpandedId(isExpanded ? null : exp.id)}
-              className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-[#252525] transition-colors"
+              className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-[var(--ink-panel)] transition-colors"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900 dark:text-[#f5f5f5]">
+                    <span className="text-sm font-medium text-gray-900 dark:text-[var(--paper)]">
                       {formatTimestamp(exp.timestamp)}
                     </span>
                     {isLatest && <LatestPill tone="blue" />}
                   </div>
-                  <div className="text-xs text-gray-700 dark:text-[#d4d4d4] truncate mt-1">
+                  <div className="text-xs text-gray-700 dark:text-[var(--clay)] truncate mt-1">
                     {exp.title}
                   </div>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-[var(--clay-muted)]">
                     <span>{exp.wordCount.toLocaleString()} words</span>
                     <span>•</span>
                     <span>{exp.chapterCount} chapters</span>
@@ -420,7 +423,7 @@ function ExportsTab({
                   </button>
                   <button
                     onClick={() => onDownload(exp.id)}
-                    className="flex-1 py-2 px-3 rounded-lg border border-gray-200 dark:border-[#2f2f2f] text-xs font-medium hover:bg-gray-50 dark:hover:bg-[#2f2f2f] transition-colors flex items-center justify-center gap-2 text-gray-700 dark:text-[#d4d4d4]"
+                    className="flex-1 py-2 px-3 rounded-lg border border-gray-200 dark:border-[var(--rule)] text-xs font-medium hover:bg-gray-50 dark:hover:bg-[var(--rule)] transition-colors flex items-center justify-center gap-2 text-gray-700 dark:text-[var(--clay)]"
                   >
                     <svg
                       className="w-3.5 h-3.5"
@@ -439,7 +442,7 @@ function ExportsTab({
                   </button>
                   <button
                     onClick={() => onDelete(exp.id)}
-                    className="p-2 rounded-lg border border-gray-200 dark:border-[#2f2f2f] text-gray-500 dark:text-[#a3a3a3] hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
+                    className="p-2 rounded-lg border border-gray-200 dark:border-[var(--rule)] text-gray-500 dark:text-[var(--clay-muted)] hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-colors"
                     title="Delete this export"
                     aria-label="Delete this export"
                   >
@@ -464,7 +467,7 @@ function EmptyState({
 }) {
   return (
     <div className="p-6 text-center">
-      <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-[#262626] flex items-center justify-center">
+      <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] flex items-center justify-center">
         <svg
           className="w-6 h-6 text-gray-400"
           fill="none"
@@ -479,10 +482,12 @@ function EmptyState({
           />
         </svg>
       </div>
-      <h3 className="text-sm font-medium text-gray-900 dark:text-[#f5f5f5] mb-1">
+      <h3 className="text-sm font-medium text-gray-900 dark:text-[var(--paper)] mb-1">
         {title}
       </h3>
-      <p className="text-xs text-gray-500 dark:text-[#a3a3a3]">{description}</p>
+      <p className="text-xs text-gray-500 dark:text-[var(--clay-muted)]">
+        {description}
+      </p>
     </div>
   );
 }
@@ -547,7 +552,7 @@ function ClearAllFooter({
   onConfirm: () => void;
 }) {
   return (
-    <div className="p-3 border-t border-gray-200 dark:border-[#2f2f2f]">
+    <div className="p-3 border-t border-gray-200 dark:border-[var(--rule)]">
       {confirmClear ? (
         <div className="flex items-center gap-2">
           <span className="text-xs text-red-600 dark:text-red-400 flex-1">
@@ -564,7 +569,7 @@ function ClearAllFooter({
           </button>
           <button
             onClick={() => setConfirmClear(false)}
-            className="px-3 py-2 rounded text-xs font-medium border border-gray-200 dark:border-[#2f2f2f] hover:bg-gray-100 dark:hover:bg-[#2f2f2f]"
+            className="px-3 py-2 rounded text-xs font-medium border border-gray-200 dark:border-[var(--rule)] hover:bg-gray-100 dark:hover:bg-[var(--rule)]"
           >
             Cancel
           </button>
@@ -572,48 +577,11 @@ function ClearAllFooter({
       ) : (
         <button
           onClick={() => setConfirmClear(true)}
-          className="w-full py-2 text-xs text-gray-500 dark:text-[#a3a3a3] hover:text-red-600 dark:hover:text-red-400 transition-colors"
+          className="w-full py-2 text-xs text-gray-500 dark:text-[var(--clay-muted)] hover:text-red-600 dark:hover:text-red-400 transition-colors"
         >
           {label}
         </button>
       )}
     </div>
-  );
-}
-
-interface HistoryButtonProps {
-  versionCount: number;
-  exportCount: number;
-  onClickAction: () => void;
-}
-
-export function HistoryButton({
-  versionCount,
-  exportCount,
-  onClickAction,
-}: HistoryButtonProps) {
-  const total = versionCount + exportCount;
-  return (
-    <button
-      onClick={onClickAction}
-      className="flex items-center gap-2 px-3 h-10 rounded-lg text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#2f2f2f] transition-colors"
-      title="View version and export history"
-      aria-label="History"
-    >
-      <svg
-        className="w-5 h-5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.6}
-          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-      {total > 0 && <span>{total}</span>}
-    </button>
   );
 }

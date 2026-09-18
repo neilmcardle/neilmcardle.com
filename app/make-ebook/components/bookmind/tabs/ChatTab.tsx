@@ -347,7 +347,7 @@ export default function ChatTab({
           <Popover open={historyOpen} onOpenChange={setHistoryOpen}>
             <PopoverTrigger asChild>
               <button
-                className="size-6 rounded-control flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
+                className="size-6 rounded-control flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors"
                 title="Recent conversations"
               >
                 <svg
@@ -368,13 +368,13 @@ export default function ChatTab({
             <PopoverContent
               align="end"
               sideOffset={4}
-              className="w-64 p-0 max-h-96 overflow-y-auto bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-[#3a3a3a] rounded-card shadow-lg dark:shadow-black/40"
+              className="w-64 p-0 max-h-96 overflow-y-auto bg-white dark:bg-[var(--rule)] border border-gray-200 dark:border-[var(--ink-hover)] rounded-card shadow-lg dark:shadow-black/40"
             >
-              <div className="px-3 py-2 flex items-center justify-between sticky top-0 bg-white dark:bg-[#252525]">
-                <span className="text-10 font-medium text-gray-500 dark:text-[#a3a3a3] uppercase tracking-wide">
+              <div className="px-3 py-2 flex items-center justify-between sticky top-0 bg-white dark:bg-[var(--ink-panel)]">
+                <span className="text-10 font-medium text-gray-500 dark:text-[var(--clay-muted)] uppercase tracking-wide">
                   Recent
                 </span>
-                <span className="text-10 text-gray-400 dark:text-[#737373]">
+                <span className="text-10 text-gray-400 dark:text-[var(--clay-muted)]">
                   {sortedSessions.length}
                 </span>
               </div>
@@ -387,7 +387,7 @@ export default function ChatTab({
                   return (
                     <li
                       key={session.id}
-                      className={`group relative flex items-start gap-2 px-2 py-2 transition-colors ${isCurrent ? "bg-gray-50 dark:bg-[#2f2f2f]" : "hover:bg-gray-50 dark:hover:bg-[#2d2d2d]"}`}
+                      className={`group relative flex items-start gap-2 px-2 py-2 transition-colors ${isCurrent ? "bg-gray-50 dark:bg-[var(--rule)]" : "hover:bg-gray-50 dark:hover:bg-[var(--ink-raised)]"}`}
                       style={{
                         animation: `fade-up 300ms cubic-bezier(0.23,1,0.32,1) ${idx * 40}ms both`,
                       }}
@@ -397,22 +397,22 @@ export default function ChatTab({
                         className="flex-1 min-w-0 text-left pr-6"
                       >
                         <p
-                          className={`text-12 font-medium truncate ${isCurrent ? "text-[#008ff0]" : "text-gray-900 dark:text-white"}`}
+                          className={`text-12 font-medium truncate ${isCurrent ? "text-[var(--acid)]" : "text-gray-900 dark:text-white"}`}
                         >
                           {session.name}
                         </p>
                         {preview && (
-                          <p className="text-10 text-gray-500 dark:text-[#a3a3a3] truncate mt-1">
+                          <p className="text-10 text-gray-500 dark:text-[var(--clay-muted)] truncate mt-1">
                             {preview}
                           </p>
                         )}
-                        <p className="text-10 text-gray-400 dark:text-[#737373] mt-1">
+                        <p className="text-10 text-gray-400 dark:text-[var(--clay-muted)] mt-1">
                           {formatSessionTimestamp(session.updatedAt)}
                         </p>
                       </button>
                       <button
                         onClick={(e) => handleDeleteSession(e, session.id)}
-                        className="absolute right-1.5 top-2 me-reveal size-5 rounded-control flex items-center justify-center text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[#3a3a3a]"
+                        className="absolute right-1.5 top-2 me-reveal size-5 rounded-control flex items-center justify-center text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)]"
                         title="Delete"
                       >
                         <svg
@@ -442,7 +442,7 @@ export default function ChatTab({
               clearMessages();
               createSession();
             }}
-            className="size-6 rounded-control flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-[#d4d4d4] hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
+            className="size-6 rounded-control flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors"
             title="New chat"
           >
             <svg
@@ -465,7 +465,7 @@ export default function ChatTab({
   );
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#252525] text-gray-900 dark:text-white overflow-hidden">
+    <div className="flex flex-col h-full bg-white dark:bg-[var(--ink-panel)] text-gray-900 dark:text-white overflow-hidden">
       {Header}
 
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 min-h-0">
@@ -473,8 +473,8 @@ export default function ChatTab({
           <div className="space-y-4">
             {chapters.length === 0 ? (
               <div className="text-center py-12">
-                <BookIcon className="w-6 h-6 text-gray-300 dark:text-[#737373] mx-auto mb-2.5" />
-                <p className="text-12 text-gray-500 dark:text-[#a3a3a3]">
+                <BookIcon className="w-6 h-6 text-gray-300 dark:text-[var(--clay-muted)] mx-auto mb-2.5" />
+                <p className="text-12 text-gray-500 dark:text-[var(--clay-muted)]">
                   Open a book to get started.
                 </p>
               </div>
@@ -514,7 +514,7 @@ export default function ChatTab({
             <p className="text-12 font-semibold text-gray-900 dark:text-white mb-2">
               Free analysis used
             </p>
-            <p className="text-11 text-gray-600 dark:text-[#a3a3a3] mb-4">
+            <p className="text-11 text-gray-600 dark:text-[var(--clay-muted)] mb-4">
               Upgrade to Pro for unlimited Book Mind chat.
             </p>
             <button
@@ -535,7 +535,7 @@ export default function ChatTab({
                     key={action}
                     onClick={() => handleQuickAction(action)}
                     disabled={isLoading}
-                    className="group flex items-start gap-2 p-3.5 rounded-card border border-gray-200 dark:border-[#2f2f2f] hover:border-gray-300 dark:hover:border-[#3a3a3a] hover:bg-gray-50 dark:hover:bg-[#363636] hover:shadow-md dark:hover:shadow-black/20 transition-all duration-150 text-left disabled:opacity-50 active:scale-[0.96]"
+                    className="group flex items-start gap-2 p-3.5 rounded-card border border-gray-200 dark:border-[var(--rule)] hover:border-gray-300 dark:hover:border-[var(--ink-hover)] hover:bg-gray-50 dark:hover:bg-[var(--ink-hover)] hover:shadow-md dark:hover:shadow-black/20 transition-all duration-150 text-left disabled:opacity-50 active:scale-[0.96]"
                     style={{
                       animation: `fade-up 350ms cubic-bezier(0.23,1,0.32,1) ${idx * 60}ms both`,
                     }}
@@ -544,7 +544,7 @@ export default function ChatTab({
                       <span className="text-125 font-semibold text-gray-900 dark:text-white block leading-tight">
                         {label}
                       </span>
-                      <span className="text-10 text-gray-500 dark:text-[#737373] mt-1 block">
+                      <span className="text-10 text-gray-500 dark:text-[var(--clay-muted)] mt-1 block">
                         {description}
                       </span>
                     </div>
@@ -554,19 +554,19 @@ export default function ChatTab({
             </div>
           )}
           {activeSelectedText && (
-            <div className="rounded-control bg-gray-50 dark:bg-[#232323] border border-gray-200 dark:border-[#2f2f2f] px-4 py-2">
+            <div className="rounded-control bg-gray-50 dark:bg-[var(--ink-panel)] border border-gray-200 dark:border-[var(--rule)] px-4 py-2">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-10 font-medium uppercase tracking-wider text-[#008ff0]">
+                <span className="text-10 font-medium uppercase tracking-wider text-[var(--acid)]">
                   Discussing selection
                 </span>
                 <button
                   onClick={() => setDismissedText(externalSelectedText ?? null)}
-                  className="text-10 text-gray-400 hover:text-gray-600 dark:hover:text-[#d4d4d4] transition-colors"
+                  className="text-10 text-gray-400 hover:text-gray-600 dark:hover:text-[var(--clay)] transition-colors"
                 >
                   Clear
                 </button>
               </div>
-              <p className="text-11 text-gray-600 dark:text-[#a3a3a3] italic line-clamp-2">
+              <p className="text-11 text-gray-600 dark:text-[var(--clay-muted)] italic line-clamp-2">
                 "
                 {activeSelectedText.length > 120
                   ? activeSelectedText.slice(0, 120) + "…"
@@ -577,13 +577,13 @@ export default function ChatTab({
           )}
           {showSlashMenu && filteredSlash.length > 0 && (
             <div
-              className="rounded-card bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-[#3a3a3a] shadow-md dark:shadow-black/40 overflow-hidden"
+              className="rounded-card bg-white dark:bg-[var(--rule)] border border-gray-200 dark:border-[var(--ink-hover)] shadow-md dark:shadow-black/40 overflow-hidden"
               style={{
                 animation: "pop-in 200ms cubic-bezier(0.23,1,0.32,1) both",
               }}
             >
-              <div className="px-4 py-2 bg-white dark:bg-[#252525]">
-                <span className="text-10 text-gray-400 dark:text-[#737373] font-medium uppercase tracking-wide">
+              <div className="px-4 py-2 bg-white dark:bg-[var(--ink-panel)]">
+                <span className="text-10 text-gray-400 dark:text-[var(--clay-muted)] font-medium uppercase tracking-wide">
                   Commands
                 </span>
               </div>
@@ -591,22 +591,22 @@ export default function ChatTab({
                 <button
                   key={cmd.cmd}
                   onClick={() => handleSlashSelect(cmd)}
-                  className="w-full flex items-start gap-2 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-[#2f2f2f] transition-colors"
+                  className="w-full flex items-start gap-2 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-[var(--rule)] transition-colors"
                   style={{
                     animation: `fade-up 250ms cubic-bezier(0.23,1,0.32,1) ${idx * 40}ms both`,
                   }}
                 >
-                  <span className="text-11 font-mono text-[#008ff0] flex-shrink-0">
+                  <span className="text-11 font-mono text-[var(--acid)] flex-shrink-0">
                     {cmd.cmd}
                   </span>
-                  <span className="text-11 text-gray-600 dark:text-[#a3a3a3] min-w-0">
+                  <span className="text-11 text-gray-600 dark:text-[var(--clay-muted)] min-w-0">
                     {cmd.label}
                   </span>
                 </button>
               ))}
             </div>
           )}
-          <div className="flex items-end gap-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2f2f2f] px-3 py-2 w-full">
+          <div className="flex items-end gap-2 rounded-full bg-white dark:bg-[var(--ink-window)] border border-gray-200 dark:border-[var(--rule)] px-3 py-2 w-full">
             <textarea
               ref={inputRef}
               value={input}
@@ -624,7 +624,7 @@ export default function ChatTab({
               }
               disabled={chapters.length === 0}
               rows={1}
-              className="chat-composer flex-1 bg-transparent text-12 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#888] resize-none max-h-[100px] leading-relaxed disabled:opacity-50 py-1"
+              className="chat-composer flex-1 bg-transparent text-12 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[var(--clay-muted)] resize-none max-h-[100px] leading-relaxed disabled:opacity-50 py-1"
               style={{
                 border: "none",
                 outline: "none",
@@ -791,7 +791,7 @@ function StreamingMessage({
           code: {
             element: "code",
             className:
-              "bg-gray-200 dark:bg-[#3a3a3a] px-2 py-1 rounded font-mono text-sm",
+              "bg-gray-200 dark:bg-[var(--ink-hover)] px-2 py-1 rounded font-mono text-sm",
             style: {},
           },
           list: {
@@ -886,7 +886,7 @@ function MessageBubble({
       style={{ animation: "fade-up 300ms cubic-bezier(0.23,1,0.32,1) both" }}
     >
       <div
-        className={`max-w-[85%] rounded-card px-3 py-2.5 text-125 leading-relaxed ${isUser ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-tr-sm" : "bg-gray-100 dark:bg-[#303030] text-gray-800 dark:text-[#f5f5f5] rounded-tl-sm"}`}
+        className={`max-w-[85%] rounded-card px-3 py-2.5 text-125 leading-relaxed ${isUser ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-tr-sm" : "bg-gray-100 dark:bg-[var(--ink-hover)] text-gray-800 dark:text-[var(--paper)] rounded-tl-sm"}`}
       >
         {structured ? (
           <CardRenderer
@@ -905,7 +905,7 @@ function MessageBubble({
 
         {isAssistant && !structured && uniqueRefs.length > 0 && (
           <div className="mt-2 pt-2">
-            <p className="text-10 uppercase tracking-wider text-gray-400 dark:text-[#737373] font-medium mb-1">
+            <p className="text-10 uppercase tracking-wider text-gray-400 dark:text-[var(--clay-muted)] font-medium mb-1">
               Sources
             </p>
             <div className="flex flex-wrap gap-1">

@@ -2,6 +2,7 @@ import type React from "react";
 import type { Metadata } from "next";
 import "./globals.css";
 import "../styles/immersive.css";
+import "./make-ebook/styles/tokens.css";
 import { THEME_SCRIPT } from "@/components/home/theme";
 import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";
@@ -79,7 +80,7 @@ const zillaSlab = Zilla_Slab({
 
 const TITLE = "Neil McArdle · Product Designer";
 const DESCRIPTION =
-  "Product designer in London. Building makeEbook, Coverly, DoodleWire and Spark.";
+  "Product designer in London. Building makeebook, Coverly, DoodleWire and Spark.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://neilmcardle.com"),

@@ -21,16 +21,14 @@ export function UserDropdownMobile() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
-  // Free users get a single Upgrade row in the dropdown — the only place
-  // upgrade messaging should appear in the product per CLAUDE.md policy.
-  const showUpgradeRow = tier === 'free' && !isGrandfathered;
+  const showUpgradeRow = tier === "free" && !isGrandfathered;
 
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
       await signOut();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       setLoggingOut(false);
     }
@@ -38,7 +36,7 @@ export function UserDropdownMobile() {
 
   if (loading) {
     return (
-      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2f2f2f] animate-pulse" />
+      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[var(--rule)] animate-pulse" />
     );
   }
 
@@ -51,7 +49,7 @@ export function UserDropdownMobile() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors px-0 -ml-2"
+            className="inline-flex rounded-full w-10 h-10 items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors px-0 -ml-2"
             aria-label="User menu"
           >
             <img
@@ -63,7 +61,12 @@ export function UserDropdownMobile() {
             />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" side="top" sideOffset={8} className="w-56 z-[200]">
+        <DropdownMenuContent
+          align="start"
+          side="top"
+          sideOffset={8}
+          className="w-56 z-[200]"
+        >
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">Account</p>
@@ -78,7 +81,10 @@ export function UserDropdownMobile() {
           <DropdownMenuSeparator />
           {showUpgradeRow && (
             <>
-              <DropdownMenuItem onClick={() => setUpgradeOpen(true)} className="font-medium">
+              <DropdownMenuItem
+                onClick={() => setUpgradeOpen(true)}
+                className="font-medium"
+              >
                 <Sparkles className="mr-2 h-4 w-4" />
                 <span>Upgrade to Pro</span>
               </DropdownMenuItem>
@@ -88,7 +94,11 @@ export function UserDropdownMobile() {
           {!showUpgradeRow && (
             <>
               <div className="px-2 py-2">
-                <ManageBillingButton variant="ghost" size="sm" className="w-full justify-start" />
+                <ManageBillingButton
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start"
+                />
               </div>
               <DropdownMenuSeparator />
             </>
@@ -100,11 +110,14 @@ export function UserDropdownMobile() {
             className="cursor-pointer"
           >
             <LogOut className="mr-2 h-4 w-4" />
-            <span>{loggingOut ? 'Logging out...' : 'Log out'}</span>
+            <span>{loggingOut ? "Logging out..." : "Log out"}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <UpgradeModal isOpen={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
+      <UpgradeModal
+        isOpen={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+      />
     </>
   );
 }

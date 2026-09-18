@@ -1,6 +1,6 @@
-'use client';
-import React, { useRef, useEffect, useState } from 'react';
-import { ChapterMatch } from '../hooks/useFindReplace';
+"use client";
+import React, { useRef, useEffect, useState } from "react";
+import { ChapterMatch } from "../hooks/useFindReplace";
 
 interface FindReplacePanelProps {
   isOpen: boolean;
@@ -45,13 +45,13 @@ export default function FindReplacePanel({
   useEffect(() => {
     if (!isOpen) return;
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         e.preventDefault();
         onClose();
       }
     }
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
   }, [isOpen, onClose]);
 
   function showFeedback(msg: string) {
@@ -61,37 +61,48 @@ export default function FindReplacePanel({
 
   function handleReplaceInChapter(chapterIndex: number) {
     const count = onReplaceInChapter(chapterIndex);
-    showFeedback(`Replaced ${count} match${count !== 1 ? 'es' : ''}`);
+    showFeedback(`Replaced ${count} match${count !== 1 ? "es" : ""}`);
   }
 
   function handleReplaceAll() {
     const count = onReplaceAll();
-    showFeedback(`Replaced ${count} match${count !== 1 ? 'es' : ''} across ${matches.length} chapter${matches.length !== 1 ? 's' : ''}`);
+    showFeedback(
+      `Replaced ${count} match${count !== 1 ? "es" : ""} across ${matches.length} chapter${matches.length !== 1 ? "s" : ""}`,
+    );
   }
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/50" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/50"
+      onClick={onClose}
+    >
       <div
-        className="bg-white dark:bg-[#1e1e1e] rounded-lg shadow-xl w-full max-w-lg mx-4 border border-gray-200 dark:border-[#333]"
+        className="bg-white dark:bg-[var(--ink)] rounded-lg shadow-xl w-full max-w-lg mx-4 border border-gray-200 dark:border-[var(--rule)]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-[#2f2f2f]">
-          <h3 className="text-base font-semibold text-gray-900 dark:text-white">Find & Replace</h3>
+        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-[var(--rule)]">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+            Find & Replace
+          </h3>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors"
             aria-label="Close"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round"/></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M4 4l8 8M12 4l-8 8"
+                stroke="currentColor"
+                strokeWidth={1.6}
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
         </div>
 
-        {/* Body */}
         <div className="px-5 py-4 space-y-3">
-          {/* Search input */}
           <div className="relative">
             <input
               ref={searchRef}
@@ -99,77 +110,73 @@ export default function FindReplacePanel({
               placeholder="Find..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full px-3 py-2 pr-16 text-sm rounded-lg border border-gray-300 dark:border-[#444] bg-white dark:bg-[#111] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-0"
+              className="w-full px-3 py-2 pr-16 text-sm rounded-lg border border-gray-300 dark:border-[var(--ink-hover)] bg-white dark:bg-[var(--ink-deep)] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-0"
             />
             {searchTerm && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-[#a3a3a3]">
-                {totalMatches} match{totalMatches !== 1 ? 'es' : ''}
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-[var(--clay-muted)]">
+                {totalMatches} match{totalMatches !== 1 ? "es" : ""}
               </span>
             )}
           </div>
 
-          {/* Replace input */}
           <input
             type="text"
             placeholder="Replace with..."
             value={replaceTerm}
             onChange={(e) => onReplaceChange(e.target.value)}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-[#444] bg-white dark:bg-[#111] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-0"
+            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-[var(--ink-hover)] bg-white dark:bg-[var(--ink-deep)] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-0"
           />
 
-          {/* Options row */}
           <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-[#a3a3a3] cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-[var(--clay-muted)] cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={caseSensitive}
                 onChange={(e) => onCaseSensitiveChange(e.target.checked)}
-                className="rounded border-gray-300 dark:border-[#444]"
+                className="rounded border-gray-300 dark:border-[var(--ink-hover)]"
               />
               Case sensitive
             </label>
             <button
               onClick={handleReplaceAll}
               disabled={totalMatches === 0 || !replaceTerm}
-              className="px-3 py-2 text-sm font-medium rounded-lg bg-[#111] dark:bg-white text-white dark:text-[#111] hover:bg-[#333] dark:hover:bg-[#e5e5e5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 text-sm font-medium rounded-lg bg-[var(--ink-deep)] dark:bg-white text-white dark:text-[var(--ink-deep)] hover:bg-[var(--rule)] dark:hover:bg-[var(--paper)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Replace All ({totalMatches})
             </button>
           </div>
 
-          {/* Feedback toast */}
           {feedback && (
             <div className="text-center text-sm text-green-600 dark:text-green-400 font-medium animate-in fade-in duration-150">
               {feedback}
             </div>
           )}
 
-          {/* Match results */}
           {searchTerm && (
-            <div className="max-h-48 overflow-y-auto border border-gray-200 dark:border-[#333] rounded-lg divide-y divide-gray-200 dark:divide-[#333]">
+            <div className="max-h-48 overflow-y-auto border border-gray-200 dark:border-[var(--rule)] rounded-lg divide-y divide-gray-200 dark:divide-[var(--rule)]">
               {matches.length === 0 ? (
-                <div className="px-4 py-3 text-sm text-gray-500 dark:text-[#a3a3a3] text-center">
+                <div className="px-4 py-3 text-sm text-gray-500 dark:text-[var(--clay-muted)] text-center">
                   No matches found
                 </div>
               ) : (
                 matches.map((m) => (
                   <div
                     key={m.chapterIndex}
-                    className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
+                    className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-[var(--ink-deep)] transition-colors"
                   >
                     <button
                       onClick={() => onGoToMatch(m.chapterIndex)}
                       className="text-sm text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 truncate text-left flex-1 mr-3"
                     >
                       {m.chapterTitle}
-                      <span className="ml-2 text-xs text-gray-500 dark:text-[#a3a3a3]">
-                        {m.count} match{m.count !== 1 ? 'es' : ''}
+                      <span className="ml-2 text-xs text-gray-500 dark:text-[var(--clay-muted)]">
+                        {m.count} match{m.count !== 1 ? "es" : ""}
                       </span>
                     </button>
                     <button
                       onClick={() => handleReplaceInChapter(m.chapterIndex)}
                       disabled={!replaceTerm}
-                      className="px-3 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-200 dark:hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+                      className="px-3 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-[var(--ink-raised)] text-gray-700 dark:text-[var(--clay)] hover:bg-gray-200 dark:hover:bg-[var(--ink-panel)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
                     >
                       Replace
                     </button>
@@ -180,9 +187,11 @@ export default function FindReplacePanel({
           )}
         </div>
 
-        {/* Footer hint */}
-        <div className="px-5 py-2.5 border-t border-gray-200 dark:border-[#2f2f2f] text-xs text-gray-400 dark:text-[#737373]">
-          <kbd className="px-2 py-1 rounded bg-gray-100 dark:bg-[#262626] text-gray-500 dark:text-[#a3a3a3] font-mono">Esc</kbd> to close
+        <div className="px-5 py-2.5 border-t border-gray-200 dark:border-[var(--rule)] text-xs text-gray-400 dark:text-[var(--clay-muted)]">
+          <kbd className="px-2 py-1 rounded bg-gray-100 dark:bg-[var(--ink-raised)] text-gray-500 dark:text-[var(--clay-muted)] font-mono">
+            Esc
+          </kbd>{" "}
+          to close
         </div>
       </div>
     </div>

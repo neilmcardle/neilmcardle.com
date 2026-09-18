@@ -58,17 +58,17 @@ export default function InspectorPanel(props: InspectorPanelProps) {
   );
 
   return (
-    <div className="flex flex-col h-full w-full bg-white dark:bg-[#252525]">
+    <div className="flex flex-col h-full w-full bg-white dark:bg-[var(--ink-panel)]">
       <Tabs
         value={active}
         onValueChange={(v) => setActive(v as TabKey)}
-        className="flex flex-col h-full w-full bg-white dark:bg-[#252525] overflow-hidden"
+        className="flex flex-col h-full w-full bg-white dark:bg-[var(--ink-panel)] overflow-hidden"
       >
         {!isPro && (
-          <div className="flex-shrink-0 flex items-center justify-between gap-2 px-4 py-2 bg-[#f5f7ff] dark:bg-[#1a1d2e] border-b border-[#d6dcff] dark:border-[#3a3f55]">
+          <div className="flex-shrink-0 flex items-center justify-between gap-2 px-4 py-2 bg-[var(--paper)] dark:bg-[var(--ink-panel)] border-b border-[var(--clay)] dark:border-[var(--rule)]">
             <div className="flex items-center gap-2 min-w-0">
               <svg
-                className="w-3.5 h-3.5 text-[#008ff0] flex-shrink-0"
+                className="w-3.5 h-3.5 text-[var(--acid)] flex-shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -78,26 +78,26 @@ export default function InspectorPanel(props: InspectorPanelProps) {
               >
                 <path d="M12 2L15 8.5L22 9.5L17 14.5L18.5 22L12 18.5L5.5 22L7 14.5L2 9.5L9 8.5L12 2Z" />
               </svg>
-              <span className="text-xs text-gray-700 dark:text-[#e5e5e5] truncate">
+              <span className="text-xs text-gray-700 dark:text-[var(--paper)] truncate">
                 Book Mind trial — one free analysis per book
               </span>
             </div>
             <button
               onClick={props.onUpgrade}
-              className="flex-shrink-0 text-xs font-semibold text-[#008ff0] hover:text-[#3560e6] transition-colors whitespace-nowrap"
+              className="flex-shrink-0 text-xs font-semibold text-[var(--acid)] hover:text-[var(--acid-hover)] transition-colors whitespace-nowrap"
             >
               Upgrade
             </button>
           </div>
         )}
 
-        <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 bg-white dark:bg-[#252525]">
+        <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 bg-white dark:bg-[var(--ink-panel)]">
           <TabsList className="flex items-center h-auto gap-2 p-0 border-none bg-transparent -mx-3 px-3">
             {visibleTabs.map((tab) => (
               <TabsTrigger
                 key={tab.key}
                 value={tab.key}
-                className="py-1 px-3 text-xs font-medium transition-all whitespace-nowrap rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 bg-gray-100 dark:bg-[#2a2a2a] data-[state=active]:text-gray-900 dark:data-[state=active]:text-[#f5f5f5] data-[state=active]:bg-gray-200 dark:data-[state=active]:bg-[#3a3a3a]"
+                className="py-1 px-3 text-xs font-medium transition-all whitespace-nowrap rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 bg-gray-100 dark:bg-[var(--rule)] data-[state=active]:text-gray-900 dark:data-[state=active]:text-[var(--paper)] data-[state=active]:bg-gray-200 dark:data-[state=active]:bg-[var(--ink-hover)]"
               >
                 {tab.label}
               </TabsTrigger>
@@ -108,7 +108,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
             <button
               onClick={onClose}
               aria-label="Close panel"
-              className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 dark:text-white/40 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#2e2e2e] transition-colors -mr-1"
+              className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 dark:text-white/40 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[var(--ink-hover)] transition-colors -mr-1"
             >
               <svg
                 className="w-3.5 h-3.5"
@@ -126,7 +126,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
 
         <TabsContent
           value="chat"
-          className="flex-1 min-h-0 outline-none w-full bg-white dark:bg-[#252525]"
+          className="flex-1 min-h-0 outline-none w-full bg-white dark:bg-[var(--ink-panel)]"
         >
           <ChatTab
             bookId={props.bookId}

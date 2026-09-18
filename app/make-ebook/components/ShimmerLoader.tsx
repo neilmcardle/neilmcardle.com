@@ -32,7 +32,7 @@ export function ShimmerLoader({
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="size-1.5 rounded-full bg-gray-400 dark:bg-[#737373]"
+              className="size-1.5 rounded-full bg-gray-400 dark:bg-[var(--clay-muted)]"
               style={{
                 animation: "pulse 1.5s ease-in-out infinite",
                 animationDelay: `${i * 200}ms`,
@@ -41,10 +41,10 @@ export function ShimmerLoader({
           ))}
         </span>
       )}
-      <span className="text-12 font-medium text-gray-700 dark:text-[#d4d4d4]">
+      <span className="text-12 font-medium text-gray-700 dark:text-[var(--clay)]">
         {label}
       </span>
-      <span className="text-11 font-mono text-gray-500 dark:text-[#888] tabular-nums">
+      <span className="text-11 font-mono text-gray-500 dark:text-[var(--clay-muted)] tabular-nums">
         {displayTime}
       </span>
     </div>

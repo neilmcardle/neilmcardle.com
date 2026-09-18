@@ -44,7 +44,7 @@ export function SegmentedItem({
       className={`flex items-center justify-center h-7 px-2.5 rounded-full text-11 font-medium transition-colors duration-[var(--me-dur-fast)] ${
         active
           ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-          : "text-gray-600 dark:text-[#a3a3a3] hover:text-gray-900 dark:hover:text-white hover:bg-gray-200/70 dark:hover:bg-white/[0.06]"
+          : "text-gray-600 dark:text-[var(--clay-muted)] hover:text-gray-900 dark:hover:text-white hover:bg-gray-200/70 dark:hover:bg-white/[0.06]"
       } ${className}`}
     >
       {children}

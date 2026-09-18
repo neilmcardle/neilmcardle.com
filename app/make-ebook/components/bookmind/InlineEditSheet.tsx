@@ -46,7 +46,7 @@ export default function InlineEditSheet({
     <div
       role="dialog"
       aria-label="Rewrite with Book Mind"
-      className="me-rise-in fixed left-3 right-3 z-[1000] flex flex-col p-1.5 rounded-[12px] bg-[#101010] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
+      className="me-rise-in fixed left-3 right-3 z-[1000] flex flex-col p-1.5 rounded-[12px] bg-[var(--ink-deep)] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
       style={{
         bottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
         maxHeight: "70vh",
@@ -54,7 +54,7 @@ export default function InlineEditSheet({
     >
       <div className="flex items-center gap-2 px-2 pt-1 pb-2 flex-shrink-0">
         <svg
-          className="w-3.5 h-3.5 text-[#7fc8ff] flex-shrink-0"
+          className="w-3.5 h-3.5 text-[var(--acid)] flex-shrink-0"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -107,7 +107,7 @@ export default function InlineEditSheet({
           onClick={onSubmit}
           disabled={!instruction.trim() || isLoading}
           aria-label="Run rewrite"
-          className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-[#101010] disabled:bg-white/15 disabled:text-white/30 flex-shrink-0"
+          className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-[var(--ink-deep)] disabled:bg-white/15 disabled:text-white/30 flex-shrink-0"
         >
           <svg
             className="w-4 h-4"
@@ -150,7 +150,7 @@ export default function InlineEditSheet({
               aria-label={`Take ${i + 1}`}
               className={`w-7 h-7 rounded-full text-11 font-semibold ${
                 i === activeIndex && r !== null
-                  ? "bg-white text-[#101010]"
+                  ? "bg-white text-[var(--ink-deep)]"
                   : r !== null
                     ? "bg-white/10 text-white/70"
                     : "bg-white/5 text-white/25"
@@ -171,7 +171,7 @@ export default function InlineEditSheet({
             type="button"
             onClick={onAccept}
             disabled={!activeResult}
-            className="flex-1 h-11 rounded-[8px] bg-white text-sm font-semibold text-[#101010] disabled:opacity-40 active:opacity-80"
+            className="flex-1 h-11 rounded-[8px] bg-white text-sm font-semibold text-[var(--ink-deep)] disabled:opacity-40 active:opacity-80"
           >
             Accept
           </button>

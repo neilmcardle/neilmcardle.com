@@ -159,7 +159,7 @@ export default function EmptyEditorState({
   };
 
   return (
-    <div className="flex-1 overflow-hidden bg-[#1e1e1e]">
+    <div className="flex-1 overflow-hidden bg-[var(--ink)]">
       <div className="h-full min-h-0 overflow-y-auto px-4 sm:px-8 py-6 sm:py-10">
         <div className="min-h-full flex flex-col">
           <div className="w-full max-w-xl mx-auto my-auto">
@@ -225,7 +225,7 @@ function PaperPanel({
     : 0;
 
   return (
-    <div className="relative flex flex-col bg-[#252525] border border-[#3a3a3a] rounded-[20px] overflow-hidden">
+    <div className="relative flex flex-col bg-[var(--ink-panel)] border border-[var(--ink-hover)] rounded-[20px] overflow-hidden">
       <div className="flex-1 flex flex-col px-7 sm:px-10 py-9 sm:py-10">
         <h2
           className="font-bold text-white leading-[1.1] tracking-[-0.02em]"
@@ -246,7 +246,7 @@ function PaperPanel({
                 onChange={(e) => onPasteValueChange(e.target.value)}
                 placeholder="Paste your manuscript here…"
                 rows={9}
-                className="w-full px-5 py-4 rounded-2xl border border-[#3a3a3a] bg-white/[0.06] text-white placeholder:text-white/30 text-[15px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-white/10 resize-y"
+                className="w-full px-5 py-4 rounded-2xl border border-[var(--ink-hover)] bg-white/[0.06] text-white placeholder:text-white/30 text-[15px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-white/10 resize-y"
                 style={{ fontFamily: "Georgia, serif" }}
               />
               <div className="mt-4 flex items-center justify-between gap-3">
@@ -368,8 +368,8 @@ function PaperActionRow({
       }}
       className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 ${
         primary
-          ? "border-[#444] bg-white/[0.08] hover:bg-white/[0.12]"
-          : "border-[#3a3a3a] bg-white/[0.04] hover:bg-white/[0.08] hover:border-[#444]"
+          ? "border-[var(--ink-hover)] bg-white/[0.08] hover:bg-white/[0.12]"
+          : "border-[var(--ink-hover)] bg-white/[0.04] hover:bg-white/[0.08] hover:border-[var(--ink-hover)]"
       }`}
     >
       <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/[0.08] text-white/50 flex-shrink-0">
