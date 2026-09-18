@@ -35,6 +35,7 @@ interface RichTextEditorProps extends Omit<
   chapterId?: string;
   hasEndnotes?: boolean;
   hideToolbar?: boolean;
+  contentClassName?: string;
 
   onInlineEditRequest?: (args: {
     selectedText: string;
@@ -138,6 +139,7 @@ export default function RichTextEditor({
   chapterId,
   hasEndnotes = false,
   hideToolbar = false,
+  contentClassName,
   onInlineEditRequest,
   onComposeRequest,
   ...rest
@@ -1114,7 +1116,7 @@ export default function RichTextEditor({
 
   return (
     <div
-      className={`relative border-none rounded bg-white dark:bg-[var(--ink)] transition-colors flex flex-col editor-root h-full overflow-hidden ${className}`}
+      className={`relative border-none bg-transparent flex flex-col editor-root h-full overflow-hidden ${className}`}
       {...rest}
     >
       {toast && (
@@ -1129,7 +1131,10 @@ export default function RichTextEditor({
             isMobileKeyboardOpen ? "lg:block hidden" : ""
           }`}
         >
-          <div className="flex items-center px-6 py-2 gap-2 overflow-x-auto overflow-y-visible scrollbar-hide">
+          <div
+            data-editor-toolbar
+            className="flex items-center py-2 gap-2 overflow-x-auto overflow-y-visible scrollbar-hide"
+          >
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onMouseDown={(e) => e.preventDefault()}
@@ -1889,16 +1894,11 @@ export default function RichTextEditor({
         )}
         <div
           ref={editorRef}
-          className="editor-root p-6 text-base focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-y-auto flex-1 min-h-0 overflow-x-hidden text-gray-900 dark:text-white/80"
+          className={`editor-root focus:outline-none whitespace-pre-wrap break-words w-full max-w-full overflow-x-hidden ${contentClassName ?? "p-6 text-base overflow-y-auto flex-1 min-h-0"}`}
           style={{
             minHeight: Math.max(minHeight, 200),
-            maxHeight: "calc(100vh - 300px)",
-            height: "100%",
             position: "relative",
             contain: "layout style",
-            fontFamily: 'Georgia, "Times New Roman", serif',
-            fontSize: "15px",
-            lineHeight: "1.75",
           }}
           contentEditable={!disabled}
           suppressContentEditableWarning

@@ -1,5 +1,6 @@
 "use client";
 
+import styles from "../styles/studio.module.css";
 import React from "react";
 import {
   DropdownMenu,
@@ -49,7 +50,7 @@ export default function ModeMenu({
         <button
           title="Writing modes"
           aria-label="Writing modes"
-          className="flex items-center gap-2 px-3 h-10 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-transparent hover:bg-gray-200 dark:hover:bg-[var(--rule)] transition-colors duration-[var(--me-dur)]"
+          className={styles.btn}
         >
           <svg
             className={`w-4 h-4 transition-colors duration-[var(--me-dur)] ${anyOn ? "text-[var(--acid)]" : "text-gray-500 dark:text-[var(--clay-muted)]"}`}

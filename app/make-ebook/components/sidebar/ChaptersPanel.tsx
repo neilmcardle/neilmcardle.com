@@ -5,6 +5,7 @@ import { PlusIcon } from "../icons";
 import BinIcon from "../icons/BinIcon";
 import EmptyStateHint from "../EmptyStateHint";
 import ChapterCompleteToggle from "../ChapterCompleteToggle";
+import styles from "../../styles/studio.module.css";
 
 interface Chapter {
   id: string;
@@ -296,24 +297,24 @@ export default function ChaptersPanel({
               const titleText = ch.title?.trim() || "Title";
               const wordCount = chapterWordCounts?.[i];
 
-              const typeLabel =
+              const numberLabel =
                 ch.type === "frontmatter"
-                  ? "Frontmatter"
+                  ? "FM"
                   : ch.type === "backmatter"
-                    ? "Backmatter"
-                    : `Chapter ${getContentChapterNumber(chapters, i)}`;
+                    ? "BM"
+                    : String(getContentChapterNumber(chapters, i));
               const chapterTitle =
                 titleText && titleText !== "Title" ? titleText : "Title";
 
               return (
                 <div
                   key={ch.id}
-                  className={`group flex items-center gap-2 px-3 py-2 rounded-[7px] transition-all cursor-pointer select-none ${
+                  className={`group ${styles.chapterRow} ${
                     dragOverIndex === i
-                      ? "border-2 border-dashed border-blue-400 bg-blue-50/50 dark:bg-blue-900/20"
+                      ? styles.chapterRowDrop
                       : isSelected
-                        ? "bg-gray-900 dark:bg-white"
-                        : "hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)]"
+                        ? styles.chapterRowActive
+                        : ""
                   }`}
                   style={{
                     opacity:
@@ -339,26 +340,12 @@ export default function ChaptersPanel({
                       onToggle={() => handleToggleChapterComplete(i)}
                     />
                   )}
-                  <div className="flex flex-col flex-1 min-w-0 gap-2">
-                    <span
-                      className={`text-10 ${isSelected ? "text-white/55 dark:text-gray-500" : "text-gray-500 dark:text-[var(--clay-muted)]"}`}
-                    >
-                      {typeLabel}
-                    </span>
-                    <span
-                      className={`text-125 truncate ${isSelected ? "text-white dark:text-gray-900 font-semibold" : "text-gray-700 dark:text-[var(--clay)]"}`}
-                    >
-                      {chapterTitle}
-                    </span>
-                  </div>
+                  <span className={styles.chapterNum}>{numberLabel}</span>
+                  <span className={styles.chapterName} title={chapterTitle}>
+                    {chapterTitle}
+                  </span>
                   {wordCount !== undefined && (
-                    <span
-                      className={`text-10 tabular-nums flex-shrink-0 ${
-                        isSelected
-                          ? "text-white/55 dark:text-gray-500"
-                          : "text-gray-400 dark:text-[var(--clay-muted)]"
-                      }`}
-                    >
+                    <span className={styles.chapterWords}>
                       {wordCount.toLocaleString()}
                     </span>
                   )}

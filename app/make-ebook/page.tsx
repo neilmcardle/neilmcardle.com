@@ -70,6 +70,7 @@ import UpgradeModal from "./components/UpgradeModal";
 import { toast } from "sonner";
 import EditorCanvas from "./components/EditorCanvas";
 import PreviewSurface from "./components/PreviewSurface";
+import studio from "./styles/studio.module.css";
 import EditorHeader from "./components/EditorHeader";
 import TrialBanner from "./components/TrialBanner";
 import ChapterNavDropdown from "./components/ChapterNavDropdown";
@@ -3355,7 +3356,8 @@ function MakeEbookPage() {
                             ? "Write your first chapter here..."
                             : "Now add some content to your chapter..."
                         }
-                        className="h-full text-lg placeholder:text-[var(--clay-muted)] placeholder:text-lg"
+                        className="h-full"
+                        contentClassName={studio.editorProse}
                         onCreateEndnote={endnotesHook.handleCreateEndnote}
                         chapterId={chapters[selectedChapter]?.id}
                         hasEndnotes={endnotes.length > 0}

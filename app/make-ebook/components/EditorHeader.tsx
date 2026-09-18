@@ -86,42 +86,11 @@ export default function EditorHeader({
   const isMac = useIsMac();
   return (
     <div
-      className={`flex items-center justify-between px-6 mb-2 transition-opacity duration-300 ${
+      className={`${styles.editorToolbar} transition-opacity duration-300 ${
         hideChrome ? "focus-hide-chrome" : ""
       }`}
     >
-      <div data-tour="auto-save" className="flex items-center gap-2">
-        <AutoSaveIndicator
-          isDirty={isDirty}
-          isSaving={isSaving}
-          lastSaved={lastSaved}
-          hasCloudSync={hasCloudSync}
-        />
-        {isDirty && !isSaving && (
-          <button
-            onClick={onSaveNow}
-            className="flex items-center gap-2 h-10 px-3 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-transparent hover:bg-gray-200 dark:hover:bg-[var(--rule)] transition-colors duration-[var(--me-dur)] text-125 font-medium text-gray-700 dark:text-[var(--clay)]"
-            title={`Save now (${isMac ? "⌘S" : "Ctrl+S"})`}
-          >
-            <SaveIcon className="w-5 h-5 dark:[&_path]:stroke-white" />
-            <span>Save</span>
-          </button>
-        )}
-      </div>
-
-      <div className="flex items-center gap-2">
-        <ChapterNavDropdown
-          chapters={chapters}
-          selectedChapter={selectedChapter}
-          onChapterSelect={onChapterSelect}
-          bookTitle={bookTitle}
-        />
-        <ModeMenu
-          focusActive={focusActive}
-          onToggleFocus={onToggleFocusMode}
-          flowMode={flowMode}
-          onToggleFlow={onToggleFlowMode}
-        />
+      <div className={styles.toolbarLeft}>
         <div className={styles.seg} role="group" aria-label="View">
           {(["edit", "preview"] as const).map((m) => (
             <button
@@ -135,13 +104,47 @@ export default function EditorHeader({
             </button>
           ))}
         </div>
+        <ChapterNavDropdown
+          chapters={chapters}
+          selectedChapter={selectedChapter}
+          onChapterSelect={onChapterSelect}
+          bookTitle={bookTitle}
+        />
+        <ModeMenu
+          focusActive={focusActive}
+          onToggleFocus={onToggleFocusMode}
+          flowMode={flowMode}
+          onToggleFlow={onToggleFlowMode}
+        />
+      </div>
+
+      <div className={styles.toolbarRight}>
+        <span data-tour="auto-save">
+          <AutoSaveIndicator
+            isDirty={isDirty}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
+            hasCloudSync={hasCloudSync}
+          />
+        </span>
+        {isDirty && !isSaving && (
+          <button
+            type="button"
+            onClick={onSaveNow}
+            className={styles.btn}
+            title={`Save now (${isMac ? "⌘S" : "Ctrl+S"})`}
+          >
+            <SaveIcon className="w-4 h-4 [&_path]:stroke-current" />
+            <span>Save</span>
+          </button>
+        )}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               title="More actions"
               aria-label="More actions"
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-transparent text-gray-500 dark:text-[var(--clay-muted)] hover:bg-gray-200 dark:hover:bg-[var(--rule)] transition-colors duration-[var(--me-dur)]"
+              className={styles.iconBtn}
             >
               <svg
                 className="w-5 h-5"
@@ -217,16 +220,13 @@ export default function EditorHeader({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <span
-          className="w-px h-6 bg-gray-200 dark:bg-[var(--rule)] mx-1"
-          aria-hidden="true"
-        />
+        <span className={styles.toolbarDivider} aria-hidden="true" />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               data-tour="export"
-              className="flex items-center gap-2 h-10 px-5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-13 font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors duration-[var(--me-dur)] shadow-sm"
+              className={styles.acid}
               title="Export book"
             >
               <svg
