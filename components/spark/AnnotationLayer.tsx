@@ -278,7 +278,7 @@ export function AnnotationLayer() {
               top: hover.top - 2,
               width: hover.width + 4,
               height: hover.height + 4,
-              boxShadow: "0 0 0 2px #d8b46a, 0 0 0 6px rgba(216,180,106,0.22)",
+              boxShadow: "0 0 0 2px #3d2bd8, 0 0 0 6px rgba(61,43,216,0.22)",
             }}
           />
           <div
@@ -303,7 +303,7 @@ export function AnnotationLayer() {
               persist(notes.filter((n) => n.id !== pin.id));
             }
           }}
-          className="fixed z-[9997] flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#d8b46a] text-[11px] font-bold text-[#0a0a0a] shadow-md"
+          className="fixed z-[9997] flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#3d2bd8] text-[11px] font-bold text-[#0a0a0a] shadow-md"
           style={{ left: pin.x - 11, top: pin.y - 11 }}
           title="Click to delete this note"
         >
@@ -318,11 +318,11 @@ export function AnnotationLayer() {
             left: Math.min(target.rect.left, window.innerWidth - 340),
             top: Math.min(target.rect.bottom + 10, window.innerHeight - 190),
             boxShadow:
-              "0 0 0 1px rgba(216,180,106,0.35), 0 20px 40px -12px rgba(0,0,0,0.7)",
+              "0 0 0 1px rgba(61,43,216,0.35), 0 20px 40px -12px rgba(0,0,0,0.7)",
           }}
         >
           <p
-            className="mb-2 truncate text-[10.5px] text-[#d8b46a]"
+            className="mb-2 truncate text-[10.5px] text-[#3d2bd8]"
             style={{ fontFamily: "var(--font-jetbrains-mono)" }}
           >
             {describe(target.el)}
@@ -349,7 +349,7 @@ export function AnnotationLayer() {
             <button
               onClick={save}
               disabled={!draft.trim()}
-              className="rounded-full bg-[#d8b46a] px-3 py-1 text-[11px] font-semibold text-[#0a0a0a] disabled:opacity-30"
+              className="rounded-full bg-[#3d2bd8] px-3 py-1 text-[11px] font-semibold text-[#0a0a0a] disabled:opacity-30"
             >
               Save
             </button>
@@ -365,14 +365,14 @@ export function AnnotationLayer() {
           }}
           className="flex items-center gap-2 rounded-full px-3 py-2 text-[11px] font-medium shadow-lg transition-colors"
           style={{
-            background: active ? "#d8b46a" : "rgba(10,10,10,0.92)",
+            background: active ? "#3d2bd8" : "rgba(10,10,10,0.92)",
             color: active ? "#0a0a0a" : "rgba(255,255,255,0.75)",
           }}
           title="Toggle annotate mode (Alt+A)"
         >
           <span
             className="h-[7px] w-[7px] rounded-full"
-            style={{ background: active ? "#0a0a0a" : "#d8b46a" }}
+            style={{ background: active ? "#0a0a0a" : "#3d2bd8" }}
           />
           {active
             ? "Click an element"

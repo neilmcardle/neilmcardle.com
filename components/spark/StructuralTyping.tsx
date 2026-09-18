@@ -91,12 +91,12 @@ export function StructuralTyping() {
                   type="button"
                   onClick={() => toggle(p.name)}
                   aria-pressed={on}
-                  className="spark-mono min-h-[34px] rounded-full border px-3 text-[12px] transition-colors"
+                  className="spark-mono min-h-[34px] rounded-md border px-3 text-[12px] transition-colors"
                   style={{
                     borderColor: on
-                      ? "var(--spark-gold-deep)"
+                      ? "var(--spark-arc)"
                       : "rgba(20,20,19,0.16)",
-                    background: on ? "rgba(216,180,106,0.14)" : "transparent",
+                    background: on ? "rgba(61,43,216,0.14)" : "transparent",
                     color: on ? "var(--spark-text)" : "var(--spark-faint)",
                   }}
                 >
@@ -104,7 +104,7 @@ export function StructuralTyping() {
                   {p.required && (
                     <span
                       aria-label="required"
-                      style={{ color: "var(--spark-gold-ink)" }}
+                      style={{ color: "var(--spark-arc)" }}
                     >
                       *
                     </span>
@@ -129,11 +129,11 @@ export function StructuralTyping() {
 
           <div aria-live="polite" className="mt-3 min-h-[5.4em]">
             {assignable ? (
-              <div className="rounded-lg bg-[var(--spark-gold)]/[0.12] px-3.5 py-3">
-                <span className="spark-eyebrow block text-[var(--spark-gold-ink)]">
+              <div className="rounded-lg bg-[rgba(61,43,216,0.12)] px-3.5 py-3">
+                <span className="spark-eyebrow block text-[var(--spark-arc)]">
                   Compiles
                 </span>
-                <p className="mt-1 text-[12.5px] leading-[1.6] text-[#44423e]">
+                <p className="mt-1 text-[12.5px] leading-[1.6] text-[var(--spark-text)]">
                   Both required properties are here, so the object satisfies{" "}
                   <code className="spark-inline-code">User</code>.
                   {extra.length > 0 &&
@@ -143,15 +143,15 @@ export function StructuralTyping() {
             ) : (
               <div
                 className="rounded-lg px-3.5 py-3"
-                style={{ background: "rgba(184,84,58,0.09)" }}
+                style={{ background: "rgba(183,58,38,0.09)" }}
               >
                 <span
                   className="spark-eyebrow block"
-                  style={{ color: "#b8543a" }}
+                  style={{ color: "var(--spark-redline)" }}
                 >
                   Type error
                 </span>
-                <p className="spark-mono mt-1 text-[11.5px] leading-[1.6] text-[#44423e]">
+                <p className="spark-mono mt-1 text-[11.5px] leading-[1.6] text-[var(--spark-text)]">
                   {error}
                 </p>
               </div>
@@ -160,17 +160,15 @@ export function StructuralTyping() {
         </div>
       </div>
 
-      <div className="mt-5 border-t border-black/[0.07] pt-4">
+      <div className="mt-5 border-t border-[var(--spark-rule)] pt-4">
         <button
           type="button"
           onClick={() => setRenamed((r) => !r)}
           aria-pressed={renamed}
-          className="min-h-[38px] rounded-full border px-4 text-[12.5px] font-semibold transition-colors"
+          className="min-h-[38px] rounded-md border px-4 text-[12.5px] font-semibold transition-colors"
           style={{
-            borderColor: renamed
-              ? "var(--spark-gold-deep)"
-              : "rgba(20,20,19,0.16)",
-            background: renamed ? "rgba(216,180,106,0.14)" : "transparent",
+            borderColor: renamed ? "var(--spark-arc)" : "rgba(20,20,19,0.16)",
+            background: renamed ? "rgba(61,43,216,0.14)" : "transparent",
             color: "var(--spark-text)",
           }}
         >

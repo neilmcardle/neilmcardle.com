@@ -98,165 +98,102 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
   const resumeProgress = resume ? (progress[resume.module] ?? EMPTY) : EMPTY;
 
   return (
-    <div className="min-h-screen bg-[var(--spark-ink)] text-white">
-      <header className="flex h-[76px] items-center justify-between border-b border-white/[0.07] px-5 lg:h-[92px] lg:px-14">
-        <Link href="/spark" className="flex items-center gap-3 lg:gap-3.5">
-          <SparkMark className="h-[22px] w-auto shrink-0 text-[var(--spark-gold)] lg:h-[28px]" />
-          <span className="text-[28px] font-normal leading-none tracking-[-0.02em] text-cream lg:text-[36px]">
-            Spark
-          </span>
-        </Link>
+    <div className="spark-page min-h-screen bg-[var(--spark-pad)] text-[var(--spark-text)]">
+      <header className="sticky top-0 z-30 border-b border-[var(--spark-rule)] bg-[var(--spark-pad)]/90 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 md:px-12">
+          <Link href="/spark" className="flex items-center gap-2.5">
+            <SparkMark className="h-[22px] w-auto shrink-0 text-[var(--spark-arc)]" />
+            <span className="spark-display text-[22px] leading-none">
+              spark
+            </span>
+          </Link>
 
-        {started && (
-          <div className="hidden items-end gap-9 lg:flex">
-            <div>
-              <div className="font-serif text-[26px] font-black leading-none tracking-[-0.02em] text-[var(--spark-gold)]">
-                {completedCount}
-              </div>
-              <div className="spark-eyebrow mt-1.5 text-[var(--spark-on-dark-muted)]">
-                Done
-              </div>
-            </div>
-            <div>
-              <div className="font-serif text-[26px] font-black leading-none tracking-[-0.02em]">
-                {percent}
-                <span className="text-[15px] text-[var(--spark-on-dark-muted)]">
-                  %
-                </span>
-              </div>
-              <div className="spark-eyebrow mt-1.5 text-[var(--spark-on-dark-muted)]">
-                Of the course
-              </div>
-            </div>
-            <div>
-              <div className="font-serif text-[26px] font-black leading-none tracking-[-0.02em]">
-                {Math.round(minutesLeft / 60)}
-                <span className="text-[15px] text-[var(--spark-on-dark-muted)]">
-                  h
-                </span>
-              </div>
-              <div className="spark-eyebrow mt-1.5 text-[var(--spark-on-dark-muted)]">
-                Left
-              </div>
-            </div>
-          </div>
-        )}
+          {started && (
+            <dl className="hidden items-center gap-8 md:flex">
+              <Stat label="Done" value={String(completedCount)} />
+              <Stat label="Of the course" value={`${percent}%`} />
+              <Stat label="Left" value={`${Math.round(minutesLeft / 60)}h`} />
+            </dl>
+          )}
+        </div>
       </header>
 
-      <div className="px-5 pb-10 pt-12 lg:px-14 lg:pt-14">
-        <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <h1 className="mb-4 font-serif text-[clamp(2.75rem,9vw,4.25rem)] font-black uppercase leading-[0.94] tracking-[-0.03em] lg:whitespace-nowrap">
-              Become an engineer
-            </h1>
-            <p className="max-w-[460px] font-serif text-[19px] italic leading-[1.45] text-[var(--spark-on-dark-muted)] xl:max-w-none xl:whitespace-nowrap">
-              Most designers can prompt their way to an app. But, few can start
-              from an empty file. That&apos;s what this course is for.
+      <div className="mx-auto max-w-[1440px] px-4 pb-24 md:px-12">
+        <div className="pt-16 md:pt-24">
+          <h1 className="spark-display m-0 max-w-[16ch] text-[clamp(2.5rem,6vw,5rem)] leading-[0.98]">
+            The whole course, in order.
+          </h1>
+          <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <p className="m-0 max-w-[36em] text-[18px] leading-[1.55] text-[var(--spark-muted)]">
+              Most designers can prompt their way to an app. Few can start from
+              an empty file. These modules take you there, one line at a time.
+            </p>
+            <p className="spark-eyebrow m-0 shrink-0 text-[var(--spark-faint)]">
+              {modules.length} modules {String.fromCharCode(183)}{" "}
+              {PHASES.length} phases {String.fromCharCode(183)} no code needed
+              to begin
             </p>
           </div>
 
-          {started ? (
-            <div className="flex gap-9 lg:hidden">
-              <div>
-                <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em] text-[var(--spark-gold)]">
-                  {completedCount}
-                </div>
-                <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
-                  Done
-                </div>
-              </div>
-              <div>
-                <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em]">
-                  {percent}
-                  <span className="text-[22px] text-[var(--spark-on-dark-muted)]">
-                    %
-                  </span>
-                </div>
-                <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
-                  Of the course
-                </div>
-              </div>
-              <div>
-                <div className="font-serif text-[42px] font-black leading-none tracking-[-0.03em]">
-                  {Math.round(minutesLeft / 60)}
-                  <span className="text-[22px] text-[var(--spark-on-dark-muted)]">
-                    h
-                  </span>
-                </div>
-                <div className="spark-eyebrow mt-2 text-[var(--spark-on-dark-muted)]">
-                  Left
-                </div>
-              </div>
-            </div>
-          ) : (
-            <p className="spark-eyebrow flex shrink-0 flex-wrap gap-x-1.5 text-[var(--spark-on-dark-muted)] lg:pb-2">
-              <span className="whitespace-nowrap">
-                {modules.length} modules {String.fromCharCode(183)}
-              </span>
-              <span className="whitespace-nowrap">
-                {PHASES.length} phases {String.fromCharCode(183)}
-              </span>
-              <span className="whitespace-nowrap">no prior code needed</span>
-            </p>
+          {started && (
+            <dl className="mt-8 flex gap-8 md:hidden">
+              <Stat label="Done" value={String(completedCount)} />
+              <Stat label="Of the course" value={`${percent}%`} />
+              <Stat label="Left" value={`${Math.round(minutesLeft / 60)}h`} />
+            </dl>
           )}
         </div>
 
         {resume && (
-          <Link
-            href={`/spark/lessons/${resume.slug}`}
-            className="relative mt-10 flex flex-col gap-5 overflow-hidden rounded-lg border border-white/[0.08] bg-white/[0.04] px-6 py-5 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <span
-              aria-hidden
-              className="spark-glare pointer-events-none absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-[var(--spark-gold)]/10 to-transparent"
-            />
-            <span className="relative">
-              <span className="spark-eyebrow mb-2 block text-[var(--spark-gold)]">
-                {resumeProgress.furthest > 0
-                  ? "+ Pick up where you left off"
-                  : "+ Start here"}
+          <div className="spark-grid mt-12 rounded-xl border border-[var(--spark-rule)] p-3 md:p-6">
+            <Link
+              href={`/spark/lessons/${resume.slug}`}
+              className="group flex flex-col gap-5 rounded-lg border border-[var(--spark-rule)] bg-[var(--spark-sheet)] p-5 shadow-[0_24px_48px_-28px_rgba(27,31,25,0.35)] sm:flex-row sm:items-center sm:justify-between md:p-6"
+            >
+              <span>
+                <span className="spark-eyebrow mb-2 block text-[var(--spark-arc)]">
+                  {resumeProgress.furthest > 0
+                    ? "Pick up where you left off"
+                    : "Start here"}
+                </span>
+                <span className="spark-display block text-[clamp(1.5rem,2.4vw,2rem)] leading-[1.08]">
+                  {String(resume.module).padStart(2, "0")} {resume.title}
+                </span>
+                <span className="spark-eyebrow mt-2 block text-[var(--spark-faint)]">
+                  Section{" "}
+                  {Math.min(resumeProgress.furthest + 1, resume.sectionCount)}{" "}
+                  of {resume.sectionCount} {String.fromCharCode(183)}{" "}
+                  {resume.minutes} min
+                </span>
               </span>
-              <span className="block font-serif text-[26px] font-bold leading-[1.1] tracking-[-0.02em]">
-                {resume.title}
+              <span className="inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-md bg-[var(--spark-arc)] px-6 text-[15px] font-semibold text-[var(--spark-sheet)] transition-colors group-hover:bg-[var(--spark-arc-hover)]">
+                {resumeProgress.furthest > 0 ? "Resume" : "Begin"}
               </span>
-              <span className="mt-1.5 block text-[12.5px] text-[var(--spark-on-dark-muted)]">
-                Section{" "}
-                {Math.min(resumeProgress.furthest + 1, resume.sectionCount)} of{" "}
-                {resume.sectionCount} {String.fromCharCode(183)}{" "}
-                {resume.minutes} min
-              </span>
-            </span>
-            <span className="relative flex min-h-[44px] shrink-0 items-center justify-center gap-2.5 rounded-full bg-[var(--spark-gold)] px-6 text-[13.5px] font-semibold text-[var(--spark-ink)]">
-              {resumeProgress.furthest > 0 ? "Resume" : "Begin"}
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
-              >
-                <path d="M5 12h13M12 5l7 7-7 7" />
-              </svg>
-            </span>
-          </Link>
+            </Link>
+          </div>
         )}
-      </div>
 
-      <div className="px-5 pb-20 lg:px-14">
-        {grouped.map(({ phase, modules: group }) => (
-          <PhaseGroup
-            key={phase.id}
-            phase={phase}
-            modules={group}
-            progress={progress}
-            started={started}
-          />
-        ))}
+        <div className="mt-12 overflow-hidden rounded-xl border border-[var(--spark-rule)] bg-[var(--spark-sheet)]">
+          {grouped.map(({ phase, modules: group }) => (
+            <PhaseGroup
+              key={phase.id}
+              phase={phase}
+              modules={group}
+              progress={progress}
+              started={started}
+            />
+          ))}
+        </div>
       </div>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col-reverse">
+      <dt className="spark-eyebrow mt-1 text-[var(--spark-faint)]">{label}</dt>
+      <dd className="spark-display m-0 text-[22px] leading-none">{value}</dd>
     </div>
   );
 }
@@ -274,114 +211,92 @@ function PhaseGroup({
 }) {
   const done = modules.filter((m) => progress[m.module]?.complete).length;
   const index = PHASES.indexOf(phase);
-  const active = started && done < modules.length && done > 0;
 
   return (
-    <section className="mb-8">
-      <div className="mb-1 flex items-center gap-4">
-        <h2
-          className="spark-eyebrow shrink-0"
-          style={{
-            color: active ? "var(--spark-gold)" : "var(--spark-on-dark-muted)",
-          }}
-        >
-          + Phase {index} {String.fromCharCode(183)} {phase.name}
+    <section className="border-t border-[var(--spark-rule)] pb-3 first:border-t-0">
+      <div className="flex items-baseline gap-4 px-4 pb-2 pt-6 md:px-6">
+        <span className="spark-eyebrow w-9 shrink-0 text-[var(--spark-faint)] md:w-16">
+          Phase {index}
+        </span>
+        <h2 className="spark-display m-0 flex-1 text-[19px] leading-tight">
+          {phase.name}
         </h2>
-        <span aria-hidden className="h-px flex-1 bg-white/[0.09]" />
-        <span className="spark-eyebrow shrink-0 text-[var(--spark-on-dark-muted)]">
+        <span className="spark-eyebrow shrink-0 text-[var(--spark-faint)]">
           {started
             ? `${done} of ${modules.length}`
             : `${modules.length} modules`}
         </span>
       </div>
 
-      {modules.map((mod) => {
-        const state = progress[mod.module] ?? EMPTY;
-        const started = state.furthest > 0 && !state.complete;
+      <ol className="m-0 list-none p-0">
+        {modules.map((mod) => {
+          const state = progress[mod.module] ?? EMPTY;
+          const inFlight = state.furthest > 0 && !state.complete;
 
-        return (
-          <Link
-            key={mod.slug}
-            href={`/spark/lessons/${mod.slug}`}
-            className="group grid grid-cols-[54px_minmax(0,1fr)] items-start gap-4 border-b border-white/[0.09] py-4 transition-colors hover:bg-white/[0.035] lg:grid-cols-[86px_minmax(0,1fr)_200px_118px_32px] lg:items-center lg:gap-6 lg:pl-2"
-          >
-            <span
-              className="mt-0.5 font-serif text-[28px] font-black leading-none tracking-[-0.03em] transition-colors lg:mt-0 lg:text-[38px]"
-              style={{
-                color: started
-                  ? "var(--spark-gold)"
-                  : state.complete
-                    ? "rgba(255,255,255,0.55)"
-                    : "var(--spark-on-dark-numeral)",
-              }}
-            >
-              {String(mod.module).padStart(2, "0")}
-            </span>
-
-            <span className="min-w-0">
-              <span className="block font-serif text-[19px] font-bold leading-[1.15] tracking-[-0.015em] lg:text-[22px]">
-                {mod.title}
-              </span>
-              {mod.promise && (
-                <span className="mt-1 block text-[12.5px] leading-[1.5] text-[var(--spark-on-dark-muted)] line-clamp-2">
-                  {mod.promise}
-                </span>
-              )}
-              <span className="mt-2 flex items-center gap-1.5 lg:hidden">
-                <SectionDots
-                  total={mod.sectionCount}
-                  read={state.complete ? mod.sectionCount : state.furthest}
-                  active={started}
-                  compact
-                />
-                <span className="ml-1.5 shrink-0 text-[10px] text-[var(--spark-on-dark-muted)]">
-                  {state.complete ? "Complete" : `${mod.minutes} min`}
-                </span>
-              </span>
-            </span>
-
-            <span className="hidden items-center gap-[3px] lg:flex">
-              <SectionDots
-                total={mod.sectionCount}
-                read={state.complete ? mod.sectionCount : state.furthest}
-                active={started}
-              />
-            </span>
-
-            <span className="hidden text-right lg:block">
-              {state.complete ? (
-                <span className="spark-eyebrow text-[var(--spark-gold-deep)]">
-                  Complete
-                </span>
-              ) : started ? (
-                <span className="rounded-full border border-[var(--spark-gold)]/30 bg-[var(--spark-gold)]/[0.13] px-3 py-1 text-[11px] font-medium text-[var(--spark-gold)]">
-                  {mod.minutes} min left
-                </span>
-              ) : (
-                <span className="text-[11px] text-[var(--spark-on-dark-muted)]">
-                  {mod.minutes} min
-                </span>
-              )}
-            </span>
-
-            <span className="hidden justify-end opacity-35 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100 lg:flex">
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="rgba(255,255,255,0.5)"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
+          return (
+            <li key={mod.slug}>
+              <Link
+                href={`/spark/lessons/${mod.slug}`}
+                className="group grid grid-cols-[36px_minmax(0,1fr)] items-baseline gap-4 px-4 py-3.5 transition-colors hover:bg-[var(--spark-pad)] md:grid-cols-[64px_minmax(0,1fr)_200px_96px] md:items-center md:px-6"
               >
-                <path d="M5 12h13M12 5l7 7-7 7" />
-              </svg>
-            </span>
-          </Link>
-        );
-      })}
+                <span
+                  className={`spark-mono text-[13px] transition-colors group-hover:text-[var(--spark-arc)] ${
+                    inFlight
+                      ? "text-[var(--spark-arc)]"
+                      : "text-[var(--spark-faint)]"
+                  }`}
+                >
+                  {String(mod.module).padStart(2, "0")}
+                </span>
+
+                <span className="min-w-0">
+                  <span className="block text-[16px] font-semibold leading-snug">
+                    {mod.title}
+                  </span>
+                  {mod.promise && (
+                    <span className="mt-0.5 block text-[14px] leading-[1.5] text-[var(--spark-muted)]">
+                      {mod.promise}
+                    </span>
+                  )}
+                  <span className="mt-2.5 flex items-center gap-[3px] md:hidden">
+                    <SectionDots
+                      total={mod.sectionCount}
+                      read={state.complete ? mod.sectionCount : state.furthest}
+                      active={inFlight}
+                      compact
+                    />
+                    <span className="spark-eyebrow ml-2 shrink-0 text-[var(--spark-faint)]">
+                      {state.complete ? "Done" : `${mod.minutes} min`}
+                    </span>
+                  </span>
+                </span>
+
+                <span className="hidden items-center gap-[3px] md:flex">
+                  <SectionDots
+                    total={mod.sectionCount}
+                    read={state.complete ? mod.sectionCount : state.furthest}
+                    active={inFlight}
+                  />
+                </span>
+
+                <span className="spark-eyebrow hidden text-right md:block">
+                  {state.complete ? (
+                    <span className="text-[var(--spark-pass)]">Done</span>
+                  ) : inFlight ? (
+                    <span className="text-[var(--spark-arc)]">
+                      {mod.minutes} min left
+                    </span>
+                  ) : (
+                    <span className="text-[var(--spark-faint)]">
+                      {mod.minutes} min
+                    </span>
+                  )}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
     </section>
   );
 }
@@ -410,13 +325,13 @@ function SectionDots({
             aria-hidden
             className="rounded-sm"
             style={{
-              width: isCurrent ? (compact ? 12 : 16) : compact ? 7 : 11,
-              height: compact ? 2.5 : 3,
+              width: isCurrent ? (compact ? 12 : 16) : compact ? 7 : 9,
+              height: 3,
               background: isCurrent
-                ? "var(--spark-gold)"
+                ? "var(--spark-arc)"
                 : isRead
-                  ? "var(--spark-gold-deep)"
-                  : "var(--spark-rule-dark)",
+                  ? "var(--spark-text)"
+                  : "var(--spark-grid)",
             }}
           />
         );

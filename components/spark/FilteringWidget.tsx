@@ -89,7 +89,7 @@ export function FilteringWidget() {
               setStep(null);
             }}
             placeholder="Try a or li"
-            className="w-full rounded-lg border px-3.5 py-2.5 text-[14px] text-[var(--spark-text)] outline-none transition-colors placeholder:text-[var(--spark-faint)] focus:border-[var(--spark-gold-deep)]"
+            className="w-full rounded-lg border px-3.5 py-2.5 text-[14px] text-[var(--spark-text)] outline-none transition-colors placeholder:text-[var(--spark-faint)] focus:border-[var(--spark-arc)]"
             style={{ borderColor: "rgba(20,20,19,0.16)", background: "#fff" }}
           />
 
@@ -102,7 +102,7 @@ export function FilteringWidget() {
                   className="spark-mono rounded px-2.5 py-1.5 text-[12.5px] transition-colors"
                   style={{
                     background: hit
-                      ? "rgba(216,180,106,0.16)"
+                      ? "rgba(61,43,216,0.16)"
                       : "rgba(20,20,19,0.03)",
                     color: hit ? "var(--spark-text)" : "var(--spark-faint)",
                     textDecoration: hit ? "none" : "line-through",
@@ -137,10 +137,10 @@ export function FilteringWidget() {
                       className="w-full rounded-lg px-3 py-2 text-left transition-colors"
                       style={{
                         background: open
-                          ? "rgba(216,180,106,0.14)"
+                          ? "rgba(61,43,216,0.14)"
                           : "transparent",
                         boxShadow: open
-                          ? "inset 2px 0 0 var(--spark-gold-deep)"
+                          ? "inset 2px 0 0 var(--spark-arc)"
                           : "inset 0 0 0 1px rgba(20,20,19,0.08)",
                       }}
                     >
@@ -149,7 +149,7 @@ export function FilteringWidget() {
                           className="spark-mono shrink-0 text-[10.5px] tabular-nums"
                           style={{
                             color: open
-                              ? "var(--spark-gold-ink)"
+                              ? "var(--spark-arc)"
                               : "var(--spark-faint)",
                           }}
                         >
@@ -165,7 +165,7 @@ export function FilteringWidget() {
                           <code className="spark-mono block overflow-x-auto rounded bg-[var(--spark-ink)] px-2.5 py-1.5 text-[11.5px] text-[var(--spark-on-dark)]">
                             {item.code}
                           </code>
-                          <span className="mt-1.5 block text-[12.5px] leading-[1.6] text-[#44423e]">
+                          <span className="mt-1.5 block text-[12.5px] leading-[1.6] text-[var(--spark-text)]">
                             {item.detail(query, results)}
                           </span>
                         </span>

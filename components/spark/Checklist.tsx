@@ -70,15 +70,11 @@ export function Checklist({ moduleNumber, items }: ChecklistProps) {
   return (
     <div className="my-7">
       <div className="mb-2.5 flex items-center gap-3">
-        <span className="spark-eyebrow text-[var(--spark-gold-ink)]">
-          + Checklist
-        </span>
-        <span aria-hidden className="h-px flex-1 bg-black/[0.1]" />
+        <span className="spark-eyebrow text-[var(--spark-arc)]">Checklist</span>
+        <span aria-hidden className="h-px flex-1 bg-[var(--spark-rule)]" />
         <span
           className={`spark-mono shrink-0 text-[11px] tabular-nums ${
-            complete
-              ? "text-[var(--spark-gold-ink)]"
-              : "text-[var(--spark-faint)]"
+            complete ? "text-[var(--spark-arc)]" : "text-[var(--spark-faint)]"
           }`}
         >
           {done} / {items.length}
@@ -87,7 +83,7 @@ export function Checklist({ moduleNumber, items }: ChecklistProps) {
 
       <ul
         className={`spark-card flex list-none flex-col rounded-xl p-1.5 pl-1.5 ${
-          complete ? "spark-card-gold" : ""
+          complete ? "spark-card-pass" : ""
         }`}
       >
         {items.map((item, i) => {
@@ -98,7 +94,9 @@ export function Checklist({ moduleNumber, items }: ChecklistProps) {
             <li key={key + i}>
               <label
                 className={`group grid cursor-pointer grid-cols-[18px_minmax(0,1fr)] items-start gap-3 rounded-md px-3 py-2.5 transition-colors hover:bg-black/[0.025] ${
-                  checked ? "text-[var(--spark-faint)]" : "text-[#44423e]"
+                  checked
+                    ? "text-[var(--spark-faint)]"
+                    : "text-[var(--spark-text)]"
                 }`}
               >
                 <input
@@ -109,12 +107,12 @@ export function Checklist({ moduleNumber, items }: ChecklistProps) {
                 />
                 <span
                   aria-hidden
-                  className="mt-[3px] flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border transition-all peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--spark-gold-deep)]"
+                  className="mt-[3px] flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border transition-all peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--spark-arc)]"
                   style={
                     checked
                       ? {
-                          background: "var(--spark-gold-deep)",
-                          borderColor: "var(--spark-gold-deep)",
+                          background: "var(--spark-arc)",
+                          borderColor: "var(--spark-arc)",
                         }
                       : { borderColor: "rgba(20,20,19,0.22)" }
                   }

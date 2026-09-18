@@ -35,10 +35,10 @@ export function WidgetShell({
   return (
     <section className="spark-widget my-8">
       <div className="mb-2.5 flex items-center gap-3">
-        <span className="spark-eyebrow shrink-0 text-[var(--spark-gold-ink)]">
-          + Try it
+        <span className="spark-eyebrow shrink-0 text-[var(--spark-arc)]">
+          Try it
         </span>
-        <span aria-hidden className="h-px flex-1 bg-black/[0.1]" />
+        <span aria-hidden className="h-px flex-1 bg-[var(--spark-rule)]" />
         {status && (
           <span className="spark-mono shrink-0 text-[11px] tabular-nums text-[var(--spark-faint)]">
             {status}
@@ -48,18 +48,20 @@ export function WidgetShell({
           <button
             type="button"
             onClick={onReset}
-            className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium text-[var(--spark-faint)] transition-colors hover:bg-black/[0.05] hover:text-[var(--spark-text)]"
+            className="shrink-0 rounded-md px-2.5 py-1 text-[11px] font-medium text-[var(--spark-faint)] transition-colors hover:bg-[var(--spark-pad)] hover:text-[var(--spark-text)]"
           >
             Reset
           </button>
         )}
       </div>
 
-      <div className="spark-card overflow-hidden rounded-xl bg-[var(--spark-paper)]">
-        <h4 className="border-b border-black/[0.07] px-5 py-3.5 font-serif text-[17px] font-bold leading-tight tracking-[-0.015em] text-[var(--spark-text)]">
-          {title}
-        </h4>
-        <div className="p-5">{children}</div>
+      <div className="spark-grid rounded-xl border border-[var(--spark-rule)] p-2 sm:p-4">
+        <div className="overflow-hidden rounded-lg border border-[var(--spark-rule)] bg-[var(--spark-sheet)] shadow-[0_24px_48px_-30px_rgba(27,31,25,0.4)]">
+          <h4 className="spark-display border-b border-[var(--spark-rule)] px-5 py-3.5 text-[17px] leading-tight text-[var(--spark-text)]">
+            {title}
+          </h4>
+          <div className="p-5">{children}</div>
+        </div>
       </div>
 
       {caption && (

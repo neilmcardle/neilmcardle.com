@@ -191,8 +191,8 @@ export function CodeBlock({
     <div className="spark-code my-7 overflow-hidden rounded-xl bg-[var(--spark-ink)]">
       <div className="flex items-center justify-between border-b border-white/[0.07] px-4 py-3">
         <div className="flex items-center gap-3">
-          <span className="spark-eyebrow text-[var(--spark-gold-deep)]">
-            + {label}
+          <span className="spark-eyebrow text-[var(--spark-arc-light)]">
+            {label}
           </span>
           {file && (
             <span className="spark-mono text-[10.5px] text-[var(--spark-on-dark-muted)]">
@@ -202,7 +202,7 @@ export function CodeBlock({
         </div>
         <button
           onClick={copy}
-          className="rounded-full px-3 py-1 text-[10.5px] font-medium text-[var(--spark-on-dark-muted)] transition-colors hover:bg-white/[0.07] hover:text-white/80"
+          className="rounded-md px-3 py-1 text-[10.5px] font-medium text-[var(--spark-on-dark-muted)] transition-colors hover:bg-white/[0.07] hover:text-white/80"
           aria-label={copied ? "Copied to clipboard" : "Copy code to clipboard"}
         >
           {copied ? "Copied" : "Copy"}
@@ -235,8 +235,8 @@ export function CodeBlock({
 
               {note && (
                 <div className="px-5 py-2 pl-[44px]">
-                  <div className="flex items-start gap-2.5 rounded-lg border border-dashed border-[var(--spark-gold)]/35 bg-[var(--spark-gold)]/[0.07] px-3 py-2.5">
-                    <span className="spark-eyebrow shrink-0 pt-0.5 text-[var(--spark-gold)]">
+                  <div className="flex items-start gap-2.5 rounded-lg border border-dashed border-[rgba(169,156,255,0.4)] bg-[rgba(169,156,255,0.08)] px-3 py-2.5">
+                    <span className="spark-eyebrow shrink-0 pt-0.5 text-[var(--spark-arc-light)]">
                       Note
                     </span>
                     <span className="font-sans text-[12.5px] leading-[1.6] text-[var(--spark-on-dark)]">

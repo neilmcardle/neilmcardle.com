@@ -174,38 +174,38 @@ export function LessonShell({
   );
 
   return (
-    <div className="min-h-screen bg-[var(--spark-paper)]">
-      <div className="fixed inset-x-0 top-0 z-50 h-[2px] bg-black/[0.07]">
+    <div className="spark-page min-h-screen bg-[var(--spark-sheet)] text-[var(--spark-text)]">
+      <div className="fixed inset-x-0 top-0 z-50 h-[2px] bg-[var(--spark-rule)]">
         <div
-          className="h-full bg-gradient-to-r from-[var(--spark-gold-deep)] to-[var(--spark-gold)] transition-[width] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
+          className="h-full bg-[var(--spark-arc)] transition-[width] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
           style={{ width: `${progress}%` }}
         />
       </div>
 
       <div className="mx-auto flex max-w-[1440px]">
-        <aside className="sticky top-0 hidden h-screen w-[276px] shrink-0 flex-col bg-[var(--spark-ink)] px-6 py-8 lg:flex">
-          <Link href="/spark" className="mb-8 flex items-center gap-2.5">
-            <SparkMark className="h-[12px] w-auto shrink-0 text-[var(--spark-gold)]" />
-            <span className="text-[15px] font-normal tracking-[-0.02em] text-cream">
-              Spark
+        <aside className="sticky top-0 hidden h-screen w-[288px] shrink-0 flex-col border-r border-[var(--spark-rule)] bg-[var(--spark-pad)] px-6 py-7 lg:flex">
+          <Link href="/spark" className="mb-9 flex items-center gap-2">
+            <SparkMark className="h-[18px] w-auto shrink-0 text-[var(--spark-arc)]" />
+            <span className="spark-display text-[19px] leading-none">
+              spark
             </span>
           </Link>
 
-          <span className="spark-eyebrow mb-2.5 text-[var(--spark-on-dark-muted)]">
-            + Module {String(moduleNumber).padStart(2, "0")}
+          <span className="spark-eyebrow mb-2 text-[var(--spark-faint)]">
+            Module {String(moduleNumber).padStart(2, "0")}
           </span>
-          <h2 className="mb-2 font-serif text-[26px] font-bold leading-[1.06] tracking-[-0.02em] text-white">
+          <h2 className="spark-display mb-2 text-[24px] leading-[1.08]">
             {title}
           </h2>
-          <p className="mb-6 text-[11.5px] text-[var(--spark-on-dark-muted)]">
+          <p className="mb-6 text-[12px] text-[var(--spark-muted)]">
             {phaseLabel}
           </p>
 
-          <div className="mb-5 flex items-baseline gap-2">
-            <span className="font-serif text-[30px] font-black leading-none text-[var(--spark-gold)]">
+          <div className="mb-6 flex items-baseline gap-2 border-y border-[var(--spark-rule)] py-3">
+            <span className="spark-display text-[26px] leading-none">
               {Math.round(progress)}%
             </span>
-            <span className="text-[11px] text-[var(--spark-on-dark-muted)]">
+            <span className="spark-eyebrow text-[var(--spark-faint)]">
               read {String.fromCharCode(183)} {remaining} min left
             </span>
           </div>
@@ -217,12 +217,12 @@ export function LessonShell({
           >
             <span
               aria-hidden
-              className="absolute left-[6px] w-px bg-white/10"
+              className="absolute left-[6px] w-px bg-[var(--spark-grid)]"
               style={{ top: spine.top, height: spine.track }}
             />
             <span
               aria-hidden
-              className="absolute left-[6px] w-px bg-gradient-to-b from-[var(--spark-gold-deep)] to-[var(--spark-gold)] transition-[height] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
+              className="absolute left-[6px] w-px bg-[var(--spark-arc)] transition-[height] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
               style={{ top: spine.top, height: spine.fill }}
             />
 
@@ -246,21 +246,24 @@ export function LessonShell({
                     style={
                       isCurrent
                         ? {
-                            background: "var(--spark-gold)",
-                            boxShadow: "0 0 0 3px rgba(216,180,106,0.2)",
+                            background: "var(--spark-arc)",
+                            boxShadow: "0 0 0 3px rgba(61,43,216,0.16)",
                           }
                         : isRead
-                          ? { background: "var(--spark-gold-deep)" }
-                          : { border: "1px solid var(--spark-rule-dark)" }
+                          ? { background: "var(--spark-text)" }
+                          : {
+                              border: "1px solid var(--spark-faint)",
+                              background: "var(--spark-pad)",
+                            }
                     }
                   />
                   <span
-                    className={`text-[12.5px] leading-[1.45] transition-colors group-hover:text-white/90 ${
+                    className={`text-[13px] leading-[1.45] transition-colors group-hover:text-[var(--spark-text)] ${
                       isCurrent
-                        ? "font-semibold text-white"
+                        ? "font-semibold text-[var(--spark-text)]"
                         : isRead
-                          ? "text-[var(--spark-on-dark-muted)]"
-                          : "text-[var(--spark-on-dark-dim)]"
+                          ? "text-[var(--spark-muted)]"
+                          : "text-[var(--spark-faint)]"
                     }`}
                   >
                     {section.title}
@@ -272,45 +275,33 @@ export function LessonShell({
         </aside>
 
         <div className="min-w-0 flex-1">
-          <header className="spark-card sticky top-0 z-40 flex h-[54px] items-center justify-between bg-[var(--spark-paper)]/90 px-5 backdrop-blur-sm lg:px-10">
+          <header className="sticky top-0 z-40 flex h-[56px] items-center justify-between border-b border-[var(--spark-rule)] bg-[var(--spark-sheet)]/90 px-5 backdrop-blur-sm lg:px-10">
             <Link
               href="/spark/lessons"
-              className="flex items-center gap-2.5 text-[12.5px] font-medium text-[var(--spark-muted)] transition-colors hover:text-[var(--spark-text)]"
+              className="flex items-center gap-2.5 text-[13px] font-medium text-[var(--spark-muted)] transition-colors hover:text-[var(--spark-text)]"
             >
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
-              >
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
+              <SparkMark className="h-[14px] w-auto shrink-0 text-[var(--spark-arc)] lg:hidden" />
               Curriculum
             </Link>
-            <span className="text-[11.5px] text-[var(--spark-faint)] lg:hidden">
+            <span className="spark-eyebrow tabular-nums text-[var(--spark-faint)] lg:hidden">
               {active + 1} of {sections.length}
             </span>
 
             <div className="hidden items-center gap-1 lg:flex">
-              <kbd className="spark-mono mr-2 rounded border border-black/[0.12] px-1.5 py-0.5 text-[10px] text-[var(--spark-faint)]">
+              <kbd className="spark-mono mr-2 rounded border border-[var(--spark-rule)] px-1.5 py-0.5 text-[10.5px] text-[var(--spark-faint)]">
                 J
               </kbd>
-              <kbd className="spark-mono mr-3 rounded border border-black/[0.12] px-1.5 py-0.5 text-[10px] text-[var(--spark-faint)]">
+              <kbd className="spark-mono mr-3 rounded border border-[var(--spark-rule)] px-1.5 py-0.5 text-[10.5px] text-[var(--spark-faint)]">
                 K
               </kbd>
-              <span className="mr-1 text-[11.5px] tabular-nums text-[var(--spark-faint)]">
+              <span className="spark-eyebrow mr-1 tabular-nums text-[var(--spark-faint)]">
                 {active + 1} of {sections.length}
               </span>
               <button
                 onClick={() => jumpTo(Math.max(0, active - 1))}
                 disabled={active === 0}
                 aria-label="Previous section"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--spark-muted)] transition-colors hover:bg-black/[0.05] hover:text-[var(--spark-text)] disabled:pointer-events-none disabled:opacity-25"
+                className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--spark-muted)] transition-colors hover:bg-[var(--spark-pad)] hover:text-[var(--spark-text)] disabled:pointer-events-none disabled:opacity-30"
               >
                 <svg
                   width="15"
@@ -332,7 +323,7 @@ export function LessonShell({
                 }
                 disabled={active >= sections.length - 1}
                 aria-label="Next section"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--spark-muted)] transition-colors hover:bg-black/[0.05] hover:text-[var(--spark-text)] disabled:pointer-events-none disabled:opacity-25"
+                className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--spark-muted)] transition-colors hover:bg-[var(--spark-pad)] hover:text-[var(--spark-text)] disabled:pointer-events-none disabled:opacity-30"
               >
                 <svg
                   width="15"
@@ -351,21 +342,21 @@ export function LessonShell({
             </div>
           </header>
 
-          <div className="px-5 pb-32 pt-10 lg:px-10 lg:pb-24">
-            <div className="mx-auto max-w-[660px]">
-              <div className="mb-12">
-                <span className="spark-eyebrow mb-3 block text-[var(--spark-gold-ink)] lg:hidden">
-                  + Module {String(moduleNumber).padStart(2, "0")}
+          <div className="px-5 pb-32 pt-12 lg:px-10 lg:pb-24">
+            <div className="mx-auto max-w-[680px]">
+              <div className="mb-14">
+                <span className="spark-eyebrow mb-3 block text-[var(--spark-faint)] lg:hidden">
+                  Module {String(moduleNumber).padStart(2, "0")}
                 </span>
-                <h1 className="mb-4 font-serif text-[clamp(2.5rem,7vw,3.5rem)] font-black leading-[0.96] tracking-[-0.03em] text-[var(--spark-text)]">
+                <h1 className="spark-display mb-5 text-[clamp(2.25rem,6vw,3.5rem)] leading-[1.02]">
                   {title}
                 </h1>
                 {promise && (
-                  <p className="font-serif text-[20px] italic leading-[1.45] text-[var(--spark-muted)]">
+                  <p className="text-[19px] leading-[1.5] text-[var(--spark-muted)]">
                     {promise}
                   </p>
                 )}
-                <p className="mt-5 text-[12px] text-[var(--spark-faint)]">
+                <p className="spark-eyebrow mt-5 text-[var(--spark-faint)]">
                   <span className="lg:hidden">
                     {phaseLabel} {String.fromCharCode(183)}{" "}
                   </span>
@@ -384,16 +375,19 @@ export function LessonShell({
                   tabIndex={-1}
                   aria-label={section.title}
                   data-focused={i === active}
-                  className="spark-section mb-14 scroll-mt-24 focus:outline-none"
+                  className="spark-section mb-16 scroll-mt-24 focus:outline-none"
                 >
                   <div className="mb-3 flex items-center gap-3">
-                    <span className="spark-eyebrow text-[var(--spark-gold-ink)]">
-                      + {String(i + 1).padStart(2, "0")} /{" "}
+                    <span className="spark-eyebrow text-[var(--spark-arc)]">
+                      {String(i + 1).padStart(2, "0")} /{" "}
                       {String(sections.length).padStart(2, "0")}
                     </span>
-                    <span aria-hidden className="h-px flex-1 bg-black/[0.1]" />
+                    <span
+                      aria-hidden
+                      className="h-px flex-1 bg-[var(--spark-rule)]"
+                    />
                   </div>
-                  <h2 className="mb-5 font-serif text-[32px] font-bold leading-[1.1] tracking-[-0.025em] text-[var(--spark-text)]">
+                  <h2 className="spark-display mb-5 text-[28px] leading-[1.12]">
                     {section.title}
                   </h2>
                   {section.content}
@@ -403,17 +397,20 @@ export function LessonShell({
               {next && (
                 <Link
                   href={`/spark/lessons/${next.slug}`}
-                  className="relative block overflow-hidden rounded-xl bg-[var(--spark-ink)] p-6"
+                  className="spark-grid group block rounded-xl border border-[var(--spark-rule)] p-3 transition-colors hover:border-[var(--spark-text)]"
                 >
-                  <span
-                    aria-hidden
-                    className="spark-glare pointer-events-none absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-[var(--spark-gold)]/15 to-transparent"
-                  />
-                  <span className="spark-eyebrow relative mb-2 block text-[var(--spark-on-dark-muted)]">
-                    + Up next
-                  </span>
-                  <span className="relative block font-serif text-[26px] font-bold leading-[1.12] tracking-[-0.02em] text-white">
-                    {next.title}
+                  <span className="flex flex-col gap-4 rounded-lg border border-[var(--spark-rule)] bg-[var(--spark-sheet)] p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <span>
+                      <span className="spark-eyebrow mb-2 block text-[var(--spark-faint)]">
+                        Up next
+                      </span>
+                      <span className="spark-display block text-[24px] leading-[1.12]">
+                        {next.title}
+                      </span>
+                    </span>
+                    <span className="inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-md bg-[var(--spark-arc)] px-5 text-[14px] font-semibold text-[var(--spark-sheet)] transition-colors group-hover:bg-[var(--spark-arc-hover)]">
+                      Next module
+                    </span>
                   </span>
                 </Link>
               )}
@@ -421,23 +418,9 @@ export function LessonShell({
               {prev && (
                 <Link
                   href={`/spark/lessons/${prev.slug}`}
-                  className="mt-4 flex items-center gap-2.5 rounded-lg px-1 py-3 text-[13px] text-[var(--spark-muted)] transition-colors hover:text-[var(--spark-text)]"
+                  className="mt-4 flex items-center gap-2.5 rounded-lg px-1 py-3 text-[13.5px] text-[var(--spark-muted)] transition-colors hover:text-[var(--spark-text)]"
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                    className="shrink-0"
-                  >
-                    <path d="M19 12H5M12 19l-7-7 7-7" />
-                  </svg>
-                  <span className="spark-eyebrow text-[var(--spark-faint)]">
+                  <span className="spark-eyebrow shrink-0 text-[var(--spark-faint)]">
                     Previously
                   </span>
                   <span className="min-w-0 truncate font-medium">
@@ -452,10 +435,10 @@ export function LessonShell({
 
       <nav
         aria-label="Section progress"
-        className="fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-[var(--spark-paper)] via-[var(--spark-paper)] to-transparent px-4 pb-6 pt-4 lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-[var(--spark-sheet)] via-[var(--spark-sheet)] to-transparent px-4 pb-6 pt-4 lg:hidden"
       >
-        <div className="flex items-center gap-2.5 rounded-full bg-[var(--spark-ink)] px-3.5 py-2">
-          <span className="shrink-0 spark-mono text-[10.5px] text-[var(--spark-gold)]">
+        <div className="flex items-center gap-2.5 rounded-full border border-[var(--spark-rule)] bg-[var(--spark-pad)] px-3.5 py-1.5 shadow-[0_10px_30px_-12px_rgba(27,31,25,0.35)]">
+          <span className="spark-eyebrow shrink-0 tabular-nums text-[var(--spark-arc)]">
             {active + 1}/{sections.length}
           </span>
           <div className="flex h-11 min-w-0 flex-1 items-center gap-[3px]">
@@ -473,10 +456,10 @@ export function LessonShell({
                     height: i === active ? 5 : 3,
                     background:
                       i === active
-                        ? "var(--spark-gold)"
+                        ? "var(--spark-arc)"
                         : i < active
-                          ? "var(--spark-gold-deep)"
-                          : "var(--spark-rule-dark)",
+                          ? "var(--spark-text)"
+                          : "var(--spark-grid)",
                   }}
                 />
               </button>
@@ -485,14 +468,14 @@ export function LessonShell({
           <button
             onClick={() => jumpTo(Math.min(sections.length - 1, active + 1))}
             aria-label="Next section"
-            className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-[var(--spark-gold)]"
+            className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[var(--spark-arc)]"
           >
             <svg
               width="14"
               height="14"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="var(--spark-ink)"
+              stroke="var(--spark-sheet)"
               strokeWidth="2.6"
               strokeLinecap="round"
               strokeLinejoin="round"

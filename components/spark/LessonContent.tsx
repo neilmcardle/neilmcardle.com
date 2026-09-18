@@ -369,7 +369,7 @@ export function LessonContent({
             return block.level === 3 ? (
               <h3
                 key={i}
-                className="mb-3 mt-9 font-serif text-[23px] font-bold leading-tight tracking-[-0.02em] text-[var(--spark-text)]"
+                className="spark-display mb-3 mt-10 text-[21px] leading-tight text-[var(--spark-text)]"
               >
                 {renderInline(block.text, `h${i}`)}
               </h3>
@@ -386,7 +386,7 @@ export function LessonContent({
             return (
               <hr
                 key={i}
-                className="my-9 border-0 border-t border-black/[0.09]"
+                className="my-9 border-0 border-t border-[var(--spark-rule)]"
               />
             );
 
@@ -415,16 +415,16 @@ export function LessonContent({
                     className="grid grid-cols-[26px_minmax(0,1fr)] gap-3"
                   >
                     {block.ordered ? (
-                      <span className="pt-0.5 text-right spark-mono text-[12px] tabular-nums text-[var(--spark-gold-ink)]">
+                      <span className="pt-0.5 text-right spark-mono text-[12px] tabular-nums text-[var(--spark-arc)]">
                         {j + 1}
                       </span>
                     ) : (
                       <span
                         aria-hidden
-                        className="mt-[11px] h-[5px] w-[5px] justify-self-end rounded-full bg-[var(--spark-gold-deep)]"
+                        className="mt-[11px] h-[5px] w-[5px] justify-self-end rounded-full bg-[var(--spark-arc)]"
                       />
                     )}
-                    <span className="text-[16px] leading-[1.72] text-[#44423e]">
+                    <span className="text-[16px] leading-[1.72] text-[var(--spark-text)]">
                       {renderInline(item.text, `li${i}-${j}`)}
                       {item.children.length > 0 && (
                         <span className="mt-2 flex list-none flex-col gap-1.5">
@@ -460,7 +460,7 @@ export function LessonContent({
                       {block.head.map((cell, j) => (
                         <th
                           key={j}
-                          className="spark-eyebrow border-b border-black/[0.14] px-3 py-3 text-[var(--spark-faint)] first:pl-0"
+                          className="spark-eyebrow border-b border-[var(--spark-rule)] px-3 py-3 text-[var(--spark-faint)] first:pl-0"
                         >
                           {cell}
                         </th>
@@ -473,7 +473,7 @@ export function LessonContent({
                         {row.map((cell, k) => (
                           <td
                             key={k}
-                            className="border-b border-black/[0.06] px-3 py-3 align-top text-[14px] leading-[1.6] text-[#44423e] first:pl-0"
+                            className="border-b border-[var(--spark-rule)] px-3 py-3 align-top text-[14px] leading-[1.6] text-[var(--spark-text)] first:pl-0"
                           >
                             {renderInline(cell, `td${i}-${j}-${k}`)}
                           </td>
@@ -489,7 +489,7 @@ export function LessonContent({
             return (
               <p
                 key={i}
-                className="my-5 text-[16.5px] leading-[1.75] text-[#44423e]"
+                className="my-5 text-[16.5px] leading-[1.75] text-[var(--spark-text)]"
               >
                 {renderInline(block.text, `p${i}`)}
               </p>

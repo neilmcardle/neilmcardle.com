@@ -18,10 +18,10 @@ export function ClampPlayground() {
 
   const state =
     preferredPx <= minPx
-      ? { label: "minimum", tone: "#b8543a" }
+      ? { label: "minimum", tone: "var(--spark-redline)" }
       : preferredPx >= maxPx
         ? { label: "maximum", tone: "#4a5f7a" }
-        : { label: "preferred", tone: "var(--spark-gold-ink)" };
+        : { label: "preferred", tone: "var(--spark-arc)" };
 
   const floorAt = minPx / (vw / 100);
   const ceilAt = maxPx / (vw / 100);
@@ -56,7 +56,7 @@ export function ClampPlayground() {
           step={10}
           value={viewport}
           onChange={(event) => setViewport(Number(event.target.value))}
-          className="w-full accent-[var(--spark-gold-deep)]"
+          className="w-full accent-[var(--spark-arc)]"
         />
       </label>
 
@@ -69,7 +69,7 @@ export function ClampPlayground() {
           style={{ width: `${(viewport / 1600) * 100}%`, minWidth: 140 }}
         >
           <p
-            className="font-serif font-black leading-[0.98] tracking-[-0.03em] text-[var(--spark-text)]"
+            className="spark-display leading-[0.98] text-[var(--spark-text)]"
             style={{ fontSize: resolved }}
           >
             Become an engineer
@@ -87,7 +87,7 @@ export function ClampPlayground() {
           style={{
             left: `${((floorAt - 320) / 1280) * 100}%`,
             right: `${100 - ((ceilAt - 320) / 1280) * 100}%`,
-            background: "rgba(216,180,106,0.2)",
+            background: "rgba(61,43,216,0.2)",
           }}
         />
         <div
@@ -104,7 +104,7 @@ export function ClampPlayground() {
         <span className="spark-mono absolute bottom-1 right-2 text-[9.5px] text-[var(--spark-faint)]">
           1600px
         </span>
-        <span className="spark-eyebrow absolute left-1/2 top-2 -translate-x-1/2 text-[9.5px] text-[var(--spark-gold-ink)]">
+        <span className="spark-eyebrow absolute left-1/2 top-2 -translate-x-1/2 text-[9.5px] text-[var(--spark-arc)]">
           preferred value applies
         </span>
       </div>
@@ -119,7 +119,7 @@ export function ClampPlayground() {
       <pre className="spark-mono mt-4 overflow-x-auto rounded-lg bg-[var(--spark-ink)] p-3.5 text-[12.5px] leading-[1.7] text-[var(--spark-on-dark)]">
         <code>
           {`font-size: clamp(${minRem}rem, ${vw}vw, ${maxRem}rem);`}
-          <span style={{ color: "var(--spark-gold)" }}>
+          <span style={{ color: "var(--spark-arc-light)" }}>
             {`\n/* at ${viewport}px, resolves to ${resolved.toFixed(0)}px */`}
           </span>
         </code>
@@ -157,8 +157,8 @@ export function ClampPlayground() {
 
       {minPx > maxPx && (
         <p
-          className="mt-3 rounded-lg bg-[rgba(184,84,58,0.09)] px-3.5 py-2.5 text-[12.5px] leading-[1.6]"
-          style={{ color: "#b8543a" }}
+          className="mt-3 rounded-lg bg-[rgba(183,58,38,0.09)] px-3.5 py-2.5 text-[12.5px] leading-[1.6]"
+          style={{ color: "var(--spark-redline)" }}
         >
           Your minimum is larger than your maximum. CSS does not error on this,
           it just uses the minimum and ignores the maximum entirely, so the type
@@ -167,7 +167,7 @@ export function ClampPlayground() {
       )}
 
       {vw >= 9 && minPx <= maxPx && (
-        <p className="mt-3 rounded-lg bg-[rgba(216,180,106,0.12)] px-3.5 py-2.5 text-[12.5px] leading-[1.6] text-[#44423e]">
+        <p className="mt-3 rounded-lg bg-[rgba(61,43,216,0.12)] px-3.5 py-2.5 text-[12.5px] leading-[1.6] text-[var(--spark-text)]">
           A preferred value this aggressive is fine for a hero heading and
           punishing for body copy. Narrow the range when the text is meant to be
           read rather than seen.
@@ -210,7 +210,7 @@ function Slider({
         step={step}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="w-full accent-[var(--spark-gold-deep)]"
+        className="w-full accent-[var(--spark-arc)]"
       />
     </label>
   );

@@ -137,10 +137,10 @@ export function UseStateCycle() {
                   className="grid grid-cols-[28px_minmax(0,1fr)] items-start px-1 transition-colors duration-150"
                   style={{
                     background: isActive
-                      ? "rgba(216,180,106,0.14)"
+                      ? "rgba(169,156,255,0.14)"
                       : "transparent",
                     boxShadow: isActive
-                      ? "inset 2px 0 0 var(--spark-gold)"
+                      ? "inset 2px 0 0 var(--spark-arc-light)"
                       : "none",
                   }}
                 >
@@ -149,7 +149,7 @@ export function UseStateCycle() {
                     className="spark-mono select-none pr-2 pt-[3px] text-right text-[10.5px] tabular-nums"
                     style={{
                       color: isActive
-                        ? "var(--spark-gold)"
+                        ? "var(--spark-arc-light)"
                         : "var(--spark-on-dark-dim)",
                     }}
                   >
@@ -173,14 +173,14 @@ export function UseStateCycle() {
             })}
           </div>
 
-          <div className="mt-2.5 min-h-[3.4em] rounded-lg border border-dashed border-[var(--spark-gold)]/40 bg-[var(--spark-gold)]/[0.07] px-3 py-2.5">
+          <div className="mt-2.5 min-h-[3.4em] rounded-lg border border-dashed border-[rgba(61,43,216,0.4)] bg-[rgba(61,43,216,0.07)] px-3 py-2.5">
             {step === null ? (
               <p className="text-[12.5px] leading-[1.6] text-[var(--spark-faint)]">
                 Type below to run the function.
               </p>
             ) : (
-              <p className="text-[12.5px] leading-[1.6] text-[#44423e]">
-                <span className="spark-eyebrow mr-2 text-[var(--spark-gold-ink)]">
+              <p className="text-[12.5px] leading-[1.6] text-[var(--spark-text)]">
+                <span className="spark-eyebrow mr-2 text-[var(--spark-arc)]">
                   Line {step + 1}
                 </span>
                 {noteText ??
@@ -259,13 +259,13 @@ export function UseStateCycle() {
             value={query}
             onChange={(event) => onType(event.target.value)}
             placeholder="Type a name"
-            className="w-full rounded-lg border px-3.5 py-2.5 text-[14px] text-[var(--spark-text)] outline-none transition-colors placeholder:text-[var(--spark-faint)] focus:border-[var(--spark-gold-deep)]"
+            className="w-full rounded-lg border px-3.5 py-2.5 text-[14px] text-[var(--spark-text)] outline-none transition-colors placeholder:text-[var(--spark-faint)] focus:border-[var(--spark-arc)]"
             style={{ borderColor: "rgba(20,20,19,0.16)", background: "#fff" }}
           />
 
           <div className="mt-4 grid grid-cols-2 gap-2.5">
-            <div className="rounded-lg bg-[var(--spark-gold)]/[0.12] px-3 py-2.5">
-              <span className="spark-eyebrow block text-[var(--spark-gold-ink)]">
+            <div className="rounded-lg bg-[rgba(61,43,216,0.12)] px-3 py-2.5">
+              <span className="spark-eyebrow block text-[var(--spark-arc)]">
                 State, kept
               </span>
               <span className="spark-mono mt-1 block truncate text-[13px] text-[var(--spark-text)]">
@@ -295,7 +295,7 @@ export function UseStateCycle() {
                     className="spark-mono rounded px-2.5 py-1.5 text-[12px] transition-colors"
                     style={{
                       background: hit
-                        ? "rgba(216,180,106,0.16)"
+                        ? "rgba(61,43,216,0.16)"
                         : "rgba(20,20,19,0.03)",
                       color: hit ? "var(--spark-text)" : "var(--spark-faint)",
                       textDecoration: hit ? "none" : "line-through",

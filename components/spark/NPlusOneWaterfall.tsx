@@ -39,7 +39,7 @@ export function NPlusOneWaterfall() {
           step={1}
           value={latency}
           onChange={(event) => setLatency(Number(event.target.value))}
-          className="w-full accent-[var(--spark-gold-deep)]"
+          className="w-full accent-[var(--spark-arc)]"
         />
         <span className="mt-1 block text-[12px] leading-[1.55] text-[var(--spark-faint)]">
           {latency <= 3
@@ -78,7 +78,7 @@ for (const post of posts) {
         />
       </div>
 
-      <p className="mt-5 border-t border-black/[0.07] pt-4 text-[13.5px] leading-[1.65] text-[#44423e]">
+      <p className="mt-5 border-t border-[var(--spark-rule)] pt-4 text-[13.5px] leading-[1.65] text-[var(--spark-text)]">
         This is called an N+1 query: one query for the list, then N more, one
         per row. It scales with your data, so it is fastest on the day you write
         it and slowest on the day the product succeeds. Nothing in the loop
@@ -124,9 +124,7 @@ function Panel({
             style={{
               width: `${Math.max(12, 100 - i * 3)}%`,
               marginLeft: `${Math.min(i * 3.4, 62)}%`,
-              background: bad
-                ? "rgba(184,84,58,0.55)"
-                : "var(--spark-gold-deep)",
+              background: bad ? "rgba(183,58,38,0.55)" : "var(--spark-arc)",
             }}
           />
         ))}
@@ -158,12 +156,12 @@ function Stat({
     <div
       className="flex-1 rounded-md px-2.5 py-2 text-center"
       style={{
-        background: bad ? "rgba(184,84,58,0.09)" : "rgba(216,180,106,0.14)",
+        background: bad ? "rgba(183,58,38,0.09)" : "rgba(61,43,216,0.14)",
       }}
     >
       <div
         className="spark-mono text-[15px] font-semibold tabular-nums"
-        style={{ color: bad ? "#b8543a" : "var(--spark-gold-ink)" }}
+        style={{ color: bad ? "var(--spark-redline)" : "var(--spark-arc)" }}
       >
         {value}
       </div>

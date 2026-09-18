@@ -33,17 +33,17 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
     return (
       <div
         className={`spark-check my-8 rounded-xl bg-[var(--spark-paper)] p-6 ${
-          solved ? "spark-card-gold" : "spark-card"
+          solved ? "spark-card-pass" : "spark-card"
         } ${picked !== null && !solved ? "spark-shake" : ""}`}
       >
         <div className="mb-4 flex items-center gap-3">
-          <span className="spark-eyebrow text-[var(--spark-gold-ink)]">
-            + Checkpoint
+          <span className="spark-eyebrow text-[var(--spark-arc)]">
+            Checkpoint
           </span>
-          <span className="h-px flex-1 bg-black/[0.08]" />
+          <span className="h-px flex-1 bg-[var(--spark-rule)]" />
         </div>
 
-        <p className="mb-5 font-serif text-[21px] leading-[1.4] text-[var(--spark-text)]">
+        <p className="mb-5 text-[19px] font-semibold leading-[1.4] tracking-[-0.01em] text-[var(--spark-text)]">
           {question}
         </p>
 
@@ -68,13 +68,13 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
             let border = "rgba(20,20,19,0.14)";
             let background = "transparent";
             if (isPicked && isCorrect) {
-              border = "var(--spark-gold-deep)";
-              background = "rgba(216,180,106,0.1)";
+              border = "var(--spark-pass)";
+              background = "rgba(29,122,69,0.08)";
             } else if (isPicked) {
-              border = "var(--spark-terracotta)";
-              background = "rgba(232,146,124,0.08)";
+              border = "var(--spark-redline)";
+              background = "rgba(183,58,38,0.08)";
             } else if (picked !== null && isCorrect) {
-              border = "rgba(184,146,63,0.5)";
+              border = "rgba(29,122,69,0.55)";
             }
 
             return (
@@ -82,16 +82,16 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
                 key={i}
                 onClick={() => setPicked(i)}
                 aria-pressed={isPicked}
-                className="flex min-h-[44px] items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors hover:border-black/30"
+                className="flex min-h-[44px] items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors hover:border-[var(--spark-text)]"
                 style={{ borderColor: border, background }}
               >
                 <span
                   className={`flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full text-[10.5px] font-semibold ${
                     isPicked && isCorrect
-                      ? "spark-pop bg-[var(--spark-gold-deep)] text-white"
+                      ? "spark-pop bg-[var(--spark-pass)] text-white"
                       : isPicked
-                        ? "bg-[var(--spark-terracotta)] text-white"
-                        : "border border-black/[0.16] text-[var(--spark-faint)]"
+                        ? "bg-[var(--spark-redline)] text-white"
+                        : "border border-[var(--spark-rule)] bg-white text-[var(--spark-faint)]"
                   }`}
                 >
                   <span aria-hidden>
@@ -108,7 +108,7 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
                     {choice}
                   </span>
                   {showReason && reasons[i] && (
-                    <span className="mt-2 block text-[12.5px] leading-[1.6] text-[#55534e]">
+                    <span className="mt-2 block text-[12.5px] leading-[1.6] text-[var(--spark-muted)]">
                       {reasons[i]}
                     </span>
                   )}
@@ -123,35 +123,35 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
 
   return (
     <div
-      className={`spark-check my-8 rounded-xl bg-[var(--spark-paper)] p-6 ${
-        revealed ? "spark-card-gold" : "spark-card"
-      }`}
+      className={`spark-check my-8 rounded-xl bg-[var(--spark-paper)] p-6 ${"spark-card"}`}
     >
       <div className="mb-4 flex items-center gap-3">
-        <span className="spark-eyebrow text-[var(--spark-gold-ink)]">
-          + Checkpoint
+        <span className="spark-eyebrow text-[var(--spark-arc)]">
+          Checkpoint
         </span>
-        <span className="h-px flex-1 bg-black/[0.08]" />
+        <span className="h-px flex-1 bg-[var(--spark-rule)]" />
       </div>
 
-      <p className="mb-5 font-serif text-[21px] leading-[1.4] text-[var(--spark-text)]">
+      <p className="mb-5 text-[19px] font-semibold leading-[1.4] tracking-[-0.01em] text-[var(--spark-text)]">
         {question}
       </p>
 
       {revealed ? (
         <div
           aria-live="polite"
-          className="spark-fade-up rounded-lg bg-[var(--spark-gold)]/[0.1] px-4 py-3.5"
+          className="spark-fade-up rounded-lg bg-[rgba(61,43,216,0.1)] px-4 py-3.5"
         >
-          <span className="spark-eyebrow mb-2 block text-[var(--spark-gold-ink)]">
-            + Answer
+          <span className="spark-eyebrow mb-2 block text-[var(--spark-arc)]">
+            Answer
           </span>
-          <p className="text-[14px] leading-[1.7] text-[#44423e]">{answer}</p>
+          <p className="text-[14px] leading-[1.7] text-[var(--spark-text)]">
+            {answer}
+          </p>
         </div>
       ) : (
         <button
           onClick={() => setRevealed(true)}
-          className="min-h-[44px] rounded-full bg-[var(--spark-ink)] px-5 py-2.5 text-[13px] font-medium text-white transition-transform hover:-translate-y-px"
+          className="min-h-[44px] rounded-md bg-[var(--spark-ink)] px-5 py-2.5 text-[13.5px] font-semibold text-[var(--spark-sheet)] transition-opacity hover:opacity-85"
         >
           Answer it in your head, then reveal
         </button>

@@ -80,10 +80,10 @@ function Rendered() {
           Work
         </span>
       </div>
-      <p className="mb-3 font-serif text-[17px] font-bold tracking-[-0.015em] text-[var(--spark-text)]">
+      <p className="mb-3 spark-display text-[17px] text-[var(--spark-text)]">
         Recent work
       </p>
-      <span className="inline-block rounded-full bg-[var(--spark-ink)] px-3.5 py-1.5 text-[12px] font-medium text-white">
+      <span className="inline-block rounded-md bg-[var(--spark-ink)] px-3.5 py-1.5 text-[12px] font-medium text-white">
         See all
       </span>
     </div>
@@ -96,12 +96,12 @@ function Stat({ value, label }: { value: number; label: string }) {
     <div
       className="rounded-md px-2.5 py-2 text-center"
       style={{
-        background: zero ? "rgba(184,84,58,0.09)" : "rgba(216,180,106,0.14)",
+        background: zero ? "rgba(183,58,38,0.09)" : "rgba(61,43,216,0.14)",
       }}
     >
       <div
         className="spark-mono text-[15px] font-semibold tabular-nums"
-        style={{ color: zero ? "#b8543a" : "var(--spark-gold-ink)" }}
+        style={{ color: zero ? "var(--spark-redline)" : "var(--spark-arc)" }}
       >
         {value}
       </div>
@@ -145,8 +145,8 @@ function Panel({ version, mode }: { version: Version; mode: Mode }) {
                     <span
                       className="spark-mono mr-1.5 rounded px-1.5 py-0.5 text-[10px]"
                       style={{
-                        background: "rgba(216,180,106,0.18)",
-                        color: "var(--spark-gold)",
+                        background: "rgba(169,156,255,0.16)",
+                        color: "var(--spark-arc-light)",
                       }}
                     >
                       {item.role}
@@ -183,7 +183,7 @@ export function SemanticListen() {
       <div
         role="group"
         aria-label="View mode"
-        className="mb-5 inline-flex rounded-full p-1"
+        className="mb-5 inline-flex rounded-lg p-1"
         style={{ background: "rgba(20,20,19,0.055)" }}
       >
         {(["look", "listen"] as Mode[]).map((value) => {
@@ -194,7 +194,7 @@ export function SemanticListen() {
               type="button"
               onClick={() => setMode(value)}
               aria-pressed={active}
-              className="min-h-[36px] rounded-full px-5 text-[13px] font-semibold capitalize transition-colors"
+              className="min-h-[36px] rounded-md px-5 text-[13px] font-semibold capitalize transition-colors"
               style={{
                 background: active ? "var(--spark-ink)" : "transparent",
                 color: active ? "#fff" : "var(--spark-muted)",
@@ -212,7 +212,7 @@ export function SemanticListen() {
       </div>
 
       {mode === "listen" && (
-        <p className="spark-fade-up mt-5 border-t border-black/[0.07] pt-4 text-[13.5px] leading-[1.65] text-[#44423e]">
+        <p className="spark-fade-up mt-5 border-t border-[var(--spark-rule)] pt-4 text-[13.5px] leading-[1.65] text-[var(--spark-text)]">
           The left column is not reachable by keyboard at all. Three zeroes
           means a visitor who navigates by Tab, or who jumps between headings,
           or who opens the landmarks menu, finds nothing on the page. It looks

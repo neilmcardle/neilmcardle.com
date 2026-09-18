@@ -134,7 +134,7 @@ export function AsyncTimeline() {
       <div
         role="group"
         aria-label="Version"
-        className="mb-4 inline-flex rounded-full p-1"
+        className="mb-4 inline-flex rounded-lg p-1"
         style={{ background: "rgba(20,20,19,0.055)" }}
       >
         {[
@@ -151,7 +151,7 @@ export function AsyncTimeline() {
                 setPicked(null);
               }}
               aria-pressed={on}
-              className="min-h-[36px] rounded-full px-4 text-[12.5px] font-semibold transition-colors"
+              className="min-h-[36px] rounded-md px-4 text-[12.5px] font-semibold transition-colors"
               style={{
                 background: on ? "var(--spark-ink)" : "transparent",
                 color: on ? "#fff" : "var(--spark-muted)",
@@ -191,12 +191,12 @@ export function AsyncTimeline() {
                     width: `${(event.span / SPAN) * 100}%`,
                     background:
                       picked === i
-                        ? "var(--spark-gold)"
+                        ? "var(--spark-arc)"
                         : track === "network"
                           ? "rgba(20,20,19,0.22)"
-                          : "var(--spark-gold-deep)",
+                          : "var(--spark-arc)",
                     outline:
-                      picked === i ? "2px solid var(--spark-gold-ink)" : "none",
+                      picked === i ? "2px solid var(--spark-arc)" : "none",
                     outlineOffset: 1,
                   }}
                 />
@@ -206,10 +206,10 @@ export function AsyncTimeline() {
         </div>
       ))}
 
-      <div className="mt-3 min-h-[4em] rounded-lg border border-dashed border-[var(--spark-gold)]/40 bg-[var(--spark-gold)]/[0.07] px-3.5 py-3">
+      <div className="mt-3 min-h-[4em] rounded-lg border border-dashed border-[rgba(61,43,216,0.4)] bg-[rgba(61,43,216,0.07)] px-3.5 py-3">
         {active ? (
-          <p className="text-[13px] leading-[1.65] text-[#44423e]">
-            <span className="spark-eyebrow mr-2 text-[var(--spark-gold-ink)]">
+          <p className="text-[13px] leading-[1.65] text-[var(--spark-text)]">
+            <span className="spark-eyebrow mr-2 text-[var(--spark-arc)]">
               {active.label}
             </span>
             {active.note}
@@ -222,7 +222,7 @@ export function AsyncTimeline() {
       </div>
 
       {!awaited && (
-        <p className="spark-fade-up mt-4 border-t border-black/[0.07] pt-4 text-[13.5px] leading-[1.65] text-[#44423e]">
+        <p className="spark-fade-up mt-4 border-t border-[var(--spark-rule)] pt-4 text-[13.5px] leading-[1.65] text-[var(--spark-text)]">
           Nothing here throws. The function returns, the page renders, and the
           value is <code className="spark-inline-code">undefined</code>. This is
           the most common async bug there is, and the reason it is hard to find
