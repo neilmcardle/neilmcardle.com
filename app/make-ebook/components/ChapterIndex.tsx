@@ -194,7 +194,6 @@ export function ChapterIndex({
                 className={`${styles.indexItem} ${current ? styles.indexItemCurrent : ""}`}
                 aria-current={current ? "true" : undefined}
                 tabIndex={current ? 0 : -1}
-                title={label}
                 onClick={() => onSelectChapter?.(i)}
               >
                 <span className={styles.indexLabel}>{label}</span>
