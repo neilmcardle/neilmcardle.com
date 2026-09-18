@@ -54,7 +54,7 @@ export default function IssuesTab({
       <div className="flex items-center justify-end px-4 py-3 flex-shrink-0">
         <div className="flex items-center gap-2">
           {entry && !fresh && (
-            <span className="text-2xs text-amber-600 dark:text-amber-400">
+            <span className="text-2xs text-amber-600 dark:text-[var(--warning)]">
               May be out of date
             </span>
           )}
@@ -91,7 +91,7 @@ export default function IssuesTab({
               </p>
               <button
                 onClick={() => onRefresh("inconsistencies")}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-medium hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] text-xs font-medium hover:bg-gray-700 dark:hover:bg-[var(--ink-raised)] transition-colors"
               >
                 <svg
                   className="w-3.5 h-3.5"
@@ -149,7 +149,7 @@ export default function IssuesTab({
                   className="p-3 rounded-xl bg-gray-50 dark:bg-[var(--ink-raised)] border border-gray-100 dark:border-[var(--rule)]"
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded text-amber-600 bg-amber-500/10 dark:text-amber-400 dark:bg-amber-500/15">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded text-amber-600 bg-amber-500/10 dark:text-[var(--warning)] dark:bg-[var(--warning)]/15">
                       Issue
                     </span>
                     <div className="flex items-center gap-1">
@@ -162,7 +162,7 @@ export default function IssuesTab({
                       )}
                       <button
                         onClick={() => handleDismiss(card, idx)}
-                        className="text-2xs text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors px-1"
+                        className="text-2xs text-[var(--clay-muted)] hover:text-gray-700 dark:hover:text-white transition-colors px-1"
                         title="Dismiss this issue"
                       >
                         Dismiss

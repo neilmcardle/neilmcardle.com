@@ -36,6 +36,7 @@ interface CollapsibleSidebarProps {
 
   libraryBooks: Book[];
   selectedBookId: string | null;
+  currentBookId?: string;
   setSelectedBookId: (id: string | null) => void;
   handleLoadBook: (id: string) => void;
   handleDeleteBook: (id: string) => void;
@@ -74,6 +75,8 @@ interface CollapsibleSidebarProps {
   ghostPillPosition: { visible: boolean; x: number; y: number };
   getContentChapterNumber: (chapters: Chapter[], index: number) => number;
   chapterWordCounts?: number[];
+  onBulkComplete?: (ids: Set<string>, completed: boolean) => void;
+  onBulkDelete?: (ids: Set<string>, done: () => void) => void;
   totalWords?: number;
 
   title: string;
@@ -265,6 +268,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
               <LibraryPanel
                 libraryBooks={props.libraryBooks}
                 selectedBookId={props.selectedBookId}
+                currentBookId={props.currentBookId}
                 setSelectedBookId={props.setSelectedBookId}
                 handleLoadBook={props.handleLoadBook}
                 handleDeleteBook={props.handleDeleteBook}
@@ -342,6 +346,8 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
                 ghostPillPosition={props.ghostPillPosition}
                 getContentChapterNumber={props.getContentChapterNumber}
                 chapterWordCounts={props.chapterWordCounts}
+                onBulkComplete={props.onBulkComplete}
+                onBulkDelete={props.onBulkDelete}
               />
             </>
           )}

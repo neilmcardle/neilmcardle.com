@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useEffect } from "react";
-import ChapterCompleteToggle from "../ChapterCompleteToggle";
+import ChapterRow from "../ChapterRow";
+import ChapterSelectBar from "../ChapterSelectBar";
+import { useChapterSelection } from "../../hooks/useChapterSelection";
+import styles from "../../styles/studio.module.css";
 
 interface SheetChapter {
   id: string;
@@ -20,6 +23,18 @@ interface ChaptersSheetProps {
   onSelectChapter: (index: number) => void;
   onToggleComplete?: (index: number) => void;
   onAddChapter: () => void;
+  onBulkComplete: (ids: Set<string>, completed: boolean) => void;
+  onBulkDelete: (ids: Set<string>, done: () => void) => void;
+}
+
+function numberLabels(chapters: SheetChapter[]) {
+  let n = 0;
+  return chapters.map((c) => {
+    if (c.type === "frontmatter") return "FM";
+    if (c.type === "backmatter") return "BM";
+    n += 1;
+    return String(n);
+  });
 }
 
 export default function ChaptersSheet({
@@ -32,17 +47,26 @@ export default function ChaptersSheet({
   onSelectChapter,
   onToggleComplete,
   onAddChapter,
+  onBulkComplete,
+  onBulkDelete,
 }: ChaptersSheetProps) {
+  const selection = useChapterSelection(chapters.map((c) => c.id));
+  const { stop } = selection;
+
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      stop();
+      return;
+    }
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, onClose, stop]);
 
   const completed = chapters.filter((c) => c.completed).length;
+  const labels = numberLabels(chapters);
 
   return (
     <div
@@ -56,13 +80,13 @@ export default function ChaptersSheet({
         aria-label="Close chapters"
         tabIndex={open ? 0 : -1}
         onClick={onClose}
-        className={`absolute inset-0 w-full bg-black/40 transition-opacity duration-300 ${
+        className={`absolute inset-0 w-full bg-black/55 transition-opacity duration-300 ${
           open ? "opacity-100" : "opacity-0"
         }`}
       />
 
       <div
-        className={`absolute left-0 right-0 bottom-0 max-h-[80vh] flex flex-col rounded-t-[20px] bg-white dark:bg-[var(--ink-panel)] border-t border-gray-200 dark:border-[var(--rule)] shadow-[0_-12px_32px_rgba(0,0,0,0.28)] transition-transform duration-300 ease-out motion-reduce:transition-none ${
+        className={`absolute left-0 right-0 bottom-0 max-h-[80vh] flex flex-col rounded-t-[20px] bg-[var(--ink-panel)] border-t border-[var(--rule)] shadow-[0_-12px_32px_rgba(0,0,0,0.4)] transition-transform duration-300 ease-out motion-reduce:transition-none ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
@@ -73,98 +97,79 @@ export default function ChaptersSheet({
           aria-label="Close chapters"
           className="flex justify-center py-3 flex-shrink-0"
         >
-          <span className="w-9 h-1 rounded-full bg-gray-300 dark:bg-[var(--ink-hover)]" />
+          <span className="w-9 h-1 rounded-full bg-[var(--ink-hover)]" />
         </button>
 
         <div className="flex items-center justify-between px-5 pb-3 flex-shrink-0">
           <div className="min-w-0">
-            <div className="text-125 font-semibold text-gray-900 dark:text-[var(--paper)]">
-              Chapters
-            </div>
-            <div className="text-11 text-gray-500 dark:text-[var(--clay-muted)] mt-0.5 tabular-nums">
+            <div className={styles.panelTitle}>Chapters</div>
+            <div className="font-mono text-[11px] text-[var(--clay-muted)] mt-1">
               {completed} of {chapters.length} complete &middot;{" "}
               {totalWords.toLocaleString()} words
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onAddChapter}
-            aria-label="Add chapter"
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-[var(--rule)] text-gray-700 dark:text-[var(--clay)] flex-shrink-0"
-          >
-            <svg
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-            >
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          </button>
+          <div className={styles.panelActions}>
+            {chapters.length > 1 && (
+              <button
+                type="button"
+                className={styles.textButton}
+                onClick={selection.active ? selection.stop : selection.start}
+              >
+                {selection.active ? "Done" : "Select"}
+              </button>
+            )}
+            {!selection.active && (
+              <button
+                type="button"
+                onClick={onAddChapter}
+                aria-label="Add chapter"
+                className={styles.mobileIconBtn}
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 px-6 pb-1.5 flex-shrink-0 border-b border-gray-100 dark:border-[var(--rule)]">
-          <span className="w-11 -ml-2 flex-shrink-0 text-center text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[var(--clay-muted)]">
-            Done
-          </span>
-          <span className="flex-1 min-w-0 text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[var(--clay-muted)]">
-            Chapter
-          </span>
-          <span className="text-2xs font-semibold uppercase tracking-[0.1em] text-gray-400 dark:text-[var(--clay-muted)] text-right">
-            Words
-          </span>
+        <div className="px-3 flex-shrink-0">
+          {selection.active && (
+            <ChapterSelectBar
+              selection={selection}
+              onComplete={onBulkComplete}
+              onDelete={onBulkDelete}
+            />
+          )}
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto px-3 pt-1 pb-4">
-          {chapters.map((chapter, i) => {
-            const isSelected = i === selectedChapter;
-            return (
-              <div
-                key={chapter.id}
-                className={`flex items-center gap-3 rounded-[10px] px-3 ${
-                  isSelected ? "bg-gray-900 dark:bg-white" : ""
-                }`}
-              >
-                {onToggleComplete && (
-                  <ChapterCompleteToggle
-                    completed={!!chapter.completed}
-                    selected={isSelected}
-                    onToggle={() => onToggleComplete(i)}
-                    hitArea="touch"
-                  />
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => onSelectChapter(i)}
-                  className="flex items-center gap-3 flex-1 min-w-0 h-12 text-left"
-                >
-                  <span
-                    className={`flex-1 min-w-0 truncate text-sm ${
-                      isSelected
-                        ? "font-semibold text-white dark:text-gray-900"
-                        : "text-gray-800 dark:text-[var(--clay)]"
-                    }`}
-                  >
-                    {chapter.title?.trim() || "Untitled"}
-                  </span>
-                  {wordCounts?.[i] !== undefined && (
-                    <span
-                      className={`text-11 tabular-nums flex-shrink-0 ${
-                        isSelected
-                          ? "text-white/60 dark:text-gray-500"
-                          : "text-gray-400 dark:text-[var(--clay-muted)]"
-                      }`}
-                    >
-                      {wordCounts[i].toLocaleString()}
-                    </span>
-                  )}
-                </button>
-              </div>
-            );
-          })}
+          {chapters.map((chapter, i) => (
+            <ChapterRow
+              key={chapter.id}
+              numberLabel={labels[i]}
+              title={chapter.title?.trim() || "Untitled"}
+              words={wordCounts?.[i]}
+              current={i === selectedChapter}
+              completed={!!chapter.completed}
+              selecting={selection.active}
+              checked={selection.selected.has(chapter.id)}
+              onOpen={() => onSelectChapter(i)}
+              onToggleSelect={() => selection.toggle(chapter.id)}
+              onToggleComplete={
+                onToggleComplete ? () => onToggleComplete(i) : undefined
+              }
+            />
+          ))}
         </div>
       </div>
     </div>

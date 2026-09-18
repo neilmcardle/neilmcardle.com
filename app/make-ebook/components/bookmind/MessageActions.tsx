@@ -177,7 +177,7 @@ function ActionButton({
       disabled={disabled}
       title={title}
       aria-label={ariaLabel}
-      className="w-6 h-6 rounded flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      className="w-6 h-6 rounded flex items-center justify-center text-[var(--clay-muted)] hover:text-gray-700 dark:hover:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
     >
       {children}
     </button>

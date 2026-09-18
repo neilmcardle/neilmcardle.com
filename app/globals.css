@@ -2304,3 +2304,26 @@ html.theme-reveal::view-transition-new(root) {
     clip-path: circle(var(--reveal-r) at var(--reveal-x) var(--reveal-y));
   }
 }
+
+html[data-keyboard="open"] [data-mobile-topbar] {
+  top: var(--vv-top, 0px);
+}
+
+html[data-keyboard="open"] [data-mobile-editor] {
+  position: fixed;
+  top: calc(var(--vv-top, 0px) + 52px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: calc(var(--vv-height, 100dvh) - 52px - 54px);
+  padding: 0;
+}
+
+html[data-keyboard="open"] [data-chapter-position],
+html[data-keyboard="open"] [data-chapter-eyebrow] {
+  display: none;
+}
+
+html[data-keyboard="open"] body {
+  overscroll-behavior: none;
+}

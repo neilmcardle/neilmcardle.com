@@ -7,6 +7,7 @@ import {
   Stage,
   Window,
   useInView,
+  useVisible,
   useReducedMotion,
   useTimeline,
 } from "./AppWindow";
@@ -636,57 +637,122 @@ const SOUNDS = [
   {
     id: "rain",
     label: "Rain",
+    src: "/audio/rain-medium.mp3",
     path: "M6 11h8.5a3 3 0 0 0 .4-5.97A4.5 4.5 0 0 0 6.2 6.1 2.5 2.5 0 0 0 6 11zM7 14l-1 3M10.5 14l-1 3M14 14l-1 3",
   },
   {
     id: "waves",
     label: "Waves",
+    src: "/audio/waves.mp3",
     path: "M2 8c2-2 4-2 6 0s4 2 6 0 3-1.5 4-1M2 13c2-2 4-2 6 0s4 2 6 0 3-1.5 4-1",
   },
   {
     id: "fire",
     label: "Fire",
+    src: "/audio/fire.mp3",
     path: "M10 18c3 0 5-2 5-5 0-3-2-4-3-7-1 2-2 3-3 3 0-2-1-4-2-6-1 3-4 5-4 10 0 3 3 5 7 5z",
   },
 ] as const;
 
+const FOCUS_VOLUME = 0.55;
+
 export function FocusCard() {
-  const [sound, setSound] = useState<string>("rain");
-  const [typewriter, setTypewriter] = useState(true);
+  const [soundId, setSoundId] = useState<string>("rain");
+  const [soundOn, setSoundOn] = useState(false);
+  const [ref, visible] = useVisible<HTMLDivElement>();
+  const players = useRef<Record<string, HTMLAudioElement>>({});
+  const fades = useRef<Record<string, number>>({});
+
+  const fadeTo = (id: string, target: number) => {
+    const audio = players.current[id];
+    if (!audio) return;
+    window.clearInterval(fades.current[id]);
+    if (target > 0 && audio.paused) {
+      audio.volume = 0;
+      void audio.play().catch(() => setSoundOn(false));
+    }
+    fades.current[id] = window.setInterval(() => {
+      const next = audio.volume + (target > audio.volume ? 0.05 : -0.05);
+      if (Math.abs(target - audio.volume) <= 0.05) {
+        audio.volume = target;
+        window.clearInterval(fades.current[id]);
+        if (target === 0) audio.pause();
+      } else {
+        audio.volume = Math.min(1, Math.max(0, next));
+      }
+    }, 30);
+  };
+
+  useEffect(() => {
+    const playing = soundOn && visible;
+    SOUNDS.forEach((s) => {
+      if (playing && s.id === soundId) {
+        if (!players.current[s.id]) {
+          const audio = new Audio(s.src);
+          audio.loop = true;
+          audio.preload = "auto";
+          players.current[s.id] = audio;
+        }
+        fadeTo(s.id, FOCUS_VOLUME);
+      } else if (players.current[s.id]) {
+        fadeTo(s.id, 0);
+      }
+    });
+  }, [soundOn, soundId, visible]);
+
+  useEffect(() => {
+    const audios = players.current;
+    const timers = fades.current;
+    return () => {
+      Object.values(timers).forEach((t) => window.clearInterval(t));
+      Object.values(audios).forEach((a) => a.pause());
+    };
+  }, []);
+
   return (
     <Stage
       image="/make-ebook/brand/stages/stage-desk.jpg"
       className={styles.smallStage}
     >
-      <Window title="Focus" className={styles.miniPane}>
-        <div className={styles.paneBody}>
-          <div className={styles.tiles} role="group" aria-label="Ambient sound">
-            {SOUNDS.map((s) => (
+      <div ref={ref}>
+        <Window title="Focus" className={styles.miniPane}>
+          <div className={styles.paneBody}>
+            <div
+              className={styles.tiles}
+              role="radiogroup"
+              aria-label="Ambient sound"
+            >
+              {SOUNDS.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={soundId === s.id}
+                  className={`${styles.tile} ${soundId === s.id ? styles.tileActive : ""}`}
+                  onClick={() => {
+                    setSoundId(s.id);
+                    setSoundOn(true);
+                  }}
+                >
+                  <Icon path={s.path} />
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <div className={styles.switchRow}>
+              <span>{soundOn ? "Sound on" : "Sound off"}</span>
               <button
-                key={s.id}
                 type="button"
-                aria-pressed={sound === s.id}
-                className={`${styles.tile} ${sound === s.id ? styles.tileActive : ""}`}
-                onClick={() => setSound((cur) => (cur === s.id ? "" : s.id))}
-              >
-                <Icon path={s.path} />
-                {s.label}
-              </button>
-            ))}
+                role="switch"
+                aria-checked={soundOn}
+                aria-label="Sound"
+                className={`${styles.switch} ${soundOn ? styles.switchOn : ""}`}
+                onClick={() => setSoundOn((v) => !v)}
+              />
+            </div>
           </div>
-          <div className={styles.switchRow}>
-            <span>Typewriter mode</span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={typewriter}
-              aria-label="Typewriter mode"
-              className={`${styles.switch} ${typewriter ? styles.switchOn : ""}`}
-              onClick={() => setTypewriter((v) => !v)}
-            />
-          </div>
-        </div>
-      </Window>
+        </Window>
+      </div>
     </Stage>
   );
 }

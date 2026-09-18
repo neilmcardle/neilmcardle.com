@@ -130,7 +130,7 @@ export default function GenerateCoverModal({
           </div>
 
           {(!title || !author) && (
-            <p className="mt-4 text-xs text-amber-700 dark:text-amber-400">
+            <p className="mt-4 text-xs text-amber-700 dark:text-[var(--warning)]">
               {!title && !author
                 ? "Add a title and author to the Book panel for a better cover."
                 : !title

@@ -97,7 +97,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
               <TabsTrigger
                 key={tab.key}
                 value={tab.key}
-                className="py-1 px-3 text-xs font-medium transition-all whitespace-nowrap rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 bg-gray-100 dark:bg-[var(--rule)] data-[state=active]:text-gray-900 dark:data-[state=active]:text-[var(--paper)] data-[state=active]:bg-gray-200 dark:data-[state=active]:bg-[var(--ink-hover)]"
+                className="py-1 px-3 text-xs font-medium transition-all whitespace-nowrap rounded-full text-gray-500 dark:text-[var(--clay-muted)] hover:text-gray-700 dark:hover:text-[var(--paper)] bg-gray-100 dark:bg-[var(--rule)] data-[state=active]:text-gray-900 dark:data-[state=active]:text-[var(--paper)] data-[state=active]:bg-gray-200 dark:data-[state=active]:bg-[var(--ink-hover)]"
               >
                 {tab.label}
               </TabsTrigger>

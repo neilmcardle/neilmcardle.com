@@ -323,7 +323,7 @@ export default function SlimSidebarNav({
             }
           >
             <svg
-              className={`w-5 h-5 transition-colors ${activeView === "library" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[var(--clay-muted)]"}`}
+              className={`w-5 h-5 transition-colors ${activeView === "library" && isPanelOpen ? "text-white dark:text-[var(--ink-deep)]" : "text-gray-600 dark:text-[var(--clay-muted)]"}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -353,7 +353,7 @@ export default function SlimSidebarNav({
             aria-label="Book"
           >
             <svg
-              className={`w-5 h-5 transition-colors ${activeView === "book" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[var(--clay-muted)]"}`}
+              className={`w-5 h-5 transition-colors ${activeView === "book" && isPanelOpen ? "text-white dark:text-[var(--ink-deep)]" : "text-gray-600 dark:text-[var(--clay-muted)]"}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -376,7 +376,7 @@ export default function SlimSidebarNav({
             aria-label="Chapters"
           >
             <svg
-              className={`w-5 h-5 transition-colors ${activeView === "chapters" && isPanelOpen ? "text-white dark:text-gray-900" : "text-gray-600 dark:text-[var(--clay-muted)]"}`}
+              className={`w-5 h-5 transition-colors ${activeView === "chapters" && isPanelOpen ? "text-white dark:text-[var(--ink-deep)]" : "text-gray-600 dark:text-[var(--clay-muted)]"}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

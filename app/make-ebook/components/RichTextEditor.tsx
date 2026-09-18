@@ -50,8 +50,8 @@ interface RichTextEditorProps extends Omit<
 type FormatState = Record<string, boolean>;
 
 const BTN =
-  "w-full px-2 py-2 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed overflow-visible";
-const BTN_ACTIVE = "bg-gray-200 shadow-inner";
+  "w-full px-2 py-2 text-sm font-medium rounded border border-[var(--rule)] bg-white hover:bg-[var(--ink-raised)] transition disabled:opacity-50 disabled:cursor-not-allowed overflow-visible";
+const BTN_ACTIVE = "bg-[var(--ink-raised)] shadow-inner";
 
 const INLINE = [
   { cmd: "bold", label: "B", title: "Bold" },
@@ -203,25 +203,7 @@ export default function RichTextEditor({
 
       setIsMobileKeyboardOpen(keyboardOpen);
 
-      if (keyboardOpen && focused) {
-        setShowCompactToolbar(true);
-
-        setTimeout(() => {
-          const selection = window.getSelection();
-          if (selection && selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
-            if (rect.bottom > viewport.height - 60) {
-              editorRef.current?.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-            }
-          }
-        }, 100);
-      } else {
-        setShowCompactToolbar(false);
-      }
+      if (keyboardOpen && focused) setShowCompactToolbar(true);
     };
 
     viewport.addEventListener("resize", handleResize);
@@ -635,16 +617,6 @@ export default function RichTextEditor({
     ensureInitialParagraph();
 
     if (window.innerWidth < 900) setShowCompactToolbar(true);
-
-    if (window.innerWidth < 1024 && editorRef.current) {
-      setTimeout(() => {
-        if (editorRef.current) {
-          const editorRect = editorRef.current.getBoundingClientRect();
-          const scrollOffset = window.scrollY + editorRect.top - 4;
-          window.scrollTo({ top: scrollOffset, behavior: "smooth" });
-        }
-      }, 100);
-    }
   };
 
   const handleBlur = () => {
@@ -1572,8 +1544,12 @@ export default function RichTextEditor({
 
       {!hideToolbar && showCompactToolbar && (
         <div
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-[200] bg-white dark:bg-[var(--ink)] border-t border-gray-200 dark:border-[var(--rule)] shadow-lg"
-          style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+          data-compact-toolbar
+          className="lg:hidden fixed left-0 right-0 z-[200] bg-white dark:bg-[var(--ink)] border-t border-gray-200 dark:border-[var(--rule)]"
+          style={{
+            bottom: "var(--kb, 0px)",
+            paddingBottom: "var(--kb-pad, env(safe-area-inset-bottom, 0px))",
+          }}
         >
           {showMoreMenu && (
             <div className="absolute bottom-full left-0 right-0 bg-white dark:bg-[var(--ink)] border-t border-gray-200 dark:border-[var(--rule)] shadow-lg p-3">
@@ -1585,7 +1561,7 @@ export default function RichTextEditor({
                     setShowMoreMenu(false);
                   }}
                   disabled={!onCreateEndnote}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-gray-200 disabled:opacity-50"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-[var(--ink-raised)] disabled:opacity-50"
                 >
                   <Image
                     src="/endnote-icon.svg"
@@ -1604,7 +1580,7 @@ export default function RichTextEditor({
                     handleAnchorClick();
                     setShowMoreMenu(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-gray-200"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-[var(--ink-raised)]"
                 >
                   <Image
                     src="/anchor-icon.svg"
@@ -1623,7 +1599,7 @@ export default function RichTextEditor({
                     handleImageButtonClick();
                     setShowMoreMenu(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-gray-200"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[var(--ink)] text-sm font-medium text-gray-700 dark:text-[var(--clay)] active:bg-[var(--ink-raised)]"
                 >
                   <img
                     src="/image-icon.svg"
@@ -1640,7 +1616,7 @@ export default function RichTextEditor({
                     applyHeading(3);
                     setShowMoreMenu(false);
                   }}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium active:bg-gray-200 ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium active:bg-[var(--ink-raised)] ${
                     formats["heading3"]
                       ? "bg-[var(--ink-raised)] dark:bg-white text-white dark:text-[var(--ink-raised)]"
                       : "bg-gray-100 dark:bg-[var(--ink)] text-gray-700 dark:text-[var(--clay)]"
@@ -2017,7 +1993,7 @@ export default function RichTextEditor({
               >
                 Terms
               </a>
-              <span className="text-gray-300">|</span>
+              <span className="text-[var(--clay)]">|</span>
               <a
                 href="https://makeebook.ink/privacy"
                 className="hover:underline"
@@ -2109,7 +2085,7 @@ export default function RichTextEditor({
                 onMouseDown={(e) => e.preventDefault()}
                 title={action.title}
                 type="button"
-                className="w-full px-2 py-1 text-sm font-medium rounded border border-gray-300 bg-white hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
+                className="w-full px-2 py-1 text-sm font-medium rounded border border-[var(--rule)] bg-white hover:bg-[var(--ink-raised)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed overflow-visible flex items-center justify-center"
                 onClick={() => {
                   if (action.cmd === "endnote") {
                     handleEndnoteClick();
@@ -2193,10 +2169,10 @@ export default function RichTextEditor({
                 placeholder="Enter your endnote text here..."
                 autoFocus
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-[var(--ink-hover)] rounded-lg bg-white dark:bg-[var(--ink)] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[var(--ink-hover)] rounded-lg bg-white dark:bg-[var(--ink)] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--ink-hover)] resize-none"
               />
               {!hasEndnotes && (
-                <p className="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-start gap-2">
+                <p className="mt-2 text-xs text-blue-600 dark:text-[var(--paper)] flex items-start gap-2">
                   <svg
                     className="w-4 h-4 flex-shrink-0 mt-1"
                     fill="none"
@@ -2274,7 +2250,7 @@ export default function RichTextEditor({
                 }}
                 placeholder="E.g., Figure 1: Market trends in 2024"
                 autoFocus
-                className="w-full px-3 py-2 border border-gray-300 dark:border-[var(--ink-hover)] rounded-lg bg-white dark:bg-[var(--ink)] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[var(--ink-hover)] rounded-lg bg-white dark:bg-[var(--ink)] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--ink-hover)]"
               />
               <p className="mt-2 text-xs text-gray-500 dark:text-[var(--clay-muted)]">
                 Press Enter to add image, or Esc to cancel

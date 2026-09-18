@@ -24,7 +24,7 @@ export function OfflineIndicator({
     <div
       className={`flex items-center gap-2 px-3 py-2 rounded-full text-xs font-medium transition-colors ${
         isOnline
-          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+          ? "bg-blue-50 dark:bg-[var(--paper)]/20 text-blue-600 dark:text-[var(--paper)]"
           : "bg-gray-100 dark:bg-[var(--ink-raised)] text-gray-600 dark:text-[var(--clay-muted)]"
       }`}
     >
@@ -106,7 +106,7 @@ export function OfflineIndicatorCompact({
     <div
       className={`flex items-center justify-center w-6 h-6 rounded-full ${
         isOnline
-          ? "text-blue-500"
+          ? "text-[var(--paper)]"
           : "text-gray-500 dark:text-[var(--clay-muted)]"
       }`}
       title={
@@ -142,7 +142,7 @@ export function OfflineBanner({ isOnline }: { isOnline: boolean }) {
   if (isOnline) return null;
 
   return (
-    <div className="bg-gray-700 text-white text-center py-2 px-4 text-xs">
+    <div className="bg-[var(--rule)] text-white text-center py-2 px-4 text-xs">
       <span className="inline-flex items-center gap-2">
         <svg
           className="w-3.5 h-3.5"

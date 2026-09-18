@@ -29,6 +29,30 @@ interface ChapterPanelProps {
     instruction?: string;
   }) => void;
   onComposeRequest?: (args: { range: Range; rect: DOMRect }) => void;
+  starters?: { onUpload: () => void; onLibrary: () => void };
+}
+
+const STARTER_ICONS = {
+  upload: "M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12",
+  library: "M4 4v16M10 7v13M16 5v15M3 20h18",
+};
+
+function StarterIcon({ d }: { d: string }) {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.7}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={d} />
+    </svg>
+  );
 }
 
 export function sectionLabelFor(chapter?: Chapter) {
@@ -48,6 +72,7 @@ export default function ChapterPanel({
   onFocusStateChange,
   onInlineEditRequest,
   onComposeRequest,
+  starters,
 }: ChapterPanelProps) {
   return (
     <div className={styles.editorCanvas}>
@@ -55,7 +80,9 @@ export default function ChapterPanel({
         key={chapter?.id ?? selectedChapter}
         className={`me-chapter-in ${styles.editorPanel}`}
       >
-        <p className={styles.chapterEyebrow}>{sectionLabelFor(chapter)}</p>
+        <p className={styles.chapterEyebrow} data-chapter-eyebrow>
+          {sectionLabelFor(chapter)}
+        </p>
         <input
           className={styles.chapterTitle}
           placeholder="Chapter title..."
@@ -77,9 +104,9 @@ export default function ChapterPanel({
           onChange={(html) => onContentChange(selectedChapter, html)}
           minHeight={240}
           placeholder={
-            selectedChapter === 0
-              ? "Start writing, or type / for AI commands..."
-              : "Continue writing, or type / for AI commands..."
+            starters
+              ? "Start writing, or paste your manuscript"
+              : "Continue writing..."
           }
           className="flex-1 min-h-0"
           contentClassName={styles.editorProse}
@@ -92,6 +119,30 @@ export default function ChapterPanel({
           onInlineEditRequest={onInlineEditRequest}
           onComposeRequest={onComposeRequest}
         />
+
+        {starters && (
+          <div className={styles.starters}>
+            <span className={styles.startersLabel}>Or get started with</span>
+            <div className={styles.starterRow}>
+              <button
+                type="button"
+                className={styles.starterChip}
+                onClick={starters.onUpload}
+              >
+                <StarterIcon d={STARTER_ICONS.upload} />
+                Upload a file
+              </button>
+              <button
+                type="button"
+                className={styles.starterChip}
+                onClick={starters.onLibrary}
+              >
+                <StarterIcon d={STARTER_ICONS.library} />
+                Open library
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

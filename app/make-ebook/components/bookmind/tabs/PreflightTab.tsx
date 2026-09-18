@@ -130,7 +130,7 @@ export default function PreflightTab({
             )}
             {warns.length > 0 && (
               <span className="flex items-center gap-1.5 text-11 text-gray-600 dark:text-[var(--clay-muted)]">
-                <span className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-[var(--warning)] flex-shrink-0" />
                 {warns.length} to look at
               </span>
             )}
@@ -157,7 +157,7 @@ export default function PreflightTab({
                     className={`p-3 rounded-card border ${
                       isBlock
                         ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/40"
-                        : "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/40"
+                        : "bg-amber-50 dark:bg-[var(--warning)]/20 border-amber-200 dark:border-[var(--warning)]/40"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -175,7 +175,7 @@ export default function PreflightTab({
                         </svg>
                       ) : (
                         <svg
-                          className="w-3.5 h-3.5 flex-shrink-0 text-amber-600 dark:text-amber-400"
+                          className="w-3.5 h-3.5 flex-shrink-0 text-amber-600 dark:text-[var(--warning)]"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -298,7 +298,7 @@ export default function PreflightTab({
         <div className="flex-shrink-0 px-4 py-4 border-t border-gray-200 dark:border-[var(--rule)]">
           <button
             onClick={onExport}
-            className="w-full flex items-center justify-center gap-2 h-11 rounded-pill bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:opacity-90 transition-opacity"
+            className="w-full flex items-center justify-center gap-2 h-11 rounded-pill bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] text-sm font-semibold hover:opacity-90 transition-opacity"
           >
             <svg
               className="w-4 h-4"

@@ -60,6 +60,7 @@ interface EditorCanvasProps {
     instruction?: string;
   }) => void;
   onComposeRequest?: (args: { range: Range; rect: DOMRect }) => void;
+  starters?: { onUpload: () => void; onLibrary: () => void };
 
   isBookMindLoading?: boolean;
   onOpenBookMind?: () => void;
@@ -81,6 +82,7 @@ export default function EditorCanvas({
   focus,
   onInlineEditRequest,
   onComposeRequest,
+  starters,
   isBookMindLoading = false,
   onOpenBookMind,
   onBookMindHistory,
@@ -199,6 +201,7 @@ export default function EditorCanvas({
             hideToolbar={focus.active && focus.settings.hideToolbar}
             onInlineEditRequest={onInlineEditRequest}
             onComposeRequest={onComposeRequest}
+            starters={starters}
           />
 
           {footer}

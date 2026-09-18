@@ -70,19 +70,19 @@ export default function SyncConflictBanner({
       <div className="flex flex-col gap-2">
         <button
           onClick={() => onResolve("cloud")}
-          className="w-full px-3 py-2 rounded-md bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-medium hover:opacity-90 transition-opacity"
+          className="w-full px-3 py-2 rounded-md bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] text-xs font-medium hover:opacity-90 transition-opacity"
         >
           Keep cloud version
         </button>
         <button
           onClick={() => onResolve("local")}
-          className="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-[var(--rule)] bg-white dark:bg-[var(--ink)] text-xs font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-[var(--ink-raised)] transition-colors"
+          className="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-[var(--rule)] bg-white dark:bg-[var(--ink)] text-xs font-medium text-gray-900 dark:text-[var(--paper)] hover:bg-gray-50 dark:hover:bg-[var(--ink-raised)] transition-colors"
         >
           Keep this device&apos;s version
         </button>
         <button
           onClick={() => onResolve("both")}
-          className="w-full px-3 py-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+          className="w-full px-3 py-1 text-xs text-gray-500 dark:text-[var(--clay-muted)] hover:text-gray-700 dark:hover:text-[var(--clay)] transition-colors"
         >
           Keep both (creates a copy)
         </button>

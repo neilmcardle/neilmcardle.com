@@ -83,6 +83,22 @@ export function useInView<T extends Element>(threshold = 0.35) {
   return [ref, inView] as const;
 }
 
+export function useVisible<T extends Element>(threshold = 0.25) {
+  const ref = useRef<T>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [threshold]);
+  return [ref, visible] as const;
+}
+
 export function useTimeline(active: boolean, delays: number[], runKey = 0) {
   const reduced = useReducedMotion();
   const [step, setStep] = useState(0);

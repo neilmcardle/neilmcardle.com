@@ -27,6 +27,7 @@ export default function ChapterPositionBar({
 
   return (
     <div
+      data-chapter-position
       className="flex items-center gap-1 px-4 py-2 touch-pan-y select-none"
       onTouchStart={(e) => {
         startX.current = e.touches[0]?.clientX ?? null;

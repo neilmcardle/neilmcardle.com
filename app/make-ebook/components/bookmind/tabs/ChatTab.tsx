@@ -347,7 +347,7 @@ export default function ChatTab({
           <Popover open={historyOpen} onOpenChange={setHistoryOpen}>
             <PopoverTrigger asChild>
               <button
-                className="size-6 rounded-control flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors"
+                className="size-6 rounded-control flex items-center justify-center text-[var(--clay-muted)] hover:text-gray-600 dark:hover:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors"
                 title="Recent conversations"
               >
                 <svg
@@ -412,7 +412,7 @@ export default function ChatTab({
                       </button>
                       <button
                         onClick={(e) => handleDeleteSession(e, session.id)}
-                        className="absolute right-1.5 top-2 me-reveal size-5 rounded-control flex items-center justify-center text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)]"
+                        className="absolute right-1.5 top-2 me-reveal size-5 rounded-control flex items-center justify-center text-[var(--clay-muted)] hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[var(--ink-hover)]"
                         title="Delete"
                       >
                         <svg
@@ -442,7 +442,7 @@ export default function ChatTab({
               clearMessages();
               createSession();
             }}
-            className="size-6 rounded-control flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors"
+            className="size-6 rounded-control flex items-center justify-center text-[var(--clay-muted)] hover:text-gray-600 dark:hover:text-[var(--clay)] hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors"
             title="New chat"
           >
             <svg
@@ -510,7 +510,7 @@ export default function ChatTab({
 
       {trialMode && trialExhausted ? (
         <div className="flex-shrink-0 px-3 pb-3 pt-2">
-          <div className="rounded-card border border-blue-200 dark:border-blue-950 bg-blue-50 dark:bg-blue-950/20 px-3 py-3 text-center">
+          <div className="rounded-card border border-blue-200 dark:border-[var(--ink-hover)] bg-blue-50 dark:bg-[var(--paper)]/20 px-3 py-3 text-center">
             <p className="text-12 font-semibold text-gray-900 dark:text-white mb-2">
               Free analysis used
             </p>
@@ -519,7 +519,7 @@ export default function ChatTab({
             </p>
             <button
               onClick={onUpgrade}
-              className="px-4 py-2 text-125 font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-pill hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 text-125 font-semibold bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] rounded-pill hover:bg-gray-800 dark:hover:bg-[var(--ink-raised)] transition-colors"
             >
               Upgrade
             </button>
@@ -561,7 +561,7 @@ export default function ChatTab({
                 </span>
                 <button
                   onClick={() => setDismissedText(externalSelectedText ?? null)}
-                  className="text-10 text-gray-400 hover:text-gray-600 dark:hover:text-[var(--clay)] transition-colors"
+                  className="text-10 text-[var(--clay-muted)] hover:text-gray-600 dark:hover:text-[var(--clay)] transition-colors"
                 >
                   Clear
                 </button>
@@ -654,7 +654,7 @@ export default function ChatTab({
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || chapters.length === 0}
-                className="flex-shrink-0 size-6 rounded-full bg-gray-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="flex-shrink-0 size-6 rounded-full bg-gray-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-gray-800 dark:hover:bg-[var(--ink-raised)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <svg
                   className="w-3 h-3"
@@ -886,7 +886,7 @@ function MessageBubble({
       style={{ animation: "fade-up 300ms cubic-bezier(0.23,1,0.32,1) both" }}
     >
       <div
-        className={`max-w-[85%] rounded-card px-3 py-2.5 text-125 leading-relaxed ${isUser ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-tr-sm" : "bg-gray-100 dark:bg-[var(--ink-hover)] text-gray-800 dark:text-[var(--paper)] rounded-tl-sm"}`}
+        className={`max-w-[85%] rounded-card px-3 py-2.5 text-125 leading-relaxed ${isUser ? "bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] rounded-tr-sm" : "bg-gray-100 dark:bg-[var(--ink-hover)] text-gray-800 dark:text-[var(--paper)] rounded-tl-sm"}`}
       >
         {structured ? (
           <CardRenderer

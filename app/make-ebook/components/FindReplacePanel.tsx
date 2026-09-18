@@ -88,7 +88,7 @@ export default function FindReplacePanel({
           </h3>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--clay-muted)] hover:bg-gray-100 dark:hover:bg-[var(--rule)] transition-colors"
             aria-label="Close"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -166,7 +166,7 @@ export default function FindReplacePanel({
                   >
                     <button
                       onClick={() => onGoToMatch(m.chapterIndex)}
-                      className="text-sm text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 truncate text-left flex-1 mr-3"
+                      className="text-sm text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-[var(--paper)] truncate text-left flex-1 mr-3"
                     >
                       {m.chapterTitle}
                       <span className="ml-2 text-xs text-gray-500 dark:text-[var(--clay-muted)]">

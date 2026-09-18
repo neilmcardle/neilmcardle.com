@@ -40,16 +40,16 @@ export default function CookieConsent() {
       role="dialog"
       aria-modal="false"
       aria-label="Cookie preferences"
-      className="fixed bottom-2 left-2 right-2 sm:bottom-6 sm:left-auto sm:right-6 sm:max-w-md z-[200] bg-white border border-gray-200 rounded-lg shadow-2xl p-3 sm:p-5"
+      className="fixed bottom-2 left-2 right-2 sm:bottom-6 sm:left-auto sm:right-6 sm:max-w-md z-[200] bg-white border border-[var(--rule)] rounded-lg shadow-2xl p-3 sm:p-5"
     >
-      <h2 className="hidden sm:block text-sm font-semibold text-gray-900 mb-2">
+      <h2 className="hidden sm:block text-sm font-semibold text-[var(--ink-deep)] mb-2">
         Cookie preferences
       </h2>
-      <p className="text-[12px] sm:text-sm text-gray-700 leading-snug sm:leading-relaxed">
+      <p className="text-[12px] sm:text-sm text-[var(--clay-muted)] leading-snug sm:leading-relaxed">
         This site uses cookies to make the app work and to collect analytics.{" "}
         <Link
           href="/privacy"
-          className="underline text-gray-900 hover:text-gray-700"
+          className="underline text-[var(--ink-deep)] hover:text-[var(--clay-muted)]"
         >
           Read more
         </Link>
@@ -59,7 +59,7 @@ export default function CookieConsent() {
         <button
           type="button"
           onClick={handleReject}
-          className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+          className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-[var(--ink-deep)] bg-white border border-[var(--rule)] rounded-md hover:bg-[var(--ink-raised)] transition-colors"
         >
           Reject
         </button>
@@ -67,7 +67,7 @@ export default function CookieConsent() {
           type="button"
           onClick={handleAccept}
           aria-label="Accept"
-          className="relative overflow-hidden px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-gray-900 border border-gray-900 rounded-md hover:bg-gray-800 transition-colors"
+          className="relative overflow-hidden px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-[var(--ink-raised)] border border-[var(--rule)] rounded-md hover:bg-[var(--ink-raised)] transition-colors"
         >
           <span aria-hidden className="motion-safe:invisible">
             Accept

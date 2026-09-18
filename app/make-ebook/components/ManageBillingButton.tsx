@@ -170,7 +170,7 @@ export function ManageBillingLink({ className = "" }: { className?: string }) {
       <button
         onClick={handleOpenPortal}
         disabled={portalLoading}
-        className={`inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${className}`}
+        className={`inline-flex items-center gap-1 text-sm text-blue-600 dark:text-[var(--paper)] hover:text-blue-700 dark:hover:text-[var(--paper)] underline disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${className}`}
       >
         {portalLoading ? "Opening portal..." : "Manage subscription"}
         <ExternalLink className="w-3 h-3" />

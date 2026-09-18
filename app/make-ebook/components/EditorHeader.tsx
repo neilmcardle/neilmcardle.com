@@ -212,7 +212,7 @@ export default function EditorHeader({
                 <span>Version &amp; export history</span>
               </span>
               {versionCount + exportCount > 0 && (
-                <span className="text-11 text-gray-400 tabular-nums">
+                <span className="text-11 text-[var(--clay-muted)] tabular-nums">
                   {versionCount + exportCount}
                 </span>
               )}
@@ -271,7 +271,7 @@ export default function EditorHeader({
               </svg>
               <div>
                 <div className="text-sm font-medium">EPUB</div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-[var(--clay-muted)]">
                   Kindle, Kobo, Apple Books
                 </div>
               </div>
@@ -295,7 +295,9 @@ export default function EditorHeader({
               </svg>
               <div>
                 <div className="text-sm font-medium">PDF</div>
-                <div className="text-xs text-gray-500">Print & sharing</div>
+                <div className="text-xs text-[var(--clay-muted)]">
+                  Print & sharing
+                </div>
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -317,7 +319,9 @@ export default function EditorHeader({
               </svg>
               <div>
                 <div className="text-sm font-medium">Word</div>
-                <div className="text-xs text-gray-500">Editors & agents</div>
+                <div className="text-xs text-[var(--clay-muted)]">
+                  Editors & agents
+                </div>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>

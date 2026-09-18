@@ -268,7 +268,7 @@ function VersionsTab({
                       </div>
                     ))}
                     {version.chapters.length > 5 && (
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-[var(--clay-muted)]">
                         +{version.chapters.length - 5} more...
                       </div>
                     )}
@@ -469,7 +469,7 @@ function EmptyState({
     <div className="p-6 text-center">
       <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] flex items-center justify-center">
         <svg
-          className="w-6 h-6 text-gray-400"
+          className="w-6 h-6 text-[var(--clay-muted)]"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -496,7 +496,7 @@ function LatestPill({ tone }: { tone: "green" | "blue" }) {
   const classes =
     tone === "green"
       ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-      : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400";
+      : "bg-blue-100 dark:bg-[var(--paper)]/30 text-blue-700 dark:text-[var(--paper)]";
   return (
     <span className={`text-2xs px-2 py-1 rounded ${classes}`}>Latest</span>
   );
@@ -505,7 +505,7 @@ function LatestPill({ tone }: { tone: "green" | "blue" }) {
 function Chevron({ expanded }: { expanded: boolean }) {
   return (
     <svg
-      className={`w-4 h-4 text-gray-400 transition-transform ${expanded ? "rotate-180" : ""}`}
+      className={`w-4 h-4 text-[var(--clay-muted)] transition-transform ${expanded ? "rotate-180" : ""}`}
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"

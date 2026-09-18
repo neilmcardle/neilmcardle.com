@@ -23,10 +23,10 @@ const CARD_TYPE_COLORS: Record<AnalyticalCard["type"], string> = {
   character:
     "text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/15",
   inconsistency:
-    "text-amber-600 bg-amber-500/10 dark:text-amber-400 dark:bg-amber-500/15",
+    "text-amber-600 bg-amber-500/10 dark:text-[var(--warning)] dark:bg-[var(--warning)]/15",
   pacing:
     "text-purple-600 bg-purple-500/10 dark:text-purple-400 dark:bg-purple-500/15",
-  note: "text-gray-600 bg-gray-500/10 dark:text-gray-300 dark:bg-gray-500/15",
+  note: "text-gray-600 bg-gray-500/10 dark:text-[var(--clay)] dark:bg-[var(--ink-hover)]/15",
 };
 
 export default function CardRenderer({

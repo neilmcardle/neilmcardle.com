@@ -18,10 +18,10 @@ export default function BookMindAgent({
       className="flex items-center gap-2 hover:opacity-80 transition-opacity"
       title="Open Book Mind"
     >
-      <div className="w-5 h-5 flex-shrink-0 text-gray-700 dark:text-gray-300">
+      <div className="w-5 h-5 flex-shrink-0 text-gray-700 dark:text-[var(--clay)]">
         <BookMindMark className="w-5 h-5" />
       </div>
-      <span className="text-xs font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+      <span className="text-xs font-medium text-gray-700 dark:text-[var(--clay)] whitespace-nowrap">
         Book Mind
       </span>
     </button>

@@ -35,6 +35,7 @@ export interface EditorLeftNavProps {
 
   libraryBooks: Book[];
   selectedBookId: string | null;
+  currentBookId?: string;
   setSelectedBookId: (id: string | null) => void;
   handleLoadBook: (id: string) => void;
   handleDeleteBook: (id: string) => void;
@@ -72,6 +73,8 @@ export interface EditorLeftNavProps {
   ghostPillPosition: { visible: boolean; x: number; y: number };
   getContentChapterNumber: (chapters: Chapter[], index: number) => number;
   chapterWordCounts?: number[];
+  onBulkComplete?: (ids: Set<string>, completed: boolean) => void;
+  onBulkDelete?: (ids: Set<string>, done: () => void) => void;
   totalWords?: number;
 
   title: string;
@@ -135,6 +138,7 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         onClose={props.onClose}
         libraryBooks={props.libraryBooks}
         selectedBookId={props.selectedBookId}
+        currentBookId={props.currentBookId}
         setSelectedBookId={props.setSelectedBookId}
         handleLoadBook={props.handleLoadBook}
         handleDeleteBook={props.handleDeleteBook}
@@ -167,6 +171,8 @@ export default function EditorLeftNav(props: EditorLeftNavProps) {
         ghostPillPosition={props.ghostPillPosition}
         getContentChapterNumber={props.getContentChapterNumber}
         chapterWordCounts={props.chapterWordCounts}
+        onBulkComplete={props.onBulkComplete}
+        onBulkDelete={props.onBulkDelete}
         totalWords={props.totalWords}
         title={props.title}
         setTitle={props.setTitle}

@@ -47,7 +47,9 @@ function Toggle({
       >
         <span
           className={`inline-block h-3.5 w-3.5 rounded-full transition-transform duration-200 ${
-            checked ? "translate-x-4 bg-gray-900" : "translate-x-1 bg-white/50"
+            checked
+              ? "translate-x-4 bg-[var(--ink-raised)]"
+              : "translate-x-1 bg-white/50"
           }`}
         />
       </button>
@@ -80,7 +82,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
         title={open ? "Close settings" : "Focus settings"}
         className={`flex items-center gap-2 px-3 h-8 rounded-full text-xs font-medium transition-all duration-300 shadow-lg backdrop-blur-md border ${
           open
-            ? "bg-white text-gray-900 border-transparent opacity-100"
+            ? "bg-white text-[var(--ink-deep)] border-transparent opacity-100"
             : "bg-[var(--ink-deep)]/70 border-white/10 text-white/50 opacity-60 hover:opacity-100 hover:text-white/80"
         }`}
       >
@@ -125,7 +127,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
                   onClick={() => onChangeSetting("columnWidth", value)}
                   className={`flex-1 py-1 rounded-full text-xs font-medium transition-all ${
                     settings.columnWidth === value
-                      ? "bg-white text-gray-900 shadow-sm"
+                      ? "bg-white text-[var(--ink-deep)] shadow-sm"
                       : "text-white/50 hover:text-white/80"
                   }`}
                 >
@@ -161,7 +163,7 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
                 onClick={() => onChangeSetting("ambientSound", value)}
                 className={`px-2 py-2 rounded-lg text-2xs font-medium transition-colors text-center ${
                   settings.ambientSound === value
-                    ? "bg-white text-gray-900"
+                    ? "bg-white text-[var(--ink-deep)]"
                     : "bg-white/8 text-white/55 hover:bg-white/12 hover:text-white/90"
                 }`}
               >
@@ -212,7 +214,7 @@ export function FocusModeButton({ onClick }: { onClick: () => void }) {
       className="flex items-center gap-2 px-3 h-10 rounded-lg bg-gray-100 dark:bg-[var(--ink-raised)] hover:bg-gray-200 dark:hover:bg-[var(--rule)] transition-colors group"
     >
       <svg
-        className="w-6 h-6 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[var(--clay)] transition-colors"
+        className="w-6 h-6 text-[var(--clay-muted)] group-hover:text-gray-600 dark:group-hover:text-[var(--clay)] transition-colors"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -222,7 +224,7 @@ export function FocusModeButton({ onClick }: { onClick: () => void }) {
         <circle cx="12" cy="12" r="3" />
         <circle cx="12" cy="12" r="7" strokeOpacity={0.5} />
       </svg>
-      <span className="text-xs text-gray-400 group-hover:text-gray-600 dark:group-hover:text-[var(--clay)] transition-colors">
+      <span className="text-xs text-[var(--clay-muted)] group-hover:text-gray-600 dark:group-hover:text-[var(--clay)] transition-colors">
         Focus
       </span>
     </button>

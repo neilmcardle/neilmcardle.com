@@ -28,10 +28,10 @@ export default function SubscriptionBadge({
   if (isGrandfathered) {
     return (
       <div
-        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--ink-window)] dark:bg-white border border-gray-200 dark:border-[var(--rule)] ${className}`}
+        className={`inline-flex items-center h-[20px] px-2 rounded-full border border-[rgba(243,239,229,0.18)] ${className}`}
       >
-        <span className="text-2xs font-semibold text-white dark:text-[var(--ink-window)] uppercase tracking-wide">
-          Pro (Lifetime)
+        <span className="text-[11px] font-medium text-[var(--paper)]">
+          Pro, lifetime
         </span>
       </div>
     );
@@ -40,11 +40,9 @@ export default function SubscriptionBadge({
   if (tier === "pro") {
     return (
       <div
-        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--ink-window)] dark:bg-white border border-gray-200 dark:border-[var(--rule)] ${className}`}
+        className={`inline-flex items-center h-[20px] px-2 rounded-full border border-[rgba(243,239,229,0.18)] ${className}`}
       >
-        <span className="text-2xs font-semibold text-white dark:text-[var(--ink-window)] uppercase tracking-wide">
-          Pro
-        </span>
+        <span className="text-[11px] font-medium text-[var(--paper)]">Pro</span>
       </div>
     );
   }

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { PlusIcon } from "../icons";
 import GenerateCoverModal from "./GenerateCoverModal";
+import styles from "../../styles/studio.module.css";
 
 interface BookDetailsPanelProps {
   title: string;
@@ -35,6 +36,7 @@ interface BookDetailsPanelProps {
     tags: boolean;
     cover: boolean;
   };
+  compact?: boolean;
 }
 
 const LANGUAGES = [
@@ -76,40 +78,18 @@ export default function BookDetailsPanel({
   handleCoverChange,
   setCoverFile,
   lockedSections,
+  compact = false,
 }: BookDetailsPanelProps) {
   const [generateOpen, setGenerateOpen] = useState(false);
   return (
-    <div
-      data-tour="book-details"
-      className="border-b border-gray-200 dark:border-[var(--rule)] pb-3"
-    >
-      <div className="flex items-center gap-2 py-3 px-3">
-        <svg
-          className="w-4 h-4 flex-shrink-0 text-gray-600 dark:text-[var(--clay-muted)]"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.8}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-          <path d="M8 7h8M8 11h8M8 15h5" />
-        </svg>
-        <div className="flex flex-col gap-2 flex-1 min-w-0">
-          <span className="text-125 font-semibold text-gray-900 dark:text-[var(--paper)]">
-            Book
-          </span>
-          {title && (
-            <span className="text-11 text-gray-500 dark:text-[var(--clay-muted)] truncate">
-              {title}
-            </span>
-          )}
+    <div data-tour="book-details" className="pb-3">
+      {!compact && (
+        <div className={styles.panelHead}>
+          <span className={styles.panelTitle}>Book details</span>
         </div>
-      </div>
+      )}
 
-      <div className="space-y-3 px-3 py-2">
+      <div className="space-y-4 px-1 py-1">
         <div>
           <label
             htmlFor="bd-cover-image"
@@ -138,14 +118,14 @@ export default function BookDetailsPanel({
             accept="image/*"
             onChange={handleCoverChange}
             disabled={lockedSections.cover}
-            className="w-full text-12 text-gray-400 file:mr-2 file:py-2 file:px-3 file:rounded-chip file:border-0 file:text-11 file:font-medium file:bg-gray-100 dark:file:bg-[var(--ink-raised)] file:text-gray-700 dark:file:text-[var(--clay)] hover:file:bg-gray-200 dark:hover:file:bg-[var(--rule)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full text-12 text-[var(--clay-muted)] file:mr-2 file:py-2 file:px-3 file:rounded-chip file:border-0 file:text-11 file:font-medium file:bg-gray-100 dark:file:bg-[var(--ink-raised)] file:text-gray-700 dark:file:text-[var(--clay)] hover:file:bg-gray-200 dark:hover:file:bg-[var(--rule)] disabled:opacity-50 disabled:cursor-not-allowed"
           />
           {setCoverFile && (
             <button
               type="button"
               onClick={() => setGenerateOpen(true)}
               disabled={lockedSections.cover}
-              className="mt-2 w-full inline-flex items-center justify-center gap-2 py-2 text-11 font-medium rounded-card bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors active:scale-[0.96] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-2 w-full inline-flex items-center justify-center gap-2 py-2 text-11 font-medium rounded-card bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] hover:bg-gray-800 dark:hover:bg-[var(--ink-raised)] transition-colors active:scale-[0.96] disabled:opacity-50 disabled:cursor-not-allowed"
               title="Generate a cover from your title, author, and genre"
             >
               <svg

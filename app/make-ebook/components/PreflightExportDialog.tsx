@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { track } from "@vercel/analytics";
 import { Modal, ModalHeader } from "./Modal";
 import {
@@ -8,14 +8,26 @@ import {
   PreflightInput,
   CheckResult,
 } from "../utils/preflightChecks";
+import { LANGUAGES } from "../utils/constants";
+import styles from "../styles/studio.module.css";
 
 export type ExportFormat = "epub" | "pdf" | "docx";
+
+export interface PreflightFixes {
+  setTitle: (value: string) => void;
+  setAuthor: (value: string) => void;
+  setGenre: (value: string) => void;
+  setLanguage: (value: string) => void;
+  onCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onShowChapters: () => void;
+}
 
 interface PreflightExportDialogProps {
   open: boolean;
   format: ExportFormat;
   input: PreflightInput;
   isPro: boolean;
+  fixes: PreflightFixes;
   onClose: () => void;
   onDownload: () => void;
   onUpgrade: () => void;
@@ -27,17 +39,24 @@ const FORMAT_LABEL: Record<ExportFormat, string> = {
   docx: "Word",
 };
 
+const ORDER: Record<CheckResult["status"], number> = {
+  block: 0,
+  warn: 1,
+  pass: 2,
+};
+
 export default function PreflightExportDialog({
   open,
   format,
   input,
   isPro,
+  fixes,
   onClose,
   onDownload,
   onUpgrade,
 }: PreflightExportDialogProps) {
   const result = runPreflightChecks(input);
-  const { checks, blocks, warns, allClear } = result;
+  const { blocks } = result;
 
   useEffect(() => {
     if (!open) return;
@@ -65,10 +84,9 @@ export default function PreflightExportDialog({
       <ModalHeader title={`Export ${formatLabel}`} onClose={onClose} />
       {isPro ? (
         <ProBody
-          checks={checks}
-          blocks={blocks}
-          warns={warns}
-          allClear={allClear}
+          result={result}
+          input={input}
+          fixes={fixes}
           formatLabel={formatLabel}
           onDownload={onDownload}
           onClose={onClose}
@@ -85,98 +103,207 @@ export default function PreflightExportDialog({
   );
 }
 
+function Fix({
+  check,
+  input,
+  fixes,
+  onClose,
+}: {
+  check: CheckResult;
+  input: PreflightInput;
+  fixes: PreflightFixes;
+  onClose: () => void;
+}) {
+  const [draft, setDraft] = useState(() => {
+    if (check.id === "title") {
+      const t = input.title?.trim() ?? "";
+      return ["untitled", "pasted manuscript", "untitled book"].includes(
+        t.toLowerCase(),
+      )
+        ? ""
+        : t;
+    }
+    if (check.id === "author") return input.author ?? "";
+    if (check.id === "genre") return input.genre ?? "";
+    return "";
+  });
+
+  if (check.id === "title" || check.id === "author" || check.id === "genre") {
+    const setter =
+      check.id === "title"
+        ? fixes.setTitle
+        : check.id === "author"
+          ? fixes.setAuthor
+          : fixes.setGenre;
+    const placeholder =
+      check.id === "title"
+        ? "Your book's title"
+        : check.id === "author"
+          ? "Name as it appears on the cover"
+          : "Literary fiction, thriller, memoir...";
+    return (
+      <input
+        className={styles.fixInput}
+        value={draft}
+        placeholder={placeholder}
+        aria-label={check.label}
+        onChange={(e) => {
+          setDraft(e.target.value);
+          setter(e.target.value);
+        }}
+      />
+    );
+  }
+
+  if (check.id === "language") {
+    return (
+      <select
+        className={styles.fixInput}
+        aria-label="Language"
+        defaultValue=""
+        onChange={(e) => fixes.setLanguage(e.target.value)}
+      >
+        <option value="" disabled>
+          Choose a language
+        </option>
+        {LANGUAGES.map((l) => (
+          <option key={l} value={l}>
+            {l}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  if (check.id === "cover") {
+    return (
+      <label className={styles.fixButton}>
+        Add a cover
+        <input
+          type="file"
+          accept="image/*"
+          className="sr-only"
+          onChange={fixes.onCoverChange}
+        />
+      </label>
+    );
+  }
+
+  if (check.id === "chapter-uniformity" || check.id === "genre-word-count") {
+    return (
+      <button
+        type="button"
+        className={styles.fixButton}
+        onClick={() => {
+          onClose();
+          fixes.onShowChapters();
+        }}
+      >
+        Show chapters
+      </button>
+    );
+  }
+
+  if (check.id === "word-count") {
+    return (
+      <p className={styles.fixNote}>
+        Nothing to fix here but more writing. Your draft is saved.
+      </p>
+    );
+  }
+
+  return null;
+}
+
 function ProBody({
-  checks,
-  blocks,
-  warns,
-  allClear,
+  result,
+  input,
+  fixes,
   formatLabel,
   onDownload,
   onClose,
 }: {
-  checks: CheckResult[];
-  blocks: CheckResult[];
-  warns: CheckResult[];
-  allClear: boolean;
+  result: ReturnType<typeof runPreflightChecks>;
+  input: PreflightInput;
+  fixes: PreflightFixes;
   formatLabel: string;
   onDownload: () => void;
   onClose: () => void;
 }) {
-  let buttonLabel = `Download ${formatLabel}`;
-  if (blocks.length > 0) {
-    buttonLabel = `Download anyway (${blocks.length} ${blocks.length === 1 ? "issue" : "issues"})`;
-  } else if (warns.length > 0) {
-    buttonLabel = `Download anyway (${warns.length} ${warns.length === 1 ? "warning" : "warnings"})`;
-  }
+  const { checks, blocks, warns } = result;
+  const sorted = [...checks].sort((a, b) => ORDER[a.status] - ORDER[b.status]);
+  const passed = checks.length - blocks.length - warns.length;
+
+  const summary =
+    blocks.length > 0
+      ? `${blocks.length} ${blocks.length === 1 ? "issue" : "issues"} Amazon is likely to reject. Fix ${blocks.length === 1 ? "it" : "them"} here, or export anyway.`
+      : warns.length > 0
+        ? `Ready for KDP. ${warns.length} ${warns.length === 1 ? "suggestion" : "suggestions"} worth a look first.`
+        : "Everything KDP checks for is in place.";
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto min-h-0 px-6 py-5 space-y-4">
-        <p className="text-xs text-gray-500 dark:text-[var(--clay-muted)] uppercase tracking-wider font-semibold">
-          Amazon KDP pre-flight
-        </p>
+      <div className={styles.preflightBody}>
+        <p className={styles.micro}>Amazon KDP pre-flight</p>
+        <p className={styles.preflightSummary}>{summary}</p>
 
-        <ul className="space-y-2.5">
-          {checks.map((check) => (
-            <li key={check.id} className="flex items-start gap-2.5">
-              <StatusDot status={check.status} />
-              <div className="flex-1 min-w-0">
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  {check.label}
-                </span>
-                <p className="text-xs text-gray-500 dark:text-[var(--clay-muted)] leading-relaxed mt-1">
-                  {check.message}
-                </p>
-              </div>
+        <ul className={styles.checks}>
+          {sorted.map((check) => (
+            <li key={check.id} className={styles.preflightCheck}>
+              <span
+                className={`${styles.checkIcon} ${
+                  check.status === "pass"
+                    ? styles.ok
+                    : check.status === "warn"
+                      ? styles.warn
+                      : styles.block
+                }`}
+                aria-label={
+                  check.status === "pass"
+                    ? "Passed"
+                    : check.status === "warn"
+                      ? "Suggestion"
+                      : "Issue"
+                }
+              >
+                {check.status === "pass" ? "✓" : "!"}
+              </span>
+              <span className={styles.preflightText}>
+                <span className={styles.preflightLabel}>{check.label}</span>
+                <span className={styles.checkSub}>{check.message}</span>
+                {check.status !== "pass" && (
+                  <Fix
+                    check={check}
+                    input={input}
+                    fixes={fixes}
+                    onClose={onClose}
+                  />
+                )}
+              </span>
             </li>
           ))}
         </ul>
-
-        {blocks.length > 0 && (
-          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40">
-            <p className="text-xs font-medium text-red-700 dark:text-red-400">
-              {blocks.length} likely {blocks.length === 1 ? "issue" : "issues"}{" "}
-              for Amazon KDP. You can still export, but the book may be rejected
-              or delisted until fixed.
-            </p>
-          </div>
-        )}
-
-        {allClear && warns.length > 0 && (
-          <div className="p-3 rounded-xl bg-gray-50 dark:bg-[var(--ink-panel)] border border-gray-200 dark:border-[var(--ink-hover)]">
-            <p className="text-xs text-gray-600 dark:text-[var(--clay-muted)]">
-              {warns.length}{" "}
-              {warns.length === 1 ? "recommendation" : "recommendations"} worth
-              addressing before publishing.
-            </p>
-          </div>
-        )}
-
-        {allClear && warns.length === 0 && (
-          <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40">
-            <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-              All checks pass. Your book is ready to export.
-            </p>
-          </div>
-        )}
       </div>
 
-      <div className="px-6 py-4 border-t border-gray-200 dark:border-[var(--rule)] flex items-center justify-end gap-3">
-        <button
-          onClick={onClose}
-          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-[var(--clay)] hover:text-gray-900 dark:hover:text-white transition-colors"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => {
-            onDownload();
-            onClose();
-          }}
-          className="px-5 py-2.5 text-sm font-semibold bg-action-primary-500 dark:bg-action-primary-dark text-white rounded-full hover:bg-action-primary-600 dark:hover:bg-orange-400 transition-colors"
-        >
-          {buttonLabel}
-        </button>
+      <div className={styles.paneFoot}>
+        <span>
+          {passed} of {checks.length} passed
+        </span>
+        <span className={styles.pasteActions}>
+          <button type="button" className={styles.quiet} onClick={onClose}>
+            Keep editing
+          </button>
+          <button
+            type="button"
+            className={blocks.length > 0 ? styles.btn : styles.acid}
+            onClick={() => {
+              onDownload();
+              onClose();
+            }}
+          >
+            {blocks.length > 0 ? "Export anyway" : `Export ${formatLabel}`}
+          </button>
+        </span>
       </div>
     </>
   );
@@ -195,65 +322,46 @@ function FreeBody({
 }) {
   return (
     <>
-      <div className="px-6 py-5 space-y-4">
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-[var(--ink-panel)] border border-gray-200 dark:border-[var(--ink-hover)]">
-          <svg
-            className="w-5 h-5 text-gray-400 dark:text-[var(--clay-muted)] flex-shrink-0 mt-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.8}
+      <div className={styles.preflightBody}>
+        <p className={styles.preflightSummary}>
+          Your {formatLabel} is built on this device and downloads straight
+          away.
+        </p>
+        <p className={styles.checkSub}>
+          Pro adds a KDP pre-flight check before export: word count, title,
+          author, cover and metadata, each fixable right here.{" "}
+          <button
+            type="button"
+            className={styles.inlineLink}
+            onClick={() => {
+              track("upgrade_clicked", { source: "preflight_export" });
+              onUpgrade();
+              onClose();
+            }}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2 text-balance">
-              Pre-flight check skipped
-            </p>
-            <p className="text-xs text-gray-500 dark:text-[var(--clay-muted)] leading-relaxed text-pretty">
-              Amazon delists books that fail KDP requirements. Pro shows a
-              pre-flight check for word count, title, and metadata before you
-              export. You can still export without it.
-            </p>
-          </div>
-        </div>
+            See Pro
+          </button>
+        </p>
       </div>
 
-      <div className="px-6 py-4 border-t border-gray-200 dark:border-[var(--rule)] flex items-center justify-between gap-3">
-        <button
-          onClick={() => {
-            onDownload();
-            onClose();
-          }}
-          className="text-sm font-medium text-gray-600 dark:text-[var(--clay-muted)] hover:text-gray-900 dark:hover:text-white transition-colors"
-        >
-          Download {formatLabel} anyway
-        </button>
-        <button
-          onClick={() => {
-            track("upgrade_clicked", { source: "preflight_export" });
-            onUpgrade();
-            onClose();
-          }}
-          className="px-5 py-2.5 text-sm font-semibold bg-action-primary-500 dark:bg-action-primary-dark text-white rounded-full hover:bg-action-primary-600 dark:hover:bg-orange-400 transition-colors"
-        >
-          Upgrade to Pro
-        </button>
+      <div className={styles.paneFoot}>
+        <span />
+        <span className={styles.pasteActions}>
+          <button type="button" className={styles.quiet} onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            className={styles.acid}
+            onClick={() => {
+              onDownload();
+              onClose();
+            }}
+          >
+            Export {formatLabel}
+          </button>
+        </span>
       </div>
     </>
   );
-}
-
-function StatusDot({ status }: { status: "pass" | "warn" | "block" }) {
-  const tone =
-    status === "warn"
-      ? "bg-amber-500"
-      : status === "block"
-        ? "bg-red-500"
-        : "bg-emerald-500";
-  return <span className={`mt-2 w-2 h-2 rounded-full flex-shrink-0 ${tone}`} />;
 }

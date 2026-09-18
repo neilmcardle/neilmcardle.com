@@ -67,15 +67,17 @@ export function UserDropdownMobile() {
           sideOffset={8}
           className="w-56 z-[200]"
         >
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">Account</p>
-              <p className="text-xs leading-none text-muted-foreground">
+          <DropdownMenuLabel className="font-normal pt-2 pb-2">
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center">
+                <SubscriptionBadge />
+              </div>
+              <p
+                className="text-125 font-medium leading-snug normal-case tracking-normal break-all text-[var(--paper)]"
+                title={user.email || undefined}
+              >
                 {user.email}
               </p>
-            </div>
-            <div className="mt-3">
-              <SubscriptionBadge />
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
@@ -93,14 +95,13 @@ export function UserDropdownMobile() {
           )}
           {!showUpgradeRow && (
             <>
-              <div className="px-2 py-2">
+              <div className="px-2 py-2 empty:hidden">
                 <ManageBillingButton
                   variant="ghost"
                   size="sm"
                   className="w-full justify-start"
                 />
               </div>
-              <DropdownMenuSeparator />
             </>
           )}
           <DropdownMenuSeparator />
