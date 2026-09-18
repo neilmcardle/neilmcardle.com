@@ -1826,11 +1826,13 @@ function MakeEbookPage() {
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth={1.7}
+                    strokeWidth={1.6}
                     strokeLinecap="round"
+                    strokeLinejoin="round"
                     aria-hidden="true"
                   >
-                    <path d="M4 7h16M4 12h10M4 17h16" />
+                    <rect x="3" y="4" width="18" height="16" rx="3" />
+                    <path d="M9 4v16" />
                   </svg>
                 </button>
 
