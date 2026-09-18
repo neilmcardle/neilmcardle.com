@@ -10,6 +10,8 @@ import {
 } from "../utils/preflightChecks";
 import { LANGUAGES } from "../utils/constants";
 import styles from "../styles/studio.module.css";
+import GenrePicker from "./GenrePicker";
+import GenerateCoverModal from "./sidebar/GenerateCoverModal";
 
 export type ExportFormat = "epub" | "pdf" | "docx";
 
@@ -19,8 +21,13 @@ export interface PreflightFixes {
   setGenre: (value: string) => void;
   setLanguage: (value: string) => void;
   onCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  setCover: (dataUrl: string) => void;
   onShowChapters: () => void;
+  onShowField: (field: BookField) => void;
 }
+
+export type BookField =
+  "title" | "author" | "genre" | "language" | "cover-image";
 
 interface PreflightExportDialogProps {
   open: boolean;
@@ -114,6 +121,7 @@ function Fix({
   fixes: PreflightFixes;
   onClose: () => void;
 }) {
+  const [generating, setGenerating] = useState(false);
   const [draft, setDraft] = useState(() => {
     if (check.id === "title") {
       const t = input.title?.trim() ?? "";
@@ -124,68 +132,133 @@ function Fix({
         : t;
     }
     if (check.id === "author") return input.author ?? "";
-    if (check.id === "genre") return input.genre ?? "";
     return "";
   });
 
-  if (check.id === "title" || check.id === "author" || check.id === "genre") {
-    const setter =
-      check.id === "title"
-        ? fixes.setTitle
-        : check.id === "author"
-          ? fixes.setAuthor
-          : fixes.setGenre;
+  const field: BookField | null =
+    check.id === "title" ||
+    check.id === "author" ||
+    check.id === "genre" ||
+    check.id === "language"
+      ? check.id
+      : check.id === "cover"
+        ? "cover-image"
+        : null;
+  const link = field ? (
+    <button
+      type="button"
+      className={styles.fixLink}
+      onClick={() => {
+        onClose();
+        fixes.onShowField(field);
+      }}
+    >
+      Edit in Book details
+    </button>
+  ) : null;
+
+  if (check.id === "genre") {
+    return (
+      <>
+        <div className={styles.fixField}>
+          <GenrePicker
+            value={input.genre ?? ""}
+            onChange={fixes.setGenre}
+            className={styles.fixInput}
+          />
+        </div>
+        {link}
+      </>
+    );
+  }
+
+  if (check.id === "title" || check.id === "author") {
+    const setter = check.id === "title" ? fixes.setTitle : fixes.setAuthor;
     const placeholder =
       check.id === "title"
         ? "Your book's title"
-        : check.id === "author"
-          ? "Name as it appears on the cover"
-          : "Literary fiction, thriller, memoir...";
+        : "Name as it appears on the cover";
     return (
-      <input
-        className={styles.fixInput}
-        value={draft}
-        placeholder={placeholder}
-        aria-label={check.label}
-        onChange={(e) => {
-          setDraft(e.target.value);
-          setter(e.target.value);
-        }}
-      />
+      <>
+        <input
+          className={styles.fixInput}
+          value={draft}
+          placeholder={placeholder}
+          aria-label={check.label}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            setter(e.target.value);
+          }}
+        />
+        {link}
+      </>
     );
   }
 
   if (check.id === "language") {
     return (
-      <select
-        className={styles.fixInput}
-        aria-label="Language"
-        defaultValue=""
-        onChange={(e) => fixes.setLanguage(e.target.value)}
-      >
-        <option value="" disabled>
-          Choose a language
-        </option>
-        {LANGUAGES.map((l) => (
-          <option key={l} value={l}>
-            {l}
+      <>
+        <select
+          className={styles.fixInput}
+          aria-label="Language"
+          defaultValue=""
+          onChange={(e) => fixes.setLanguage(e.target.value)}
+        >
+          <option value="" disabled>
+            Choose a language
           </option>
-        ))}
-      </select>
+          {LANGUAGES.map((l) => (
+            <option key={l} value={l}>
+              {l}
+            </option>
+          ))}
+        </select>
+        {link}
+      </>
     );
   }
 
   if (check.id === "cover") {
+    const ready = !!input.title?.trim() && !!input.author?.trim();
     return (
-      <label className={styles.fixButton}>
-        Add a cover
-        <input
-          type="file"
-          accept="image/*"
-          className="sr-only"
-          onChange={fixes.onCoverChange}
+      <>
+        <span className={styles.fixRow}>
+          <button
+            type="button"
+            className={styles.fixButton}
+            disabled={!ready}
+            onClick={() => setGenerating(true)}
+          >
+            Generate a cover
+          </button>
+          <label className={styles.fixButton}>
+            Upload an image
+            <input
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={fixes.onCoverChange}
+            />
+          </label>
+        </span>
+        {!ready && (
+          <p className={styles.fixNote}>
+            Add a title and author first, and a cover can be made from them.
+          </p>
+        )}
+        {link}
+        <GenerateCoverModal
+          open={generating}
+          onClose={() => setGenerating(false)}
+          title={input.title ?? ""}
+          author={input.author ?? ""}
+          genre={input.genre}
+          onAccept={(dataUrl) => {
+            fixes.setCover(dataUrl);
+            setGenerating(false);
+          }}
         />
-      </label>
+      </>
     );
   }
 
@@ -231,7 +304,17 @@ function ProBody({
   onClose: () => void;
 }) {
   const { checks, blocks, warns } = result;
-  const sorted = [...checks].sort((a, b) => ORDER[a.status] - ORDER[b.status]);
+  const [openedWith] = useState(() => ({
+    order: [...checks]
+      .sort((a, b) => ORDER[a.status] - ORDER[b.status])
+      .map((c) => c.id),
+    issues: new Set(checks.filter((c) => c.status !== "pass").map((c) => c.id)),
+  }));
+  const rank = (id: string) => {
+    const i = openedWith.order.indexOf(id);
+    return i < 0 ? openedWith.order.length : i;
+  };
+  const sorted = [...checks].sort((a, b) => rank(a.id) - rank(b.id));
   const passed = checks.length - blocks.length - warns.length;
 
   const summary =
@@ -271,7 +354,7 @@ function ProBody({
               <span className={styles.preflightText}>
                 <span className={styles.preflightLabel}>{check.label}</span>
                 <span className={styles.checkSub}>{check.message}</span>
-                {check.status !== "pass" && (
+                {openedWith.issues.has(check.id) && (
                   <Fix
                     check={check}
                     input={input}

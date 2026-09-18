@@ -1614,6 +1614,7 @@ function MakeEbookPage() {
                     setCoverFile={setCoverUrl}
                     lockedSections={lockedSections}
                     compact
+                    idPrefix="mbd"
                   />
                 </DrawerSection>
 
@@ -2251,6 +2252,37 @@ function MakeEbookPage() {
           setGenre,
           setLanguage,
           onCoverChange: handleCoverChange,
+          setCover: setCoverUrl,
+          onShowField: (field) => {
+            const mobile = window.innerWidth < 1024;
+            if (mobile) {
+              setSidebarLibraryExpanded(false);
+              setSidebarChaptersExpanded(false);
+              setSidebarBookDetailsExpanded(true);
+              setMobileSidebarOpen(true);
+            } else {
+              setSidebarView("book");
+            }
+            window.setTimeout(() => {
+              const el = document.getElementById(
+                `${mobile ? "mbd" : "bd"}-${field}`,
+              );
+              if (!el) return;
+              const target =
+                field === "cover-image"
+                  ? ((el.previousElementSibling as HTMLElement | null) ?? el)
+                  : el;
+              target.scrollIntoView({ block: "center", behavior: "smooth" });
+              if (field !== "cover-image") el.focus({ preventScroll: true });
+              target.animate(
+                [
+                  { boxShadow: "0 0 0 2px var(--acid)" },
+                  { boxShadow: "0 0 0 2px transparent" },
+                ],
+                { duration: 1800, easing: "ease-out" },
+              );
+            }, 450);
+          },
           onShowChapters: () => {
             if (window.innerWidth < 1024) setChaptersSheetOpen(true);
             else setSidebarView("chapters");

@@ -1,11 +1,47 @@
 export const LANGUAGES = [
-  "English", "Spanish", "French", "German", "Italian", "Portuguese", "Dutch",
-  "Russian", "Chinese", "Japanese", "Korean", "Arabic", "Hindi", "Other"
-];
-
-export const GENRES = [
-  "Fiction", "Nonfiction", "Fantasy", "Science Fiction", "Mystery", "Thriller", "Romance",
-  "Horror", "Biography", "Self-help", "History", "Children's", "Young Adult", "Other"
+  "English",
+  "Spanish",
+  "French",
+  "German",
+  "Italian",
+  "Portuguese",
+  "Dutch",
+  "Russian",
+  "Chinese",
+  "Japanese",
+  "Korean",
+  "Arabic",
+  "Hindi",
+  "Other",
 ];
 
 export const today = new Date().toISOString().slice(0, 10);
+export const GENRES: Record<"Fiction" | "Nonfiction", string[]> = {
+  Fiction: [
+    "Literary fiction",
+    "Romance",
+    "Mystery",
+    "Thriller",
+    "Fantasy",
+    "Science fiction",
+    "Horror",
+    "Historical fiction",
+    "Young adult",
+    "Children's",
+    "Short stories",
+    "Novella",
+    "Poetry",
+  ],
+  Nonfiction: [
+    "Memoir",
+    "Biography",
+    "Self-help",
+    "Business",
+    "History",
+    "Health and wellness",
+    "Cookbook",
+    "Travel",
+    "Religion and spirituality",
+    "Education",
+  ],
+};

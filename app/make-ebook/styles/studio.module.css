@@ -2558,3 +2558,41 @@
     font-size: 16px;
   }
 }
+
+.fixField {
+  margin-top: 8px;
+}
+
+.fixField .fixInput {
+  margin-top: 0;
+}
+
+.fixRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fixLink {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  color: var(--clay-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.fixLink:hover {
+  color: var(--paper);
+}
+
+.fixLink:focus-visible {
+  outline: 2px solid var(--acid);
+  outline-offset: 2px;
+  border-radius: 3px;
+}

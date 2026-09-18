@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { PlusIcon } from "../icons";
 import GenerateCoverModal from "./GenerateCoverModal";
 import styles from "../../styles/studio.module.css";
+import GenrePicker from "../GenrePicker";
 
 interface BookDetailsPanelProps {
   title: string;
@@ -37,6 +38,7 @@ interface BookDetailsPanelProps {
     cover: boolean;
   };
   compact?: boolean;
+  idPrefix?: string;
 }
 
 const LANGUAGES = [
@@ -79,6 +81,7 @@ export default function BookDetailsPanel({
   setCoverFile,
   lockedSections,
   compact = false,
+  idPrefix = "bd",
 }: BookDetailsPanelProps) {
   const [generateOpen, setGenerateOpen] = useState(false);
   return (
@@ -92,7 +95,7 @@ export default function BookDetailsPanel({
       <div className="space-y-4 px-1 py-1">
         <div>
           <label
-            htmlFor="bd-cover-image"
+            htmlFor={`${idPrefix}-cover-image`}
             className="block text-11 font-medium text-gray-600 dark:text-[var(--clay-muted)] mb-2"
           >
             Cover Image
@@ -113,7 +116,7 @@ export default function BookDetailsPanel({
             )}
           </div>
           <input
-            id="bd-cover-image"
+            id={`${idPrefix}-cover-image`}
             type="file"
             accept="image/*"
             onChange={handleCoverChange}
@@ -148,13 +151,13 @@ export default function BookDetailsPanel({
 
         <div>
           <label
-            htmlFor="bd-title"
+            htmlFor={`${idPrefix}-title`}
             className="block text-xs font-medium text-gray-700 dark:text-[var(--clay-muted)] mb-2"
           >
             Title
           </label>
           <input
-            id="bd-title"
+            id={`${idPrefix}-title`}
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -166,13 +169,13 @@ export default function BookDetailsPanel({
 
         <div>
           <label
-            htmlFor="bd-author"
+            htmlFor={`${idPrefix}-author`}
             className="block text-xs font-medium text-gray-700 dark:text-[var(--clay-muted)] mb-2"
           >
             Author
           </label>
           <input
-            id="bd-author"
+            id={`${idPrefix}-author`}
             type="text"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
@@ -184,13 +187,13 @@ export default function BookDetailsPanel({
 
         <div>
           <label
-            htmlFor="bd-description"
+            htmlFor={`${idPrefix}-description`}
             className="block text-xs font-medium text-gray-700 dark:text-[var(--clay-muted)] mb-2"
           >
             Description
           </label>
           <textarea
-            id="bd-description"
+            id={`${idPrefix}-description`}
             value={blurb}
             onChange={(e) => setBlurb(e.target.value)}
             disabled={lockedSections.bookInfo}
@@ -202,13 +205,13 @@ export default function BookDetailsPanel({
 
         <div>
           <label
-            htmlFor="bd-publisher"
+            htmlFor={`${idPrefix}-publisher`}
             className="block text-xs font-medium text-gray-700 dark:text-[var(--clay-muted)] mb-2"
           >
             Publisher
           </label>
           <input
-            id="bd-publisher"
+            id={`${idPrefix}-publisher`}
             type="text"
             value={publisher}
             onChange={(e) => setPublisher(e.target.value)}
@@ -220,13 +223,13 @@ export default function BookDetailsPanel({
 
         <div>
           <label
-            htmlFor="bd-publication-date"
+            htmlFor={`${idPrefix}-publication-date`}
             className="block text-xs font-medium text-gray-700 dark:text-[var(--clay-muted)] mb-2"
           >
             Publication Date
           </label>
           <input
-            id="bd-publication-date"
+            id={`${idPrefix}-publication-date`}
             type="date"
             value={pubDate}
             onChange={(e) => setPubDate(e.target.value)}
@@ -237,13 +240,13 @@ export default function BookDetailsPanel({
 
         <div>
           <label
-            htmlFor="bd-language"
+            htmlFor={`${idPrefix}-language`}
             className="block text-xs font-medium text-gray-700 dark:text-[var(--clay-muted)] mb-2"
           >
             Language
           </label>
           <select
-            id="bd-language"
+            id={`${idPrefix}-language`}
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
             disabled={lockedSections.bookInfo}
@@ -259,31 +262,29 @@ export default function BookDetailsPanel({
 
         <div>
           <label
-            htmlFor="bd-genre"
+            htmlFor={`${idPrefix}-genre`}
             className="block text-xs font-medium text-gray-700 dark:text-[var(--clay-muted)] mb-2"
           >
             Genre
           </label>
-          <input
-            id="bd-genre"
-            type="text"
+          <GenrePicker
+            id={`${idPrefix}-genre`}
             value={genre}
-            onChange={(e) => setGenre(e.target.value)}
+            onChange={setGenre}
             disabled={lockedSections.bookInfo}
-            className="w-full px-3 py-2 text-12 rounded-card bg-white dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-[var(--rule)] focus:border-gray-400 dark:focus:border-[var(--ink-hover)] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-[var(--paper)] placeholder-gray-400 dark:placeholder-[var(--clay-muted)]"
-            placeholder="e.g. Fiction, Mystery"
+            className="w-full px-3 py-2 text-12 rounded-card bg-[var(--ink-raised)] border border-[var(--rule)] focus:border-[var(--ink-hover)] outline-none disabled:opacity-50 disabled:cursor-not-allowed text-[var(--paper)] placeholder-[var(--clay-muted)]"
           />
         </div>
 
         <div>
           <label
-            htmlFor="bd-isbn"
+            htmlFor={`${idPrefix}-isbn`}
             className="block text-xs font-medium text-gray-700 dark:text-[var(--clay-muted)] mb-2"
           >
             ISBN (optional)
           </label>
           <input
-            id="bd-isbn"
+            id={`${idPrefix}-isbn`}
             type="text"
             value={isbn}
             onChange={(e) => setIsbn(e.target.value)}
@@ -307,14 +308,14 @@ export default function BookDetailsPanel({
 
         <div>
           <label
-            htmlFor="bd-tags"
+            htmlFor={`${idPrefix}-tags`}
             className="block text-xs font-medium text-gray-700 dark:text-[var(--clay-muted)] mb-2"
           >
             Tags
           </label>
           <div className="flex gap-2 mb-2">
             <input
-              id="bd-tags"
+              id={`${idPrefix}-tags`}
               type="text"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
