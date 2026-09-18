@@ -1544,7 +1544,7 @@
   flex: 1;
   min-height: 0;
   flex-direction: column;
-  padding: 20px 24px 20px;
+  padding: 20px 24px 14px;
   background: var(--ink);
 }
 
@@ -1606,6 +1606,18 @@
     font-size: 16px;
     line-height: 1.7;
   }
+}
+
+.panelFoot {
+  flex: none;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.panelFoot .canvasFoot {
+  padding: 12px 4px 0;
+  border-top: 0;
 }
 
 .footLeft {
@@ -2639,7 +2651,7 @@
   letter-spacing: 0.02em;
   white-space: nowrap;
   color: var(--clay-muted);
-  opacity: 0.5;
+  opacity: 0.22;
   -webkit-mask-image: linear-gradient(90deg, #000 72%, transparent);
   mask-image: linear-gradient(90deg, #000 72%, transparent);
   transition:
@@ -2647,15 +2659,38 @@
     color 180ms var(--ease);
 }
 
-.indexItem:hover .indexLabel {
+.indexItemCurrent .indexLabel {
+  opacity: 0.55;
+  color: var(--paper);
+}
+
+.indexProgress {
+  opacity: 0.4;
+  transition: opacity 180ms var(--ease);
+}
+
+.chapterIndex:hover .indexLabel,
+.chapterIndex:focus-within .indexLabel {
+  opacity: 0.6;
+}
+
+.chapterIndex:hover .indexItemCurrent .indexLabel,
+.chapterIndex:focus-within .indexItemCurrent .indexLabel,
+.chapterIndex .indexItem:hover .indexLabel {
   opacity: 1;
+}
+
+.chapterIndex .indexItem:hover .indexLabel {
   color: var(--clay);
 }
 
-.indexItemCurrent .indexLabel,
-.indexItemCurrent:hover .indexLabel {
-  opacity: 1;
+.chapterIndex .indexItemCurrent .indexLabel {
   color: var(--paper);
+}
+
+.chapterIndex:hover .indexProgress,
+.chapterIndex:focus-within .indexProgress {
+  opacity: 1;
 }
 
 .indexProgress {

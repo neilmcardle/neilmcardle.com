@@ -30,6 +30,7 @@ interface ChapterPanelProps {
   }) => void;
   onComposeRequest?: (args: { range: Range; rect: DOMRect }) => void;
   starters?: { onUpload: () => void; onLibrary: () => void };
+  footer?: React.ReactNode;
 }
 
 const STARTER_ICONS = {
@@ -73,6 +74,7 @@ export default function ChapterPanel({
   onInlineEditRequest,
   onComposeRequest,
   starters,
+  footer,
 }: ChapterPanelProps) {
   return (
     <div className={styles.editorCanvas}>
@@ -144,6 +146,7 @@ export default function ChapterPanel({
           </div>
         )}
       </div>
+      {footer && <div className={styles.panelFoot}>{footer}</div>}
     </div>
   );
 }

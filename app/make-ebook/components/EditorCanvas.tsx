@@ -157,9 +157,8 @@ export default function EditorCanvas({
             onInlineEditRequest={onInlineEditRequest}
             onComposeRequest={onComposeRequest}
             starters={starters}
+            footer={footer}
           />
-
-          {footer}
         </div>
       </div>
     </>
