@@ -5,6 +5,8 @@ import { useBookMind, type ChatSession } from "../hooks/useBookMind";
 import BookMindMark from "./bookmind/BookMindMark";
 import BookMindChat from "./bookmind/BookMindChat";
 import type { Chapter as BookChapter } from "../types";
+import { loadBookById } from "../utils/bookLibrary";
+import { addRule, getMemory, removeRule } from "../utils/bookmindMemory";
 import styles from "../styles/studio.module.css";
 
 interface FloatingBookMindWindowProps {
@@ -86,18 +88,88 @@ function groupOf(ts: number) {
   return "Older";
 }
 
+function MemoryList({ userId, bookId }: { userId: string; bookId: string }) {
+  const read = () => getMemory(loadBookById(userId, bookId)).rules;
+  const [notes, setNotes] = useState<string[]>(read);
+  const [draft, setDraft] = useState("");
+
+  const add = () => {
+    const text = draft.trim();
+    if (!text) return;
+    addRule(userId, bookId, text);
+    setDraft("");
+    setNotes(read());
+  };
+
+  return (
+    <div className={styles.bmListGroup}>
+      <p className={styles.bmListLabel}>Memory</p>
+      <p className={styles.bmMemoryHint}>
+        Book Mind keeps these in mind for every answer on this book.
+      </p>
+      {notes.map((note) => (
+        <div key={note} className={styles.bmListRow}>
+          <p className={styles.bmMemoryNote}>{note}</p>
+          <button
+            type="button"
+            className={styles.bmListDelete}
+            aria-label={`Forget: ${note}`}
+            onClick={() => {
+              removeRule(userId, bookId, note);
+              setNotes(read());
+            }}
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.7}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d={PATHS.close} />
+            </svg>
+          </button>
+        </div>
+      ))}
+      <form
+        className={styles.bmMemoryAdd}
+        onSubmit={(e) => {
+          e.preventDefault();
+          add();
+        }}
+      >
+        <input
+          className={styles.bmNoteInput}
+          value={draft}
+          placeholder="Add a note"
+          aria-label="Add a note for Book Mind"
+          onChange={(e) => setDraft(e.target.value)}
+        />
+      </form>
+    </div>
+  );
+}
+
 function ChatList({
   sessions,
   currentId,
   onPick,
   onNew,
   onDelete,
+  userId,
+  bookId,
 }: {
   sessions: ChatSession[];
   currentId: string | null;
   onPick: (id: string) => void;
   onNew: () => void;
   onDelete: (id: string) => void;
+  userId?: string;
+  bookId?: string;
 }) {
   const sorted = [...sessions]
     .filter((s) => s.messages.length > 0 || s.id === currentId)
@@ -173,6 +245,7 @@ function ChatList({
           </div>
         ))
       )}
+      {userId && bookId && <MemoryList userId={userId} bookId={bookId} />}
     </div>
   );
 }
@@ -313,6 +386,8 @@ export default function FloatingBookMindWindow({
               }}
               onNew={newChat}
               onDelete={mind.deleteSession}
+              userId={isPro ? userId : undefined}
+              bookId={bookId}
             />
           </>
         )}
