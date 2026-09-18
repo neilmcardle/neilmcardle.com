@@ -6,6 +6,7 @@ const config = [
     ignores: [
       ".next/**",
       ".claude/**",
+      "video/**",
       "out/**",
       "build/**",
       "**/dist/**",

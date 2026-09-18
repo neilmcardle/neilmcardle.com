@@ -38,6 +38,7 @@
     "tessera-app",
     ".next",
     "out",
-    "ios"
+    "ios",
+    "video"
   ]
 }
