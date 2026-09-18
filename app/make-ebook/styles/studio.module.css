@@ -2702,13 +2702,13 @@
   right: 18px;
   bottom: 2px;
   height: 1px;
-  background: rgba(243, 239, 229, 0.14);
+  background: color-mix(in srgb, var(--acid) 22%, transparent);
 }
 
 .indexProgress span {
   display: block;
   height: 100%;
-  background: var(--paper);
+  background: color-mix(in srgb, var(--acid) 70%, transparent);
   transform-origin: left;
   transition: transform 120ms linear;
 }
