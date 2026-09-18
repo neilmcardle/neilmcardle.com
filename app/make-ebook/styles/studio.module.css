@@ -3631,15 +3631,13 @@ button:focus-visible > .avatar {
 }
 
 .bmSuggest {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   width: 100%;
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid rgba(243, 239, 229, 0.07);
-}
-
-.bmSuggest li {
-  border-bottom: 1px solid rgba(243, 239, 229, 0.07);
 }
 
 .bmSuggest button {
@@ -3648,8 +3646,8 @@ button:focus-visible > .avatar {
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 6px;
-  border-radius: 8px;
+  padding: 11px 12px;
+  border-radius: 10px;
   font-size: 13.5px;
   color: var(--paper);
   text-align: left;
