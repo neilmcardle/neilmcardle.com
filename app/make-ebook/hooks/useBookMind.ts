@@ -42,6 +42,7 @@ export interface BookMindMessage {
     tier?: ContextTier;
     deep?: boolean;
     model?: string;
+    read?: string[];
   };
 }
 
@@ -75,6 +76,14 @@ export interface SendMessageOpts {
   action?: BookMindAction;
 
   deep?: boolean;
+  chapterIds?: string[];
+  replaceFrom?: string;
+}
+
+export interface BookMindActivity {
+  read: string[];
+  deep: boolean;
+  startedAt: number;
 }
 
 const ACTION_PROMPTS: Record<BookMindAction, string> = {
@@ -145,6 +154,8 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [activity, setActivity] = useState<BookMindActivity | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -337,6 +348,23 @@ export function useBookMind(options: UseBookMindOptions = {}) {
                 selectedText: opts.selectedText,
               });
 
+        const attached = (opts.chapterIds ?? [])
+          .map((id) => chapters.find((c) => c.id === id))
+          .filter(
+            (c): c is BookChapter =>
+              !!c &&
+              c.id !== ctx.currentChapter?.id &&
+              !ctx.retrievedChapters.some((r) => r.chapter.id === c.id),
+          )
+          .map((chapter) => ({
+            chapter,
+            reason: "attached by the author",
+            score: 1,
+          }));
+        if (attached.length > 0) {
+          ctx.retrievedChapters = [...ctx.retrievedChapters, ...attached];
+        }
+
         return { ctx, tier, chapters };
       }
     }
@@ -394,7 +422,11 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         timestamp: Date.now(),
         action,
       };
-      const updatedMessages = [...messages, userMsg];
+      const cut = opts.replaceFrom
+        ? messages.findIndex((m) => m.id === opts.replaceFrom)
+        : -1;
+      const base = cut >= 0 ? messages.slice(0, cut) : messages;
+      const updatedMessages = [...base, userMsg];
       setMessages(updatedMessages);
 
       try {
@@ -403,7 +435,19 @@ export function useBookMind(options: UseBookMindOptions = {}) {
           prompt = ACTION_PROMPTS[action];
         }
 
-        const { ctx, tier } = resolveContext(prompt, opts, legacy);
+        const {
+          ctx,
+          tier,
+          chapters: bookChapters,
+        } = resolveContext(prompt, opts, legacy);
+        const labelOf = (c: BookChapter) => {
+          const i = bookChapters.findIndex((b) => b.id === c.id);
+          return c.title?.trim() || `Chapter ${i + 1}`;
+        };
+        const read = [
+          ...(ctx.currentChapter ? [ctx.currentChapter] : []),
+          ...ctx.retrievedChapters.map((r) => r.chapter),
+        ].map(labelOf);
 
         let memoryBlock = "";
         if (bookId && userId) {
@@ -417,6 +461,18 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         const deep =
           opts.deep ?? (action ? ANALYTICAL_ACTIONS.includes(action) : false);
 
+        setActivity({ read, deep, startedAt: Date.now() });
+
+        const recent = base
+          .slice(-10)
+          .filter((m) => m.content.trim())
+          .map((m) => ({
+            role: m.role === "assistant" ? "assistant" : "user",
+            content: m.content,
+          }));
+        const firstUser = recent.findIndex((m) => m.role === "user");
+        const history = firstUser >= 0 ? recent.slice(firstUser) : [];
+
         const controller = new AbortController();
         abortRef.current = controller;
 
@@ -428,13 +484,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
             voice: VOICE_BLOCK,
             memory: memoryBlock || undefined,
             context: contextBlock,
-            messages: [
-              ...updatedMessages.slice(-10).map((m) => ({
-                role: m.role === "assistant" ? "assistant" : "user",
-                content: m.content,
-              })),
-              { role: "user" as const, content: prompt },
-            ],
+            messages: [...history, { role: "user" as const, content: prompt }],
             tier,
             deep,
           }),
@@ -455,9 +505,12 @@ export function useBookMind(options: UseBookMindOptions = {}) {
           content: "",
           timestamp: Date.now(),
           action,
+          meta: { read, deep },
         };
         setMessages([...updatedMessages, assistantMsg]);
         setIsLoading(false);
+        setActivity(null);
+        setIsStreaming(true);
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -479,7 +532,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
               const parsed = JSON.parse(data);
               if (parsed.error) throw new Error(parsed.error);
               if (parsed.meta) {
-                messageMeta = parsed.meta;
+                messageMeta = { ...parsed.meta, read, deep };
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === assistantMsgId ? { ...m, meta: messageMeta } : m,
@@ -510,13 +563,27 @@ export function useBookMind(options: UseBookMindOptions = {}) {
 
         const finalMessages = [
           ...updatedMessages,
-          { ...assistantMsg, content: fullContent, meta: messageMeta },
+          {
+            ...assistantMsg,
+            content: fullContent,
+            meta: messageMeta ?? assistantMsg.meta,
+          },
         ];
+        setIsStreaming(false);
         updateCurrentSession(finalMessages);
         return fullContent;
       } catch (err) {
+        setActivity(null);
+        setIsStreaming(false);
         if (err instanceof DOMException && err.name === "AbortError") {
           setIsLoading(false);
+          setMessages((prev) => {
+            const kept = prev.filter(
+              (m) => m.role !== "assistant" || m.content.trim(),
+            );
+            updateCurrentSession(kept);
+            return kept;
+          });
           return null;
         }
 
@@ -579,6 +646,8 @@ export function useBookMind(options: UseBookMindOptions = {}) {
       abortRef.current = null;
     }
     setIsLoading(false);
+    setIsStreaming(false);
+    setActivity(null);
   }, []);
 
   const inlineEdit = useCallback(
@@ -658,6 +727,8 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   return {
     messages,
     isLoading,
+    isStreaming,
+    activity,
     error,
     isOpen,
     setIsOpen,

@@ -47,7 +47,6 @@ import BookDetailsPanel from "./components/sidebar/BookDetailsPanel";
 import DrawerSection from "./components/mobile/DrawerSection";
 import SelectionActionBar from "./components/mobile/SelectionActionBar";
 import SyncConflictBanner from "./components/sidebar/SyncConflictBanner";
-import InspectorPanel from "./components/bookmind/InspectorPanel";
 import FloatingBookMindWindow from "./components/FloatingBookMindWindow";
 import InlineEditPopover, {
   InlineEditRequest,
@@ -83,8 +82,6 @@ import { useOnboarding } from "./hooks/useOnboarding";
 import OnboardingTour from "./components/OnboardingTour";
 import { loadBookLibrary, loadBookById } from "./utils/bookLibrary";
 
-import { ensureAnalyticalCache } from "./utils/analyticalCache";
-import type { AnalyticalKind } from "./utils/bookmindMemory";
 import { ensureBookProfile } from "./utils/bookmindProfile";
 
 import { getContentChapterNumber } from "./utils/pageUtils";
@@ -269,6 +266,8 @@ function MakeEbookPage() {
   const [surfaceMode, setSurfaceMode] = useState<"edit" | "preview">("edit");
 
   const [bookMindOpen, setBookMindOpen] = useState(false);
+  const [bookMindDocked, setBookMindDocked] = useState(false);
+  const [bookMindBusy, setBookMindBusy] = useState(false);
 
   const [selectedEditorText, setSelectedEditorText] = useState<
     string | undefined
@@ -597,35 +596,6 @@ function MakeEbookPage() {
     variant: "alert",
     onConfirm: () => {},
   });
-
-  const handleRefreshAnalytical = useCallback(
-    async (kind: AnalyticalKind) => {
-      if (!currentBookId || !user?.id) return;
-      const book = loadBookById(user.id, currentBookId);
-      if (!book) return;
-      try {
-        await ensureAnalyticalCache({
-          userId: user.id,
-          book: {
-            ...book,
-            bookmindMemory: {
-              ...book.bookmindMemory,
-              rules: book.bookmindMemory?.rules ?? [],
-              characters: book.bookmindMemory?.characters ?? {},
-              decisions: book.bookmindMemory?.decisions ?? [],
-              analytical: {
-                ...book.bookmindMemory?.analytical,
-                [kind]: undefined,
-              },
-            },
-          },
-        });
-      } catch (err) {
-        console.warn("[book-mind] refresh analytical:", kind, err);
-      }
-    },
-    [currentBookId, user?.id],
-  );
 
   const [sidebarLibraryExpanded, setSidebarLibraryExpanded] = useState(true);
   const [sidebarChaptersExpanded, setSidebarChaptersExpanded] = useState(true);
@@ -1392,61 +1362,27 @@ function MakeEbookPage() {
           />
         )}
 
-        {mobileBookMindOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 flex flex-col animate-slide-in-from-bottom bg-white dark:bg-[var(--ink-panel)]">
-            <div className="flex items-center justify-end px-3 py-2 border-b border-gray-200 dark:border-[var(--rule)] flex-shrink-0">
-              <button
-                onClick={() => setMobileBookMindOpen(false)}
-                className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--clay-muted)] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] transition-colors"
-                aria-label="Close Book Mind"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.8}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <InspectorPanel
-                bookId={currentBookId}
-                userId={user?.id}
-                title={title}
-                author={author}
-                genre={genre}
-                chapters={chapters}
-                selectedChapterIndex={selectedChapter}
-                selectedText={selectedEditorText}
-                coverFile={coverUrl}
-                onNavigateToChapter={(idx) => {
-                  setSelectedChapter(idx);
-                  setMobileBookMindOpen(false);
-                }}
-                onRefreshAnalytical={handleRefreshAnalytical}
-                onAddDisclosureChapter={(content: string) => {
-                  const newChapter = {
-                    id: uuidv4(),
-                    title: "AI Disclosure",
-                    content,
-                    type: "backmatter" as const,
-                  };
-                  setChapters((prev) => [...prev, newChapter]);
-                  setSelectedChapter(chapters.length);
-                  toast.success("AI Disclosure chapter added");
-                }}
-                onExport={() => setPreflightFormat("epub")}
-                isPro={isPro}
-                onUpgrade={() => setExportUpgradeOpen(true)}
-              />
-            </div>
-          </div>
-        )}
+        <FloatingBookMindWindow
+          variant="sheet"
+          isOpen={mobileBookMindOpen}
+          onClose={() => setMobileBookMindOpen(false)}
+          chapters={chapters}
+          selectedChapter={selectedChapter}
+          onChapterSelect={(idx) => {
+            setSelectedChapter(idx);
+            setMobileBookMindOpen(false);
+          }}
+          bookId={currentBookId}
+          userId={user?.id}
+          title={title}
+          selectedText={selectedEditorText}
+          onPreflight={() => {
+            setMobileBookMindOpen(false);
+            setPreflightFormat("epub");
+          }}
+          isPro={isPro}
+          onUpgrade={() => setExportUpgradeOpen(true)}
+        />
 
         <div
           className={`fixed top-0 left-0 right-0 bottom-0 z-[100] lg:hidden transition-[visibility] duration-200 ease-out ${
@@ -1687,7 +1623,9 @@ function MakeEbookPage() {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row h-[100dvh] overflow-hidden">
+        <div
+          className={`flex flex-col lg:flex-row h-[100dvh] overflow-hidden transition-[padding] duration-300 ${bookMindDocked ? "lg:pr-[520px]" : ""}`}
+        >
           {!(focus.active && focus.settings.hideChrome) && (
             <EditorLeftNav
               isPanelOpen={isPanelOpen}
@@ -1952,7 +1890,7 @@ function MakeEbookPage() {
                     onComposeRequest={
                       hasBookMind ? handleComposeRequest : undefined
                     }
-                    isBookMindLoading={false}
+                    isBookMindLoading={bookMindBusy}
                     onOpenBookMind={
                       hasBookMind ? () => setBookMindOpen(true) : undefined
                     }
@@ -2049,7 +1987,7 @@ function MakeEbookPage() {
         </>
       )}
 
-      {hasBookMind && bookMindOpen && (
+      {hasBookMind && (
         <FloatingBookMindWindow
           isOpen={bookMindOpen}
           onClose={() => setBookMindOpen(false)}
@@ -2059,25 +1997,12 @@ function MakeEbookPage() {
           bookId={currentBookId}
           userId={user?.id}
           title={title}
-          author={author}
-          genre={genre}
           selectedText={selectedEditorText}
-          coverFile={coverUrl}
-          onRefreshAnalytical={handleRefreshAnalytical}
-          onAddDisclosureChapter={(content: string) => {
-            const newChapter = {
-              id: uuidv4(),
-              title: "AI Disclosure",
-              content,
-              type: "backmatter" as const,
-            };
-            setChapters((prev) => [...prev, newChapter]);
-            setSelectedChapter(chapters.length);
-            toast.success("AI Disclosure chapter added");
-          }}
-          onExport={() => setPreflightFormat("epub")}
+          onPreflight={() => setPreflightFormat("epub")}
           isPro={isPro}
           onUpgrade={() => setExportUpgradeOpen(true)}
+          onExpandedChange={setBookMindDocked}
+          onBusyChange={setBookMindBusy}
         />
       )}
 
