@@ -2749,19 +2749,16 @@
 
 .dock {
   --dock-tile: 32px;
-  --dock-tile-radius: calc(var(--dock-tile) * 10.5 / 63);
   --dock-gap: 8px;
-  --dock-pad: 6px;
-  --dock-item-radius: calc(var(--dock-tile-radius) + var(--dock-gap));
   position: fixed;
   left: 50%;
   z-index: 90;
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: var(--dock-pad);
+  padding: 6px;
   border: 1px solid rgba(243, 239, 229, 0.14);
-  border-radius: calc(var(--dock-item-radius) + var(--dock-pad) + 1px);
+  border-radius: 999px;
   background: rgba(20, 20, 19, 0.62);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
   backdrop-filter: blur(16px) saturate(1.4);
@@ -2775,7 +2772,7 @@
   height: calc(var(--dock-tile) + 2 * var(--dock-gap));
   padding: 0 var(--dock-gap);
   border: 0;
-  border-radius: var(--dock-item-radius);
+  border-radius: 999px;
   background: none;
   color: var(--clay-muted);
   font: inherit;
@@ -2786,13 +2783,13 @@
 }
 
 .dockItem[aria-current="page"] {
-  background: rgba(243, 239, 229, 0.1);
-  color: var(--paper);
+  background: var(--acid);
+  color: var(--ink-deep);
 }
 
 .dockItem:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--acid);
+  outline: 2px solid var(--acid);
+  outline-offset: 2px;
 }
 
 .dockIcon {
