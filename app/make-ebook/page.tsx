@@ -70,6 +70,7 @@ import UpgradeModal from "./components/UpgradeModal";
 import { toast } from "sonner";
 import EditorCanvas from "./components/EditorCanvas";
 import PreviewSurface from "./components/PreviewSurface";
+import ChapterPanel from "./components/ChapterPanel";
 import studio from "./styles/studio.module.css";
 import EditorHeader from "./components/EditorHeader";
 import TrialBanner from "./components/TrialBanner";
@@ -3265,9 +3266,6 @@ function MakeEbookPage() {
                   onPasteManuscript={handlePasteManuscript}
                   onUploadFile={docImport.showImportDialog}
                   onOpenLibrary={() => setMobileSidebarOpen(true)}
-                  libraryBooks={libraryBooks}
-                  libraryLoading={libraryLoading}
-                  onOpenBook={(id) => library.handleLoadBook(id)}
                 />
               ) : surfaceMode === "preview" ? (
                 <PreviewSurface
@@ -3282,91 +3280,16 @@ function MakeEbookPage() {
                     onSelectChapter={handleSelectChapter}
                   />
 
-                  <div
-                    key={chapters[selectedChapter]?.id ?? selectedChapter}
-                    className="me-chapter-in flex-shrink-0 bg-white dark:bg-[var(--ink)] border-none pb-1 px-2"
-                  >
-                    <div className="mt-0">
-                      <div className="flex items-center gap-0 py-1">
-                        <img
-                          alt="Chapter"
-                          loading="lazy"
-                          width="24"
-                          height="24"
-                          decoding="async"
-                          data-nimg="1"
-                          className="w-6 h-6 flex-shrink-0 dark:hidden"
-                          style={{ color: "transparent" }}
-                          src="/chapter-title-icon.svg"
-                        />
-                        <img
-                          alt="Chapter"
-                          loading="lazy"
-                          width="24"
-                          height="24"
-                          decoding="async"
-                          data-nimg="1"
-                          className="w-6 h-6 flex-shrink-0 hidden dark:block"
-                          style={{ color: "transparent" }}
-                          src="/dark-chapter-title-icon.svg"
-                        />
-                        <input
-                          className="flex-1 bg-transparent text-base sm:text-lg font-medium text-[var(--ink-raised)] dark:text-[var(--paper)] border-none outline-none focus:outline-none focus:ring-0 focus:border-none placeholder:text-[var(--clay-muted)] dark:placeholder:text-[var(--clay-muted)] placeholder:font-normal touch-manipulation min-w-0"
-                          style={{
-                            border: "none",
-                            backgroundColor: "transparent",
-                            boxShadow: "none",
-                            fontSize: "max(16px, 1.125rem)",
-                          }}
-                          placeholder="Give your chapter a title..."
-                          value={chapters[selectedChapter]?.title ?? ""}
-                          onChange={(e) =>
-                            handleChapterTitleChange(
-                              selectedChapter,
-                              e.target.value,
-                            )
-                          }
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex-1 min-h-0 pb-20 sm:pb-0 relative flex flex-col">
-                    <div
-                      className="flex-1 min-h-0"
-                      style={{ minHeight: "400px" }}
-                    >
-                      {chapters[selectedChapter]?.locked && (
-                        <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-[var(--ink-raised)] border-b border-gray-200 dark:border-[var(--rule)] text-xs text-gray-500 dark:text-gray-400">
-                          <LockIcon className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span>
-                            This chapter is locked. Click the lock icon in the
-                            chapter list to edit.
-                          </span>
-                        </div>
-                      )}
-                      <RichTextEditor
-                        value={chapters[selectedChapter]?.content || ""}
-                        onChange={(html) =>
-                          handleChapterContentChange(selectedChapter, html)
-                        }
-                        minHeight={300}
-                        placeholder={
-                          selectedChapter === 0
-                            ? "Write your first chapter here..."
-                            : "Now add some content to your chapter..."
-                        }
-                        className="h-full"
-                        contentClassName={studio.editorProse}
-                        onCreateEndnote={endnotesHook.handleCreateEndnote}
-                        chapterId={chapters[selectedChapter]?.id}
-                        hasEndnotes={endnotes.length > 0}
-                        disabled={!!chapters[selectedChapter]?.locked}
-                        hideToolbar={focus.active && focus.settings.hideToolbar}
-                        onFocusStateChange={setMobileEditorFocused}
-                      />
-                    </div>
-                  </div>
+                  <ChapterPanel
+                    chapter={chapters[selectedChapter]}
+                    selectedChapter={selectedChapter}
+                    onTitleChange={handleChapterTitleChange}
+                    onContentChange={handleChapterContentChange}
+                    onCreateEndnote={endnotesHook.handleCreateEndnote}
+                    hasEndnotes={endnotes.length > 0}
+                    hideToolbar={focus.active && focus.settings.hideToolbar}
+                    onFocusStateChange={setMobileEditorFocused}
+                  />
                 </>
               )}
             </div>
@@ -3378,9 +3301,6 @@ function MakeEbookPage() {
                   onPasteManuscript={handlePasteManuscript}
                   onUploadFile={docImport.showImportDialog}
                   onOpenLibrary={() => setSidebarView("library")}
-                  libraryBooks={libraryBooks}
-                  libraryLoading={libraryLoading}
-                  onOpenBook={(id) => library.handleLoadBook(id)}
                 />
               ) : (
                 <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2 bg-white dark:bg-[var(--ink)]">

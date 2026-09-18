@@ -634,6 +634,8 @@ export default function RichTextEditor({
     refreshStates();
     ensureInitialParagraph();
 
+    if (window.innerWidth < 900) setShowCompactToolbar(true);
+
     if (window.innerWidth < 1024 && editorRef.current) {
       setTimeout(() => {
         if (editorRef.current) {
@@ -655,6 +657,7 @@ export default function RichTextEditor({
         ensureInitialParagraph();
         emitChange();
         setFocused(false);
+        setShowCompactToolbar(false);
         onFocusStateChange?.(false);
 
         if (typeof window !== "undefined" && window.innerWidth < 1024) {
