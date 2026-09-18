@@ -1733,12 +1733,49 @@
   }
 }
 
-.cvMap {
-  position: relative;
-  height: 220px;
+.cvMapTile {
   overflow: hidden;
   border-radius: 8px;
   background: #fbfbf9;
+}
+
+.cvMapHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding: 14px 16px 8px;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 11px;
+  color: #8a8984;
+}
+
+.cvMapHead span:first-child {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #121212;
+}
+
+.cvMap {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.cvMapPreview {
+  position: absolute;
+  width: 62px;
+  aspect-ratio: 2 / 3;
+  border-radius: 3px;
+  background-position: center;
+  background-size: cover;
+  box-shadow:
+    0 18px 30px -14px rgb(0 0 0 / 0.55),
+    0 2px 6px rgb(0 0 0 / 0.18);
+  transform: translate(-50%, calc(-100% - 12px));
+  pointer-events: none;
 }
 
 .cvAxis {
@@ -1748,15 +1785,6 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #8a8984;
-}
-
-.cvHex {
-  position: absolute;
-  right: 12px;
-  top: 10px;
-  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
-  font-size: 11px;
-  text-transform: uppercase;
 }
 
 .cvDot {
