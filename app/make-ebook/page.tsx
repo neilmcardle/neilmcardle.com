@@ -68,9 +68,9 @@ import PreflightExportDialog, {
 import UpgradeModal from "./components/UpgradeModal";
 
 import { toast } from "sonner";
-import EditorRightPanel from "./components/EditorRightPanel";
 import EditorCanvas from "./components/EditorCanvas";
-import type { RightPanelMode } from "./components/LayoutSwitcher";
+import PreviewSurface from "./components/PreviewSurface";
+import studio from "./styles/studio.module.css";
 import EditorHeader from "./components/EditorHeader";
 import TrialBanner from "./components/TrialBanner";
 import ChapterNavDropdown from "./components/ChapterNavDropdown";
@@ -99,10 +99,6 @@ import { ensureBookProfile } from "./utils/bookmindProfile";
 import { getContentChapterNumber } from "./utils/pageUtils";
 import { ChapterCapsuleMarker } from "./components/ChapterCapsuleMarker";
 import { HandleDragIcon } from "./components/HandleDragIcon";
-import {
-  MobilePreviewModal,
-  mobileDeviceDimensions,
-} from "./components/MobilePreviewModal";
 import { UserDropdownMobile } from "./components/UserDropdownMobile";
 
 import { useEndnotes } from "./hooks/useEndnotes";
@@ -281,7 +277,7 @@ function MakeEbookPage() {
 
   const isPanelOpen = sidebarView !== null;
 
-  const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>("none");
+  const [surfaceMode, setSurfaceMode] = useState<"edit" | "preview">("edit");
 
   const [bookMindOpen, setBookMindOpen] = useState(false);
 
@@ -589,7 +585,6 @@ function MakeEbookPage() {
   const [libraryLoading, setLibraryLoading] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mobileChaptersOpen, setMobileChaptersOpen] = useState(false);
-  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [mobileBookMindOpen, setMobileBookMindOpen] = useState(false);
   const [chaptersSheetOpen, setChaptersSheetOpen] = useState(false);
   const [mobileEditorFocused, setMobileEditorFocused] = useState(false);
@@ -679,8 +674,7 @@ function MakeEbookPage() {
       editor: () => setSidebarView(null),
       preview: () => {
         setSidebarView(null);
-
-        setRightPanelMode("live-preview");
+        setSurfaceMode("preview");
       },
       export: () => setSidebarView("book"),
       "auto-save": () => setSidebarView(null),
@@ -813,7 +807,7 @@ function MakeEbookPage() {
   useEffect(() => {
     if (focus.active && focus.settings.hideChrome) {
       setSidebarView(null);
-      setRightPanelMode("none");
+      setSurfaceMode("edit");
     }
   }, [focus.active, focus.settings.hideChrome]);
 
@@ -891,9 +885,7 @@ function MakeEbookPage() {
       setPreflightFormat("epub");
     },
     onPreview: () => {
-      setRightPanelMode((prev) =>
-        prev === "live-preview" ? "none" : "live-preview",
-      );
+      setSurfaceMode((prev) => (prev === "preview" ? "edit" : "preview"));
     },
     onNewChapter: () => {
       handleAddChapter("content", "");
@@ -1374,15 +1366,6 @@ function MakeEbookPage() {
             onDownloadExport={saveBook.handleDownloadExport}
             onDeleteExport={deleteExport}
             onClearAllExports={clearExportHistory}
-          />
-        )}
-
-        {mobilePreviewOpen && (
-          <MobilePreviewModal
-            chapters={chapters}
-            selectedChapter={selectedChapter}
-            onChapterSelect={setSelectedChapter}
-            onClose={() => setMobilePreviewOpen(false)}
           />
         )}
 
@@ -3098,12 +3081,8 @@ function MakeEbookPage() {
                   chapters.length === 0 ? 800 : 100,
                 );
               }}
-              onBookMindToggle={() =>
-                setRightPanelMode((prev) =>
-                  prev === "inspector" ? "none" : "inspector",
-                )
-              }
-              rightPanelMode={rightPanelMode}
+              onBookMindToggle={() => setBookMindOpen((prev) => !prev)}
+              isBookMindOpen={bookMindOpen}
               libraryBooks={libraryBooks}
               selectedBookId={selectedBookId}
               setSelectedBookId={setSelectedBookId}
@@ -3219,10 +3198,19 @@ function MakeEbookPage() {
                     <div className="flex items-center gap-0.5 flex-shrink-0">
                       <button
                         data-tour="mobile-preview"
-                        onClick={() => setMobilePreviewOpen(true)}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                        aria-label="Preview book"
-                        title="Preview"
+                        onClick={() =>
+                          setSurfaceMode((prev) =>
+                            prev === "preview" ? "edit" : "preview",
+                          )
+                        }
+                        aria-pressed={surfaceMode === "preview"}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors aria-pressed:bg-[var(--paper)] aria-pressed:text-[var(--ink-deep)]"
+                        aria-label={
+                          surfaceMode === "preview"
+                            ? "Back to editing"
+                            : "Preview book"
+                        }
+                        title={surfaceMode === "preview" ? "Edit" : "Preview"}
                       >
                         <svg
                           className="w-5 h-5 text-gray-600 dark:text-gray-400"
@@ -3280,6 +3268,11 @@ function MakeEbookPage() {
                   libraryBooks={libraryBooks}
                   libraryLoading={libraryLoading}
                   onOpenBook={(id) => library.handleLoadBook(id)}
+                />
+              ) : surfaceMode === "preview" ? (
+                <PreviewSurface
+                  chapters={chapters}
+                  selectedChapter={selectedChapter}
                 />
               ) : (
                 <>
@@ -3363,7 +3356,8 @@ function MakeEbookPage() {
                             ? "Write your first chapter here..."
                             : "Now add some content to your chapter..."
                         }
-                        className="h-full text-lg placeholder:text-[var(--clay-muted)] placeholder:text-lg"
+                        className="h-full"
+                        contentClassName={studio.editorProse}
                         onCreateEndnote={endnotesHook.handleCreateEndnote}
                         chapterId={chapters[selectedChapter]?.id}
                         hasEndnotes={endnotes.length > 0}
@@ -3410,14 +3404,15 @@ function MakeEbookPage() {
                     onToggleFocusMode={focus.toggleFocusMode}
                     flowMode={flowMode}
                     onToggleFlowMode={handleToggleFlowMode}
-                    rightPanelMode={rightPanelMode}
-                    onRightPanelModeChange={setRightPanelMode}
+                    surfaceMode={surfaceMode}
+                    onSurfaceModeChange={setSurfaceMode}
                     onExportEPUB={() => setPreflightFormat("epub")}
                     onExportPDF={() => setPreflightFormat("pdf")}
                     onExportDocx={() => setPreflightFormat("docx")}
                     hideChrome={focus.active && focus.settings.hideChrome}
                   />
                   <EditorCanvas
+                    mode={surfaceMode}
                     chapters={chapters}
                     selectedChapter={selectedChapter}
                     onChapterTitleChange={handleChapterTitleChange}
@@ -3449,38 +3444,6 @@ function MakeEbookPage() {
               )}
             </div>
           </main>
-
-          {!(focus.active && focus.settings.hideChrome) && (
-            <EditorRightPanel
-              mode={rightPanelMode}
-              onClose={() => setRightPanelMode("none")}
-              chapters={chapters}
-              selectedChapter={selectedChapter}
-              onChapterSelect={setSelectedChapter}
-              bookId={currentBookId}
-              userId={user?.id}
-              title={title}
-              author={author}
-              genre={genre}
-              selectedText={selectedEditorText}
-              coverFile={coverUrl}
-              onRefreshAnalytical={handleRefreshAnalytical}
-              onAddDisclosureChapter={(content: string) => {
-                const newChapter = {
-                  id: uuidv4(),
-                  title: "AI Disclosure",
-                  content,
-                  type: "backmatter" as const,
-                };
-                setChapters((prev) => [...prev, newChapter]);
-                setSelectedChapter(chapters.length);
-                toast.success("AI Disclosure chapter added");
-              }}
-              onExport={() => setPreflightFormat("epub")}
-              isPro={isPro}
-              onUpgrade={() => setExportUpgradeOpen(true)}
-            />
-          )}
         </div>
       </div>
 

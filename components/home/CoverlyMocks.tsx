@@ -210,34 +210,65 @@ function ColourMap() {
     () =>
       COVERLY_PALETTE.map((color, i) => {
         const { h, l } = hsl(color);
-        return { color, i, x: 3 + (h / 360) * 94, y: 94 - l * 88 };
+        return { color, i, hue: h, x: 3 + (h / 360) * 94, y: 92 - l * 76 };
       }),
     [],
   );
+  const covers = useMemo(
+    () => COVERLY_COVERS.map((cover) => ({ cover, hue: hsl(cover.color).h })),
+    [],
+  );
   const active = hover === null ? null : dots[hover];
+  const preview = active
+    ? covers.reduce((best, item) =>
+        Math.abs(item.hue - active.hue) < Math.abs(best.hue - active.hue)
+          ? item
+          : best,
+      ).cover
+    : null;
 
   return (
-    <div className={styles.cvMap} onPointerLeave={() => setHover(null)}>
-      <span className={styles.cvAxis} style={{ left: 12, top: 10 }}>
-        light
-      </span>
-      <span className={styles.cvAxis} style={{ left: 12, bottom: 10 }}>
-        dark
-      </span>
-      <span className={styles.cvAxis} style={{ right: 12, bottom: 10 }}>
-        hue
-      </span>
-      <span className={styles.cvHex} style={{ color: active?.color }}>
-        {active ? active.color : ""}
-      </span>
-      {dots.map((dot) => (
-        <span
-          key={`${dot.color}-${dot.i}`}
-          className={`${styles.cvDot} ${active && active.i !== dot.i ? styles.cvDotDim : ""}`}
-          style={{ left: `${dot.x}%`, top: `${dot.y}%`, background: dot.color }}
-          onPointerEnter={() => setHover(dot.i)}
-        />
-      ))}
+    <div className={styles.cvMapTile}>
+      <p className={styles.cvMapHead}>
+        <span>Every cover, plotted by colour</span>
+        <span>{active ? active.color : "hover a dot"}</span>
+      </p>
+      <div className={styles.cvMap} onPointerLeave={() => setHover(null)}>
+        <span className={styles.cvAxis} style={{ left: 10, top: 8 }}>
+          light
+        </span>
+        <span className={styles.cvAxis} style={{ left: 10, bottom: 8 }}>
+          dark
+        </span>
+        <span className={styles.cvAxis} style={{ right: 10, bottom: 8 }}>
+          hue
+        </span>
+        {dots.map((dot) => (
+          <span
+            key={`${dot.color}-${dot.i}`}
+            className={`${styles.cvDot} ${active && active.i !== dot.i ? styles.cvDotDim : ""}`}
+            style={{
+              left: `${dot.x}%`,
+              top: `${dot.y}%`,
+              background: dot.color,
+            }}
+            onPointerEnter={() => setHover(dot.i)}
+          />
+        ))}
+        {active && preview && (
+          <span
+            className={styles.cvMapPreview}
+            style={{
+              left: `${Math.min(88, Math.max(12, active.x))}%`,
+              top: `${active.y}%`,
+              backgroundImage: `url(${preview.src})`,
+              backgroundColor: preview.color,
+            }}
+            role="img"
+            aria-label={preview.title}
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import styles from "../styles/studio.module.css";
 import React from "react";
 import {
   DropdownMenu,
@@ -40,10 +41,7 @@ export default function ChapterNavDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          className="inline-flex items-center gap-2 px-3 h-10 rounded-full bg-gray-100 dark:bg-[var(--ink-raised)] border border-gray-200 dark:border-transparent hover:bg-gray-200 dark:hover:bg-[var(--rule)] text-125 font-medium text-gray-700 dark:text-[var(--clay)] transition-colors duration-[var(--me-dur)]"
-          title="Navigate chapters"
-        >
+        <button className={styles.btn} title="Navigate chapters">
           <span className="max-w-[150px] truncate">{displayTitle}</span>
           <ChevronDown className="w-3.5 h-3.5" />
         </button>
