@@ -607,33 +607,6 @@
     0 0 0 3px var(--clay);
 }
 
-.perch {
-  position: relative;
-  display: inline-block;
-}
-
-.gull {
-  position: absolute;
-  left: 100%;
-  bottom: 100%;
-  width: 88px;
-  height: 72px;
-  margin: 0 0 -6px -66px;
-  background-image: url("/make-ebook/brand/gull/gull-sprites.png?v=3");
-  background-size: 704px 288px;
-  background-repeat: no-repeat;
-  background-position: calc(var(--fx, 0) * -88px) calc(var(--fy, 2) * -72px);
-  pointer-events: none;
-  transform: translate(var(--x, 0px), var(--y, 0px));
-  will-change: transform;
-  transition: opacity 240ms var(--ease);
-}
-
-.gull[data-phase="away"],
-.gull[data-phase="gone"] {
-  opacity: 0;
-}
-
 @media (min-width: 901px) {
   .heroSound {
     bottom: 148px;

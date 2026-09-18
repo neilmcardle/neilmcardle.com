@@ -18,7 +18,6 @@ import {
   PreviewDemo,
   RewriteDemo,
 } from "./demos";
-import { Gull } from "./Gull";
 import { HeroVideo } from "./HeroVideo";
 import { StudioDemo } from "./StudioDemo";
 import styles from "./brand.module.css";
@@ -148,7 +147,6 @@ function FeatureCard({
   desc,
   link,
   flip = false,
-  perch = false,
   extra,
   children,
 }: {
@@ -157,7 +155,6 @@ function FeatureCard({
   desc: string;
   link: CardLink;
   flip?: boolean;
-  perch?: boolean;
   extra?: React.ReactNode;
   children: React.ReactNode;
 }) {
@@ -168,14 +165,7 @@ function FeatureCard({
     >
       <div className={landing.cardCopy}>
         <h3 className={landing.cardTitle}>
-          {perch ? (
-            <span className={`${styles.perch} ${landing.perchTitle}`}>
-              {title}
-              <Gull />
-            </span>
-          ) : (
-            <span>{title}</span>
-          )}
+          <span>{title}</span>
           <span className={landing.muted}>{desc}</span>
         </h3>
         {extra}
@@ -361,7 +351,6 @@ export default function BrandLanding({
 
               <FeatureCard
                 id="preview"
-                perch
                 title="See every page as your readers will."
                 desc="Kindle, iPad and phone, on white, sepia or dark. Chapter openings and line lengths look the way they will in the store."
                 link={{ label: "Try it in the editor above", href: "#product" }}
