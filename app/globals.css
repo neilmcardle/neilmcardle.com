@@ -2262,11 +2262,11 @@ button.spark-card:hover,
 }
 
 .me-rise-in {
-  animation: me-rise-in var(--me-dur) var(--me-ease-out) both;
+  animation: me-rise-in var(--me-dur) var(--me-ease-out) backwards;
 }
 
 .me-chapter-in {
-  animation: me-chapter-in var(--me-dur-slow) var(--me-ease-out) both;
+  animation: me-chapter-in var(--me-dur-slow) var(--me-ease-out) backwards;
 }
 
 .me-tick-pop {

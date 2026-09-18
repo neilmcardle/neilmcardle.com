@@ -1,11 +1,10 @@
 "use client";
 
 import React from "react";
-import { LockIcon } from "./icons";
-import RichTextEditor from "./RichTextEditor";
 import BookMindAgent from "./BookMindAgent";
 import ChapterScrollRail from "./ChapterScrollRail";
 import PreviewSurface from "./PreviewSurface";
+import ChapterPanel, { sectionLabelFor } from "./ChapterPanel";
 import styles from "../styles/studio.module.css";
 import type { FocusSettings as FocusModeSettings } from "../hooks/useFocusMode";
 import { ModKey } from "./PlatformKey";
@@ -87,12 +86,7 @@ export default function EditorCanvas({
   onBookMindHistory,
 }: EditorCanvasProps) {
   const chapter = chapters[selectedChapter];
-  const sectionLabel =
-    chapter?.type === "frontmatter"
-      ? "Front Matter"
-      : chapter?.type === "backmatter"
-        ? "Back Matter"
-        : "Chapter";
+  const sectionLabel = sectionLabelFor(chapter);
 
   const chapterWordCount =
     bookStats.chapterStats?.[selectedChapter]?.wordCount ?? 0;
@@ -195,53 +189,17 @@ export default function EditorCanvas({
             .filter(Boolean)
             .join(" ")}
         >
-          <div className={styles.editorCanvas}>
-            <div
-              key={chapter?.id ?? selectedChapter}
-              className={`me-chapter-in ${styles.editorPanel}`}
-            >
-              <p className={styles.chapterEyebrow}>{sectionLabel}</p>
-              <input
-                className={styles.chapterTitle}
-                placeholder="Chapter title..."
-                aria-label="Chapter title"
-                value={chapter?.title ?? ""}
-                onChange={(e) =>
-                  onChapterTitleChange(selectedChapter, e.target.value)
-                }
-              />
-
-              {chapter?.locked && (
-                <p className={styles.lockNote}>
-                  <LockIcon className="w-3.5 h-3.5 flex-shrink-0" />
-                  This chapter is locked. Click the lock icon in the chapter
-                  list to edit.
-                </p>
-              )}
-
-              <RichTextEditor
-                value={chapter?.content || ""}
-                onChange={(html) =>
-                  onChapterContentChange(selectedChapter, html)
-                }
-                minHeight={240}
-                placeholder={
-                  selectedChapter === 0
-                    ? "Start writing, or type / for AI commands..."
-                    : "Continue writing, or type / for AI commands..."
-                }
-                className="flex-1 min-h-0"
-                contentClassName={styles.editorProse}
-                onCreateEndnote={onCreateEndnote}
-                chapterId={chapter?.id}
-                hasEndnotes={endnotesCount > 0}
-                disabled={!!chapter?.locked}
-                hideToolbar={focus.active && focus.settings.hideToolbar}
-                onInlineEditRequest={onInlineEditRequest}
-                onComposeRequest={onComposeRequest}
-              />
-            </div>
-          </div>
+          <ChapterPanel
+            chapter={chapter}
+            selectedChapter={selectedChapter}
+            onTitleChange={onChapterTitleChange}
+            onContentChange={onChapterContentChange}
+            onCreateEndnote={onCreateEndnote}
+            hasEndnotes={endnotesCount > 0}
+            hideToolbar={focus.active && focus.settings.hideToolbar}
+            onInlineEditRequest={onInlineEditRequest}
+            onComposeRequest={onComposeRequest}
+          />
 
           {footer}
         </div>

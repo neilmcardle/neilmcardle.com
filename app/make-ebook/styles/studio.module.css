@@ -1975,3 +1975,9 @@
     font-size: 27px;
   }
 }
+
+@media (max-width: 900px) {
+  .editorPanel [data-editor-toolbar] {
+    display: none;
+  }
+}
