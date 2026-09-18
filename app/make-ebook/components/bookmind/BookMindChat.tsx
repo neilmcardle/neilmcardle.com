@@ -14,7 +14,6 @@ import CardRenderer, { tryParseAnalyticalResponse } from "./CardRenderer";
 import ReadingView from "./ReadingView";
 import { addRule } from "../../utils/bookmindMemory";
 import { hasUsedTrial, markTrialUsed } from "../../utils/bookMindTrial";
-import { toast } from "sonner";
 import styles from "../../styles/studio.module.css";
 
 type Mind = ReturnType<typeof useBookMind>;
@@ -221,6 +220,7 @@ function AssistantTurn({
   isLast,
   busy,
   isPro,
+  canRemember,
   onNavigate,
   onRetry,
   onRead,
@@ -232,12 +232,26 @@ function AssistantTurn({
   isLast: boolean;
   busy: boolean;
   isPro: boolean;
+  canRemember: boolean;
   onNavigate: (index: number) => void;
   onRetry: () => void;
   onRead: () => void;
-  onRemember: () => void;
+  onRemember: (note: string) => void;
 }) {
   const [copied, setCopied] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [note, setNote] = useState("");
+  const [saved, setSaved] = useState(false);
+
+  const saveNote = () => {
+    const text = note.trim();
+    if (!text) return;
+    onRemember(text);
+    setNote("");
+    setNoteOpen(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1600);
+  };
   const structured = streaming
     ? null
     : tryParseAnalyticalResponse(message.content);
@@ -292,14 +306,54 @@ function AssistantTurn({
           {isPro && !failed && (
             <ActionButton label="Open to read" d={ICON.read} onClick={onRead} />
           )}
-          {isPro && !failed && (
+          {isPro && canRemember && !failed && (
             <ActionButton
-              label="Remember this"
-              d={ICON.remember}
-              onClick={onRemember}
+              label={saved ? "Remembered" : "Remember something"}
+              d={saved ? ICON.check : ICON.remember}
+              onClick={() => setNoteOpen((o) => !o)}
             />
           )}
         </div>
+      )}
+      {noteOpen && (
+        <form
+          className={styles.bmNote}
+          onSubmit={(e) => {
+            e.preventDefault();
+            saveNote();
+          }}
+        >
+          <label className={styles.bmNoteLabel} htmlFor={`note-${message.id}`}>
+            Book Mind will keep this in mind for every answer on this book.
+          </label>
+          <div className={styles.bmNoteRow}>
+            <input
+              id={`note-${message.id}`}
+              className={styles.bmNoteInput}
+              value={note}
+              autoFocus
+              placeholder="e.g. Mara never swears. The book is set in 1953."
+              onChange={(e) => setNote(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setNoteOpen(false);
+              }}
+            />
+            <button
+              type="button"
+              className={styles.bmNoteCancel}
+              onClick={() => setNoteOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className={styles.bmNoteSave}
+              disabled={!note.trim()}
+            >
+              Remember
+            </button>
+          </div>
+        </form>
       )}
     </div>
   );
@@ -450,15 +504,9 @@ export default function BookMindChat({
     });
   };
 
-  const remember = (content: string) => {
+  const remember = (note: string) => {
     if (!bookId || !userId) return;
-    const first =
-      content.match(/^[^.!?]+[.!?]/)?.[0]?.trim() ?? content.slice(0, 80);
-    const rule = window.prompt("What should Book Mind remember?", first);
-    if (rule?.trim()) {
-      addRule(userId, bookId, rule.trim());
-      toast.success("Book Mind will remember that");
-    }
+    addRule(userId, bookId, note);
   };
 
   const navigate = (index: number) => {
@@ -631,10 +679,11 @@ export default function BookMindChat({
                   isLast={m.id === lastAssistantId}
                   busy={busy}
                   isPro={isPro}
+                  canRemember={!!bookId && !!userId}
                   onNavigate={navigate}
                   onRetry={() => retry(m.id)}
                   onRead={() => setReading(m.content)}
-                  onRemember={() => remember(m.content)}
+                  onRemember={remember}
                 />
               ),
             )}
