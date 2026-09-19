@@ -123,6 +123,9 @@ export async function generateEpub(book: BookData) {
     </package>`,
   );
 
-  const content = await zip.generateAsync({ type: "blob" });
+  const content = await zip.generateAsync({
+    type: "blob",
+    mimeType: "application/epub+zip",
+  });
   saveAs(content, `${title ? title.replace(/[^a-z0-9]/gi, "_") : "book"}.epub`);
 }

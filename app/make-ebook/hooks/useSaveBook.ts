@@ -381,7 +381,9 @@ export function useSaveBook({
     const exportMeta = exportHistory.find((e) => e.id === exportId);
 
     if (blob && exportMeta) {
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(
+        new Blob([blob], { type: "application/epub+zip" }),
+      );
       const a = document.createElement("a");
       a.href = url;
       a.download = `${exportMeta.title.replace(/[^a-z0-9]+/gi, "_") || "ebook"}.epub`;
