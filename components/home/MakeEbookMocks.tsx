@@ -184,7 +184,7 @@ export default function MakeEbookMocks() {
       <div className={styles.mbRain} ref={rainRef}>
         <iframe
           ref={frameRef}
-          src="/make-ebook/brand/rain-on-glass.html?bg=/make-ebook/brand/pier.jpg"
+          src="/make-ebook/brand/rain-on-glass.html?bg=/make-ebook/brand/library-lamp.jpg"
           title="makeebook"
           tabIndex={-1}
           loading="lazy"
