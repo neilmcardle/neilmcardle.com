@@ -10,28 +10,7 @@
   overflow-x: clip;
 }
 
-:global(html[data-site-theme="dark"]) .themed {
-  --home-ground: #0a0a0a;
-  --home-ink: #fbf9f3;
-  --home-ink-rgb: 251 249 243;
-  --home-muted: #8a7f70;
-  --home-muted-rgb: 138 127 112;
-  --home-accent: #d8b46a;
-  --home-accent-rgb: 216 180 106;
-  --home-accent-strong: #f0d091;
-  --home-faint: rgb(251 249 243 / 0.6);
-  --home-preview-shadow: rgba(0, 0, 0, 0.7);
-  --home-dots: url(/hero/dot-matrix.svg);
-  --home-logo-filter: none;
-  --home-rain-rgb: 251, 249, 243;
-  --home-glass: rgb(255 255 255 / 0.06);
-  --home-glass-edge: rgb(251 249 243 / 0.14);
-  --home-glass-dot: rgb(251 249 243 / 0.06);
-  --home-dock: rgb(20 18 14 / 0.55);
-  --home-sheet: rgb(20 18 14 / 0.42);
-}
-
-.themed {
+:global(html[data-site-theme="light"]) .themed {
   --home-ground: #fbf9f3;
   --home-ink: #14120e;
   --home-ink-rgb: 20 18 14;
@@ -50,6 +29,27 @@
   --home-glass-dot: rgb(20 18 14 / 0.06);
   --home-dock: rgb(255 255 255 / 0.62);
   --home-sheet: rgb(255 255 255 / 0.5);
+}
+
+.themed {
+  --home-ground: #0a0a0a;
+  --home-ink: #fbf9f3;
+  --home-ink-rgb: 251 249 243;
+  --home-muted: #8a7f70;
+  --home-muted-rgb: 138 127 112;
+  --home-accent: #d8b46a;
+  --home-accent-rgb: 216 180 106;
+  --home-accent-strong: #f0d091;
+  --home-faint: rgb(251 249 243 / 0.6);
+  --home-preview-shadow: rgba(0, 0, 0, 0.7);
+  --home-dots: url(/hero/dot-matrix.svg);
+  --home-logo-filter: none;
+  --home-rain-rgb: 251, 249, 243;
+  --home-glass: rgb(255 255 255 / 0.06);
+  --home-glass-edge: rgb(251 249 243 / 0.14);
+  --home-glass-dot: rgb(251 249 243 / 0.06);
+  --home-dock: rgb(20 18 14 / 0.55);
+  --home-sheet: rgb(20 18 14 / 0.42);
 }
 
 .glass .markPlate {
@@ -2092,15 +2092,15 @@
 }
 
 .themed .curl {
-  --curl-tip: #c9c5bb;
-  --curl-mid: #ebe8e1;
-  --curl-fold: #ffffff;
-}
-
-:global(html[data-site-theme="dark"]) .themed .curl {
   --curl-tip: #9a978f;
   --curl-mid: #d9d6ce;
   --curl-fold: #f4f2ec;
+}
+
+:global(html[data-site-theme="light"]) .themed .curl {
+  --curl-tip: #c9c5bb;
+  --curl-mid: #ebe8e1;
+  --curl-fold: #ffffff;
 }
 
 @media (prefers-reduced-motion: reduce) {

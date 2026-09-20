@@ -87,7 +87,7 @@ export default function SiteMenu({
   const wrapRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const switchRef = useRef<HTMLSpanElement>(null);
-  const dark = useSyncExternalStore(subscribeTheme, isDark, () => false);
+  const dark = useSyncExternalStore(subscribeTheme, isDark, () => true);
 
   const close = useCallback(() => {
     setOpen(false);

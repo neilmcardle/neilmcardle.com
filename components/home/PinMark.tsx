@@ -62,7 +62,7 @@ export default function PinMark({
   const theme = useSyncExternalStore(
     subscribeTheme,
     currentTheme,
-    () => "light" as const,
+    () => "dark" as const,
   );
   const themeRef = useRef(theme);
 

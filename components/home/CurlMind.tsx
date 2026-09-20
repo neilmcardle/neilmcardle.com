@@ -68,10 +68,10 @@ export default function CurlMind() {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(90 72.875) rotate(90) scale(97.625)"
         >
-          <stop offset="0" stopColor="#ffffff" />
-          <stop offset="0.5" stopColor="#deea53" />
-          <stop offset="0.77" stopColor="#a7b03e" />
-          <stop offset="1" stopColor="#51533e" />
+          <stop offset="0" stopColor="#f7ead0" />
+          <stop offset="0.5" stopColor="#d8b46a" />
+          <stop offset="0.77" stopColor="#a8854a" />
+          <stop offset="1" stopColor="#4a3c22" />
         </radialGradient>
         {EYES.map((eye, i) => (
           <radialGradient
