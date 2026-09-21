@@ -97,6 +97,31 @@ export async function saveEbookToSupabase(
   return ebookData;
 }
 
+export async function fetchEbookIndex(userId: string) {
+  const supabase = getSupabaseBrowserClient();
+  if (!supabase) throw new Error("Supabase client not initialized");
+  const { data, error } = await supabase
+    .from("ebooks")
+    .select("id, updated_at")
+    .eq("user_id", userId);
+  if (error) throw error;
+  return (data ?? []) as { id: string; updated_at: string }[];
+}
+
+export async function fetchEbooksByIds(userId: string, ids: string[]) {
+  if (ids.length === 0) return [];
+  const supabase = getSupabaseBrowserClient();
+  if (!supabase) throw new Error("Supabase client not initialized");
+  const { data, error } = await supabase
+    .from("ebooks")
+    .select("*, chapters(*)")
+    .eq("user_id", userId)
+    .in("id", ids)
+    .order("chapter_order", { referencedTable: "chapters", ascending: true });
+  if (error) throw error;
+  return data;
+}
+
 export async function fetchEbooksFromSupabase(userId: string) {
   const supabase = getSupabaseBrowserClient();
   if (!supabase) throw new Error("Supabase client not initialized");
@@ -118,24 +143,8 @@ export async function deleteEbookFromSupabase(
   const supabase = getSupabaseBrowserClient();
   if (!supabase) throw new Error("Supabase client not initialized");
 
-  let targetEbookId = ebookId;
-
-  if (!isUuid(ebookId)) {
-    if (!userId || !bookTitle) {
-      return true;
-    }
-    const { data: foundBooks } = await supabase
-      .from("ebooks")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("title", bookTitle)
-      .limit(1);
-
-    if (!foundBooks || foundBooks.length === 0) {
-      return true;
-    }
-    targetEbookId = foundBooks[0].id;
-  }
+  if (!isUuid(ebookId)) return true;
+  const targetEbookId = ebookId;
 
   const { error: chaptersError } = await supabase
     .from("chapters")

@@ -21,6 +21,7 @@ export function loadBookLibrary(userId: string): BookRecord[] {
 export function saveBookToLibrary(
   userId: string,
   book: Partial<BookRecord>,
+  options: { keepSavedAt?: boolean } = {},
 ): string {
   if (typeof window === "undefined") return "";
   const library = loadBookLibrary(userId);
@@ -42,7 +43,11 @@ export function saveBookToLibrary(
     coverFile: book.coverFile || null,
     endnotes: book.endnotes || [],
     endnoteReferences: book.endnoteReferences || [],
-    savedAt: Date.now(),
+    savedAt:
+      options.keepSavedAt && existing
+        ? existing.savedAt
+        : (book.savedAt ?? Date.now()),
+    cloudSyncedAt: book.cloudSyncedAt ?? existing?.cloudSyncedAt,
     bookmindMemory: book.bookmindMemory ?? existing?.bookmindMemory,
   };
   const idx = library.findIndex((b) => b.id === id);
@@ -95,11 +100,26 @@ export function normalizeBookFromSupabase(
     savedAt:
       (book.savedAt as number) ||
       (book.updated_at
-        ? new Date(book.updated_at as string).getTime()
+        ? parseCloudTime(book.updated_at as string)
         : Date.now()),
     bookmindMemory:
       (book.bookmindMemory as BookRecord["bookmindMemory"]) ?? undefined,
   };
+}
+
+export function parseCloudTime(value: string) {
+  const zoned = /[zZ]$|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`;
+  const ms = new Date(zoned).getTime();
+  return Number.isNaN(ms) ? Date.now() : ms;
+}
+
+export function markBookSynced(userId: string, id: string, at: number) {
+  const library = loadBookLibrary(userId);
+  const book = library.find((b) => b.id === id);
+  if (!book) return;
+  book.savedAt = at;
+  book.cloudSyncedAt = at;
+  saveLibraryToStorage(userId, library);
 }
 
 function normalizeChapters(raw: unknown): Chapter[] {

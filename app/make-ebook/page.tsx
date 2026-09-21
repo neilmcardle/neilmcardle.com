@@ -687,6 +687,7 @@ function MakeEbookPage() {
 
   const cloudSync = useCloudSync({
     user,
+    hasCloudSync,
     isLoadingBookRef,
     setLibraryBooks,
     openBookIdRef,

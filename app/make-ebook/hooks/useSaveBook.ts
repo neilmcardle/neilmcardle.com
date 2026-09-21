@@ -12,6 +12,8 @@ import {
   saveBookToLibrary,
   removeBookFromLibrary,
   isBlankBook,
+  markBookSynced,
+  parseCloudTime,
 } from "../utils/bookLibrary";
 import { toStoredCover } from "../utils/assetStore";
 import {
@@ -257,12 +259,20 @@ export function useSaveBook({
           syncedChapters,
           user.id,
         );
-        if (supabaseData?.id && supabaseData.id !== id) {
+        const cloudId = supabaseData?.id ?? id;
+        if (cloudId !== id) {
           removeBookFromLibrary(user.id, id);
-          saveBookToLibrary(user.id, { ...localBookData, id: supabaseData.id });
-          if (stillOpen()) setCurrentBookId(supabaseData.id);
-          setLibraryBooks(loadBookLibrary(user.id));
+          saveBookToLibrary(user.id, { ...localBookData, id: cloudId });
+          if (stillOpen()) setCurrentBookId(cloudId);
         }
+        markBookSynced(
+          user.id,
+          cloudId,
+          supabaseData?.updated_at
+            ? parseCloudTime(supabaseData.updated_at)
+            : Date.now(),
+        );
+        setLibraryBooks(loadBookLibrary(user.id));
         cloudErrorShownRef.current = false;
         confirmSaved();
         return true;

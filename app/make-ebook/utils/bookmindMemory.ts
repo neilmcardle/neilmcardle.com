@@ -56,7 +56,11 @@ export function setMemory(
   if (typeof window === "undefined") return;
   const book = loadBookById(userId, bookId);
   if (!book) return;
-  saveBookToLibrary(userId, { ...book, bookmindMemory: memory });
+  saveBookToLibrary(
+    userId,
+    { ...book, bookmindMemory: memory },
+    { keepSavedAt: true },
+  );
 }
 
 export function patchMemory(
@@ -71,7 +75,11 @@ export function patchMemory(
     ...getMemory(book),
     ...patch,
   };
-  saveBookToLibrary(userId, { ...book, bookmindMemory: next });
+  saveBookToLibrary(
+    userId,
+    { ...book, bookmindMemory: next },
+    { keepSavedAt: true },
+  );
 }
 
 export function isBriefFresh(book: BookRecord | undefined): boolean {

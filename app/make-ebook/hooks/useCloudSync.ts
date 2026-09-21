@@ -2,34 +2,41 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { BookRecord } from "../types";
 import {
-  isBlankBook,
   loadBookLibrary,
   normalizeBookFromSupabase,
+  parseCloudTime,
   saveLibraryToStorage,
 } from "../utils/bookLibrary";
+import { toDisplayCover } from "../utils/assetStore";
+import { mergeFetched, planSync, withLocalOnlyFields } from "../utils/syncPlan";
 
-const SAME_SAVE_WINDOW_MS = 5000;
-const SYNC_THROTTLE_MS = 10000;
-
-function withLocalOnlyFields(cloud: BookRecord, local: BookRecord): BookRecord {
-  const localChapters = new Map(local.chapters.map((ch) => [ch.id, ch]));
-  return {
-    ...cloud,
-    bookmindMemory: cloud.bookmindMemory ?? local.bookmindMemory,
-    chapters: cloud.chapters.map((ch) => {
-      const previous = localChapters.get(ch.id);
-      if (!previous) return ch;
-      return {
-        ...ch,
-        ...(previous.locked ? { locked: true } : {}),
-        ...(previous.completed ? { completed: true } : {}),
-      };
-    }),
-  };
+async function pushBook(userId: string, book: BookRecord) {
+  const m = await import("@/lib/supabaseEbooks");
+  const cover = await toDisplayCover(book.coverFile).catch(() => null);
+  const saved = await m.saveEbookToSupabase(
+    { ...book, coverFile: cover },
+    book.chapters,
+    userId,
+  );
+  const at = saved?.updated_at ? parseCloudTime(saved.updated_at) : Date.now();
+  const library = loadBookLibrary(userId);
+  const index = library.findIndex((b) => b.id === book.id);
+  if (index >= 0) {
+    library[index] = {
+      ...library[index],
+      id: saved?.id ?? book.id,
+      savedAt: at,
+      cloudSyncedAt: at,
+    };
+    saveLibraryToStorage(userId, library);
+  }
 }
+
+const SYNC_THROTTLE_MS = 10000;
 
 interface UseCloudSyncParams {
   user: { id: string } | null;
+  hasCloudSync: boolean;
   isLoadingBookRef: React.MutableRefObject<boolean>;
   setLibraryBooks: (books: any[]) => void;
   openBookIdRef: React.MutableRefObject<string | undefined>;
@@ -38,21 +45,15 @@ interface UseCloudSyncParams {
 
 export function useCloudSync({
   user,
+  hasCloudSync,
   isLoadingBookRef,
   setLibraryBooks,
   openBookIdRef,
   onOpenBookUpdated,
 }: UseCloudSyncParams) {
   const [initialSyncDone, setInitialSyncDone] = useState(false);
-  const onOpenBookUpdatedRef = useRef(onOpenBookUpdated);
-  useEffect(() => {
-    onOpenBookUpdatedRef.current = onOpenBookUpdated;
-  });
   const [syncConflicts, setSyncConflicts] = useState<
-    {
-      local: BookRecord;
-      cloud: BookRecord;
-    }[]
+    { local: BookRecord; cloud: BookRecord }[]
   >([]);
   const [syncMergedMap, setSyncMergedMap] = useState<Map<
     string,
@@ -62,107 +63,99 @@ export function useCloudSync({
   const syncingRef = useRef(false);
   const lastSyncRef = useRef(0);
   const conflictsOpenRef = useRef(false);
+  const onOpenBookUpdatedRef = useRef(onOpenBookUpdated);
+  const hasCloudSyncRef = useRef(hasCloudSync);
+
+  useEffect(() => {
+    onOpenBookUpdatedRef.current = onOpenBookUpdated;
+    hasCloudSyncRef.current = hasCloudSync;
+  });
+
+  const applyLibrary = useCallback(
+    (userId: string, books: BookRecord[]) => {
+      isLoadingBookRef.current = true;
+      setLibraryBooks(books);
+      saveLibraryToStorage(userId, books);
+      setTimeout(() => {
+        isLoadingBookRef.current = false;
+      }, 0);
+    },
+    [isLoadingBookRef, setLibraryBooks],
+  );
+
+  const uploadLocalOnly = useCallback(
+    async (userId: string, books: BookRecord[]) => {
+      for (const book of books) {
+        try {
+          await pushBook(userId, book);
+        } catch (err) {
+          console.error("Failed to upload book to the cloud:", err);
+        }
+      }
+      setLibraryBooks(loadBookLibrary(userId));
+    },
+    [setLibraryBooks],
+  );
 
   const syncNow = useCallback(
     async (force = false) => {
       if (syncingRef.current || conflictsOpenRef.current) return;
       if (!force && Date.now() - lastSyncRef.current < SYNC_THROTTLE_MS) return;
-      if (user && user.id) {
-        syncingRef.current = true;
-        lastSyncRef.current = Date.now();
-        try {
-          const supabaseBooks = await import("@/lib/supabaseEbooks").then((m) =>
-            m.fetchEbooksFromSupabase(user.id),
+      if (!user?.id) return;
+      const userId = user.id;
+      syncingRef.current = true;
+      lastSyncRef.current = Date.now();
+      try {
+        const m = await import("@/lib/supabaseEbooks");
+        const index = await m.fetchEbookIndex(userId);
+        const localBooks = loadBookLibrary(userId);
+        const openId = openBookIdRef.current;
+        const plan = planSync({
+          localBooks,
+          index: index.map((row) => ({
+            id: row.id,
+            updatedAt: parseCloudTime(row.updated_at),
+          })),
+          openId,
+          canUpload: hasCloudSyncRef.current,
+        });
+        const fetched = await m.fetchEbooksByIds(userId, plan.changedIds);
+        const { bookMap, conflicts, blankIds, openBookUpdated } = mergeFetched({
+          bookMap: plan.bookMap,
+          fetched: (fetched ?? [])
+            .filter((raw) => raw.id)
+            .map((raw) => normalizeBookFromSupabase(raw)),
+          openId,
+        });
+        const { toUpload, adopted } = plan;
+
+        if (blankIds.length > 0) {
+          void Promise.allSettled(
+            blankIds.map((id) => m.deleteEbookFromSupabase(id)),
           );
-          if (Array.isArray(supabaseBooks) && supabaseBooks.length > 0) {
-            const localBooks = loadBookLibrary(user.id);
-            const bookMap = new Map(
-              localBooks.map((b: BookRecord) => [b.id, b]),
-            );
-            const conflicts: { local: BookRecord; cloud: BookRecord }[] = [];
-            const blankIds: string[] = [];
-            let openBookUpdated = false;
-
-            for (const raw of supabaseBooks) {
-              if (!raw.id) continue;
-              const normalized = normalizeBookFromSupabase(raw);
-              if (isBlankBook(normalized)) {
-                if (raw.id !== openBookIdRef.current) {
-                  blankIds.push(raw.id);
-                  bookMap.delete(raw.id);
-                }
-                continue;
-              }
-              const existing = bookMap.get(raw.id);
-
-              if (!existing) {
-                bookMap.set(raw.id, normalized);
-              } else {
-                const timeDiff = Math.abs(
-                  normalized.savedAt - existing.savedAt,
-                );
-                const contentSame =
-                  existing.title === normalized.title &&
-                  existing.author === normalized.author &&
-                  existing.chapters.length === normalized.chapters.length &&
-                  existing.chapters.every(
-                    (ch: any, i: number) =>
-                      ch.title === normalized.chapters[i]?.title &&
-                      ch.content === normalized.chapters[i]?.content,
-                  );
-
-                if (contentSame) {
-                  if (normalized.savedAt > existing.savedAt) {
-                    bookMap.set(
-                      raw.id,
-                      withLocalOnlyFields(normalized, existing),
-                    );
-                  }
-                } else if (timeDiff < SAME_SAVE_WINDOW_MS) {
-                  conflicts.push({ local: existing, cloud: normalized });
-                } else if (normalized.savedAt > existing.savedAt) {
-                  bookMap.set(
-                    raw.id,
-                    withLocalOnlyFields(normalized, existing),
-                  );
-                  if (raw.id === openBookIdRef.current) openBookUpdated = true;
-                }
-              }
-            }
-
-            if (blankIds.length > 0) {
-              void import("@/lib/supabaseEbooks").then((m) =>
-                Promise.allSettled(
-                  blankIds.map((id) => m.deleteEbookFromSupabase(id)),
-                ),
-              );
-            }
-
-            if (conflicts.length > 0) {
-              setSyncMergedMap(bookMap);
-              setSyncConflicts(conflicts);
-            } else {
-              const mergedBooks = Array.from(bookMap.values());
-              isLoadingBookRef.current = true;
-              setLibraryBooks(mergedBooks);
-              saveLibraryToStorage(user.id, mergedBooks);
-              setTimeout(() => {
-                isLoadingBookRef.current = false;
-              }, 0);
-              if (openBookUpdated && openBookIdRef.current) {
-                onOpenBookUpdatedRef.current(openBookIdRef.current);
-              }
-            }
-          }
-        } catch (err) {
-          console.error("Failed to sync Supabase books:", err);
-        } finally {
-          syncingRef.current = false;
-          setInitialSyncDone(true);
         }
+
+        const merged = Array.from(bookMap.values());
+        const libraryChanged =
+          adopted || fetched.length > 0 || merged.length !== localBooks.length;
+
+        if (conflicts.length > 0) {
+          setSyncMergedMap(bookMap);
+          setSyncConflicts(conflicts);
+        } else if (libraryChanged) {
+          applyLibrary(userId, merged);
+          if (openBookUpdated && openId) onOpenBookUpdatedRef.current(openId);
+        }
+
+        if (toUpload.length > 0) void uploadLocalOnly(userId, toUpload);
+      } catch (err) {
+        console.error("Failed to sync Supabase books:", err);
+      } finally {
+        syncingRef.current = false;
+        setInitialSyncDone(true);
       }
     },
-    [user, isLoadingBookRef, setLibraryBooks],
+    [user, openBookIdRef, applyLibrary, uploadLocalOnly],
   );
 
   useEffect(() => {
@@ -194,40 +187,82 @@ export function useCloudSync({
     };
   }, [syncNow]);
 
+  useEffect(() => {
+    if (!user?.id) return;
+    const key = `makeebook_library_${user.id}`;
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== key) return;
+      const books = loadBookLibrary(user.id);
+      setLibraryBooks(books);
+      const openId = openBookIdRef.current;
+      if (!openId || !e.oldValue) return;
+      try {
+        const before = (JSON.parse(e.oldValue) as BookRecord[]).find(
+          (b) => b.id === openId,
+        );
+        const after = books.find((b) => b.id === openId);
+        if (before && after && after.savedAt > before.savedAt) {
+          onOpenBookUpdatedRef.current(openId);
+        }
+      } catch {}
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [user?.id, openBookIdRef, setLibraryBooks]);
+
   function handleResolveSyncConflict(choice: "local" | "cloud" | "both") {
     if (!syncMergedMap || syncConflicts.length === 0) return;
 
     const conflict = syncConflicts[0];
     const map = new Map(syncMergedMap);
+    const pushLocal: BookRecord[] = [];
 
     if (choice === "local") {
       map.set(conflict.local.id, conflict.local);
+      pushLocal.push(conflict.local);
     } else if (choice === "cloud") {
-      map.set(conflict.cloud.id, conflict.cloud);
+      map.set(
+        conflict.cloud.id,
+        withLocalOnlyFields(conflict.cloud, conflict.local),
+      );
     } else {
-      map.set(conflict.local.id, conflict.local);
+      map.set(
+        conflict.cloud.id,
+        withLocalOnlyFields(conflict.cloud, conflict.local),
+      );
       const copyId = "book-" + Date.now();
-      map.set(copyId, {
-        ...conflict.cloud,
+      const copy = {
+        ...conflict.local,
         id: copyId,
-        title: conflict.cloud.title + " (cloud)",
-      });
+        title: `${conflict.local.title || "Untitled"} (this device)`,
+        cloudSyncedAt: undefined,
+      };
+      map.set(copyId, copy);
     }
 
     const remaining = syncConflicts.slice(1);
     if (remaining.length > 0) {
       setSyncMergedMap(map);
       setSyncConflicts(remaining);
-    } else {
-      const mergedBooks = Array.from(map.values());
-      isLoadingBookRef.current = true;
-      setLibraryBooks(mergedBooks);
-      saveLibraryToStorage(user?.id ?? "", mergedBooks);
-      setTimeout(() => {
-        isLoadingBookRef.current = false;
-      }, 0);
-      setSyncConflicts([]);
-      setSyncMergedMap(null);
+      return;
+    }
+
+    const userId = user?.id ?? "";
+    applyLibrary(userId, Array.from(map.values()));
+    setSyncConflicts([]);
+    setSyncMergedMap(null);
+
+    if (userId && hasCloudSyncRef.current && pushLocal.length > 0) {
+      void (async () => {
+        for (const book of pushLocal) {
+          try {
+            await pushBook(userId, book);
+          } catch (err) {
+            console.error("Failed to push the kept version:", err);
+          }
+        }
+        setLibraryBooks(loadBookLibrary(userId));
+      })();
     }
   }
 

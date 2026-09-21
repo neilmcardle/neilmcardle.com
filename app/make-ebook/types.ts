@@ -102,6 +102,7 @@ export interface BookRecord extends BookMetadata {
   endnotes: Endnote[];
   endnoteReferences: EndnoteReference[];
   savedAt: number;
+  cloudSyncedAt?: number;
 
   bookmindMemory?: BookMindMemory;
 }
