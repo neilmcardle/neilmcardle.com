@@ -315,11 +315,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
           chapters[opts.selectedChapterIndex]
             ? chapters[opts.selectedChapterIndex]
             : chapters[0];
-        const brief = isBriefFresh(book) ? book.bookmindMemory!.brief! : null;
-
-        if (!brief && book.chapters.length > 0 && userId) {
-          ensureManuscriptBrief({ userId, book }).catch(() => {});
-        }
+        const brief = book.bookmindMemory?.brief ?? null;
 
         const CHAPTER_SCOPED: BookMindAction[] = [
           "check-grammar",
@@ -435,6 +431,21 @@ export function useBookMind(options: UseBookMindOptions = {}) {
           prompt = ACTION_PROMPTS[action];
         }
 
+        const deep =
+          opts.deep ?? (action ? ANALYTICAL_ACTIONS.includes(action) : false);
+
+        if (deep && bookId && userId) {
+          const book = loadBookById(userId, bookId);
+          if (book && book.chapters.length > 0 && !isBriefFresh(book)) {
+            setActivity({
+              read: ["the whole book"],
+              deep: true,
+              startedAt: Date.now(),
+            });
+            await ensureManuscriptBrief({ userId, book }).catch(() => null);
+          }
+        }
+
         const {
           ctx,
           tier,
@@ -457,9 +468,6 @@ export function useBookMind(options: UseBookMindOptions = {}) {
           }
         }
         const contextBlock = renderContextForPrompt(ctx);
-
-        const deep =
-          opts.deep ?? (action ? ANALYTICAL_ACTIONS.includes(action) : false);
 
         setActivity({ read, deep, startedAt: Date.now() });
 

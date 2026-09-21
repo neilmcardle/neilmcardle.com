@@ -1,6 +1,5 @@
 import { BookRecord, ManuscriptBrief, ChapterSummary, Chapter } from "../types";
 import { manuscriptHash, isBriefFresh, setBrief } from "./bookmindMemory";
-import { loadBookById } from "./bookLibrary";
 
 export interface GenerateBriefResult {
   ok: boolean;
@@ -34,12 +33,6 @@ export async function ensureManuscriptBrief(args: {
       const result = await generateBrief(book, args.onProgress);
       if (result.ok && result.brief) {
         setBrief(userId, book.id, result.brief);
-        const refreshed = loadBookById(userId, book.id);
-        if (refreshed) {
-          void import("./bookmindProfile")
-            .then((m) => m.ensureBookProfile({ userId, book: refreshed }))
-            .catch(() => {});
-        }
       }
       return result;
     } finally {
