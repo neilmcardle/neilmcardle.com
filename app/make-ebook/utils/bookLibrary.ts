@@ -1,4 +1,5 @@
 import { BookRecord, Chapter, Endnote, EndnoteReference } from "../types";
+import { uuidv4 } from "./uuid";
 
 function libraryKey(userId: string) {
   return `makeebook_library_${userId}`;
@@ -25,7 +26,7 @@ export function saveBookToLibrary(
 ): string {
   if (typeof window === "undefined") return "";
   const library = loadBookLibrary(userId);
-  const id = book.id || "book-" + Date.now();
+  const id = book.id || uuidv4();
 
   const existing = library.find((b) => b.id === id);
   const bookToSave: BookRecord = {

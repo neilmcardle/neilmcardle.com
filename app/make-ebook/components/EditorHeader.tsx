@@ -28,6 +28,8 @@ interface Chapter {
 
 export interface EditorHeaderProps {
   isDirty: boolean;
+  hasFailed?: boolean;
+  cloudPending?: boolean;
   isSaving: boolean;
   lastSaved: Date | null;
   hasCloudSync: boolean;
@@ -60,6 +62,8 @@ export interface EditorHeaderProps {
 
 export default function EditorHeader({
   isDirty,
+  hasFailed = false,
+  cloudPending = false,
   isSaving,
   lastSaved,
   hasCloudSync,
@@ -122,20 +126,22 @@ export default function EditorHeader({
         <span data-tour="auto-save">
           <AutoSaveIndicator
             isDirty={isDirty}
+            hasFailed={hasFailed}
+            cloudPending={cloudPending}
             isSaving={isSaving}
             lastSaved={lastSaved}
             hasCloudSync={hasCloudSync}
           />
         </span>
-        {isDirty && !isSaving && (
+        {hasFailed && isDirty && !isSaving && (
           <button
             type="button"
             onClick={onSaveNow}
             className={styles.btn}
-            title={`Save now (${isMac ? "⌘S" : "Ctrl+S"})`}
+            title={`Try saving again (${isMac ? "⌘S" : "Ctrl+S"})`}
           >
             <SaveIcon className="w-4 h-4 [&_path]:stroke-current" />
-            <span>Save</span>
+            <span>Try again</span>
           </button>
         )}
 

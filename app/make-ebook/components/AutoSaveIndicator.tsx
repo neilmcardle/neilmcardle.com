@@ -5,6 +5,8 @@ import styles from "../styles/studio.module.css";
 
 interface AutoSaveIndicatorProps {
   isDirty: boolean;
+  hasFailed?: boolean;
+  cloudPending?: boolean;
   isSaving: boolean;
   lastSaved: Date | null;
   compact?: boolean;
@@ -22,6 +24,8 @@ function formatLastSaved(date: Date) {
 
 export function AutoSaveIndicator({
   isDirty,
+  hasFailed = false,
+  cloudPending = false,
   isSaving,
   lastSaved,
   compact = false,
@@ -31,16 +35,19 @@ export function AutoSaveIndicator({
   let label: string | null = null;
   let title = "";
 
-  if (isSaving) {
-    dot = `${styles.savedDot} ${styles.savingDot}`;
-    label = "Saving";
-    title = "Saving";
-  } else if (isDirty) {
+  if (hasFailed && isDirty && !isSaving) {
     dot = `${styles.savedDot} ${styles.dirtyDot}`;
-    label = "Unsaved changes";
-    title = "Unsaved changes";
+    label = "Not saved, retrying";
+    title = "The last save failed. It will try again shortly.";
+  } else if (isSaving || isDirty) {
+    dot = `${styles.savedDot} ${styles.savingDot}`;
+    label = "Saving…";
+    title = "Saving";
   } else if (lastSaved) {
-    label = hasCloudSync ? "Saved and synced" : "Saved on this device";
+    label =
+      hasCloudSync && !cloudPending
+        ? "Saved and synced"
+        : "Saved on this device";
     title = `Saved ${formatLastSaved(lastSaved)}`;
   }
 

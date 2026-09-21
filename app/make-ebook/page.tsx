@@ -575,6 +575,7 @@ function MakeEbookPage() {
   const flushSaveRef = useRef<() => Promise<unknown>>(async () => {});
   const editorSessionRef = useRef(0);
   const autoBlankRef = useRef(false);
+  const lastProfileAtRef = useRef(0);
   const openBookIdRef = useRef<string | undefined>(undefined);
   const reloadOpenBookRef = useRef<(id: string) => void>(() => {});
 
@@ -799,9 +800,11 @@ function MakeEbookPage() {
   }, [focus.active, focus.settings.hideChrome]);
 
   const handleAutoSave = useCallback(() => {
-    const saved = saveBook.saveBookDirectly(false);
+    const saved = saveBook.saveBookDirectly(false, "later");
 
-    if (currentBookId && user?.id && isPro) {
+    const profileDue = Date.now() - lastProfileAtRef.current > 5 * 60 * 1000;
+    if (currentBookId && user?.id && isPro && profileDue) {
+      lastProfileAtRef.current = Date.now();
       const book = loadBookById(user.id, currentBookId);
       if (book) {
         ensureBookProfile({ userId: user.id, book })
@@ -854,12 +857,18 @@ function MakeEbookPage() {
     (!!currentBookId ||
       !bookIsBlank({ title, author, blurb, coverFile: coverUrl, chapters }));
 
-  const { isDirty, isSaving, lastSaved, markDirty, markClean, getVersion } =
-    useAutoSave({
-      onSave: handleAutoSave,
-      interval: 30000,
-      enabled: hasContent,
-    });
+  const {
+    isDirty,
+    isSaving,
+    hasFailed,
+    lastSaved,
+    markDirty,
+    markClean,
+    getVersion,
+  } = useAutoSave({
+    onSave: handleAutoSave,
+    enabled: hasContent,
+  });
 
   markCleanFnRef.current = markClean;
   dirtyVersionFnRef.current = getVersion;
@@ -1829,24 +1838,29 @@ function MakeEbookPage() {
                         void saveBook.saveBookDirectly(false);
                       }
                     }}
+                    aria-live="polite"
                     aria-label={
-                      isSaving
-                        ? "Saving"
-                        : showDirty
-                          ? "Unsaved changes, tap to save"
-                          : "Saved on this device"
+                      hasFailed && showDirty
+                        ? "Not saved. Retrying. Tap to try now"
+                        : showDirty || isSaving
+                          ? "Saving"
+                          : "Saved"
                     }
                   >
                     <span
                       className={`${studio.savedDot} ${
-                        isSaving
-                          ? studio.savingDot
-                          : showDirty
-                            ? studio.dirtyDot
+                        hasFailed && showDirty
+                          ? studio.dirtyDot
+                          : showDirty || isSaving
+                            ? studio.savingDot
                             : ""
                       }`}
                     />
-                    {isSaving ? "Saving" : showDirty ? "Unsaved" : "Saved"}
+                    {hasFailed && showDirty
+                      ? "Not saved, retrying"
+                      : showDirty || isSaving
+                        ? "Saving…"
+                        : "Saved"}
                   </button>
                 </div>
 
@@ -1905,6 +1919,8 @@ function MakeEbookPage() {
                 <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2 bg-white dark:bg-[var(--ink)]">
                   <EditorHeader
                     isDirty={showDirty}
+                    hasFailed={hasFailed}
+                    cloudPending={saveBook.cloudPending}
                     isSaving={isSaving}
                     lastSaved={lastSaved}
                     hasCloudSync={hasCloudSync}

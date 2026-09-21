@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
 import { saveEbookToSupabase } from "@/lib/supabaseEbooks";
 import { Chapter, Endnote, EndnoteReference } from "../types";
@@ -15,7 +15,10 @@ import {
   markBookSynced,
   parseCloudTime,
 } from "../utils/bookLibrary";
-import { toStoredCover } from "../utils/assetStore";
+import { toDisplayCover, toStoredCover } from "../utils/assetStore";
+
+const CLOUD_IDLE_MS = 10000;
+const CLOUD_MAX_WAIT_MS = 30000;
 import {
   ensureChapterIds,
   migrateEndnoteReferences,
@@ -139,6 +142,95 @@ export function useSaveBook({
 }: UseSaveBookParams) {
   const isSavingRef = useRef(false);
   const cloudErrorShownRef = useRef(false);
+  const cloudTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cloudPendingSinceRef = useRef(0);
+  const cloudFailuresRef = useRef(0);
+  const [cloudPending, setCloudPending] = useState(false);
+  const currentBookIdRef = useRef(currentBookId);
+  currentBookIdRef.current = currentBookId;
+  const pushRef = useRef<(id: string) => Promise<boolean>>(async () => true);
+
+  useEffect(
+    () => () => {
+      if (cloudTimerRef.current) clearTimeout(cloudTimerRef.current);
+    },
+    [],
+  );
+
+  pushRef.current = async (id: string) => {
+    if (!(user?.id && hasCloudSync)) return true;
+    const stored = loadBookById(user.id, id);
+    if (!stored) return true;
+    try {
+      const cover = await toDisplayCover(stored.coverFile).catch(() => null);
+      const saved = await saveEbookToSupabase(
+        { ...stored, coverFile: cover },
+        stored.chapters,
+        user.id,
+      );
+      const cloudId = saved?.id ?? id;
+      if (cloudId !== id) {
+        removeBookFromLibrary(user.id, id);
+        saveBookToLibrary(user.id, { ...stored, id: cloudId });
+        if (currentBookIdRef.current === id) setCurrentBookId(cloudId);
+      }
+      markBookSynced(
+        user.id,
+        cloudId,
+        saved?.updated_at ? parseCloudTime(saved.updated_at) : Date.now(),
+      );
+      setLibraryBooks(loadBookLibrary(user.id));
+      cloudErrorShownRef.current = false;
+      cloudFailuresRef.current = 0;
+      return true;
+    } catch (err) {
+      console.error("Supabase sync failed:", err);
+      cloudFailuresRef.current += 1;
+      if (!cloudErrorShownRef.current) {
+        cloudErrorShownRef.current = true;
+        setDialogState({
+          open: true,
+          title: "Cloud sync failed",
+          message:
+            "Your book is saved on this device but could not reach the cloud. It keeps retrying in the background.",
+          variant: "alert",
+          onConfirm: () => setDialogState((prev) => ({ ...prev, open: false })),
+        });
+      }
+      return false;
+    }
+  };
+
+  function scheduleCloudPush(id: string) {
+    if (!(user?.id && hasCloudSync)) return;
+    if (!cloudTimerRef.current) cloudPendingSinceRef.current = Date.now();
+    else clearTimeout(cloudTimerRef.current);
+    setCloudPending(true);
+    const waited = Date.now() - cloudPendingSinceRef.current;
+    const delay =
+      cloudFailuresRef.current > 0
+        ? Math.min(120000, 15000 * 2 ** (cloudFailuresRef.current - 1))
+        : Math.max(0, Math.min(CLOUD_IDLE_MS, CLOUD_MAX_WAIT_MS - waited));
+    cloudTimerRef.current = setTimeout(async () => {
+      cloudTimerRef.current = null;
+      const ok = await pushRef.current(id);
+      if (ok) setCloudPending(false);
+      else scheduleCloudPush(id);
+    }, delay);
+  }
+
+  async function pushNow(id: string) {
+    if (!(user?.id && hasCloudSync)) return true;
+    if (cloudTimerRef.current) {
+      clearTimeout(cloudTimerRef.current);
+      cloudTimerRef.current = null;
+    }
+    setCloudPending(true);
+    const ok = await pushRef.current(id);
+    if (ok) setCloudPending(false);
+    else scheduleCloudPush(id);
+    return ok;
+  }
 
   function trackExport(format: "epub" | "pdf" | "docx") {
     track("book_exported", { format });
@@ -161,7 +253,10 @@ export function useSaveBook({
     });
   }
 
-  async function saveBookDirectly(forceNewVersion: boolean): Promise<boolean> {
+  async function saveBookDirectly(
+    forceNewVersion: boolean,
+    cloud: "now" | "later" = "now",
+  ): Promise<boolean> {
     if (isSavingRef.current) return false;
 
     const session = editorSessionRef.current;
@@ -253,45 +348,15 @@ export function useSaveBook({
         return true;
       }
 
-      try {
-        const supabaseData = await saveEbookToSupabase(
-          bookData,
-          syncedChapters,
-          user.id,
-        );
-        const cloudId = supabaseData?.id ?? id;
-        if (cloudId !== id) {
-          removeBookFromLibrary(user.id, id);
-          saveBookToLibrary(user.id, { ...localBookData, id: cloudId });
-          if (stillOpen()) setCurrentBookId(cloudId);
-        }
-        markBookSynced(
-          user.id,
-          cloudId,
-          supabaseData?.updated_at
-            ? parseCloudTime(supabaseData.updated_at)
-            : Date.now(),
-        );
-        setLibraryBooks(loadBookLibrary(user.id));
-        cloudErrorShownRef.current = false;
+      if (cloud === "later") {
         confirmSaved();
+        scheduleCloudPush(id);
         return true;
-      } catch (err) {
-        console.error("Supabase sync failed:", err);
-        if (!cloudErrorShownRef.current) {
-          cloudErrorShownRef.current = true;
-          setDialogState({
-            open: true,
-            title: "Cloud sync failed",
-            message:
-              "Your book is saved on this device but could not reach the cloud. It stays marked unsaved and keeps retrying in the background.",
-            variant: "alert",
-            onConfirm: () =>
-              setDialogState((prev) => ({ ...prev, open: false })),
-          });
-        }
-        return false;
       }
+
+      const ok = await pushNow(id);
+      if (ok) confirmSaved();
+      return ok;
     } finally {
       isSavingRef.current = false;
     }
@@ -435,6 +500,7 @@ export function useSaveBook({
   return {
     isSavingRef,
     saveBookDirectly,
+    cloudPending,
     saveVersionSnapshot,
     handleSaveBook,
     handleOverwriteBook,
