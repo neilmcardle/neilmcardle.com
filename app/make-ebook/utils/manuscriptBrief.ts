@@ -1,16 +1,16 @@
-import { BookRecord, ManuscriptBrief, ChapterSummary, Chapter } from '../types';
-import { manuscriptHash, isBriefFresh, setBrief } from './bookmindMemory';
+import { BookRecord, ManuscriptBrief, ChapterSummary, Chapter } from "../types";
+import { manuscriptHash, isBriefFresh, setBrief } from "./bookmindMemory";
+import { loadBookById } from "./bookLibrary";
 
 export interface GenerateBriefResult {
   ok: boolean;
   brief?: ManuscriptBrief;
   error?: string;
-  reason?: 'fresh' | 'no-chapters' | 'in-flight' | 'http' | 'parse';
+  reason?: "fresh" | "no-chapters" | "in-flight" | "http" | "parse";
 }
 
 const inFlight = new Map<string, Promise<GenerateBriefResult>>();
 
-// Idempotent: returns immediately if fresh, joins in-flight, or kicks off new.
 export async function ensureManuscriptBrief(args: {
   userId: string;
   book: BookRecord;
@@ -19,7 +19,7 @@ export async function ensureManuscriptBrief(args: {
   const { userId, book } = args;
 
   if (book.chapters.length === 0) {
-    return { ok: false, reason: 'no-chapters', error: 'Book has no chapters' };
+    return { ok: false, reason: "no-chapters", error: "Book has no chapters" };
   }
 
   if (isBriefFresh(book)) {
@@ -34,6 +34,12 @@ export async function ensureManuscriptBrief(args: {
       const result = await generateBrief(book, args.onProgress);
       if (result.ok && result.brief) {
         setBrief(userId, book.id, result.brief);
+        const refreshed = loadBookById(userId, book.id);
+        if (refreshed) {
+          void import("./bookmindProfile")
+            .then((m) => m.ensureBookProfile({ userId, book: refreshed }))
+            .catch(() => {});
+        }
       }
       return result;
     } finally {
@@ -50,16 +56,19 @@ async function generateBrief(
   onProgress?: (summariesSoFar: ChapterSummary[]) => void,
 ): Promise<GenerateBriefResult> {
   const hash = manuscriptHash(book.chapters);
-  const totalWords = book.chapters.reduce((sum, ch) => sum + countWords(ch.content), 0);
+  const totalWords = book.chapters.reduce(
+    (sum, ch) => sum + countWords(ch.content),
+    0,
+  );
 
   let response: Response;
   try {
-    response = await fetch('/api/ai/book-mind/brief', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+    response = await fetch("/api/ai/book-mind/brief", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
-        chapters: book.chapters.map(c => ({
+        chapters: book.chapters.map((c) => ({
           id: c.id,
           title: c.title,
           content: c.content,
@@ -71,7 +80,11 @@ async function generateBrief(
       }),
     });
   } catch (err) {
-    return { ok: false, reason: 'http', error: err instanceof Error ? err.message : 'Network error' };
+    return {
+      ok: false,
+      reason: "http",
+      error: err instanceof Error ? err.message : "Network error",
+    };
   }
 
   if (!response.ok || !response.body) {
@@ -79,28 +92,29 @@ async function generateBrief(
     try {
       const data = await response.json();
       if (data?.error) errorText = data.error;
-    } catch { /* ignore */ }
-    return { ok: false, reason: 'http', error: errorText };
+    } catch {
+      /* ignore */
+    }
+    return { ok: false, reason: "http", error: errorText };
   }
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
-  let buffer = '';
+  let buffer = "";
   const summaries: ChapterSummary[] = [];
 
-  // Best-effort NDJSON parse: malformed lines are skipped.
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() ?? '';
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed) continue;
       try {
         const parsed = JSON.parse(trimmed);
-        if (parsed?.type === 'chapter' && parsed.summary) {
+        if (parsed?.type === "chapter" && parsed.summary) {
           const idx = summaries.length;
           const ch = book.chapters[idx];
           if (!ch) continue;
@@ -110,9 +124,11 @@ async function generateBrief(
             title: ch.title,
             type: ch.type,
             wordCount: countWords(ch.content),
-            summary: String(parsed.summary?.summary ?? '').trim(),
+            summary: String(parsed.summary?.summary ?? "").trim(),
             keyEntities: Array.isArray(parsed.summary?.keyEntities)
-              ? parsed.summary.keyEntities.filter((e: unknown): e is string => typeof e === 'string')
+              ? parsed.summary.keyEntities.filter(
+                  (e: unknown): e is string => typeof e === "string",
+                )
               : [],
             openingLine: firstSentence(ch.content),
             closingLine: lastSentence(ch.content),
@@ -126,7 +142,6 @@ async function generateBrief(
     }
   }
 
-  // Pad to one summary per chapter so callers can index 1:1.
   while (summaries.length < book.chapters.length) {
     const idx = summaries.length;
     const ch = book.chapters[idx];
@@ -136,7 +151,7 @@ async function generateBrief(
       title: ch.title,
       type: ch.type,
       wordCount: countWords(ch.content),
-      summary: '',
+      summary: "",
       keyEntities: [],
       openingLine: firstSentence(ch.content),
       closingLine: lastSentence(ch.content),
@@ -159,19 +174,25 @@ function countWords(text: string): number {
 }
 
 function firstSentence(text: string): string {
-  if (!text) return '';
-  const cleaned = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!text) return "";
+  const cleaned = text
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
   const match = cleaned.match(/^.*?[.!?](?:\s|$)/);
   const sentence = (match?.[0] ?? cleaned).trim();
-  return sentence.length > 200 ? sentence.slice(0, 200) + '…' : sentence;
+  return sentence.length > 200 ? sentence.slice(0, 200) + "…" : sentence;
 }
 
 function lastSentence(text: string): string {
-  if (!text) return '';
-  const cleaned = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!text) return "";
+  const cleaned = text
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
   const parts = cleaned.split(/(?<=[.!?])\s+/);
-  const last = (parts[parts.length - 1] ?? '').trim();
-  return last.length > 200 ? last.slice(0, 200) + '…' : last;
+  const last = (parts[parts.length - 1] ?? "").trim();
+  return last.length > 200 ? last.slice(0, 200) + "…" : last;
 }
 
 export type { Chapter };

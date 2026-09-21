@@ -88,8 +88,6 @@ import {
   displayTitle,
 } from "./utils/bookLibrary";
 
-import { ensureBookProfile } from "./utils/bookmindProfile";
-
 import { getContentChapterNumber } from "./utils/pageUtils";
 import { UserDropdownMobile } from "./components/UserDropdownMobile";
 
@@ -575,7 +573,6 @@ function MakeEbookPage() {
   const flushSaveRef = useRef<() => Promise<unknown>>(async () => {});
   const editorSessionRef = useRef(0);
   const autoBlankRef = useRef(false);
-  const lastProfileAtRef = useRef(0);
   const openBookIdRef = useRef<string | undefined>(undefined);
   const reloadOpenBookRef = useRef<(id: string) => void>(() => {});
 
@@ -801,37 +798,6 @@ function MakeEbookPage() {
 
   const handleAutoSave = useCallback(() => {
     const saved = saveBook.saveBookDirectly(false, "later");
-
-    const profileDue = Date.now() - lastProfileAtRef.current > 5 * 60 * 1000;
-    if (currentBookId && user?.id && isPro && profileDue) {
-      lastProfileAtRef.current = Date.now();
-      const book = loadBookById(user.id, currentBookId);
-      if (book) {
-        ensureBookProfile({ userId: user.id, book })
-          .then((result) => {
-            if (
-              result.ok &&
-              (result.newCharacters?.length ?? 0) +
-                (result.newLocations?.length ?? 0) >
-                0
-            ) {
-              const parts: string[] = [];
-              if (result.newCharacters?.length)
-                parts.push(
-                  `${result.newCharacters.length} character${result.newCharacters.length > 1 ? "s" : ""}`,
-                );
-              if (result.newLocations?.length)
-                parts.push(
-                  `${result.newLocations.length} location${result.newLocations.length > 1 ? "s" : ""}`,
-                );
-              toast(`Book Mind added ${parts.join(" and ")} to your profile`, {
-                duration: 4000,
-              });
-            }
-          })
-          .catch(() => {});
-      }
-    }
 
     return saved;
   }, [

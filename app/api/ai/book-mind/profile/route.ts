@@ -1,12 +1,8 @@
-// Extract a structured book profile from the manuscript brief.
-// Input: brief chapter summaries (already computed). Returns a single JSON
-// BookProfile object. Non-streaming — the output is compact and atomic.
+import { NextRequest, NextResponse } from "next/server";
+import { requireProUser } from "../_lib/proAuth";
+import { streamWithFallback, SystemBlock } from "../_lib/anthropic";
 
-import { NextRequest, NextResponse } from 'next/server';
-import { requireProUser } from '../_lib/proAuth';
-import { streamWithFallback, SystemBlock } from '../_lib/anthropic';
-
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 export const maxDuration = 30;
 
 interface ProfileRequest {
@@ -30,20 +26,29 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 
   if (!body.chapterSummaries || body.chapterSummaries.length === 0) {
-    return NextResponse.json({ error: 'No chapter summaries provided' }, { status: 400 });
+    return NextResponse.json(
+      { error: "No chapter summaries provided" },
+      { status: 400 },
+    );
   }
 
   const briefText = body.chapterSummaries
-    .map((ch, i) => `Chapter ${i + 1} (${ch.type}): ${ch.title || 'Untitled'}\n${ch.summary}\nEntities: ${ch.keyEntities.join(', ')}`)
-    .join('\n\n');
+    .map(
+      (ch, i) =>
+        `Chapter ${i + 1} (${ch.type}): ${ch.title || "Untitled"}\n${ch.summary}\nEntities: ${ch.keyEntities.join(", ")}`,
+    )
+    .join("\n\n");
 
   const systemBlocks: SystemBlock[] = [
     {
-      type: 'text',
+      type: "text",
       text: `You are Book Mind's profile extractor. Read a manuscript brief and return a single JSON object describing the book. Your output is consumed directly by code — it must be valid JSON with no surrounding text, no markdown fences.
 
 Return exactly this shape:
@@ -74,39 +79,53 @@ Rules:
 - Return ONLY the JSON object. No preamble, no explanation, no code fences.`,
     },
     {
-      type: 'text',
-      text: `Book: "${body.title || 'Untitled'}" by ${body.author || 'Unknown'} (${body.genre || 'genre unspecified'})
+      type: "text",
+      text: `Book: "${body.title || "Untitled"}" by ${body.author || "Unknown"} (${body.genre || "genre unspecified"})
 
 CHAPTER SUMMARIES:
 ${briefText}`,
-      cache_control: { type: 'ephemeral' },
+      cache_control: { type: "ephemeral" },
     },
   ];
 
-  // Collect the full streaming response into a single string, then parse as JSON.
-  let rawJson = '';
+  let rawJson = "";
   try {
     for await (const delta of streamWithFallback({
-      tier: 'background',
+      tier: "live",
       systemBlocks,
-      messages: [{ role: 'user', content: 'Extract the book profile now. Return only the JSON object.' }],
+      messages: [
+        {
+          role: "user",
+          content: "Extract the book profile now. Return only the JSON object.",
+        },
+      ],
       maxTokens: 2048,
       temperature: 0.1,
-      label: 'profile',
+      label: "profile",
     })) {
       rawJson += delta;
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Profile extraction failed';
+    const message =
+      err instanceof Error ? err.message : "Profile extraction failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
-  // Strip any accidental markdown fences before parsing.
-  const cleaned = rawJson.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+  const cleaned = rawJson
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "");
   try {
     const profile = JSON.parse(cleaned);
-    return NextResponse.json({ ok: true, profile, manuscriptHash: body.manuscriptHash });
+    return NextResponse.json({
+      ok: true,
+      profile,
+      manuscriptHash: body.manuscriptHash,
+    });
   } catch {
-    return NextResponse.json({ error: 'Profile parse failed', raw: cleaned.slice(0, 500) }, { status: 500 });
+    return NextResponse.json(
+      { error: "Profile parse failed", raw: cleaned.slice(0, 500) },
+      { status: 500 },
+    );
   }
 }
