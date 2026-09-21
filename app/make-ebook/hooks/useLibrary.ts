@@ -45,6 +45,7 @@ interface UseLibraryParams {
   clearEditorState: () => void;
   editorSessionRef: React.MutableRefObject<number>;
   beforeSwitch: () => Promise<unknown>;
+  loadCommitRef: React.MutableRefObject<boolean>;
 }
 
 export function useLibrary({
@@ -71,6 +72,7 @@ export function useLibrary({
   clearEditorState,
   editorSessionRef,
   beforeSwitch,
+  loadCommitRef,
 }: UseLibraryParams) {
   const [selectedBookIds, setSelectedBookIds] = useState<Set<string>>(
     new Set(),
@@ -103,15 +105,14 @@ export function useLibrary({
     if (id !== currentBookId) await beforeSwitch();
     const loaded = loadBookById(user?.id ?? "", id);
     if (loaded) {
+      const cover = await toDisplayCover(loaded.coverFile).catch(() => null);
       editorSessionRef.current += 1;
       isLoadingBookRef.current = true;
+      loadCommitRef.current = true;
       setShowMarketingPage(false);
       loadMetadata({ ...loaded, id: loaded.id });
       setTags(loaded.tags || []);
-      setCoverUrl(null);
-      const coverReady = toDisplayCover(loaded.coverFile)
-        .then((cover) => setCoverUrl(cover))
-        .catch(() => {});
+      setCoverUrl(cover);
 
       const loadedChapters =
         loaded.chapters &&
@@ -152,12 +153,6 @@ export function useLibrary({
 
       setBookJustLoaded(true);
       setTimeout(() => setBookJustLoaded(false), 1000);
-
-      void coverReady.then(() =>
-        setTimeout(() => {
-          isLoadingBookRef.current = false;
-        }, 0),
-      );
     }
   }
 

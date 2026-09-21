@@ -565,6 +565,7 @@ function MakeEbookPage() {
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const isLoadingBookRef = useRef(false);
+  const loadCommitRef = useRef(false);
 
   const clearEditorStateFnRef = useRef<() => void>(() => {});
   const markCleanFnRef = useRef<(version?: number) => void>(() => {});
@@ -743,6 +744,7 @@ function MakeEbookPage() {
     clearEditorState: () => clearEditorStateFnRef.current(),
     editorSessionRef,
     beforeSwitch: () => flushSaveRef.current(),
+    loadCommitRef,
   });
 
   const saveBook = useSaveBook({
@@ -927,6 +929,12 @@ function MakeEbookPage() {
     endnotes,
     endnoteReferences,
   ]);
+
+  useEffect(() => {
+    if (!loadCommitRef.current) return;
+    loadCommitRef.current = false;
+    isLoadingBookRef.current = false;
+  });
 
   const handleAutoFixTypography = useCallback(() => {
     const { fixedChapters, totalChanges } = autoFixAllChapters(chapters);
