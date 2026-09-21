@@ -1539,6 +1539,7 @@ function MakeEbookPage() {
                     onResolve={cloudSync.handleResolveSyncConflict}
                   />
                   <LibraryPanel
+                    active={mobileSidebarOpen && sidebarLibraryExpanded}
                     libraryBooks={libraryBooks}
                     selectedBookId={selectedBookId}
                     currentBookId={currentBookId}
