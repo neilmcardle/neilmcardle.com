@@ -2,6 +2,7 @@
 
 import styles from "../styles/studio.module.css";
 import React from "react";
+import { displayTitle as titleFor } from "../utils/bookLibrary";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +37,7 @@ export default function ChapterNavDropdown({
     return null;
   }
 
-  const displayTitle = bookTitle?.trim() || "Untitled Book";
+  const displayTitle = titleFor({ title: bookTitle, chapters });
 
   return (
     <DropdownMenu>

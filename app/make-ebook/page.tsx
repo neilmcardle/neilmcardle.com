@@ -85,6 +85,7 @@ import {
   loadBookById,
   isBlankBook as bookIsBlank,
   pruneBlankBooks,
+  displayTitle,
 } from "./utils/bookLibrary";
 
 import { ensureBookProfile } from "./utils/bookmindProfile";
@@ -1285,12 +1286,12 @@ function MakeEbookPage() {
                 id="new-book-title"
                 className="text-[17px] font-semibold text-[var(--paper)] mb-2"
               >
-                Save your changes to “{title.trim() || "Untitled book"}”?
+                Save your changes to “{displayTitle({ title, chapters })}”?
               </h2>
               <p className="text-[13.5px] leading-relaxed text-[var(--clay-muted)] mb-6">
                 You’re starting a new, blank book. “
-                {title.trim() || "Untitled book"}” stays in your library either
-                way. Only your latest edits are at stake.
+                {displayTitle({ title, chapters })}” stays in your library
+                either way. Only your latest edits are at stake.
               </p>
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <button
@@ -1817,7 +1818,7 @@ function MakeEbookPage() {
 
                 <div className={studio.mobileTitle}>
                   <span className={studio.mobileTitleText}>
-                    {title?.trim() || "Untitled book"}
+                    {displayTitle({ title, chapters })}
                   </span>
                   <button
                     type="button"

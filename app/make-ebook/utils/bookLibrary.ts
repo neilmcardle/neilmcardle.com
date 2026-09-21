@@ -176,3 +176,14 @@ export function pruneBlankBooks(userId: string): BookRecord[] {
   if (kept.length !== library.length) saveLibraryToStorage(userId, kept);
   return kept;
 }
+
+export function displayTitle(book: {
+  title?: string;
+  chapters?: { title?: string }[];
+}) {
+  return (
+    book.title?.trim() ||
+    book.chapters?.find((ch) => ch.title?.trim())?.title?.trim() ||
+    "Untitled book"
+  );
+}

@@ -3,6 +3,7 @@
 import React from "react";
 import EmptyStateHint from "../EmptyStateHint";
 import styles from "../../styles/studio.module.css";
+import { displayTitle } from "../../utils/bookLibrary";
 
 interface Book {
   id: string;
@@ -10,6 +11,7 @@ interface Book {
   author: string;
   savedAt: number;
   coverUrl?: string;
+  chapters?: { title?: string }[];
 }
 
 interface LibraryPanelProps {
@@ -180,76 +182,81 @@ export default function LibraryPanel({
         </div>
       ) : (
         <div className={styles.bookList}>
-          {libraryBooks.map((book) => {
-            const isCurrent = current === book.id;
-            const isChecked = selectedBookIds.has(book.id);
-            const state = multiSelectMode
-              ? isChecked
-                ? styles.chapterRowChecked
-                : ""
-              : isCurrent
-                ? styles.chapterRowActive
-                : "";
-            return (
-              <div key={book.id} className={`group ${styles.bookRow} ${state}`}>
-                <button
-                  type="button"
-                  className={styles.chapterRowMain}
-                  onClick={() =>
-                    multiSelectMode
-                      ? toggleBookSelection(book.id)
-                      : handleLoadBook(book.id)
-                  }
-                  role={multiSelectMode ? "checkbox" : undefined}
-                  aria-checked={multiSelectMode ? isChecked : undefined}
-                  aria-current={
-                    !multiSelectMode && isCurrent ? "true" : undefined
-                  }
+          {[...libraryBooks]
+            .sort((a, b) => (b.savedAt ?? 0) - (a.savedAt ?? 0))
+            .map((book) => {
+              const isCurrent = current === book.id;
+              const isChecked = selectedBookIds.has(book.id);
+              const state = multiSelectMode
+                ? isChecked
+                  ? styles.chapterRowChecked
+                  : ""
+                : isCurrent
+                  ? styles.chapterRowActive
+                  : "";
+              return (
+                <div
+                  key={book.id}
+                  className={`group ${styles.bookRow} ${state}`}
                 >
-                  {multiSelectMode && (
-                    <span
-                      className={`${styles.checkbox} ${isChecked ? styles.checkboxOn : ""}`}
-                      aria-hidden="true"
-                    >
-                      {isChecked && (
-                        <svg
-                          width="10"
-                          height="10"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={4}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <polyline points="4 12 9 17 20 6" />
-                        </svg>
-                      )}
-                    </span>
-                  )}
-                  <span className={styles.bookText}>
-                    <span className={styles.bookName}>
-                      {book.title || "Untitled"}
-                    </span>
-                    <span className={styles.bookAuthor}>
-                      {book.author || "No author yet"}
-                    </span>
-                  </span>
-                </button>
-                {!multiSelectMode && (
                   <button
                     type="button"
-                    className={styles.rowIconBtn}
-                    onClick={() => handleDeleteBook(book.id)}
-                    title="Delete book"
-                    aria-label={`Delete ${book.title || "Untitled"}`}
+                    className={styles.chapterRowMain}
+                    onClick={() =>
+                      multiSelectMode
+                        ? toggleBookSelection(book.id)
+                        : handleLoadBook(book.id)
+                    }
+                    role={multiSelectMode ? "checkbox" : undefined}
+                    aria-checked={multiSelectMode ? isChecked : undefined}
+                    aria-current={
+                      !multiSelectMode && isCurrent ? "true" : undefined
+                    }
                   >
-                    <Icon d={TRASH} />
+                    {multiSelectMode && (
+                      <span
+                        className={`${styles.checkbox} ${isChecked ? styles.checkboxOn : ""}`}
+                        aria-hidden="true"
+                      >
+                        {isChecked && (
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={4}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="4 12 9 17 20 6" />
+                          </svg>
+                        )}
+                      </span>
+                    )}
+                    <span className={styles.bookText}>
+                      <span className={styles.bookName}>
+                        {displayTitle(book)}
+                      </span>
+                      <span className={styles.bookAuthor}>
+                        {book.author || "No author yet"}
+                      </span>
+                    </span>
                   </button>
-                )}
-              </div>
-            );
-          })}
+                  {!multiSelectMode && (
+                    <button
+                      type="button"
+                      className={styles.rowIconBtn}
+                      onClick={() => handleDeleteBook(book.id)}
+                      title="Delete book"
+                      aria-label={`Delete ${displayTitle(book)}`}
+                    >
+                      <Icon d={TRASH} />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
         </div>
       )}
     </div>
