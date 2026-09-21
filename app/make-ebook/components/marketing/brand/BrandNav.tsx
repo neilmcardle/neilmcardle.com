@@ -18,7 +18,7 @@ export function BrandNav({ onStartWriting, onLanding = false }: BrandNavProps) {
   const links = [
     { href: `${home}#product`, label: "Product" },
     { href: `${home}#pricing`, label: "Pricing" },
-    { href: "/make-ebook/signin", label: "Sign in" },
+    { href: "/make-ebook/signin?mode=signin", label: "Sign in" },
   ];
 
   return (

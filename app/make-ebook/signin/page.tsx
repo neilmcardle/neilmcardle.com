@@ -25,11 +25,11 @@ function PageShell({ children }: { children: React.ReactNode }) {
 function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const rawMode = searchParams.get("mode") ?? "signup";
+  const rawMode = searchParams.get("mode") ?? "signin";
   const initialMode =
     rawMode === "signin" || rawMode === "signup" || rawMode === "reset"
       ? (rawMode as "signin" | "signup" | "reset")
-      : "signup";
+      : "signin";
 
   const [mode, setMode] = useState<"signin" | "signup" | "reset">(initialMode);
   const [email, setEmail] = useState("");

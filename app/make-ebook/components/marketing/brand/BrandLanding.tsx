@@ -620,7 +620,7 @@ export default function BrandLanding({
               <p className={landing.footerHead}>makeebook</p>
               <ul className={landing.footerList}>
                 <li>
-                  <Link href="/make-ebook/signin">Sign in</Link>
+                  <Link href="/make-ebook/signin?mode=signin">Sign in</Link>
                 </li>
                 <li>
                   <a
