@@ -670,22 +670,34 @@ export function FocusCard() {
   const players = useRef<Record<string, HTMLAudioElement>>({});
   const fades = useRef<Record<string, number>>({});
 
+  const wanted = useRef<Record<string, boolean>>({});
+
   const fadeTo = (id: string, target: number) => {
     const audio = players.current[id];
     if (!audio) return;
+    wanted.current[id] = target > 0;
     window.clearInterval(fades.current[id]);
     if (target > 0 && audio.paused) {
       audio.volume = 0;
-      void audio.play().catch(() => setSoundOn(false));
+      void audio
+        .play()
+        .then(() => {
+          if (!wanted.current[id]) audio.pause();
+        })
+        .catch(() => setSoundOn(false));
     }
+    const from = audio.volume;
+    const steps = 10;
+    let step = 0;
     fades.current[id] = window.setInterval(() => {
-      const next = audio.volume + (target > audio.volume ? 0.05 : -0.05);
-      if (Math.abs(target - audio.volume) <= 0.05) {
-        audio.volume = target;
+      step += 1;
+      audio.volume = Math.min(
+        1,
+        Math.max(0, from + ((target - from) * step) / steps),
+      );
+      if (step >= steps) {
         window.clearInterval(fades.current[id]);
-        if (target === 0) audio.pause();
-      } else {
-        audio.volume = Math.min(1, Math.max(0, next));
+        if (!wanted.current[id]) audio.pause();
       }
     }, 30);
   };
@@ -737,6 +749,10 @@ export function FocusCard() {
                   aria-checked={soundId === s.id}
                   className={`${styles.tile} ${soundId === s.id ? styles.tileActive : ""}`}
                   onClick={() => {
+                    if (soundOn && soundId === s.id) {
+                      setSoundOn(false);
+                      return;
+                    }
                     setSoundId(s.id);
                     setSoundOn(true);
                   }}
