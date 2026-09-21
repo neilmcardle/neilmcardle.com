@@ -43,6 +43,8 @@ interface UseLibraryParams {
   setBookJustLoaded: (v: boolean) => void;
   setDialogState: React.Dispatch<React.SetStateAction<DialogState>>;
   clearEditorState: () => void;
+  editorSessionRef: React.MutableRefObject<number>;
+  beforeSwitch: () => Promise<unknown>;
 }
 
 export function useLibrary({
@@ -67,6 +69,8 @@ export function useLibrary({
   setBookJustLoaded,
   setDialogState,
   clearEditorState,
+  editorSessionRef,
+  beforeSwitch,
 }: UseLibraryParams) {
   const [selectedBookIds, setSelectedBookIds] = useState<Set<string>>(
     new Set(),
@@ -95,17 +99,19 @@ export function useLibrary({
     }
   }
 
-  function handleLoadBook(id: string) {
+  async function handleLoadBook(id: string, keepChapter = false) {
+    if (id !== currentBookId) await beforeSwitch();
     const loaded = loadBookById(user?.id ?? "", id);
     if (loaded) {
+      editorSessionRef.current += 1;
       isLoadingBookRef.current = true;
       setShowMarketingPage(false);
       loadMetadata({ ...loaded, id: loaded.id });
       setTags(loaded.tags || []);
       setCoverUrl(null);
-      void toDisplayCover(loaded.coverFile).then((cover) => {
-        setCoverUrl(cover);
-      });
+      const coverReady = toDisplayCover(loaded.coverFile)
+        .then((cover) => setCoverUrl(cover))
+        .catch(() => {});
 
       const loadedChapters =
         loaded.chapters &&
@@ -139,7 +145,7 @@ export function useLibrary({
       );
       setNextEndnoteNumber(maxNumber + 1);
       setCurrentBookId(loaded.id);
-      setSelectedChapter(0);
+      if (!keepChapter) setSelectedChapter(0);
 
       setMobileSidebarOpen(false);
       setSidebarView(null);
@@ -147,9 +153,11 @@ export function useLibrary({
       setBookJustLoaded(true);
       setTimeout(() => setBookJustLoaded(false), 1000);
 
-      setTimeout(() => {
-        isLoadingBookRef.current = false;
-      }, 0);
+      void coverReady.then(() =>
+        setTimeout(() => {
+          isLoadingBookRef.current = false;
+        }, 0),
+      );
     }
   }
 

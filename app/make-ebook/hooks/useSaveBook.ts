@@ -11,6 +11,7 @@ import {
   loadBookById,
   saveBookToLibrary,
   removeBookFromLibrary,
+  isBlankBook,
 } from "../utils/bookLibrary";
 import { toStoredCover } from "../utils/assetStore";
 import {
@@ -89,7 +90,9 @@ interface UseSaveBookParams {
   setEpubBlob: (b: Blob | null) => void;
   setShowEPUBReader: (v: boolean) => void;
   closeExportHistoryModal: () => void;
-  markClean: () => void;
+  markClean: (version?: number) => void;
+  getDirtyVersion: () => number;
+  editorSessionRef: React.MutableRefObject<number>;
 
   clearEditorState: () => void;
 }
@@ -128,9 +131,12 @@ export function useSaveBook({
   setShowEPUBReader,
   closeExportHistoryModal,
   markClean,
+  getDirtyVersion,
+  editorSessionRef,
   clearEditorState,
 }: UseSaveBookParams) {
   const isSavingRef = useRef(false);
+  const cloudErrorShownRef = useRef(false);
 
   function trackExport(format: "epub" | "pdf" | "docx") {
     track("book_exported", { format });
@@ -155,6 +161,18 @@ export function useSaveBook({
 
   async function saveBookDirectly(forceNewVersion: boolean): Promise<boolean> {
     if (isSavingRef.current) return false;
+
+    const session = editorSessionRef.current;
+    const version = getDirtyVersion();
+
+    if (
+      (forceNewVersion || !currentBookId) &&
+      isBlankBook({ title, author, blurb, coverFile: coverUrl, chapters })
+    ) {
+      markClean(version);
+      return true;
+    }
+
     isSavingRef.current = true;
 
     try {
@@ -209,19 +227,22 @@ export function useSaveBook({
           open: true,
           title: "Out of local storage",
           message:
-            "This browser hit its storage limit, so the save did not finish. Version history is usually what fills it, since every save keeps a full copy of the book. Clearing history on older books frees the most room.",
+            "This browser hit its storage limit, so the save did not finish. Large images inside chapters use the most room. Removing images, or books you no longer need, frees space.",
           variant: "alert",
           onConfirm: () => setDialogState((prev) => ({ ...prev, open: false })),
         });
         return false;
       }
 
-      setCurrentBookId(id);
+      const stillOpen = () => editorSessionRef.current === session;
+
+      if (stillOpen()) setCurrentBookId(id);
       setLibraryBooks(loadBookLibrary(user?.id ?? ""));
 
       const confirmSaved = () => {
+        if (!stillOpen()) return;
         setSaveFeedback(true);
-        markClean();
+        markClean(version);
         setTimeout(() => setSaveFeedback(false), 1300);
       };
 
@@ -239,21 +260,26 @@ export function useSaveBook({
         if (supabaseData?.id && supabaseData.id !== id) {
           removeBookFromLibrary(user.id, id);
           saveBookToLibrary(user.id, { ...localBookData, id: supabaseData.id });
-          setCurrentBookId(supabaseData.id);
+          if (stillOpen()) setCurrentBookId(supabaseData.id);
           setLibraryBooks(loadBookLibrary(user.id));
         }
+        cloudErrorShownRef.current = false;
         confirmSaved();
         return true;
       } catch (err) {
         console.error("Supabase sync failed:", err);
-        setDialogState({
-          open: true,
-          title: "Cloud sync failed",
-          message:
-            "Your book is saved on this device but could not reach the cloud. It stays marked unsaved and will retry automatically.",
-          variant: "alert",
-          onConfirm: () => setDialogState((prev) => ({ ...prev, open: false })),
-        });
+        if (!cloudErrorShownRef.current) {
+          cloudErrorShownRef.current = true;
+          setDialogState({
+            open: true,
+            title: "Cloud sync failed",
+            message:
+              "Your book is saved on this device but could not reach the cloud. It stays marked unsaved and keeps retrying in the background.",
+            variant: "alert",
+            onConfirm: () =>
+              setDialogState((prev) => ({ ...prev, open: false })),
+          });
+        }
         return false;
       }
     } finally {
@@ -270,9 +296,9 @@ export function useSaveBook({
     saveVersionSnapshot();
   }
 
-  function handleOverwriteBook() {
+  async function handleOverwriteBook() {
     setSaveDialogOpen(false);
-    saveBookDirectly(false);
+    await saveBookDirectly(false);
     saveVersionSnapshot();
 
     if (newBookConfirmOpen) {
@@ -281,9 +307,9 @@ export function useSaveBook({
     }
   }
 
-  function handleSaveAsNewVersion() {
+  async function handleSaveAsNewVersion() {
     setSaveDialogOpen(false);
-    saveBookDirectly(true);
+    await saveBookDirectly(true);
     saveVersionSnapshot();
 
     if (newBookConfirmOpen) {

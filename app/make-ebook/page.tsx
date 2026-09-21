@@ -80,7 +80,12 @@ import FindReplacePanel from "./components/FindReplacePanel";
 import { useFindReplace } from "./hooks/useFindReplace";
 import { useOnboarding } from "./hooks/useOnboarding";
 import OnboardingTour from "./components/OnboardingTour";
-import { loadBookLibrary, loadBookById } from "./utils/bookLibrary";
+import {
+  loadBookLibrary,
+  loadBookById,
+  isBlankBook as bookIsBlank,
+  pruneBlankBooks,
+} from "./utils/bookLibrary";
 
 import { ensureBookProfile } from "./utils/bookmindProfile";
 
@@ -562,7 +567,14 @@ function MakeEbookPage() {
   const isLoadingBookRef = useRef(false);
 
   const clearEditorStateFnRef = useRef<() => void>(() => {});
-  const markCleanFnRef = useRef<() => void>(() => {});
+  const markCleanFnRef = useRef<(version?: number) => void>(() => {});
+  const dirtyVersionFnRef = useRef<() => number>(() => 0);
+  const isDirtyRef = useRef(false);
+  const flushSaveRef = useRef<() => Promise<unknown>>(async () => {});
+  const editorSessionRef = useRef(0);
+  const autoBlankRef = useRef(false);
+  const openBookIdRef = useRef<string | undefined>(undefined);
+  const reloadOpenBookRef = useRef<(id: string) => void>(() => {});
 
   const [showMarketingPage, setShowMarketingPage] = useState(!user);
 
@@ -671,7 +683,15 @@ function MakeEbookPage() {
     "versions" | "exports" | null
   >(null);
 
-  const cloudSync = useCloudSync({ user, isLoadingBookRef, setLibraryBooks });
+  openBookIdRef.current = currentBookId;
+
+  const cloudSync = useCloudSync({
+    user,
+    isLoadingBookRef,
+    setLibraryBooks,
+    openBookIdRef,
+    onOpenBookUpdated: (id) => reloadOpenBookRef.current(id),
+  });
 
   const endnotesHook = useEndnotes({
     chapters,
@@ -720,6 +740,8 @@ function MakeEbookPage() {
     setBookJustLoaded,
     setDialogState,
     clearEditorState: () => clearEditorStateFnRef.current(),
+    editorSessionRef,
+    beforeSwitch: () => flushSaveRef.current(),
   });
 
   const saveBook = useSaveBook({
@@ -755,7 +777,9 @@ function MakeEbookPage() {
     setEpubBlob,
     setShowEPUBReader,
     closeExportHistoryModal: () => setHistoryModal(null),
-    markClean: () => markCleanFnRef.current(),
+    markClean: (version) => markCleanFnRef.current(version),
+    getDirtyVersion: () => dirtyVersionFnRef.current(),
+    editorSessionRef,
     clearEditorState: () => clearEditorStateFnRef.current(),
   });
 
@@ -822,17 +846,40 @@ function MakeEbookPage() {
   ]);
 
   const hasContent =
-    (title && title.trim() !== "") ||
-    (author && author.trim() !== "") ||
-    chapters.length > 0;
+    chapters.length > 0 &&
+    (!!currentBookId ||
+      !bookIsBlank({ title, author, blurb, coverFile: coverUrl, chapters }));
 
-  const { isDirty, isSaving, lastSaved, markDirty, markClean } = useAutoSave({
-    onSave: handleAutoSave,
-    interval: 30000, // 30 seconds
-    enabled: hasContent, // Enable auto-save as soon as user enters any data
-  });
+  const { isDirty, isSaving, lastSaved, markDirty, markClean, getVersion } =
+    useAutoSave({
+      onSave: handleAutoSave,
+      interval: 30000,
+      enabled: hasContent,
+    });
 
   markCleanFnRef.current = markClean;
+  dirtyVersionFnRef.current = getVersion;
+  isDirtyRef.current = isDirty;
+  flushSaveRef.current = async () => {
+    if (isDirtyRef.current) await saveBook.saveBookDirectly(false);
+  };
+  reloadOpenBookRef.current = (id) => {
+    if (isDirtyRef.current) {
+      toast("This book changed on another device.", {
+        description: "Your edits here are unsaved.",
+        action: {
+          label: "Load theirs",
+          onClick: () => {
+            markClean();
+            void library.handleLoadBook(id, true);
+          },
+        },
+        duration: 12000,
+      });
+      return;
+    }
+    void library.handleLoadBook(id, true);
+  };
 
   useUnsavedChangesWarning(isDirty);
 
@@ -870,9 +917,13 @@ function MakeEbookPage() {
     blurb,
     publisher,
     pubDate,
+    isbn,
+    language,
     genre,
     tags,
     coverUrl,
+    endnotes,
+    endnoteReferences,
   ]);
 
   const handleAutoFixTypography = useCallback(() => {
@@ -1037,6 +1088,8 @@ function MakeEbookPage() {
   }
 
   function clearEditorState() {
+    editorSessionRef.current += 1;
+    autoBlankRef.current = false;
     resetMetadata();
     setTags([]);
     clearCover();
@@ -1067,7 +1120,7 @@ function MakeEbookPage() {
     }
   }
 
-  function saveForNewBook() {
+  async function saveForNewBook() {
     if (currentBookId) {
       const library = loadBookLibrary(user?.id ?? "");
       const existingBook = library.find((b: any) => b.id === currentBookId);
@@ -1077,7 +1130,7 @@ function MakeEbookPage() {
       }
     }
 
-    saveBook.saveBookDirectly(false);
+    await saveBook.saveBookDirectly(false);
     saveBook.saveVersionSnapshot();
     clearEditorState();
     setNewBookConfirmOpen(false);
@@ -1096,6 +1149,7 @@ function MakeEbookPage() {
   }
 
   function handleGoToHome() {
+    editorSessionRef.current += 1;
     setChapters([]);
     setTitle("");
     setAuthor("");
@@ -1106,16 +1160,35 @@ function MakeEbookPage() {
 
   useEffect(() => {
     if (!initialized || !user || libraryLoading) return;
-    if (showMarketingPage || chapters.length > 0) return;
-    if (libraryBooks.length > 0) {
-      const latest = libraryBooks.reduce((a, b) =>
-        a.savedAt > b.savedAt ? a : b,
-      );
-      library.handleLoadBook(latest.id);
-    } else {
-      clearEditorState();
+    if (showMarketingPage) return;
+    const latest =
+      libraryBooks.length > 0
+        ? libraryBooks.reduce((a, b) => (a.savedAt > b.savedAt ? a : b))
+        : null;
+    if (chapters.length > 0) {
+      const untouchedBlank =
+        autoBlankRef.current &&
+        !currentBookId &&
+        !isDirtyRef.current &&
+        bookIsBlank({ title, author, blurb, coverFile: coverUrl, chapters });
+      if (latest && untouchedBlank) void library.handleLoadBook(latest.id);
+      return;
     }
-  }, [initialized, user, libraryLoading, showMarketingPage, chapters.length]);
+    if (latest) {
+      void library.handleLoadBook(latest.id);
+    } else if (cloudSync.initialSyncDone) {
+      clearEditorState();
+      autoBlankRef.current = true;
+    }
+  }, [
+    initialized,
+    user,
+    libraryLoading,
+    showMarketingPage,
+    chapters.length,
+    libraryBooks,
+    cloudSync.initialSyncDone,
+  ]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -1124,7 +1197,7 @@ function MakeEbookPage() {
       return;
     }
 
-    const books = loadBookLibrary(user.id);
+    const books = pruneBlankBooks(user.id);
     setLibraryBooks(books);
     setLibraryLoading(false);
 

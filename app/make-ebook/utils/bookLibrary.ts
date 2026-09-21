@@ -129,3 +129,30 @@ export function saveLibraryToStorage(userId: string, books: BookRecord[]) {
     console.error("Failed to save library to localStorage:", e);
   }
 }
+
+function hasText(html?: string) {
+  if (!html) return false;
+  return (
+    html
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;| /g, " ")
+      .trim().length > 0
+  );
+}
+
+export function isBlankBook(book: Partial<BookRecord>) {
+  return (
+    !book.title?.trim() &&
+    !book.author?.trim() &&
+    !book.blurb?.trim() &&
+    !book.coverFile &&
+    !(book.chapters ?? []).some((ch) => ch.title?.trim() || hasText(ch.content))
+  );
+}
+
+export function pruneBlankBooks(userId: string): BookRecord[] {
+  const library = loadBookLibrary(userId);
+  const kept = library.filter((b) => !isBlankBook(b));
+  if (kept.length !== library.length) saveLibraryToStorage(userId, kept);
+  return kept;
+}

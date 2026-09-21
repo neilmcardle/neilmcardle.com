@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { BookRecord } from "../types";
 import {
+  isBlankBook,
   loadBookLibrary,
   normalizeBookFromSupabase,
   saveLibraryToStorage,
@@ -31,13 +32,22 @@ interface UseCloudSyncParams {
   user: { id: string } | null;
   isLoadingBookRef: React.MutableRefObject<boolean>;
   setLibraryBooks: (books: any[]) => void;
+  openBookIdRef: React.MutableRefObject<string | undefined>;
+  onOpenBookUpdated: (id: string) => void;
 }
 
 export function useCloudSync({
   user,
   isLoadingBookRef,
   setLibraryBooks,
+  openBookIdRef,
+  onOpenBookUpdated,
 }: UseCloudSyncParams) {
+  const [initialSyncDone, setInitialSyncDone] = useState(false);
+  const onOpenBookUpdatedRef = useRef(onOpenBookUpdated);
+  useEffect(() => {
+    onOpenBookUpdatedRef.current = onOpenBookUpdated;
+  });
   const [syncConflicts, setSyncConflicts] = useState<
     {
       local: BookRecord;
@@ -70,10 +80,19 @@ export function useCloudSync({
               localBooks.map((b: BookRecord) => [b.id, b]),
             );
             const conflicts: { local: BookRecord; cloud: BookRecord }[] = [];
+            const blankIds: string[] = [];
+            let openBookUpdated = false;
 
             for (const raw of supabaseBooks) {
               if (!raw.id) continue;
               const normalized = normalizeBookFromSupabase(raw);
+              if (isBlankBook(normalized)) {
+                if (raw.id !== openBookIdRef.current) {
+                  blankIds.push(raw.id);
+                  bookMap.delete(raw.id);
+                }
+                continue;
+              }
               const existing = bookMap.get(raw.id);
 
               if (!existing) {
@@ -106,8 +125,17 @@ export function useCloudSync({
                     raw.id,
                     withLocalOnlyFields(normalized, existing),
                   );
+                  if (raw.id === openBookIdRef.current) openBookUpdated = true;
                 }
               }
+            }
+
+            if (blankIds.length > 0) {
+              void import("@/lib/supabaseEbooks").then((m) =>
+                Promise.allSettled(
+                  blankIds.map((id) => m.deleteEbookFromSupabase(id)),
+                ),
+              );
             }
 
             if (conflicts.length > 0) {
@@ -121,12 +149,16 @@ export function useCloudSync({
               setTimeout(() => {
                 isLoadingBookRef.current = false;
               }, 0);
+              if (openBookUpdated && openBookIdRef.current) {
+                onOpenBookUpdatedRef.current(openBookIdRef.current);
+              }
             }
           }
         } catch (err) {
           console.error("Failed to sync Supabase books:", err);
         } finally {
           syncingRef.current = false;
+          setInitialSyncDone(true);
         }
       }
     },
@@ -136,6 +168,12 @@ export function useCloudSync({
   useEffect(() => {
     conflictsOpenRef.current = syncConflicts.length > 0;
   }, [syncConflicts]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const fallback = setTimeout(() => setInitialSyncDone(true), 6000);
+    return () => clearTimeout(fallback);
+  }, [user?.id]);
 
   useEffect(() => {
     void syncNow(true);
@@ -194,6 +232,7 @@ export function useCloudSync({
   }
 
   return {
+    initialSyncDone,
     syncConflicts,
     setSyncConflicts,
     syncMergedMap,
