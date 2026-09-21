@@ -592,7 +592,7 @@ function MakeEbookPage() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
   const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
-  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [, setSaveDialogOpen] = useState(false);
 
   const [dialogState, setDialogState] = useState<{
     open: boolean;
@@ -861,6 +861,7 @@ function MakeEbookPage() {
   markCleanFnRef.current = markClean;
   dirtyVersionFnRef.current = getVersion;
   isDirtyRef.current = isDirty;
+  const showDirty = isDirty && hasContent;
   flushSaveRef.current = async () => {
     if (isDirtyRef.current) await saveBook.saveBookDirectly(false);
   };
@@ -882,7 +883,7 @@ function MakeEbookPage() {
     void library.handleLoadBook(id, true);
   };
 
-  useUnsavedChangesWarning(isDirty);
+  useUnsavedChangesWarning(showDirty);
 
   useEditorShortcuts({
     onSave: () => {
@@ -1085,7 +1086,30 @@ function MakeEbookPage() {
   }, [chapterTypeDropdownOpen]);
 
   function showNewBookConfirmation() {
+    const blank = bookIsBlank({
+      title,
+      author,
+      blurb,
+      coverFile: coverUrl,
+      chapters,
+    });
+    if (!isDirtyRef.current || blank) {
+      void startNewBook(false);
+      return;
+    }
     setNewBookConfirmOpen(true);
+  }
+
+  async function startNewBook(save: boolean) {
+    if (save) {
+      const ok = await saveBook.saveBookDirectly(false);
+      if (!ok) return;
+      saveBook.saveVersionSnapshot();
+    } else {
+      markClean();
+    }
+    setNewBookConfirmOpen(false);
+    clearEditorState();
   }
 
   function clearEditorState() {
@@ -1111,31 +1135,6 @@ function MakeEbookPage() {
   }
 
   clearEditorStateFnRef.current = clearEditorState;
-
-  function handleNewBookConfirm() {
-    if (title || author || chapters.some((ch) => ch.content.trim())) {
-      saveForNewBook();
-    } else {
-      clearEditorState();
-      setNewBookConfirmOpen(false);
-    }
-  }
-
-  async function saveForNewBook() {
-    if (currentBookId) {
-      const library = loadBookLibrary(user?.id ?? "");
-      const existingBook = library.find((b: any) => b.id === currentBookId);
-      if (existingBook) {
-        setSaveDialogOpen(true);
-        return;
-      }
-    }
-
-    await saveBook.saveBookDirectly(false);
-    saveBook.saveVersionSnapshot();
-    clearEditorState();
-    setNewBookConfirmOpen(false);
-  }
 
   function handleStartWriting() {
     setShowMarketingPage(false);
@@ -1267,61 +1266,45 @@ function MakeEbookPage() {
 
       <div className="bg-white dark:bg-[var(--ink)] text-[var(--ink)] dark:text-[var(--paper)]">
         {newBookConfirmOpen && (
-          <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[var(--ink)] rounded shadow-2xl p-6 max-w-md w-full">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-[var(--paper)] mb-4">
-                Start New Book?
+          <div
+            className="fixed inset-0 z-[130] bg-black/50 flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="new-book-title"
+          >
+            <div className="bg-[var(--ink-panel)] border border-[var(--rule)] rounded-2xl shadow-2xl p-6 max-w-md w-full">
+              <h2
+                id="new-book-title"
+                className="text-[17px] font-semibold text-[var(--paper)] mb-2"
+              >
+                Save your changes to “{title.trim() || "Untitled book"}”?
               </h2>
-              <p className="text-gray-600 dark:text-[var(--clay)] mb-6">
-                This will save your current book and start a new one. All your
-                current work will be preserved in the library.
+              <p className="text-[13.5px] leading-relaxed text-[var(--clay-muted)] mb-6">
+                You’re starting a new, blank book. “
+                {title.trim() || "Untitled book"}” stays in your library either
+                way. Only your latest edits are at stake.
               </p>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap items-center justify-end gap-2">
                 <button
+                  type="button"
                   onClick={() => setNewBookConfirmOpen(false)}
-                  className="flex-1 px-4 py-2 rounded border border-[var(--clay)] dark:border-[var(--ink-hover)] text-sm font-medium text-gray-900 dark:text-[var(--paper)] hover:bg-[var(--paper)] dark:hover:bg-[var(--ink-raised)] transition-colors"
-                >
-                  Go Back
-                </button>
-                <button
-                  onClick={handleNewBookConfirm}
-                  className="flex-1 px-4 py-2 rounded bg-[var(--ink-raised)] dark:bg-[var(--ink-raised)] text-white text-sm font-medium hover:bg-[var(--ink-raised)] dark:hover:bg-[var(--ink-hover)] transition-colors"
-                >
-                  Continue
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {saveDialogOpen && (
-          <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[var(--ink)] rounded shadow-2xl p-6 max-w-md w-full">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-[var(--paper)] mb-4">
-                Save Book
-              </h2>
-              <p className="text-gray-600 dark:text-[var(--clay)] mb-6">
-                This book already exists in your library. Do you want to
-                overwrite the existing version or save as a new version?
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setSaveDialogOpen(false)}
-                  className="flex-1 px-4 py-2 rounded border border-[var(--clay)] dark:border-[var(--ink-hover)] text-sm font-medium text-gray-900 dark:text-[var(--paper)] hover:bg-[var(--paper)] dark:hover:bg-[var(--ink-raised)] transition-colors"
+                  className="mr-auto h-9 px-3 rounded-full text-[13px] font-medium text-[var(--clay)] hover:text-[var(--paper)] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={saveBook.handleOverwriteBook}
-                  className="flex-1 px-4 py-2 rounded bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] text-sm font-medium hover:bg-gray-800 dark:hover:bg-[var(--ink-raised)] transition-colors"
+                  type="button"
+                  onClick={() => void startNewBook(false)}
+                  className="h-9 px-4 rounded-full border border-[var(--rule)] text-[13px] font-medium text-[var(--paper)] hover:bg-[var(--ink-hover)] transition-colors"
                 >
-                  Overwrite
+                  Don’t save
                 </button>
                 <button
-                  onClick={saveBook.handleSaveAsNewVersion}
-                  className="flex-1 px-4 py-2 rounded bg-[var(--ink-raised)] dark:bg-[var(--ink-raised)] text-white text-sm font-medium hover:bg-[var(--ink-raised)] dark:hover:bg-[var(--ink-hover)] transition-colors"
+                  type="button"
+                  onClick={() => void startNewBook(true)}
+                  className="h-9 px-4 rounded-full bg-[var(--acid)] text-[13px] font-semibold text-[var(--ink-deep)] hover:bg-[var(--acid-hover)] transition-colors"
                 >
-                  Save as New
+                  Save and start new
                 </button>
               </div>
             </div>
@@ -1832,14 +1815,14 @@ function MakeEbookPage() {
                     type="button"
                     className={studio.mobileStatus}
                     onClick={() => {
-                      if (isDirty && !isSaving) {
+                      if (showDirty && !isSaving) {
                         void saveBook.saveBookDirectly(false);
                       }
                     }}
                     aria-label={
                       isSaving
                         ? "Saving"
-                        : isDirty
+                        : showDirty
                           ? "Unsaved changes, tap to save"
                           : "Saved on this device"
                     }
@@ -1848,12 +1831,12 @@ function MakeEbookPage() {
                       className={`${studio.savedDot} ${
                         isSaving
                           ? studio.savingDot
-                          : isDirty
+                          : showDirty
                             ? studio.dirtyDot
                             : ""
                       }`}
                     />
-                    {isSaving ? "Saving" : isDirty ? "Unsaved" : "Saved"}
+                    {isSaving ? "Saving" : showDirty ? "Unsaved" : "Saved"}
                   </button>
                 </div>
 
@@ -1911,7 +1894,7 @@ function MakeEbookPage() {
               ) : (
                 <section className="flex flex-col min-w-0 flex-1 min-h-0 pt-2 bg-white dark:bg-[var(--ink)]">
                   <EditorHeader
-                    isDirty={isDirty}
+                    isDirty={showDirty}
                     isSaving={isSaving}
                     lastSaved={lastSaved}
                     hasCloudSync={hasCloudSync}
