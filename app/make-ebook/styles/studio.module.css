@@ -468,6 +468,16 @@
   text-indent: 1.4em;
 }
 
+.pageColumns .pageChapter,
+.pageColumns .pageTitle,
+.pageColumns .pageTitle + p {
+  text-indent: 0;
+}
+
+.pageColumns .pageChapter {
+  padding-left: 0.28em;
+}
+
 .pageChapter {
   margin: 0 0 4px;
   font-family: var(--font-ui);
