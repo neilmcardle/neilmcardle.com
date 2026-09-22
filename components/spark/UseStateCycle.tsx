@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { RunMarker } from "./RunMarker";
 import { WidgetShell, useReducedMotion } from "./WidgetShell";
 
 const USERS = [
@@ -64,6 +65,7 @@ export function UseStateCycle() {
   const [step, setStep] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
   const timer = useRef<number | null>(null);
+  const rows = useRef<Array<HTMLElement | null>>([]);
   const reduced = useReducedMotion();
 
   const matches = matchesFor(query);
@@ -126,7 +128,7 @@ export function UseStateCycle() {
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         <div className="min-w-0">
-          <div className="overflow-hidden rounded-lg bg-[var(--spark-ink)] py-3">
+          <div className="relative overflow-hidden rounded-lg bg-[var(--spark-ink)] py-3">
             {LINES.map((line, i) => {
               const isActive = step === i;
               const hasRun = step !== null && i < step;
@@ -134,22 +136,19 @@ export function UseStateCycle() {
               return (
                 <div
                   key={i}
-                  className="grid grid-cols-[28px_minmax(0,1fr)] items-start px-1 transition-colors duration-150"
-                  style={{
-                    background: isActive
-                      ? "rgba(169,156,255,0.14)"
-                      : "transparent",
-                    boxShadow: isActive
-                      ? "inset 2px 0 0 var(--spark-arc-light)"
-                      : "none",
+                  ref={(node) => {
+                    rows.current[i] = node;
                   }}
+                  className={`grid grid-cols-[36px_minmax(0,1fr)] items-start px-1 transition-colors duration-150 ${
+                    isActive ? "spark-run-line" : ""
+                  }`}
                 >
                   <span
                     aria-hidden
                     className="spark-mono select-none pr-2 pt-[3px] text-right text-[10.5px] tabular-nums"
                     style={{
                       color: isActive
-                        ? "var(--spark-arc-light)"
+                        ? "var(--spark-run)"
                         : "var(--spark-on-dark-dim)",
                     }}
                   >
@@ -171,6 +170,7 @@ export function UseStateCycle() {
                 </div>
               );
             })}
+            <RunMarker rows={rows} active={step} left={5} />
           </div>
 
           <div className="mt-2.5 min-h-[3.4em] rounded-lg border border-dashed border-[rgba(61,43,216,0.4)] bg-[rgba(61,43,216,0.07)] px-3 py-2.5">

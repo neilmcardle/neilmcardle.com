@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Caret,
-  CheckDemo,
-  Mark,
-  ReadAlong,
-  StateDemo,
-} from "@/app/spark/landing-demos";
+import { Caret, CheckDemo, Mark, StateDemo } from "@/app/spark/landing-demos";
 import sp from "@/app/spark/landing.module.css";
 import styles from "./home.module.css";
 
@@ -26,9 +20,6 @@ export default function SparkMocks() {
             <Caret />
           </span>
         </div>
-      </div>
-      <div className={`${sp.stage} ${sp.heroStage} ${styles.spStage}`}>
-        <ReadAlong />
       </div>
       <div className={`${sp.stage} ${sp.cardStage} ${styles.spStage}`}>
         <StateDemo />

@@ -415,6 +415,7 @@
 }
 
 .editor {
+  position: relative;
   display: block;
   margin: 0;
   padding: 14px 0;
@@ -475,6 +476,10 @@
   color: var(--arc-light);
 }
 
+.gutter.gutterRun {
+  color: var(--spark-run);
+}
+
 .lineText {
   min-width: 0;
 }
@@ -501,7 +506,7 @@
 }
 
 .live {
-  color: var(--arc-light);
+  color: var(--spark-run);
   font-style: italic;
 }
 

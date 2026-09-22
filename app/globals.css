@@ -1907,6 +1907,8 @@ html.dark .ProseMirror p.is-editor-empty:first-child::before {
   --spark-arc-hover: #3222c0;
   --spark-arc-light: #a99cff;
   --spark-arc-tint: rgba(61, 43, 216, 0.08);
+  --spark-run: #6ee7a0;
+  --spark-run-tint: rgba(110, 231, 160, 0.13);
   --spark-ink: #15171a;
   --spark-ink-line: #1e2124;
   --spark-on-dark: rgba(232, 238, 221, 0.86);
@@ -2064,6 +2066,36 @@ button.spark-card:hover,
 .spark-code .hljs-punctuation,
 .spark-code .hljs-operator {
   color: rgba(232, 238, 221, 0.66);
+}
+
+.spark-run-marker {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  color: var(--spark-run);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 240ms var(--spark-ease),
+    opacity 160ms var(--spark-ease);
+}
+
+.spark-run-marker svg {
+  fill: currentColor;
+  filter: drop-shadow(0 0 4px rgba(110, 231, 160, 0.55));
+}
+
+.spark-run-line {
+  border-left-color: var(--spark-run) !important;
+  background: var(--spark-run-tint) !important;
+  box-shadow: inset 2px 0 0 var(--spark-run) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spark-run-marker {
+    transition: opacity 160ms linear;
+  }
 }
 
 .spark-code-focus {

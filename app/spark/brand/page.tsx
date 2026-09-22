@@ -88,6 +88,11 @@ const PALETTE = [
     use: "Code surfaces. Arc Light #A99CFF marks keywords and the active line at 7.6:1.",
   },
   {
+    name: "Run",
+    hex: "#6EE7A0",
+    use: "Code that is executing on an Editor surface: the running line, its number, the play marker and live values. 11.6:1 on Editor.",
+  },
+  {
     name: "Pass",
     hex: "#1D7A45",
     use: "Correct answers and saved states only. 5.1:1 on Sheet.",
@@ -115,6 +120,10 @@ const RULES = [
   {
     head: "Number like a gutter",
     body: "Sequences use two-digit mono numerals, 01, 02, 03, the way an editor numbers lines.",
+  },
+  {
+    head: "Running code is green",
+    body: "When code runs, the line that is executing turns Run green and a small play marker moves from line to line. Arc Light marks a line being explained, never one that is running.",
   },
   {
     head: "Code is shown as typed",

@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { RunMarker } from "@/components/spark/RunMarker";
 import { SPARK_MARK_PATH } from "@/components/spark/SparkMark";
 import styles from "./landing.module.css";
 
@@ -157,11 +158,28 @@ const PEOPLE = [
   { id: 8, name: "Maya Patel" },
 ];
 
+const RUN_ORDER = [18, 4, 6, 21, 26];
+
 export function ReadAlong() {
   const [note, setNote] = useState(2);
   const [query, setQuery] = useState("");
   const [touched, setTouched] = useState(false);
+  const [running, setRunning] = useState<number | null>(null);
   const [ref, seen] = useInView<HTMLDivElement>();
+  const rows = useRef<Array<HTMLElement | null>>([]);
+  const runTimers = useRef<number[]>([]);
+
+  useEffect(() => () => runTimers.current.forEach(window.clearTimeout), []);
+
+  function runPass() {
+    runTimers.current.forEach(window.clearTimeout);
+    runTimers.current = [
+      ...RUN_ORDER.map((line, i) =>
+        window.setTimeout(() => setRunning(line), i * 260),
+      ),
+      window.setTimeout(() => setRunning(null), RUN_ORDER.length * 260 + 500),
+    ];
+  }
 
   const filtered = PEOPLE.filter((p) =>
     p.name.toLowerCase().includes(query.toLowerCase()),
@@ -174,7 +192,10 @@ export function ReadAlong() {
       window.setTimeout(
         () => {
           setQuery(value);
-          if (value) setNote(2);
+          if (value) {
+            setNote(2);
+            runPass();
+          }
         },
         1100 + i * 520,
       ),
@@ -204,6 +225,10 @@ export function ReadAlong() {
               const n = i + 1;
               const owner = NOTES.findIndex((x) => n >= x.from && n <= x.to);
               const on = owner === note;
+              const run = running === n;
+              const setRow = (node: HTMLElement | null) => {
+                rows.current[i] = node;
+              };
               const live =
                 n === 4 && query
                   ? `  // query is "${query}"`
@@ -212,7 +237,11 @@ export function ReadAlong() {
                     : "";
               const body = (
                 <>
-                  <span className={styles.gutter}>{n}</span>
+                  <span
+                    className={`${styles.gutter} ${run ? styles.gutterRun : ""}`}
+                  >
+                    {n}
+                  </span>
                   <span className={styles.lineText}>
                     {highlight(line)}
                     {live && <span className={styles.live}>{live}</span>}
@@ -222,19 +251,29 @@ export function ReadAlong() {
               return owner >= 0 ? (
                 <button
                   key={n}
+                  ref={setRow}
                   type="button"
-                  className={`${styles.line} ${styles.lineButton} ${on ? styles.lineOn : ""}`}
+                  className={`${styles.line} ${styles.lineButton} ${on ? styles.lineOn : ""} ${run ? "spark-run-line" : ""}`}
                   onClick={() => select(owner)}
                   aria-pressed={on}
                 >
                   {body}
                 </button>
               ) : (
-                <span key={n} className={styles.line}>
+                <span
+                  key={n}
+                  ref={setRow}
+                  className={`${styles.line} ${run ? "spark-run-line" : ""}`}
+                >
                   {body}
                 </span>
               );
             })}
+            <RunMarker
+              rows={rows}
+              active={running === null ? null : running - 1}
+              left={8}
+            />
           </pre>
         </div>
         <div className={styles.sideCol}>
@@ -278,6 +317,7 @@ export function ReadAlong() {
                   setTouched(true);
                   setQuery(e.target.value);
                   setNote(e.target.value ? 2 : note);
+                  runPass();
                 }}
               />
               {filtered.length === 0 ? (
@@ -378,6 +418,7 @@ export function StateDemo() {
   const [step, setStep] = useState<number | null>(null);
   const [log, setLog] = useState([{ n: 1, value: 0 }]);
   const timers = useRef<number[]>([]);
+  const rows = useRef<Array<HTMLElement | null>>([]);
 
   useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
 
@@ -413,9 +454,16 @@ export function StateDemo() {
         {COUNTER.map((line, i) => (
           <span
             key={i}
-            className={`${styles.line} ${step === i + 1 ? styles.lineOn : ""}`}
+            ref={(node) => {
+              rows.current[i] = node;
+            }}
+            className={`${styles.line} ${step === i + 1 ? "spark-run-line" : ""}`}
           >
-            <span className={styles.gutter}>{i + 1}</span>
+            <span
+              className={`${styles.gutter} ${step === i + 1 ? styles.gutterRun : ""}`}
+            >
+              {i + 1}
+            </span>
             <span className={styles.lineText}>
               {highlight(line)}
               {i === 0 && (
@@ -424,6 +472,11 @@ export function StateDemo() {
             </span>
           </span>
         ))}
+        <RunMarker
+          rows={rows}
+          active={step === null ? null : step - 1}
+          left={8}
+        />
       </pre>
       <div className={styles.stateSide}>
         <div className={styles.browser}>
