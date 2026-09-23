@@ -8,6 +8,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { flushSync } from "react-dom";
+import Link from "next/link";
 import { MarkEdge, MarkPlate } from "./ProductBadge";
 import { menuClick } from "./menuSound";
 import {
@@ -246,6 +247,20 @@ export default function SiteMenu({
               </a>
             ))}
           </div>
+
+          <div className={styles.menuRule} />
+
+          <Link
+            href="/studio"
+            role="menuitem"
+            className={styles.menuItem}
+            onClick={() => {
+              menuClick.play();
+              setOpen(false);
+            }}
+          >
+            Design Exploration
+          </Link>
 
           {themeToggle && (
             <>

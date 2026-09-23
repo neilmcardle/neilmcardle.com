@@ -8,8 +8,10 @@ import NeilAgent from "@/components/NeilAgent";
 import { Analytics } from "@vercel/analytics/next";
 import {
   Archivo,
+  Big_Shoulders,
   Cantarell,
   Cormorant_Garamond,
+  IBM_Plex_Mono,
   Inter,
   Playfair_Display,
   EB_Garamond,
@@ -58,6 +60,22 @@ const cormorant = Cormorant_Garamond({
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
+  display: "swap",
+  preload: false,
+});
+
+const bigShoulders = Big_Shoulders({
+  subsets: ["latin"],
+  weight: ["800", "900"],
+  variable: "--font-big-shoulders",
+  display: "swap",
+  preload: false,
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-mono",
   display: "swap",
   preload: false,
 });
@@ -157,7 +175,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable} ${cormorant.variable} ${libreBaskerville.variable} ${archivo.variable}`}
+      className={`${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable} ${cormorant.variable} ${libreBaskerville.variable} ${archivo.variable} ${bigShoulders.variable} ${plexMono.variable}`}
       suppressHydrationWarning
     >
       <head>
