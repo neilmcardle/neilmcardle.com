@@ -16,7 +16,7 @@ import ProductBadge, {
 import { currentTheme, subscribeTheme, type SiteTheme } from "./theme";
 import styles from "./home.module.css";
 
-type PinFace = BadgeKey | "portrait";
+type PinFace = BadgeKey | "portrait" | "mark";
 
 const TILE = 2;
 const UNIT = TILE / 62;
@@ -81,6 +81,7 @@ export default function PinMark({
     if (!host) return;
 
     const portrait = face === "portrait";
+    const markOnly = face === "mark";
     let cancelled = false;
     let dispose = () => {};
 
@@ -99,7 +100,7 @@ export default function PinMark({
       renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
       renderer.setSize(size, size, false);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = portrait ? 0.63 : 1.15;
+      renderer.toneMappingExposure = portrait ? 0.63 : markOnly ? 1 : 1.15;
       const canvas = renderer.domElement;
       canvas.style.touchAction = "none";
       host.appendChild(canvas);
@@ -124,23 +125,32 @@ export default function PinMark({
       const materials: Material[] = [];
 
       const markMaterial = new THREE.MeshPhysicalMaterial(
-        portrait
+        markOnly
           ? {
-              color: 0xa7b3b1,
-              metalness: 0,
-              roughness: 0,
-              clearcoat: 1,
-              clearcoatRoughness: 0.1,
-              envMapIntensity: 0,
-            }
-          : {
-              color: 0xfbf9f3,
+              color: 0xf6f3ec,
               metalness: 0,
               roughness: 0.3,
               clearcoat: 1,
               clearcoatRoughness: 0.1,
-              envMapIntensity: 0.9,
-            },
+              envMapIntensity: 0.6,
+            }
+          : portrait
+            ? {
+                color: 0xa7b3b1,
+                metalness: 0,
+                roughness: 0,
+                clearcoat: 1,
+                clearcoatRoughness: 0.1,
+                envMapIntensity: 0,
+              }
+            : {
+                color: 0xfbf9f3,
+                metalness: 0,
+                roughness: 0.3,
+                clearcoat: 1,
+                clearcoatRoughness: 0.1,
+                envMapIntensity: 0.9,
+              },
       );
       materials.push(markMaterial);
 
@@ -148,7 +158,23 @@ export default function PinMark({
       let rimMaterial: MeshPhysicalMaterial;
       let overlayMaterial: MeshPhysicalMaterial | null = null;
 
-      if (portrait) {
+      if (markOnly) {
+        plateMaterial = new THREE.MeshPhysicalMaterial({
+          color: 0x16150f,
+          metalness: 0,
+          roughness: 0.4,
+          clearcoat: 1,
+          clearcoatRoughness: 0.12,
+          envMapIntensity: 0.5,
+        });
+        rimMaterial = new THREE.MeshPhysicalMaterial({
+          color: 0x1f1e19,
+          metalness: 0.4,
+          roughness: 0.35,
+          envMapIntensity: 0.6,
+        });
+        materials.push(plateMaterial, rimMaterial);
+      } else if (portrait) {
         const portraitTexture = await loader.loadAsync("/hero/portrait.png");
         portraitTexture.colorSpace = THREE.SRGBColorSpace;
         portraitTexture.repeat.set(-0.5, 0.5);
@@ -266,10 +292,17 @@ export default function PinMark({
       tileGeometry.computeBoundingBox();
       const faceZ = tileGeometry.boundingBox?.max.z ?? 0.16;
 
-      const depth = portrait ? 2.4 : 2.2;
-      const bevel = portrait ? 0.6 : 0.3;
+      const nMark = portrait || markOnly;
+      const depth = nMark ? 2.4 : 2.2;
+      const bevel = nMark ? 0.6 : 0.3;
       const shapes = new SVGLoader()
-        .parse(svgDoc(portrait ? N_MARK_SHAPE : MARK_SHAPES[face]))
+        .parse(
+          svgDoc(
+            face === "portrait" || face === "mark"
+              ? N_MARK_SHAPE
+              : MARK_SHAPES[face],
+          ),
+        )
         .paths.flatMap((path) => path.toShapes());
       const glyphGeometry = new THREE.ExtrudeGeometry(shapes, {
         depth,
@@ -316,7 +349,7 @@ export default function PinMark({
         paintPortrait(partsRef.current, themeRef.current);
       }
 
-      pin.rotation.set(portrait ? (-2 * Math.PI) / 180 : -0.1, REST_Y, 0);
+      pin.rotation.set(nMark ? (-2 * Math.PI) / 180 : -0.1, REST_Y, 0);
       scene.add(pin);
 
       const idle = window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -420,7 +453,20 @@ export default function PinMark({
       ref={hostRef}
       style={{ width: size, height: size }}
     >
-      {face === "portrait" ? (
+      {face === "mark" ? (
+        <svg viewBox="0 0 63 63" aria-hidden="true">
+          <rect
+            x="0.5"
+            y="0.5"
+            width="62"
+            height="62"
+            rx="10.5"
+            fill="#16150f"
+          />
+          <path d="M45 45L32 31.2985V18H45V45Z" fill="#f6f3ec" />
+          <path d="M18 18L32 31.6343L32 45L18 45L18 18Z" fill="#f6f3ec" />
+        </svg>
+      ) : face === "portrait" ? (
         <Image
           src="/hero/portrait.png"
           alt="Neil McArdle"

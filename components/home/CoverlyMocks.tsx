@@ -3,7 +3,8 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { COVERLY_COVERS } from "./coverlyCovers";
 import { LOGOMARK_PATH, LOGOMARK_VIEWBOX } from "@/app/coverly/logomark";
-import { motionEnabled, subscribeMotion } from "./motion";
+import { motionEnabled, setMotion, subscribeMotion } from "./motion";
+import TileControls from "./TileControls";
 import styles from "./home.module.css";
 
 const COLUMNS = [
@@ -34,16 +35,35 @@ export default function CoverlyMocks() {
     () => true,
   );
 
+  const [wallPlaying, setWallPlaying] = useState(true);
+  const wallShown = moving && wallPlaying;
+
   return (
     <div className={styles.cvStack}>
-      <Wall moving={moving} />
+      <Wall
+        moving={wallShown}
+        onToggle={() => {
+          if (wallShown) {
+            setWallPlaying(false);
+            return;
+          }
+          setWallPlaying(true);
+          if (!moving) setMotion(true);
+        }}
+      />
       <Fan moving={moving} />
       <Views />
     </div>
   );
 }
 
-export function Wall({ moving }: { moving: boolean }) {
+export function Wall({
+  moving,
+  onToggle,
+}: {
+  moving: boolean;
+  onToggle?: () => void;
+}) {
   const columns = useMemo(() => {
     const cols: (typeof COVERLY_COVERS)[] = COLUMNS.map(() => []);
     COVERLY_COVERS.slice(0, 32).forEach((cover, i) => {
@@ -81,6 +101,9 @@ export function Wall({ moving }: { moving: boolean }) {
         </svg>
         <span>coverly</span>
       </span>
+      {onToggle ? (
+        <TileControls label="cover wall" playing={moving} onPlay={onToggle} />
+      ) : null}
     </div>
   );
 }

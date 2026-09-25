@@ -167,18 +167,21 @@ const CLIENTS = [
     logo: "/logos/avis-budget-group.svg",
     role: "In-house",
     height: 16,
+    ratio: 1149.1 / 154.29,
   },
   {
     name: "Mobbin",
     logo: "/logos/mobbin.svg",
     role: "Contractor",
     height: 16,
+    ratio: 475 / 64,
   },
   {
     name: "The Banner of Truth",
     logo: "/logos/banner-of-truth.svg",
     role: "Previously",
     height: 28,
+    ratio: 1033.2 / 353.7,
   },
 ];
 
@@ -207,6 +210,7 @@ export default function Home() {
   const searchTimer = useRef<number | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const indexRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const needle = query.trim().toLowerCase();
@@ -244,14 +248,16 @@ export default function Home() {
   const closeMenu = () => {
     if (reducedMotion()) {
       setMenuOpen(false);
+      menuButtonRef.current?.focus();
       return;
     }
     setMenuClosing(true);
+    menuButtonRef.current?.focus();
     if (menuTimer.current !== null) window.clearTimeout(menuTimer.current);
     menuTimer.current = window.setTimeout(() => {
       setMenuOpen(false);
       setMenuClosing(false);
-    }, 240);
+    }, 320);
   };
 
   const openSearch = () => {
@@ -271,7 +277,7 @@ export default function Home() {
     searchTimer.current = window.setTimeout(() => {
       setSearchOpen(false);
       setSearchClosing(false);
-    }, 240);
+    }, 360);
   };
 
   useEffect(() => {
@@ -298,7 +304,47 @@ export default function Home() {
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    const read = () => {
+      const params = new URLSearchParams(window.location.search);
+      const value = params.get("filter");
+      setFilter(
+        value && (FILTERS as string[]).includes(value)
+          ? (value as Filter)
+          : "all",
+      );
+      setQuery(params.get("q") ?? "");
+    };
+    read();
+    window.addEventListener("popstate", read);
+    return () => window.removeEventListener("popstate", read);
+  }, []);
+
+  const writeUrl = (next: Filter, text: string, push: boolean) => {
+    const params = new URLSearchParams(window.location.search);
+    if (next === "all") params.delete("filter");
+    else params.set("filter", next);
+    if (text) params.set("q", text);
+    else params.delete("q");
+    const search = params.toString();
+    const url = `${window.location.pathname}${search ? `?${search}` : ""}`;
+    if (push) window.history.pushState(null, "", url);
+    else window.history.replaceState(null, "", url);
+  };
+
+  const search = (text: string) => {
+    setQuery(text);
+    writeUrl(filter, text, false);
+  };
+
+  useEffect(() => {
+    if (!menuOpen || menuClosing) return;
+    const index = Math.max(0, FILTERS.indexOf(filter));
+    requestAnimationFrame(() => indexRefs.current[index]?.focus());
+  }, [menuOpen, menuClosing, filter]);
+
   const choose = (next: Filter) => {
+    if (next !== filter) writeUrl(next, query, true);
     setFilter(next);
     setReplay((count) => count + 1);
     if (menuOpen) closeMenu();
@@ -339,19 +385,16 @@ export default function Home() {
       className={styles.root}
       data-menu={menuOpen ? (menuClosing ? "closing" : "open") : "closed"}
     >
+      <a className={styles.skip} href="#home-work">
+        Skip to work
+      </a>
       <div className={styles.curlWrap}>
         <PageCurl />
       </div>
       <header className={styles.header}>
         <h1 className={styles.wordmark}>
           <span className={styles.mark}>
-            <PinMark
-              face="portrait"
-              size={64}
-              zoom={4.7}
-              tone="light"
-              spin={0.225}
-            />
+            <PinMark face="mark" size={64} zoom={4.7} spin={0.225} />
           </span>
           <Link href="/" className={styles.wordmarkLink}>
             <span className={styles.name}>Neil McArdle</span>
@@ -377,6 +420,7 @@ export default function Home() {
         </a>
         <EmailPill />
         <button
+          ref={menuButtonRef}
           type="button"
           className={styles.menuButton}
           aria-expanded={menuOpen && !menuClosing}
@@ -385,8 +429,12 @@ export default function Home() {
           onClick={() => (menuOpen && !menuClosing ? closeMenu() : openMenu())}
         >
           <span className={styles.burger} aria-hidden="true">
-            <span />
-            <span />
+            <span>
+              <span />
+            </span>
+            <span>
+              <span />
+            </span>
           </span>
         </button>
       </header>
@@ -451,6 +499,8 @@ export default function Home() {
                     className={styles.clientLogo}
                     src={client.logo}
                     alt={client.name}
+                    width={Math.round(client.height * client.ratio)}
+                    height={client.height}
                     style={{ height: client.height }}
                   />
                 </span>
@@ -461,8 +511,11 @@ export default function Home() {
 
         <section
           ref={cardRef}
+          id="home-work"
+          tabIndex={-1}
           className={styles.card}
           aria-labelledby="home-card-title"
+          inert={menuOpen}
         >
           <div
             className={styles.cardHead}
@@ -506,16 +559,16 @@ export default function Home() {
                 id="home-search"
                 type="search"
                 className={styles.searchInput}
-                placeholder="Search..."
+                placeholder="Search…"
                 autoComplete="off"
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => search(event.target.value)}
                 onBlur={() => {
                   if (!query && searchOpen && !searchClosing) closeSearch();
                 }}
                 onKeyDown={(event) => {
                   if (event.key === "Escape") {
-                    setQuery("");
+                    search("");
                     closeSearch();
                   }
                 }}
@@ -525,7 +578,7 @@ export default function Home() {
                   type="button"
                   className={styles.clear}
                   aria-label="Clear search"
-                  onClick={() => setQuery("")}
+                  onClick={() => search("")}
                 >
                   <ClearIcon />
                 </button>
@@ -550,7 +603,7 @@ export default function Home() {
                 <button
                   type="button"
                   className={styles.emptyAction}
-                  onClick={() => setQuery("")}
+                  onClick={() => search("")}
                 >
                   Clear search
                 </button>
@@ -568,7 +621,10 @@ export default function Home() {
                     className={styles.group}
                   >
                     <h3 className={styles.groupTitle}>
-                      {GROUP_LABEL[section.key]}
+                      <span className={styles.groupCount} aria-hidden="true">
+                        {pad(FILTERS.indexOf(section.key))}
+                      </span>
+                      <span>{GROUP_LABEL[section.key]}</span>
                     </h3>
                     {section.subs.map((sub) => (
                       <div key={sub.name} className={styles.sub}>
@@ -925,10 +981,6 @@ function ShowcaseMedia({ title }: { title: string }) {
   return null;
 }
 
-function ShowcaseGallery({ title }: { title: string }) {
-  return null;
-}
-
 function Showcase({ work }: { work: Work }) {
   const info = SHOWCASE[work.title];
   if (!info) return null;
@@ -940,7 +992,7 @@ function Showcase({ work }: { work: Work }) {
       <div className={styles.showcaseHead}>
         <a className={styles.showcaseName} href={work.href} {...linkProps}>
           <ProductMark mark={info.mark} className={styles.productMark} />
-          <span>{work.title}</span>
+          <span translate="no">{work.title}</span>
         </a>
         <a className={styles.visit} href={work.href} {...linkProps}>
           {appStore(work.href) && <AppleIcon className={styles.apple} />}
@@ -972,9 +1024,6 @@ function Showcase({ work }: { work: Work }) {
         ) : null}
       </dl>
       <ShowcaseMedia title={work.title} />
-      <div className={styles.gallery}>
-        <ShowcaseGallery title={work.title} />
-      </div>
     </article>
   );
 }
