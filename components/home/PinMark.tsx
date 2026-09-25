@@ -52,18 +52,23 @@ export default function PinMark({
   face,
   size = 48,
   zoom = 5.6,
+  tone,
+  spin = 0,
 }: {
   face: PinFace;
   size?: number;
   zoom?: number;
+  tone?: SiteTheme;
+  spin?: number;
 }) {
   const hostRef = useRef<HTMLSpanElement>(null);
   const partsRef = useRef<PortraitParts | null>(null);
-  const theme = useSyncExternalStore(
+  const siteTheme = useSyncExternalStore(
     subscribeTheme,
     currentTheme,
     () => "dark" as const,
   );
+  const theme = tone ?? siteTheme;
   const themeRef = useRef(theme);
 
   useEffect(() => {
@@ -314,6 +319,9 @@ export default function PinMark({
       pin.rotation.set(portrait ? (-2 * Math.PI) / 180 : -0.1, REST_Y, 0);
       scene.add(pin);
 
+      const idle = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? 0
+        : spin;
       let velocity = 0;
       let turn = pin.rotation.y;
       let tilt = pin.rotation.x;
@@ -353,9 +361,13 @@ export default function PinMark({
         frame = requestAnimationFrame(draw);
         const delta = Math.min(clock.getDelta(), 0.1);
         if (!dragging) {
-          if (Math.abs(velocity) > SETTLE) {
+          if (Math.abs(velocity) > Math.max(SETTLE, idle)) {
             velocity *= Math.exp(-delta * COAST);
             turn += velocity * delta;
+          } else if (idle) {
+            velocity = 0;
+            turn += idle * delta;
+            tilt += (restTilt - tilt) * Math.min(1, delta * 3);
           } else {
             velocity = 0;
             const rest = Math.round((turn - restTurn) / TAU) * TAU + restTurn;
@@ -400,7 +412,7 @@ export default function PinMark({
       cancelled = true;
       dispose();
     };
-  }, [face, size, zoom]);
+  }, [face, size, zoom, spin]);
 
   return (
     <span

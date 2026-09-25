@@ -1,21 +1,64 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import {
+  COVERLY_MARK,
+  DOODLEWIRE_BOTTOM,
+  DOODLEWIRE_TOP,
+  MAKEEBOOK_MARK,
+  MAKEEBOOK_TRANSFORM,
+} from "@/components/home/ProductBadge";
+import { SPARK_MARK_PATH } from "@/components/spark/SparkMark";
 
 export const runtime = "nodejs";
-export const alt = "Neil McArdle, a product designer in London.";
+export const alt =
+  "Neil McArdle, product designer in London. Things he has said and done: makeebook, Coverly, DoodleWire and Spark.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const CREAM = "#fbf9f3";
-const MUTED = "#8a7f70";
-const GLASS = "rgba(255, 255, 255, 0.06)";
-const EDGE = "rgba(251, 249, 243, 0.14)";
+const BONE = "#ebe8e4";
+const CARD = "#fdfcfb";
+const INK = "#000000";
+const MUTED = "#736d64";
+const LINE = "#e4e0da";
 
-const DOT_STEPS = [1, 9.25, 17.5, 25.75, 34, 42.25, 50.5, 58.75];
-const DOT_EDGE = [DOT_STEPS[0], DOT_STEPS[DOT_STEPS.length - 1]];
-
-const GRID = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><defs><pattern id="d" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="2.67" height="2.67" fill="#d9d9d9" fill-opacity="0.2"/></pattern><linearGradient id="f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.9"/><stop offset="0.45" stop-color="#fff" stop-opacity="0.5"/><stop offset="0.78" stop-color="#fff" stop-opacity="0.14"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="m"><rect width="1200" height="630" fill="url(#f)"/></mask></defs><rect width="1200" height="630" fill="url(#d)" mask="url(#m)"/></svg>`;
+const PRODUCTS = [
+  {
+    name: "makeebook",
+    line: "A peaceful place for authors to write their most thoughtful work.",
+    view: "8 22 48 18",
+    width: 34,
+    height: 13,
+    mark: <path d={MAKEEBOOK_MARK} transform={MAKEEBOOK_TRANSFORM} />,
+  },
+  {
+    name: "Coverly",
+    line: "Be inspired to design your next book cover.",
+    view: "15 12 34 34",
+    width: 22,
+    height: 22,
+    mark: <path d={COVERLY_MARK} />,
+  },
+  {
+    name: "DoodleWire",
+    line: "Wireframe from your phone.",
+    view: "15 14 34 31",
+    width: 24,
+    height: 22,
+    mark: (
+      <g>
+        <path fillRule="evenodd" clipRule="evenodd" d={DOODLEWIRE_TOP} />
+        <path d={DOODLEWIRE_BOTTOM} />
+      </g>
+    ),
+  },
+  {
+    name: "Spark",
+    line: "A course for designers heading in the direction of design-engineer.",
+    view: "20 13 23 37",
+    width: 14,
+    height: 22,
+    mark: <path d={SPARK_MARK_PATH} />,
+  },
+];
 
 async function loadGoogleFont(family: string, weight: number) {
   const url = `https://fonts.googleapis.com/css2?family=${family.replace(
@@ -32,16 +75,11 @@ async function loadGoogleFont(family: string, weight: number) {
   return await (await fetch(match[1])).arrayBuffer();
 }
 
-function dataUrl(bytes: Buffer, type: string) {
-  return `data:${type};base64,${bytes.toString("base64")}`;
-}
-
 export default async function OpenGraphImage() {
-  const [interRegular, interMedium, glow, portrait] = await Promise.all([
-    loadGoogleFont("Inter", 400),
-    loadGoogleFont("Inter", 500),
-    readFile(join(process.cwd(), "public", "og", "glow.jpg")),
-    readFile(join(process.cwd(), "public", "hero", "portrait.png")),
+  const [light, regular, medium] = await Promise.all([
+    loadGoogleFont("Geist", 300),
+    loadGoogleFont("Geist", 400),
+    loadGoogleFont("Geist", 500),
   ]);
 
   return new ImageResponse(
@@ -50,142 +88,159 @@ export default async function OpenGraphImage() {
         width: "100%",
         height: "100%",
         display: "flex",
-        position: "relative",
-        backgroundColor: "#0a0a0a",
+        backgroundColor: BONE,
+        fontFamily: "Geist",
+        color: INK,
       }}
     >
-      <img
-        alt=""
-        src={dataUrl(glow, "image/jpeg")}
-        width={1200}
-        height={630}
-        style={{ position: "absolute", top: 0, left: 0 }}
-      />
-      <img
-        alt=""
-        src={dataUrl(Buffer.from(GRID), "image/svg+xml")}
-        width={1200}
-        height={630}
-        style={{ position: "absolute", top: 0, left: 0 }}
-      />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          width: 580,
+          padding: "0 0 0 72px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 148,
+            height: 148,
+            borderRadius: 34,
+            border: "1px solid rgba(0, 0, 0, 0.06)",
+            backgroundImage:
+              "linear-gradient(145deg, #ffffff 0%, #f3f1ee 100%)",
+            boxShadow:
+              "0 2px 4px rgba(0, 0, 0, 0.06), 0 24px 48px rgba(0, 0, 0, 0.12)",
+          }}
+        >
+          <svg width="68" height="68" viewBox="18 18 27 27">
+            <path d="M45 45L32 31.2985V18H45V45Z" fill={INK} />
+            <path d="M18 18L32 31.6343L32 45L18 45L18 18Z" fill={INK} />
+          </svg>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            marginTop: 36,
+            fontFamily: "GeistMedium",
+            fontSize: 44,
+            lineHeight: 1.1,
+            letterSpacing: -1.2,
+          }}
+        >
+          Neil McArdle
+        </div>
+        <div
+          style={{
+            display: "flex",
+            marginTop: 2,
+            fontFamily: "GeistLight",
+            fontSize: 44,
+            lineHeight: 1.1,
+            letterSpacing: -1.2,
+          }}
+        >
+          Product Designer
+        </div>
+      </div>
 
       <div
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: 1200,
-          height: 630,
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "64px 72px 136px",
+          width: 556,
+          marginTop: 56,
+          padding: "40px 40px 0",
+          borderRadius: "28px 28px 0 0",
+          backgroundColor: CARD,
+          boxShadow:
+            "0 1px 2px rgba(0, 0, 0, 0.04), 0 16px 32px rgba(0, 0, 0, 0.05)",
         }}
       >
-        <svg width="52" height="52" viewBox="0 0 63 63">
-          <rect
-            x="0.5"
-            y="0.5"
-            width="62"
-            height="62"
-            rx="10.5"
-            fill={GLASS}
-            stroke={EDGE}
-          />
-          {DOT_STEPS.flatMap((y) =>
-            DOT_STEPS.map((x) =>
-              DOT_EDGE.includes(x) && DOT_EDGE.includes(y) ? null : (
-                <rect
-                  key={`${x}-${y}`}
-                  x={x}
-                  y={y}
-                  width="3.25"
-                  height="3.25"
-                  fill="rgba(251, 249, 243, 0.06)"
-                />
-              ),
-            ),
-          )}
-          <path d="M45 45L32 31.2985V18H45V45Z" fill={CREAM} />
-          <path d="M18 18L32 31.6343L32 45L18 45L18 18Z" fill={CREAM} />
-        </svg>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+        <div
+          style={{
+            display: "flex",
+            fontFamily: "Geist",
+            fontSize: 34,
+            letterSpacing: -0.8,
+          }}
+        >
+          Things I’ve said and done
+        </div>
+        <div
+          style={{
+            display: "flex",
+            marginTop: 30,
+            fontFamily: "GeistMedium",
+            fontSize: 24,
+            letterSpacing: -0.4,
+          }}
+        >
+          Products
+        </div>
+        <div
+          style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
+        >
+          {PRODUCTS.map((product) => (
             <div
+              key={product.name}
               style={{
                 display: "flex",
-                width: 136,
-                height: 136,
-                padding: 7,
-                borderRadius: 22,
-                border: `1px solid ${EDGE}`,
-                backgroundColor: GLASS,
+                flexDirection: "column",
+                padding: "16px 0",
+                borderTop: `1px solid ${LINE}`,
               }}
             >
-              <img
-                alt="Neil McArdle"
-                src={dataUrl(portrait, "image/png")}
-                width={120}
-                height={120}
-                style={{
-                  borderRadius: 14,
-                  backgroundColor: "#0a0a0a",
-                  transform: "scaleX(-1)",
-                }}
-              />
-            </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <div
-                style={{
-                  fontFamily: "InterMedium",
-                  fontSize: 52,
-                  letterSpacing: -1,
-                  lineHeight: 1.1,
-                  color: CREAM,
-                }}
-              >
-                Neil McArdle
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 34,
+                    height: 22,
+                  }}
+                >
+                  <svg
+                    width={product.width}
+                    height={product.height}
+                    viewBox={product.view}
+                    fill={INK}
+                  >
+                    {product.mark}
+                  </svg>
+                </div>
+                <span style={{ fontFamily: "GeistMedium", fontSize: 22 }}>
+                  {product.name}
+                </span>
               </div>
               <div
                 style={{
-                  fontFamily: "Inter",
-                  fontSize: 24,
+                  display: "flex",
                   marginTop: 6,
+                  marginLeft: 46,
+                  fontFamily: "Geist",
+                  fontSize: 18,
                   color: MUTED,
                 }}
               >
-                neilmcardle.com
+                {product.line}
               </div>
             </div>
-          </div>
-
-          <div
-            style={{
-              fontFamily: "Inter",
-              fontSize: 54,
-              letterSpacing: -1.1,
-              lineHeight: 1.2,
-              marginTop: 40,
-              maxWidth: 600,
-              color: "rgba(251, 249, 243, 0.92)",
-            }}
-          >
-            I’m Neil, a product designer in London.
-          </div>
+          ))}
         </div>
       </div>
     </div>,
     {
       ...size,
       fonts: [
-        { name: "Inter", data: interRegular, weight: 400, style: "normal" },
-        {
-          name: "InterMedium",
-          data: interMedium,
-          weight: 500,
-          style: "normal",
-        },
+        { name: "GeistLight", data: light, weight: 300, style: "normal" },
+        { name: "Geist", data: regular, weight: 400, style: "normal" },
+        { name: "GeistMedium", data: medium, weight: 500, style: "normal" },
       ],
     },
   );

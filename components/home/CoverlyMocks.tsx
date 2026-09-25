@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  useMemo,
-  useState,
-  useSyncExternalStore,
-  type PointerEvent,
-} from "react";
-import { COVERLY_COVERS, COVERLY_PALETTE } from "./coverlyCovers";
+import { useMemo, useState, useSyncExternalStore } from "react";
+import { COVERLY_COVERS } from "./coverlyCovers";
 import { LOGOMARK_PATH, LOGOMARK_VIEWBOX } from "@/app/coverly/logomark";
 import { motionEnabled, subscribeMotion } from "./motion";
 import styles from "./home.module.css";
@@ -30,23 +25,6 @@ const FAN = [
   { rotate: 20, x: 124, y: 12 },
 ];
 
-function hsl(hex: string) {
-  const h = hex.replace("#", "");
-  const r = parseInt(h.slice(0, 2), 16) / 255;
-  const g = parseInt(h.slice(2, 4), 16) / 255;
-  const b = parseInt(h.slice(4, 6), 16) / 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  if (max === min) return { h: 0, l };
-  const d = max - min;
-  let hue = 0;
-  if (max === r) hue = (g - b) / d + (g < b ? 6 : 0);
-  else if (max === g) hue = (b - r) / d + 2;
-  else hue = (r - g) / d + 4;
-  return { h: hue * 60, l };
-}
-
 const subscribeToNothing = () => () => {};
 
 export default function CoverlyMocks() {
@@ -59,14 +37,13 @@ export default function CoverlyMocks() {
   return (
     <div className={styles.cvStack}>
       <Wall moving={moving} />
-      <Ribbon />
       <Fan moving={moving} />
       <Views />
     </div>
   );
 }
 
-function Wall({ moving }: { moving: boolean }) {
+export function Wall({ moving }: { moving: boolean }) {
   const columns = useMemo(() => {
     const cols: (typeof COVERLY_COVERS)[] = COLUMNS.map(() => []);
     COVERLY_COVERS.slice(0, 32).forEach((cover, i) => {
@@ -104,83 +81,6 @@ function Wall({ moving }: { moving: boolean }) {
         </svg>
         <span>coverly</span>
       </span>
-    </div>
-  );
-}
-
-function Ribbon() {
-  const [hover, setHover] = useState(Math.floor(COVERLY_PALETTE.length * 0.42));
-
-  const stripes = useMemo(
-    () =>
-      COVERLY_PALETTE.map((color) => ({ color, hue: hsl(color).h })).sort(
-        (a, b) => a.hue - b.hue,
-      ),
-    [],
-  );
-  const covers = useMemo(
-    () =>
-      COVERLY_COVERS.map((cover) => ({ cover, hue: hsl(cover.color).h })).sort(
-        (a, b) => a.hue - b.hue,
-      ),
-    [],
-  );
-
-  const active = covers.reduce((best, item) =>
-    Math.abs(item.hue - stripes[hover].hue) <
-    Math.abs(best.hue - stripes[hover].hue)
-      ? item
-      : best,
-  );
-  const left = ((hover + 0.5) / stripes.length) * 100;
-
-  const pick = (event: PointerEvent<HTMLDivElement>) => {
-    const box = event.currentTarget.getBoundingClientRect();
-    const ratio = (event.clientX - box.left) / box.width;
-    const next = Math.min(
-      stripes.length - 1,
-      Math.max(0, Math.floor(ratio * stripes.length)),
-    );
-    if (next !== hover) setHover(next);
-  };
-
-  return (
-    <div className={styles.cvRibbonTile}>
-      <div className={styles.cvShelf}>
-        <span
-          key={active.cover.src}
-          className={styles.cvPulled}
-          style={{
-            left: `${left}%`,
-            backgroundImage: `url(${active.cover.src})`,
-            backgroundColor: active.cover.color,
-          }}
-          role="img"
-          aria-label={`${active.cover.title} by ${active.cover.author}`}
-        />
-      </div>
-      <div
-        className={styles.cvRibbon}
-        role="img"
-        aria-label="Book covers ordered by hue"
-        onPointerDown={pick}
-        onPointerMove={pick}
-      >
-        {stripes.map((stripe, i) => (
-          <span
-            key={`${stripe.color}-${i}`}
-            className={`${styles.cvStripe} ${hover === i ? styles.cvStripeUp : ""}`}
-            style={{ background: stripe.color }}
-          />
-        ))}
-      </div>
-      <p className={styles.cvCaption} aria-live="polite">
-        <span className={styles.cvCaptionTitle}>{active.cover.title}</span>
-        <span>
-          {active.cover.author}
-          {active.cover.year ? ` · ${active.cover.year}` : ""}
-        </span>
-      </p>
     </div>
   );
 }
