@@ -1,47 +1,35 @@
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import {
-  getProduct,
-  isProductActive,
-  type VectorPaintProductId,
+  formatCm,
+  isProductId,
+  ORDERS_ENABLED,
+  marginMinor,
+  MARGIN_FLOOR_MINOR,
+  VECTOR_PAINT_PRODUCTS,
 } from "@/lib/vector-paint/products";
-import { rasteriseAndUpload } from "@/lib/vector-paint/render";
+import { parseDrawingPayload } from "@/lib/vector-paint/drawing";
+import { storeOrderFiles } from "@/lib/vector-paint/render";
+import { createPendingOrder, updateOrder } from "@/lib/vector-paint/orders";
 import { checkOrigin } from "@/lib/auth/checkOrigin";
 
-const SHIPPING_COUNTRIES: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[] =
-  ["GB"];
-
-const SHIPPING_AMOUNT_MINOR = 499;
-const MAX_QUANTITY = 10;
-
-const SVG_MIN_BYTES = 200;
-const SVG_MAX_BYTES = 2_000_000;
-
-const SVG_BLOCKLIST = [
-  "<script",
-  "<foreignobject",
-  'xlink:href="http',
-  'href="http',
-  "data:text/html",
-  "javascript:",
-];
-
+const MAX_QUANTITY = 5;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 5;
 const ipBuckets = new Map<string, { count: number; resetAt: number }>();
 
-function getClientIp(req: NextRequest): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) {
-    const first = fwd.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return req.headers.get("x-real-ip") || "unknown";
+function clientIp(req: NextRequest): string {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown"
+  );
 }
 
-function checkRateLimit(ip: string): boolean {
+function withinRateLimit(ip: string): boolean {
   const now = Date.now();
   const entry = ipBuckets.get(ip);
   if (!entry || now >= entry.resetAt) {
@@ -53,83 +41,64 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
+function fail(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
+}
+
 export async function POST(req: NextRequest) {
   const originError = checkOrigin(req);
   if (originError) return originError;
 
+  if (!ORDERS_ENABLED) return fail("Canvas orders are not open yet.", 503);
+  if (!process.env.STRIPE_SECRET_KEY)
+    return fail("Ordering is not set up yet.", 500);
+  if (!withinRateLimit(clientIp(req)))
+    return fail("Too many tries. Wait a minute and try again.", 429);
+
+  let body: Record<string, unknown>;
   try {
-    if (!process.env.STRIPE_SECRET_KEY) {
-      return NextResponse.json(
-        { error: "Stripe not configured" },
-        { status: 500 },
-      );
-    }
+    body = await req.json();
+  } catch {
+    return fail("That request could not be read.", 400);
+  }
 
-    const ip = getClientIp(req);
-    if (!checkRateLimit(ip)) {
-      return NextResponse.json(
-        { error: "Too many requests. Try again in a minute." },
-        { status: 429 },
-      );
-    }
-
-    const {
-      svg,
-      productId,
-      quantity: rawQuantity,
-    } = (await req.json()) as {
-      svg?: string;
-      productId?: VectorPaintProductId;
-      quantity?: number;
-    };
-
-    if (
-      !svg ||
-      typeof svg !== "string" ||
-      svg.length < SVG_MIN_BYTES ||
-      svg.length > SVG_MAX_BYTES
-    ) {
-      return NextResponse.json(
-        { error: "Invalid SVG payload" },
-        { status: 400 },
-      );
-    }
-    const lowered = svg.toLowerCase();
-    if (SVG_BLOCKLIST.some((token) => lowered.includes(token))) {
-      return NextResponse.json(
-        { error: "Unsupported SVG content" },
-        { status: 400 },
-      );
-    }
-    if (!productId) {
-      return NextResponse.json({ error: "Missing productId" }, { status: 400 });
-    }
-    if (!isProductActive(productId)) {
-      return NextResponse.json(
-        { error: "This product is not available yet." },
-        { status: 400 },
-      );
-    }
-
-    const quantity = Math.max(
-      1,
-      Math.min(MAX_QUANTITY, Math.floor(rawQuantity ?? 1)),
+  const drawing = parseDrawingPayload(body.drawing);
+  if (!drawing)
+    return fail(
+      "That drawing could not be read. Try saving it and ordering again.",
+      400,
     );
 
-    const product = getProduct(productId);
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2025-08-27.basil",
+  if (!isProductId(body.productId)) return fail("Choose a canvas size.", 400);
+  const product = VECTOR_PAINT_PRODUCTS[body.productId];
+  if (product.orientation !== drawing.orientation)
+    return fail("The canvas shape does not match the drawing.", 400);
+  if (marginMinor(product) < MARGIN_FLOOR_MINOR) {
+    console.error(
+      `Vector Paint ${product.id} is below the margin floor; refusing checkout`,
+    );
+    return fail("This size is not available right now.", 400);
+  }
+
+  const rawQuantity = typeof body.quantity === "number" ? body.quantity : 1;
+  const quantity = Math.max(1, Math.min(MAX_QUANTITY, Math.floor(rawQuantity)));
+
+  const origin = process.env.NEXT_PUBLIC_VECTOR_PAINT_URL || req.nextUrl.origin;
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2025-08-27.basil",
+  });
+
+  let orderId: string | null = null;
+  try {
+    const order = await createPendingOrder({
+      productId: product.id,
+      quantity,
+      unitPriceMinor: product.sellPriceMinor,
+      currency: product.currency,
     });
+    orderId = order.id;
 
-    const { url: printFileUrl, objectPath } = await rasteriseAndUpload(
-      svg,
-      product,
-    );
-
-    const vectorPaintUrl =
-      process.env.NEXT_PUBLIC_VECTOR_PAINT_URL ||
-      req.nextUrl.origin ||
-      "https://neilmcardle.com";
+    const files = await storeOrderFiles(order.id, drawing, product);
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -141,48 +110,58 @@ export async function POST(req: NextRequest) {
             currency: product.currency,
             unit_amount: product.sellPriceMinor,
             product_data: {
-              name: `Vector Paint canvas · ${product.shortLabel}`,
-              description: `${product.description} A Vector Paint product by Neil McArdle.`,
-              images: [printFileUrl],
+              name: `Canvas print, ${product.sizeLabel.toLowerCase()} · ${formatCm(product)}`,
+              description:
+                "Your child's drawing on canvas, stretched over a 4 cm wooden frame. Printed and sent by our print partner.",
+              images: [files.previewUrl],
             },
           },
         },
       ],
-      shipping_address_collection: { allowed_countries: SHIPPING_COUNTRIES },
+      shipping_address_collection: { allowed_countries: ["GB"] },
       shipping_options: [
         {
           shipping_rate_data: {
             type: "fixed_amount",
-            fixed_amount: {
-              amount: SHIPPING_AMOUNT_MINOR,
-              currency: product.currency,
-            },
-            display_name: "Standard UK delivery",
+            fixed_amount: { amount: 0, currency: product.currency },
+            display_name: "Free UK delivery",
             delivery_estimate: {
               minimum: { unit: "business_day", value: 5 },
-              maximum: { unit: "business_day", value: 10 },
+              maximum: { unit: "business_day", value: 9 },
             },
           },
         },
       ],
       phone_number_collection: { enabled: true },
-      success_url: `${vectorPaintUrl}/vector-paint/order/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${vectorPaintUrl}/vector-paint?checkout=canceled`,
+      success_url: `${origin}/vector-paint/order/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/vector-paint?checkout=canceled`,
       metadata: {
         purchase_type: "vector_paint_print",
-        product_id: product.id,
-        print_file_url: printFileUrl,
-        print_object_path: objectPath,
-        quantity: String(quantity),
+        order_id: order.id,
+      },
+      payment_intent_data: {
+        metadata: { purchase_type: "vector_paint_print", order_id: order.id },
       },
     });
 
-    return NextResponse.json({ url: session.url }, { status: 200 });
-  } catch (error: any) {
-    console.error("Vector Paint checkout error:", error);
-    return NextResponse.json(
-      { error: error.message || "Checkout failed" },
-      { status: 500 },
+    await updateOrder(order.id, {
+      stripeSessionId: session.id,
+      printPath: files.printPath,
+      previewPath: files.previewPath,
+    });
+
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Vector Paint checkout failed:", message);
+    if (orderId)
+      await updateOrder(orderId, {
+        status: "failed",
+        error: message.slice(0, 1000),
+      }).catch(() => {});
+    return fail(
+      "Checkout could not start. Nothing has been charged. Please try again.",
+      500,
     );
   }
 }

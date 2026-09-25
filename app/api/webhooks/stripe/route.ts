@@ -9,11 +9,7 @@ import {
   createUser,
 } from "@/lib/db/users";
 import { createAdminClient } from "@/lib/supabase/admin";
-import {
-  getProduct,
-  type VectorPaintProductId,
-} from "@/lib/vector-paint/products";
-import { createGelatoOrder } from "@/lib/vector-paint/gelato";
+import { expireSession, fulfilPaidSession } from "@/lib/vector-paint/orders";
 import {
   sendTrialEnding,
   sendSubscriptionCanceled,
@@ -277,6 +273,11 @@ async function handleTrialWillEnd(
 }
 
 async function handleCheckoutSessionExpired(session: Stripe.Checkout.Session) {
+  if (session.metadata?.purchase_type === "vector_paint_print") {
+    await expireSession(session);
+    return;
+  }
+
   const email = session.customer_details?.email;
   if (!email) {
     console.log(
@@ -347,7 +348,7 @@ async function handleCheckoutSessionCompleted(
   );
 
   if (purchaseType === "vector_paint_print") {
-    await handleVectorPaintOrder(session);
+    await fulfilPaidSession(session);
     return;
   }
 
@@ -428,37 +429,5 @@ async function handleCheckoutSessionCompleted(
     console.log(
       `Unrecognized purchase type: ${purchaseType} for session ${session.id}`,
     );
-  }
-}
-
-async function handleVectorPaintOrder(session: Stripe.Checkout.Session) {
-  const productId = session.metadata?.product_id as
-    VectorPaintProductId | undefined;
-  const printFileUrl = session.metadata?.print_file_url;
-
-  if (!productId || !printFileUrl) {
-    console.error(
-      `Vector Paint order missing metadata on session ${session.id}`,
-    );
-    return;
-  }
-
-  try {
-    const product = getProduct(productId);
-    const gelatoOrder = await createGelatoOrder({
-      session,
-      product,
-      printFileUrl,
-    });
-    console.log(
-      `Gelato order created: ${gelatoOrder.id} (status: ${gelatoOrder.fulfillmentStatus}) for Stripe session ${session.id}`,
-    );
-  } catch (err: any) {
-    console.error(
-      `Vector Paint order failed for session ${session.id}:`,
-      err.message ?? err,
-    );
-    // Don't rethrow: payment succeeded but fulfilment failed; needs a manual recovery path.
-    // TODO: surface to ops.
   }
 }

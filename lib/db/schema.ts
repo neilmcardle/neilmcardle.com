@@ -5,6 +5,7 @@ import {
   json,
   uuid,
   boolean,
+  integer,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -71,6 +72,30 @@ export const coverlyWaitlist = pgTable("coverly_waitlist", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const vectorPaintOrders = pgTable("vector_paint_orders", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  status: text("status")
+    .$type<
+      "pending" | "paid" | "submitted" | "dry_run" | "failed" | "expired"
+    >()
+    .default("pending")
+    .notNull(),
+  productId: text("product_id").notNull(),
+  quantity: integer("quantity").notNull(),
+  unitPriceMinor: integer("unit_price_minor").notNull(),
+  currency: text("currency").notNull(),
+  stripeSessionId: text("stripe_session_id").unique(),
+  email: text("email"),
+  printPath: text("print_path"),
+  previewPath: text("preview_path"),
+  gelatoOrderId: text("gelato_order_id"),
+  error: text("error"),
+  paidAt: timestamp("paid_at"),
+  submittedAt: timestamp("submitted_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type EBook = typeof ebooks.$inferSelect;
@@ -79,3 +104,4 @@ export type SparkWaitlistEntry = typeof sparkWaitlist.$inferSelect;
 export type NewSparkWaitlistEntry = typeof sparkWaitlist.$inferInsert;
 export type CoverlyWaitlistEntry = typeof coverlyWaitlist.$inferSelect;
 export type NewCoverlyWaitlistEntry = typeof coverlyWaitlist.$inferInsert;
+export type VectorPaintOrder = typeof vectorPaintOrders.$inferSelect;

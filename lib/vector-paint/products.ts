@@ -1,192 +1,126 @@
+export type VectorPaintOrientation = "portrait" | "landscape";
+
+export type VectorPaintSize = "small" | "medium" | "large";
+
 export type VectorPaintProductId =
-  | 'canvas_small_portrait'
-  | 'canvas_small_landscape'
-  | 'canvas_medium_portrait'
-  | 'canvas_medium_landscape'
-  | 'canvas_large_portrait'
-  | 'canvas_large_landscape'
-
-export type VectorPaintProductStatus = 'active' | 'coming_soon'
-
-export type VectorPaintSizeTier = 'small' | 'medium' | 'large'
-
-export type VectorPaintOrientation = 'portrait' | 'landscape'
+  `canvas_${VectorPaintSize}_${VectorPaintOrientation}`;
 
 export interface VectorPaintProduct {
-  id: VectorPaintProductId
-  label: string
-  shortLabel: string
-  tier: VectorPaintSizeTier
-  tierLabel: 'Small' | 'Medium' | 'Large'
-  orientation: VectorPaintOrientation
-  description: string
-  status: VectorPaintProductStatus
-  sellPriceMinor: number
-  currency: 'gbp'
-  aspect: { w: number; h: number }
-  sizeScale: number
-  widthPx: number
-  heightPx: number
-  dpi: number
-  thickness: 'thick'
-  gelatoProductUid: string
+  id: VectorPaintProductId;
+  size: VectorPaintSize;
+  sizeLabel: "Small" | "Medium" | "Large";
+  orientation: VectorPaintOrientation;
+  widthMm: number;
+  heightMm: number;
+  sellPriceMinor: number;
+  quotedCostMinor: number;
+  currency: "gbp";
+  gelatoProductUid: string;
+  fitsAbove: string;
 }
 
-export const MARGIN_FLOOR_MINOR = 500
+export const ORDERS_ENABLED =
+  process.env.NEXT_PUBLIC_VECTOR_PAINT_ORDERS === "on";
 
-export const VECTOR_PAINT_PRODUCTS: Record<VectorPaintProductId, VectorPaintProduct> = {
-  canvas_small_portrait: {
-    id: 'canvas_small_portrait',
-    label: 'Small canvas · 30 × 40 cm',
-    shortLabel: '30 × 40 cm',
-    tier: 'small',
-    tierLabel: 'Small',
-    orientation: 'portrait',
-    description: '30 × 40 cm (12 × 16 in). Canvas on 4 cm stretcher bars · sides mirror the front edge.',
-    status: 'active',
-    sellPriceMinor: 2999,
-    currency: 'gbp',
-    aspect: { w: 30, h: 40 },
-    sizeScale: 0.5,
-    widthPx: 3543,
-    heightPx: 4724,
-    dpi: 300,
-    thickness: 'thick',
-    gelatoProductUid: 'PLACEHOLDER_CANVAS_SMALL_PORTRAIT_UID',
-  },
-  canvas_small_landscape: {
-    id: 'canvas_small_landscape',
-    label: 'Small canvas · 40 × 30 cm',
-    shortLabel: '40 × 30 cm',
-    tier: 'small',
-    tierLabel: 'Small',
-    orientation: 'landscape',
-    description: '40 × 30 cm (16 × 12 in). Canvas on 4 cm stretcher bars · sides mirror the front edge.',
-    status: 'active',
-    sellPriceMinor: 2999,
-    currency: 'gbp',
-    aspect: { w: 40, h: 30 },
-    sizeScale: 0.5,
-    widthPx: 4724,
-    heightPx: 3543,
-    dpi: 300,
-    thickness: 'thick',
-    gelatoProductUid: 'PLACEHOLDER_CANVAS_SMALL_LANDSCAPE_UID',
-  },
-  canvas_medium_portrait: {
-    id: 'canvas_medium_portrait',
-    label: 'Medium canvas · 50 × 70 cm',
-    shortLabel: '50 × 70 cm',
-    tier: 'medium',
-    tierLabel: 'Medium',
-    orientation: 'portrait',
-    description: '50 × 70 cm (20 × 28 in). Canvas on 4 cm stretcher bars · sides mirror the front edge.',
-    status: 'active',
-    sellPriceMinor: 5999,
-    currency: 'gbp',
-    aspect: { w: 50, h: 70 },
-    sizeScale: 0.75,
-    widthPx: 5906,
-    heightPx: 8268,
-    dpi: 300,
-    thickness: 'thick',
-    gelatoProductUid: 'PLACEHOLDER_CANVAS_MEDIUM_PORTRAIT_UID',
-  },
-  canvas_medium_landscape: {
-    id: 'canvas_medium_landscape',
-    label: 'Medium canvas · 70 × 50 cm',
-    shortLabel: '70 × 50 cm',
-    tier: 'medium',
-    tierLabel: 'Medium',
-    orientation: 'landscape',
-    description: '70 × 50 cm (28 × 20 in). Canvas on 4 cm stretcher bars · sides mirror the front edge.',
-    status: 'active',
-    sellPriceMinor: 5999,
-    currency: 'gbp',
-    aspect: { w: 70, h: 50 },
-    sizeScale: 0.75,
-    widthPx: 8268,
-    heightPx: 5906,
-    dpi: 300,
-    thickness: 'thick',
-    gelatoProductUid: 'PLACEHOLDER_CANVAS_MEDIUM_LANDSCAPE_UID',
-  },
-  canvas_large_portrait: {
-    id: 'canvas_large_portrait',
-    label: 'Large canvas · 70 × 100 cm',
-    shortLabel: '70 × 100 cm',
-    tier: 'large',
-    tierLabel: 'Large',
-    orientation: 'portrait',
-    description: '70 × 100 cm (28 × 40 in). Canvas on 4 cm stretcher bars · sides mirror the front edge.',
-    status: 'active',
-    sellPriceMinor: 9999,
-    currency: 'gbp',
-    aspect: { w: 70, h: 100 },
-    sizeScale: 1.0,
-    widthPx: 8268,
-    heightPx: 11811,
-    dpi: 300,
-    thickness: 'thick',
-    gelatoProductUid: 'PLACEHOLDER_CANVAS_LARGE_PORTRAIT_UID',
-  },
-  canvas_large_landscape: {
-    id: 'canvas_large_landscape',
-    label: 'Large canvas · 100 × 70 cm',
-    shortLabel: '100 × 70 cm',
-    tier: 'large',
-    tierLabel: 'Large',
-    orientation: 'landscape',
-    description: '100 × 70 cm (40 × 28 in). Canvas on 4 cm stretcher bars · sides mirror the front edge.',
-    status: 'active',
-    sellPriceMinor: 9999,
-    currency: 'gbp',
-    aspect: { w: 100, h: 70 },
-    sizeScale: 1.0,
-    widthPx: 11811,
-    heightPx: 8268,
-    dpi: 300,
-    thickness: 'thick',
-    gelatoProductUid: 'PLACEHOLDER_CANVAS_LARGE_LANDSCAPE_UID',
-  },
-}
+export const WRAP_MM = 45;
+export const PRINT_DPI = 200;
+export const MARGIN_FLOOR_MINOR = 500;
+const VAT_ALLOWANCE = 1.2;
+const STRIPE_FEE_RATE = 0.015;
+const STRIPE_FEE_FIXED_MINOR = 20;
 
-export const PRODUCT_ORDER: VectorPaintProductId[] = [
-  'canvas_small_portrait',
-  'canvas_medium_portrait',
-  'canvas_large_portrait',
-]
+const SIZES: Record<
+  VectorPaintSize,
+  {
+    label: VectorPaintProduct["sizeLabel"];
+    shortMm: number;
+    longMm: number;
+    price: number;
+    cost: number;
+    fitsAbove: string;
+  }
+> = {
+  small: {
+    label: "Small",
+    shortMm: 300,
+    longMm: 400,
+    price: 3900,
+    cost: 2428,
+    fitsAbove: "a bedside table or a bookshelf",
+  },
+  medium: {
+    label: "Medium",
+    shortMm: 450,
+    longMm: 600,
+    price: 5900,
+    cost: 3608,
+    fitsAbove: "a chest of drawers or a bed",
+  },
+  large: {
+    label: "Large",
+    shortMm: 600,
+    longMm: 800,
+    price: 7900,
+    cost: 4808,
+    fitsAbove: "a sofa or a fireplace",
+  },
+};
 
-export const DEFAULT_PRODUCT_ID: VectorPaintProductId = 'canvas_large_landscape'
-
-/**
- * Find the product variant for a given tier + orientation pair.
- */
-export function findProductByTierAndOrientation(
-  tier: VectorPaintSizeTier,
+function build(
+  size: VectorPaintSize,
   orientation: VectorPaintOrientation,
 ): VectorPaintProduct {
-  const match = Object.values(VECTOR_PAINT_PRODUCTS).find(
-    (p) => p.tier === tier && p.orientation === orientation,
-  )
-  if (!match) throw new Error(`No product for ${tier} / ${orientation}`)
-  return match
+  const s = SIZES[size];
+  const portrait = orientation === "portrait";
+  return {
+    id: `canvas_${size}_${orientation}`,
+    size,
+    sizeLabel: s.label,
+    orientation,
+    widthMm: portrait ? s.shortMm : s.longMm,
+    heightMm: portrait ? s.longMm : s.shortMm,
+    sellPriceMinor: s.price,
+    quotedCostMinor: s.cost,
+    currency: "gbp",
+    gelatoProductUid: `canvas_product_cf_${s.shortMm}x${s.longMm}-mm_cm_canvas_cfrm_wood-fsc-4-cm_cl_4-0_${portrait ? "ver" : "hor"}`,
+    fitsAbove: s.fitsAbove,
+  };
 }
 
-/** Flip a product to its other-orientation sibling. */
-export function flipOrientation(id: VectorPaintProductId): VectorPaintProduct {
-  const current = VECTOR_PAINT_PRODUCTS[id]
-  const other: VectorPaintOrientation =
-    current.orientation === 'portrait' ? 'landscape' : 'portrait'
-  return findProductByTierAndOrientation(current.tier, other)
+export const SIZE_ORDER: VectorPaintSize[] = ["small", "medium", "large"];
+
+export const VECTOR_PAINT_PRODUCTS = Object.fromEntries(
+  SIZE_ORDER.flatMap((size) =>
+    (["portrait", "landscape"] as const).map((o) => {
+      const p = build(size, o);
+      return [p.id, p];
+    }),
+  ),
+) as Record<VectorPaintProductId, VectorPaintProduct>;
+
+export function findProduct(
+  size: VectorPaintSize,
+  orientation: VectorPaintOrientation,
+): VectorPaintProduct {
+  return VECTOR_PAINT_PRODUCTS[`canvas_${size}_${orientation}`];
 }
 
-export function getProduct(id: VectorPaintProductId): VectorPaintProduct {
-  const product = VECTOR_PAINT_PRODUCTS[id]
-  if (!product) throw new Error(`Vector Paint product not configured: ${id}`)
-  return product
+export function isProductId(value: unknown): value is VectorPaintProductId {
+  return typeof value === "string" && value in VECTOR_PAINT_PRODUCTS;
 }
 
-export function isProductActive(id: VectorPaintProductId): boolean {
-  return VECTOR_PAINT_PRODUCTS[id].status === 'active'
+export function marginMinor(product: VectorPaintProduct): number {
+  const cost = Math.ceil(product.quotedCostMinor * VAT_ALLOWANCE);
+  const fee =
+    Math.ceil(product.sellPriceMinor * STRIPE_FEE_RATE) +
+    STRIPE_FEE_FIXED_MINOR;
+  return product.sellPriceMinor - cost - fee;
+}
+
+export function formatPrice(minor: number): string {
+  return `£${(minor / 100).toFixed(minor % 100 === 0 ? 0 : 2)}`;
+}
+
+export function formatCm(product: VectorPaintProduct): string {
+  return `${product.widthMm / 10} × ${product.heightMm / 10} cm`;
 }
