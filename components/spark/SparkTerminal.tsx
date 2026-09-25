@@ -656,7 +656,7 @@ export function SparkTerminal({
     <div
       className={styles.dock}
       style={
-        spot
+        open && spot
           ? { left: spot.x, top: spot.y, right: "auto", bottom: "auto" }
           : undefined
       }
@@ -685,9 +685,6 @@ export function SparkTerminal({
         >
           <SparkMark className={styles.pillMark} />
           terminal
-          <span className={styles.key} aria-hidden="true">
-            `
-          </span>
         </button>
       )}
     </div>
