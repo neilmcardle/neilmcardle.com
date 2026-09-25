@@ -23,7 +23,7 @@ const SERIES: Entry[] = [
   },
   {
     title: "Series 01",
-    note: "Thirty-four works in two volumes, graphical for print and in motion.",
+    note: "Thirty works in two volumes, graphical for print and in motion.",
     href: "/studio/series-01",
     go: "Read the series",
   },

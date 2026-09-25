@@ -7,7 +7,7 @@ import styles from "./series.module.css";
 export const metadata: Metadata = {
   title: "Series 01",
   description:
-    "Thirty-four works in two volumes. Volume 01 is the graphic system and Volume 02 turns the same digital manipulations on landscapes.",
+    "Thirty works in two volumes. Volume 01 is the graphic system and Volume 02 turns the same digital manipulations on landscapes.",
 };
 
 const BANDS: {
@@ -17,7 +17,6 @@ const BANDS: {
   kinds: Work["kind"][];
 }[] = [
   { id: "posters", label: "Posters", vol: 1, kinds: ["poster"] },
-  { id: "marks", label: "Marks", vol: 1, kinds: ["mark"] },
   { id: "patterns", label: "Patterns", vol: 1, kinds: ["pattern"] },
   { id: "applied", label: "Applied", vol: 1, kinds: ["mockup"] },
   { id: "motion", label: "Motion", vol: 1, kinds: ["motion"] },
@@ -28,6 +27,7 @@ const BANDS: {
 
 function Band({ id, label, vol, kinds }: (typeof BANDS)[number]) {
   const items = WORKS.filter((w) => w.vol === vol && kinds.includes(w.kind));
+  if (!items.length) return null;
   const wide = kinds.includes("mockup");
 
   return (
@@ -67,10 +67,7 @@ function Band({ id, label, vol, kinds }: (typeof BANDS)[number]) {
                 priority={id === "posters" && i === 0}
               />
             )}
-            <div className={styles.cap}>
-              <h4 className={styles.capTitle}>{work.title}</h4>
-              {work.note ? <p className={styles.capNote}>{work.note}</p> : null}
-            </div>
+            <h4 className={styles.capTitle}>{work.title}</h4>
           </article>
         ))}
       </div>
@@ -83,10 +80,6 @@ export default function SeriesPage() {
     <>
       <section className={styles.head}>
         <h1 className={styles.title}>Series 01</h1>
-        <p className={styles.lede}>
-          Thirty-four works in two volumes. Volume 01 is the graphic system and
-          Volume 02 turns the same digital manipulations on landscapes.
-        </p>
         <nav className={styles.jump} aria-label="Sections">
           <a className={styles.jumpLink} href="#volume-01">
             Volume 01
@@ -108,11 +101,6 @@ export default function SeriesPage() {
 
       <div className={styles.volHead} id="volume-01">
         <h2 className={styles.volTitle}>Volume 01</h2>
-        <p className={styles.volNote}>
-          Ten posters, one sheet of marks, five seamless patterns, five applied
-          pieces and four loops. Each one is a small rule drawn to a fixed
-          recipe, so any sheet can be explained and redrawn.
-        </p>
       </div>
 
       {BANDS.filter((b) => b.vol === 1).map((band) => (
@@ -121,11 +109,6 @@ export default function SeriesPage() {
 
       <div className={styles.volHead} id="volume-02">
         <h2 className={styles.volTitle}>Volume 02</h2>
-        <p className={styles.volNote}>
-          Six landscapes from one rule: ridges built from 1D fractal noise,
-          mirrored into water, then ordered-dithered on a fixed 8px grid in
-          lime, violet and black. Quieter, and made of the same arithmetic.
-        </p>
       </div>
 
       {BANDS.filter((b) => b.vol === 2).map((band) => (

@@ -13,13 +13,6 @@
   text-transform: uppercase;
 }
 
-.lede {
-  margin: 20px 0 0;
-  max-width: 54ch;
-  font-size: 15px;
-  line-height: 1.6;
-}
-
 .jump {
   display: flex;
   flex-wrap: wrap;
@@ -55,13 +48,6 @@
   text-transform: uppercase;
 }
 
-.volNote {
-  margin: 12px 0 0;
-  max-width: 58ch;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
 .bandTitle {
   margin: 0;
   padding: 12px var(--gutter);
@@ -74,6 +60,8 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  width: calc(100% + 1.5px);
+  margin-left: -1.5px;
   border-bottom: var(--rule);
 }
 
@@ -88,8 +76,13 @@
   border-left: var(--rule);
 }
 
-.item:first-child {
-  border-left: 0;
+.capTitle {
+  margin: 14px 0 0;
+  font-family: var(--disp);
+  font-weight: 900;
+  font-size: 22px;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .shot {
@@ -97,26 +90,6 @@
   width: 100%;
   height: auto;
   border: var(--rule);
-}
-
-.cap {
-  margin-top: 14px;
-}
-
-.capTitle {
-  margin: 0;
-  font-family: var(--disp);
-  font-weight: 900;
-  font-size: 24px;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.capNote {
-  margin: 8px 0 0;
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--mute);
 }
 
 .foot {
@@ -139,14 +112,5 @@
   .grid,
   .gridWide {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .item {
-    border-left: 0;
-    border-top: var(--rule);
-  }
-
-  .item:first-child {
-    border-top: 0;
   }
 }

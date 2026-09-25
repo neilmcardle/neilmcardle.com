@@ -1,6 +1,9 @@
 .lab {
   display: grid;
-  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  grid-template-columns: minmax(200px, 260px) minmax(0, 1fr) minmax(
+      210px,
+      270px
+    );
 }
 
 .side {
@@ -60,20 +63,84 @@
   color: var(--mute);
 }
 
-.keys {
-  margin-top: auto;
-  font-size: 11px;
-  line-height: 2;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  padding: clamp(18px, 2.4vw, 28px);
+  overflow: auto;
+  border-left: var(--rule);
+}
+
+.panelTitle {
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: var(--rule);
+  font-size: 12px;
   color: var(--mute);
 }
 
-.key {
-  padding: 1px 6px;
-  border: var(--rule);
-  font: inherit;
+.dials {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dials label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+  font-size: 12px;
+  color: var(--mute);
+}
+
+.dials label b {
+  font-weight: 600;
   color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.dials input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--violet);
+}
+
+.dials input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--violet);
+}
+
+.dials select {
+  width: 100%;
+  padding: 7px 8px;
+  border: var(--rule);
+  border-radius: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.reset {
+  all: unset;
+  margin-top: auto;
+  padding: 8px 12px;
+  border: var(--rule);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+}
+
+.reset:hover {
+  background: var(--lime);
 }
 
 .main {
@@ -124,13 +191,6 @@
 .name {
   font: 900 26px/1 var(--disp);
   text-transform: uppercase;
-}
-
-.recipe {
-  font-size: 11px;
-  line-height: 1.5;
-  color: var(--mute);
-  overflow-wrap: anywhere;
 }
 
 .ctrls {
@@ -193,7 +253,11 @@
 @media (max-width: 860px) {
   .lab {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .panel {
+    border-left: 0;
+    border-top: var(--rule);
   }
 
   .lede {
@@ -224,12 +288,11 @@
     display: none;
   }
 
-  .keys {
-    display: none;
-  }
-
   .stage {
-    max-height: calc((100vw - 71px) * 1.25);
+    flex: none;
+    width: 100%;
+    max-width: 100%;
+    max-height: none;
   }
 
   .bar {

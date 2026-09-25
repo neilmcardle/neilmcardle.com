@@ -265,6 +265,20 @@
 }
 
 @media (min-height: 460px) and (max-width: 860px) {
+  .page:has(.scrollNarrow) {
+    height: auto;
+    overflow: visible;
+  }
+
+  .page:has(.scrollNarrow) .frame {
+    display: block;
+    height: auto;
+  }
+
+  .scrollNarrow {
+    flex: none;
+  }
+
   .page:has(.introHome) .title {
     font-size: min(calc((100vw - 72px) / 4.3), 18vh);
   }

@@ -1,4 +1,5 @@
-(() => {
+window.__signalLab = () => {
+  if (window.__signalLabStop) window.__signalLabStop();
   const W = 600,
     H = 750,
     TAU = Math.PI * 2;
@@ -40,7 +41,6 @@
   }
   const B8 = bayer(8).map((r) => r.map((v) => (v + 0.5) / 64));
   function field(r, w, h, base, oct) {
-    // fractal value noise sampled onto w*h grid, normalised 0..1
     const out = new Float32Array(w * h);
     let amp = 1,
       tot = 0;
@@ -116,11 +116,17 @@
     heat: ["#000000", "#4a0e8f", "#e0197a", "#ff9a1a", "#fff3b0"],
   };
 
+  const GLYPHS = [".:-=+*#%@", "/\\|—+×", "░▒▓█", "01", "◐◑◒◓●○"];
+
   const RULES = [
     {
       id: "derez",
       name: "Derez",
       anim: true,
+      controls: [
+        { k: "mix", label: "Gradient", min: 0, max: 1, step: 0.01 },
+        { k: "pal", label: "Inks", opts: ["acid", "hot", "toxic", "heat"] },
+      ],
       setup(s) {
         const r = rng(s),
           w = 150,
@@ -160,6 +166,13 @@
       id: "slipstream",
       name: "Slipstream",
       anim: true,
+      controls: [
+        { k: "k", label: "Stripes", min: 8, max: 80, step: 1 },
+        { k: "amp", label: "Bulge", min: 0, max: 40, step: 0.5 },
+        { k: "cx", label: "Bulge x", min: 0, max: 1, step: 0.01 },
+        { k: "cy", label: "Bulge y", min: 0, max: 1, step: 0.01 },
+        { k: "pal", label: "Inks", opts: ["hot", "acid", "toxic", "heat"] },
+      ],
       setup(s) {
         const r = rng(s),
           w = 300,
@@ -207,6 +220,13 @@
       id: "pulsar",
       name: "Pulsar",
       anim: false,
+      controls: [
+        { k: "pet", label: "Rays", min: 4, max: 60, step: 1 },
+        { k: "rings", label: "Rings", min: 2, max: 24, step: 1 },
+        { k: "lob", label: "Wobble", min: 1, max: 16, step: 1 },
+        { k: "cy", label: "Centre y", min: 0.1, max: 0.9, step: 0.01 },
+        { k: "pal", label: "Inks", opts: ["toxic", "acid", "hot", "heat"] },
+      ],
       setup(s) {
         const r = rng(s);
         return {
@@ -259,13 +279,29 @@
       id: "quadrant",
       name: "Quadrant",
       anim: false,
-      setup(s) {
+      controls: [
+        { k: "g", label: "Grid", min: 4, max: 24, step: 1, rebuild: true },
+        {
+          k: "v",
+          label: "Void",
+          min: 0.05,
+          max: 0.8,
+          step: 0.01,
+          rebuild: true,
+        },
+        { k: "inks", label: "Inks", min: 2, max: 4, step: 1, rebuild: true },
+        { k: "pal", label: "Palette", opts: ["acid", "toxic", "hot", "heat"] },
+      ],
+      setup(s, o = {}) {
         const r = rng(s),
-          g = 6 + Math.floor(r() * 12),
+          gd = 6 + Math.floor(r() * 12),
+          g = o.g ?? gd,
           rows = Math.round(g * 1.25),
           pal = pick(r, ["acid", "toxic", "hot"]),
-          v = 0.3 + r() * 0.35,
-          inks = 3 + Math.floor(r() * 2);
+          vd = 0.3 + r() * 0.35,
+          v = o.v ?? vd,
+          inksd = 3 + Math.floor(r() * 2),
+          inks = o.inks ?? inksd;
         const q = [];
         for (let j = 0; j < rows; j++) {
           q.push([]);
@@ -295,6 +331,11 @@
       id: "circuit",
       name: "Circuit",
       anim: false,
+      controls: [
+        { k: "n", label: "Cells", min: 4, max: 40, step: 1 },
+        { k: "wt", label: "Stroke", min: 0.02, max: 0.5, step: 0.01 },
+        { k: "pal", label: "Inks", opts: ["acid", "toxic", "hot", "heat"] },
+      ],
       setup(s) {
         const r = rng(s),
           n = 8 + Math.floor(r() * 16),
@@ -334,6 +375,13 @@
       id: "bitstream",
       name: "Bitstream",
       anim: false,
+      controls: [
+        { k: "ring", label: "Rings", min: 0.5, max: 12, step: 0.1 },
+        { k: "cx", label: "Centre x", min: 0, max: 1, step: 0.01 },
+        { k: "cy", label: "Centre y", min: 0, max: 1, step: 0.01 },
+        { k: "g", label: "Glyphs", opts: GLYPHS },
+        { k: "pal", label: "Inks", opts: ["acid", "toxic", "hot"] },
+      ],
       setup(s) {
         const r = rng(s),
           n = 16 + Math.floor(r() * 16),
@@ -346,7 +394,7 @@
           cy: r(),
           ring: 3 + r() * 5,
           pal: pick(r, ["acid", "toxic", "hot"]),
-          g: pick(r, [".:-=+*#%@", "/\\|—+×", "░▒▓█", "01", "◐◑◒◓●○"]),
+          g: pick(r, GLYPHS),
         };
       },
       draw(st) {
@@ -385,6 +433,11 @@
       id: "horizon",
       name: "Horizon",
       anim: false,
+      controls: [
+        { k: "fall", label: "Falloff", min: 0, max: 0.6, step: 0.01 },
+        { k: "gx", label: "Glint x", min: 0, max: 1, step: 0.01 },
+        { k: "inv", label: "Invert", bool: true },
+      ],
       setup(s) {
         const r = rng(s),
           w = 200,
@@ -534,39 +587,154 @@
     rulesEl.appendChild(b);
   });
 
+  const tweaks = {};
+
   let cur = 0,
     seed = 1,
     state = null,
     phase = 0,
+    speed = 1,
     animOn = false,
     raf = 0;
   const $ = (id) => document.getElementById(id);
   function newSeed() {
     return 1 + Math.floor(Math.random() * 99998);
   }
+  function build() {
+    const R = RULES[cur],
+      t = tweaks[R.id] || {},
+      over = {},
+      merge = {};
+    (R.controls || []).forEach((c) => {
+      if (!(c.k in t)) return;
+      (c.rebuild ? over : merge)[c.k] = t[c.k];
+    });
+    return Object.assign(R.setup(seed, over), merge);
+  }
+  function hashFor() {
+    const R = RULES[cur],
+      t = tweaks[R.id] || {},
+      keys = Object.keys(t);
+    let h = "#" + R.id + "-" + seed;
+    if (keys.length)
+      h += "!" + keys.map((k) => k + ":" + encodeURIComponent(t[k])).join(",");
+    return h;
+  }
+  function tweak(c, v) {
+    const id = RULES[cur].id;
+    (tweaks[id] = tweaks[id] || {})[c.k] = v;
+    if (c.rebuild) state = build();
+    else state[c.k] = v;
+    render();
+    try {
+      history.replaceState(null, "", hashFor());
+    } catch (e) {}
+  }
+  function show(c, v) {
+    if (c.bool) return v ? "on" : "off";
+    if (c.opts) return c.k === "g" ? v.slice(0, 4) : v;
+    return c.step >= 1 ? String(v) : (+v).toFixed(2);
+  }
+  function renderDials() {
+    const R = RULES[cur],
+      dialsEl = $("dials");
+    if (!dialsEl) return;
+    dialsEl.innerHTML = "";
+    (R.controls || []).forEach((c) => {
+      const row = document.createElement("div");
+      const lab = document.createElement("label");
+      const id = "dial-" + c.k;
+      lab.htmlFor = id;
+      const name = document.createElement("span");
+      name.textContent = c.label;
+      const val = document.createElement("b");
+      val.textContent = show(c, state[c.k]);
+      lab.append(name, val);
+      let input;
+      if (c.opts) {
+        input = document.createElement("select");
+        c.opts.forEach((o) => {
+          const op = document.createElement("option");
+          op.value = o;
+          op.textContent = c.k === "g" ? o.slice(0, 6) : o;
+          input.appendChild(op);
+        });
+        input.value = state[c.k];
+        input.oninput = () => {
+          val.textContent = show(c, input.value);
+          tweak(c, input.value);
+        };
+      } else if (c.bool) {
+        input = document.createElement("input");
+        input.type = "checkbox";
+        input.checked = !!state[c.k];
+        input.oninput = () => {
+          val.textContent = show(c, input.checked);
+          tweak(c, input.checked);
+        };
+      } else {
+        input = document.createElement("input");
+        input.type = "range";
+        input.min = c.min;
+        input.max = c.max;
+        input.step = c.step;
+        input.value = state[c.k];
+        input.oninput = () => {
+          const v = +input.value;
+          val.textContent = show(c, v);
+          tweak(c, v);
+        };
+      }
+      input.id = id;
+      row.append(lab, input);
+      dialsEl.appendChild(row);
+    });
+    if (!R.anim) return;
+    const row = document.createElement("div");
+    const lab = document.createElement("label");
+    lab.htmlFor = "dial-speed";
+    const name = document.createElement("span");
+    name.textContent = "Speed";
+    const val = document.createElement("b");
+    val.textContent = speed.toFixed(2);
+    lab.append(name, val);
+    const input = document.createElement("input");
+    input.id = "dial-speed";
+    input.type = "range";
+    input.min = 0.05;
+    input.max = 2;
+    input.step = 0.05;
+    input.value = speed;
+    input.oninput = () => {
+      speed = +input.value;
+      val.textContent = speed.toFixed(2);
+    };
+    row.append(lab, input);
+    dialsEl.appendChild(row);
+  }
   function set(i, s) {
     cur = (i + RULES.length) % RULES.length;
     seed = s;
-    state = RULES[cur].setup(seed);
+    state = build();
     phase = 0;
     render();
+    renderDials();
     [...rulesEl.children].forEach((b, k) =>
       b.setAttribute("aria-pressed", k === cur),
     );
     $("name").textContent =
       `${RULES[cur].name} · seed ${String(seed).padStart(5, "0")}`;
-    $("recipe").textContent = RULES[cur].recipe(state);
     $("anim").disabled = !RULES[cur].anim;
     $("anim").style.opacity = RULES[cur].anim ? 1 : 0.35;
     try {
-      history.replaceState(null, "", "#" + RULES[cur].id + "-" + seed);
+      history.replaceState(null, "", hashFor());
     } catch (e) {}
   }
   function render() {
     RULES[cur].draw(state, phase);
   }
   function loop() {
-    phase = (phase + 1 / 150) % 1;
+    phase = (phase + speed / 150) % 1;
     render();
     raf = requestAnimationFrame(loop);
   }
@@ -586,9 +754,13 @@
     toast.t = setTimeout(() => (e.hidden = true), 1600);
   }
   $("reroll").onclick = () => set(cur, newSeed());
+  $("dreset").onclick = () => {
+    delete tweaks[RULES[cur].id];
+    set(cur, seed);
+  };
   $("anim").onclick = () => toggleAnim();
   $("copy").onclick = () => {
-    const u = location.href.split("#")[0] + "#" + RULES[cur].id + "-" + seed;
+    const u = location.href.split("#")[0] + hashFor();
     const fb = () => {
       toast("Seed " + seed + " — " + RULES[cur].id);
     };
@@ -598,8 +770,8 @@
       fb();
     }
   };
-  addEventListener("keydown", (e) => {
-    if (e.target.closest && e.target.closest("input,textarea")) return;
+  const onKey = (e) => {
+    if (e.target.closest && e.target.closest("input,textarea,select")) return;
     if (e.code === "Space" || e.key === "r") {
       e.preventDefault();
       set(cur, newSeed());
@@ -610,13 +782,31 @@
     } else if (e.key === "a") {
       toggleAnim();
     }
-  });
-  const m = (location.hash || "").match(/^#([a-z]+)-(\d+)$/);
+  };
+  addEventListener("keydown", onKey);
+  const m = (location.hash || "").match(/^#([a-z]+)-(\d+)(?:!(.*))?$/);
   const start = m
     ? Math.max(
         0,
         RULES.findIndex((R) => R.id === m[1]),
       )
     : 1;
+  if (m && m[3]) {
+    const t = {};
+    m[3].split(",").forEach((pair) => {
+      const at = pair.indexOf(":");
+      if (at < 1) return;
+      const k = pair.slice(0, at),
+        raw = decodeURIComponent(pair.slice(at + 1)),
+        c = (RULES[start].controls || []).find((x) => x.k === k);
+      if (!c) return;
+      t[k] = c.bool ? raw === "true" : c.opts ? raw : +raw;
+    });
+    if (Object.keys(t).length) tweaks[RULES[start].id] = t;
+  }
   set(start, m ? +m[2] : 1311);
-})();
+  window.__signalLabStop = () => {
+    cancelAnimationFrame(raf);
+    removeEventListener("keydown", onKey);
+  };
+};

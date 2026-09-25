@@ -4,23 +4,21 @@ import Script from "next/script";
 import shell from "../studio.module.css";
 import styles from "./lab.module.css";
 
+declare global {
+  interface Window {
+    __signalLab?: () => void;
+  }
+}
+
 export default function LabStage() {
   return (
-    <div className={`${styles.lab} ${shell.lock}`}>
+    <div className={`${styles.lab} ${shell.lock} ${shell.scrollNarrow}`}>
       <aside className={styles.side}>
         <p className={styles.lede}>
           Seven rules, endless outcomes. Every poster here is drawn live in your
           browser from a seed number. Reroll until something stops you.
         </p>
         <nav className={styles.rules} id="rules" aria-label="Rules" />
-        <div className={styles.keys}>
-          <kbd className={styles.key}>Space</kbd> reroll
-          <br />
-          <kbd className={styles.key}>&larr;</kbd>{" "}
-          <kbd className={styles.key}>&rarr;</kbd> change rule
-          <br />
-          <kbd className={styles.key}>A</kbd> animate
-        </div>
       </aside>
 
       <main className={styles.main}>
@@ -38,7 +36,6 @@ export default function LabStage() {
             <b id="name" className={styles.name}>
               &mdash;
             </b>
-            <span id="recipe" className={styles.recipe} />
           </div>
           <div className={styles.ctrls}>
             <button
@@ -63,8 +60,20 @@ export default function LabStage() {
         </div>
       </main>
 
+      <aside className={styles.panel} aria-label="Inputs">
+        <p className={styles.panelTitle}>Inputs</p>
+        <div className={styles.dials} id="dials" />
+        <button type="button" className={styles.reset} id="dreset">
+          Reset inputs
+        </button>
+      </aside>
+
       <div className={styles.toast} id="toast" hidden />
-      <Script src="/studio/lab.js" strategy="afterInteractive" />
+      <Script
+        src="/studio/lab.js"
+        strategy="afterInteractive"
+        onReady={() => window.__signalLab?.()}
+      />
     </div>
   );
 }
