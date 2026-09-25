@@ -200,7 +200,11 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [replay, setReplay] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuClosing, setMenuClosing] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchClosing, setSearchClosing] = useState(false);
+  const menuTimer = useRef<number | null>(null);
+  const searchTimer = useRef<number | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLElement>(null);
   const indexRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -222,15 +226,65 @@ export default function Home() {
     return { key, subs };
   }).filter((section) => section.subs.length > 0);
 
+  useEffect(
+    () => () => {
+      if (menuTimer.current !== null) window.clearTimeout(menuTimer.current);
+      if (searchTimer.current !== null)
+        window.clearTimeout(searchTimer.current);
+    },
+    [],
+  );
+
+  const openMenu = () => {
+    if (menuTimer.current !== null) window.clearTimeout(menuTimer.current);
+    setMenuClosing(false);
+    setMenuOpen(true);
+  };
+
+  const closeMenu = () => {
+    if (reducedMotion()) {
+      setMenuOpen(false);
+      return;
+    }
+    setMenuClosing(true);
+    if (menuTimer.current !== null) window.clearTimeout(menuTimer.current);
+    menuTimer.current = window.setTimeout(() => {
+      setMenuOpen(false);
+      setMenuClosing(false);
+    }, 240);
+  };
+
+  const openSearch = () => {
+    if (searchTimer.current !== null) window.clearTimeout(searchTimer.current);
+    setSearchClosing(false);
+    setSearchOpen(true);
+    requestAnimationFrame(() => searchRef.current?.focus());
+  };
+
+  const closeSearch = () => {
+    if (reducedMotion()) {
+      setSearchOpen(false);
+      return;
+    }
+    setSearchClosing(true);
+    if (searchTimer.current !== null) window.clearTimeout(searchTimer.current);
+    searchTimer.current = window.setTimeout(() => {
+      setSearchOpen(false);
+      setSearchClosing(false);
+    }, 240);
+  };
+
   useEffect(() => {
     if (!menuOpen) return;
     const mobile = window.matchMedia("(max-width: 959px)");
-    const close = () => setMenuOpen(false);
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
+      if (event.key === "Escape") closeMenu();
     };
     const onChange = () => {
-      if (!mobile.matches) close();
+      if (!mobile.matches) {
+        setMenuOpen(false);
+        setMenuClosing(false);
+      }
     };
     const html = document.documentElement;
     const previous = html.style.overflow;
@@ -247,7 +301,7 @@ export default function Home() {
   const choose = (next: Filter) => {
     setFilter(next);
     setReplay((count) => count + 1);
-    setMenuOpen(false);
+    if (menuOpen) closeMenu();
     const behavior = reducedMotion() ? "auto" : "smooth";
     const card = cardRef.current;
     if (card && card.scrollHeight > card.clientHeight + 1) {
@@ -281,7 +335,10 @@ export default function Home() {
   let rowIndex = 0;
 
   return (
-    <div className={styles.root} data-menu={menuOpen ? "open" : "closed"}>
+    <div
+      className={styles.root}
+      data-menu={menuOpen ? (menuClosing ? "closing" : "open") : "closed"}
+    >
       <div className={styles.curlWrap}>
         <PageCurl />
       </div>
@@ -316,35 +373,21 @@ export default function Home() {
           >
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
-          <span className={styles.xLabel}>@BetterNeil</span>
+          <span>@BetterNeil</span>
         </a>
         <EmailPill />
-        <a
-          className={`${styles.xPill} ${styles.mailIcon}`}
-          href={`mailto:${EMAIL}`}
-          aria-label={`Email ${EMAIL}`}
-        >
-          <svg
-            className={styles.xLogo}
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <rect x="2.5" y="4.5" width="15" height="11" rx="2" />
-            <path d="M3 5.5l7 5.25 7-5.25" strokeLinecap="round" />
-          </svg>
-        </a>
         <button
           type="button"
           className={styles.menuButton}
-          aria-expanded={menuOpen}
+          aria-expanded={menuOpen && !menuClosing}
           aria-controls="home-menu"
-          onClick={() => setMenuOpen((open) => !open)}
+          aria-label={menuOpen && !menuClosing ? "Close menu" : "Open menu"}
+          onClick={() => (menuOpen && !menuClosing ? closeMenu() : openMenu())}
         >
-          {menuOpen ? "Close" : "Menu"}
+          <span className={styles.burger} aria-hidden="true">
+            <span />
+            <span />
+          </span>
         </button>
       </header>
 
@@ -389,6 +432,17 @@ export default function Home() {
                 {EMAIL}
               </a>
             </li>
+            <li className={styles.emailItem}>
+              <span className={styles.metaLabel}>On X</span>
+              <a
+                href="https://x.com/BetterNeil"
+                className={styles.emailLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                @BetterNeil
+              </a>
+            </li>
             {CLIENTS.map((client) => (
               <li key={client.name} className={styles.client}>
                 <span className={styles.metaLabel}>{client.role}</span>
@@ -412,7 +466,13 @@ export default function Home() {
         >
           <div
             className={styles.cardHead}
-            data-search={searchOpen || query ? "open" : "closed"}
+            data-search={
+              searchClosing
+                ? "closing"
+                : searchOpen || query
+                  ? "open"
+                  : "closed"
+            }
           >
             <h2 id="home-card-title" className={styles.cardTitle}>
               <span className={styles.titlePhoto}>
@@ -431,12 +491,9 @@ export default function Home() {
               type="button"
               className={styles.searchToggle}
               aria-label="Search work"
-              aria-expanded={searchOpen || Boolean(query)}
+              aria-expanded={(searchOpen || Boolean(query)) && !searchClosing}
               aria-controls="home-search"
-              onClick={() => {
-                setSearchOpen(true);
-                requestAnimationFrame(() => searchRef.current?.focus());
-              }}
+              onClick={openSearch}
             >
               <SearchIcon className={styles.searchToggleIcon} />
             </button>
@@ -454,12 +511,12 @@ export default function Home() {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 onBlur={() => {
-                  if (!query) setSearchOpen(false);
+                  if (!query && searchOpen && !searchClosing) closeSearch();
                 }}
                 onKeyDown={(event) => {
                   if (event.key === "Escape") {
                     setQuery("");
-                    setSearchOpen(false);
+                    closeSearch();
                   }
                 }}
               />
@@ -515,9 +572,10 @@ export default function Home() {
                     </h3>
                     {section.subs.map((sub) => (
                       <div key={sub.name} className={styles.sub}>
-                        {MULTI_SUB.has(section.key) && (
-                          <p className={styles.subTitle}>{sub.name}</p>
-                        )}
+                        {MULTI_SUB.has(section.key) &&
+                          sub.name !== "In progress" && (
+                            <p className={styles.subTitle}>{sub.name}</p>
+                          )}
                         {section.key === "products" ? (
                           <div className={styles.showcases}>
                             {sub.items.map((work) => (
@@ -832,15 +890,20 @@ const SHOWCASE: Record<string, ShowcaseInfo> = {
 function ShowcaseMedia({ title }: { title: string }) {
   if (title === "makeebook")
     return (
-      <video
-        className={styles.film}
-        src="/home/makeebook-promo.mp4"
-        poster="/home/makeebook-promo.jpg"
-        aria-label="makeebook product film"
-        controls
-        playsInline
-        preload="none"
-      />
+      <>
+        <MakeEbookMocks only="lockup" />
+        <MakeEbookMocks only="rain" />
+        <MakeEbookMocks only="video" />
+        <video
+          className={styles.film}
+          src="/home/makeebook-promo.mp4"
+          poster="/home/makeebook-promo.jpg"
+          aria-label="makeebook product film"
+          controls
+          playsInline
+          preload="none"
+        />
+      </>
     );
   if (title === "Spark")
     return (
@@ -863,7 +926,6 @@ function ShowcaseMedia({ title }: { title: string }) {
 }
 
 function ShowcaseGallery({ title }: { title: string }) {
-  if (title === "makeebook") return <MakeEbookMocks />;
   return null;
 }
 
@@ -975,17 +1037,7 @@ function Demo() {
         Product Demo on Dive Radio
       </h3>
       <article className={styles.showcase}>
-        <video
-          className={styles.film}
-          src="/home/dive-radio-jit.mp4"
-          poster="/home/dive-radio-jit.jpg"
-          aria-label="Dive Radio, Just-in-Time Interfaces"
-          controls
-          playsInline
-          preload="none"
-        />
-        <p className={styles.what}>Just-in-Time Interfaces</p>
-        <p className={styles.note}>
+        <p className={styles.demoNote}>
           A demo I recorded of Speak UI, played on Dive Radio with{" "}
           <a className={styles.handle} href="https://x.com/designertom">
             @designertom
@@ -997,6 +1049,16 @@ function Demo() {
           , 24 September 2026. Describe the interface you want and it&rsquo;s
           built while you watch.
         </p>
+        <video
+          className={styles.film}
+          src="/home/dive-radio-jit.mp4"
+          poster="/home/dive-radio-jit.jpg"
+          aria-label="Dive Radio, Just-in-Time Interfaces"
+          controls
+          playsInline
+          preload="none"
+        />
+        <p className={styles.caption}>Above: Just-in-Time Interfaces</p>
       </article>
     </section>
   );

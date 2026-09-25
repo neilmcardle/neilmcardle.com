@@ -101,7 +101,11 @@ function TileControls({
   );
 }
 
-export default function MakeEbookMocks() {
+export default function MakeEbookMocks({
+  only,
+}: {
+  only?: "rain" | "lockup" | "video";
+}) {
   const moving = useSyncExternalStore(
     subscribeMotion,
     motionEnabled,
@@ -181,99 +185,83 @@ export default function MakeEbookMocks() {
 
   return (
     <div className={styles.mbStack}>
-      <div className={styles.mbRain} ref={rainRef}>
-        <iframe
-          ref={frameRef}
-          src="/make-ebook/brand/rain-on-glass.html?bg=/make-ebook/brand/library-lamp.jpg"
-          title="makeebook"
-          tabIndex={-1}
-          loading="lazy"
-          aria-hidden="true"
-          className={styles.mbRainCanvas}
-        />
-        <Image
-          src="/make-ebook/brand/mark.svg"
-          alt=""
-          width={82}
-          height={30}
-          className={styles.mbRainMark}
-        />
-        <audio ref={audioRef} src="/audio/rain-light.mp3" loop preload="none" />
-        <TileControls
-          label="rain"
-          playing={rainShown}
-          onPlay={() =>
-            rainShown ? setRainPlaying(false) : start(setRainPlaying)
-          }
-          sound={{
-            on: rainSound,
-            onToggle: () => {
-              if (!rainSound && !rainShown) start(setRainPlaying);
-              setRainSound(!rainSound);
-            },
-          }}
-        />
-      </div>
-
-      <div className={styles.mbGrid} aria-hidden="true">
-        <span className={styles.mbGridFrame}>
+      {(!only || only === "rain") && (
+        <div className={styles.mbRain} ref={rainRef}>
+          <iframe
+            ref={frameRef}
+            src="/make-ebook/brand/rain-on-glass.html?bg=/make-ebook/brand/library-lamp.jpg"
+            title="makeebook"
+            tabIndex={-1}
+            loading="lazy"
+            aria-hidden="true"
+            className={styles.mbRainCanvas}
+          />
           <Image
             src="/make-ebook/brand/mark.svg"
             alt=""
             width={82}
             height={30}
-            className={styles.mbLockupMark}
+            className={styles.mbRainMark}
           />
-          <span className={styles.mbWordmark}>makeebook</span>
-        </span>
-      </div>
-
-      <div className={styles.mbVideo} ref={videoTileRef}>
-        <video
-          ref={videoRef}
-          src="/make-ebook/brand/writer-video-bg.mp4"
-          poster="/make-ebook/brand/hero-writer.jpg"
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden="true"
-        />
-        <TileControls
-          label="video"
-          playing={videoShown}
-          onPlay={() =>
-            videoShown ? setVideoPlaying(false) : start(setVideoPlaying)
-          }
-        />
-      </div>
-
-      <div className={styles.mbKindle} aria-hidden="true">
-        <div className={styles.mbKindleFrame}>
-          <div className={styles.mbKindleScreen}>
-            <p className={styles.mbKindleChapter}>Chapter Forty</p>
-            <p className={styles.mbKindleTitle}>The Rainy City</p>
-            <div className={styles.mbKindleBody}>
-              <p>
-                Rain had been falling on the city since before she woke, the
-                soft kind that does not so much fall as arrive, settling on the
-                windows and the wet slate roofs until every surface carried a
-                little of the sky.
-              </p>
-              <p>
-                Elena walked the length of the pier with her collar up and the
-                manuscript held flat against her chest, its pages still warm
-                from the bag. The water below was the colour of pewter, and the
-                old iron columns went down into it without a sound.
-              </p>
-            </div>
-            <div className={styles.mbKindleFoot}>
-              <span>Loc 1</span>
-              <span>1%</span>
-            </div>
-          </div>
+          <audio
+            ref={audioRef}
+            src="/audio/rain-light.mp3"
+            loop
+            preload="none"
+          />
+          <TileControls
+            label="rain"
+            playing={rainShown}
+            onPlay={() =>
+              rainShown ? setRainPlaying(false) : start(setRainPlaying)
+            }
+            sound={{
+              on: rainSound,
+              onToggle: () => {
+                if (!rainSound && !rainShown) start(setRainPlaying);
+                setRainSound(!rainSound);
+              },
+            }}
+          />
         </div>
-      </div>
+      )}
+
+      {(!only || only === "lockup") && (
+        <div className={styles.mbGrid} aria-hidden="true">
+          <span className={styles.mbGridFrame}>
+            <Image
+              src="/make-ebook/brand/mark.svg"
+              alt=""
+              width={82}
+              height={30}
+              className={styles.mbLockupMark}
+            />
+            <span className={styles.mbWordmark}>makeebook</span>
+          </span>
+        </div>
+      )}
+
+      {(!only || only === "video") && (
+        <div className={styles.mbVideo} ref={videoTileRef}>
+          <video
+            ref={videoRef}
+            src="/make-ebook/brand/writer-video-bg.mp4"
+            poster="/make-ebook/brand/hero-writer.jpg"
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+          />
+          <TileControls
+            label="video"
+            playing={videoShown}
+            onPlay={() =>
+              videoShown ? setVideoPlaying(false) : start(setVideoPlaying)
+            }
+          />
+        </div>
+      )}
     </div>
   );
 }
