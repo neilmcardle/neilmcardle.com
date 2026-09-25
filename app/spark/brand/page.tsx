@@ -48,59 +48,64 @@ const AUDIT = [
 
 const PALETTE = [
   {
-    name: "Pad",
-    hex: "#E8EEDD",
-    use: "Page ground. The pale green of an engineering computation pad.",
+    name: "Screen",
+    hex: "#0B0F0C",
+    use: "The page ground. The black of a powered-on CRT.",
   },
   {
-    name: "Pad Deep",
-    hex: "#DDE5CF",
-    use: "Stages that hold demos, always with the grid.",
+    name: "Panel",
+    hex: "#121815",
+    use: "Cards, windows and the lesson reading column.",
   },
   {
-    name: "Grid",
-    hex: "#C9D5B7",
-    use: "The 24px grid, hairlines and rules.",
-  },
-  {
-    name: "Sheet",
-    hex: "#F8F9F4",
-    use: "Windows, cards and the lesson page.",
-  },
-  {
-    name: "Graphite",
-    hex: "#1B1F19",
-    use: "Type. 14.1:1 on Pad.",
-  },
-  {
-    name: "Pencil",
-    hex: "#4E5648",
-    use: "Secondary text. 6.4:1 on Pad.",
-  },
-  {
-    name: "Arc",
-    hex: "#3D2BD8",
-    use: "The one action per view, the line being explained, focus rings. 7.0:1 on Pad, Sheet on Arc 7.8:1.",
+    name: "Deep",
+    hex: "#080C09",
+    use: "Demo stages, always behind the grid.",
   },
   {
     name: "Editor",
-    hex: "#15171A",
-    use: "Code surfaces. Arc Light #A99CFF marks keywords and the active line at 7.6:1.",
+    hex: "#070A08",
+    use: "Code surfaces, a shade below everything else.",
+  },
+  {
+    name: "Rule",
+    hex: "#1F2C24",
+    use: "The 24px grid, hairlines and card borders.",
+  },
+  {
+    name: "Phosphor White",
+    hex: "#D6F4DE",
+    use: "Type. 16.4:1 on Screen.",
+  },
+  {
+    name: "Phosphor Mid",
+    hex: "#9CBFA6",
+    use: "Secondary text. 9.6:1 on Screen.",
+  },
+  {
+    name: "Phosphor Dim",
+    hex: "#7FA389",
+    use: "Labels and specs. 6.9:1 on Screen.",
+  },
+  {
+    name: "Phosphor",
+    hex: "#3BE86B",
+    use: "The one action per view, focus rings and the mark. Buttons carry Screen-black type at 11.8:1. 11.9:1 on Screen.",
   },
   {
     name: "Run",
-    hex: "#6EE7A0",
-    use: "Code that is executing on an Editor surface: the running line, its number, the play marker and live values. 11.6:1 on Editor.",
+    hex: "#4EFF91",
+    use: "Code that is executing: the running line, its number, the play marker, live values, the terminal. 15.2:1 on Editor.",
   },
   {
-    name: "Pass",
-    hex: "#1D7A45",
-    use: "Correct answers and saved states only. 5.1:1 on Sheet.",
+    name: "Amber",
+    hex: "#FFB84D",
+    use: "The line being explained, and the terminal's power light. The second phosphor every terminal had. 11.2:1 on Screen.",
   },
   {
-    name: "Redline",
-    hex: "#B73A26",
-    use: "Wrong answers and errors only. 5.4:1 on Sheet.",
+    name: "Alert",
+    hex: "#FF6B5E",
+    use: "Wrong answers and errors only. 6.9:1 on Screen.",
   },
 ];
 
@@ -110,24 +115,28 @@ const RULES = [
     body: "Every demo puts the code next to what it does. A visitor should never see a result without the line that made it.",
   },
   {
-    head: "Arc means act or explain",
-    body: "Arc marks the one action per view, the line currently being explained and focus rings. It is never decoration, never a background wash.",
+    head: "One phosphor at a time",
+    body: "Phosphor green marks the one action per view and focus rings. Run marks code that is executing. Amber marks the line being explained. Nothing else glows.",
   },
   {
     head: "The grid is the stage",
-    body: "The 24px pad grid sits behind demos and the intro. It never sits behind text someone has to read.",
+    body: "The 24px grid sits behind demos and the intro. Scanlines lie over the whole page at low strength, and heavier inside the terminal and the maker plate.",
   },
   {
     head: "Number like a gutter",
     body: "Sequences use two-digit mono numerals, 01, 02, 03, the way an editor numbers lines.",
   },
   {
-    head: "Running code is green",
-    body: "When code runs, the line that is executing turns Run green and a small play marker moves from line to line. Arc Light marks a line being explained, never one that is running.",
+    head: "Running code is brighter",
+    body: "When code runs, the executing line turns Run and a small play marker moves from line to line. Amber marks a line being explained, never one that is running.",
   },
   {
     head: "Code is shown as typed",
     body: "Ligatures stay off, so == and === look different. Learners have to see the characters they will type.",
+  },
+  {
+    head: "The terminal is the way around",
+    body: "A working terminal in a beige case opens the course and then follows the reader as a window in the corner, draggable anywhere, minimised with the traffic lights or the backtick key. It answers where, resume, next, toc, go, find and progress against the real curriculum.",
   },
   {
     head: "The caret means your turn",
@@ -141,12 +150,12 @@ const RULES = [
 
 const REJECTED = [
   {
-    head: "Keep the dark ink and gold",
-    body: "It is the makeebook formula, and a black shell around a paper reader flips the room every time a learner opens a lesson.",
+    head: "The engineering pad",
+    body: "Pad green paper with an Arc blue accent read as careful and quiet, but it was a stationery brand for a course about screens. The terminal says the same thing about showing your working, and it is the room a designer learning to code actually sits in.",
   },
   {
-    head: "Terminal green on black",
-    body: "The hacker look tells designers that code belongs to someone else, which is the opposite of what Spark is for.",
+    head: "Hacker green",
+    body: "Neon on black with no type discipline reads as a costume. The terminal here is a frame around plain teaching: high contrast text, one action per view, no fake glitching over anything a learner has to read.",
   },
   {
     head: "Design tool chrome",
@@ -166,6 +175,10 @@ const ROLLOUT = [
   {
     head: "Lesson reader",
     body: "The black sidebar is now Pad beside a Sheet reading column, headings are JetBrains Mono 800 and the progress spine is Arc.",
+  },
+  {
+    head: "The terminal",
+    body: "SparkTerminal ships in the Spark layout, so every page carries it: the cabinet opens the landing, the dock follows you through the lessons.",
   },
   {
     head: "Widgets",
@@ -206,13 +219,11 @@ export default function SparkDirectionPage() {
           </h1>
           <p className={styles.dirBody}>
             Spark teaches designers to write software, starting from an empty
-            file. Engineers have long worked problems out on computation pads:
-            pale green paper with a faint grid, where every step is written down
-            so someone else can follow it. That is how Spark teaches,{" "}
-            <strong>one line explained at a time</strong>, and it gives the
-            brand its details: pad green, the grid, graphite, line numbers in
-            the margin, the caret, and Arc, the blue violet of an electric
-            spark, for the one thing to do next.
+            file, <strong>one line explained at a time</strong>. It looks like
+            the machine people learned on: a green screen terminal. Phosphor
+            green on black, scanlines, a blinking caret, line numbers down the
+            margin, and a working terminal on the front page. The grid stays,
+            the type stays, the mark stays. Only the light changed.
           </p>
         </section>
 
@@ -267,7 +278,7 @@ export default function SparkDirectionPage() {
         <section id="palette" className={styles.dirSection}>
           <p className={styles.dirEyebrow}>02 · Palette</p>
           <h2 className={`${styles.sectionHead} ${styles.display}`}>
-            Pad green, graphite, one Arc.
+            Green screen, one phosphor.
           </h2>
           <div className={styles.palette}>
             {PALETTE.map((p) => (
@@ -348,17 +359,22 @@ export default function SparkDirectionPage() {
             Your mark stays.
           </h2>
           <p className={styles.dirBody}>
-            The bolt already says spark. It moves from gold to Arc and is used
-            in one colour only. The wordmark becomes lowercase{" "}
-            <strong>spark</strong> in JetBrains Mono 800, matching the lowercase
-            makeebook and coverly wordmarks.
+            The bolt already says spark. It is Phosphor green on Screen and
+            Panel, and Screen black on Phosphor, in one colour only. The
+            wordmark is lowercase <strong>spark</strong> in JetBrains Mono 800,
+            matching the lowercase makeebook and coverly wordmarks.
           </p>
           <div className={styles.markRow}>
             {[
-              { bg: "#E8EEDD", fg: "#3D2BD8", ink: "#1B1F19", label: "Pad" },
-              { bg: "#F8F9F4", fg: "#3D2BD8", ink: "#1B1F19", label: "Sheet" },
-              { bg: "#3D2BD8", fg: "#F8F9F4", ink: "#F8F9F4", label: "Arc" },
-              { bg: "#15171A", fg: "#A99CFF", ink: "#E8EEDD", label: "Editor" },
+              { bg: "#0B0F0C", fg: "#3BE86B", ink: "#D6F4DE", label: "Screen" },
+              { bg: "#121815", fg: "#3BE86B", ink: "#D6F4DE", label: "Panel" },
+              {
+                bg: "#3BE86B",
+                fg: "#07120B",
+                ink: "#07120B",
+                label: "Phosphor",
+              },
+              { bg: "#070A08", fg: "#4EFF91", ink: "#D6F4DE", label: "Editor" },
             ].map((m) => (
               <div
                 key={m.label}

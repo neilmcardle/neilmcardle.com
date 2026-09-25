@@ -1,8 +1,13 @@
 import type React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getCurriculum, loadModule } from "@/lib/spark/content";
+import {
+  getCurriculum,
+  getTerminalIndex,
+  loadModule,
+} from "@/lib/spark/content";
 import { PHASES } from "@/lib/spark/curriculum";
+import { SparkTerminal } from "@/components/spark/SparkTerminal";
 import {
   Caret,
   CheckDemo,
@@ -67,9 +72,10 @@ function FeatureCard({
 }
 
 export default async function SparkPage() {
-  const [modules, first] = await Promise.all([
+  const [modules, first, terminalIndex] = await Promise.all([
     getCurriculum(),
     loadModule(FIRST),
+    getTerminalIndex(),
   ]);
 
   const hours = Math.round(modules.reduce((t, m) => t + m.minutes, 0) / 60);
@@ -92,13 +98,7 @@ export default async function SparkPage() {
             <span key={i}>{i + 1}</span>
           ))}
         </div>
-        <div className={styles.introMark}>
-          <Mark className={styles.introGlyph} />
-          <span className={styles.introWord}>
-            spark
-            <Caret />
-          </span>
-        </div>
+        <SparkTerminal index={terminalIndex} variant="cabinet" />
         <a href="#hero" className={styles.chevron} aria-label="Scroll to Spark">
           <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true">
             <path
@@ -134,30 +134,34 @@ export default async function SparkPage() {
 
       <main>
         <section id="hero" className={`${styles.shell} ${styles.hero}`}>
-          <h1 className={`${styles.heroTitle} ${styles.display}`}>
-            Spark is your path to Design Engineer.
-          </h1>
-          <div className={styles.heroFoot}>
-            <p className={styles.lede}>
-              Most designers can prompt their way to an app. Few can start from
-              an empty file and write one. Spark teaches you how, one line at a
-              time.
-            </p>
-            <div className={styles.ctaCol}>
-              <div className={styles.ctaRow}>
-                <Link
-                  href={`/spark/lessons/${FIRST}`}
-                  className={styles.arcButton}
-                >
-                  Start module 1
-                </Link>
-                <a href="#curriculum" className={styles.textLink}>
-                  See the curriculum
-                </a>
+          <div>
+            <div>
+              <h1 className={`${styles.heroTitle} ${styles.display}`}>
+                Spark is your path to Design Engineer.
+              </h1>
+              <div className={styles.heroFoot}>
+                <p className={styles.lede}>
+                  Most designers can prompt their way to an app. Few can start
+                  from an empty file and write one. Spark teaches you how, one
+                  line at a time.
+                </p>
+                <div className={styles.ctaCol}>
+                  <div className={styles.ctaRow}>
+                    <Link
+                      href={`/spark/lessons/${FIRST}`}
+                      className={styles.arcButton}
+                    >
+                      Start module 1
+                    </Link>
+                    <a href="#curriculum" className={styles.textLink}>
+                      See the curriculum
+                    </a>
+                  </div>
+                  <p className={styles.fine}>
+                    Free while it is being written. No code needed to begin.
+                  </p>
+                </div>
               </div>
-              <p className={styles.fine}>
-                Free while it is being written. No code needed to begin.
-              </p>
             </div>
           </div>
         </section>
@@ -271,7 +275,6 @@ export default async function SparkPage() {
               className={styles.makerPhoto}
               role="img"
               aria-label="Neil McArdle"
-              style={{ backgroundImage: "url(/make-ebook/brand/neil.jpg)" }}
             />
           </article>
         </section>

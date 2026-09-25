@@ -37,7 +37,7 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
         } ${picked !== null && !solved ? "spark-shake" : ""}`}
       >
         <div className="mb-4 flex items-center gap-3">
-          <span className="spark-eyebrow text-[var(--spark-arc)]">
+          <span className="spark-eyebrow text-[var(--spark-phosphor)]">
             Checkpoint
           </span>
           <span className="h-px flex-1 bg-[var(--spark-rule)]" />
@@ -65,16 +65,16 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
             const isCorrect = i === correctIndex;
             const showReason = picked !== null && (isPicked || isCorrect);
 
-            let border = "rgba(20,20,19,0.14)";
+            let border = "var(--spark-hairline)";
             let background = "transparent";
             if (isPicked && isCorrect) {
               border = "var(--spark-pass)";
-              background = "rgba(29,122,69,0.08)";
+              background = "rgba(59,232,107,0.08)";
             } else if (isPicked) {
               border = "var(--spark-redline)";
-              background = "rgba(183,58,38,0.08)";
+              background = "rgba(255,107,94,0.08)";
             } else if (picked !== null && isCorrect) {
-              border = "rgba(29,122,69,0.55)";
+              border = "rgba(59,232,107,0.55)";
             }
 
             return (
@@ -88,10 +88,10 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
                 <span
                   className={`flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full text-[10.5px] font-semibold ${
                     isPicked && isCorrect
-                      ? "spark-pop bg-[var(--spark-pass)] text-white"
+                      ? "spark-pop bg-[var(--spark-pass)] text-[var(--spark-screen-ink)]"
                       : isPicked
-                        ? "bg-[var(--spark-redline)] text-white"
-                        : "border border-[var(--spark-rule)] bg-white text-[var(--spark-faint)]"
+                        ? "bg-[var(--spark-redline)] text-[var(--spark-screen-ink)]"
+                        : "border border-[var(--spark-rule)] bg-[var(--spark-sheet)] text-[var(--spark-faint)]"
                   }`}
                 >
                   <span aria-hidden>
@@ -126,7 +126,7 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
       className={`spark-check my-8 rounded-xl bg-[var(--spark-paper)] p-6 ${"spark-card"}`}
     >
       <div className="mb-4 flex items-center gap-3">
-        <span className="spark-eyebrow text-[var(--spark-arc)]">
+        <span className="spark-eyebrow text-[var(--spark-phosphor)]">
           Checkpoint
         </span>
         <span className="h-px flex-1 bg-[var(--spark-rule)]" />
@@ -139,9 +139,9 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
       {revealed ? (
         <div
           aria-live="polite"
-          className="spark-fade-up rounded-lg bg-[rgba(61,43,216,0.1)] px-4 py-3.5"
+          className="spark-fade-up rounded-lg bg-[rgba(59,232,107,0.1)] px-4 py-3.5"
         >
-          <span className="spark-eyebrow mb-2 block text-[var(--spark-arc)]">
+          <span className="spark-eyebrow mb-2 block text-[var(--spark-phosphor)]">
             Answer
           </span>
           <p className="text-[14px] leading-[1.7] text-[var(--spark-text)]">

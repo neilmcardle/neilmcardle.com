@@ -1545,17 +1545,16 @@ html.dark .ProseMirror p.is-editor-empty:first-child::before {
   transform: scale(1) !important;
 }
 
-/* Homepage typography: kill single-word widows. text-wrap: pretty fixes the
-   last line of body prose; balance evens out short headings. Scoped to the
-   home-prose container so it does not drift into the product pages. */
-.home-prose p,
-.home-prose li {
+:where(p, li, dd, blockquote, figcaption) {
   text-wrap: pretty;
 }
-.home-prose h1,
-.home-prose h2,
-.home-prose h3 {
+
+:where(h1, h2, h3, h4, h5, h6) {
   text-wrap: balance;
+}
+
+:where([contenteditable], [contenteditable] *) {
+  text-wrap: wrap;
 }
 
 :root {
@@ -1894,35 +1893,38 @@ html.dark .ProseMirror p.is-editor-empty:first-child::before {
 
 /* ── Spark ───────────────────────────────────────────────────────────────── */
 :root {
-  --spark-pad: #e8eedd;
-  --spark-pad-deep: #dde5cf;
-  --spark-grid: #c9d5b7;
-  --spark-rule: #cfd9bf;
-  --spark-sheet: #f8f9f4;
-  --spark-paper: #f8f9f4;
-  --spark-text: #1b1f19;
-  --spark-muted: #4e5648;
-  --spark-faint: #646c5d;
-  --spark-arc: #3d2bd8;
-  --spark-arc-hover: #3222c0;
-  --spark-arc-light: #a99cff;
-  --spark-arc-tint: rgba(61, 43, 216, 0.08);
-  --spark-run: #6ee7a0;
-  --spark-run-tint: rgba(110, 231, 160, 0.13);
-  --spark-ink: #15171a;
-  --spark-ink-line: #1e2124;
-  --spark-on-dark: rgba(232, 238, 221, 0.86);
-  --spark-on-dark-muted: rgba(232, 238, 221, 0.66);
-  --spark-on-dark-dim: rgba(232, 238, 221, 0.52);
-  --spark-pass: #1d7a45;
-  --spark-redline: #b73a26;
+  --spark-pad: #0b0f0c;
+  --spark-pad-deep: #080c09;
+  --spark-grid: #16211b;
+  --spark-rule: #1f2c24;
+  --spark-sheet: #121815;
+  --spark-paper: #121815;
+  --spark-text: #d6f4de;
+  --spark-muted: #9cbfa6;
+  --spark-faint: #7fa389;
+  --spark-phosphor: #3be86b;
+  --spark-phosphor-dim: #2fc659;
+  --spark-phosphor-tint: rgba(59, 232, 107, 0.12);
+  --spark-amber: #ffb84d;
+  --spark-amber-tint: rgba(255, 184, 77, 0.14);
+  --spark-run: #4eff91;
+  --spark-run-tint: rgba(78, 255, 145, 0.14);
+  --spark-ink: #070a08;
+  --spark-ink-line: #0e1410;
+  --spark-screen-ink: #07120b;
+  --spark-on-dark: rgba(214, 244, 222, 0.88);
+  --spark-on-dark-muted: rgba(214, 244, 222, 0.68);
+  --spark-on-dark-dim: rgba(214, 244, 222, 0.5);
+  --spark-hairline: rgba(214, 244, 222, 0.1);
+  --spark-hairline-soft: rgba(214, 244, 222, 0.05);
+  --spark-pass: #3be86b;
+  --spark-redline: #ff6b5e;
   --spark-ease: cubic-bezier(0.23, 1, 0.32, 1);
   --spark-shadow-border:
-    0px 0px 0px 1px var(--spark-rule), 0px 1px 2px -1px rgba(27, 31, 25, 0.06),
-    0px 2px 4px 0px rgba(27, 31, 25, 0.04);
+    0px 0px 0px 1px var(--spark-rule), 0px 18px 34px -24px rgba(0, 0, 0, 0.9);
   --spark-shadow-border-hover:
-    0px 0px 0px 1px var(--spark-text), 0px 1px 2px -1px rgba(27, 31, 25, 0.08),
-    0px 2px 4px 0px rgba(27, 31, 25, 0.06);
+    0px 0px 0px 1px var(--spark-phosphor-dim),
+    0px 18px 34px -22px rgba(0, 0, 0, 0.9);
 }
 
 .spark-grid {
@@ -1941,6 +1943,10 @@ html.dark .ProseMirror p.is-editor-empty:first-child::before {
   font-variant-ligatures: none;
 }
 
+.spark-glow {
+  text-shadow: 0 0 18px rgba(59, 232, 107, 0.35);
+}
+
 .spark-card {
   box-shadow: var(--spark-shadow-border);
   transition: box-shadow 200ms var(--spark-ease);
@@ -1955,8 +1961,7 @@ button.spark-card:hover,
 .spark-card-pass {
   box-shadow:
     0px 0px 0px 2px var(--spark-pass),
-    0px 1px 2px -1px rgba(27, 31, 25, 0.08),
-    0px 2px 4px 0px rgba(27, 31, 25, 0.06);
+    0px 0px 24px -6px rgba(59, 232, 107, 0.5);
   transition: box-shadow 200ms var(--spark-ease);
 }
 
@@ -1979,10 +1984,10 @@ button.spark-card:hover,
 .spark-inline-code {
   font-family: var(--font-jetbrains-mono);
   font-size: 0.86em;
-  background: var(--spark-pad);
+  background: var(--spark-ink);
   padding: 1px 5px;
   border-radius: 3px;
-  color: var(--spark-text);
+  color: var(--spark-run);
 }
 
 .spark-link {
@@ -1990,16 +1995,16 @@ button.spark-card:hover,
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
-  text-decoration-color: var(--spark-arc);
+  text-decoration-color: var(--spark-phosphor);
 }
 
 .spark-link:hover {
-  color: var(--spark-arc);
+  color: var(--spark-phosphor);
   text-decoration-color: currentColor;
 }
 
 .spark-page :focus-visible {
-  outline: 2px solid var(--spark-arc);
+  outline: 2px solid var(--spark-phosphor);
   outline-offset: 2px;
 }
 
@@ -2020,7 +2025,7 @@ button.spark-card:hover,
 
 .spark-code .hljs,
 .spark-code .hljs-subst {
-  color: #e8eedd;
+  color: var(--spark-text);
   background: transparent;
 }
 
@@ -2028,44 +2033,53 @@ button.spark-card:hover,
 .spark-code .hljs-built_in,
 .spark-code .hljs-literal,
 .spark-code .hljs-type {
-  color: var(--spark-arc-light);
+  color: var(--spark-run);
 }
 
 .spark-code .hljs-title,
 .spark-code .hljs-title.function_,
 .spark-code .hljs-title.class_ {
-  color: #e8eedd;
+  color: var(--spark-text);
 }
 
 .spark-code .hljs-name,
 .spark-code .hljs-tag,
 .spark-code .hljs-selector-tag {
-  color: #f0b99a;
+  color: var(--spark-amber);
 }
 
 .spark-code .hljs-string,
 .spark-code .hljs-number,
 .spark-code .hljs-regexp,
 .spark-code .hljs-selector-class {
-  color: #c4d7a2;
+  color: #9cd8b0;
 }
 
 .spark-code .hljs-attr,
 .spark-code .hljs-attribute,
 .spark-code .hljs-property,
 .spark-code .hljs-variable {
-  color: #9fc9e0;
+  color: #7fd8a8;
 }
 
 .spark-code .hljs-comment,
 .spark-code .hljs-quote {
-  color: #9aa394;
+  color: var(--spark-faint);
   font-style: italic;
 }
 
 .spark-code .hljs-punctuation,
 .spark-code .hljs-operator {
-  color: rgba(232, 238, 221, 0.66);
+  color: var(--spark-on-dark-muted);
+}
+
+.spark-code-focus {
+  color: var(--spark-amber) !important;
+}
+
+.spark-code-line-focus {
+  background: var(--spark-amber-tint);
+  box-shadow: inset 2px 0 0 var(--spark-amber);
 }
 
 .spark-run-marker {
@@ -2083,7 +2097,7 @@ button.spark-card:hover,
 
 .spark-run-marker svg {
   fill: currentColor;
-  filter: drop-shadow(0 0 4px rgba(110, 231, 160, 0.55));
+  filter: drop-shadow(0 0 5px rgba(78, 255, 145, 0.7));
 }
 
 .spark-run-line {
@@ -2096,15 +2110,6 @@ button.spark-card:hover,
   .spark-run-marker {
     transition: opacity 160ms linear;
   }
-}
-
-.spark-code-focus {
-  color: var(--spark-arc-light) !important;
-}
-
-.spark-code-line-focus {
-  background: rgba(169, 156, 255, 0.12);
-  box-shadow: inset 2px 0 0 var(--spark-arc-light);
 }
 
 .spark-section {

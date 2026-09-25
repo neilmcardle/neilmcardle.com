@@ -39,7 +39,7 @@ export function NPlusOneWaterfall() {
           step={1}
           value={latency}
           onChange={(event) => setLatency(Number(event.target.value))}
-          className="w-full accent-[var(--spark-arc)]"
+          className="w-full accent-[var(--spark-phosphor)]"
         />
         <span className="mt-1 block text-[12px] leading-[1.55] text-[var(--spark-faint)]">
           {latency <= 3
@@ -124,7 +124,9 @@ function Panel({
             style={{
               width: `${Math.max(12, 100 - i * 3)}%`,
               marginLeft: `${Math.min(i * 3.4, 62)}%`,
-              background: bad ? "rgba(183,58,38,0.55)" : "var(--spark-arc)",
+              background: bad
+                ? "rgba(255,107,94,0.55)"
+                : "var(--spark-phosphor)",
             }}
           />
         ))}
@@ -156,12 +158,14 @@ function Stat({
     <div
       className="flex-1 rounded-md px-2.5 py-2 text-center"
       style={{
-        background: bad ? "rgba(183,58,38,0.09)" : "rgba(61,43,216,0.14)",
+        background: bad ? "rgba(255,107,94,0.09)" : "rgba(59,232,107,0.14)",
       }}
     >
       <div
         className="spark-mono text-[15px] font-semibold tabular-nums"
-        style={{ color: bad ? "var(--spark-redline)" : "var(--spark-arc)" }}
+        style={{
+          color: bad ? "var(--spark-redline)" : "var(--spark-phosphor)",
+        }}
       >
         {value}
       </div>

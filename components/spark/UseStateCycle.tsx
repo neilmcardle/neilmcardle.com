@@ -159,7 +159,7 @@ export function UseStateCycle() {
                     style={{
                       paddingLeft: line.indent * 14,
                       color: isActive
-                        ? "#fff"
+                        ? "var(--spark-text)"
                         : hasRun
                           ? "var(--spark-on-dark)"
                           : "var(--spark-on-dark-dim)",
@@ -173,14 +173,14 @@ export function UseStateCycle() {
             <RunMarker rows={rows} active={step} left={5} />
           </div>
 
-          <div className="mt-2.5 min-h-[3.4em] rounded-lg border border-dashed border-[rgba(61,43,216,0.4)] bg-[rgba(61,43,216,0.07)] px-3 py-2.5">
+          <div className="mt-2.5 min-h-[3.4em] rounded-lg border border-dashed border-[rgba(59,232,107,0.4)] bg-[rgba(59,232,107,0.07)] px-3 py-2.5">
             {step === null ? (
               <p className="text-[12.5px] leading-[1.6] text-[var(--spark-faint)]">
                 Type below to run the function.
               </p>
             ) : (
               <p className="text-[12.5px] leading-[1.6] text-[var(--spark-text)]">
-                <span className="spark-eyebrow mr-2 text-[var(--spark-arc)]">
+                <span className="spark-eyebrow mr-2 text-[var(--spark-phosphor)]">
                   Line {step + 1}
                 </span>
                 {noteText ??
@@ -259,13 +259,16 @@ export function UseStateCycle() {
             value={query}
             onChange={(event) => onType(event.target.value)}
             placeholder="Type a name"
-            className="w-full rounded-lg border px-3.5 py-2.5 text-[14px] text-[var(--spark-text)] outline-none transition-colors placeholder:text-[var(--spark-faint)] focus:border-[var(--spark-arc)]"
-            style={{ borderColor: "rgba(20,20,19,0.16)", background: "#fff" }}
+            className="w-full rounded-lg border px-3.5 py-2.5 text-[14px] text-[var(--spark-text)] outline-none transition-colors placeholder:text-[var(--spark-faint)] focus:border-[var(--spark-phosphor)]"
+            style={{
+              borderColor: "var(--spark-hairline)",
+              background: "var(--spark-text)",
+            }}
           />
 
           <div className="mt-4 grid grid-cols-2 gap-2.5">
-            <div className="rounded-lg bg-[rgba(61,43,216,0.12)] px-3 py-2.5">
-              <span className="spark-eyebrow block text-[var(--spark-arc)]">
+            <div className="rounded-lg bg-[rgba(59,232,107,0.12)] px-3 py-2.5">
+              <span className="spark-eyebrow block text-[var(--spark-phosphor)]">
                 State, kept
               </span>
               <span className="spark-mono mt-1 block truncate text-[13px] text-[var(--spark-text)]">
@@ -295,8 +298,8 @@ export function UseStateCycle() {
                     className="spark-mono rounded px-2.5 py-1.5 text-[12px] transition-colors"
                     style={{
                       background: hit
-                        ? "rgba(61,43,216,0.16)"
-                        : "rgba(20,20,19,0.03)",
+                        ? "rgba(59,232,107,0.16)"
+                        : "var(--spark-hairline-soft)",
                       color: hit ? "var(--spark-text)" : "var(--spark-faint)",
                       textDecoration: hit ? "none" : "line-through",
                     }}

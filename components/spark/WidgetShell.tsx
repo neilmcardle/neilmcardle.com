@@ -35,7 +35,7 @@ export function WidgetShell({
   return (
     <section className="spark-widget my-8">
       <div className="mb-2.5 flex items-center gap-3">
-        <span className="spark-eyebrow shrink-0 text-[var(--spark-arc)]">
+        <span className="spark-eyebrow shrink-0 text-[var(--spark-phosphor)]">
           Try it
         </span>
         <span aria-hidden className="h-px flex-1 bg-[var(--spark-rule)]" />
@@ -56,7 +56,7 @@ export function WidgetShell({
       </div>
 
       <div className="spark-grid rounded-xl border border-[var(--spark-rule)] p-2 sm:p-4">
-        <div className="overflow-hidden rounded-lg border border-[var(--spark-rule)] bg-[var(--spark-sheet)] shadow-[0_24px_48px_-30px_rgba(27,31,25,0.4)]">
+        <div className="overflow-hidden rounded-lg border border-[var(--spark-rule)] bg-[var(--spark-sheet)] shadow-[0_24px_48px_-30px_rgba(0,0,0,0.75)]">
           <h4 className="spark-display border-b border-[var(--spark-rule)] px-5 py-3.5 text-[17px] leading-tight text-[var(--spark-text)]">
             {title}
           </h4>

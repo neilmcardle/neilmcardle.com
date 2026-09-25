@@ -70,11 +70,15 @@ export function Checklist({ moduleNumber, items }: ChecklistProps) {
   return (
     <div className="my-7">
       <div className="mb-2.5 flex items-center gap-3">
-        <span className="spark-eyebrow text-[var(--spark-arc)]">Checklist</span>
+        <span className="spark-eyebrow text-[var(--spark-phosphor)]">
+          Checklist
+        </span>
         <span aria-hidden className="h-px flex-1 bg-[var(--spark-rule)]" />
         <span
           className={`spark-mono shrink-0 text-[11px] tabular-nums ${
-            complete ? "text-[var(--spark-arc)]" : "text-[var(--spark-faint)]"
+            complete
+              ? "text-[var(--spark-phosphor)]"
+              : "text-[var(--spark-faint)]"
           }`}
         >
           {done} / {items.length}
@@ -107,14 +111,14 @@ export function Checklist({ moduleNumber, items }: ChecklistProps) {
                 />
                 <span
                   aria-hidden
-                  className="mt-[3px] flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border transition-all peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--spark-arc)]"
+                  className="mt-[3px] flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border transition-all peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--spark-phosphor)]"
                   style={
                     checked
                       ? {
-                          background: "var(--spark-arc)",
-                          borderColor: "var(--spark-arc)",
+                          background: "var(--spark-phosphor)",
+                          borderColor: "var(--spark-phosphor)",
                         }
-                      : { borderColor: "rgba(20,20,19,0.22)" }
+                      : { borderColor: "var(--spark-hairline)" }
                   }
                 >
                   {checked && (
@@ -123,7 +127,7 @@ export function Checklist({ moduleNumber, items }: ChecklistProps) {
                       height="11"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke="#fff"
+                      stroke="var(--spark-text)"
                       strokeWidth="3.4"
                       strokeLinecap="round"
                       strokeLinejoin="round"

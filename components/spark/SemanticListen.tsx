@@ -69,8 +69,8 @@ const SEMANTIC: Version = {
 function Rendered() {
   return (
     <div
-      className="rounded-lg bg-white p-4"
-      style={{ boxShadow: "inset 0 0 0 1px rgba(20,20,19,0.08)" }}
+      className="rounded-lg bg-[var(--spark-sheet)] p-4"
+      style={{ boxShadow: "inset 0 0 0 1px var(--spark-hairline-soft)" }}
     >
       <div className="mb-4 flex gap-4 border-b border-black/[0.08] pb-3">
         <span className="text-[13px] font-medium text-[var(--spark-text)]">
@@ -83,7 +83,7 @@ function Rendered() {
       <p className="mb-3 spark-display text-[17px] text-[var(--spark-text)]">
         Recent work
       </p>
-      <span className="inline-block rounded-md bg-[var(--spark-ink)] px-3.5 py-1.5 text-[12px] font-medium text-white">
+      <span className="inline-block rounded-md bg-[var(--spark-ink)] px-3.5 py-1.5 text-[12px] font-medium text-[var(--spark-screen-ink)]">
         See all
       </span>
     </div>
@@ -96,12 +96,14 @@ function Stat({ value, label }: { value: number; label: string }) {
     <div
       className="rounded-md px-2.5 py-2 text-center"
       style={{
-        background: zero ? "rgba(183,58,38,0.09)" : "rgba(61,43,216,0.14)",
+        background: zero ? "rgba(255,107,94,0.09)" : "rgba(59,232,107,0.14)",
       }}
     >
       <div
         className="spark-mono text-[15px] font-semibold tabular-nums"
-        style={{ color: zero ? "var(--spark-redline)" : "var(--spark-arc)" }}
+        style={{
+          color: zero ? "var(--spark-redline)" : "var(--spark-phosphor)",
+        }}
       >
         {value}
       </div>
@@ -145,8 +147,8 @@ function Panel({ version, mode }: { version: Version; mode: Mode }) {
                     <span
                       className="spark-mono mr-1.5 rounded px-1.5 py-0.5 text-[10px]"
                       style={{
-                        background: "rgba(169,156,255,0.16)",
-                        color: "var(--spark-arc-light)",
+                        background: "rgba(255,184,77,0.16)",
+                        color: "var(--spark-amber)",
                       }}
                     >
                       {item.role}
@@ -184,7 +186,7 @@ export function SemanticListen() {
         role="group"
         aria-label="View mode"
         className="mb-5 inline-flex rounded-lg p-1"
-        style={{ background: "rgba(20,20,19,0.055)" }}
+        style={{ background: "var(--spark-hairline-soft)" }}
       >
         {(["look", "listen"] as Mode[]).map((value) => {
           const active = mode === value;
@@ -197,7 +199,7 @@ export function SemanticListen() {
               className="min-h-[36px] rounded-md px-5 text-[13px] font-semibold capitalize transition-colors"
               style={{
                 background: active ? "var(--spark-ink)" : "transparent",
-                color: active ? "#fff" : "var(--spark-muted)",
+                color: active ? "var(--spark-text)" : "var(--spark-muted)",
               }}
             >
               {value}

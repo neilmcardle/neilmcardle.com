@@ -278,11 +278,11 @@ export function AnnotationLayer() {
               top: hover.top - 2,
               width: hover.width + 4,
               height: hover.height + 4,
-              boxShadow: "0 0 0 2px #3d2bd8, 0 0 0 6px rgba(61,43,216,0.22)",
+              boxShadow: "0 0 0 2px #3d2bd8, 0 0 0 6px rgba(59,232,107,0.22)",
             }}
           />
           <div
-            className="pointer-events-none fixed z-[9999] max-w-[380px] truncate rounded-md bg-[#0a0a0a] px-2.5 py-1.5 text-[11px] text-white shadow-lg"
+            className="pointer-events-none fixed z-[9999] max-w-[380px] truncate rounded-md bg-[#0a0a0a] px-2.5 py-1.5 text-[11px] text-[var(--spark-screen-ink)] shadow-lg"
             style={{
               left: hover.left,
               top: hover.top > 34 ? hover.top - 30 : hover.bottom + 8,
@@ -318,7 +318,7 @@ export function AnnotationLayer() {
             left: Math.min(target.rect.left, window.innerWidth - 340),
             top: Math.min(target.rect.bottom + 10, window.innerHeight - 190),
             boxShadow:
-              "0 0 0 1px rgba(61,43,216,0.35), 0 20px 40px -12px rgba(0,0,0,0.7)",
+              "0 0 0 1px rgba(59,232,107,0.35), 0 20px 40px -12px rgba(0,0,0,0.7)",
           }}
         >
           <p
@@ -340,10 +340,10 @@ export function AnnotationLayer() {
             }}
             rows={3}
             placeholder="What should change here?"
-            className="w-full resize-none rounded-lg bg-white/[0.07] px-2.5 py-2 text-[13px] text-white outline-none placeholder:text-white/35"
+            className="w-full resize-none rounded-lg bg-white/[0.07] px-2.5 py-2 text-[13px] text-[var(--spark-screen-ink)] outline-none placeholder:text-[var(--spark-screen-ink)]/35"
           />
           <div className="mt-2 flex items-center justify-between">
-            <span className="text-[10px] text-white/40">
+            <span className="text-[10px] text-[var(--spark-screen-ink)]/40">
               Enter to save, Esc to cancel
             </span>
             <button
@@ -383,7 +383,7 @@ export function AnnotationLayer() {
           <>
             <button
               onClick={copy}
-              className="rounded-full bg-[rgba(10,10,10,0.92)] px-3 py-2 text-[11px] font-medium text-white/75 shadow-lg"
+              className="rounded-full bg-[rgba(10,10,10,0.92)] px-3 py-2 text-[11px] font-medium text-[var(--spark-screen-ink)]/75 shadow-lg"
             >
               {copied ? "Copied" : `Copy ${notes.length}`}
             </button>
@@ -392,7 +392,7 @@ export function AnnotationLayer() {
                 if (window.confirm(`Clear all ${notes.length} notes?`))
                   persist([]);
               }}
-              className="rounded-full bg-[rgba(10,10,10,0.92)] px-3 py-2 text-[11px] font-medium text-white/45 shadow-lg"
+              className="rounded-full bg-[rgba(10,10,10,0.92)] px-3 py-2 text-[11px] font-medium text-[var(--spark-screen-ink)]/45 shadow-lg"
             >
               Clear
             </button>
@@ -400,7 +400,7 @@ export function AnnotationLayer() {
         )}
 
         {here.length > 0 && !active && (
-          <span className="rounded-full bg-[rgba(10,10,10,0.92)] px-2.5 py-2 text-[10px] text-white/45 shadow-lg">
+          <span className="rounded-full bg-[rgba(10,10,10,0.92)] px-2.5 py-2 text-[10px] text-[var(--spark-screen-ink)]/45 shadow-lg">
             {here.length} here
           </span>
         )}

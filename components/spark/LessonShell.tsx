@@ -177,7 +177,7 @@ export function LessonShell({
     <div className="spark-page min-h-screen bg-[var(--spark-sheet)] text-[var(--spark-text)]">
       <div className="fixed inset-x-0 top-0 z-50 h-[2px] bg-[var(--spark-rule)]">
         <div
-          className="h-full bg-[var(--spark-arc)] transition-[width] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
+          className="h-full bg-[var(--spark-phosphor)] transition-[width] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -185,7 +185,7 @@ export function LessonShell({
       <div className="mx-auto flex max-w-[1440px]">
         <aside className="sticky top-0 hidden h-screen w-[288px] shrink-0 flex-col border-r border-[var(--spark-rule)] bg-[var(--spark-pad)] px-6 py-7 lg:flex">
           <Link href="/spark" className="mb-9 flex items-center gap-2">
-            <SparkMark className="h-[18px] w-auto shrink-0 text-[var(--spark-arc)]" />
+            <SparkMark className="h-[18px] w-auto shrink-0 text-[var(--spark-phosphor)]" />
             <span className="spark-display text-[19px] leading-none">
               spark
             </span>
@@ -222,7 +222,7 @@ export function LessonShell({
             />
             <span
               aria-hidden
-              className="absolute left-[6px] w-px bg-[var(--spark-arc)] transition-[height] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
+              className="absolute left-[6px] w-px bg-[var(--spark-phosphor)] transition-[height] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
               style={{ top: spine.top, height: spine.fill }}
             />
 
@@ -246,8 +246,8 @@ export function LessonShell({
                     style={
                       isCurrent
                         ? {
-                            background: "var(--spark-arc)",
-                            boxShadow: "0 0 0 3px rgba(61,43,216,0.16)",
+                            background: "var(--spark-phosphor)",
+                            boxShadow: "0 0 0 3px rgba(59,232,107,0.16)",
                           }
                         : isRead
                           ? { background: "var(--spark-text)" }
@@ -280,7 +280,7 @@ export function LessonShell({
               href="/spark/lessons"
               className="flex items-center gap-2.5 text-[13px] font-medium text-[var(--spark-muted)] transition-colors hover:text-[var(--spark-text)]"
             >
-              <SparkMark className="h-[14px] w-auto shrink-0 text-[var(--spark-arc)] lg:hidden" />
+              <SparkMark className="h-[14px] w-auto shrink-0 text-[var(--spark-phosphor)] lg:hidden" />
               Curriculum
             </Link>
             <span className="spark-eyebrow tabular-nums text-[var(--spark-faint)] lg:hidden">
@@ -378,7 +378,7 @@ export function LessonShell({
                   className="spark-section mb-16 scroll-mt-24 focus:outline-none"
                 >
                   <div className="mb-3 flex items-center gap-3">
-                    <span className="spark-eyebrow text-[var(--spark-arc)]">
+                    <span className="spark-eyebrow text-[var(--spark-phosphor)]">
                       {String(i + 1).padStart(2, "0")} /{" "}
                       {String(sections.length).padStart(2, "0")}
                     </span>
@@ -408,7 +408,7 @@ export function LessonShell({
                         {next.title}
                       </span>
                     </span>
-                    <span className="inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-md bg-[var(--spark-arc)] px-5 text-[14px] font-semibold text-[var(--spark-sheet)] transition-colors group-hover:bg-[var(--spark-arc-hover)]">
+                    <span className="inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-md bg-[var(--spark-phosphor)] px-5 text-[14px] font-semibold text-[var(--spark-sheet)] transition-colors group-hover:bg-[var(--spark-phosphor-dim)]">
                       Next module
                     </span>
                   </span>
@@ -437,8 +437,8 @@ export function LessonShell({
         aria-label="Section progress"
         className="fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-[var(--spark-sheet)] via-[var(--spark-sheet)] to-transparent px-4 pb-6 pt-4 lg:hidden"
       >
-        <div className="flex items-center gap-2.5 rounded-full border border-[var(--spark-rule)] bg-[var(--spark-pad)] px-3.5 py-1.5 shadow-[0_10px_30px_-12px_rgba(27,31,25,0.35)]">
-          <span className="spark-eyebrow shrink-0 tabular-nums text-[var(--spark-arc)]">
+        <div className="flex items-center gap-2.5 rounded-full border border-[var(--spark-rule)] bg-[var(--spark-pad)] px-3.5 py-1.5 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.75)]">
+          <span className="spark-eyebrow shrink-0 tabular-nums text-[var(--spark-phosphor)]">
             {active + 1}/{sections.length}
           </span>
           <div className="flex h-11 min-w-0 flex-1 items-center gap-[3px]">
@@ -456,7 +456,7 @@ export function LessonShell({
                     height: i === active ? 5 : 3,
                     background:
                       i === active
-                        ? "var(--spark-arc)"
+                        ? "var(--spark-phosphor)"
                         : i < active
                           ? "var(--spark-text)"
                           : "var(--spark-grid)",
@@ -468,7 +468,7 @@ export function LessonShell({
           <button
             onClick={() => jumpTo(Math.min(sections.length - 1, active + 1))}
             aria-label="Next section"
-            className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[var(--spark-arc)]"
+            className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-[var(--spark-phosphor)]"
           >
             <svg
               width="14"

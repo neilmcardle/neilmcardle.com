@@ -108,7 +108,7 @@ export function SpringBench() {
       : over > 0.02
         ? {
             text: "Alive. A small overshoot reads as physical.",
-            tone: "var(--spark-arc)",
+            tone: "var(--spark-phosphor)",
           }
         : {
             text: "Dead. No overshoot at all, so it reads as a slide, not a spring.",
@@ -134,7 +134,7 @@ export function SpringBench() {
       caption="A spring is described by physics and finds its own duration. An easing curve is described by a duration you choose. Neither is better, and they fail in different ways."
     >
       {reduced && (
-        <p className="mb-4 rounded-lg bg-[rgba(61,43,216,0.12)] px-3.5 py-2.5 text-[12.5px] leading-[1.6] text-[var(--spark-text)]">
+        <p className="mb-4 rounded-lg bg-[rgba(59,232,107,0.12)] px-3.5 py-2.5 text-[12.5px] leading-[1.6] text-[var(--spark-text)]">
           Your system asks for reduced motion, so both rows jump straight to the
           end. This is exactly what a motion-sensitive visitor sees, and it is
           why the numbers below matter more than the animation.
@@ -144,7 +144,7 @@ export function SpringBench() {
       <div className="flex flex-col gap-4">
         <div>
           <div className="mb-1.5 flex items-baseline justify-between gap-3">
-            <span className="spark-eyebrow text-[var(--spark-arc)]">
+            <span className="spark-eyebrow text-[var(--spark-phosphor)]">
               Spring
             </span>
             <span className="spark-mono text-[11px] tabular-nums text-[var(--spark-faint)]">
@@ -153,7 +153,10 @@ export function SpringBench() {
           </div>
           <div
             className="relative rounded-lg"
-            style={{ height: BOX + 16, background: "rgba(20,20,19,0.04)" }}
+            style={{
+              height: BOX + 16,
+              background: "var(--spark-hairline-soft)",
+            }}
           >
             <div
               className="absolute rounded-md"
@@ -162,7 +165,7 @@ export function SpringBench() {
                 left: 8,
                 width: BOX,
                 height: BOX,
-                background: "var(--spark-arc)",
+                background: "var(--spark-phosphor)",
                 transform: `translateX(${springX * TRACK}px)`,
               }}
             />
@@ -180,7 +183,10 @@ export function SpringBench() {
           </div>
           <div
             className="relative rounded-lg"
-            style={{ height: BOX + 16, background: "rgba(20,20,19,0.04)" }}
+            style={{
+              height: BOX + 16,
+              background: "var(--spark-hairline-soft)",
+            }}
           >
             <div
               key={tick}
@@ -204,7 +210,7 @@ export function SpringBench() {
       <button
         type="button"
         onClick={run}
-        className="mt-4 min-h-[40px] rounded-md bg-[var(--spark-ink)] px-6 text-[13px] font-semibold text-white transition-transform hover:-translate-y-px"
+        className="mt-4 min-h-[40px] rounded-md bg-[var(--spark-ink)] px-6 text-[13px] font-semibold text-[var(--spark-screen-ink)] transition-transform hover:-translate-y-px"
       >
         Run both
       </button>
@@ -248,7 +254,7 @@ export function SpringBench() {
           />
           <p
             className="rounded-lg px-3 py-2.5 text-[12.5px] leading-[1.6]"
-            style={{ background: "rgba(61,43,216,0.1)", color: verdict.tone }}
+            style={{ background: "rgba(59,232,107,0.1)", color: verdict.tone }}
           >
             {verdict.text}
           </p>
@@ -294,7 +300,7 @@ function Slider({
         step={step}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="w-full accent-[var(--spark-arc)]"
+        className="w-full accent-[var(--spark-phosphor)]"
       />
     </label>
   );

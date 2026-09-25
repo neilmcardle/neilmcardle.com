@@ -415,13 +415,13 @@ export function LessonContent({
                     className="grid grid-cols-[26px_minmax(0,1fr)] gap-3"
                   >
                     {block.ordered ? (
-                      <span className="pt-0.5 text-right spark-mono text-[12px] tabular-nums text-[var(--spark-arc)]">
+                      <span className="pt-0.5 text-right spark-mono text-[12px] tabular-nums text-[var(--spark-phosphor)]">
                         {j + 1}
                       </span>
                     ) : (
                       <span
                         aria-hidden
-                        className="mt-[11px] h-[5px] w-[5px] justify-self-end rounded-full bg-[var(--spark-arc)]"
+                        className="mt-[11px] h-[5px] w-[5px] justify-self-end rounded-full bg-[var(--spark-phosphor)]"
                       />
                     )}
                     <span className="text-[16px] leading-[1.72] text-[var(--spark-text)]">

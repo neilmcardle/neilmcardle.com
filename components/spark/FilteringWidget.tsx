@@ -89,8 +89,11 @@ export function FilteringWidget() {
               setStep(null);
             }}
             placeholder="Try a or li"
-            className="w-full rounded-lg border px-3.5 py-2.5 text-[14px] text-[var(--spark-text)] outline-none transition-colors placeholder:text-[var(--spark-faint)] focus:border-[var(--spark-arc)]"
-            style={{ borderColor: "rgba(20,20,19,0.16)", background: "#fff" }}
+            className="w-full rounded-lg border px-3.5 py-2.5 text-[14px] text-[var(--spark-text)] outline-none transition-colors placeholder:text-[var(--spark-faint)] focus:border-[var(--spark-phosphor)]"
+            style={{
+              borderColor: "var(--spark-hairline)",
+              background: "var(--spark-text)",
+            }}
           />
 
           <ul className="mt-3 flex list-none flex-col gap-1 pl-0">
@@ -102,8 +105,8 @@ export function FilteringWidget() {
                   className="spark-mono rounded px-2.5 py-1.5 text-[12.5px] transition-colors"
                   style={{
                     background: hit
-                      ? "rgba(61,43,216,0.16)"
-                      : "rgba(20,20,19,0.03)",
+                      ? "rgba(59,232,107,0.16)"
+                      : "var(--spark-hairline-soft)",
                     color: hit ? "var(--spark-text)" : "var(--spark-faint)",
                     textDecoration: hit ? "none" : "line-through",
                   }}
@@ -137,11 +140,11 @@ export function FilteringWidget() {
                       className="w-full rounded-lg px-3 py-2 text-left transition-colors"
                       style={{
                         background: open
-                          ? "rgba(61,43,216,0.14)"
+                          ? "rgba(59,232,107,0.14)"
                           : "transparent",
                         boxShadow: open
-                          ? "inset 2px 0 0 var(--spark-arc)"
-                          : "inset 0 0 0 1px rgba(20,20,19,0.08)",
+                          ? "inset 2px 0 0 var(--spark-phosphor)"
+                          : "inset 0 0 0 1px var(--spark-hairline-soft)",
                       }}
                     >
                       <span className="flex items-baseline gap-2.5">
@@ -149,7 +152,7 @@ export function FilteringWidget() {
                           className="spark-mono shrink-0 text-[10.5px] tabular-nums"
                           style={{
                             color: open
-                              ? "var(--spark-arc)"
+                              ? "var(--spark-phosphor)"
                               : "var(--spark-faint)",
                           }}
                         >

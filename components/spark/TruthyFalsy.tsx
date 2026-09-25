@@ -100,7 +100,7 @@ export function TruthyFalsy() {
         className="flex min-h-[92px] items-center justify-center rounded-lg"
         style={{ background: "var(--spark-ink)" }}
       >
-        <code className="spark-mono text-[clamp(1.4rem,5vw,2rem)] font-semibold text-[var(--spark-arc-light)]">
+        <code className="spark-mono text-[clamp(1.4rem,5vw,2rem)] font-semibold text-[var(--spark-amber)]">
           {value.code}
         </code>
       </div>
@@ -114,11 +114,11 @@ export function TruthyFalsy() {
           style={{
             borderColor:
               answered !== null && value.truthy
-                ? "var(--spark-arc)"
-                : "rgba(20,20,19,0.16)",
+                ? "var(--spark-phosphor)"
+                : "var(--spark-hairline)",
             background:
               answered !== null && value.truthy
-                ? "rgba(61,43,216,0.14)"
+                ? "rgba(59,232,107,0.14)"
                 : "transparent",
             color: "var(--spark-text)",
           }}
@@ -133,11 +133,11 @@ export function TruthyFalsy() {
           style={{
             borderColor:
               answered !== null && !value.truthy
-                ? "var(--spark-arc)"
-                : "rgba(20,20,19,0.16)",
+                ? "var(--spark-phosphor)"
+                : "var(--spark-hairline)",
             background:
               answered !== null && !value.truthy
-                ? "rgba(61,43,216,0.14)"
+                ? "rgba(59,232,107,0.14)"
                 : "transparent",
             color: "var(--spark-text)",
           }}
@@ -148,12 +148,14 @@ export function TruthyFalsy() {
 
       <div aria-live="polite" className="mt-3 min-h-[4.6em]">
         {answered !== null && (
-          <div className="spark-fade-up rounded-lg bg-[rgba(61,43,216,0.1)] px-3.5 py-3">
+          <div className="spark-fade-up rounded-lg bg-[rgba(59,232,107,0.1)] px-3.5 py-3">
             <p className="text-[13px] leading-[1.65] text-[var(--spark-text)]">
               <strong
                 className="font-semibold"
                 style={{
-                  color: answered ? "var(--spark-arc)" : "var(--spark-redline)",
+                  color: answered
+                    ? "var(--spark-phosphor)"
+                    : "var(--spark-redline)",
                 }}
               >
                 {answered ? "Correct." : "Not quite."}
@@ -171,7 +173,7 @@ export function TruthyFalsy() {
               <button
                 type="button"
                 onClick={next}
-                className="mt-2.5 min-h-[38px] rounded-md bg-[var(--spark-ink)] px-5 text-[12.5px] font-semibold text-white transition-transform hover:-translate-y-px"
+                className="mt-2.5 min-h-[38px] rounded-md bg-[var(--spark-ink)] px-5 text-[12.5px] font-semibold text-[var(--spark-screen-ink)] transition-transform hover:-translate-y-px"
               >
                 Next value
               </button>

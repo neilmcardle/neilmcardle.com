@@ -102,7 +102,7 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
       <header className="sticky top-0 z-30 border-b border-[var(--spark-rule)] bg-[var(--spark-pad)]/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 md:px-12">
           <Link href="/spark" className="flex items-center gap-2.5">
-            <SparkMark className="h-[22px] w-auto shrink-0 text-[var(--spark-arc)]" />
+            <SparkMark className="h-[22px] w-auto shrink-0 text-[var(--spark-phosphor)]" />
             <span className="spark-display text-[22px] leading-none">
               spark
             </span>
@@ -148,10 +148,10 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
           <div className="spark-grid mt-12 rounded-xl border border-[var(--spark-rule)] p-3 md:p-6">
             <Link
               href={`/spark/lessons/${resume.slug}`}
-              className="group flex flex-col gap-5 rounded-lg border border-[var(--spark-rule)] bg-[var(--spark-sheet)] p-5 shadow-[0_24px_48px_-28px_rgba(27,31,25,0.35)] sm:flex-row sm:items-center sm:justify-between md:p-6"
+              className="group flex flex-col gap-5 rounded-lg border border-[var(--spark-rule)] bg-[var(--spark-sheet)] p-5 shadow-[0_24px_48px_-28px_rgba(0,0,0,0.75)] sm:flex-row sm:items-center sm:justify-between md:p-6"
             >
               <span>
-                <span className="spark-eyebrow mb-2 block text-[var(--spark-arc)]">
+                <span className="spark-eyebrow mb-2 block text-[var(--spark-phosphor)]">
                   {resumeProgress.furthest > 0
                     ? "Pick up where you left off"
                     : "Start here"}
@@ -166,7 +166,7 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
                   {resume.minutes} min
                 </span>
               </span>
-              <span className="inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-md bg-[var(--spark-arc)] px-6 text-[15px] font-semibold text-[var(--spark-sheet)] transition-colors group-hover:bg-[var(--spark-arc-hover)]">
+              <span className="inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-md bg-[var(--spark-phosphor)] px-6 text-[15px] font-semibold text-[var(--spark-sheet)] transition-colors group-hover:bg-[var(--spark-phosphor-dim)]">
                 {resumeProgress.furthest > 0 ? "Resume" : "Begin"}
               </span>
             </Link>
@@ -240,9 +240,9 @@ function PhaseGroup({
                 className="group grid grid-cols-[36px_minmax(0,1fr)] items-baseline gap-4 px-4 py-3.5 transition-colors hover:bg-[var(--spark-pad)] md:grid-cols-[64px_minmax(0,1fr)_200px_96px] md:items-center md:px-6"
               >
                 <span
-                  className={`spark-mono text-[13px] transition-colors group-hover:text-[var(--spark-arc)] ${
+                  className={`spark-mono text-[13px] transition-colors group-hover:text-[var(--spark-phosphor)] ${
                     inFlight
-                      ? "text-[var(--spark-arc)]"
+                      ? "text-[var(--spark-phosphor)]"
                       : "text-[var(--spark-faint)]"
                   }`}
                 >
@@ -283,7 +283,7 @@ function PhaseGroup({
                   {state.complete ? (
                     <span className="text-[var(--spark-pass)]">Done</span>
                   ) : inFlight ? (
-                    <span className="text-[var(--spark-arc)]">
+                    <span className="text-[var(--spark-phosphor)]">
                       {mod.minutes} min left
                     </span>
                   ) : (
@@ -328,7 +328,7 @@ function SectionDots({
               width: isCurrent ? (compact ? 12 : 16) : compact ? 7 : 9,
               height: 3,
               background: isCurrent
-                ? "var(--spark-arc)"
+                ? "var(--spark-phosphor)"
                 : isRead
                   ? "var(--spark-text)"
                   : "var(--spark-grid)",

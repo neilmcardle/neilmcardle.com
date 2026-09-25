@@ -135,7 +135,7 @@ export function AsyncTimeline() {
         role="group"
         aria-label="Version"
         className="mb-4 inline-flex rounded-lg p-1"
-        style={{ background: "rgba(20,20,19,0.055)" }}
+        style={{ background: "var(--spark-hairline-soft)" }}
       >
         {[
           { on: true, label: "With await" },
@@ -154,7 +154,7 @@ export function AsyncTimeline() {
               className="min-h-[36px] rounded-md px-4 text-[12.5px] font-semibold transition-colors"
               style={{
                 background: on ? "var(--spark-ink)" : "transparent",
-                color: on ? "#fff" : "var(--spark-muted)",
+                color: on ? "var(--spark-text)" : "var(--spark-muted)",
               }}
             >
               {option.label}
@@ -176,7 +176,7 @@ export function AsyncTimeline() {
           </span>
           <div
             className="relative rounded-lg"
-            style={{ height: 34, background: "rgba(20,20,19,0.04)" }}
+            style={{ height: 34, background: "var(--spark-hairline-soft)" }}
           >
             {events.map((event, i) =>
               event.track !== track ? null : (
@@ -191,12 +191,12 @@ export function AsyncTimeline() {
                     width: `${(event.span / SPAN) * 100}%`,
                     background:
                       picked === i
-                        ? "var(--spark-arc)"
+                        ? "var(--spark-phosphor)"
                         : track === "network"
-                          ? "rgba(20,20,19,0.22)"
-                          : "var(--spark-arc)",
+                          ? "var(--spark-hairline)"
+                          : "var(--spark-phosphor)",
                     outline:
-                      picked === i ? "2px solid var(--spark-arc)" : "none",
+                      picked === i ? "2px solid var(--spark-phosphor)" : "none",
                     outlineOffset: 1,
                   }}
                 />
@@ -206,10 +206,10 @@ export function AsyncTimeline() {
         </div>
       ))}
 
-      <div className="mt-3 min-h-[4em] rounded-lg border border-dashed border-[rgba(61,43,216,0.4)] bg-[rgba(61,43,216,0.07)] px-3.5 py-3">
+      <div className="mt-3 min-h-[4em] rounded-lg border border-dashed border-[rgba(59,232,107,0.4)] bg-[rgba(59,232,107,0.07)] px-3.5 py-3">
         {active ? (
           <p className="text-[13px] leading-[1.65] text-[var(--spark-text)]">
-            <span className="spark-eyebrow mr-2 text-[var(--spark-arc)]">
+            <span className="spark-eyebrow mr-2 text-[var(--spark-phosphor)]">
               {active.label}
             </span>
             {active.note}

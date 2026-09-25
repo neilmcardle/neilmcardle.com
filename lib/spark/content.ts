@@ -2,7 +2,12 @@ import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
 import { parseContentIntoSections, type ParsedSection } from "./contentParser";
-import { phaseForModule, readingMinutes, type Phase } from "./curriculum";
+import {
+  PHASES,
+  phaseForModule,
+  readingMinutes,
+  type Phase,
+} from "./curriculum";
 
 export interface ModuleMeta {
   slug: string;
@@ -124,4 +129,40 @@ export async function getCurriculum(): Promise<ModuleMeta[]> {
   }
 
   return modules.sort((a, b) => a.module - b.module);
+}
+
+export interface TerminalModule {
+  slug: string;
+  module: number;
+  title: string;
+  promise: string;
+  phase: string;
+  phaseIndex: number;
+  minutes: number;
+  sections: { id: string; title: string }[];
+}
+
+export async function getTerminalIndex(): Promise<TerminalModule[]> {
+  const slugs = await getAllModules();
+  const index: TerminalModule[] = [];
+
+  for (const slug of slugs) {
+    try {
+      const { meta, sections } = await loadModule(slug);
+      index.push({
+        slug: meta.slug,
+        module: meta.module,
+        title: meta.title,
+        promise: meta.promise,
+        phase: meta.phase.name,
+        phaseIndex: PHASES.indexOf(meta.phase),
+        minutes: meta.minutes,
+        sections: sections.map((s) => ({ id: s.id, title: s.title })),
+      });
+    } catch (error) {
+      console.error(`Failed to index module ${slug}:`, error);
+    }
+  }
+
+  return index.sort((a, b) => a.module - b.module);
 }
