@@ -2,7 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+import { N_DEFAULTS } from "@/app/explorations/_lab/settings";
 import styles from "./home.module.css";
+
+const PREVIEW = { ...N_DEFAULTS, particles: 20000 };
 
 const NParticles = dynamic(() => import("@/app/explorations/_lab/NParticles"), {
   ssr: false,
@@ -30,7 +33,11 @@ export default function ExplorationPreview() {
   return (
     <div ref={ref} className={styles.preview}>
       {ready ? (
-        <NParticles interactive={false} className={styles.previewCanvas} />
+        <NParticles
+          settings={PREVIEW}
+          interactive={false}
+          className={styles.previewCanvas}
+        />
       ) : null}
     </div>
   );

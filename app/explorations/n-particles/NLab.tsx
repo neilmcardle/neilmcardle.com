@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DialRoot, useDialKit } from "dialkit";
 import "dialkit/styles.css";
@@ -9,6 +10,7 @@ import styles from "./lab.module.css";
 
 export default function NLab() {
   const [replay, setReplay] = useState(0);
+  const router = useRouter();
   const values = useDialKit(
     "N particles",
     {
@@ -77,10 +79,33 @@ export default function NLab() {
   return (
     <div className={styles.page}>
       <header className={styles.bar}>
-        <Link href="/?filter=explorations" className={styles.back}>
-          Explorations
+        <Link
+          href="/?filter=explorations"
+          className={styles.close}
+          aria-label="Close the lab"
+          onClick={(event) => {
+            if (
+              document.referrer &&
+              new URL(document.referrer).origin === window.location.origin
+            ) {
+              event.preventDefault();
+              router.back();
+            }
+          }}
+        >
+          <svg
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <path d="M4 4l8 8M12 4l-8 8" />
+          </svg>
         </Link>
-        <h1 className={styles.title}>N particles</h1>
+        <p className={styles.eyebrow}>NLab</p>
+        <h1 className={styles.title}>Particles</h1>
         <p className={styles.credit}>
           Inspired by{" "}
           <a

@@ -398,16 +398,11 @@ function ExplorationCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <a className={styles.showcaseName} href={work.href}>
-          <span>{work.title}</span>
-        </a>
+        <h4 className={styles.showcaseName}>{work.title}</h4>
         <a className={styles.visit} href={work.href}>
           Open the lab
         </a>
       </div>
-      <p className={styles.note}>
-        Opens full screen, with live dials to scatter, stir and replay it.
-      </p>
       <a
         className={styles.previewLink}
         href={work.href}

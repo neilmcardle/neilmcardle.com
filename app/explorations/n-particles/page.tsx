@@ -7,10 +7,10 @@ const DESCRIPTION =
   "The N logomark as 40,000 particles that scatter and reform. Tune every dial live. Inspired by Neuma by Kris Puckett.";
 
 export const metadata: Metadata = {
-  title: "N particles · Neil McArdle",
+  title: "Particles · NLab",
   description: DESCRIPTION,
   ...share({
-    title: "N particles · Neil McArdle",
+    title: "Particles · NLab",
     description: DESCRIPTION,
     path: "/explorations/n-particles",
   }),

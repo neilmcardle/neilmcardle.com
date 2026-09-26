@@ -6,6 +6,9 @@ import { MeshSurfaceSampler } from "three/examples/jsm/math/MeshSurfaceSampler.j
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
 import { N_MARK_SHAPE } from "@/components/home/ProductBadge";
+import { N_DEFAULTS, type NSettings, type Shape } from "./settings";
+
+export { N_DEFAULTS, type NSettings, type Shape };
 
 const SHARED = /* glsl */ `
 uniform float uPhase;
@@ -94,8 +97,6 @@ void main() {
   gl_FragColor = vec4(uInk, vAlpha);
 }
 `;
-
-export type Shape = "n" | "coin";
 
 function glyph() {
   const shapes = new SVGLoader()
@@ -219,54 +220,6 @@ function buffers(data: ReturnType<typeof sample>) {
 
 const ease = (t: number) =>
   t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
-
-export type NSettings = {
-  loop: boolean;
-  distance: number;
-  hold: number;
-  scatterTime: number;
-  returnTime: number;
-  sweep: number;
-  swirl: number;
-  turbulence: number;
-  flowSpeed: number;
-  trail: number;
-  shape: Shape;
-  particles: number;
-  dotSize: number;
-  strokes: number;
-  ink: string;
-  grain: number;
-  orbit: number;
-  tilt: number;
-  zoom: number;
-  autoRotate: boolean;
-  rotateSpeed: number;
-};
-
-export const N_DEFAULTS: NSettings = {
-  loop: true,
-  distance: 1.8,
-  hold: 1.4,
-  scatterTime: 2.6,
-  returnTime: 2.8,
-  sweep: 0.15,
-  swirl: 2.5,
-  turbulence: 0.3,
-  flowSpeed: 1.9,
-  trail: 0.1,
-  shape: "n",
-  particles: 40000,
-  dotSize: 1.6,
-  strokes: 0.1,
-  ink: "#1f1d1a",
-  grain: 0.35,
-  orbit: -28,
-  tilt: 12,
-  zoom: 1,
-  autoRotate: true,
-  rotateSpeed: 0.12,
-};
 
 export default function NParticles({
   settings = N_DEFAULTS,
