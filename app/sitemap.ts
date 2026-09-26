@@ -45,6 +45,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...lessons,
     {
+      url: `${base}/explorations/n-particles`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
       url: `${base}/privacy`,
       lastModified: now,
       changeFrequency: "yearly",

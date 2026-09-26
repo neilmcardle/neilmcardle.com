@@ -3,7 +3,7 @@ import Link from "next/link";
 import CoverlyMocks from "@/components/home/CoverlyMocks";
 import DoodleWireShots from "@/components/home/DoodleWireShots";
 import MakeEbookMocks from "@/components/home/MakeEbookMocks";
-import ExplorationLab from "./ExplorationLab";
+import ExplorationPreview from "./ExplorationPreview";
 import HomeShell from "./HomeShell";
 import ProductMark from "./ProductMark";
 import SparkIntro from "./SparkIntro";
@@ -52,8 +52,12 @@ export default function Home() {
               <span>{GROUP_LABEL[key]}</span>
             </h3>
             {key === "explorations" ? (
-              <div className={styles.sub}>
-                <ExplorationLab />
+              <div className={styles.sub} data-sub={subKey(items[0])}>
+                <div className={styles.showcases}>
+                  {items.map((work) => (
+                    <ExplorationCard key={work.title} work={work} />
+                  ))}
+                </div>
               </div>
             ) : key === "paintings" ? (
               <div className={styles.sub} data-sub={subKey(items[0])}>
@@ -387,5 +391,50 @@ function Demo() {
         <p className={styles.caption}>Episode: Just-in-Time Interfaces</p>
       </article>
     </section>
+  );
+}
+
+function ExplorationCard({ work }: { work: Work }) {
+  return (
+    <article className={styles.showcase} data-item={slug(work.title)}>
+      <div className={styles.showcaseHead}>
+        <a className={styles.showcaseName} href={work.href}>
+          <span>{work.title}</span>
+        </a>
+        <a className={styles.visit} href={work.href}>
+          Open the lab
+        </a>
+      </div>
+      <p className={styles.note}>
+        Opens full screen, with live dials to scatter, stir and replay it.
+      </p>
+      <a
+        className={styles.previewLink}
+        href={work.href}
+        aria-label={`Open the ${work.title} lab, full screen`}
+      >
+        <ExplorationPreview />
+      </a>
+      <p className={styles.caption}>
+        Inspired by{" "}
+        <a
+          className={styles.handle}
+          href="https://heyneuma.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Neuma
+        </a>{" "}
+        by{" "}
+        <a
+          className={styles.handle}
+          href="https://x.com/krispuckett"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          @krispuckett
+        </a>
+      </p>
+    </article>
   );
 }

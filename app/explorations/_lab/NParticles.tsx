@@ -1,14 +1,11 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { MeshSurfaceSampler } from "three/examples/jsm/math/MeshSurfaceSampler.js";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
-import { DialRoot, useDialKit } from "dialkit";
-import "dialkit/styles.css";
 import { N_MARK_SHAPE } from "@/components/home/ProductBadge";
-import styles from "./home.module.css";
 
 const SHARED = /* glsl */ `
 uniform float uPhase;
@@ -98,7 +95,7 @@ void main() {
 }
 `;
 
-type Shape = "n" | "coin";
+export type Shape = "n" | "coin";
 
 function glyph() {
   const shapes = new SVGLoader()
@@ -223,71 +220,79 @@ function buffers(data: ReturnType<typeof sample>) {
 const ease = (t: number) =>
   t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 
-export default function ParticleLab({ children }: { children?: ReactNode }) {
+export type NSettings = {
+  loop: boolean;
+  distance: number;
+  hold: number;
+  scatterTime: number;
+  returnTime: number;
+  sweep: number;
+  swirl: number;
+  turbulence: number;
+  flowSpeed: number;
+  trail: number;
+  shape: Shape;
+  particles: number;
+  dotSize: number;
+  strokes: number;
+  ink: string;
+  grain: number;
+  orbit: number;
+  tilt: number;
+  zoom: number;
+  autoRotate: boolean;
+  rotateSpeed: number;
+};
+
+export const N_DEFAULTS: NSettings = {
+  loop: true,
+  distance: 1.8,
+  hold: 1.4,
+  scatterTime: 2.6,
+  returnTime: 2.8,
+  sweep: 0.15,
+  swirl: 2.5,
+  turbulence: 0.3,
+  flowSpeed: 1.9,
+  trail: 0.1,
+  shape: "n",
+  particles: 40000,
+  dotSize: 1.6,
+  strokes: 0.1,
+  ink: "#1f1d1a",
+  grain: 0.35,
+  orbit: -28,
+  tilt: 12,
+  zoom: 1,
+  autoRotate: true,
+  rotateSpeed: 0.12,
+};
+
+export default function NParticles({
+  settings = N_DEFAULTS,
+  replay = 0,
+  interactive = true,
+  className,
+}: {
+  settings?: NSettings;
+  replay?: number;
+  interactive?: boolean;
+  className?: string;
+}) {
   const stageRef = useRef<HTMLDivElement>(null);
   const replayRef = useRef<() => void>(() => {});
-  const values = useDialKit(
-    "N particles",
-    {
-      replay: { type: "action", label: "Replay" },
-      loop: true,
-      scatterAndReturn: {
-        distance: [1.8, 0, 4],
-        hold: [1.4, 0, 5],
-        scatterTime: [2.6, 0.3, 8],
-        returnTime: [2.8, 0.3, 8],
-        sweep: [0.6, 0, 1],
-      },
-      flowAndTrails: {
-        swirl: [1.3, 0, 3],
-        turbulence: [1.1, 0.2, 4],
-        flowSpeed: [0.5, 0, 2],
-        trail: [0.8, 0, 2],
-      },
-      densityAndLook: {
-        _collapsed: true,
-        shape: {
-          type: "select",
-          options: [
-            { value: "n", label: "N" },
-            { value: "coin", label: "Coin" },
-          ],
-          default: "n",
-        },
-        particles: {
-          type: "select",
-          options: ["20000", "40000", "80000"],
-          default: "40000",
-        },
-        dotSize: [1.6, 0.5, 4],
-        strokes: [0.1, 0, 0.5],
-        ink: "#1f1d1a",
-        grain: [0.35, 0, 1],
-      },
-      camera: {
-        _collapsed: true,
-        orbit: [-28, -90, 90],
-        tilt: [12, -40, 40],
-        zoom: [1, 0.6, 1.8],
-        autoRotate: true,
-        rotateSpeed: [0.12, 0, 1],
-      },
-    },
-    {
-      id: "n-particles",
-      onAction: (path) => {
-        if (path === "replay") replayRef.current();
-      },
-    },
-  );
-  const valuesRef = useRef(values);
+  const valuesRef = useRef(settings);
 
   useEffect(() => {
-    valuesRef.current = values;
+    valuesRef.current = settings;
   });
 
-  const shape = values.densityAndLook.shape as Shape;
-  const count = Number(values.densityAndLook.particles);
+  useEffect(() => {
+    if (replay) replayRef.current();
+  }, [replay]);
+
+  const shape = settings.shape;
+  const count = settings.particles;
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -299,7 +304,13 @@ export default function ParticleLab({ children }: { children?: ReactNode }) {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
     stage.appendChild(renderer.domElement);
-    renderer.domElement.style.touchAction = "none";
+    Object.assign(renderer.domElement.style, {
+      position: "absolute",
+      inset: "0",
+      width: "100%",
+      height: "100%",
+      touchAction: interactive ? "none" : "auto",
+    });
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
@@ -411,13 +422,15 @@ export default function ParticleLab({ children }: { children?: ReactNode }) {
     const onUp = () => {
       dragging = false;
     };
-    renderer.domElement.addEventListener("pointerdown", onDown);
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
+    if (interactive) {
+      renderer.domElement.addEventListener("pointerdown", onDown);
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+    }
 
     const phaseAt = (now: number) => {
-      const v = valuesRef.current.scatterAndReturn;
-      const loop = valuesRef.current.loop && !reduced;
+      const v = valuesRef.current;
+      const loop = v.loop && !reduced;
       const elapsed = now - cycle.start;
       const lengths = {
         hold: v.hold,
@@ -455,24 +468,23 @@ export default function ParticleLab({ children }: { children?: ReactNode }) {
       const { phase, dir } = phaseAt(now);
       uniforms.uPhase.value = phase;
       uniforms.uDir.value = dir;
-      uniforms.uTime.value +=
-        delta * v.flowAndTrails.flowSpeed * (reduced ? 0 : 1);
-      uniforms.uScatter.value = v.scatterAndReturn.distance;
-      uniforms.uSweep.value = v.scatterAndReturn.sweep;
-      uniforms.uSwirl.value = v.flowAndTrails.swirl;
-      uniforms.uTurb.value = v.flowAndTrails.turbulence;
-      uniforms.uTrail.value = v.flowAndTrails.trail;
-      uniforms.uSize.value = v.densityAndLook.dotSize;
-      uniforms.uLineAlpha.value = v.densityAndLook.strokes;
-      uniforms.uInk.value.set(v.densityAndLook.ink);
-      dustMaterial.color.set(v.densityAndLook.ink);
-      dustMaterial.opacity = v.densityAndLook.grain * 0.5;
+      uniforms.uTime.value += delta * v.flowSpeed * (reduced ? 0 : 1);
+      uniforms.uScatter.value = v.distance;
+      uniforms.uSweep.value = v.sweep;
+      uniforms.uSwirl.value = v.swirl;
+      uniforms.uTurb.value = v.turbulence;
+      uniforms.uTrail.value = v.trail;
+      uniforms.uSize.value = v.dotSize;
+      uniforms.uLineAlpha.value = v.strokes;
+      uniforms.uInk.value.set(v.ink);
+      dustMaterial.color.set(v.ink);
+      dustMaterial.opacity = v.grain * 0.5;
 
-      if (v.camera.autoRotate && !reduced && !dragging)
-        yaw += delta * v.camera.rotateSpeed * 20;
-      const theta = THREE.MathUtils.degToRad(v.camera.orbit + yaw + dragYaw);
-      const phi = THREE.MathUtils.degToRad(v.camera.tilt + dragTilt);
-      const distance = 9 / v.camera.zoom;
+      if (v.autoRotate && !reduced && !dragging)
+        yaw += delta * v.rotateSpeed * 20;
+      const theta = THREE.MathUtils.degToRad(v.orbit + yaw + dragYaw);
+      const phi = THREE.MathUtils.degToRad(v.tilt + dragTilt);
+      const distance = 9 / v.zoom;
       camera.position.set(
         Math.sin(theta) * Math.cos(phi) * distance,
         Math.sin(phi) * distance,
@@ -516,20 +528,14 @@ export default function ParticleLab({ children }: { children?: ReactNode }) {
       renderer.domElement.remove();
       replayRef.current = () => {};
     };
-  }, [shape, count]);
+  }, [shape, count, interactive]);
 
   return (
-    <>
-      <div
-        ref={stageRef}
-        className={styles.labStage}
-        role="img"
-        aria-label="The N logomark drawn in particles that scatter and reform"
-      />
-      {children}
-      <div className={styles.labDials}>
-        <DialRoot mode="inline" theme="light" productionEnabled />
-      </div>
-    </>
+    <div
+      ref={stageRef}
+      className={className}
+      role="img"
+      aria-label="The N logomark drawn in particles that scatter and reform"
+    />
   );
 }

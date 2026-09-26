@@ -136,6 +136,13 @@ export const WORKS: Work[] = [
       painting.status.charAt(0).toUpperCase() + painting.status.slice(1),
     ],
   })),
+  {
+    title: "N particles",
+    group: "explorations",
+    sub: "Lab",
+    href: "/explorations/n-particles",
+    pills: ["Interactive", "WebGL"],
+  },
 ];
 
 export const MULTI_SUB = new Set(

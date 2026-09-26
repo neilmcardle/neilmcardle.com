@@ -70,16 +70,7 @@ export default function HomeShell({ children }: { children: ReactNode }) {
     const filtered = filter !== "all" || needle !== "";
     if (filtered) hidden.push(`${scope} [data-group="demo"]`);
     let firstGroup = !filtered;
-    if (filter === "explorations") {
-      rules.push(`${scope} [data-group="explorations"]{margin-top:32px}`);
-      firstGroup = true;
-    }
     for (const key of GROUP_ORDER) {
-      if (key === "explorations") {
-        if (filter !== "explorations")
-          hidden.push(`${scope} [data-group="explorations"]`);
-        continue;
-      }
       const items = WORKS.filter((work) => work.group === key);
       const keep = items.filter((work) => shown.has(slug(work.title)));
       if (keep.length === 0) {
@@ -487,7 +478,7 @@ export default function HomeShell({ children }: { children: ReactNode }) {
 
           <div className={styles.list}>
             <style>{hiddenCss}</style>
-            {visible.length === 0 && filter !== "explorations" ? (
+            {visible.length === 0 ? (
               <div className={styles.empty}>
                 <p className={styles.emptyText}>
                   Nothing

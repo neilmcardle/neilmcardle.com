@@ -1,0 +1,132 @@
+.page {
+  --bone: #ebe8e4;
+  --card: #fdfcfb;
+  --stage: #f3f1ec;
+  --ink: #000000;
+  --muted: #736d64;
+  --line: #d7d2cc;
+  --ui: var(--font-inter), system-ui, sans-serif;
+  --display: var(--font-geist-sans), var(--font-inter), system-ui, sans-serif;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "bar"
+    "stage"
+    "dials";
+  min-height: 100svh;
+  padding: 16px;
+  gap: 16px;
+  background: var(--bone);
+  color: var(--ink);
+  font-family: var(--ui);
+}
+
+.bar {
+  grid-area: bar;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+.back {
+  color: var(--muted);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 4px;
+}
+
+.back:hover {
+  color: var(--ink);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  font-weight: 300;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+}
+
+.credit {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.credit a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+
+.stage {
+  grid-area: stage;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--stage);
+  cursor: grab;
+  box-shadow:
+    0 -16px 0 var(--bone),
+    0 12px 16px -12px rgba(0, 0, 0, 0.12);
+}
+
+.stage:active {
+  cursor: grabbing;
+}
+
+.dials {
+  grid-area: dials;
+}
+
+.dials :global(.dialkit-panel-header) {
+  display: none;
+}
+
+.dials :global(.dialkit-root) {
+  font-family: var(--ui);
+}
+
+@media (min-width: 600px) and (max-width: 959px) {
+  .stage {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (min-width: 960px) {
+  .page {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      "bar dials"
+      "stage dials";
+    height: 100svh;
+    padding: 24px 32px 32px;
+    gap: 20px 32px;
+    overflow: hidden;
+  }
+
+  .stage {
+    position: relative;
+    aspect-ratio: auto;
+    box-shadow: none;
+  }
+
+  .dials {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px 4px 16px 0;
+    scrollbar-width: thin;
+  }
+}
