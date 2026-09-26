@@ -1,3 +1,5 @@
+import { useSyncExternalStore } from "react";
+import { prefersReducedMotion, subscribeReducedMotion } from "./motion";
 import styles from "./home.module.css";
 
 export default function TileControls({
@@ -11,6 +13,13 @@ export default function TileControls({
   onPlay: () => void;
   sound?: { on: boolean; onToggle: () => void };
 }) {
+  const reduced = useSyncExternalStore(
+    subscribeReducedMotion,
+    prefersReducedMotion,
+    () => false,
+  );
+  if (reduced) return null;
+
   return (
     <div
       className={styles.mbControls}

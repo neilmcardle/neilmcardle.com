@@ -1,6 +1,14 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type RefObject,
+} from "react";
+import { getImageProps } from "next/image";
 import { COVERLY_COVERS } from "./coverlyCovers";
 import { LOGOMARK_PATH, LOGOMARK_VIEWBOX } from "@/app/coverly/logomark";
 import { motionEnabled, setMotion, subscribeMotion } from "./motion";
@@ -27,6 +35,29 @@ const FAN = [
 ];
 
 const subscribeToNothing = () => () => {};
+
+function thumb(src: string, width: number) {
+  return getImageProps({ src, alt: "", width, height: width * 1.5 }).props.src;
+}
+
+function useSeen(ref: RefObject<Element | null>) {
+  const [state, setState] = useState({ seen: false, visible: false });
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const observer = new IntersectionObserver(([entry]) =>
+      setState((current) => ({
+        seen: current.seen || entry.isIntersecting,
+        visible: entry.isIntersecting,
+      })),
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return state;
+}
 
 export default function CoverlyMocks() {
   const moving = useSyncExternalStore(
@@ -64,6 +95,8 @@ export function Wall({
   moving: boolean;
   onToggle?: () => void;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { seen, visible } = useSeen(ref);
   const columns = useMemo(() => {
     const cols: (typeof COVERLY_COVERS)[] = COLUMNS.map(() => []);
     COVERLY_COVERS.slice(0, 32).forEach((cover, i) => {
@@ -73,8 +106,11 @@ export function Wall({
   }, []);
 
   return (
-    <div className={styles.cvWall}>
-      <div className={styles.cvField} data-still={moving ? undefined : "true"}>
+    <div className={styles.cvWall} ref={ref}>
+      <div
+        className={styles.cvField}
+        data-still={moving && visible ? undefined : "true"}
+      >
         {columns.map((column, i) => (
           <div
             key={i}
@@ -86,7 +122,9 @@ export function Wall({
                 key={`${i}-${j}`}
                 className={styles.cvWallCover}
                 style={{
-                  backgroundImage: `url(${cover.src})`,
+                  backgroundImage: seen
+                    ? `url(${thumb(cover.src, 64)})`
+                    : undefined,
                   backgroundColor: cover.color,
                 }}
               />
@@ -114,13 +152,15 @@ function Fan({ moving }: { moving: boolean }) {
     () => true,
     () => false,
   );
+  const ref = useRef<HTMLDivElement>(null);
+  const { seen } = useSeen(ref);
   const fan = useMemo(() => {
     const step = Math.floor(COVERLY_COVERS.length / 5);
     return [0, 1, 2, 3, 4].map((i) => COVERLY_COVERS[i * step]);
   }, []);
 
   return (
-    <div className={styles.cvFan}>
+    <div className={styles.cvFan} ref={ref}>
       {fan.map((cover, i) => (
         <span
           key={cover.src}
@@ -128,7 +168,7 @@ function Fan({ moving }: { moving: boolean }) {
           role="img"
           aria-label={`${cover.title} by ${cover.author}`}
           style={{
-            backgroundImage: `url(${cover.src})`,
+            backgroundImage: seen ? `url(${thumb(cover.src, 128)})` : undefined,
             backgroundColor: cover.color,
             transform: `translate(calc(-50% + ${FAN[i].x}%), calc(-50% + ${FAN[i].y}%)) rotate(${FAN[i].rotate}deg)`,
             zIndex: i === 2 ? 3 : i === 1 || i === 3 ? 2 : 1,
@@ -142,11 +182,13 @@ function Fan({ moving }: { moving: boolean }) {
 
 function Views() {
   const [view, setView] = useState<"grid" | "shelf">("shelf");
+  const ref = useRef<HTMLDivElement>(null);
+  const { seen } = useSeen(ref);
   const grid = COVERLY_COVERS.slice(8, 20);
   const shelves = [COVERLY_COVERS.slice(20, 26), COVERLY_COVERS.slice(26, 32)];
 
   return (
-    <div className={styles.cvViews}>
+    <div className={styles.cvViews} ref={ref}>
       <div className={styles.cvSeg} role="group" aria-label="View">
         {(["grid", "shelf"] as const).map((option) => (
           <button
@@ -168,7 +210,9 @@ function Views() {
                 key={cover.src}
                 className={styles.cvViewCover}
                 style={{
-                  backgroundImage: `url(${cover.src})`,
+                  backgroundImage: seen
+                    ? `url(${thumb(cover.src, 64)})`
+                    : undefined,
                   backgroundColor: cover.color,
                 }}
               />
@@ -184,7 +228,9 @@ function Views() {
                     className={styles.cvViewCover}
                     style={{
                       width: `${12 + ((i * 5 + r * 3) % 5)}%`,
-                      backgroundImage: `url(${cover.src})`,
+                      backgroundImage: seen
+                        ? `url(${thumb(cover.src, 64)})`
+                        : undefined,
                       backgroundColor: cover.color,
                     }}
                   />

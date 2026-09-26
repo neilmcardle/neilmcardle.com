@@ -24,6 +24,16 @@ const nextConfig = {
 
   serverExternalPackages: ["@resvg/resvg-js", "@react-pdf/renderer"],
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.isbndb.com",
+        pathname: "/covers/**",
+      },
+    ],
+  },
+
   webpack: (config, { isServer }) => {
     config.resolve.alias.canvas = false;
 
@@ -75,6 +85,26 @@ const nextConfig = {
       {
         source: "/hello",
         destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/paintings",
+        destination: "/?filter=paintings",
+        permanent: true,
+      },
+      {
+        source: "/archive",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/studio",
+        destination: "/?filter=explorations",
+        permanent: true,
+      },
+      {
+        source: "/studio/:path*",
+        destination: "/?filter=explorations",
         permanent: true,
       },
     ];

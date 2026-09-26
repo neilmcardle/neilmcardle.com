@@ -366,6 +366,7 @@ export default function PinMark({
 
       const onDown = (event: PointerEvent) => {
         dragging = true;
+        kick();
         lastX = event.clientX;
         lastY = event.clientY;
         canvas.setPointerCapture(event.pointerId);
@@ -390,8 +391,9 @@ export default function PinMark({
 
       const clock = new THREE.Clock();
       let frame = 0;
+      let running = false;
+      let onScreen = true;
       const draw = () => {
-        frame = requestAnimationFrame(draw);
         const delta = Math.min(clock.getDelta(), 0.1);
         if (!dragging) {
           if (Math.abs(velocity) > Math.max(SETTLE, idle)) {
@@ -415,11 +417,39 @@ export default function PinMark({
           canvas.dataset.ready = "1";
           host.dataset.ready = "1";
         }
+        const settled =
+          !dragging &&
+          !idle &&
+          velocity === 0 &&
+          Math.abs(
+            pin.rotation.y -
+              Math.round((turn - restTurn) / TAU) * TAU -
+              restTurn,
+          ) < 1e-4 &&
+          Math.abs(pin.rotation.x - restTilt) < 1e-4;
+        if (settled || !onScreen) {
+          running = false;
+          return;
+        }
+        frame = requestAnimationFrame(draw);
       };
+      function kick() {
+        if (running || !onScreen) return;
+        running = true;
+        clock.getDelta();
+        frame = requestAnimationFrame(draw);
+      }
+      const visibility = new IntersectionObserver(([entry]) => {
+        onScreen = entry.isIntersecting;
+        if (onScreen) kick();
+      });
+      visibility.observe(host);
+      running = true;
       draw();
 
       dispose = () => {
         cancelAnimationFrame(frame);
+        visibility.disconnect();
         canvas.removeEventListener("pointerdown", onDown);
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("pointerup", onUp);
@@ -437,12 +467,20 @@ export default function PinMark({
       };
     };
 
-    build().catch(() => {
-      if (!cancelled) host.dataset.fallback = "1";
-    });
+    const start = () => {
+      build().catch(() => {
+        if (!cancelled) host.dataset.fallback = "1";
+      });
+    };
+    const deferred = "requestIdleCallback" in window;
+    const handle = deferred
+      ? window.requestIdleCallback(start, { timeout: 2000 })
+      : window.setTimeout(start, 200);
 
     return () => {
       cancelled = true;
+      if (deferred) window.cancelIdleCallback(handle);
+      else window.clearTimeout(handle);
       dispose();
     };
   }, [face, size, zoom, spin]);

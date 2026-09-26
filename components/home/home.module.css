@@ -1103,6 +1103,12 @@
 .pinMark > svg,
 .pinMark > img {
   visibility: hidden;
+  transition: visibility 0s linear 400ms;
+}
+
+.pinMark:not([data-ready]) > svg,
+.pinMark:not([data-ready]) > img {
+  visibility: visible;
 }
 
 .pinMark[data-fallback] > svg,

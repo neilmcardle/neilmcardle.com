@@ -1,4 +1,5 @@
 const KEY = "site-motion";
+const REDUCE = "(prefers-reduced-motion: reduce)";
 const listeners = new Set<() => void>();
 
 function stored() {
@@ -22,7 +23,18 @@ export function motionEnabled() {
   const value = stored();
   if (value === "on") return true;
   if (value === "off") return false;
-  return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return !prefersReducedMotion();
+}
+
+export function prefersReducedMotion() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia(REDUCE).matches;
+}
+
+export function subscribeReducedMotion(fn: () => void) {
+  const query = window.matchMedia(REDUCE);
+  query.addEventListener("change", fn);
+  return () => query.removeEventListener("change", fn);
 }
 
 export function setMotion(on: boolean) {
@@ -32,7 +44,9 @@ export function setMotion(on: boolean) {
 
 export function subscribeMotion(fn: () => void) {
   listeners.add(fn);
+  const unsubscribe = subscribeReducedMotion(fn);
   return () => {
     listeners.delete(fn);
+    unsubscribe();
   };
 }

@@ -7,10 +7,10 @@ import {
   MAKEEBOOK_TRANSFORM,
 } from "@/components/home/ProductBadge";
 import { SPARK_MARK_PATH } from "@/components/spark/SparkMark";
+import { SHARE_ALT } from "./shared-metadata";
 
 export const runtime = "nodejs";
-export const alt =
-  "Neil McArdle, product designer in London. Things he has said and done: makeebook, Coverly, DoodleWire and Spark.";
+export const alt = SHARE_ALT;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

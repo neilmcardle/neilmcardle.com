@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from "react";
+import { prefersReducedMotion } from "./motion";
 import styles from "./home.module.css";
 
 const EYES = [
@@ -19,7 +20,7 @@ export default function CurlMind() {
   useEffect(() => {
     const svg = svgRef.current;
     const eyes = eyesRef.current;
-    if (!svg || !eyes) return;
+    if (!svg || !eyes || prefersReducedMotion()) return;
     let frame = 0;
     let pointer: { x: number; y: number } | null = null;
 

@@ -7,16 +7,22 @@ import {
   useSyncExternalStore,
   type RefObject,
 } from "react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { motionEnabled, setMotion, subscribeMotion } from "./motion";
 import styles from "./home.module.css";
 import TileControls from "./TileControls";
 
 const FADE_MS = 600;
+const WRITER_POSTER = getImageProps({
+  src: "/make-ebook/brand/hero-writer.jpg",
+  alt: "",
+  width: 600,
+  height: 255,
+}).props.src;
 const RAIN_VOLUME = 0.6;
 
 function useInView(ref: RefObject<Element | null>) {
-  const [inView, setInView] = useState(true);
+  const [inView, setInView] = useState(false);
 
   useEffect(() => {
     const element = ref.current;
@@ -177,11 +183,11 @@ export default function MakeEbookMocks({
           <video
             ref={videoRef}
             src="/make-ebook/brand/writer-video-bg.mp4"
-            poster="/make-ebook/brand/hero-writer.jpg"
+            poster={WRITER_POSTER}
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="none"
             aria-hidden="true"
           />
           <TileControls

@@ -1,5 +1,6 @@
 import type React from "react";
 import type { Metadata } from "next";
+import { SITE_DESCRIPTION, SITE_TITLE } from "./shared-metadata";
 import "./globals.css";
 import "../styles/immersive.css";
 import "./make-ebook/styles/tokens.css";
@@ -105,17 +106,13 @@ const zillaSlab = Zilla_Slab({
   preload: false,
 });
 
-const TITLE = "Neil McArdle · Product Designer";
-const DESCRIPTION =
-  "Product designer in London. Building makeebook, Coverly, DoodleWire and Spark.";
+const TITLE = SITE_TITLE;
+const DESCRIPTION = SITE_DESCRIPTION;
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://neilmcardle.com"),
   title: TITLE,
   description: DESCRIPTION,
-  alternates: {
-    canonical: "https://neilmcardle.com",
-  },
   generator: "",
   icons: {
     icon: [
@@ -128,7 +125,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
-    url: "https://neilmcardle.com",
     siteName: "Neil McArdle",
     type: "website",
     locale: "en_GB",

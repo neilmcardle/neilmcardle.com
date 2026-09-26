@@ -22,7 +22,6 @@ const HIDDEN_ROUTES = [
   "/cabin",
   "/privacy",
   "/doodlewire",
-  "/paintings",
   "/tessera",
 ];
 
