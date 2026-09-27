@@ -222,6 +222,31 @@
   -webkit-user-select: none;
 }
 
+.particleMark {
+  position: relative;
+  display: block;
+  width: 64px;
+  height: 64px;
+}
+
+.particleFallback {
+  position: absolute;
+  inset: 6px;
+  fill: var(--ink);
+  transition: opacity 400ms ease;
+}
+
+.particleMark[data-ready] .particleFallback {
+  opacity: 0;
+}
+
+.particleStage {
+  position: absolute;
+  inset: -19px;
+  pointer-events: none;
+  mask-image: radial-gradient(closest-side, #000 76%, transparent 100%);
+}
+
 .name {
   font-weight: 500;
 }
@@ -721,6 +746,39 @@
   display: none;
 }
 
+.appIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-right: 4px;
+  border-radius: 10px;
+  background: var(--bone);
+  color: var(--ink);
+  transition: background-color 200ms var(--ease);
+}
+
+.appIcon svg {
+  width: 22px;
+  height: 22px;
+}
+
+@media (max-width: 599px) {
+  .appIcon {
+    width: 32px;
+    height: 32px;
+    margin-right: 0;
+    border-radius: 9px;
+  }
+
+  .appIcon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.rowLink:hover .appIcon,
 .rowLink:hover .pillTag {
   background: var(--pill-hover);
 }

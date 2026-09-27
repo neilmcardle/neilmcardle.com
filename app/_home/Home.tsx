@@ -3,6 +3,7 @@ import Link from "next/link";
 import CoverlyMocks from "@/components/home/CoverlyMocks";
 import DoodleWireShots from "@/components/home/DoodleWireShots";
 import MakeEbookMocks from "@/components/home/MakeEbookMocks";
+import AppIcon from "./AppIcon";
 import ExplorationPreview from "./ExplorationPreview";
 import HomeShell from "./HomeShell";
 import ProductMark from "./ProductMark";
@@ -110,6 +111,9 @@ function WorkLink({ work }: { work: Work }) {
   const inner = (
     <>
       <span className={styles.rowTitle}>
+        {work.icon ? (
+          <AppIcon icon={work.icon} className={styles.appIcon} />
+        ) : null}
         {work.title}
         {external && (
           <span className={styles.linkIcons}>

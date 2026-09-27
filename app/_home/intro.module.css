@@ -1,0 +1,83 @@
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  touch-action: none;
+  overscroll-behavior: contain;
+  animation: failsafe 1ms linear 12s forwards;
+}
+
+.intro[data-leaving] {
+  pointer-events: none;
+}
+
+.veil {
+  position: absolute;
+  inset: 0;
+  background: #ebe8e4;
+  transition: opacity 900ms cubic-bezier(0.4, 0, 0.2, 1) 550ms;
+}
+
+.stage {
+  position: absolute;
+  inset: -21px -24px 21px 24px;
+  animation: appear 900ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  transition: opacity 900ms cubic-bezier(0.4, 0, 1, 1) 450ms;
+}
+
+.intro[data-leaving] .veil,
+.intro[data-leaving] .stage {
+  opacity: 0;
+}
+
+.track {
+  position: absolute;
+  top: calc(50% + 115px);
+  left: 50%;
+  width: 192px;
+  height: 2px;
+  margin-left: -96px;
+  overflow: hidden;
+  border-radius: 1px;
+  background: rgba(31, 29, 26, 0.1);
+  transition: opacity 240ms ease;
+}
+
+.intro[data-leaving] .track {
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+.fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: rgba(31, 29, 26, 0.55);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+.intro[data-ready] .fill {
+  animation: load 6s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+}
+
+@keyframes load {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes failsafe {
+  to {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+}

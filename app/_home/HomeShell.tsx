@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import PinMark from "@/components/home/PinMark";
 import PageCurl from "@/components/home/PageCurl";
 import {
   CLIENTS,
@@ -19,6 +18,7 @@ import {
   subKey,
   type Filter,
 } from "./data";
+import ParticleMark from "./ParticleMark";
 import styles from "./home.module.css";
 
 function reducedMotion() {
@@ -276,8 +276,8 @@ export default function HomeShell({ children }: { children: ReactNode }) {
       </div>
       <header className={styles.header}>
         <h1 className={styles.wordmark}>
-          <span className={styles.mark}>
-            <PinMark face="mark" size={64} zoom={4.7} spin={0.225} />
+          <span className={styles.mark} data-home-mark>
+            <ParticleMark />
           </span>
           <Link href="/" className={styles.wordmarkLink}>
             <span className={styles.name}>Neil McArdle</span>

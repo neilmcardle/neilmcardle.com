@@ -226,18 +226,29 @@ export default function NParticles({
   replay = 0,
   interactive = true,
   className,
+  onReady,
+  onScatter,
+  assemble,
 }: {
   settings?: NSettings;
   replay?: number;
   interactive?: boolean;
   className?: string;
+  onReady?: () => void;
+  onScatter?: (angle: number) => void;
+  assemble?: { angle: number };
 }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const replayRef = useRef<() => void>(() => {});
+  const assembleRef = useRef<(angle: number) => void>(() => {});
   const valuesRef = useRef(settings);
+  const readyRef = useRef(onReady);
+  const scatterRef = useRef(onScatter);
 
   useEffect(() => {
     valuesRef.current = settings;
+    readyRef.current = onReady;
+    scatterRef.current = onScatter;
   });
 
   useEffect(() => {
@@ -342,6 +353,7 @@ export default function NParticles({
     };
     let clock = performance.now() / 1000;
     let yaw = 0;
+    let angle = 0;
     let dragYaw = 0;
     let dragTilt = 0;
     let dragging = false;
@@ -351,7 +363,20 @@ export default function NParticles({
     let frame = 0;
 
     replayRef.current = () => {
+      scatterRef.current?.(angle);
       cycle.stage = "out";
+      cycle.start = performance.now() / 1000;
+      kick();
+    };
+
+    assembleRef.current = (target) => {
+      const v = valuesRef.current;
+      const offset = target - v.orbit;
+      yaw = v.sway
+        ? Math.asin(Math.max(-1, Math.min(1, offset / v.sway))) * v.sway
+        : offset;
+      dragYaw = 0;
+      cycle.stage = "back";
       cycle.start = performance.now() / 1000;
       kick();
     };
@@ -435,7 +460,9 @@ export default function NParticles({
 
       if (v.autoRotate && !reduced && !dragging)
         yaw += delta * v.rotateSpeed * 20;
-      const theta = THREE.MathUtils.degToRad(v.orbit + yaw + dragYaw);
+      const turn = v.sway ? Math.sin(yaw / v.sway) * v.sway : yaw;
+      angle = v.orbit + turn + dragYaw;
+      const theta = THREE.MathUtils.degToRad(angle);
       const phi = THREE.MathUtils.degToRad(v.tilt + dragTilt);
       const distance = 9 / v.zoom;
       camera.position.set(
@@ -463,6 +490,7 @@ export default function NParticles({
 
     cycle.start = performance.now() / 1000;
     draw();
+    readyRef.current?.();
 
     return () => {
       cancelAnimationFrame(frame);
@@ -480,8 +508,13 @@ export default function NParticles({
       renderer.dispose();
       renderer.domElement.remove();
       replayRef.current = () => {};
+      assembleRef.current = () => {};
     };
   }, [shape, count, interactive]);
+
+  useEffect(() => {
+    if (assemble) assembleRef.current(assemble.angle);
+  }, [assemble]);
 
   return (
     <div

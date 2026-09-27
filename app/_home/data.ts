@@ -1,4 +1,5 @@
 import { PAINTINGS } from "./paintings";
+import type { AppIconKey } from "./AppIcon";
 
 export type GroupKey =
   "products" | "tools" | "kids" | "books" | "paintings" | "explorations";
@@ -10,6 +11,7 @@ export type Work = {
   sub: string;
   href: string;
   plain?: boolean;
+  icon?: AppIconKey;
   pills: string[];
 };
 
@@ -74,6 +76,7 @@ export const WORKS: Work[] = [
     group: "tools",
     sub: "In the browser",
     href: "/vector-paint",
+    icon: "vectorPaint",
     pills: ["Drawing", "SVG export"],
   },
   {
@@ -81,6 +84,7 @@ export const WORKS: Work[] = [
     group: "tools",
     sub: "In the browser",
     href: "/icon-animator",
+    icon: "iconAnimator",
     pills: ["Animation", "CSS export"],
   },
   {
@@ -88,6 +92,7 @@ export const WORKS: Work[] = [
     group: "tools",
     sub: "In the browser",
     href: "/promptr",
+    icon: "promptr",
     pills: ["Prompt writing"],
   },
   {
@@ -95,6 +100,7 @@ export const WORKS: Work[] = [
     group: "kids",
     sub: "Games",
     href: "https://apps.apple.com/gb/app/tessera-the-triangle-game/id6774786982",
+    icon: "tessera",
     pills: ["Two players", "iOS"],
   },
   {
@@ -103,6 +109,7 @@ export const WORKS: Work[] = [
     sub: "Games",
     href: "/kids-alphabet/",
     plain: true,
+    icon: "kidsAlphabet",
     pills: ["Toddlers"],
   },
   {
@@ -110,6 +117,7 @@ export const WORKS: Work[] = [
     group: "kids",
     sub: "Learning",
     href: "/time-teacher/ybo",
+    icon: "timeTeacher",
     pills: ["Telling the time"],
   },
   {
@@ -117,6 +125,7 @@ export const WORKS: Work[] = [
     group: "kids",
     sub: "Learning",
     href: "/touchtype",
+    icon: "touchtype",
     pills: ["Typing"],
   },
   {

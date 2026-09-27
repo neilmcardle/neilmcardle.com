@@ -22,6 +22,7 @@ export type NSettings = {
   zoom: number;
   autoRotate: boolean;
   rotateSpeed: number;
+  sway?: number;
 };
 
 export const N_DEFAULTS: NSettings = {
