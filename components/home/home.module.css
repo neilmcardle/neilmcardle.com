@@ -1651,16 +1651,64 @@
 
 .cvFan {
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 5 / 4;
   border-radius: 8px;
   background: #c8c8c5;
+  color: #121212;
+}
+
+.cvCrop {
+  position: absolute;
+  inset: 18px;
+  pointer-events: none;
+}
+
+.cvCrop span {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 0 solid currentColor;
+  opacity: 0.45;
+}
+
+.cvCrop span:nth-child(1) {
+  top: 0;
+  left: 0;
+  border-top-width: 1px;
+  border-left-width: 1px;
+  border-top-left-radius: 8px;
+}
+
+.cvCrop span:nth-child(2) {
+  top: 0;
+  right: 0;
+  border-top-width: 1px;
+  border-right-width: 1px;
+  border-top-right-radius: 8px;
+}
+
+.cvCrop span:nth-child(3) {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+  border-bottom-left-radius: 8px;
+}
+
+.cvCrop span:nth-child(4) {
+  right: 0;
+  bottom: 0;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+  border-bottom-right-radius: 8px;
 }
 
 .cvFanCover {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 21%;
+  width: 24%;
+  margin-top: -10px;
   aspect-ratio: 2 / 3;
   border-radius: 3px;
   background-position: center;

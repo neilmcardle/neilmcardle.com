@@ -73,7 +73,7 @@ export default function Home() {
                     className={styles.sub}
                     data-sub={subKey(inSub[0])}
                   >
-                    {MULTI_SUB.has(key) && sub !== "In progress" && (
+                    {MULTI_SUB.has(key) && key !== "products" && (
                       <p className={styles.subTitle}>{sub}</p>
                     )}
                     {key === "products" ? (

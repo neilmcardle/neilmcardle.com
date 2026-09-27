@@ -34,6 +34,39 @@ const FAN = [
   { rotate: 20, x: 124, y: 12 },
 ];
 
+const FAN_COVERS = [
+  {
+    src: "https://images.isbndb.com/covers/6656463482842.jpg",
+    title: "Don't Answer the Phone",
+    author: "Miranda Rijks",
+    color: "#284769",
+  },
+  {
+    src: "https://images.isbndb.com/covers/13742413488667.jpg",
+    title: "Taking Her Life",
+    author: "Alex Johnson",
+    color: "#86776f",
+  },
+  {
+    src: "https://images.isbndb.com/covers/15164463482210.jpg",
+    title: "The Oligarch's Daughter",
+    author: "Joseph Finder",
+    color: "#e42c2c",
+  },
+  {
+    src: "https://images.isbndb.com/covers/22920073488952.jpg",
+    title: "The Handyman",
+    author: "Gabriel Pierce",
+    color: "#e2ba18",
+  },
+  {
+    src: "https://images.isbndb.com/covers/21636873482870.jpg",
+    title: "The Patients",
+    author: "Charlotte Stevenson",
+    color: "#315155",
+  },
+];
+
 const subscribeToNothing = () => () => {};
 
 function thumb(src: string, width: number) {
@@ -154,21 +187,22 @@ function Fan({ moving }: { moving: boolean }) {
   );
   const ref = useRef<HTMLDivElement>(null);
   const { seen } = useSeen(ref);
-  const fan = useMemo(() => {
-    const step = Math.floor(COVERLY_COVERS.length / 5);
-    return [0, 1, 2, 3, 4].map((i) => COVERLY_COVERS[i * step]);
-  }, []);
-
   return (
     <div className={styles.cvFan} ref={ref}>
-      {fan.map((cover, i) => (
+      <span className={styles.cvCrop} aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+      </span>
+      {FAN_COVERS.map((cover, i) => (
         <span
           key={cover.src}
           className={`${styles.cvFanCover} ${dealt && moving ? styles.cvDeal : ""}`}
           role="img"
           aria-label={`${cover.title} by ${cover.author}`}
           style={{
-            backgroundImage: seen ? `url(${thumb(cover.src, 128)})` : undefined,
+            backgroundImage: seen ? `url(${thumb(cover.src, 256)})` : undefined,
             backgroundColor: cover.color,
             transform: `translate(calc(-50% + ${FAN[i].x}%), calc(-50% + ${FAN[i].y}%)) rotate(${FAN[i].rotate}deg)`,
             zIndex: i === 2 ? 3 : i === 1 || i === 3 ? 2 : 1,
@@ -181,7 +215,7 @@ function Fan({ moving }: { moving: boolean }) {
 }
 
 function Views() {
-  const [view, setView] = useState<"grid" | "shelf">("shelf");
+  const [view, setView] = useState<"grid" | "shelf">("grid");
   const ref = useRef<HTMLDivElement>(null);
   const { seen } = useSeen(ref);
   const grid = COVERLY_COVERS.slice(8, 20);

@@ -17,7 +17,6 @@ export const SHOWCASE: Record<string, ShowcaseInfo> = {
     note: "A web-based editor takes a manuscript to a store-ready ebook.",
     label: "makeebook.ink",
     type: "Writing platform",
-    x: "makeebook",
   },
   DoodleWire: {
     mark: "doodlewire",
