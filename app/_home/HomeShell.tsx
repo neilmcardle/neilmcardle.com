@@ -391,6 +391,31 @@ export default function HomeShell({ children }: { children: ReactNode }) {
                 @BetterNeil
               </a>
             </li>
+            <li className={styles.learning}>
+              <a
+                href="https://youtube.com/playlist?list=PLhQjrBD2T383q7Vn8QnTsVgSvyLpsqL_R"
+                className={styles.learningLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Image
+                  className={styles.learningThumb}
+                  src="/home/cs50x.jpg"
+                  alt=""
+                  width={64}
+                  height={40}
+                />
+                <span className={styles.learningCopy}>
+                  <span className={styles.learningLabel}>
+                    Currently listening to
+                  </span>
+                  <span className={styles.learningText}>
+                    Computer Science and the Art of Programming (Harvard)
+                  </span>
+                </span>
+                <span className={styles.srOnly}> (opens in a new tab)</span>
+              </a>
+            </li>
             <li className={styles.trusted}>
               <span className={styles.metaLabel}>Trusted by</span>
             </li>
