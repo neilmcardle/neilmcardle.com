@@ -282,14 +282,6 @@ function ShowcaseMedia({ title }: { title: string }) {
           height={905}
           sizes="(max-width: 960px) 100vw, 600px"
         />
-        <div className={styles.podiumRun}>
-          <span
-            className={styles.podiumBoy}
-            role="img"
-            aria-label="The boy's run cycle"
-          />
-        </div>
-        <p className={styles.caption}>Run cycle, 8 frames at 14 a second</p>
       </>
     );
   if (title === "Coverly") return <CoverlyMocks />;

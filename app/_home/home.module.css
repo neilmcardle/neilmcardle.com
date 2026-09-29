@@ -1188,36 +1188,6 @@
   background: #9a9a98;
 }
 
-.podiumRun {
-  position: relative;
-  display: grid;
-  place-items: end center;
-  height: 220px;
-  overflow: hidden;
-  border-radius: 8px;
-  background: linear-gradient(#f1f1ef, #cfcfcc 78%, #1a1a1a 78%);
-}
-
-.podiumBoy {
-  width: 109px;
-  height: 165px;
-  margin-bottom: 46px;
-  background: url("/home/podium/run.png") 0 0 / 872px 165px no-repeat;
-  animation: podiumRun 571ms steps(8) infinite;
-}
-
-@keyframes podiumRun {
-  to {
-    background-position: -872px 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .podiumBoy {
-    animation: none;
-  }
-}
-
 .what {
   margin: 4px 0 0;
   color: var(--ink);
