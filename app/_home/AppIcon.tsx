@@ -80,7 +80,7 @@ export default function AppIcon({
   className?: string;
 }) {
   return (
-    <span className={className} aria-hidden="true">
+    <span className={className} data-icon={icon} aria-hidden="true">
       <svg
         viewBox="0 0 24 24"
         fill="none"

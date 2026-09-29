@@ -426,8 +426,8 @@ function Demo() {
           <a className={styles.handle} href="https://x.com/ridd_design">
             @ridd_design
           </a>
-          , 24 September 2026. Describe the interface you want and it&rsquo;s
-          built while you watch.
+          , 24 September 2026, showing one more of the ever evolving use cases
+          of Jev.
         </p>
         <video
           className={styles.film}

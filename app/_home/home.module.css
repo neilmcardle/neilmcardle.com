@@ -778,9 +778,48 @@
   }
 }
 
-.rowLink:hover .appIcon,
 .rowLink:hover .pillTag {
   background: var(--pill-hover);
+}
+
+.appIcon[data-icon] {
+  color: #ffffff;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.28),
+    inset 0 -1px 0 rgb(0 0 0 / 0.08);
+  transition: transform 200ms var(--ease);
+}
+
+.rowLink:hover .appIcon[data-icon] {
+  transform: translateY(-1px);
+}
+
+.appIcon[data-icon="vectorPaint"] {
+  background: linear-gradient(145deg, #ff9a76 0%, #e6457a 100%);
+}
+
+.appIcon[data-icon="iconAnimator"] {
+  background: linear-gradient(145deg, #a78bfa 0%, #5b4bdb 100%);
+}
+
+.appIcon[data-icon="promptr"] {
+  background: linear-gradient(145deg, #2fd98a 0%, #1f6fd1 100%);
+}
+
+.appIcon[data-icon="tessera"] {
+  background: linear-gradient(145deg, #8fe36a 0%, #11998e 100%);
+}
+
+.appIcon[data-icon="kidsAlphabet"] {
+  background: linear-gradient(145deg, #ffd23f 0%, #f0661a 100%);
+}
+
+.appIcon[data-icon="timeTeacher"] {
+  background: linear-gradient(145deg, #ffa45c 0%, #e02b3c 100%);
+}
+
+.appIcon[data-icon="touchtype"] {
+  background: linear-gradient(145deg, #58e0f0 0%, #2f5be0 100%);
 }
 
 .replay .rowItem {
