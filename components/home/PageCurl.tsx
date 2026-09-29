@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import CurlMind from "./CurlMind";
+import ParticleMind from "./ParticleMind";
 import styles from "./home.module.css";
 
 export default function PageCurl() {
@@ -34,17 +34,17 @@ export default function PageCurl() {
       className={styles.curl}
       data-open={open ? "true" : undefined}
       aria-expanded={open}
-      aria-label={open ? "neilOS coming soon" : "Peek under the page"}
+      aria-label={open ? "nOS coming soon" : "Peek under the page"}
       onClick={() => setOpen((value) => !value)}
     >
       <span className={styles.curlUnder}>
         {open && (
           <span className={styles.curlMascot}>
-            <CurlMind />
+            <ParticleMind />
           </span>
         )}
         <span className={styles.curlNote} aria-hidden="true">
-          neilOS coming soon…
+          nOS coming soon…
         </span>
       </span>
       <span className={styles.curlFlap}>

@@ -1,4 +1,4 @@
-export type Shape = "n" | "coin";
+export type Shape = "n" | "coin" | "mind";
 
 export type NSettings = {
   loop: boolean;
@@ -23,6 +23,7 @@ export type NSettings = {
   autoRotate: boolean;
   rotateSpeed: number;
   sway?: number;
+  follow?: number;
 };
 
 export const N_DEFAULTS: NSettings = {

@@ -27,6 +27,8 @@ import styles from "./home.module.css";
 const poster = (src: string) =>
   getImageProps({ src, alt: "", width: 600, height: 338 }).props.src;
 
+const SPEAKUI_URL = process.env.SPEAKUI_ORIGIN ? "/speakui" : "";
+
 const POSTERS = {
   makeebook: poster("/home/makeebook-promo.jpg"),
   spark: poster("/home/spark-promo.jpg"),
@@ -412,11 +414,11 @@ function Demo() {
       data-group="demo"
     >
       <h3 id="home-demo" className={styles.groupTitle}>
-        Speak UI Demo on Dive Radio
+        speakUI Demo on Dive Radio
       </h3>
       <article className={styles.showcase}>
         <p className={styles.demoNote}>
-          A demo I recorded of Speak UI, played on Dive Radio with{" "}
+          A demo I recorded of speakUI, played on Dive Radio with{" "}
           <a className={styles.handle} href="https://x.com/designertom">
             @designertom
           </a>{" "}
@@ -437,6 +439,18 @@ function Demo() {
           preload="none"
         />
         <p className={styles.caption}>Episode: Just-in-Time Interfaces</p>
+        {SPEAKUI_URL ? (
+          <a
+            className={styles.tryPill}
+            href={SPEAKUI_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Try speakUI for yourself
+            <ExternalIcon className={styles.external} />
+            <span className={styles.srOnly}> (opens in a new tab)</span>
+          </a>
+        ) : null}
       </article>
     </section>
   );

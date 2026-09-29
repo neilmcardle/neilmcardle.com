@@ -308,6 +308,41 @@
   transform: translateY(0);
 }
 
+.tryPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  width: fit-content;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font: 500 0.9375rem / 1 var(--ui);
+  text-decoration: none;
+  box-shadow:
+    inset 0 0 0 1px var(--line),
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 8px 16px rgba(0, 0, 0, 0.05);
+  transition:
+    transform 200ms var(--ease),
+    box-shadow 200ms var(--ease);
+}
+
+.tryPill:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px #c9c3bc,
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+.tryPill:hover .external {
+  color: var(--ink);
+  transform: translate(1px, -1px);
+}
+
 .xPill {
   grid-area: x;
   justify-self: end;
@@ -827,7 +862,6 @@
   list-style: none;
 }
 
-.metaItem,
 .client,
 .emailItem {
   display: flex;
@@ -863,10 +897,77 @@
   height: 28px;
 }
 
-.metaValue {
-  color: var(--muted-bone);
-  font-size: 0.9375rem;
-  font-variant-numeric: tabular-nums;
+.trusted {
+  flex-basis: 100%;
+  margin-bottom: -14px;
+}
+
+.trusted .metaLabel {
+  color: #b3ada5;
+}
+
+.clientButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: default;
+}
+
+.clientButton:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.clientTip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--bone);
+  font: 500 0.75rem / 1 var(--ui);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -4px);
+  transition:
+    opacity 160ms var(--ease),
+    transform 160ms var(--ease);
+  pointer-events: none;
+}
+
+.clientButton:focus-visible .clientTip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (hover: hover) {
+  .clientButton:hover .clientTip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (max-width: 959px) {
+  .client {
+    margin-bottom: 20px;
+  }
+}
+
+@media (hover: none) {
+  .clientButton {
+    cursor: pointer;
+  }
+
+  .clientButton[data-open] .clientTip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 .clientLogo {
@@ -874,7 +975,7 @@
   width: auto;
   max-width: 100%;
   filter: brightness(0);
-  opacity: 0.5;
+  opacity: 0.26;
 }
 
 .root :is(a, button) {

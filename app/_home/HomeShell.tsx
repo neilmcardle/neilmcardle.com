@@ -41,6 +41,7 @@ export default function HomeShell({ children }: { children: ReactNode }) {
     );
   }, [replay]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openClient, setOpenClient] = useState<string | null>(null);
   const [menuClosing, setMenuClosing] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchClosing, setSearchClosing] = useState(false);
@@ -263,6 +264,25 @@ export default function HomeShell({ children }: { children: ReactNode }) {
     indexRefs.current[target]?.focus();
   };
 
+  useEffect(() => {
+    if (!openClient) return;
+    const close = (event: PointerEvent | KeyboardEvent) => {
+      if (event instanceof KeyboardEvent && event.key !== "Escape") return;
+      if (
+        event instanceof PointerEvent &&
+        (event.target as Element).closest?.(`.${styles.clientButton}`)
+      )
+        return;
+      setOpenClient(null);
+    };
+    window.addEventListener("pointerdown", close);
+    window.addEventListener("keydown", close);
+    return () => {
+      window.removeEventListener("pointerdown", close);
+      window.removeEventListener("keydown", close);
+    };
+  }, [openClient]);
+
   return (
     <div
       className={styles.root}
@@ -354,9 +374,6 @@ export default function HomeShell({ children }: { children: ReactNode }) {
           </nav>
 
           <ul className={styles.meta}>
-            <li className={styles.metaItem}>
-              <LondonClock />
-            </li>
             <li className={styles.emailItem}>
               <span className={styles.metaLabel}>Email</span>
               <a href={`mailto:${EMAIL}`} className={styles.emailLink}>
@@ -374,21 +391,39 @@ export default function HomeShell({ children }: { children: ReactNode }) {
                 @BetterNeil
               </a>
             </li>
-            {CLIENTS.map((client) => (
-              <li key={client.name} className={styles.client}>
-                <span className={styles.metaLabel}>{client.role}</span>
-                <span className={styles.metaSlot}>
-                  <img
-                    className={styles.clientLogo}
-                    src={client.logo}
-                    alt={client.name}
-                    width={Math.round(client.height * client.ratio)}
-                    height={client.height}
-                    style={{ height: client.height }}
-                  />
-                </span>
-              </li>
-            ))}
+            <li className={styles.trusted}>
+              <span className={styles.metaLabel}>Trusted by</span>
+            </li>
+            {CLIENTS.map((client) => {
+              const tip = `client-${slug(client.name)}`;
+              return (
+                <li key={client.name} className={styles.client}>
+                  <button
+                    type="button"
+                    className={styles.clientButton}
+                    aria-describedby={tip}
+                    data-open={openClient === client.name || undefined}
+                    onClick={() =>
+                      setOpenClient((current) =>
+                        current === client.name ? null : client.name,
+                      )
+                    }
+                  >
+                    <img
+                      className={styles.clientLogo}
+                      src={client.logo}
+                      alt={client.name}
+                      width={Math.round(client.height * client.ratio)}
+                      height={client.height}
+                      style={{ height: client.height }}
+                    />
+                    <span id={tip} role="tooltip" className={styles.clientTip}>
+                      {client.role}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </div>
 
@@ -549,45 +584,6 @@ function EmailPill() {
         {copied ? "Email copied" : ""}
       </span>
     </button>
-  );
-}
-
-function LondonClock() {
-  const [now, setNow] = useState<{ h: number; m: number } | null>(null);
-
-  useEffect(() => {
-    const format = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Europe/London",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-    });
-    const read = () => {
-      const parts = format.formatToParts(new Date());
-      setNow({
-        h: Number(parts.find((part) => part.type === "hour")?.value ?? 0),
-        m: Number(parts.find((part) => part.type === "minute")?.value ?? 0),
-      });
-    };
-    read();
-    const id = window.setInterval(read, 15000);
-    return () => window.clearInterval(id);
-  }, []);
-
-  const label = now
-    ? `${String(now.h).padStart(2, "0")}:${String(now.m).padStart(2, "0")}`
-    : "00:00";
-
-  return (
-    <>
-      <span className={styles.metaLabel}>London</span>
-      <span
-        className={`${styles.metaSlot} ${styles.metaValue}`}
-        style={now ? undefined : { visibility: "hidden" }}
-      >
-        {label}
-      </span>
-    </>
   );
 }
 

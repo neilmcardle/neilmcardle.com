@@ -158,10 +158,51 @@ function tile() {
   return geometry;
 }
 
+const EYES = [
+  { x: -0.3, y: 0.2 },
+  { x: 0.3, y: 0.2 },
+];
+
+function onFace(point: THREE.Vector3, x: number, y: number) {
+  const z = Math.sqrt(Math.max(0, 1 - x * x - y * y));
+  point.set(x * 1.05 + 0.3, y * 1.05, z * 1.05);
+}
+
+function mind(point: THREE.Vector3) {
+  const pick = Math.random();
+  const eye = EYES[Math.random() < 0.5 ? 0 : 1];
+  if (pick < 0.16) {
+    const t = Math.random() * Math.PI * 2;
+    const k = 1 + Math.random() * 0.1;
+    onFace(
+      point,
+      eye.x + Math.cos(t) * 0.16 * k,
+      eye.y + Math.sin(t) * 0.27 * k,
+    );
+    return;
+  }
+  for (;;) {
+    const z = -0.15 + Math.random() * 1.15;
+    const a = Math.random() * Math.PI * 2;
+    const r = Math.sqrt(1 - z * z);
+    const x = r * Math.cos(a);
+    const y = r * Math.sin(a);
+    const inEye = EYES.some(
+      (e) => ((x - e.x) / 0.16) ** 2 + ((y - e.y) / 0.27) ** 2 < 1,
+    );
+    if (z > 0 && inEye) continue;
+    const radius = 1.05 * (1 - Math.random() * 0.03);
+    point.set(x * radius + 0.3, y * radius, z * radius);
+    return;
+  }
+}
+
 function sample(shape: Shape, count: number) {
-  const n = glyph();
-  const source = shape === "coin" ? mergeGeometries([n, tile()]) : n;
-  const sampler = new MeshSurfaceSampler(new THREE.Mesh(source)).build();
+  const n = shape === "mind" ? null : glyph();
+  const source = n && shape === "coin" ? mergeGeometries([n, tile()]) : n;
+  const sampler = source
+    ? new MeshSurfaceSampler(new THREE.Mesh(source)).build()
+    : null;
   const point = new THREE.Vector3();
   const home = new Float32Array(count * 3);
   const seed = new Float32Array(count * 3);
@@ -169,7 +210,8 @@ function sample(shape: Shape, count: number) {
   let minX = Infinity;
   let maxX = -Infinity;
   for (let i = 0; i < count; i += 1) {
-    sampler.sample(point);
+    if (sampler) sampler.sample(point);
+    else mind(point);
     home.set([point.x, point.y, point.z], i * 3);
     minX = Math.min(minX, point.x);
     maxX = Math.max(maxX, point.x);
@@ -183,8 +225,8 @@ function sample(shape: Shape, count: number) {
     );
     rnd[i] = Math.random();
   }
-  source.dispose();
-  n.dispose();
+  source?.dispose();
+  n?.dispose();
   return { home, seed, rnd, minX, maxX };
 }
 
@@ -356,6 +398,10 @@ export default function NParticles({
     let angle = 0;
     let dragYaw = 0;
     let dragTilt = 0;
+    let lookYaw = 0;
+    let lookPitch = 0;
+    let lookX = 0;
+    let lookY = 0;
     let dragging = false;
     let lastX = 0;
     let lastY = 0;
@@ -400,6 +446,18 @@ export default function NParticles({
     const onUp = () => {
       dragging = false;
     };
+    const onLook = (event: PointerEvent) => {
+      const box = stage.getBoundingClientRect();
+      lookX = Math.max(
+        -1,
+        Math.min(1, (event.clientX - (box.left + box.width / 2)) / 400),
+      );
+      lookY = Math.max(
+        -1,
+        Math.min(1, (event.clientY - (box.top + box.height / 2)) / 300),
+      );
+    };
+    if (!reduced) window.addEventListener("pointermove", onLook);
     if (interactive) {
       renderer.domElement.addEventListener("pointerdown", onDown);
       window.addEventListener("pointermove", onMove);
@@ -461,9 +519,13 @@ export default function NParticles({
       if (v.autoRotate && !reduced && !dragging)
         yaw += delta * v.rotateSpeed * 20;
       const turn = v.sway ? Math.sin(yaw / v.sway) * v.sway : yaw;
-      angle = v.orbit + turn + dragYaw;
+      const follow = v.follow ?? 0;
+      const settle = Math.min(1, delta * 5);
+      lookYaw += (lookX * follow - lookYaw) * settle;
+      lookPitch += (lookY * follow * 0.6 - lookPitch) * settle;
+      angle = v.orbit + turn + dragYaw - lookYaw;
       const theta = THREE.MathUtils.degToRad(angle);
-      const phi = THREE.MathUtils.degToRad(v.tilt + dragTilt);
+      const phi = THREE.MathUtils.degToRad(v.tilt + dragTilt + lookPitch);
       const distance = 9 / v.zoom;
       camera.position.set(
         Math.sin(theta) * Math.cos(phi) * distance,
@@ -498,6 +560,7 @@ export default function NParticles({
       sizer.disconnect();
       renderer.domElement.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointermove", onLook);
       window.removeEventListener("pointerup", onUp);
       geometry.points.dispose();
       geometry.lines.dispose();

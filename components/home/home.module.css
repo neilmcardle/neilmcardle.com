@@ -1902,11 +1902,17 @@
 
 .curlMascot {
   position: absolute;
-  left: 9px;
+  left: 8px;
   bottom: 24px;
-  width: 34px;
-  height: 34px;
-  animation: curlMascotIn 420ms cubic-bezier(0.34, 1.36, 0.64, 1) 240ms both;
+  width: 40px;
+  height: 40px;
+}
+
+.particleMind {
+  position: absolute;
+  inset: -12px;
+  mask-image: radial-gradient(closest-side, #000 70%, transparent 100%);
+  -webkit-mask-image: radial-gradient(closest-side, #000 70%, transparent 100%);
 }
 
 .curlMind {
