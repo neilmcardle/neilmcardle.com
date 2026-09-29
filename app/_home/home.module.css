@@ -1139,6 +1139,19 @@
   height: 14px;
 }
 
+.imageMark {
+  flex: none;
+  height: 26px;
+  aspect-ratio: 114 / 295;
+  background: var(--ink);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+}
+
 .visit {
   display: inline-flex;
   align-items: center;
@@ -1167,15 +1180,22 @@
   object-fit: cover;
 }
 
-.podiumLogo {
+.podiumFilm {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.podiumEnd {
+  position: absolute;
+  inset: 0;
   display: grid;
   place-items: center;
-  aspect-ratio: 16 / 9;
   border-radius: 8px;
   background: #000;
 }
 
-.podiumLogo img {
+.podiumEnd img {
   width: 44%;
   height: auto;
 }

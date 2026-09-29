@@ -2,6 +2,7 @@ import type { MarkKey } from "./ProductMark";
 
 export type ShowcaseInfo = {
   mark?: MarkKey;
+  markImage?: string;
   what: string;
   note: string;
   label?: string;
@@ -41,8 +42,9 @@ export const SHOWCASE: Record<string, ShowcaseInfo> = {
     status: "In progress",
   },
   Podium: {
-    what: "A boy in a blue hoodie, alone on a London housing estate.",
-    note: "A wordless puzzle-platformer set on Middlesex Street Estate, E1. Made in Godot.",
+    markImage: "/home/podium/mark.png",
+    what: "You’re a boy in a blue hoodie, alone on a London housing estate.",
+    note: "An atmospheric puzzle-platformer with independent game developers Missing Cog.",
     type: "Indie game",
     status: "In development",
   },

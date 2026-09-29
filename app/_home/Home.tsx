@@ -6,6 +6,7 @@ import MakeEbookMocks from "@/components/home/MakeEbookMocks";
 import AppIcon from "./AppIcon";
 import ExplorationPreview from "./ExplorationPreview";
 import HomeShell from "./HomeShell";
+import PodiumFilm from "./PodiumFilm";
 import ProductMark from "./ProductMark";
 import SparkIntro from "./SparkIntro";
 import { PAINTINGS } from "./paintings";
@@ -30,6 +31,7 @@ const POSTERS = {
   makeebook: poster("/home/makeebook-promo.jpg"),
   spark: poster("/home/spark-promo.jpg"),
   diveRadio: poster("/home/dive-radio-jit.jpg"),
+  podium: poster("/home/podium/film-poster.jpg"),
 };
 
 export default function Home() {
@@ -257,15 +259,7 @@ function ShowcaseMedia({ title }: { title: string }) {
   if (title === "Podium")
     return (
       <>
-        <div className={styles.podiumLogo}>
-          <Image
-            src="/home/podium/logo.png"
-            alt="Podium"
-            width={624}
-            height={306}
-            sizes="(max-width: 600px) 50vw, 260px"
-          />
-        </div>
+        <PodiumFilm poster={POSTERS.podium} />
         <Image
           className={styles.podiumArt}
           src="/home/podium/keyart.jpg"
@@ -306,8 +300,18 @@ function Showcase({ work }: { work: Work }) {
             <span translate="no">{work.title}</span>
           </a>
         ) : (
-          <h4 className={styles.showcaseName} translate="no">
-            {work.title}
+          <h4 className={styles.showcaseName}>
+            {info.markImage ? (
+              <span
+                className={styles.imageMark}
+                style={{
+                  maskImage: `url(${info.markImage})`,
+                  WebkitMaskImage: `url(${info.markImage})`,
+                }}
+                aria-hidden="true"
+              />
+            ) : null}
+            <span translate="no">{work.title}</span>
           </h4>
         )}
         {work.href && info.label ? (
