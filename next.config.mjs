@@ -49,9 +49,19 @@ const nextConfig = {
     return config;
   },
   async rewrites() {
+    const speakui = process.env.SPEAKUI_ORIGIN;
     return [
       { source: "/kids-alphabet", destination: "/kids-alphabet/index.html" },
       { source: "/kids-alphabet/", destination: "/kids-alphabet/index.html" },
+      ...(speakui
+        ? [
+            { source: "/speakui", destination: `${speakui}/speakui` },
+            {
+              source: "/speakui/:path+",
+              destination: `${speakui}/speakui/:path+`,
+            },
+          ]
+        : []),
     ];
   },
   async redirects() {

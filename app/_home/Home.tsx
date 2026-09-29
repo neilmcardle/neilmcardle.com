@@ -438,19 +438,21 @@ function Demo() {
           playsInline
           preload="none"
         />
-        <p className={styles.caption}>Episode: Just-in-Time Interfaces</p>
-        {SPEAKUI_URL ? (
-          <a
-            className={styles.tryPill}
-            href={SPEAKUI_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Try speakUI for yourself
-            <ExternalIcon className={styles.external} />
-            <span className={styles.srOnly}> (opens in a new tab)</span>
-          </a>
-        ) : null}
+        <div className={styles.demoFoot}>
+          {SPEAKUI_URL ? (
+            <a
+              className={styles.visit}
+              href={SPEAKUI_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Try speakUI for yourself
+              <ExternalIcon className={styles.external} />
+              <span className={styles.srOnly}> (opens in a new tab)</span>
+            </a>
+          ) : null}
+          <p className={styles.caption}>Episode: Just-in-Time Interfaces</p>
+        </div>
       </article>
     </section>
   );

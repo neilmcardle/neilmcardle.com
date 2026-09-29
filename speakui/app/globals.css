@@ -1,0 +1,555 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* App chrome: the light theme of neilmcardle.com (warm paper, ink, ochre). */
+  --background: #fbf9f3;
+  --foreground: #14120e;
+  --card: #fdfcf8;
+  --card-foreground: #14120e;
+  --popover: #fdfcf8;
+  --popover-foreground: #14120e;
+  --primary: #14120e;
+  --primary-foreground: #fbf9f3;
+  --secondary: rgb(20 18 14 / 0.05);
+  --secondary-foreground: #14120e;
+  --muted: rgb(20 18 14 / 0.04);
+  --muted-foreground: #6b6254;
+  --accent: rgb(20 18 14 / 0.06);
+  --accent-foreground: #14120e;
+  --destructive: oklch(0.52 0.19 27);
+  --border: rgb(20 18 14 / 0.1);
+  --input: rgb(20 18 14 / 0.14);
+  --ring: #86621b;
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: #fbf9f3;
+  --sidebar-foreground: #14120e;
+  --sidebar-primary: #14120e;
+  --sidebar-primary-foreground: #fbf9f3;
+  --sidebar-accent: rgb(20 18 14 / 0.06);
+  --sidebar-accent-foreground: #14120e;
+  --sidebar-border: rgb(20 18 14 / 0.1);
+  --sidebar-ring: #86621b;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+/* ---- speakui chrome ---- */
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-subtle: var(--subtle);
+  --color-ochre: var(--ochre);
+  --color-ochre-strong: var(--ochre-strong);
+  --color-hairline: var(--hairline);
+  --color-edge: var(--glass-edge);
+  --animate-flash: flash 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-rise: rise 240ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  @keyframes flash {
+    0% {
+      box-shadow: 0 0 0 4px rgb(134 98 27 / 0.35);
+      background-color: rgb(134 98 27 / 0.07);
+    }
+    100% {
+      box-shadow: 0 0 0 4px rgb(134 98 27 / 0);
+      background-color: rgb(134 98 27 / 0);
+    }
+  }
+
+  @keyframes slide {
+    from {
+      left: -35%;
+    }
+    to {
+      left: 100%;
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+:root {
+  --paper: #fbf9f3;
+  --ink: #14120e;
+  --ink-rgb: 20 18 14;
+  --subtle: #6b6254;
+  --ochre: #86621b;
+  --ochre-strong: #5f4512;
+  --hairline: rgb(20 18 14 / 0.08);
+  --glass-edge: rgb(20 18 14 / 0.14);
+  --glass: rgb(255 255 255 / 0.5);
+  --dock: rgb(255 255 255 / 0.62);
+  --sheet: rgb(255 255 255 / 0.55);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  letter-spacing: -0.006em;
+}
+
+::selection {
+  background: rgb(134 98 27 / 0.2);
+}
+
+/* The canvas: paper with the site's ink dot matrix, fading toward the bottom. */
+.canvas-ground {
+  background-color: var(--paper);
+  position: relative;
+}
+.canvas-ground::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url(/speakui/dot-matrix-ink.svg);
+  background-size: 6px 6px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 80% 70% at 50% 40%,
+    #000 0%,
+    rgb(0 0 0 / 0.55) 55%,
+    rgb(0 0 0 / 0.15) 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 80% 70% at 50% 40%,
+    #000 0%,
+    rgb(0 0 0 / 0.55) 55%,
+    rgb(0 0 0 / 0.15) 100%
+  );
+}
+
+/* Frosted surfaces, as on neilmcardle.com in light mode. */
+.glass-sheet {
+  border: 1px solid var(--glass-edge);
+  background: var(--sheet);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  backdrop-filter: blur(28px) saturate(1.6);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    0 24px 64px rgb(20 18 14 / 0.12);
+}
+.glass-dock {
+  border: 1px solid var(--glass-edge);
+  background: var(--dock);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: 0 16px 40px rgb(20 18 14 / 0.12);
+}
+
+/* Small labels: section names, steps, totals. Sentence case, never caps:
+   the tool's chrome stays quiet so the design being edited can be anything. */
+.eyebrow {
+  color: var(--subtle);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: -0.002em;
+}
+
+/* Pill controls, after makeEbook's studio: 28px, Inter 12/500. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(20 18 14 / 0.82);
+  font:
+    500 12px/1 var(--font-inter),
+    system-ui,
+    sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease),
+    background-color 160ms var(--ease),
+    color 160ms var(--ease);
+}
+.pill:hover {
+  border-color: rgb(20 18 14 / 0.32);
+  color: var(--ink);
+}
+.pill:disabled {
+  opacity: 0.4;
+  cursor: default;
+  border-color: var(--glass-edge);
+}
+/* A pill whose label can run to two lines (the empty state's examples). */
+.pill-wrap {
+  height: auto;
+  min-height: 32px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  text-align: left;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.pill-ghost {
+  border-color: transparent;
+}
+.pill-ghost:hover {
+  border-color: transparent;
+  background: rgb(20 18 14 / 0.06);
+}
+.pill-ghost:disabled:hover {
+  background: transparent;
+}
+/* Primary: inverted ink, the way makeEbook marks the active thing. */
+.pill-ink {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+}
+.pill-ink:hover {
+  border-color: #2b2720;
+  background: #2b2720;
+  color: var(--paper);
+}
+.pill-ink:disabled {
+  border-color: rgb(20 18 14 / 0.12);
+  background: rgb(20 18 14 / 0.12);
+  color: rgb(20 18 14 / 0.5);
+  opacity: 1;
+}
+.pill[aria-pressed="true"] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Segmented control: the pressed item is an inverted ink pill. */
+.seg {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 999px;
+  background: rgb(20 18 14 / 0.06);
+}
+.seg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--subtle);
+  font:
+    500 12px/1 var(--font-inter),
+    system-ui,
+    sans-serif;
+  cursor: pointer;
+  transition:
+    background-color 160ms var(--ease),
+    color 160ms var(--ease);
+}
+.seg-item:hover {
+  color: var(--ink);
+}
+.seg-item[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Focus: the site's ochre ring. */
+.pill:focus-visible,
+.seg-item:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--ochre);
+  outline-offset: 2px;
+}
+
+/* The design being edited keeps stock shadcn tokens, never the tool's palette. */
+.design-scope {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  letter-spacing: normal;
+  color: var(--foreground);
+}
+
+/* ---- Hero stage (the design being edited, not the tool) ---- */
+
+.hero-stage {
+  background: #fbfaf7;
+  color: #14120e;
+  isolation: isolate;
+}
+.hero-stage.hero-dark {
+  background: #0b0b0d;
+  color: #fafafa;
+}
+/* Dark heroes get shadcn's dark tokens, scoped to the design only. */
+.design-scope.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+}
+
+.hero-bg {
+  pointer-events: none;
+  opacity: var(--hero-intensity, 0.6);
+  z-index: 0;
+}
+.hero-bg-solid {
+  display: none;
+}
+
+/* Aurora: three accent-derived colours drifting slowly. */
+.hero-bg-aurora {
+  inset: -20%;
+  background:
+    radial-gradient(
+      40% 55% at 70% 60%,
+      oklch(from var(--hero-accent) calc(l + 0.1) c calc(h + 70) / 0.9),
+      transparent 70%
+    ),
+    radial-gradient(
+      35% 50% at 55% 40%,
+      oklch(from var(--hero-accent) l c h / 0.9),
+      transparent 70%
+    ),
+    radial-gradient(
+      45% 60% at 85% 30%,
+      oklch(from var(--hero-accent) calc(l + 0.05) c calc(h - 60) / 0.8),
+      transparent 70%
+    );
+  filter: blur(40px) saturate(1.2);
+  animation: aurora 22s ease-in-out infinite alternate;
+}
+@keyframes aurora {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(-6%, 4%, 0) rotate(8deg) scale(1.08);
+  }
+  100% {
+    transform: translate3d(4%, -3%, 0) rotate(-6deg) scale(1.02);
+  }
+}
+
+/* Mesh: soft static blobs. */
+.hero-bg-mesh {
+  background:
+    radial-gradient(
+      45% 60% at 15% 20%,
+      oklch(
+        from var(--hero-accent) calc(l + 0.2) calc(c * 0.7) calc(h + 40) / 0.75
+      ),
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 55% at 85% 25%,
+      oklch(from var(--hero-accent) calc(l + 0.15) c h / 0.7),
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 60% at 60% 95%,
+      oklch(
+        from var(--hero-accent) calc(l + 0.25) calc(c * 0.6) calc(h - 50) / 0.7
+      ),
+      transparent 70%
+    );
+  filter: blur(20px);
+}
+
+/* Glow: one spotlight behind the headline. */
+.hero-bg-glow {
+  background: radial-gradient(
+    55% 45% at 50% 0%,
+    oklch(from var(--hero-accent) l c h / 0.85),
+    transparent 72%
+  );
+}
+
+/* Dots and grid: fine patterns that fade out toward the edges. */
+.hero-bg-dots,
+.hero-bg-grid {
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 65% at 50% 40%,
+    #000 0%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 65% at 50% 40%,
+    #000 0%,
+    transparent 100%
+  );
+}
+.hero-bg-dots {
+  background-image: radial-gradient(currentColor 1px, transparent 1.2px);
+  background-size: 18px 18px;
+  color: oklch(from var(--hero-accent) l c h / 0.7);
+}
+.hero-bg-grid {
+  background-image:
+    linear-gradient(
+      to right,
+      oklch(from var(--hero-accent) l c h / 0.35) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      oklch(from var(--hero-accent) l c h / 0.35) 1px,
+      transparent 1px
+    );
+  background-size: 44px 44px;
+}
+
+/* Frosted dock for icon buttons, after neilmcardle.com. */
+.hero-dock {
+  border: 1px solid rgb(20 18 14 / 0.1);
+  background: rgb(255 255 255 / 0.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.12);
+}
+.hero-dark .hero-dock {
+  border-color: rgb(255 255 255 / 0.12);
+  background: rgb(20 20 24 / 0.55);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}

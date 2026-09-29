@@ -12,6 +12,7 @@ const config = [
       "**/dist/**",
       "**/.next/**",
       "ios/**",
+      "speakui/**",
       "android/**",
       "coverage/**",
       "public/**",
