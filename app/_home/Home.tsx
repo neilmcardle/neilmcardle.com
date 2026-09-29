@@ -254,6 +254,44 @@ function ShowcaseMedia({ title }: { title: string }) {
         />
       </>
     );
+  if (title === "Podium")
+    return (
+      <>
+        <div className={styles.podiumLogo}>
+          <Image
+            src="/home/podium/logo.png"
+            alt="Podium"
+            width={624}
+            height={306}
+            sizes="(max-width: 600px) 50vw, 260px"
+          />
+        </div>
+        <Image
+          className={styles.podiumArt}
+          src="/home/podium/keyart.jpg"
+          alt="The boy in a blue hoodie on the rain-soaked podium deck, Petticoat Tower lost in the mist above him"
+          width={1600}
+          height={1280}
+          sizes="(max-width: 960px) 100vw, 600px"
+        />
+        <Image
+          className={styles.podiumArt}
+          src="/home/podium/tower.jpg"
+          alt="The boy alone on the deck below Petticoat Tower, the City's towers in the fog behind"
+          width={1600}
+          height={905}
+          sizes="(max-width: 960px) 100vw, 600px"
+        />
+        <div className={styles.podiumRun}>
+          <span
+            className={styles.podiumBoy}
+            role="img"
+            aria-label="The boy's run cycle"
+          />
+        </div>
+        <p className={styles.caption}>Run cycle, 8 frames at 14 a second</p>
+      </>
+    );
   if (title === "Coverly") return <CoverlyMocks />;
   if (title === "DoodleWire") return <DoodleWireShots />;
   return null;
@@ -268,14 +306,24 @@ function Showcase({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <a className={styles.showcaseName} href={work.href} {...linkProps}>
-          <ProductMark mark={info.mark} className={styles.productMark} />
-          <span translate="no">{work.title}</span>
-        </a>
-        <a className={styles.visit} href={work.href} {...linkProps}>
-          {appStore(work.href) && <AppleIcon className={styles.apple} />}
-          {info.label}
-        </a>
+        {work.href ? (
+          <a className={styles.showcaseName} href={work.href} {...linkProps}>
+            {info.mark ? (
+              <ProductMark mark={info.mark} className={styles.productMark} />
+            ) : null}
+            <span translate="no">{work.title}</span>
+          </a>
+        ) : (
+          <h4 className={styles.showcaseName} translate="no">
+            {work.title}
+          </h4>
+        )}
+        {work.href && info.label ? (
+          <a className={styles.visit} href={work.href} {...linkProps}>
+            {appStore(work.href) && <AppleIcon className={styles.apple} />}
+            {info.label}
+          </a>
+        ) : null}
       </div>
       <p className={styles.what}>{info.what}</p>
       <p className={styles.note}>{info.note}</p>

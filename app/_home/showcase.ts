@@ -1,10 +1,10 @@
 import type { MarkKey } from "./ProductMark";
 
 export type ShowcaseInfo = {
-  mark: MarkKey;
+  mark?: MarkKey;
   what: string;
   note: string;
-  label: string;
+  label?: string;
   type: string;
   status?: string;
   x?: string;
@@ -39,5 +39,11 @@ export const SHOWCASE: Record<string, ShowcaseInfo> = {
     label: "Visit",
     type: "Learning platform",
     status: "In progress",
+  },
+  Podium: {
+    what: "A boy in a blue hoodie, alone on a London housing estate.",
+    note: "A wordless puzzle-platformer set on Middlesex Street Estate, E1. Made in Godot.",
+    type: "Indie game",
+    status: "In development",
   },
 };

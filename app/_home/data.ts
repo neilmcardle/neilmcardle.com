@@ -72,6 +72,13 @@ export const WORKS: Work[] = [
     pills: ["Learning platform", "Web"],
   },
   {
+    title: "Podium",
+    group: "products",
+    sub: "In progress",
+    href: "",
+    pills: ["Indie game", "Godot"],
+  },
+  {
     title: "Vector Paint",
     group: "tools",
     sub: "In the browser",
