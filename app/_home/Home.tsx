@@ -443,7 +443,7 @@ function Demo() {
       data-group="demo"
     >
       <h3 id="home-demo" className={styles.groupTitle}>
-        speakUI Demo on Dive Radio
+        SpeakUI Demo on Dive Radio
       </h3>
       <article className={styles.showcase}>
         <p className={styles.demoNote}>

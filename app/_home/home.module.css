@@ -979,10 +979,54 @@
 
 .learningText {
   font-size: 0.8125rem;
-  text-decoration: underline;
-  text-decoration-color: rgb(0 0 0 / 0.14);
-  text-underline-offset: 4px;
-  text-decoration-thickness: 1px;
+}
+
+.tickerCopy {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .learningCopy {
+    min-width: 0;
+  }
+
+  .learningText {
+    display: block;
+    max-width: 220px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .learningLink:hover .learningText {
+      text-overflow: clip;
+      mask-image: linear-gradient(
+        90deg,
+        transparent,
+        #000 8%,
+        #000 92%,
+        transparent
+      );
+    }
+
+    .learningLink:hover .ticker {
+      display: inline-block;
+      animation: ticker 9s linear infinite;
+    }
+
+    .learningLink:hover .tickerPart,
+    .learningLink:hover .tickerCopy {
+      display: inline-block;
+      padding-right: 3em;
+    }
+  }
+}
+
+@keyframes ticker {
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .learningThumb {

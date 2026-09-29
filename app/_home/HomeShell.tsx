@@ -410,7 +410,14 @@ export default function HomeShell({ children }: { children: ReactNode }) {
                     Currently listening to
                   </span>
                   <span className={styles.learningText}>
-                    Computer Science and the Art of Programming (Harvard)
+                    <span className={styles.ticker}>
+                      <span className={styles.tickerPart}>
+                        Computer Science and the Art of Programming (Harvard)
+                      </span>
+                      <span className={styles.tickerCopy} aria-hidden="true">
+                        Computer Science and the Art of Programming (Harvard)
+                      </span>
+                    </span>
                   </span>
                 </span>
                 <span className={styles.srOnly}> (opens in a new tab)</span>

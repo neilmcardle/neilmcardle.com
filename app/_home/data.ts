@@ -113,7 +113,7 @@ export const WORKS: Work[] = [
   {
     title: "Kids Alphabet",
     group: "kids",
-    sub: "Games",
+    sub: "Learning",
     href: "/kids-alphabet/",
     plain: true,
     icon: "kidsAlphabet",
