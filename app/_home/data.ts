@@ -140,6 +140,7 @@ export const WORKS: Work[] = [
     group: "books",
     sub: "Fiction",
     href: "https://elevenreader.io/audiobooks/sol0-audiobook/lDuTf0Co8szKJBdzzAnu",
+    icon: "elevenReader",
     pills: ["Sci-fi novel", "Audiobook"],
   },
   ...PAINTINGS.map((painting) => ({

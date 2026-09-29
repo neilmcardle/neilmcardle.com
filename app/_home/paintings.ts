@@ -3,26 +3,24 @@ export type PaintingStatus = "sold" | "available" | "commission";
 export interface Painting {
   slug: string;
   title: string;
-  /** Year the painting was made. */
+
   year: number;
-  /** Year the painting was acquired by a collector. Only set when status === 'sold'. */
+
   acquiredYear?: number;
   medium: string;
-  /** Free-text size, e.g. "60 × 80 cm" */
+  reference: string;
+
   dimensions: string;
   status: PaintingStatus;
-  /** Free-text collector line, e.g. "Private collector, Berlin". Optional. */
+
   collector?: string;
-  /**
-   * Description as an array of paragraphs. Prefix a paragraph with "> "
-   * to render it as a blockquote (useful for citing source text).
-   */
+
   description: string[];
-  /** Path under /public, e.g. "/paintings/your-slug.jpg". Portrait or landscape both fine. */
+
   image: string;
-  /** Image aspect to reserve the right space before load. Defaults to portrait 4/5. */
+
   aspect?: "4/5" | "1/1" | "5/4" | "3/4" | "4/3";
-  /** Shown in the homepage band. Keep to 2 to start. */
+
   featured?: boolean;
 }
 
@@ -33,6 +31,7 @@ export const PAINTINGS: Painting[] = [
     year: 2016,
     acquiredYear: 2026,
     medium: "Oil on canvas",
+    reference: "Acts 13:29",
     dimensions: "23 × 30 cm",
     status: "sold",
     collector: "Private collector",
@@ -51,6 +50,7 @@ export const PAINTINGS: Painting[] = [
     year: 2015,
     acquiredYear: 2026,
     medium: "Oil on canvas",
+    reference: "Matthew 26:45",
     dimensions: "23 × 30 cm",
     status: "sold",
     collector: "Private collector",

@@ -354,52 +354,81 @@ function Showcase({ work }: { work: Work }) {
 
 function Paintings() {
   return (
-    <div className={styles.paintings}>
+    <div className={styles.showcases}>
       {PAINTINGS.map((painting) => (
         <article
           key={painting.slug}
-          className={styles.painting}
+          className={styles.showcase}
           data-item={slug(painting.title)}
         >
-          <div
-            className={styles.paintingImage}
-            style={{ aspectRatio: painting.aspect ?? "4/5" }}
-          >
-            <Image
-              src={painting.image}
-              alt={painting.title}
-              fill
-              sizes="(max-width: 600px) 100vw, 240px"
-            />
+          <div className={styles.showcaseHead}>
+            <h4 className={styles.showcaseName}>{painting.title}</h4>
           </div>
-          <div className={styles.paintingText}>
-            <p className={styles.what}>{painting.title}</p>
-            <p className={styles.paintingMeta}>
-              <span>{painting.medium}</span>
-              <span>{painting.dimensions}</span>
-              <span>{painting.year}</span>
-              {painting.status === "sold" && painting.acquiredYear ? (
-                <span className={styles.sold}>
+          <p className={styles.what}>Inspired by {painting.reference}.</p>
+          <dl className={styles.facts}>
+            <div>
+              <dt>Medium</dt>
+              <dd>
+                {painting.medium}, {painting.dimensions}
+              </dd>
+            </div>
+            <div>
+              <dt>Year</dt>
+              <dd>{painting.year}</dd>
+            </div>
+            {painting.status === "sold" && painting.acquiredYear ? (
+              <div>
+                <dt>Status</dt>
+                <dd className={styles.sold}>
                   <span className={styles.soldDot} aria-hidden="true" />
                   Sold to a {(
                     painting.collector ?? "collector"
-                  ).toLowerCase()}{" "}
-                  in {painting.acquiredYear}.
-                </span>
-              ) : null}
-            </p>
-            {painting.description.map((para) =>
-              para.startsWith("> ") ? (
-                <blockquote key={para} className={styles.paintingQuote}>
-                  {para.slice(2)}
-                </blockquote>
-              ) : (
-                <p key={para} className={styles.paintingBody}>
-                  {para}
-                </p>
-              ),
-            )}
+                  ).toLowerCase()}, {painting.acquiredYear}
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+          <div className={styles.paintingWall}>
+            <div
+              className={styles.paintingFrame}
+              style={{ aspectRatio: painting.aspect ?? "4/5" }}
+            >
+              <Image
+                src={painting.image}
+                alt={painting.title}
+                fill
+                sizes="(max-width: 960px) 60vw, 320px"
+              />
+            </div>
           </div>
+          <details className={styles.story}>
+            <summary>
+              Read the story
+              <svg viewBox="0 0 12 12" aria-hidden="true">
+                <path
+                  d="M3 4.5l3 3 3-3"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </summary>
+            <div className={styles.storyBody}>
+              {painting.description.map((para) =>
+                para.startsWith("> ") ? (
+                  <blockquote key={para} className={styles.paintingQuote}>
+                    {para.slice(2)}
+                  </blockquote>
+                ) : (
+                  <p key={para} className={styles.paintingBody}>
+                    {para}
+                  </p>
+                ),
+              )}
+            </div>
+          </details>
         </article>
       ))}
     </div>

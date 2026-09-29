@@ -783,11 +783,46 @@
 }
 
 .appIcon[data-icon] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   color: #ffffff;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.28),
     inset 0 -1px 0 rgb(0 0 0 / 0.08);
   transition: transform 200ms var(--ease);
+}
+
+.appIcon[data-icon]::before,
+.appIcon[data-icon]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.appIcon[data-icon]::before {
+  background:
+    radial-gradient(
+      circle at 22% 18%,
+      rgb(255 255 255 / 0.28),
+      transparent 55%
+    ),
+    radial-gradient(circle at 85% 90%, rgb(0 0 0 / 0.16), transparent 60%);
+}
+
+.appIcon[data-icon]::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 96px 96px;
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+}
+
+.appIcon[data-icon] svg {
+  position: relative;
+  z-index: 1;
 }
 
 .rowLink:hover .appIcon[data-icon] {
@@ -816,6 +851,10 @@
 
 .appIcon[data-icon="timeTeacher"] {
   background: linear-gradient(145deg, #ffa45c 0%, #e02b3c 100%);
+}
+
+.appIcon[data-icon="elevenReader"] {
+  background: linear-gradient(145deg, #fbbf24 0%, #ec4899 100%);
 }
 
 .appIcon[data-icon="touchtype"] {
@@ -1340,43 +1379,91 @@
   text-decoration-color: currentColor;
 }
 
-.paintings {
-  display: grid;
-  gap: 40px;
-}
-
-.painting {
-  display: grid;
-  gap: 16px;
-}
-
-.paintingImage {
+.paintingWall {
   position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
-  border-radius: 14px;
-  background: var(--line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #e6e2dc 0%, #d8d3cc 100%);
 }
 
-.paintingImage img {
+.paintingWall::before,
+.paintingWall::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.paintingWall::before {
+  background: radial-gradient(
+    ellipse at 50% 42%,
+    transparent 45%,
+    rgb(60 50 40 / 0.14) 100%
+  );
+}
+
+.paintingWall::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  mix-blend-mode: multiply;
+  opacity: 0.22;
+}
+
+.paintingFrame {
+  position: relative;
+  height: 80%;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow:
+    0 22px 34px -18px rgb(0 0 0 / 0.5),
+    0 2px 5px rgb(0 0 0 / 0.16);
+}
+
+.paintingFrame img {
   object-fit: cover;
 }
 
-.paintingText {
-  display: grid;
-  align-content: start;
-  gap: 10px;
-}
-
-.paintingText .what {
-  margin: 0;
-}
-
-.paintingMeta {
-  display: grid;
-  margin: -4px 0 4px;
+.story summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   color: var(--muted);
-  font-size: 0.875rem;
-  line-height: 1.45;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+  cursor: pointer;
+  list-style: none;
+  transition: color 180ms var(--ease);
+}
+
+.story summary::-webkit-details-marker {
+  display: none;
+}
+
+.story summary:hover {
+  color: var(--ink);
+}
+
+.story summary svg {
+  width: 12px;
+  height: 12px;
+  transition: transform 200ms var(--ease);
+}
+
+.story[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.storyBody {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
 }
 
 .paintingBody {
@@ -1393,13 +1480,6 @@
   color: var(--ink);
   font-size: 0.9375rem;
   line-height: 1.6;
-}
-
-@media (min-width: 600px) {
-  .painting {
-    grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
-    gap: 24px;
-  }
 }
 
 .linkIcons {

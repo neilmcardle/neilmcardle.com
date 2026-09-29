@@ -5,7 +5,8 @@ export type AppIconKey =
   | "tessera"
   | "kidsAlphabet"
   | "timeTeacher"
-  | "touchtype";
+  | "touchtype"
+  | "elevenReader";
 
 const HEX = [
   [21, 12],
@@ -60,6 +61,29 @@ function Glyph({ icon }: { icon: AppIconKey }) {
         <>
           <circle cx="12" cy="12" r="9" />
           <path d="M12 7v5l3.5 2" />
+        </>
+      );
+    case "elevenReader":
+      return (
+        <>
+          <rect
+            x="7"
+            y="3"
+            width="3.2"
+            height="18"
+            rx="0.6"
+            fill="currentColor"
+            stroke="none"
+          />
+          <rect
+            x="13.8"
+            y="3"
+            width="3.2"
+            height="18"
+            rx="0.6"
+            fill="currentColor"
+            stroke="none"
+          />
         </>
       );
     case "touchtype":
