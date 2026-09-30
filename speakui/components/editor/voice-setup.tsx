@@ -133,7 +133,7 @@ function Intro() {
   return (
     <div className="space-y-5">
       <Header step="Step 1 of 2 · Voice" title="Set up voice for this browser">
-        speakUI turns your speech into text on this computer. To do that, this
+        SpeakUI turns your speech into text on this computer. To do that, this
         browser needs a speech model. It&apos;s a one-time download.
       </Header>
 

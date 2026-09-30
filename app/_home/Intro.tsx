@@ -62,26 +62,33 @@ export default function Intro() {
       sessionStorage.setItem(INTRO_KEY, "1");
     } catch {}
     const fallback = window.setTimeout(() => setReady(true), 3000);
-    return () => window.clearTimeout(fallback);
+    const off = () => {
+      window.removeEventListener("keydown", leave);
+      window.removeEventListener("pointerdown", leave);
+    };
+    const leave = () => {
+      off();
+      setLeaving(true);
+    };
+    window.addEventListener("keydown", leave);
+    window.addEventListener("pointerdown", leave);
+    return () => {
+      window.clearTimeout(fallback);
+      off();
+    };
   }, []);
 
   useEffect(() => {
     if (!ready) return;
     let live = true;
     const leave = () => {
-      if (!live) return;
-      live = false;
-      setLeaving(true);
+      if (live) setLeaving(true);
     };
     const fill = bar.current?.getAnimations()[0];
     if (fill) fill.finished.then(leave, leave);
     else leave();
-    window.addEventListener("keydown", leave);
-    window.addEventListener("pointerdown", leave);
     return () => {
       live = false;
-      window.removeEventListener("keydown", leave);
-      window.removeEventListener("pointerdown", leave);
     };
   }, [ready]);
 

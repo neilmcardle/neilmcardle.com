@@ -2,11 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+import { LinkedInIcon } from "@/components/LinkedInIcon";
 import PageCurl from "@/components/home/PageCurl";
 import {
   CLIENTS,
+  CONTACTS,
+  type Contact,
   EMAIL,
+  LINKEDIN,
   FILTER_LABEL,
   FILTERS,
   GROUP_LABEL,
@@ -41,7 +52,6 @@ export default function HomeShell({ children }: { children: ReactNode }) {
     );
   }, [replay]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [openClient, setOpenClient] = useState<string | null>(null);
   const [menuClosing, setMenuClosing] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchClosing, setSearchClosing] = useState(false);
@@ -99,7 +109,12 @@ export default function HomeShell({ children }: { children: ReactNode }) {
           hidden.push(`${scope} [data-item="${slug(work.title)}"]`);
     }
     visible
-      .filter((work) => work.group !== "products" && work.group !== "paintings")
+      .filter(
+        (work) =>
+          work.group !== "products" &&
+          work.group !== "covers" &&
+          work.group !== "paintings",
+      )
       .forEach((work, index) =>
         rules.push(
           `${scope} [data-item="${slug(work.title)}"]{--row:${Math.min(index, 14)}}`,
@@ -264,25 +279,6 @@ export default function HomeShell({ children }: { children: ReactNode }) {
     indexRefs.current[target]?.focus();
   };
 
-  useEffect(() => {
-    if (!openClient) return;
-    const close = (event: PointerEvent | KeyboardEvent) => {
-      if (event instanceof KeyboardEvent && event.key !== "Escape") return;
-      if (
-        event instanceof PointerEvent &&
-        (event.target as Element).closest?.(`.${styles.clientButton}`)
-      )
-        return;
-      setOpenClient(null);
-    };
-    window.addEventListener("pointerdown", close);
-    window.addEventListener("keydown", close);
-    return () => {
-      window.removeEventListener("pointerdown", close);
-      window.removeEventListener("keydown", close);
-    };
-  }, [openClient]);
-
   return (
     <div
       className={styles.root}
@@ -301,27 +297,30 @@ export default function HomeShell({ children }: { children: ReactNode }) {
           </span>
           <Link href="/" className={styles.wordmarkLink}>
             <span className={styles.name}>Neil McArdle</span>{" "}
-            <span className={styles.role}>Product Designer</span>
+            <span className={styles.role}>Product Designer in London</span>
           </Link>
         </h1>
-        <a
-          className={styles.xPill}
-          href="https://x.com/BetterNeil"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="@BetterNeil on X"
-        >
-          <svg
-            className={styles.xLogo}
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            aria-hidden="true"
+        <div className={styles.links}>
+          <a
+            className={styles.iconButton}
+            href="https://x.com/BetterNeil"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="@BetterNeil on X (opens in a new tab)"
           >
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-          </svg>
-          <span>@BetterNeil</span>
-        </a>
-        <EmailPill />
+            <ContactIcon icon="x" />
+          </a>
+          <a
+            className={styles.iconButton}
+            href={LINKEDIN}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Neil McArdle on LinkedIn (opens in a new tab)"
+          >
+            <ContactIcon icon="linkedin" />
+          </a>
+          <EmailButton />
+        </div>
         <button
           ref={menuButtonRef}
           type="button"
@@ -375,21 +374,7 @@ export default function HomeShell({ children }: { children: ReactNode }) {
 
           <ul className={styles.meta}>
             <li className={styles.emailItem}>
-              <span className={styles.metaLabel}>Email</span>
-              <a href={`mailto:${EMAIL}`} className={styles.emailLink}>
-                {EMAIL}
-              </a>
-            </li>
-            <li className={styles.emailItem}>
-              <span className={styles.metaLabel}>On X</span>
-              <a
-                href="https://x.com/BetterNeil"
-                className={styles.emailLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                @BetterNeil
-              </a>
+              <ContactList contacts={CONTACTS} />
             </li>
             <li className={styles.learning}>
               <a
@@ -425,37 +410,23 @@ export default function HomeShell({ children }: { children: ReactNode }) {
             </li>
             <li className={styles.trusted}>
               <span className={styles.metaLabel}>Trusted by</span>
-            </li>
-            {CLIENTS.map((client) => {
-              const tip = `client-${slug(client.name)}`;
-              return (
-                <li key={client.name} className={styles.client}>
-                  <button
-                    type="button"
-                    className={styles.clientButton}
-                    aria-describedby={tip}
-                    data-open={openClient === client.name || undefined}
-                    onClick={() =>
-                      setOpenClient((current) =>
-                        current === client.name ? null : client.name,
-                      )
-                    }
-                  >
+              <ul className={styles.clients}>
+                {CLIENTS.map((client) => (
+                  <li key={client.name}>
                     <img
                       className={styles.clientLogo}
                       src={client.logo}
                       alt={client.name}
                       width={Math.round(client.height * client.ratio)}
                       height={client.height}
-                      style={{ height: client.height }}
+                      style={
+                        { "--logo-h": `${client.height}px` } as CSSProperties
+                      }
                     />
-                    <span id={tip} role="tooltip" className={styles.clientTip}>
-                      {client.role}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
+                  </li>
+                ))}
+              </ul>
+            </li>
           </ul>
         </div>
 
@@ -568,13 +539,73 @@ export default function HomeShell({ children }: { children: ReactNode }) {
               {children}
             </div>
           </div>
+
+          <div className={styles.contact}>
+            <ContactList contacts={CONTACTS} />
+          </div>
         </section>
       </div>
     </div>
   );
 }
 
-function EmailPill() {
+function ContactList({ contacts }: { contacts: Contact[] }) {
+  return (
+    <ul className={styles.contactList}>
+      {contacts.map((contact) => {
+        const external = contact.href.startsWith("http");
+        return (
+          <li key={contact.icon}>
+            <a
+              href={contact.href}
+              className={styles.contactLink}
+              {...(external
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
+            >
+              <ContactIcon icon={contact.icon} />
+              <span className={styles.srOnly}>{contact.label}: </span>
+              <span className={styles.contactText}>{contact.text}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function ContactIcon({ icon }: { icon: Contact["icon"] }) {
+  if (icon === "linkedin")
+    return <LinkedInIcon className={styles.contactIcon} aria-hidden="true" />;
+  if (icon === "x")
+    return (
+      <svg
+        className={styles.contactIcon}
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
+    );
+  return (
+    <svg
+      className={styles.contactIcon}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="3" y="5" width="18" height="14" rx="2.5" />
+      <path d="M3.5 7l8.5 6 8.5-6" />
+    </svg>
+  );
+}
+
+function EmailButton() {
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | null>(null);
 
@@ -599,18 +630,17 @@ function EmailPill() {
   return (
     <button
       type="button"
-      className={styles.emailPill}
+      className={styles.iconButton}
       onClick={copy}
       aria-label={`Copy email address, ${EMAIL}`}
     >
-      <span className={styles.emailLabel}>
-        <span className={copied ? styles.concealed : undefined}>
-          <span className={styles.labelShort}>Copy email</span>
-          <span className={styles.labelLong}>{EMAIL}</span>
-        </span>
-        <span className={copied ? undefined : styles.concealed}>
-          Email copied
-        </span>
+      <ContactIcon icon="email" />
+      <span
+        className={styles.iconTip}
+        aria-hidden="true"
+        data-show={copied || undefined}
+      >
+        {copied ? "Email copied" : "Copy email"}
       </span>
       <span className={styles.srOnly} aria-live="polite">
         {copied ? "Email copied" : ""}

@@ -1,8 +1,15 @@
+import { COVERS } from "./covers";
 import { PAINTINGS } from "./paintings";
 import type { AppIconKey } from "./AppIcon";
 
 export type GroupKey =
-  "products" | "tools" | "kids" | "books" | "paintings" | "explorations";
+  | "products"
+  | "covers"
+  | "tools"
+  | "kids"
+  | "books"
+  | "paintings"
+  | "explorations";
 export type Filter = "all" | GroupKey;
 
 export type Work = {
@@ -17,17 +24,39 @@ export type Work = {
 
 export const EMAIL = "neil@neilmcardle.com";
 
+export const LINKEDIN = "https://www.linkedin.com/in/neilmcardle/";
+
+export type Contact = {
+  icon: "email" | "x" | "linkedin";
+  label: string;
+  text: string;
+  href: string;
+};
+
+export const CONTACTS: Contact[] = [
+  { icon: "email", label: "Email", text: EMAIL, href: `mailto:${EMAIL}` },
+  {
+    icon: "x",
+    label: "X",
+    text: "@BetterNeil",
+    href: "https://x.com/BetterNeil",
+  },
+  { icon: "linkedin", label: "LinkedIn", text: "neilmcardle", href: LINKEDIN },
+];
+
 export const GROUP_ORDER: GroupKey[] = [
   "products",
   "tools",
+  "explorations",
   "kids",
+  "covers",
   "books",
   "paintings",
-  "explorations",
 ];
 
 export const GROUP_LABEL: Record<GroupKey, string> = {
   products: "Products",
+  covers: "Book covers",
   tools: "Tools",
   kids: "For my kids",
   books: "Audiobook",
@@ -78,6 +107,17 @@ export const WORKS: Work[] = [
     href: "",
     pills: ["Indie game", "Godot"],
   },
+  ...COVERS.map((cover) => ({
+    title: cover.title,
+    group: "covers" as const,
+    sub: "The Banner of Truth",
+    href: "",
+    pills: [
+      String(cover.year),
+      cover.author,
+      cover.illustrated ? "Cover and illustration" : "Cover design",
+    ],
+  })),
   {
     title: "Vector Paint",
     group: "tools",
@@ -175,21 +215,18 @@ export const CLIENTS = [
   {
     name: "Avis Budget Group",
     logo: "/logos/avis-budget-group.svg",
-    role: "In-house",
     height: 16,
     ratio: 1149.1 / 154.29,
   },
   {
     name: "Mobbin",
     logo: "/logos/mobbin.svg",
-    role: "Contractor",
     height: 16,
     ratio: 475 / 64,
   },
   {
     name: "The Banner of Truth",
     logo: "/logos/banner-of-truth.svg",
-    role: "Previously",
     height: 28,
     ratio: 1033.2 / 353.7,
   },

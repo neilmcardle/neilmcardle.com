@@ -9,6 +9,7 @@ import HomeShell from "./HomeShell";
 import PodiumFilm from "./PodiumFilm";
 import ProductMark from "./ProductMark";
 import SparkIntro from "./SparkIntro";
+import { COVERS } from "./covers";
 import { PAINTINGS } from "./paintings";
 import { SHOWCASE } from "./showcase";
 import {
@@ -67,6 +68,10 @@ export default function Home() {
             ) : key === "paintings" ? (
               <div className={styles.sub} data-sub={subKey(items[0])}>
                 <Paintings />
+              </div>
+            ) : key === "covers" ? (
+              <div className={styles.sub} data-sub={subKey(items[0])}>
+                <Covers />
               </div>
             ) : (
               subs.map((sub) => {
@@ -332,6 +337,10 @@ function Showcase({ work }: { work: Work }) {
           <dt>Type</dt>
           <dd>{info.type}</dd>
         </div>
+        <div>
+          <dt>Role</dt>
+          <dd>{info.role}</dd>
+        </div>
         {info.status ? (
           <div>
             <dt>Status</dt>
@@ -351,6 +360,56 @@ function Showcase({ work }: { work: Work }) {
       </dl>
       <ShowcaseMedia title={work.title} />
     </article>
+  );
+}
+
+function Covers() {
+  return (
+    <div className={styles.showcases}>
+      <article className={styles.showcase}>
+        <div className={styles.showcaseHead}>
+          <h3 className={styles.showcaseName}>The Banner of Truth</h3>
+        </div>
+        <p className={styles.what}>
+          Covers for new editions of three classic books.
+        </p>
+        <dl className={styles.facts}>
+          <div>
+            <dt>Type</dt>
+            <dd>Book cover design</dd>
+          </div>
+          <div>
+            <dt>Role</dt>
+            <dd>
+              Cover design, and illustration for The Child&rsquo;s Story Bible
+            </dd>
+          </div>
+        </dl>
+        <ul className={styles.covers} aria-label="Covers">
+          {COVERS.map((cover) => (
+            <li
+              key={cover.title}
+              className={styles.cover}
+              data-item={slug(cover.title)}
+            >
+              <span className={styles.coverFrame}>
+                <Image
+                  src={cover.image}
+                  alt={`Cover of ${cover.title} by ${cover.author}`}
+                  width={cover.width}
+                  height={cover.height}
+                  sizes="(max-width: 599px) 62vw, (max-width: 959px) 30vw, 200px"
+                />
+              </span>
+              <span className={styles.coverTitle}>{cover.title}</span>
+              <span className={styles.coverMeta}>
+                {cover.year} edition, first published {cover.original}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </article>
+    </div>
   );
 }
 
@@ -449,7 +508,14 @@ function Demo() {
       </h2>
       <article className={styles.showcase}>
         <p className={styles.demoNote}>
-          A demo I recorded of speakUI, played on Dive Radio with{" "}
+          Following an approach by{" "}
+          <a className={styles.handle} href="https://x.com/Moore">
+            @Moore
+          </a>
+          , I built a simple SpeakUI demo to show off the speed at which Jev,
+          TypeSafe AI&rsquo;s new fast decision model, can edit designs, making
+          speaking edits almost feel realtime (demo recording played on Dive
+          Radio by{" "}
           <a className={styles.handle} href="https://x.com/designertom">
             @designertom
           </a>{" "}
@@ -457,8 +523,7 @@ function Demo() {
           <a className={styles.handle} href="https://x.com/ridd_design">
             @ridd_design
           </a>
-          , 24 September 2026, showing one more of the ever evolving use cases
-          of Jev.
+          , 24 September 2026).
         </p>
         <video
           className={styles.film}
@@ -477,7 +542,7 @@ function Demo() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Try speakUI for yourself
+              Try SpeakUI for yourself
               <ExternalIcon className={styles.external} />
               <span className={styles.srOnly}> (opens in a new tab)</span>
             </a>

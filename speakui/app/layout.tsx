@@ -13,7 +13,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "speakUI",
+  title: "SpeakUI",
   description:
     "Speak UI into existence: voice + pointer edits to a shadcn design, decided by Jev.",
 };

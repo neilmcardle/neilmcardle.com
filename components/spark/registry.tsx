@@ -1,5 +1,6 @@
 import React from "react";
 import { AsyncTimeline } from "./AsyncTimeline";
+import { Build } from "./Build";
 import { Check } from "./Check";
 import { ClampPlayground } from "./ClampPlayground";
 import { FilteringWidget } from "./FilteringWidget";
@@ -24,6 +25,7 @@ const WIDGETS: Record<string, (attrs: Attrs) => React.ReactNode> = {
       why={attrs.why}
     />
   ),
+  Build: (attrs) => <Build id={attrs.id ?? ""} />,
   Sandbox: (attrs) => {
     const example = SANDBOXES[attrs.id ?? ""];
     if (!example) return null;

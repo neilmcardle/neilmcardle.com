@@ -49,7 +49,7 @@ export function TopBar() {
   return (
     <header className="flex h-[52px] shrink-0 items-center gap-1.5 border-b border-hairline bg-paper px-4">
       <span className="mr-4 pl-1 text-[15px] leading-none font-semibold tracking-[-0.03em] text-ink">
-        speakUI
+        SpeakUI
       </span>
 
       <Divider />

@@ -13,15 +13,22 @@ body {
   font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 }`;
 
+export function frameDoc(html: string, css: string, js = "") {
+  return `<!doctype html><html><head><meta charset="utf-8"><style>${FRAME_BASE}
+${css}</style></head><body>${html}${js ? `<script>${js}<\/script>` : ""}</body></html>`;
+}
+
 export function Sandbox({
   html = "",
   css = "",
+  js = "",
   title = "Try it",
   caption,
   height = 300,
 }: {
   html?: string;
   css?: string;
+  js?: string;
   title?: string;
   caption?: string;
   height?: number;
@@ -41,8 +48,7 @@ export function Sandbox({
     return () => window.clearTimeout(tick);
   }, [code]);
 
-  const doc = `<!doctype html><html><head><meta charset="utf-8"><style>${FRAME_BASE}
-${live.css}</style></head><body>${live.html}</body></html>`;
+  const doc = frameDoc(live.html, live.css, js);
 
   return (
     <section className="spark-sandbox my-10">
