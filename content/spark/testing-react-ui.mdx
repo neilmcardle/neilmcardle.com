@@ -101,7 +101,7 @@ it("filters results when you type in the search box", () => {
 });
 ```
 
-This test focuses on what the user _sees_. It doesn't care if you use `useState`, Zustand, or a state machine under the hood. Refactor all you want, the behavior stays the same, the test passes.
+This test focuses on what the user _sees_. It doesn't care if you use `useState`, Zustand, or a state machine inside the component. Refactor all you want, the behavior stays the same, the test passes.
 
 **The rule:** Test inputs and outputs. Never test state, implementation details, or internal function calls.
 

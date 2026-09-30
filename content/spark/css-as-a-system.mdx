@@ -162,6 +162,8 @@ Flexbox lays out children along a single axis, either a row or a column. You tur
 }
 ```
 
+<Sandbox id="flex-toolbar" />
+
 `gap` is the space between children. `justify-content` positions children along the main axis, which is horizontal in a row. `align-items` positions them along the cross axis, which is vertical in a row. `space-between` pushes the first child to the start, the last to the end, and spreads the rest evenly.
 
 Those two property names are the ones people mix up forever. The fix is to remember that `justify` follows the direction you set with `flex-direction`, and `align` is the other one. Set `flex-direction: column` and they swap: `justify-content` now controls vertical position and `align-items` controls horizontal.
@@ -178,6 +180,8 @@ The other property worth knowing is `flex`, set on a child rather than the paren
 }
 ```
 
+<Sandbox id="flex-sidebar" />
+
 `flex: 1` on one child and a fixed width on another is the whole recipe for a sidebar layout. The main column absorbs whatever is left over, at any screen width, with no calculation on your part.
 
 </Section>
@@ -193,6 +197,8 @@ Grid lays out children in rows and columns at the same time. Where flexbox distr
   gap: 20px;
 }
 ```
+
+<Sandbox id="grid-gallery" />
 
 `fr` is a unit that only exists in grid. It means "one share of the leftover space". Three columns of `1fr` split the container into three equal parts, after any fixed sizes and gaps have been subtracted. It is the unit you want most of the time, because it does the subtraction for you. Three columns of `33.33%` plus a 20 pixel gap overflows the container. Three columns of `1fr` never does.
 
@@ -281,15 +287,23 @@ The large button gets proportionally larger padding without a second padding rul
 
 That same behaviour makes `em` a bad choice for font sizes, because it compounds. A `1.2em` heading inside a `1.2em` container inside another `1.2em` container is 1.728 times the base size, and nobody intended that. Use `rem` for type, `em` for spacing that should track type.
 
-Finally, `line-height` should be unitless:
+Finally, `line-height`. It sets the vertical space each line of text takes up, which is what decides how far apart two lines of a wrapped paragraph sit. You can write it as a plain number or as a length, and those two behave differently in a way that catches people out.
 
 ```css
 body {
-  line-height: 1.6; //! No unit. Multiplies the element's own font size.
+  line-height: 1.6; //! No unit, so each element multiplies it by its own font size.
 }
 ```
 
-A unitless line-height is inherited as a multiplier, so a 32 pixel heading gets 51 pixels of line height and a 16 pixel paragraph gets 25.6. Write `line-height: 1.6rem` instead and every element inherits the same fixed 25.6 pixels, which crushes your headings.
+Every element inherits `line-height` from its parent unless it sets its own. What differs is _what_ gets inherited.
+
+Write the plain number `1.6` and the number itself is inherited. Each element then multiplies it by its own font size. A 16 pixel paragraph works out at 25.6 pixels a line, and a 32 pixel heading at 51.2, so every element is spaced in proportion to how big its text is.
+
+Write a length such as `1.6rem` and the browser does that multiplication once, at the moment it reads the rule. `1.6rem` on the body becomes 25.6 pixels there, and 25.6 pixels is what every element below inherits, whatever size its own text is. The 32 pixel heading now has letters taller than the space each of its lines is given, so if that heading wraps onto a second line, the two lines overlap.
+
+That is the whole reason for the rule: a number is inherited as an instruction that each element carries out for itself, and a length is inherited as a finished measurement.
+
+<Sandbox id="line-height" />
 
 </Section>
 
@@ -311,7 +325,7 @@ The result is type that scales at every width instead of at three widths, with n
 
 <ClampPlayground />
 
-The two crossover points are the part worth internalising. Below one width the minimum is holding the size steady, above another the maximum is capping it, and only between them is the preferred value actually doing anything.
+The two crossover points are the part to remember. Below one width the minimum is holding the size steady, above another the maximum is capping it, and only between them is the preferred value doing anything.
 
 Two things to get right. Always set a minimum in `rem` rather than `px`, so a reader who has increased their default text size is not locked out by your floor. And be careful with the preferred value: something like `clamp(1rem, 4vw, 3rem)` on body text scales aggressively enough to be uncomfortable. For body copy the range should be narrow, often no scaling at all. Save the dramatic ranges for headings.
 

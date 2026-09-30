@@ -95,7 +95,7 @@ export function ClampPlayground() {
           className="absolute top-0 h-full w-[2px]"
           style={{
             left: `${((viewport - 320) / 1280) * 100}%`,
-            background: "var(--spark-ink)",
+            background: "var(--spark-text)",
           }}
         />
         <span className="spark-mono absolute bottom-1 left-2 text-[9.5px] text-[var(--spark-faint)]">

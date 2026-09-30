@@ -196,7 +196,7 @@ export function SpringBench() {
                 left: 8,
                 width: BOX,
                 height: BOX,
-                background: "var(--spark-ink)",
+                background: "var(--spark-text)",
                 transform: `translateX(${easeOn ? TRACK : 0}px)`,
                 transition: reduced
                   ? "none"
@@ -207,11 +207,7 @@ export function SpringBench() {
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={run}
-        className="mt-4 min-h-[40px] rounded-md bg-[var(--spark-ink)] px-6 text-[13px] font-semibold text-[var(--spark-screen-ink)] transition-transform hover:-translate-y-px"
-      >
+      <button type="button" onClick={run} className="spark-action mt-4">
         Run both
       </button>
 

@@ -4,6 +4,8 @@ import { Check } from "./Check";
 import { ClampPlayground } from "./ClampPlayground";
 import { FilteringWidget } from "./FilteringWidget";
 import { NPlusOneWaterfall } from "./NPlusOneWaterfall";
+import { Sandbox } from "./Sandbox";
+import { SANDBOXES } from "./sandboxes";
 import { SemanticListen } from "./SemanticListen";
 import { SpringBench } from "./SpringBench";
 import { StructuralTyping } from "./StructuralTyping";
@@ -22,6 +24,19 @@ const WIDGETS: Record<string, (attrs: Attrs) => React.ReactNode> = {
       why={attrs.why}
     />
   ),
+  Sandbox: (attrs) => {
+    const example = SANDBOXES[attrs.id ?? ""];
+    if (!example) return null;
+    return (
+      <Sandbox
+        title={example.title}
+        html={example.html}
+        css={example.css}
+        caption={example.caption}
+        height={example.height}
+      />
+    );
+  },
   AsyncTimeline: () => <AsyncTimeline />,
   ClampPlayground: () => <ClampPlayground />,
   FilteringWidget: () => <FilteringWidget />,
