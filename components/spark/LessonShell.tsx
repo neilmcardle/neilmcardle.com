@@ -288,15 +288,9 @@ export function LessonShell({
             </span>
 
             <div className="hidden items-center gap-1 lg:flex">
-              <kbd className="spark-mono mr-2 rounded border border-[var(--spark-rule)] px-1.5 py-0.5 text-[10.5px] text-[var(--spark-faint)]">
+              <kbd className="spark-mono mr-1 rounded border border-[var(--spark-rule)] px-1.5 py-0.5 text-[10.5px] text-[var(--spark-faint)]">
                 J
               </kbd>
-              <kbd className="spark-mono mr-3 rounded border border-[var(--spark-rule)] px-1.5 py-0.5 text-[10.5px] text-[var(--spark-faint)]">
-                K
-              </kbd>
-              <span className="spark-eyebrow mr-1 tabular-nums text-[var(--spark-faint)]">
-                {active + 1} of {sections.length}
-              </span>
               <button
                 onClick={() => jumpTo(Math.max(0, active - 1))}
                 disabled={active === 0}
@@ -317,6 +311,9 @@ export function LessonShell({
                   <path d="m15 18-6-6 6-6" />
                 </svg>
               </button>
+              <span className="spark-eyebrow tabular-nums text-[var(--spark-faint)]">
+                {active + 1} of {sections.length}
+              </span>
               <button
                 onClick={() =>
                   jumpTo(Math.min(sections.length - 1, active + 1))
@@ -339,6 +336,9 @@ export function LessonShell({
                   <path d="m9 6 6 6-6 6" />
                 </svg>
               </button>
+              <kbd className="spark-mono ml-1 rounded border border-[var(--spark-rule)] px-1.5 py-0.5 text-[10.5px] text-[var(--spark-faint)]">
+                K
+              </kbd>
             </div>
           </header>
 

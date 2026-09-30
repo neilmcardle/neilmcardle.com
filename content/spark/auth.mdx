@@ -28,7 +28,7 @@ Set-Cookie: sessionId=abc123; HttpOnly; Secure; Path=/; SameSite=Lax
 
 The browser sees this header, stores `sessionId=abc123`, and from then on, every request to that domain includes `Cookie: sessionId=abc123` without you doing anything.
 
-This is the magic that makes sessions work. The server doesn't have to ask the browser for the ticket every time. The browser just sends it.
+This is what makes sessions work. The server doesn't have to ask the browser for the ticket every time. The browser just sends it.
 
 The `HttpOnly` flag means JavaScript can't read it, safer against XSS. The `Secure` flag means it only travels over HTTPS. `SameSite=Lax` stops the browser from sending it to cross-site requests.
 
@@ -38,7 +38,7 @@ Cookies are old, they're built into the browser, and they're the reason sessions
 
 <Section title="DIY Sessions: The Hand-Written Detour">
 
-Build a minimal session system from scratch. Not for production, but to understand what's happening under the hood.
+Build a minimal session system from scratch. Not for production, but to see exactly what happens on each request.
 
 Store sessions in a JavaScript object. When someone signs in, generate a random ID, save it, and set a cookie.
 

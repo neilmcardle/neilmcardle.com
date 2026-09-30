@@ -200,7 +200,7 @@ You can write SVG the way you write HTML, with elements and attributes. An SVG s
 </svg>
 ```
 
-The `viewBox` attribute defines the coordinate system. Think of it like a canvas where you draw. `viewBox="0 0 24 24"` means the coordinate space is 24 units wide and 24 units tall. `width` and `height` set how large the SVG renders on the page.
+The `viewBox` attribute defines the coordinate system the shapes are drawn in. `viewBox="0 0 24 24"` means that space is 24 units wide and 24 units tall, and every coordinate inside the SVG is measured against those units. `width` and `height` set how large the SVG renders on the page.
 
 You can nest SVG inside HTML, or save it as a file and link it with `<img src="icon.svg">`. You can also embed it directly in HTML to style it with CSS or JavaScript.
 

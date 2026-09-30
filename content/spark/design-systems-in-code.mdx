@@ -377,7 +377,7 @@ The downside: you're not leveraging CSS custom properties or Tailwind's optimiza
 
 ### The Best Approach for This Module
 
-Use **CSS custom properties + Tailwind**. It's the sweet spot:
+Use **CSS custom properties + Tailwind**. You get all of this:
 
 - Designers recognize custom properties (they match Figma variable names)
 - Tailwind gives engineers a DX win (utility classes)
@@ -396,7 +396,7 @@ A component's props are its contract. Well-designed props mean:
 
 ### The Minimal API Principle
 
-Every prop should earn its place. If a prop is only used once in your codebase, it shouldn't exist. If two props are always used together, merge them.
+Every prop should have a reason to exist. If a prop is only used once in your codebase, remove it. If two props are always used together, merge them.
 
 **Bad:**
 

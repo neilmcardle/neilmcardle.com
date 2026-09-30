@@ -1965,6 +1965,66 @@ button.spark-card:hover,
   transition: box-shadow 200ms var(--spark-ease);
 }
 
+.spark-sandbox textarea {
+  tab-size: 2;
+}
+
+@media (min-width: 1280px) {
+  .spark-sandbox {
+    width: 900px;
+    margin-inline: -110px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .spark-sandbox {
+    width: 1000px;
+    margin-inline: -160px;
+  }
+}
+
+.spark-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--spark-phosphor);
+  color: var(--spark-screen-ink);
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms var(--spark-ease);
+}
+
+.spark-action:hover {
+  background: var(--spark-phosphor-dim);
+}
+
+.spark-quiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--spark-rule);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--spark-text);
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 160ms var(--spark-ease);
+}
+
+.spark-quiet:hover {
+  border-color: var(--spark-phosphor);
+}
+
 .spark-eyebrow {
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
   font-size: 11.5px;

@@ -83,7 +83,7 @@ function Rendered() {
       <p className="mb-3 spark-display text-[17px] text-[var(--spark-text)]">
         Recent work
       </p>
-      <span className="inline-block rounded-md bg-[var(--spark-ink)] px-3.5 py-1.5 text-[12px] font-medium text-[var(--spark-screen-ink)]">
+      <span className="inline-block rounded-md bg-[var(--spark-phosphor)] px-3.5 py-1.5 text-[12px] font-medium text-[var(--spark-screen-ink)]">
         See all
       </span>
     </div>
@@ -198,8 +198,10 @@ export function SemanticListen() {
               aria-pressed={active}
               className="min-h-[36px] rounded-md px-5 text-[13px] font-semibold capitalize transition-colors"
               style={{
-                background: active ? "var(--spark-ink)" : "transparent",
-                color: active ? "var(--spark-text)" : "var(--spark-muted)",
+                background: active ? "var(--spark-phosphor)" : "transparent",
+                color: active
+                  ? "var(--spark-screen-ink)"
+                  : "var(--spark-muted)",
               }}
             >
               {value}

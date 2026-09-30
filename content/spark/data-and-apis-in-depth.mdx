@@ -26,7 +26,7 @@ estimated_time: "6–8 hours"
 
 An endpoint is a contract. Your UI talks to your backend by sending a request: here's the data, here's what I want you to do. The backend sends back a response: here's the result, or here's what went wrong. The contract is explicit, both sides know the shape of the request, the shape of the response, and what can fail.
 
-In this module, you'll stop treating endpoints like magic and start designing them like a real software engineer. You'll build a working API endpoint that handles a real feature (a waitlist form, a note-saving UI, a to-do adder) and learn the patterns that keep endpoints reliable: validation, error handling, and the difference between the three ways Next.js lets you talk to servers.
+In this module you'll see what an endpoint is made of and design one the way an engineer would. You'll build a working API endpoint that handles a real feature (a waitlist form, a note-saving UI, a to-do adder) and learn the patterns that keep endpoints reliable: validation, error handling, and the difference between the three ways Next.js lets you talk to servers.
 
 By the end, you'll have deployed an endpoint that validates input, talks to a database, and reports errors clearly. You'll understand HTTP well enough to debug it. And you'll know which Next.js pattern to reach for in any situation.
 
@@ -36,7 +36,7 @@ By the end, you'll have deployed an endpoint that validates input, talks to a da
 
 ### 1. What a request really is
 
-When your browser sends a request, it's not magic. It's structured data: a verb, a path, optional headers, optional body.
+A request your browser sends is structured data: a verb, a path, optional headers, an optional body.
 
 ```
 POST /api/waitlist HTTP/1.1

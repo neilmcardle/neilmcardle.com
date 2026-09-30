@@ -33,7 +33,7 @@ function Card() {
 }
 ```
 
-React calls your function when it needs to see what should appear on screen. Think of it as "what does this component look like _right now_?"
+React calls your function when it needs to know what should appear on screen. The function answers that question for the values it has at that moment, and React calls it again whenever those values change.
 
 </Section>
 
@@ -386,7 +386,7 @@ function BookSearch() {
 
 This is tight. Every state has its own UI. No results render until data arrives. Loading UI shows immediately. Errors have a home.
 
-The four states are a mental model. Write it down: idle, loading, empty, error. Then check your UI handles all four. Most bugs live in the states you skipped.
+The four states are a checklist: idle, loading, empty, error. Write them down and check your UI handles all four. Most bugs are in the states you skipped.
 
 <Check
   question="A search returns zero results and your UI renders nothing at all. Which state did you skip?"
@@ -491,7 +491,7 @@ Before you move on, make sure you can answer these aloud.
 
 **Handle all four states.** Write code for idle, loading, empty, and error. Real apps need all four. If your UI doesn't show loading, users will think it froze.
 
-**Hand-write a prop.** Create a component with three props. Pass them from a parent. Don't skip steps. The muscle memory matters.
+**Hand-write a prop.** Create a component with three props. Pass them from a parent. Don't skip steps. Typing it yourself is the point.
 
 Also: notice how `onClick` is spelled camelCase. That's not a bug. That's the platform. React chose it. Your code has to match. There's no "correct" spelling in the abstract. There's only what the platform chose, and your code following it. This is "chosen, not fixed," and it's how you learn to work with systems instead of against them.
 

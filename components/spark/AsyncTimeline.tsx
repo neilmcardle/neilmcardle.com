@@ -153,8 +153,8 @@ export function AsyncTimeline() {
               aria-pressed={on}
               className="min-h-[36px] rounded-md px-4 text-[12.5px] font-semibold transition-colors"
               style={{
-                background: on ? "var(--spark-ink)" : "transparent",
-                color: on ? "var(--spark-text)" : "var(--spark-muted)",
+                background: on ? "var(--spark-phosphor)" : "transparent",
+                color: on ? "var(--spark-screen-ink)" : "var(--spark-muted)",
               }}
             >
               {option.label}

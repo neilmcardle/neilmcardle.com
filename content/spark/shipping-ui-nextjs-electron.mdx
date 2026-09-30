@@ -241,7 +241,7 @@ export default function BooksPage() {
 
 ## Section 3: Server vs Client, The Architectural Pattern
 
-### The Mental Model
+### How the two split up
 
 - **Server components** are for display and fetching. They're fast, they're safe, they're the default.
 - **Client components** are for interaction. They handle user input, state, navigation, animations.
@@ -1239,7 +1239,7 @@ Every byte of JavaScript the user downloads is JavaScript they must execute. If 
 **The network is the bottleneck.**
 An API call that takes 1 second makes a form feel broken, no matter how fast your code is. The answer isn't to optimize the API; it's to design around latency. Optimistic updates (show the success state before the server responds), local caching, and careful request batching all protect users from slow networks.
 
-**The platform gives you superpowers.**
+**The platform does work you would otherwise do yourself.**
 Next.js gives you file-based routing (no setup), automatic code splitting (less shipped), server components (fast), edge functions (fast APIs), and middleware. Vercel gives you global CDN (faster serving), preview deployments (safer shipping), and built-in monitoring. These are not free, they're earned through understanding what the platform does and how to use it.
 
 **Constraints breed innovation.**

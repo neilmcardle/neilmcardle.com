@@ -149,10 +149,7 @@ export function Check({ question, answer, options, correct, why }: CheckProps) {
           </p>
         </div>
       ) : (
-        <button
-          onClick={() => setRevealed(true)}
-          className="min-h-[44px] rounded-md bg-[var(--spark-ink)] px-5 py-2.5 text-[13.5px] font-semibold text-[var(--spark-sheet)] transition-opacity hover:opacity-85"
-        >
+        <button onClick={() => setRevealed(true)} className="spark-action">
           Answer it in your head, then reveal
         </button>
       )}

@@ -173,7 +173,7 @@ export function TruthyFalsy() {
               <button
                 type="button"
                 onClick={next}
-                className="mt-2.5 min-h-[38px] rounded-md bg-[var(--spark-ink)] px-5 text-[12.5px] font-semibold text-[var(--spark-screen-ink)] transition-transform hover:-translate-y-px"
+                className="spark-action mt-2.5"
               >
                 Next value
               </button>
