@@ -300,7 +300,7 @@ export default function HomeShell({ children }: { children: ReactNode }) {
             <ParticleMark />
           </span>
           <Link href="/" className={styles.wordmarkLink}>
-            <span className={styles.name}>Neil McArdle</span>
+            <span className={styles.name}>Neil McArdle</span>{" "}
             <span className={styles.role}>Product Designer</span>
           </Link>
         </h1>
@@ -477,7 +477,7 @@ export default function HomeShell({ children }: { children: ReactNode }) {
                   : "closed"
             }
           >
-            <h2 id="home-card-title" className={styles.cardTitle}>
+            <p id="home-card-title" className={styles.cardTitle}>
               <span className={styles.titlePhoto}>
                 <Image
                   src="/hero/portrait.png"
@@ -489,7 +489,7 @@ export default function HomeShell({ children }: { children: ReactNode }) {
                 />
               </span>
               <span>Things I&rsquo;ve said and done</span>
-            </h2>
+            </p>
             <button
               ref={searchToggleRef}
               type="button"

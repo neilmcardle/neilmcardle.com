@@ -50,12 +50,12 @@ export default function Home() {
             className={styles.group}
             data-group={key}
           >
-            <h3 className={styles.groupTitle}>
+            <h2 className={styles.groupTitle}>
               <span className={styles.groupCount} aria-hidden="true">
                 {pad(FILTERS.indexOf(key))}
               </span>
               <span>{GROUP_LABEL[key]}</span>
-            </h3>
+            </h2>
             {key === "explorations" ? (
               <div className={styles.sub} data-sub={subKey(items[0])}>
                 <div className={styles.showcases}>
@@ -295,14 +295,16 @@ function Showcase({ work }: { work: Work }) {
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
         {work.href ? (
-          <a className={styles.showcaseName} href={work.href} {...linkProps}>
-            {info.mark ? (
-              <ProductMark mark={info.mark} className={styles.productMark} />
-            ) : null}
-            <span translate="no">{work.title}</span>
-          </a>
+          <h3 className={styles.showcaseHeading}>
+            <a className={styles.showcaseName} href={work.href} {...linkProps}>
+              {info.mark ? (
+                <ProductMark mark={info.mark} className={styles.productMark} />
+              ) : null}
+              <span translate="no">{work.title}</span>
+            </a>
+          </h3>
         ) : (
-          <h4 className={styles.showcaseName}>
+          <h3 className={styles.showcaseName}>
             {info.markImage ? (
               <span
                 className={styles.imageMark}
@@ -314,7 +316,7 @@ function Showcase({ work }: { work: Work }) {
               />
             ) : null}
             <span translate="no">{work.title}</span>
-          </h4>
+          </h3>
         )}
         {work.href && info.label ? (
           <a className={styles.visit} href={work.href} {...linkProps}>
@@ -362,7 +364,7 @@ function Paintings() {
           data-item={slug(painting.title)}
         >
           <div className={styles.showcaseHead}>
-            <h4 className={styles.showcaseName}>{painting.title}</h4>
+            <h3 className={styles.showcaseName}>{painting.title}</h3>
           </div>
           <p className={styles.what}>Inspired by {painting.reference}.</p>
           <dl className={styles.facts}>
@@ -442,9 +444,9 @@ function Demo() {
       aria-labelledby="home-demo"
       data-group="demo"
     >
-      <h3 id="home-demo" className={styles.groupTitle}>
+      <h2 id="home-demo" className={styles.groupTitle}>
         SpeakUI Demo on Dive Radio
-      </h3>
+      </h2>
       <article className={styles.showcase}>
         <p className={styles.demoNote}>
           A demo I recorded of speakUI, played on Dive Radio with{" "}
@@ -491,7 +493,7 @@ function ExplorationCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <h4 className={styles.showcaseName}>{work.title}</h4>
+        <h3 className={styles.showcaseName}>{work.title}</h3>
         <a className={styles.visit} href={work.href}>
           Open the lab
         </a>
