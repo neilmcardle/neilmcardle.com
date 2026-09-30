@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+**/node_modules/
 
 # non-npm lockfiles (project uses npm; guard against accidental pnpm/yarn installs
 # that would confuse Vercel's package-manager detection)

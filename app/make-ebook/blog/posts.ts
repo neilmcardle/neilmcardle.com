@@ -31,7 +31,7 @@ export const posts: BlogPost[] = [
       "self-publishing guide",
       "EPUB formatting",
     ],
-    image: "/blog/how-to-write-an-ebook.png",
+    image: "/blog/how-to-write-an-ebook.jpg",
     imageAlt:
       "Ink illustration of an ornate hardcover book with the title How to Write an Ebook: Complete Beginner's Guide on the front.",
     content: `
@@ -162,7 +162,7 @@ export const posts: BlogPost[] = [
       "free ebook software",
       "Vellum vs Atticus",
     ],
-    image: "/blog/ebook-tools-comparison.png",
+    image: "/blog/ebook-tools-comparison.jpg",
     imageAlt:
       "Ink drawing of five writing implements arranged in a row: quill, typewriter, fountain pen, stylus, pencil.",
     content: `
@@ -323,7 +323,7 @@ export const posts: BlogPost[] = [
       "Scrivener alternative for Mac",
       "Scrivener alternative for Windows",
     ],
-    image: "/blog/five-alternatives.png",
+    image: "/blog/five-alternatives.jpg",
     imageAlt:
       "Ink illustration representing five Scrivener alternatives for self-publishing authors.",
     content: `
@@ -486,7 +486,7 @@ export const posts: BlogPost[] = [
       "ebook cover software",
       "KDP cover dimensions",
     ],
-    image: "/blog/how-create-ebook-cover.png",
+    image: "/blog/how-create-ebook-cover.jpg",
     imageAlt:
       "Ink drawing of a large, closed leatherbound book standing upright with drawing tools and sketches on the table surrounding it.",
     content: `
@@ -592,7 +592,7 @@ export const posts: BlogPost[] = [
       "AI editing tools",
       "AI content editor",
     ],
-    image: "/blog/using-ai-improve-ebook-manuscript.png",
+    image: "/blog/using-ai-improve-ebook-manuscript.jpg",
     imageAlt:
       "Ink drawing of a magnifying glass over a page of text with small ticks floating above flagged phrases.",
     content: `
@@ -696,7 +696,7 @@ export const posts: BlogPost[] = [
       "offline writing software",
       "best offline writing apps",
     ],
-    image: "/blog/best-offline-ebook-editors.png",
+    image: "/blog/best-offline-ebook-editors.jpg",
     imageAlt:
       "Ink drawing of an aeroplane window view with a notebook on the tray table and a pen resting on it.",
     content: `
@@ -839,7 +839,7 @@ export const posts: BlogPost[] = [
       "subscription vs one-time payment",
       "writing tools pricing",
     ],
-    image: "/blog/lifetime-license-vs-subscription.png",
+    image: "/blog/lifetime-license-vs-subscription.jpg",
     imageAlt:
       "Ink drawing of a wax seal being pressed onto a document with a small torn calendar page curling at the corner.",
     content: `
