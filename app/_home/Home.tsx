@@ -23,7 +23,6 @@ import {
   subKey,
   type Work,
 } from "./data";
-import tile from "@/components/home/home.module.css";
 import styles from "./home.module.css";
 
 const poster = (src: string) =>
@@ -393,12 +392,6 @@ function Covers() {
           </div>
         </dl>
         <div className={styles.coverBooth}>
-          <span className={tile.cvCrop} aria-hidden="true">
-            <span />
-            <span />
-            <span />
-            <span />
-          </span>
           {COVERS.map((cover, index) => (
             <span
               key={cover.title}
