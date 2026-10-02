@@ -470,7 +470,7 @@ function Paintings() {
                 Private collection
               </p>
             ) : null}
-            <details className={styles.story}>
+            <details className={styles.story} name="painting-story">
               <summary>
                 Read the story
                 <svg viewBox="0 0 12 12" aria-hidden="true">
