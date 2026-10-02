@@ -23,6 +23,7 @@ import {
   subKey,
   type Work,
 } from "./data";
+import tile from "@/components/home/home.module.css";
 import styles from "./home.module.css";
 
 const poster = (src: string) =>
@@ -363,6 +364,12 @@ function Showcase({ work }: { work: Work }) {
   );
 }
 
+const BOOTH = [
+  { rotate: -6, x: -108, y: 3 },
+  { rotate: 0, x: 0, y: -3 },
+  { rotate: 6, x: 108, y: 3 },
+];
+
 function Covers() {
   return (
     <div className={styles.showcases}>
@@ -385,6 +392,31 @@ function Covers() {
             </dd>
           </div>
         </dl>
+        <div className={styles.coverBooth}>
+          <span className={tile.cvCrop} aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <span />
+          </span>
+          {COVERS.map((cover, index) => (
+            <span
+              key={cover.title}
+              className={styles.boothCover}
+              data-item={slug(cover.title)}
+              style={{
+                transform: `translate(calc(-50% + ${BOOTH[index].x}%), calc(-50% + ${BOOTH[index].y}%)) rotate(${BOOTH[index].rotate}deg)`,
+              }}
+            >
+              <Image
+                src={cover.image}
+                alt={`Cover of ${cover.title} by ${cover.author}`}
+                fill
+                sizes="(max-width: 959px) 28vw, 180px"
+              />
+            </span>
+          ))}
+        </div>
         <ul className={styles.covers} aria-label="Covers">
           {COVERS.map((cover) => (
             <li
@@ -392,15 +424,6 @@ function Covers() {
               className={styles.cover}
               data-item={slug(cover.title)}
             >
-              <span className={styles.coverFrame}>
-                <Image
-                  src={cover.image}
-                  alt={`Cover of ${cover.title} by ${cover.author}`}
-                  width={cover.width}
-                  height={cover.height}
-                  sizes="(max-width: 599px) 62vw, (max-width: 959px) 30vw, 200px"
-                />
-              </span>
               <span className={styles.coverTitle}>{cover.title}</span>
               <span className={styles.coverMeta}>
                 {cover.year} edition, first published {cover.original}
@@ -415,83 +438,76 @@ function Covers() {
 
 function Paintings() {
   return (
-    <div className={styles.showcases}>
-      {PAINTINGS.map((painting) => (
-        <article
-          key={painting.slug}
-          className={styles.showcase}
-          data-item={slug(painting.title)}
-        >
-          <div className={styles.showcaseHead}>
-            <h3 className={styles.showcaseName}>{painting.title}</h3>
-          </div>
-          <p className={styles.what}>Inspired by {painting.reference}.</p>
-          <dl className={styles.facts}>
-            <div>
-              <dt>Medium</dt>
-              <dd>
-                {painting.medium}, {painting.dimensions}
-              </dd>
-            </div>
-            <div>
-              <dt>Year</dt>
-              <dd>{painting.year}</dd>
-            </div>
-            {painting.status === "sold" && painting.acquiredYear ? (
-              <div>
-                <dt>Status</dt>
-                <dd className={styles.sold}>
-                  <span className={styles.soldDot} aria-hidden="true" />
-                  Sold to a {(
-                    painting.collector ?? "collector"
-                  ).toLowerCase()}, {painting.acquiredYear}
-                </dd>
-              </div>
-            ) : null}
-          </dl>
-          <div className={styles.paintingWall}>
-            <div
-              className={styles.paintingFrame}
-              style={{ aspectRatio: painting.aspect ?? "4/5" }}
-            >
+    <div className={styles.gallery}>
+      <div className={styles.paintingWall}>
+        {PAINTINGS.map((painting) => (
+          <span
+            key={painting.slug}
+            className={styles.paintingFrame}
+            style={{ aspectRatio: painting.aspect ?? "4/5" }}
+            data-item={slug(painting.title)}
+          >
+            <span className={styles.paintingCanvas}>
               <Image
                 src={painting.image}
-                alt={painting.title}
+                alt={`${painting.title}, ${painting.medium.toLowerCase()}`}
                 fill
-                sizes="(max-width: 960px) 60vw, 320px"
+                sizes="(max-width: 960px) 34vw, 180px"
               />
-            </div>
-          </div>
-          <details className={styles.story}>
-            <summary>
-              Read the story
-              <svg viewBox="0 0 12 12" aria-hidden="true">
-                <path
-                  d="M3 4.5l3 3 3-3"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </summary>
-            <div className={styles.storyBody}>
-              {painting.description.map((para) =>
-                para.startsWith("> ") ? (
-                  <blockquote key={para} className={styles.paintingQuote}>
-                    {para.slice(2)}
-                  </blockquote>
-                ) : (
-                  <p key={para} className={styles.paintingBody}>
-                    {para}
-                  </p>
-                ),
-              )}
-            </div>
-          </details>
-        </article>
-      ))}
+            </span>
+          </span>
+        ))}
+      </div>
+      <div className={styles.paintingNotes}>
+        {PAINTINGS.map((painting) => (
+          <article
+            key={painting.slug}
+            className={styles.plaque}
+            data-item={slug(painting.title)}
+          >
+            <h3 className={styles.plaqueTitle}>
+              <i>{painting.title}</i>, {painting.year}
+            </h3>
+            <p className={styles.plaqueLine}>
+              {painting.medium}, {painting.dimensions}
+            </p>
+            {painting.status === "sold" ? (
+              <p className={`${styles.plaqueLine} ${styles.sold}`}>
+                <span className={styles.soldDot} aria-hidden="true" />
+                Private collection
+              </p>
+            ) : null}
+            <details className={styles.story}>
+              <summary>
+                Read the story
+                <svg viewBox="0 0 12 12" aria-hidden="true">
+                  <path
+                    d="M3 4.5l3 3 3-3"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </summary>
+              <div className={styles.storyBody}>
+                {painting.description.map((para) =>
+                  para.startsWith("> ") ? (
+                    <blockquote key={para} className={styles.paintingQuote}>
+                      {para.slice(2)}
+                    </blockquote>
+                  ) : (
+                    <p key={para} className={styles.paintingBody}>
+                      {para}
+                    </p>
+                  ),
+                )}
+              </div>
+            </details>
+          </article>
+        ))}
+      </div>
     </div>
   );
 }
